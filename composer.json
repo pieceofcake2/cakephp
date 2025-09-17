@@ -1,27 +1,18 @@
 {
-	"name": "cakephp/cakephp",
+	"name": "friendsofcake2/cakephp",
 	"description": "The CakePHP framework",
 	"type": "library",
 	"keywords": ["framework"],
 	"homepage": "https://cakephp.org",
 	"license": "MIT",
-	"authors": [
-		{
-			"name": "CakePHP Community",
-			"homepage": "https://github.com/cakephp/cakephp/graphs/contributors"
-		}
-	],
-	"support": {
-		"issues": "https://github.com/cakephp/cakephp/issues",
-		"forum": "https://stackoverflow.com/tags/cakephp",
-		"irc": "irc://irc.freenode.org/cakephp",
-		"source": "https://github.com/cakephp/cakephp"
-	},
 	"require": {
 		"php": "^8.0",
 		"ext-mbstring": "*",
 		"symfony/polyfill-intl-icu": "^1.29",
 		"php81_bc/strftime": "^0.7.5"
+	},
+	"replace": {
+		"cakephp/cakephp": "^2.0"
 	},
 	"suggest": {
 		"ext-openssl": "You need to install ext-openssl or ext-mcrypt to use AES-256 encryption",

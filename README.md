@@ -1,5 +1,7 @@
 # Fork of CakePHP 2 with support for PHP8
 
+**This repository is forked for the purpose of registering it on Packagist.**
+
 ~~For original README content please check original repository: https://github.com/cakephp/cakephp/tree/2.x~~
 
 Unfortunately branch 2.x in original repository was taken down.
@@ -38,20 +40,14 @@ Here are steps I took to migrate my project through all versions to PHP 8.1, may
 
 ## Installation
 
-This repository **is not** available in packagist, therefore your project's `composer.json` must be changed to point to custom repository.
+This repository **is** available in packagist, therefore your project's `composer.json` must be changed to point to custom repository.
 
 Example configuration:
 ```
 {
 	"require": {
-		"cakephp/cakephp": "dev-master as 2.10.24",
-	},
-	"repositories": [
-        {
-            "type": "vcs",
-            "url": "https://github.com/kamilwylegala/cakephp2-php8"
-        }
-    ]
+		"friendsofcake2/cakephp": "^2.10",
+	}
 }
 ```
 
