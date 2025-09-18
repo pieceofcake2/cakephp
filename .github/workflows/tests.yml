@@ -10,6 +10,7 @@ on:
 
 permissions:
   contents: read
+  id-token: write
 
 jobs:
   linux-tests:
@@ -20,15 +21,14 @@ jobs:
       matrix:
         php-version:
           - '8.0'
+          - '8.1'
+          - '8.2'
+          - '8.3'
+          - '8.4'
         db-type:
           - mysql
-        include:
-          - php-version: '8.0'
-            db-type: pgsql
-          - php-version: '8.0'
-            db-type: sqlite
-          - php-version: '8.1'
-            db-type: mysql
+          - pgsql
+          - sqlite
 
     services:
       mysql:
@@ -61,13 +61,13 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v5
 
       - name: Install PHP with extensions
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php-version }}
-          extensions: apcu, memcache, memcached, redis, mcrypt, pdo_mysql, pdo_pgsql, pdo_sqlite
+          extensions: apcu, memcache, memcached, redis, mcrypt, pdo_mysql, pdo_pgsql, pdo_sqlite, xdebug
           ini-values: |
             assert.exception=1,
             zend.assertions=1,
@@ -105,7 +105,7 @@ jobs:
         run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
 
       - name: Cache Composer
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ${{ steps.composer-cache.outputs.dir }}
           key: ${{ runner.os }}-php${{ matrix.php-version }}-composer-${{ hashFiles('**/composer.json') }}
@@ -118,5 +118,25 @@ jobs:
       - name: Copy database.php
         run: cp ./.github/workflows/configs/database.php ./app/Config/
 
+      - name: Setup problem matchers for PHPUnit
+        run: echo "::add-matcher::${{ runner.tool_cache }}/phpunit.json"
+
       - name: Run Tests
-        run: ./vendors/bin/phpunit --stderr --verbose lib/Cake/Test/Case/AllTestsTest.php
+        run: ./vendors/bin/phpunit --verbose --coverage-clover coverage.xml --log-junit junit.xml
+
+      - name: Upload test results to Codecov
+        if: ${{ !cancelled() }}
+        uses: codecov/test-results-action@v1
+        with:
+          use_oidc: true
+          files: ./junit.xml
+          flags: php-${{ matrix.php-version }}-${{ matrix.db-type }}
+          name: PHP ${{ matrix.php-version }} - ${{ matrix.db-type }}
+
+      - name: Upload coverage reports to Codecov
+        uses: codecov/codecov-action@v5
+        with:
+          use_oidc: true
+          files: ./coverage.xml
+          flags: php-${{ matrix.php-version }}-${{ matrix.db-type }}
+          name: PHP ${{ matrix.php-version }} - ${{ matrix.db-type }}

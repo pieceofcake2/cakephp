@@ -3,6 +3,7 @@
 		 xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.5/phpunit.xsd"
 		 bootstrap="lib/Cake/Test/bootstrap.php"
 		 backupGlobals="true"
+		 stderr="true"
 		 colors="true">
 	<php>
 		<ini name="memory_limit" value="-1"/>
@@ -10,4 +11,17 @@
 	<listeners>
 		<listener class="CakeFixtureInjector" file="./lib/Cake/TestSuite/Fixture/CakeFixtureInjector.php"/>
 	</listeners>
+	<testsuites>
+		<testsuite name="All Tests">
+			<file>lib/Cake/Test/Case/AllTestsTest.php</file>
+		</testsuite>
+	</testsuites>
+	<coverage>
+		<include>
+			<directory suffix=".php">lib</directory>
+		</include>
+		<exclude>
+			<directory>lib/Test</directory>
+		</exclude>
+	</coverage>
 </phpunit>

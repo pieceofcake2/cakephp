@@ -86,7 +86,11 @@ class DebuggerTest extends CakeTestCase {
 		$this->assertTrue(is_array($result));
 		$this->assertEquals(4, count($result));
 
-		$pattern = '/<code>.*?<span style\="color\: \#\d+">.*?&lt;\?php/';
+		if (version_compare(PHP_VERSION, '8.3', '>=')) {
+			$pattern = '/<code style\="color\: \#[\dA-F]{3,6}">.*?<span style\="color\: #[\dA-F]{3,6}">.*?&lt;\?php/';
+		} else {
+			$pattern = '/<code>.*?<span style\="color\: \#[\dA-F]{3,6}">.*?&lt;\?php/';
+		}
 		$this->assertMatchesRegularExpression($pattern, $result[0]);
 
 		$result = Debugger::excerpt(__FILE__, 11, 2);
