@@ -20,15 +20,14 @@ jobs:
       matrix:
         php-version:
           - '8.0'
+          - '8.1'
+          - '8.2'
+          - '8.3'
+          - '8.4'
         db-type:
           - mysql
-        include:
-          - php-version: '8.0'
-            db-type: pgsql
-          - php-version: '8.0'
-            db-type: sqlite
-          - php-version: '8.1'
-            db-type: mysql
+          - pgsql
+          - sqlite
 
     services:
       mysql:
@@ -61,7 +60,7 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v5
 
       - name: Install PHP with extensions
         uses: shivammathur/setup-php@v2
@@ -105,7 +104,7 @@ jobs:
         run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
 
       - name: Cache Composer
-        uses: actions/cache@v3
+        uses: actions/cache@v4
         with:
           path: ${{ steps.composer-cache.outputs.dir }}
           key: ${{ runner.os }}-php${{ matrix.php-version }}-composer-${{ hashFiles('**/composer.json') }}
