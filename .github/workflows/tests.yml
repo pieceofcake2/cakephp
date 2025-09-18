@@ -129,7 +129,7 @@ jobs:
         with:
           use_oidc: true
           files: ./junit.xml
-          flags: php-${{ matrix.php-version }}-${{ matrix.db-type }}
+          flags: php${{ matrix.php-version }}-${{ matrix.db-type }}
           name: PHP ${{ matrix.php-version }} - ${{ matrix.db-type }}
 
       - name: Upload coverage reports to Codecov
@@ -137,5 +137,5 @@ jobs:
         with:
           use_oidc: true
           files: ./coverage.xml
-          flags: php-${{ matrix.php-version }}-${{ matrix.db-type }}
+          flags: php${{ matrix.php-version }}-${{ matrix.db-type }}
           name: PHP ${{ matrix.php-version }} - ${{ matrix.db-type }}
