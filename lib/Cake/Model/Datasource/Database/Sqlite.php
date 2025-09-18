@@ -179,7 +179,7 @@ class Sqlite extends DboSource {
 		);
 
 		foreach ($result as $column) {
-			$default = ($column['dflt_value'] === 'NULL') ? null : trim($column['dflt_value'], "'");
+			$default = ($column['dflt_value'] === 'NULL' || $column['dflt_value'] === null) ? null : trim($column['dflt_value'], "'");
 
 			$fields[$column['name']] = array(
 				'type' => $this->column($column['type']),
@@ -187,7 +187,7 @@ class Sqlite extends DboSource {
 				'default' => $default,
 				'length' => $this->length($column['type'])
 			);
-			if (in_array($fields[$column['name']]['type'], array('timestamp', 'datetime')) && strtoupper($fields[$column['name']]['default']) === 'CURRENT_TIMESTAMP') {
+			if (in_array($fields[$column['name']]['type'], array('timestamp', 'datetime')) && $fields[$column['name']]['default'] !== null && strtoupper($fields[$column['name']]['default']) === 'CURRENT_TIMESTAMP') {
 				$fields[$column['name']]['default'] = null;
 			}
 			if ($column['pk'] == 1) {

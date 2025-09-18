@@ -383,14 +383,14 @@ class SqliteTest extends CakeTestCase {
 			'id' => array(
 				'type' => 'integer',
 				'null' => false,
-				'default' => '',
+				'default' => null,
 				'length' => 11,
 				'key' => 'primary',
 			),
 			'float_field' => array(
 				'type' => 'float',
 				'null' => false,
-				'default' => '',
+				'default' => null,
 				'length' => '5,2',
 			),
 			'decimal_field' => array(
