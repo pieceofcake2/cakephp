@@ -121,7 +121,7 @@ jobs:
         run: echo "::add-matcher::${{ runner.tool_cache }}/phpunit.json"
 
       - name: Run Tests
-        run: ./vendors/bin/phpunit --coverage-clover coverage.xml --log-junit junit.xml --colors always
+        run: ./vendors/bin/phpunit --coverage-clover coverage.xml --log-junit junit.xml --colors=always
 
       - name: Upload test results to Codecov
         if: ${{ !cancelled() }}
