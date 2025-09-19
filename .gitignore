@@ -11,6 +11,7 @@
 /tags
 *.mo
 .phpunit.result.cache
+/rector.php
 
 # IDE and editor specific files #
 #################################
