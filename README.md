@@ -1,10 +1,11 @@
 # Fork of CakePHP 2 with support for PHP8
 
-[![GitHub License](https://img.shields.io/github/license/friendsofcake2/cakephp)](LICENSE)
-[![Packagist Version](https://img.shields.io/packagist/v/friendsofcake2/cakephp)](https://packagist.org/packages/friendsofcake2/cakephp)
-[![Packagist Dependency Version](https://img.shields.io/packagist/dependency-v/friendsofcake2/cakephp/php)](https://packagist.org/packages/friendsofcake2/cakephp)
-[![Tests](https://img.shields.io/github/actions/workflow/status/friendsofcake2/cakephp/tests.yml?label=tests)](https://github.com/friendsofcake2/cakephp/actions/workflows/tests.yml)
-[![Codecov](https://img.shields.io/codecov/c/gh/friendsofcake2/cakephp)](https://codecov.io/gh/friendsofcake2/cakephp)
+[![GitHub License](https://img.shields.io/github/license/friendsofcake2/cakephp?label=License)](LICENSE)
+[![Packagist Version](https://img.shields.io/packagist/v/friendsofcake2/cakephp?label=Packagist)](https://packagist.org/packages/friendsofcake2/cakephp)
+[![Packagist Dependency Version](https://img.shields.io/packagist/dependency-v/friendsofcake2/cakephp/php?logo=php&logoColor=%23FFFFFF&label=PHP&labelColor=%23777BB4&color=%23FFFFFF
+)](https://packagist.org/packages/friendsofcake2/cakephp)
+[![Tests](https://img.shields.io/github/actions/workflow/status/friendsofcake2/cakephp/tests.yml?label=Tests)](https://github.com/friendsofcake2/cakephp/actions/workflows/tests.yml)
+[![Codecov](https://img.shields.io/codecov/c/gh/friendsofcake2/cakephp?label=Coverage)](https://codecov.io/gh/friendsofcake2/cakephp)
 
 **This repository is fork forked for the purpose of registering on Packagist.**
 
