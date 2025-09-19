@@ -128,7 +128,7 @@ jobs:
         uses: codecov/test-results-action@v1
         with:
           use_oidc: true
-          files: ./junit.xml
+          file: ./junit.xml
           flags: php${{ matrix.php-version }}-${{ matrix.db-type }}
           name: PHP ${{ matrix.php-version }} - ${{ matrix.db-type }}
 
@@ -136,6 +136,5 @@ jobs:
         uses: codecov/codecov-action@v5
         with:
           use_oidc: true
-          files: ./coverage.xml
           flags: php${{ matrix.php-version }}-${{ matrix.db-type }}
           name: PHP ${{ matrix.php-version }} - ${{ matrix.db-type }}
