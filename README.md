@@ -1,6 +1,12 @@
 # Fork of CakePHP 2 with support for PHP8
 
-**This repository is forked for the purpose of registering it on Packagist.**
+[![GitHub License](https://img.shields.io/github/license/friendsofcake2/cakephp)](LICENSE)
+[![Packagist Version](https://img.shields.io/packagist/v/friendsofcake2/cakephp)](https://packagist.org/packages/friendsofcake2/cakephp)
+[![Packagist Dependency Version](https://img.shields.io/packagist/dependency-v/friendsofcake2/cakephp/php)](https://packagist.org/packages/friendsofcake2/cakephp)
+[![Tests](https://github.com/friendsofcake2/cakephp/actions/workflows/tests.yml/badge.svg)](https://github.com/friendsofcake2/cakephp/actions/workflows/tests.yml)
+[![Codecov](https://img.shields.io/codecov/c/gh/friendsofcake2/cakephp)](https://codecov.io/gh/friendsofcake2/cakephp)
+
+**This repository is fork forked for the purpose of registering on Packagist.**
 
 ~~For original README content please check original repository: https://github.com/cakephp/cakephp/tree/2.x~~
 
@@ -51,11 +57,14 @@ Example configuration:
 }
 ```
 
-It means that composer will look at `master` branch of repository configured under `repositories` to resolve update of `cakephp/cakephp` package.
-
 ## Changelog
 
-### 2025-02-04
+### 2025-09-19 (v2.10.24.2)
+
+- Fixed tests for pgsql / sqlite on PHP 8.3, 8.4
+- Tests pass for mysql / pgsql / sqlite on PHP 8.0, 8.1, 8.2, 8.3, 8.4
+
+### 2025-02-04 (v2.10.24.1)
 
 - Fixes for PHP 8.4: `session_set_save_handler` accepts object, removed `E_STRICT` reference.
 - Removed github action with php code sniffer. It's quite painful to work with. Need to migrate to something newer, that will affect code base as little as possible.
