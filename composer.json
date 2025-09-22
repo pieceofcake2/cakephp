@@ -21,7 +21,7 @@
 	},
 	"require-dev": {
 		"cakephp/cakephp-codesniffer": "^1.0.0",
-		"phpunit/phpunit": "^9.5",
+		"phpunit/phpunit": "^9.6",
 		"rector/rector": "^2.1"
 	},
 	"config": {

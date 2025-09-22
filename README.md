@@ -24,7 +24,7 @@ The original CakePHP 2.x branch [reached end-of-life in June 2021](https://baker
 
 ## Test Coverage
 
-Tests are actively maintained and run on GitHub Actions with the following database engines:
+Tests are actively maintained and run on GitHub Actions with PHPUnit 9.6 and the following database engines:
 
 - MySQL 5.6
 - PostgreSQL 9.4
@@ -55,9 +55,9 @@ composer update
 
 ## Security
 
-### Known Vulnerabilities in Original CakePHP 2.x
+### Known Vulnerabilities in Original CakePHP 2.10.24
 
-The following security vulnerabilities have been reported in the original CakePHP 2.x:
+The following security vulnerabilities have been reported in the original CakePHP 2.10.24:
 
 | CVE | Description | Status in this Fork |
 |-----|-------------|-------------------|
@@ -94,7 +94,7 @@ Before migrating to this fork, ensure:
 - Most date formatting will work identically, but edge cases may produce slightly different output
 
 #### PHPUnit Compatibility
-- Framework tests have been migrated to PHPUnit 9.x
+- Framework tests have been migrated to PHPUnit 9.6
 - Test methods using deprecated PHPUnit features have been updated:
   - `at()` → `willReturnCallback()` or `willReturnOnConsecutiveCalls()`
   - `expectError()` → `expectException()` with error handlers
