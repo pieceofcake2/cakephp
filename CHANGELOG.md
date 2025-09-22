@@ -7,6 +7,7 @@
 - Fix PHPUnit risky tests by adding missing assertions.
 - Fix output buffering issues in tests.
 - Fix controller tests by setting `autoRender` property.
+- Fix MysqlTest for PHP 8.0+ by removing version check and fixing float assertions.
 - Fix Postgres `preg_replace` with null.
 
 ## v2.10.24.2
