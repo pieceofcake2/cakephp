@@ -295,9 +295,15 @@ class ProjectTaskTest extends CakeTestCase {
 		$this->assertEquals('admin_', $result);
 
 		Configure::write('Routing.prefixes', null);
-		$this->_setupTestProject();
+
+		$this->Task->expects($this->exactly(2))
+			->method('in')
+			->willReturnOnConsecutiveCalls('y', 'super_duper_admin');
+
+		$skel = CAKE . 'Console' . DS . 'Templates' . DS . 'skel';
+		$this->Task->bake($this->Task->path . 'bake_test_app', $skel);
+
 		$this->Task->configPath = $this->Task->path . 'bake_test_app' . DS . 'Config' . DS;
-		$this->Task->expects($this->once())->method('in')->will($this->returnValue('super_duper_admin'));
 
 		$result = $this->Task->getPrefix();
 		$this->assertEquals('super_duper_admin_', $result);
@@ -333,9 +339,15 @@ class ProjectTaskTest extends CakeTestCase {
  */
 	public function testGetPrefixWithMultiplePrefixes() {
 		Configure::write('Routing.prefixes', array('admin', 'ninja', 'shinobi'));
-		$this->_setupTestProject();
+
+		$this->Task->expects($this->exactly(2))
+			->method('in')
+			->willReturnOnConsecutiveCalls('y', 2);
+
+		$skel = CAKE . 'Console' . DS . 'Templates' . DS . 'skel';
+		$this->Task->bake($this->Task->path . 'bake_test_app', $skel);
+
 		$this->Task->configPath = $this->Task->path . 'bake_test_app' . DS . 'Config' . DS;
-		$this->Task->expects($this->once())->method('in')->will($this->returnValue(2));
 
 		$result = $this->Task->getPrefix();
 		$this->assertEquals('ninja_', $result);

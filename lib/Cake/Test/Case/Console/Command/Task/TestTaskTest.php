@@ -224,21 +224,22 @@ class TestTaskTest extends CakeTestCase {
 		$this->Task->expects($this->never())->method('err');
 		$this->Task->expects($this->never())->method('_stop');
 
-		$file = TESTS . 'Case' . DS . 'Model' . DS . 'MyClassTest.php';
-
-		$this->Task->expects($this->at(1))->method('createFile')
-			->with($file, $this->anything());
-
-		$this->Task->expects($this->at(3))->method('createFile')
-			->with($file, $this->anything());
-
-		$file = TESTS . 'Case' . DS . 'Controller' . DS . 'CommentsControllerTest.php';
-		$this->Task->expects($this->at(5))->method('createFile')
-			->with($file, $this->anything());
+		$createFileCalls = [];
+		$this->Task->expects($this->exactly(3))
+			->method('createFile')
+			->willReturnCallback(function($file, $content) use (&$createFileCalls) {
+				$createFileCalls[] = ['file' => $file, 'content' => $content];
+			});
 
 		$this->Task->bake('Model', 'MyClass');
 		$this->Task->bake('Model', 'MyClass');
 		$this->Task->bake('Controller', 'Comments');
+
+		$modelFile = TESTS . 'Case' . DS . 'Model' . DS . 'MyClassTest.php';
+		$controllerFile = TESTS . 'Case' . DS . 'Controller' . DS . 'CommentsControllerTest.php';
+		$this->assertEquals($modelFile, $createFileCalls[0]['file']);
+		$this->assertEquals($modelFile, $createFileCalls[1]['file']);
+		$this->assertEquals($controllerFile, $createFileCalls[2]['file']);
 	}
 
 /**
@@ -288,8 +289,10 @@ class TestTaskTest extends CakeTestCase {
  */
 	public function testGetObjectType() {
 		$this->Task->expects($this->once())->method('_stop');
-		$this->Task->expects($this->at(0))->method('in')->will($this->returnValue('q'));
-		$this->Task->expects($this->at(2))->method('in')->will($this->returnValue(2));
+
+		$this->Task->expects($this->exactly(2))
+			->method('in')
+			->willReturnOnConsecutiveCalls('q', 2);
 
 		$this->Task->getObjectType();
 

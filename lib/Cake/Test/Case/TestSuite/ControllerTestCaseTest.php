@@ -266,12 +266,9 @@ class ControllerTestCaseTest extends CakeTestCase {
 			)
 		));
 		$this->assertInstanceOf('TestPluginComment', $Tests->TestPluginComment);
-		$Tests->TestPluginComment->expects($this->at(0))
+		$Tests->TestPluginComment->expects($this->exactly(2))
 			->method('save')
-			->will($this->returnValue(true));
-		$Tests->TestPluginComment->expects($this->at(1))
-			->method('save')
-			->will($this->returnValue(false));
+			->willReturnOnConsecutiveCalls(true, false);
 		$this->assertTrue($Tests->TestPluginComment->save(array()));
 		$this->assertFalse($Tests->TestPluginComment->save(array()));
 	}

@@ -543,8 +543,9 @@ class CakeTestFixtureTest extends CakeTestCase {
  */
 	public function testDrop() {
 		$Fixture = new CakeTestFixtureTestFixture();
-		$this->criticDb->expects($this->at(1))->method('execute')->will($this->returnValue(true));
-		$this->criticDb->expects($this->at(3))->method('execute')->will($this->returnValue(false));
+		$this->criticDb->expects($this->exactly(2))
+			->method('execute')
+			->willReturnOnConsecutiveCalls(true, false);
 		$this->criticDb->expects($this->exactly(2))->method('dropSchema');
 
 		$return = $Fixture->drop($this->criticDb);

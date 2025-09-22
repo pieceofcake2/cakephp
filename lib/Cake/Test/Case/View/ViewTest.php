@@ -807,10 +807,23 @@ class ViewTest extends CakeTestCase {
 		$this->View->Helpers->set('ElementCallbackMockHtml', $Helper);
 		$this->View->ElementCallbackMockHtml = $Helper;
 
-		$this->View->ElementCallbackMockHtml->expects($this->at(0))->method('beforeRender');
-		$this->View->ElementCallbackMockHtml->expects($this->at(1))->method('afterRender');
+		$callSequence = [];
+
+		$this->View->ElementCallbackMockHtml->expects($this->once())
+			->method('beforeRender')
+			->willReturnCallback(function() use (&$callSequence) {
+				$callSequence[] = 'beforeRender';
+			});
+
+		$this->View->ElementCallbackMockHtml->expects($this->once())
+			->method('afterRender')
+			->willReturnCallback(function() use (&$callSequence) {
+				$callSequence[] = 'afterRender';
+			});
 
 		$this->View->element('test_element', array(), array('callbacks' => true));
+
+		$this->assertEquals(['beforeRender', 'afterRender'], $callSequence);
 	}
 
 /**
@@ -986,109 +999,28 @@ class ViewTest extends CakeTestCase {
 		$View->helpers = array();
 		$View->Helpers = $this->getMock('HelperCollection', array('trigger'), array($View));
 
-		$View->Helpers->expects($this->at(0))->method('trigger')
-			->with(
-				$this->logicalAnd(
-					$this->isInstanceOf('CakeEvent'),
-					$this->callback(function (CakeEvent $event) {
-						return $event->name() === 'View.beforeRender';
-					}),
-					$this->callback(function (CakeEvent $event) use ($View) {
-						return $event->subject() === $View;
-					}),
-				)
-			);
-		$View->Helpers->expects($this->at(1))->method('trigger')
-			->with(
-				$this->logicalAnd(
-					$this->isInstanceOf('CakeEvent'),
-					$this->callback(function (CakeEvent $event) {
-						return $event->name() === 'View.beforeRenderFile';
-					}),
-					$this->callback(function (CakeEvent $event) use ($View) {
-						return $event->subject() === $View;
-					}),
-				)
-			);
-
-		$View->Helpers->expects($this->at(2))->method('trigger')
-			->with(
-				$this->logicalAnd(
-					$this->isInstanceOf('CakeEvent'),
-					$this->callback(function (CakeEvent $event) {
-						return $event->name() === 'View.afterRenderFile';
-					}),
-					$this->callback(function (CakeEvent $event) use ($View) {
-						return $event->subject() === $View;
-					}),
-				)
-			);
-		$View->Helpers->expects($this->at(3))->method('trigger')
-			->with(
-				$this->logicalAnd(
-					$this->isInstanceOf('CakeEvent'),
-					$this->callback(function (CakeEvent $event) {
-						return $event->name() === 'View.afterRender';
-					}),
-					$this->callback(function (CakeEvent $event) use ($View) {
-						return $event->subject() === $View;
-					}),
-				)
-			);
-
-		$View->Helpers->expects($this->at(4))->method('trigger')
-			->with(
-				$this->logicalAnd(
-					$this->isInstanceOf('CakeEvent'),
-					$this->callback(function (CakeEvent $event) {
-						return $event->name() === 'View.beforeLayout';
-					}),
-					$this->callback(function (CakeEvent $event) use ($View) {
-						return $event->subject() === $View;
-					}),
-				)
-			);
-
-		$View->Helpers->expects($this->at(5))->method('trigger')
-			->with(
-				$this->logicalAnd(
-					$this->isInstanceOf('CakeEvent'),
-					$this->callback(function (CakeEvent $event) {
-						return $event->name() === 'View.beforeRenderFile';
-					}),
-					$this->callback(function (CakeEvent $event) use ($View) {
-						return $event->subject() === $View;
-					}),
-				)
-			);
-
-		$View->Helpers->expects($this->at(6))->method('trigger')
-			->with(
-				$this->logicalAnd(
-					$this->isInstanceOf('CakeEvent'),
-					$this->callback(function (CakeEvent $event) {
-						return $event->name() === 'View.afterRenderFile';
-					}),
-					$this->callback(function (CakeEvent $event) use ($View) {
-						return $event->subject() === $View;
-					}),
-				)
-			);
-
-		$View->Helpers->expects($this->at(7))->method('trigger')
-			->with(
-				$this->logicalAnd(
-					$this->isInstanceOf('CakeEvent'),
-					$this->callback(function (CakeEvent $event) {
-						return $event->name() === 'View.afterLayout';
-					}),
-					$this->callback(function (CakeEvent $event) use ($View) {
-						return $event->subject() === $View;
-					}),
-				)
-			);
+		$triggerCalls = [];
+		$View->Helpers->expects($this->exactly(8))
+			->method('trigger')
+			->willReturnCallback(function($event) use (&$triggerCalls, $View) {
+				$this->assertInstanceOf('CakeEvent', $event);
+				$this->assertSame($View, $event->subject());
+				$triggerCalls[] = $event->name();
+			});
 
 		$View->render('index');
+
+		$expectedEvents = [
+			'View.beforeRender',
+			'View.beforeRenderFile',
+			'View.afterRenderFile',
+			'View.afterRender',
+			'View.beforeLayout',
+			'View.beforeRenderFile',
+			'View.afterRenderFile',
+			'View.afterLayout'
+		];
+		$this->assertEquals($expectedEvents, $triggerCalls);
 	}
 
 /**

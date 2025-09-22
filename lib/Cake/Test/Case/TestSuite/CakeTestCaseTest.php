@@ -473,12 +473,9 @@ class CakeTestCaseTest extends CakeTestCase {
 		$TestPluginComment = $this->getMockForModel('TestPlugin.TestPluginComment', array('save'));
 
 		$this->assertInstanceOf('TestPluginComment', $TestPluginComment);
-		$TestPluginComment->expects($this->at(0))
+		$TestPluginComment->expects($this->exactly(2))
 			->method('save')
-			->will($this->returnValue(true));
-		$TestPluginComment->expects($this->at(1))
-			->method('save')
-			->will($this->returnValue(false));
+			->willReturnOnConsecutiveCalls(true, false);
 		$this->assertTrue($TestPluginComment->save(array()));
 		$this->assertFalse($TestPluginComment->save(array()));
 	}
@@ -494,12 +491,9 @@ class CakeTestCaseTest extends CakeTestCase {
 		$result = ClassRegistry::init('Comment');
 		$this->assertInstanceOf('Model', $result);
 
-		$Mock->expects($this->at(0))
+		$Mock->expects($this->exactly(2))
 			->method('save')
-			->will($this->returnValue(true));
-		$Mock->expects($this->at(1))
-			->method('save')
-			->will($this->returnValue(false));
+			->willReturnOnConsecutiveCalls(true, false);
 
 		$this->assertTrue($Mock->save(array()));
 		$this->assertFalse($Mock->save(array()));
