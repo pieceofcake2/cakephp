@@ -210,9 +210,10 @@ class TestTaskTest extends CakeTestCase {
  * @return void
  */
 	public function tearDown() : void {
-		parent::tearDown();
 		unset($this->Task);
 		CakePlugin::unload();
+
+		parent::tearDown();
 	}
 
 /**

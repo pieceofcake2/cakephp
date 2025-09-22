@@ -77,10 +77,11 @@ class MysqlTest extends CakeTestCase {
  * @return void
  */
 	public function tearDown() : void {
-		parent::tearDown();
 		unset($this->model);
 		ClassRegistry::flush();
 		Configure::write('debug', $this->_debug);
+
+		parent::tearDown();
 	}
 
 /**

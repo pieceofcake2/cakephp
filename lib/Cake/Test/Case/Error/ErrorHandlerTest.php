@@ -80,7 +80,6 @@ class ErrorHandlerTest extends CakeTestCase {
  * @return void
  */
 	public function tearDown() : void {
-		parent::tearDown();
 		if ($this->_restoreError) {
 			restore_error_handler();
 		}
@@ -91,6 +90,8 @@ class ErrorHandlerTest extends CakeTestCase {
 		if (CakeLog::stream('stderr') !== false) {
 			CakeLog::enable('stderr');
 		}
+
+		parent::tearDown();
 	}
 
 /**

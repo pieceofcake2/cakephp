@@ -82,7 +82,6 @@ class CakeRequestTest extends CakeTestCase {
  * @return void
  */
 	public function tearDown() : void {
-		parent::tearDown();
 		if (!empty($this->_case)) {
 			$_GET['case'] = $this->_case;
 		}
@@ -90,6 +89,8 @@ class CakeRequestTest extends CakeTestCase {
 			unset($_SERVER['HTTP_ACCEPT_LANGUAGE']);
 		}
 		Configure::write('App', $this->_app);
+
+		parent::tearDown();
 	}
 
 /**

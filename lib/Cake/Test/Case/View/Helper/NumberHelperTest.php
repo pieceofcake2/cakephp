@@ -63,8 +63,9 @@ class NumberHelperTest extends CakeTestCase {
  * @return void
  */
 	public function tearDown() : void {
-		parent::tearDown();
 		unset($this->View);
+
+		parent::tearDown();
 	}
 
 /**

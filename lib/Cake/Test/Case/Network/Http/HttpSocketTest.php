@@ -200,8 +200,9 @@ class HttpSocketTest extends CakeTestCase {
  * @return void
  */
 	public function tearDown() : void {
-		parent::tearDown();
 		unset($this->Socket, $this->RequestSocket);
+
+		parent::tearDown();
 	}
 
 /**

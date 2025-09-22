@@ -56,9 +56,10 @@ class CommandTaskTest extends CakeTestCase {
  * @return void
  */
 	public function tearDown() : void {
-		parent::tearDown();
 		unset($this->CommandTask);
 		CakePlugin::unload();
+
+		parent::tearDown();
 	}
 
 /**

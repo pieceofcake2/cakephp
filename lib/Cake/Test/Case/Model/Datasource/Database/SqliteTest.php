@@ -106,8 +106,9 @@ class SqliteTest extends CakeTestCase {
  * @return void
  */
 	public function tearDown() : void {
-		parent::tearDown();
 		Configure::write('Cache.disable', false);
+
+		parent::tearDown();
 	}
 
 /**

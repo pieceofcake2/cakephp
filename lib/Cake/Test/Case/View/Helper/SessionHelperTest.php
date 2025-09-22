@@ -89,6 +89,7 @@ class SessionHelperTest extends CakeTestCase {
 		unset($this->View, $this->Session);
 		CakeSession::destroy();
 		CakePlugin::unload();
+
 		parent::tearDown();
 	}
 

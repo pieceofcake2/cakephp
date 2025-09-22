@@ -83,11 +83,12 @@ class MemcachedEngineTest extends CakeTestCase {
  * @return void
  */
 	public function tearDown() : void {
-		parent::tearDown();
 		Cache::drop('memcached');
 		Cache::drop('memcached_groups');
 		Cache::drop('memcached_helper');
 		Cache::config('default');
+
+		parent::tearDown();
 	}
 
 /**

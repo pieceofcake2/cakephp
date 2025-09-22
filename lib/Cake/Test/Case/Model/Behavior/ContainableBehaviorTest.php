@@ -75,6 +75,7 @@ class ContainableBehaviorTest extends CakeTestCase {
 		unset($this->Article);
 		unset($this->User);
 		unset($this->Tag);
+
 		parent::tearDown();
 	}
 

@@ -93,8 +93,9 @@ class CookieComponentTest extends CakeTestCase {
  * @return void
  */
 	public function tearDown() : void {
-		parent::tearDown();
 		$this->Cookie->destroy();
+
+		parent::tearDown();
 	}
 
 /**

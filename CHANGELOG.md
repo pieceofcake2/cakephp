@@ -18,6 +18,7 @@
   - CakeRequestTest: Clean up HTTP_ACCEPT_LANGUAGE server variable
   - L10nTest: Add tearDown to clean up HTTP_ACCEPT_LANGUAGE
   - I18nTest: Improve state management and simplify clear() method
+- Standardize tearDown method pattern across all test files to call parent::tearDown() at the end
 
 ### PHP 8.0+ Compatibility
 
@@ -25,6 +26,11 @@
 - Fix PostgreSQL `preg_replace()` with null parameter
 - Fix "Trying to access array offset on value of type bool" error in L10n.php
 - Fix I18n and L10n locale handling issues
+
+### CI/CD Improvements
+
+- Add MySQL 8.0 support to GitHub Actions workflow
+- Add Docker Compose configuration for local testing
 
 ### Other Fixes
 

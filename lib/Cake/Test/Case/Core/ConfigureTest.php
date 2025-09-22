@@ -47,7 +47,6 @@ class ConfigureTest extends CakeTestCase {
  * @return void
  */
 	public function tearDown() : void {
-		parent::tearDown();
 		if (file_exists(TMP . 'cache' . DS . 'persistent' . DS . 'cake_core_core_paths')) {
 			unlink(TMP . 'cache' . DS . 'persistent' . DS . 'cake_core_core_paths');
 		}
@@ -71,6 +70,8 @@ class ConfigureTest extends CakeTestCase {
 		if ($this->_restoreError) {
 			restore_error_handler();
 		}
+
+		parent::tearDown();
 	}
 
 /**

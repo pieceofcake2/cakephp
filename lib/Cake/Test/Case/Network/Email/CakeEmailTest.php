@@ -172,12 +172,11 @@ class CakeEmailTest extends CakeTestCase {
  * @return void
  */
 	public function tearDown() : void {
-		parent::tearDown();
-		App::build();
-
 		if (!$this->_configFileExists) {
 			unlink(CONFIG . 'email.php');
 		}
+
+		parent::tearDown();
 	}
 
 /**

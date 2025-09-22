@@ -201,8 +201,9 @@ class DboSourceTest extends CakeTestCase {
  * @return void
  */
 	public function tearDown() : void {
-		parent::tearDown();
 		unset($this->Model);
+
+		parent::tearDown();
 	}
 
 /**

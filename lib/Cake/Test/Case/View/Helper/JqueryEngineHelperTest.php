@@ -45,8 +45,9 @@ class JqueryEngineHelperTest extends CakeTestCase {
  * @return void
  */
 	public function tearDown() : void {
-		parent::tearDown();
 		unset($this->Jquery);
+
+		parent::tearDown();
 	}
 
 /**

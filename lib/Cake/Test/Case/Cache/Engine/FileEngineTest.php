@@ -49,12 +49,13 @@ class FileEngineTest extends CakeTestCase {
  * @return void
  */
 	public function tearDown() : void {
-		parent::tearDown();
 		// Cache::clear(false, 'file_test');
 		Cache::drop('file_test');
 		Cache::drop('file_groups');
 		Cache::drop('file_groups2');
 		Cache::drop('file_groups3');
+
+		parent::tearDown();
 	}
 
 /**

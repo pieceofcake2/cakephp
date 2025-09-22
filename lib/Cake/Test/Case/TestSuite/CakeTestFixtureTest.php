@@ -244,9 +244,10 @@ class CakeTestFixtureTest extends CakeTestCase {
  * @return void
  */
 	public function tearDown() : void {
-		parent::tearDown();
 		unset($this->criticDb);
 		$this->db->config = $this->_backupConfig;
+
+		parent::tearDown();
 	}
 
 /**

@@ -163,8 +163,9 @@ class HtmlHelperTest extends CakeTestCase {
  * @return void
  */
 	public function tearDown() : void {
-		parent::tearDown();
 		unset($this->Html, $this->View);
+
+		parent::tearDown();
 	}
 
 /**

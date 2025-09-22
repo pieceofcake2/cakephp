@@ -47,12 +47,13 @@ class CacheTest extends CakeTestCase {
  * @return void
  */
 	public function tearDown() : void {
-		parent::tearDown();
 		Cache::drop('latest');
 		Cache::drop('page');
 		Cache::drop('archive');
 		Configure::write('Cache.disable', $this->_cacheDisable);
 		Cache::config('default', $this->_defaultCacheConfig['settings']);
+
+		parent::tearDown();
 	}
 
 /**

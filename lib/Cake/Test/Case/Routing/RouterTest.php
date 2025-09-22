@@ -46,10 +46,11 @@ class RouterTest extends CakeTestCase {
  * @return void
  */
 	public function tearDown() : void {
-		parent::tearDown();
 		CakePlugin::unload();
 		Router::fullBaseUrl('');
 		Configure::write('App.fullBaseUrl', 'http://localhost');
+
+		parent::tearDown();
 	}
 
 /**

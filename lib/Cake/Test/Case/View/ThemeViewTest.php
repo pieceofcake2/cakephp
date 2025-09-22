@@ -125,11 +125,12 @@ class ThemeViewTest extends CakeTestCase {
  * @return void
  */
 	public function tearDown() : void {
-		parent::tearDown();
 		unset($this->ThemeView);
 		unset($this->PostsController);
 		unset($this->Controller);
 		CakePlugin::unload();
+
+		parent::tearDown();
 	}
 
 /**

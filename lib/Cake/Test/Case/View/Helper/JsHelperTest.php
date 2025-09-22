@@ -162,8 +162,9 @@ class JsHelperTest extends CakeTestCase {
  * @return void
  */
 	public function tearDown() : void {
-		parent::tearDown();
 		unset($this->Js);
+
+		parent::tearDown();
 	}
 
 /**
@@ -879,8 +880,9 @@ class JsBaseEngineTest extends CakeTestCase {
  * @return void
  */
 	public function tearDown() : void {
-		parent::tearDown();
 		unset($this->JsEngine);
+
+		parent::tearDown();
 	}
 
 /**

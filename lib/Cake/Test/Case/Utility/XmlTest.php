@@ -111,8 +111,9 @@ class XmlTest extends CakeTestCase {
  * @return void
  */
 	public function tearDown() : void {
-		parent::tearDown();
 		Configure::write('App.encoding', $this->_appEncoding);
+
+		parent::tearDown();
 	}
 
 /**

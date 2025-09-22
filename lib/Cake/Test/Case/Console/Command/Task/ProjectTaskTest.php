@@ -56,11 +56,11 @@ class ProjectTaskTest extends CakeTestCase {
  * @return void
  */
 	public function tearDown() : void {
-		parent::tearDown();
-
 		$Folder = new Folder($this->Task->path . 'bake_test_app');
 		$Folder->delete();
 		unset($this->Task);
+
+		parent::tearDown();
 	}
 
 /**

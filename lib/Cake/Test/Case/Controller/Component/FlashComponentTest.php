@@ -45,8 +45,9 @@ class FlashComponentTest extends CakeTestCase {
  * @return void
  */
 	public function tearDown() : void {
-		parent::tearDown();
 		CakeSession::destroy();
+
+		parent::tearDown();
 	}
 
 /**

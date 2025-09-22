@@ -78,6 +78,7 @@ class ApplicationControllerTest extends ControllerTestCase {
 	 */
 	public function tearDown() : void {
 		CakeSession::destroy();
+
 		parent::tearDown();
 	}
 

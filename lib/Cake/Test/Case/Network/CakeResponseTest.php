@@ -40,8 +40,9 @@ class CakeResponseTest extends CakeTestCase {
  * @return void
  */
 	public function tearDown() : void {
-		parent::tearDown();
 		ob_end_clean();
+
+		parent::tearDown();
 	}
 
 /**
@@ -1344,7 +1345,7 @@ class CakeResponseTest extends CakeTestCase {
  */
 	public function testFileWithDotsInFilename() {
 		$this->expectException(NotFoundException::class);
-		$this->expectExceptionMessageMatches('#The requested file .+my/Some..cat.gif was not found or not readable#');
+		$this->expectExceptionMessageMatches('#The requested file .+my/Some\.\.cat\.gif was not found or not readable#');
 		$response = new CakeResponse();
 		$response->file('my/Some..cat.gif');
 	}

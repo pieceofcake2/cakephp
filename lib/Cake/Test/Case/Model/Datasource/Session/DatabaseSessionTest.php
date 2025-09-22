@@ -88,6 +88,7 @@ class DatabaseSessionTest extends CakeTestCase {
 	public function tearDown() : void {
 		unset($this->storage);
 		ClassRegistry::flush();
+
 		parent::tearDown();
 	}
 

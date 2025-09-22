@@ -347,7 +347,6 @@ class ViewTest extends CakeTestCase {
  * @return void
  */
 	public function tearDown() : void {
-		parent::tearDown();
 		CakePlugin::unload();
 		unset($this->View);
 		unset($this->PostsController);
@@ -355,6 +354,8 @@ class ViewTest extends CakeTestCase {
 		unset($this->ThemeView);
 		unset($this->ThemePostsController);
 		unset($this->ThemeController);
+
+		parent::tearDown();
 	}
 
 /**

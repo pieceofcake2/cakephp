@@ -236,7 +236,6 @@ class PostgresTest extends CakeTestCase {
  * @return void
  */
 	public function tearDown() : void {
-		parent::tearDown();
 		Configure::write('Cache.disable', false);
 		unset($this->Dbo2);
 
@@ -244,6 +243,8 @@ class PostgresTest extends CakeTestCase {
 			setlocale(LC_NUMERIC, $this->restoreLocaleNumeric);
 			$this->restoreLocaleNumeric = null;
 		}
+
+		parent::tearDown();
 	}
 
 /**

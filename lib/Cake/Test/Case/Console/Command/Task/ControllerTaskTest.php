@@ -105,6 +105,7 @@ class ControllerTaskTest extends CakeTestCase {
 		unset($this->Task);
 		ClassRegistry::flush();
 		App::build();
+
 		parent::tearDown();
 	}
 

@@ -133,9 +133,10 @@ class DataSourceTest extends CakeTestCase {
  * @return void
  */
 	public function tearDown() : void {
-		parent::tearDown();
 		unset($this->Model, $this->Source);
 		ConnectionManager::drop($this->sourceName);
+
+		parent::tearDown();
 	}
 
 /**

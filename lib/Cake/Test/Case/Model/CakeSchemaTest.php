@@ -464,12 +464,13 @@ class CakeSchemaTest extends CakeTestCase {
  * @return void
  */
 	public function tearDown() : void {
-		parent::tearDown();
 		if (file_exists(TMP . 'tests' . DS . 'schema.php')) {
 			unlink(TMP . 'tests' . DS . 'schema.php');
 		}
 		unset($this->Schema);
 		CakePlugin::unload();
+
+		parent::tearDown();
 	}
 
 /**

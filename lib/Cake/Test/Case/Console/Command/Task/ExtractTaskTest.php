@@ -57,12 +57,13 @@ class ExtractTaskTest extends CakeTestCase {
  * @return void
  */
 	public function tearDown() : void {
-		parent::tearDown();
 		unset($this->Task);
 
 		$Folder = new Folder($this->path);
 		$Folder->delete();
 		CakePlugin::unload();
+
+		parent::tearDown();
 	}
 
 /**

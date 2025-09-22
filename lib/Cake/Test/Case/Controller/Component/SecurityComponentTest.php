@@ -186,12 +186,13 @@ class SecurityComponentTest extends CakeTestCase {
  * @return void
  */
 	public function tearDown() : void {
-		parent::tearDown();
 		$this->Controller->Session->delete('_Token');
 		$this->Controller->Session->destroy();
 		unset($this->Controller->Security);
 		unset($this->Controller->Component);
 		unset($this->Controller);
+
+		parent::tearDown();
 	}
 
 	public function validatePost($expectedException = null, $expectedExceptionMessage = null) {

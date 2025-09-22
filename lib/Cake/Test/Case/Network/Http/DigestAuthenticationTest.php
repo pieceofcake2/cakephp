@@ -83,8 +83,9 @@ class DigestAuthenticationTest extends CakeTestCase {
  * @return void
  */
 	public function tearDown() : void {
-		parent::tearDown();
 		unset($this->HttpSocket);
+
+		parent::tearDown();
 	}
 
 /**

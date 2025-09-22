@@ -135,11 +135,12 @@ class ValidationTest extends CakeTestCase {
  * @return void
  */
 	public function tearDown() : void {
-		parent::tearDown();
 		Configure::write('App.encoding', $this->_appEncoding);
 		foreach ($this->_appLocale as $category => $locale) {
 			setlocale($category, $locale);
 		}
+
+		parent::tearDown();
 	}
 
 /**

@@ -45,8 +45,9 @@ class MootoolsEngineHelperTest extends CakeTestCase {
  * @return void
  */
 	public function tearDown() : void {
-		parent::tearDown();
 		unset($this->Moo);
+
+		parent::tearDown();
 	}
 
 /**

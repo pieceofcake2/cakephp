@@ -126,6 +126,7 @@ class CakeSessionTest extends CakeTestCase {
 			session_write_close();
 		}
 		unset($_SESSION);
+
 		parent::tearDown();
 	}
 

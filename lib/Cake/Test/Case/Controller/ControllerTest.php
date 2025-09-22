@@ -403,8 +403,9 @@ class ControllerTest extends CakeTestCase {
  * @return void
  */
 	public function tearDown() : void {
-		parent::tearDown();
 		CakePlugin::unload();
+
+		parent::tearDown();
 	}
 
 /**

@@ -51,12 +51,13 @@ class FileTest extends CakeTestCase {
  * @return void
  */
 	public function tearDown() : void {
-		parent::tearDown();
 		$this->File->close();
 		unset($this->File);
 
 		$Folder = new Folder();
 		$Folder->delete(TMP . 'tests' . DS . 'permissions');
+
+		parent::tearDown();
 	}
 
 /**

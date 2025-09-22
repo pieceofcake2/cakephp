@@ -52,6 +52,7 @@ class HelperCollectionTest extends CakeTestCase {
 	public function tearDown() : void {
 		CakePlugin::unload();
 		unset($this->Helpers, $this->View);
+
 		parent::tearDown();
 	}
 

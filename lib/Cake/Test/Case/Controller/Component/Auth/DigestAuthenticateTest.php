@@ -68,8 +68,9 @@ class DigestAuthenticateTest extends CakeTestCase {
  * @return void
  */
 	public function tearDown() : void {
-		parent::tearDown();
 		$_SERVER = $this->server;
+
+		parent::tearDown();
 	}
 
 /**

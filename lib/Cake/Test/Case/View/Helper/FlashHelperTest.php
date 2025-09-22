@@ -107,9 +107,10 @@ class FlashHelperTest extends CakeTestCase {
  * @return void
  */
 	public function tearDown() : void {
-		parent::tearDown();
 		unset($this->View, $this->Flash);
 		CakeSession::destroy();
+
+		parent::tearDown();
 	}
 
 /**

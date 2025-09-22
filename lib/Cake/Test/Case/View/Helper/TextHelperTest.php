@@ -69,6 +69,7 @@ class TextHelperTest extends CakeTestCase {
  */
 	public function tearDown() : void {
 		unset($this->View);
+
 		parent::tearDown();
 	}
 

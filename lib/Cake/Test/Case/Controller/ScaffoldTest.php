@@ -175,9 +175,10 @@ class ScaffoldTest extends CakeTestCase {
  * @return void
  */
 	public function tearDown() : void {
-		parent::tearDown();
 		CakeSession::destroy();
 		unset($this->Controller);
+
+		parent::tearDown();
 	}
 
 /**

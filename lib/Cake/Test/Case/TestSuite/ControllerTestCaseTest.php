@@ -144,9 +144,10 @@ class ControllerTestCaseTest extends CakeTestCase {
  * @return void
  */
 	public function tearDown() : void {
-		parent::tearDown();
 		CakePlugin::unload();
 		$this->Case->controller = null;
+
+		parent::tearDown();
 	}
 
 /**

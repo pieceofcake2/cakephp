@@ -411,13 +411,13 @@ class AuthComponentTest extends CakeTestCase {
  * @return void
  */
 	public function tearDown() : void {
-		parent::tearDown();
-
 		TestAuthComponent::clearUser();
 		$this->Auth->Session->delete('Auth');
 		$this->Auth->Session->delete('Message.auth');
 		$this->Auth->Session->destroy();
 		unset($this->Controller, $this->Auth);
+
+		parent::tearDown();
 	}
 
 /**

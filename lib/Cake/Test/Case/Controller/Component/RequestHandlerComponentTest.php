@@ -131,12 +131,13 @@ class RequestHandlerComponentTest extends CakeTestCase {
  * @return void
  */
 	public function tearDown() : void {
-		parent::tearDown();
 		unset($this->RequestHandler, $this->Controller);
 		if (!headers_sent()) {
 			header('Content-type: text/html'); //reset content type.
 		}
 		call_user_func_array('Router::parseExtensions', $this->_extensions);
+
+		parent::tearDown();
 	}
 
 /**

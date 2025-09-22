@@ -120,11 +120,12 @@ class SchemaShellTest extends CakeTestCase {
  * @return void
  */
 	public function tearDown() : void {
-		parent::tearDown();
 		if (!empty($this->file) && $this->file instanceof File) {
 			$this->file->delete();
 			unset($this->file);
 		}
+
+		parent::tearDown();
 	}
 
 /**
