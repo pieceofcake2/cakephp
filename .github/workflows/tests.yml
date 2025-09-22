@@ -27,6 +27,7 @@ jobs:
           - '8.4'
         db-type:
           - mysql
+          - mysql80
           - pgsql
           - sqlite
 
@@ -38,6 +39,14 @@ jobs:
           MYSQL_DATABASE: cakephp_test
         ports:
           - 3306:3306
+        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
+      mysql80:
+        image: mysql:8.0
+        env:
+          MYSQL_ROOT_PASSWORD: root
+          MYSQL_DATABASE: cakephp_test
+        ports:
+          - 3307:3306
         options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
       postgres:
         image: postgres:9.4
@@ -89,6 +98,12 @@ jobs:
         run: |
           env MYSQL_PWD=root mysql -h 127.0.0.1 -u root -e 'CREATE DATABASE cakephp_test2;';
           env MYSQL_PWD=root mysql -h 127.0.0.1 -u root -e 'CREATE DATABASE cakephp_test3;';
+
+      - name: Create Another Databases for MySQL 8.0
+        if: matrix.db-type == 'mysql80'
+        run: |
+          env MYSQL_PWD=root mysql -h 127.0.0.1 -P 3307 -u root -e 'CREATE DATABASE cakephp_test2;';
+          env MYSQL_PWD=root mysql -h 127.0.0.1 -P 3307 -u root -e 'CREATE DATABASE cakephp_test3;';
 
       - name: Create Another Databases for PostgreSQL
         if: matrix.db-type == 'pgsql'

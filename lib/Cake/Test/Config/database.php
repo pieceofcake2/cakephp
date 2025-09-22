@@ -7,6 +7,13 @@ class DATABASE_CONFIG {
 			'login' => 'root',
 			'password' => 'root'
 		),
+		'mysql80' => array(
+			'datasource' => 'Database/Mysql',
+			'host' => '127.0.0.1',
+			'port' => '3307',
+			'login' => 'root',
+			'password' => 'root'
+		),
 		'pgsql' => array(
 			'datasource' => 'Database/Postgres',
 			'host' => '127.0.0.1',
