@@ -1,5 +1,11 @@
 ## CHANGELOG
 
+## v2.10.24.3
+
+- Fix PHPUnit deprecation `at` warnings.
+- Fix PHPUnit deprecation `expectError` / `expectWarning` / `expectNotice` warnings.
+- Fix Postgres `preg_replace` with null.
+
 ## v2.10.24.2
 
 ### 2025-09-19
