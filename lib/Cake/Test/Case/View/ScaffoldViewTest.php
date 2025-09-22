@@ -103,6 +103,7 @@ class ScaffoldViewTest extends CakeTestCase {
  */
 	public function tearDown() : void {
 		unset($this->Controller, $this->request);
+
 		parent::tearDown();
 	}
 

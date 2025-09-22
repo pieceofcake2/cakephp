@@ -72,8 +72,9 @@ class TestShellTest extends CakeTestCase {
  * @return void
  */
 	public function tearDown() : void {
-		parent::tearDown();
 		unset($this->Dispatch, $this->Shell);
+
+		parent::tearDown();
 	}
 
 /**
@@ -301,7 +302,11 @@ class TestShellTest extends CakeTestCase {
 	public function testAvailableWithEmptyList() {
 		$this->Shell->startup();
 		$this->Shell->args = array('unexistant-category');
-		$this->Shell->expects($this->at(0))->method('out')->with(__d('cake_console', "No test cases available \n\n"));
+
+		$this->Shell->expects($this->once())
+			->method('out')
+			->with(__d('cake_console', "No test cases available \n\n"));
+
 		$this->Shell->OptionParser->expects($this->once())->method('help');
 		$this->Shell->available();
 	}
@@ -314,13 +319,17 @@ class TestShellTest extends CakeTestCase {
 	public function testAvailableCoreCategory() {
 		$this->Shell->startup();
 		$this->Shell->args = array('core');
-		$this->Shell->expects($this->at(0))->method('out')->with('Core Test Cases:');
-		$this->Shell->expects($this->at(1))->method('out')
-			->with($this->stringContains('[1]'));
-		$this->Shell->expects($this->at(2))->method('out')
-			->with($this->stringContains('[2]'));
 
-		$this->Shell->expects($this->once())->method('in')
+		$this->Shell->expects($this->exactly(3))
+			->method('out')
+			->withConsecutive(
+				['Core Test Cases:'],
+				[$this->stringContains('[1]')],
+				[$this->stringContains('[2]')]
+			);
+
+		$this->Shell->expects($this->once())
+			->method('in')
 			->with(__d('cake_console', 'What test case would you like to run?'), null, 'q')
 			->will($this->returnValue('1'));
 

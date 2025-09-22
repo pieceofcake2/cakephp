@@ -111,8 +111,9 @@ class XmlTest extends CakeTestCase {
  * @return void
  */
 	public function tearDown() : void {
-		parent::tearDown();
 		Configure::write('App.encoding', $this->_appEncoding);
+
+		parent::tearDown();
 	}
 
 /**
@@ -607,11 +608,17 @@ XML;
  * @return void
  */
 	public function testFromArrayFail($value) {
+		set_error_handler(function($errno, $errstr) {
+			return true;
+		}, E_WARNING | E_USER_WARNING);
+
 		try {
 			Xml::fromArray($value);
 			$this->fail('No exception.');
 		} catch (Exception $e) {
 			$this->assertTrue(true, 'Caught exception.');
+		} finally {
+			restore_error_handler();
 		}
 	}
 

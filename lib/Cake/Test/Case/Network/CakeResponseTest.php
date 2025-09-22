@@ -40,8 +40,9 @@ class CakeResponseTest extends CakeTestCase {
  * @return void
  */
 	public function tearDown() : void {
-		parent::tearDown();
 		ob_end_clean();
+
+		parent::tearDown();
 	}
 
 /**
@@ -216,22 +217,26 @@ class CakeResponseTest extends CakeTestCase {
 			'Access-Control-Allow-Origin' => array('domain1', 'domain2'),
 		));
 		$response->body('the response body');
-		$response->expects($this->once())->method('_sendContent')->with('the response body');
-		$response->expects($this->at(0))->method('_setCookies');
-		$response->expects($this->at(1))
-			->method('_sendHeader')->with('HTTP/1.1 200 OK');
-		$response->expects($this->at(2))
-			->method('_sendHeader')->with('Content-Language', 'es');
-		$response->expects($this->at(3))
-			->method('_sendHeader')->with('WWW-Authenticate', 'Negotiate');
-		$response->expects($this->at(4))
-			->method('_sendHeader')->with('Access-Control-Allow-Origin', 'domain1');
-		$response->expects($this->at(5))
-			->method('_sendHeader')->with('Access-Control-Allow-Origin', 'domain2');
-		$response->expects($this->at(6))
-			->method('_sendHeader')->with('Content-Length', 17);
-		$response->expects($this->at(7))
-			->method('_sendHeader')->with('Content-Type', 'text/html; charset=UTF-8');
+
+		$response->expects($this->once())
+			->method('_sendContent')
+			->with('the response body');
+
+		$response->expects($this->once())
+			->method('_setCookies');
+
+		$response->expects($this->exactly(7))
+			->method('_sendHeader')
+			->withConsecutive(
+				['HTTP/1.1 200 OK'],
+				['Content-Language', 'es'],
+				['WWW-Authenticate', 'Negotiate'],
+				['Access-Control-Allow-Origin', 'domain1'],
+				['Access-Control-Allow-Origin', 'domain2'],
+				['Content-Length', 17],
+				['Content-Type', 'text/html; charset=UTF-8']
+			);
+
 		$response->send();
 	}
 
@@ -260,14 +265,22 @@ class CakeResponseTest extends CakeTestCase {
 		$response = $this->getMock('CakeResponse', array('_sendHeader', '_sendContent', '_setCookies'));
 		$response->type($original);
 		$response->body('the response body');
-		$response->expects($this->once())->method('_sendContent')->with('the response body');
-		$response->expects($this->at(0))->method('_setCookies');
-		$response->expects($this->at(1))
-			->method('_sendHeader')->with('HTTP/1.1 200 OK');
-		$response->expects($this->at(2))
-			->method('_sendHeader')->with('Content-Length', 17);
-		$response->expects($this->at(3))
-			->method('_sendHeader')->with('Content-Type', $expected);
+
+		$response->expects($this->once())
+			->method('_sendContent')
+			->with('the response body');
+
+		$response->expects($this->once())
+			->method('_setCookies');
+
+		$response->expects($this->exactly(3))
+			->method('_sendHeader')
+			->withConsecutive(
+				['HTTP/1.1 200 OK'],
+				['Content-Length', 17],
+				['Content-Type', $expected]
+			);
+
 		$response->send();
 	}
 
@@ -282,14 +295,22 @@ class CakeResponseTest extends CakeTestCase {
 		$response->charset('');
 
 		$response->body('var $foo = "bar";');
-		$response->expects($this->once())->method('_sendContent')->with('var $foo = "bar";');
-		$response->expects($this->at(0))->method('_setCookies');
-		$response->expects($this->at(1))
-			->method('_sendHeader')->with('HTTP/1.1 200 OK');
-		$response->expects($this->at(2))
-			->method('_sendHeader')->with('Content-Length', 17);
-		$response->expects($this->at(3))
-			->method('_sendHeader')->with('Content-Type', 'application/javascript');
+
+		$response->expects($this->once())
+			->method('_sendContent')
+			->with('var $foo = "bar";');
+
+		$response->expects($this->once())
+			->method('_setCookies');
+
+		$response->expects($this->exactly(3))
+			->method('_sendHeader')
+			->withConsecutive(
+				['HTTP/1.1 200 OK'],
+				['Content-Length', 17],
+				['Content-Type', 'application/javascript']
+			);
+
 		$response->send();
 	}
 
@@ -301,13 +322,18 @@ class CakeResponseTest extends CakeTestCase {
 	public function testSendWithLocation() {
 		$response = $this->getMock('CakeResponse', array('_sendHeader', '_sendContent', '_setCookies'));
 		$response->header('Location', 'http://www.example.com');
-		$response->expects($this->at(0))->method('_setCookies');
-		$response->expects($this->at(1))
-			->method('_sendHeader')->with('HTTP/1.1 302 Found');
-		$response->expects($this->at(2))
-			->method('_sendHeader')->with('Location', 'http://www.example.com');
-		$response->expects($this->at(3))
-			->method('_sendHeader')->with('Content-Type', 'text/html; charset=UTF-8');
+
+		$response->expects($this->once())
+			->method('_setCookies');
+
+		$response->expects($this->exactly(3))
+			->method('_sendHeader')
+			->withConsecutive(
+				['HTTP/1.1 302 Found'],
+				['Location', 'http://www.example.com'],
+				['Content-Type', 'text/html; charset=UTF-8']
+			);
+
 		$response->send();
 	}
 
@@ -523,24 +549,26 @@ class CakeResponseTest extends CakeTestCase {
 		$response = $this->getMock('CakeResponse', array('_sendHeader', '_sendContent'));
 		$response->body('the response body');
 		$response->expects($this->once())->method('_sendContent')->with('the response body');
-		$response->expects($this->at(0))
-			->method('_sendHeader')->with('HTTP/1.1 200 OK');
-		$response->expects($this->at(2))
-			->method('_sendHeader')->with('Content-Type', 'text/html; charset=UTF-8');
-		$response->expects($this->at(1))
-			->method('_sendHeader')->with('Content-Length', strlen('the response body'));
+		$response->expects($this->exactly(3))
+			->method('_sendHeader')
+			->withConsecutive(
+				['HTTP/1.1 200 OK'],
+				['Content-Length', strlen('the response body')],
+				['Content-Type', 'text/html; charset=UTF-8']
+			);
 		$response->send();
 
 		$response = $this->getMock('CakeResponse', array('_sendHeader', '_sendContent'));
 		$body = '長い長い長いSubjectの場合はfoldingするのが正しいんだけどいったいどうなるんだろう？';
 		$response->body($body);
 		$response->expects($this->once())->method('_sendContent')->with($body);
-		$response->expects($this->at(0))
-			->method('_sendHeader')->with('HTTP/1.1 200 OK');
-		$response->expects($this->at(2))
-			->method('_sendHeader')->with('Content-Type', 'text/html; charset=UTF-8');
-		$response->expects($this->at(1))
-			->method('_sendHeader')->with('Content-Length', 116);
+		$response->expects($this->exactly(3))
+			->method('_sendHeader')
+			->withConsecutive(
+				['HTTP/1.1 200 OK'],
+				['Content-Length', 116],
+				['Content-Type', 'text/html; charset=UTF-8']
+			);
 		$response->send();
 
 		$response = $this->getMock('CakeResponse', array('_sendHeader', '_sendContent', 'outputCompressed'));
@@ -557,8 +585,13 @@ class CakeResponseTest extends CakeTestCase {
 		$response->header('Content-Length', 1);
 		$response->expects($this->never())->method('outputCompressed');
 		$response->expects($this->once())->method('_sendContent')->with($body);
-		$response->expects($this->at(1))
-				->method('_sendHeader')->with('Content-Length', 1);
+		$response->expects($this->any())
+			->method('_sendHeader')
+			->withConsecutive(
+				['HTTP/1.1 200 OK'],
+				['Content-Length', 1],
+				['Content-Type', 'text/html; charset=UTF-8']
+			);
 		$response->send();
 
 		$response = $this->getMock('CakeResponse', array('_sendHeader', '_sendContent'));
@@ -577,12 +610,13 @@ class CakeResponseTest extends CakeTestCase {
 		$body = '長い長い長いSubjectの場合はfoldingするのが正しいんだけどいったいどうなるんだろう？';
 		$response->body($body);
 		$response->expects($this->once())->method('_sendContent')->with($body);
-		$response->expects($this->at(0))
-			->method('_sendHeader')->with('HTTP/1.1 200 OK');
-		$response->expects($this->at(1))
-			->method('_sendHeader')->with('Content-Length', strlen($goofyOutput) + 116);
-		$response->expects($this->at(2))
-			->method('_sendHeader')->with('Content-Type', 'text/html; charset=UTF-8');
+		$response->expects($this->exactly(3))
+			->method('_sendHeader')
+			->withConsecutive(
+				['HTTP/1.1 200 OK'],
+				['Content-Length', strlen($goofyOutput) + 116],
+				['Content-Type', 'text/html; charset=UTF-8']
+			);
 		$response->send();
 		ob_end_clean();
 	}
@@ -596,9 +630,14 @@ class CakeResponseTest extends CakeTestCase {
 		$response = $this->getMock('CakeResponse', array('_sendHeader', '_sendContent'));
 		$response->protocol('HTTP/1.0');
 		$this->assertEquals('HTTP/1.0', $response->protocol());
-		$response->expects($this->at(0))
-			->method('_sendHeader')->with('HTTP/1.0 200 OK');
+		$sendHeaderCalls = [];
+		$response->expects($this->any())
+			->method('_sendHeader')
+			->willReturnCallback(function() use (&$sendHeaderCalls) {
+				$sendHeaderCalls[] = func_get_args();
+			});
 		$response->send();
+		$this->assertEquals(['HTTP/1.0 200 OK', null], $sendHeaderCalls[0]);
 	}
 
 /**
@@ -610,9 +649,14 @@ class CakeResponseTest extends CakeTestCase {
 		$response = $this->getMock('CakeResponse', array('_sendHeader', '_sendContent'));
 		$response->length(100);
 		$this->assertEquals(100, $response->length());
-		$response->expects($this->at(1))
-			->method('_sendHeader')->with('Content-Length', 100);
+		$sendHeaderCalls = [];
+		$response->expects($this->any())
+			->method('_sendHeader')
+			->willReturnCallback(function() use (&$sendHeaderCalls) {
+				$sendHeaderCalls[] = func_get_args();
+			});
 		$response->send();
+		$this->assertEquals(['Content-Length', 100], $sendHeaderCalls[1]);
 
 		$response = $this->getMock('CakeResponse', array('_sendHeader', '_sendContent'));
 		$response->length(false);
@@ -662,25 +706,40 @@ class CakeResponseTest extends CakeTestCase {
 		$response->expires($now);
 		$now->setTimeZone(new DateTimeZone('UTC'));
 		$this->assertEquals($now->format('D, j M Y H:i:s') . ' GMT', $response->expires());
-		$response->expects($this->at(1))
-			->method('_sendHeader')->with('Expires', $now->format('D, j M Y H:i:s') . ' GMT');
+		$sendHeaderCalls = [];
+		$response->expects($this->any())
+			->method('_sendHeader')
+			->willReturnCallback(function() use (&$sendHeaderCalls) {
+				$sendHeaderCalls[] = func_get_args();
+			});
 		$response->send();
+		$this->assertEquals(['Expires', $now->format('D, j M Y H:i:s') . ' GMT'], $sendHeaderCalls[1]);
 
 		$response = $this->getMock('CakeResponse', array('_sendHeader', '_sendContent'));
 		$now = time();
 		$response->expires($now);
 		$this->assertEquals(gmdate('D, j M Y H:i:s', $now) . ' GMT', $response->expires());
-		$response->expects($this->at(1))
-			->method('_sendHeader')->with('Expires', gmdate('D, j M Y H:i:s', $now) . ' GMT');
+		$sendHeaderCalls = [];
+		$response->expects($this->any())
+			->method('_sendHeader')
+			->willReturnCallback(function() use (&$sendHeaderCalls) {
+				$sendHeaderCalls[] = func_get_args();
+			});
 		$response->send();
+		$this->assertEquals(['Expires', gmdate('D, j M Y H:i:s', $now) . ' GMT'], $sendHeaderCalls[1]);
 
 		$response = $this->getMock('CakeResponse', array('_sendHeader', '_sendContent'));
 		$time = new DateTime('+1 day', new DateTimeZone('UTC'));
 		$response->expires('+1 day');
 		$this->assertEquals($time->format('D, j M Y H:i:s') . ' GMT', $response->expires());
-		$response->expects($this->at(1))
-			->method('_sendHeader')->with('Expires', $time->format('D, j M Y H:i:s') . ' GMT');
+		$sendHeaderCalls = [];
+		$response->expects($this->any())
+			->method('_sendHeader')
+			->willReturnCallback(function() use (&$sendHeaderCalls) {
+				$sendHeaderCalls[] = func_get_args();
+			});
 		$response->send();
+		$this->assertEquals(['Expires', $time->format('D, j M Y H:i:s') . ' GMT'], $sendHeaderCalls[1]);
 	}
 
 /**
@@ -694,25 +753,40 @@ class CakeResponseTest extends CakeTestCase {
 		$response->modified($now);
 		$now->setTimeZone(new DateTimeZone('UTC'));
 		$this->assertEquals($now->format('D, j M Y H:i:s') . ' GMT', $response->modified());
-		$response->expects($this->at(1))
-			->method('_sendHeader')->with('Last-Modified', $now->format('D, j M Y H:i:s') . ' GMT');
+		$sendHeaderCalls = [];
+		$response->expects($this->any())
+			->method('_sendHeader')
+			->willReturnCallback(function() use (&$sendHeaderCalls) {
+				$sendHeaderCalls[] = func_get_args();
+			});
 		$response->send();
+		$this->assertEquals(['Last-Modified', $now->format('D, j M Y H:i:s') . ' GMT'], $sendHeaderCalls[1]);
 
 		$response = $this->getMock('CakeResponse', array('_sendHeader', '_sendContent'));
 		$now = time();
 		$response->modified($now);
 		$this->assertEquals(gmdate('D, j M Y H:i:s', $now) . ' GMT', $response->modified());
-		$response->expects($this->at(1))
-			->method('_sendHeader')->with('Last-Modified', gmdate('D, j M Y H:i:s', $now) . ' GMT');
+		$sendHeaderCalls = [];
+		$response->expects($this->any())
+			->method('_sendHeader')
+			->willReturnCallback(function() use (&$sendHeaderCalls) {
+				$sendHeaderCalls[] = func_get_args();
+			});
 		$response->send();
+		$this->assertEquals(['Last-Modified', gmdate('D, j M Y H:i:s', $now) . ' GMT'], $sendHeaderCalls[1]);
 
 		$response = $this->getMock('CakeResponse', array('_sendHeader', '_sendContent'));
 		$time = new DateTime('+1 day', new DateTimeZone('UTC'));
 		$response->modified('+1 day');
 		$this->assertEquals($time->format('D, j M Y H:i:s') . ' GMT', $response->modified());
-		$response->expects($this->at(1))
-			->method('_sendHeader')->with('Last-Modified', $time->format('D, j M Y H:i:s') . ' GMT');
+		$sendHeaderCalls = [];
+		$response->expects($this->any())
+			->method('_sendHeader')
+			->willReturnCallback(function() use (&$sendHeaderCalls) {
+				$sendHeaderCalls[] = func_get_args();
+			});
 		$response->send();
+		$this->assertEquals(['Last-Modified', $time->format('D, j M Y H:i:s') . ' GMT'], $sendHeaderCalls[1]);
 	}
 
 /**
@@ -726,17 +800,27 @@ class CakeResponseTest extends CakeTestCase {
 		$response->sharable(true);
 		$headers = $response->header();
 		$this->assertEquals('public', $headers['Cache-Control']);
-		$response->expects($this->at(1))
-			->method('_sendHeader')->with('Cache-Control', 'public');
+		$sendHeaderCalls = [];
+		$response->expects($this->any())
+			->method('_sendHeader')
+			->willReturnCallback(function() use (&$sendHeaderCalls) {
+				$sendHeaderCalls[] = func_get_args();
+			});
 		$response->send();
+		$this->assertEquals(['Cache-Control', 'public'], $sendHeaderCalls[1]);
 
 		$response = $this->getMock('CakeResponse', array('_sendHeader', '_sendContent'));
 		$response->sharable(false);
 		$headers = $response->header();
 		$this->assertEquals('private', $headers['Cache-Control']);
-		$response->expects($this->at(1))
-			->method('_sendHeader')->with('Cache-Control', 'private');
+		$sendHeaderCalls = [];
+		$response->expects($this->any())
+			->method('_sendHeader')
+			->willReturnCallback(function() use (&$sendHeaderCalls) {
+				$sendHeaderCalls[] = func_get_args();
+			});
 		$response->send();
+		$this->assertEquals(['Cache-Control', 'private'], $sendHeaderCalls[1]);
 
 		$response = $this->getMock('CakeResponse', array('_sendHeader', '_sendContent'));
 		$response->sharable(true);
@@ -745,9 +829,14 @@ class CakeResponseTest extends CakeTestCase {
 		$response->sharable(false);
 		$headers = $response->header();
 		$this->assertEquals('private', $headers['Cache-Control']);
-		$response->expects($this->at(1))
-			->method('_sendHeader')->with('Cache-Control', 'private');
+		$sendHeaderCalls = [];
+		$response->expects($this->any())
+			->method('_sendHeader')
+			->willReturnCallback(function() use (&$sendHeaderCalls) {
+				$sendHeaderCalls[] = func_get_args();
+			});
 		$response->send();
+		$this->assertEquals(['Cache-Control', 'private'], $sendHeaderCalls[1]);
 		$this->assertFalse($response->sharable());
 		$response->sharable(true);
 		$this->assertTrue($response->sharable());
@@ -776,18 +865,28 @@ class CakeResponseTest extends CakeTestCase {
 		$this->assertEquals(3600, $response->maxAge());
 		$headers = $response->header();
 		$this->assertEquals('max-age=3600', $headers['Cache-Control']);
-		$response->expects($this->at(1))
-			->method('_sendHeader')->with('Cache-Control', 'max-age=3600');
+		$sendHeaderCalls = [];
+		$response->expects($this->any())
+			->method('_sendHeader')
+			->willReturnCallback(function() use (&$sendHeaderCalls) {
+				$sendHeaderCalls[] = func_get_args();
+			});
 		$response->send();
+		$this->assertEquals(['Cache-Control', 'max-age=3600'], $sendHeaderCalls[1]);
 
 		$response = $this->getMock('CakeResponse', array('_sendHeader', '_sendContent'));
 		$response->maxAge(3600);
 		$response->sharable(false);
 		$headers = $response->header();
 		$this->assertEquals('max-age=3600, private', $headers['Cache-Control']);
-		$response->expects($this->at(1))
-			->method('_sendHeader')->with('Cache-Control', 'max-age=3600, private');
+		$sendHeaderCalls = [];
+		$response->expects($this->any())
+			->method('_sendHeader')
+			->willReturnCallback(function() use (&$sendHeaderCalls) {
+				$sendHeaderCalls[] = func_get_args();
+			});
 		$response->send();
+		$this->assertEquals(['Cache-Control', 'max-age=3600, private'], $sendHeaderCalls[1]);
 	}
 
 /**
@@ -802,18 +901,28 @@ class CakeResponseTest extends CakeTestCase {
 		$this->assertEquals(3600, $response->sharedMaxAge());
 		$headers = $response->header();
 		$this->assertEquals('s-maxage=3600', $headers['Cache-Control']);
-		$response->expects($this->at(1))
-			->method('_sendHeader')->with('Cache-Control', 's-maxage=3600');
+		$sendHeaderCalls = [];
+		$response->expects($this->any())
+			->method('_sendHeader')
+			->willReturnCallback(function() use (&$sendHeaderCalls) {
+				$sendHeaderCalls[] = func_get_args();
+			});
 		$response->send();
+		$this->assertEquals(['Cache-Control', 's-maxage=3600'], $sendHeaderCalls[1]);
 
 		$response = $this->getMock('CakeResponse', array('_sendHeader', '_sendContent'));
 		$response->sharedMaxAge(3600);
 		$response->sharable(true);
 		$headers = $response->header();
 		$this->assertEquals('s-maxage=3600, public', $headers['Cache-Control']);
-		$response->expects($this->at(1))
-			->method('_sendHeader')->with('Cache-Control', 's-maxage=3600, public');
+		$sendHeaderCalls = [];
+		$response->expects($this->any())
+			->method('_sendHeader')
+			->willReturnCallback(function() use (&$sendHeaderCalls) {
+				$sendHeaderCalls[] = func_get_args();
+			});
 		$response->send();
+		$this->assertEquals(['Cache-Control', 's-maxage=3600, public'], $sendHeaderCalls[1]);
 	}
 
 /**
@@ -828,9 +937,14 @@ class CakeResponseTest extends CakeTestCase {
 		$this->assertTrue($response->mustRevalidate());
 		$headers = $response->header();
 		$this->assertEquals('must-revalidate', $headers['Cache-Control']);
-		$response->expects($this->at(1))
-			->method('_sendHeader')->with('Cache-Control', 'must-revalidate');
+		$sendHeaderCalls = [];
+		$response->expects($this->any())
+			->method('_sendHeader')
+			->willReturnCallback(function() use (&$sendHeaderCalls) {
+				$sendHeaderCalls[] = func_get_args();
+			});
 		$response->send();
+		$this->assertEquals(['Cache-Control', 'must-revalidate'], $sendHeaderCalls[1]);
 		$response->mustRevalidate(false);
 		$this->assertFalse($response->mustRevalidate());
 
@@ -839,9 +953,14 @@ class CakeResponseTest extends CakeTestCase {
 		$response->mustRevalidate(true);
 		$headers = $response->header();
 		$this->assertEquals('s-maxage=3600, must-revalidate', $headers['Cache-Control']);
-		$response->expects($this->at(1))
-			->method('_sendHeader')->with('Cache-Control', 's-maxage=3600, must-revalidate');
+		$sendHeaderCalls = [];
+		$response->expects($this->any())
+			->method('_sendHeader')
+			->willReturnCallback(function() use (&$sendHeaderCalls) {
+				$sendHeaderCalls[] = func_get_args();
+			});
 		$response->send();
+		$this->assertEquals(['Cache-Control', 's-maxage=3600, must-revalidate'], $sendHeaderCalls[1]);
 	}
 
 /**
@@ -853,15 +972,25 @@ class CakeResponseTest extends CakeTestCase {
 		$response = $this->getMock('CakeResponse', array('_sendHeader', '_sendContent'));
 		$response->vary('Accept-encoding');
 		$this->assertEquals(array('Accept-encoding'), $response->vary());
-		$response->expects($this->at(1))
-			->method('_sendHeader')->with('Vary', 'Accept-encoding');
+		$sendHeaderCalls = [];
+		$response->expects($this->any())
+			->method('_sendHeader')
+			->willReturnCallback(function() use (&$sendHeaderCalls) {
+				$sendHeaderCalls[] = func_get_args();
+			});
 		$response->send();
+		$this->assertEquals(['Vary', 'Accept-encoding'], $sendHeaderCalls[1]);
 
 		$response = $this->getMock('CakeResponse', array('_sendHeader', '_sendContent'));
 		$response->vary(array('Accept-language', 'Accept-encoding'));
-		$response->expects($this->at(1))
-			->method('_sendHeader')->with('Vary', 'Accept-language, Accept-encoding');
+		$sendHeaderCalls = [];
+		$response->expects($this->any())
+			->method('_sendHeader')
+			->willReturnCallback(function() use (&$sendHeaderCalls) {
+				$sendHeaderCalls[] = func_get_args();
+			});
 		$response->send();
+		$this->assertEquals(['Vary', 'Accept-language, Accept-encoding'], $sendHeaderCalls[1]);
 		$this->assertEquals(array('Accept-language', 'Accept-encoding'), $response->vary());
 	}
 
@@ -874,16 +1003,26 @@ class CakeResponseTest extends CakeTestCase {
 		$response = $this->getMock('CakeResponse', array('_sendHeader', '_sendContent'));
 		$response->etag('something');
 		$this->assertEquals('"something"', $response->etag());
-		$response->expects($this->at(1))
-			->method('_sendHeader')->with('Etag', '"something"');
+		$sendHeaderCalls = [];
+		$response->expects($this->any())
+			->method('_sendHeader')
+			->willReturnCallback(function() use (&$sendHeaderCalls) {
+				$sendHeaderCalls[] = func_get_args();
+			});
 		$response->send();
+		$this->assertEquals(['Etag', '"something"'], $sendHeaderCalls[1]);
 
 		$response = $this->getMock('CakeResponse', array('_sendHeader', '_sendContent'));
 		$response->etag('something', true);
 		$this->assertEquals('W/"something"', $response->etag());
-		$response->expects($this->at(1))
-			->method('_sendHeader')->with('Etag', 'W/"something"');
+		$sendHeaderCalls = [];
+		$response->expects($this->any())
+			->method('_sendHeader')
+			->willReturnCallback(function() use (&$sendHeaderCalls) {
+				$sendHeaderCalls[] = func_get_args();
+			});
 		$response->send();
+		$this->assertEquals(['Etag', 'W/"something"'], $sendHeaderCalls[1]);
 	}
 
 /**
@@ -1102,19 +1241,23 @@ class CakeResponseTest extends CakeTestCase {
 
 		$response = $this->getMock('CakeResponse', array('header'));
 
-		$method = $response->expects(!$expectedOrigin ? $this->never() : $this->at(0))->method('header');
-		$expectedOrigin && $method->with('Access-Control-Allow-Origin', $expectedOrigin ? $expectedOrigin : $this->anything());
+		if (!$expectedOrigin) {
+			$response->expects($this->never())->method('header');
+		} else {
+			$headerCalls = [];
+			$headerCalls[] = ['Access-Control-Allow-Origin', $expectedOrigin];
 
-		$i = 1;
-		if ($expectedMethods) {
-			$response->expects($this->at($i++))
+			if ($expectedMethods) {
+				$headerCalls[] = ['Access-Control-Allow-Methods', $expectedMethods];
+			}
+
+			if ($expectedHeaders) {
+				$headerCalls[] = ['Access-Control-Allow-Headers', $expectedHeaders];
+			}
+
+			$response->expects($this->exactly(count($headerCalls)))
 				->method('header')
-				->with('Access-Control-Allow-Methods', $expectedMethods ? $expectedMethods : $this->anything());
-		}
-		if ($expectedHeaders) {
-			$response->expects($this->at($i++))
-				->method('header')
-				->with('Access-Control-Allow-Headers', $expectedHeaders ? $expectedHeaders : $this->anything());
+				->withConsecutive(...$headerCalls);
 		}
 
 		$response->cors($request, $domains, $methods, $headers);
@@ -1202,7 +1345,7 @@ class CakeResponseTest extends CakeTestCase {
  */
 	public function testFileWithDotsInFilename() {
 		$this->expectException(NotFoundException::class);
-		$this->expectExceptionMessageMatches('#The requested file .+my/Some..cat.gif was not found or not readable#');
+		$this->expectExceptionMessageMatches('#The requested file .+my/Some\.\.cat\.gif was not found or not readable#');
 		$response = new CakeResponse();
 		$response->file('my/Some..cat.gif');
 	}
@@ -1228,13 +1371,12 @@ class CakeResponseTest extends CakeTestCase {
 			->with('css')
 			->will($this->returnArgument(0));
 
-		$response->expects($this->at(1))
+		$response->expects($this->exactly(2))
 			->method('header')
-			->with('Accept-Ranges', 'bytes');
-
-		$response->expects($this->at(2))
-			->method('header')
-			->with('Content-Length', 38);
+			->withConsecutive(
+				['Accept-Ranges', 'bytes'],
+				['Content-Length', 38]
+			);
 
 		$response->expects($this->once())->method('_clearBuffer');
 		$response->expects($this->once())->method('_flushBuffer');
@@ -1281,17 +1423,13 @@ class CakeResponseTest extends CakeTestCase {
 			->method('download')
 			->with('no_section.ini');
 
-		$response->expects($this->at(2))
+		$response->expects($this->exactly(3))
 			->method('header')
-			->with('Content-Transfer-Encoding', 'binary');
-
-		$response->expects($this->at(3))
-			->method('header')
-			->with('Accept-Ranges', 'bytes');
-
-		$response->expects($this->at(4))
-			->method('header')
-			->with('Content-Length', 35);
+			->withConsecutive(
+				['Content-Transfer-Encoding', 'binary'],
+				['Accept-Ranges', 'bytes'],
+				['Content-Length', 35]
+			);
 
 		$response->expects($this->once())->method('_clearBuffer');
 		$response->expects($this->once())->method('_flushBuffer');
@@ -1332,31 +1470,25 @@ class CakeResponseTest extends CakeTestCase {
 			'_flushBuffer'
 		));
 
-		$response->expects($this->at(0))
+		$response->expects($this->exactly(2))
 			->method('type')
-			->with('ini')
-			->will($this->returnValue(false));
-
-		$response->expects($this->at(1))
-			->method('type')
-			->with('application/octet-stream')
+			->withConsecutive(
+				['ini'],
+				['application/octet-stream']
+			)
 			->will($this->returnValue(false));
 
 		$response->expects($this->once())
 			->method('download')
 			->with('no_section.ini');
 
-		$response->expects($this->at(3))
+		$response->expects($this->exactly(3))
 			->method('header')
-			->with('Content-Transfer-Encoding', 'binary');
-
-		$response->expects($this->at(4))
-			->method('header')
-			->with('Accept-Ranges', 'bytes');
-
-		$response->expects($this->at(5))
-			->method('header')
-			->with('Content-Length', 35);
+			->withConsecutive(
+				['Content-Transfer-Encoding', 'binary'],
+				['Accept-Ranges', 'bytes'],
+				['Content-Length', 35]
+			);
 
 		$response->expects($this->once())->method('_clearBuffer');
 		$response->expects($this->once())->method('_flushBuffer');
@@ -1396,31 +1528,25 @@ class CakeResponseTest extends CakeTestCase {
 			'_flushBuffer'
 		));
 
-		$response->expects($this->at(0))
+		$response->expects($this->exactly(2))
 			->method('type')
-			->with('ini')
-			->will($this->returnValue(false));
-
-		$response->expects($this->at(1))
-			->method('type')
-			->with('application/force-download')
+			->withConsecutive(
+				['ini'],
+				['application/force-download']
+			)
 			->will($this->returnValue(false));
 
 		$response->expects($this->once())
 			->method('download')
 			->with('config.ini');
 
-		$response->expects($this->at(3))
+		$response->expects($this->exactly(3))
 			->method('header')
-			->with('Content-Transfer-Encoding', 'binary');
-
-		$response->expects($this->at(4))
-			->method('header')
-			->with('Accept-Ranges', 'bytes');
-
-		$response->expects($this->at(5))
-			->method('header')
-			->with('Content-Length', 35);
+			->withConsecutive(
+				['Content-Transfer-Encoding', 'binary'],
+				['Accept-Ranges', 'bytes'],
+				['Content-Length', 35]
+			);
 
 		$response->expects($this->once())->method('_clearBuffer');
 		$response->expects($this->once())->method('_flushBuffer');
@@ -1466,9 +1592,12 @@ class CakeResponseTest extends CakeTestCase {
 			->with('ini')
 			->will($this->returnValue(false));
 
-		$response->expects($this->at(1))
+		$headerCalls = [];
+		$response->expects($this->any())
 			->method('header')
-			->with('Accept-Ranges', 'bytes');
+			->willReturnCallback(function() use (&$headerCalls) {
+				$headerCalls[] = func_get_args();
+			});
 
 		$response->expects($this->never())
 			->method('download');
@@ -1476,6 +1605,9 @@ class CakeResponseTest extends CakeTestCase {
 		$response->file(CAKE . 'Test' . DS . 'test_app' . DS . 'Config' . DS . 'no_section.ini', array(
 			'download' => false
 		));
+
+		$this->assertArrayHasKey(1, $headerCalls);
+		$this->assertEquals(['Accept-Ranges', 'bytes'], $headerCalls[0]);
 
 		if ($currentUserAgent !== null) {
 			$_SERVER['HTTP_USER_AGENT'] = $currentUserAgent;
@@ -1504,7 +1636,7 @@ class CakeResponseTest extends CakeTestCase {
 			->with('css')
 			->will($this->returnArgument(0));
 
-		$response->expects($this->at(0))
+		$response->expects($this->once())
 			->method('_isActive')
 			->will($this->returnValue(false));
 
@@ -1539,11 +1671,13 @@ class CakeResponseTest extends CakeTestCase {
 			->with('jpg')
 			->will($this->returnArgument(0));
 
-		$response->expects($this->at(0))
+		$response->expects($this->any())
 			->method('_isActive')
 			->will($this->returnValue(true));
 
-		$response->file(CAKE . 'Test' . DS . 'test_app' . DS . 'Vendor' . DS . 'img' . DS . 'test_2.JPG');
+		$result = $response->file(CAKE . 'Test' . DS . 'test_app' . DS . 'Vendor' . DS . 'img' . DS . 'test_2.JPG');
+
+		$this->assertNotFalse($result);
 	}
 
 /**
@@ -1568,11 +1702,13 @@ class CakeResponseTest extends CakeTestCase {
 			->with('jpg')
 			->will($this->returnArgument(0));
 
-		$response->expects($this->at(0))
+		$response->expects($this->any())
 			->method('_isActive')
 			->will($this->returnValue(true));
 
-		$response->file(CAKE . 'Test' . DS . 'test_app' . DS . 'Vendor' . DS . 'img' . DS . 'test_2.JPG');
+		$result = $response->file(CAKE . 'Test' . DS . 'test_app' . DS . 'Vendor' . DS . 'img' . DS . 'test_2.JPG');
+
+		$this->assertNotFalse($result);
 	}
 
 /**
@@ -1616,24 +1752,12 @@ class CakeResponseTest extends CakeTestCase {
 			'_flushBuffer'
 		));
 
-		$response->expects($this->at(1))
+		$headerCalls = [];
+		$response->expects($this->any())
 			->method('header')
-			->with('Content-Disposition', 'attachment; filename="test_asset.css"');
-
-		$response->expects($this->at(2))
-			->method('header')
-			->with('Content-Transfer-Encoding', 'binary');
-
-		$response->expects($this->at(3))
-			->method('header')
-			->with('Accept-Ranges', 'bytes');
-
-		$response->expects($this->at(4))
-			->method('header')
-			->with(array(
-				'Content-Length' => $length,
-				'Content-Range' => $offsetResponse,
-			));
+			->willReturnCallback(function() use (&$headerCalls) {
+				$headerCalls[] = func_get_args();
+			});
 
 		$response->expects($this->any())
 			->method('_isActive')
@@ -1647,6 +1771,14 @@ class CakeResponseTest extends CakeTestCase {
 		ob_start();
 		$result = $response->send();
 		ob_get_clean();
+
+		$this->assertEquals(['Content-Disposition', 'attachment; filename="test_asset.css"'], $headerCalls[0]);
+		$this->assertEquals(['Content-Transfer-Encoding', 'binary'], $headerCalls[1]);
+		$this->assertEquals(['Accept-Ranges', 'bytes'], $headerCalls[2]);
+		$this->assertEquals([array(
+			'Content-Length' => $length,
+			'Content-Range' => $offsetResponse,
+		), null], $headerCalls[3]);
 	}
 
 /**
@@ -1671,24 +1803,17 @@ class CakeResponseTest extends CakeTestCase {
 			->with('css')
 			->will($this->returnArgument(0));
 
-		$response->expects($this->at(1))
+		$response->expects($this->exactly(4))
 			->method('header')
-			->with('Content-Disposition', 'attachment; filename="test_asset.css"');
-
-		$response->expects($this->at(2))
-			->method('header')
-			->with('Content-Transfer-Encoding', 'binary');
-
-		$response->expects($this->at(3))
-			->method('header')
-			->with('Accept-Ranges', 'bytes');
-
-		$response->expects($this->at(4))
-			->method('header')
-			->with(array(
-				'Content-Length' => 18,
-				'Content-Range' => 'bytes 8-25/38',
-			));
+			->withConsecutive(
+				['Content-Disposition', 'attachment; filename="test_asset.css"'],
+				['Content-Transfer-Encoding', 'binary'],
+				['Accept-Ranges', 'bytes'],
+				[array(
+					'Content-Length' => 18,
+					'Content-Range' => 'bytes 8-25/38',
+				)]
+			);
 
 		$response->expects($this->once())->method('_clearBuffer');
 
@@ -1803,16 +1928,12 @@ class CakeResponseTest extends CakeTestCase {
 			'_flushBuffer'
 		));
 
-		$response->expects($this->at(1))
+		$headerCalls = [];
+		$response->expects($this->any())
 			->method('header')
-			->with('Accept-Ranges', 'bytes');
-
-		$response->expects($this->at(2))
-			->method('header')
-			->with(array(
-				'Content-Length' => $length,
-				'Content-Range' => $offsetResponse,
-			));
+			->willReturnCallback(function() use (&$headerCalls) {
+				$headerCalls[] = func_get_args();
+			});
 
 		$response->expects($this->any())
 			->method('_isActive')
@@ -1826,6 +1947,15 @@ class CakeResponseTest extends CakeTestCase {
 		ob_start();
 		$response->send();
 		ob_get_clean();
+
+		$this->assertArrayHasKey(0, $headerCalls);
+		$this->assertEquals(['Accept-Ranges', 'bytes'], $headerCalls[0]);
+
+		$this->assertArrayHasKey(1, $headerCalls);
+		$this->assertEquals([array(
+			'Content-Length' => $length,
+			'Content-Range' => $offsetResponse,
+		), null], $headerCalls[1]);
 	}
 
 /**
@@ -1850,16 +1980,15 @@ class CakeResponseTest extends CakeTestCase {
 			->with('css')
 			->will($this->returnArgument(0));
 
-		$response->expects($this->at(1))
+		$response->expects($this->exactly(2))
 			->method('header')
-			->with('Accept-Ranges', 'bytes');
-
-		$response->expects($this->at(2))
-			->method('header')
-			->with(array(
-				'Content-Length' => 18,
-				'Content-Range' => 'bytes 8-25/38',
-			));
+			->withConsecutive(
+				['Accept-Ranges', 'bytes'],
+				[array(
+					'Content-Length' => 18,
+					'Content-Range' => 'bytes 8-25/38',
+				)]
+			);
 
 		$response->expects($this->once())->method('_clearBuffer');
 
@@ -1897,15 +2026,14 @@ class CakeResponseTest extends CakeTestCase {
 			'_flushBuffer'
 		));
 
-		$response->expects($this->at(1))
+		$response->expects($this->exactly(2))
 			->method('header')
-			->with('Accept-Ranges', 'bytes');
-
-		$response->expects($this->at(2))
-			->method('header')
-			->with(array(
-				'Content-Range' => 'bytes 0-37/38',
-			));
+			->withConsecutive(
+				['Accept-Ranges', 'bytes'],
+				[array(
+					'Content-Range' => 'bytes 0-37/38',
+				)]
+			);
 
 		$response->file(
 			CAKE . 'Test' . DS . 'test_app' . DS . 'Vendor' . DS . 'css' . DS . 'test_asset.css',

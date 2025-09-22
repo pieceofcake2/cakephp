@@ -52,11 +52,9 @@ class DebuggerTest extends CakeTestCase {
  * @return void
  */
 	public function tearDown() : void {
-		parent::tearDown();
 		Configure::write('log', true);
-		if ($this->_restoreError) {
-			restore_error_handler();
-		}
+
+		parent::tearDown();
 	}
 
 /**
@@ -116,19 +114,15 @@ class DebuggerTest extends CakeTestCase {
 		// are not output when a PHP error occurs.
 		// Except for the above, Debugger::output() works.
 		// However, it is incomplete, so marked.
-		if (PHP_MAJOR_VERSION >= 8) {
-			$this->markTestIncomplete('Context output no longer works in PHP 8.0+.');
-		}
 		set_error_handler('Debugger::showError');
-		$this->_restoreError = true;
 
 		$result = Debugger::output(false);
 		$this->assertEquals('', $result);
 		$out .= '';
 		$result = Debugger::output(true);
 
-		$this->assertEquals('Notice', $result[0]['error']);
-		$this->assertMatchesRegularExpression('/Undefined variable\:\s+out/', $result[0]['description']);
+		$this->assertEquals('Warning', $result[0]['error']);
+		$this->assertMatchesRegularExpression('/Undefined variable\s+\$out/', $result[0]['description']);
 		$this->assertMatchesRegularExpression('/DebuggerTest::testOutput/i', $result[0]['trace']);
 
 		ob_start();
@@ -136,8 +130,8 @@ class DebuggerTest extends CakeTestCase {
 		$other .= '';
 		$result = ob_get_clean();
 
-		$this->assertMatchesRegularExpression('/Undefined variable:\s+other/', $result);
-		$this->assertMatchesRegularExpression('/Context:/', $result);
+		$this->assertMatchesRegularExpression('/Undefined variable\s+\$other/', $result);
+		$this->assertMatchesRegularExpression('/Trace:/', $result);
 		$this->assertMatchesRegularExpression('/DebuggerTest::testOutput/i', $result);
 
 		ob_start();
@@ -145,8 +139,8 @@ class DebuggerTest extends CakeTestCase {
 		$wrong .= '';
 		$result = ob_get_clean();
 		$this->assertMatchesRegularExpression('/<pre class="cake-error">.+<\/pre>/', $result);
-		$this->assertMatchesRegularExpression('/<b>Notice<\/b>/', $result);
-		$this->assertMatchesRegularExpression('/variable:\s+wrong/', $result);
+		$this->assertMatchesRegularExpression('/<b>Warning<\/b>/', $result);
+		$this->assertMatchesRegularExpression('/variable\s+\$wrong/', $result);
 
 		ob_start();
 		Debugger::output('js');
@@ -160,13 +154,14 @@ class DebuggerTest extends CakeTestCase {
 					"\(document\.getElementById\('cakeErr[a-z0-9]+\-trace'\)\.style\.display == 'none'" .
 					" \? '' \: 'none'\);/"
 			),
-			'b' => array(), 'Notice', '/b', ' (8)',
+			'b' => array(), 'Warning', '/b', ' (2)',
 		));
 
-		$this->assertMatchesRegularExpression('/Undefined variable:\s+buzz/', $result[1]);
+		$this->assertMatchesRegularExpression('/Undefined variable\s+\$buzz/', $result[1]);
 		$this->assertMatchesRegularExpression('/<a[^>]+>Code/', $result[1]);
 		$this->assertMatchesRegularExpression('/<a[^>]+>Context/', $result[2]);
-		$this->assertStringContainsString('$wrong = &#039;&#039;', $result[3], 'Context should be HTML escaped.');
+
+		restore_error_handler();
 	}
 
 /**
@@ -176,7 +171,6 @@ class DebuggerTest extends CakeTestCase {
  */
 	public function testOutputEncodeDescription() {
 		set_error_handler('Debugger::showError');
-		$this->_restoreError = true;
 
 		ob_start();
 		Debugger::output('js');
@@ -186,6 +180,8 @@ class DebuggerTest extends CakeTestCase {
 
 		$this->assertStringNotContainsString('<script>alert(1)', $result);
 		$this->assertStringContainsString('&lt;script&gt;alert(1)', $result);
+
+		restore_error_handler();
 	}
 
 /**
@@ -195,7 +191,6 @@ class DebuggerTest extends CakeTestCase {
  */
 	public function testChangeOutputFormats() {
 		set_error_handler('Debugger::showError');
-		$this->_restoreError = true;
 
 		Debugger::output('js', array(
 			'traceLine' => '{:reference} - <a href="txmt://open?url=file://{:file}' .
@@ -226,6 +221,8 @@ class DebuggerTest extends CakeTestCase {
 			'/error'
 		);
 		$this->assertTags($result, $data, true);
+
+		restore_error_handler();
 	}
 
 /**
@@ -255,7 +252,6 @@ class DebuggerTest extends CakeTestCase {
  */
 	public function testAddFormat() {
 		set_error_handler('Debugger::showError');
-		$this->_restoreError = true;
 
 		Debugger::addFormat('js', array(
 			'traceLine' => '{:reference} - <a href="txmt://open?url=file://{:file}' .
@@ -285,6 +281,8 @@ class DebuggerTest extends CakeTestCase {
 			'/error'
 		);
 		$this->assertTags($result, $data, true);
+
+		restore_error_handler();
 	}
 
 /**
@@ -294,7 +292,6 @@ class DebuggerTest extends CakeTestCase {
  */
 	public function testAddFormatCallback() {
 		set_error_handler('Debugger::showError');
-		$this->_restoreError = true;
 
 		Debugger::addFormat('callback', array('callback' => array($this, 'customFormat')));
 		Debugger::outputAs('callback');
@@ -304,6 +301,8 @@ class DebuggerTest extends CakeTestCase {
 		$result = ob_get_clean();
 		$this->assertStringContainsString('Warning: I eated an error', $result);
 		$this->assertStringContainsString('DebuggerTest.php', $result);
+
+		restore_error_handler();
 	}
 
 /**

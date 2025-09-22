@@ -62,13 +62,14 @@ class ConsoleLogTest extends CakeTestCase {
 	}
 
 	public function tearDown() : void {
-		parent::tearDown();
 		if (file_exists(LOGS . 'error.log')) {
 			unlink(LOGS . 'error.log');
 		}
 		if (file_exists(LOGS . 'debug.log')) {
 			unlink(LOGS . 'debug.log');
 		}
+
+		parent::tearDown();
 	}
 
 /**

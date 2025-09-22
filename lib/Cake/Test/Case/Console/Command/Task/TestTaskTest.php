@@ -210,9 +210,10 @@ class TestTaskTest extends CakeTestCase {
  * @return void
  */
 	public function tearDown() : void {
-		parent::tearDown();
 		unset($this->Task);
 		CakePlugin::unload();
+
+		parent::tearDown();
 	}
 
 /**
@@ -224,21 +225,22 @@ class TestTaskTest extends CakeTestCase {
 		$this->Task->expects($this->never())->method('err');
 		$this->Task->expects($this->never())->method('_stop');
 
-		$file = TESTS . 'Case' . DS . 'Model' . DS . 'MyClassTest.php';
-
-		$this->Task->expects($this->at(1))->method('createFile')
-			->with($file, $this->anything());
-
-		$this->Task->expects($this->at(3))->method('createFile')
-			->with($file, $this->anything());
-
-		$file = TESTS . 'Case' . DS . 'Controller' . DS . 'CommentsControllerTest.php';
-		$this->Task->expects($this->at(5))->method('createFile')
-			->with($file, $this->anything());
+		$createFileCalls = [];
+		$this->Task->expects($this->exactly(3))
+			->method('createFile')
+			->willReturnCallback(function($file, $content) use (&$createFileCalls) {
+				$createFileCalls[] = ['file' => $file, 'content' => $content];
+			});
 
 		$this->Task->bake('Model', 'MyClass');
 		$this->Task->bake('Model', 'MyClass');
 		$this->Task->bake('Controller', 'Comments');
+
+		$modelFile = TESTS . 'Case' . DS . 'Model' . DS . 'MyClassTest.php';
+		$controllerFile = TESTS . 'Case' . DS . 'Controller' . DS . 'CommentsControllerTest.php';
+		$this->assertEquals($modelFile, $createFileCalls[0]['file']);
+		$this->assertEquals($modelFile, $createFileCalls[1]['file']);
+		$this->assertEquals($controllerFile, $createFileCalls[2]['file']);
 	}
 
 /**
@@ -288,8 +290,10 @@ class TestTaskTest extends CakeTestCase {
  */
 	public function testGetObjectType() {
 		$this->Task->expects($this->once())->method('_stop');
-		$this->Task->expects($this->at(0))->method('in')->will($this->returnValue('q'));
-		$this->Task->expects($this->at(2))->method('in')->will($this->returnValue(2));
+
+		$this->Task->expects($this->exactly(2))
+			->method('in')
+			->willReturnOnConsecutiveCalls('q', 2);
 
 		$this->Task->getObjectType();
 
@@ -330,8 +334,9 @@ class TestTaskTest extends CakeTestCase {
 		$objects = App::objects('model');
 		$this->skipIf(empty($objects), 'No models in app.');
 
-		$this->Task->expects($this->at(0))->method('in')->will($this->returnValue('MyCustomClass'));
-		$this->Task->expects($this->at(1))->method('in')->will($this->returnValue(1));
+		$this->Task->expects($this->exactly(2))
+			->method('in')
+			->willReturnOnConsecutiveCalls('MyCustomClass', 1);
 
 		$result = $this->Task->getClassName('Model');
 		$this->assertEquals('MyCustomClass', $result);
@@ -347,9 +352,9 @@ class TestTaskTest extends CakeTestCase {
  * @return void
  */
 	public function testGetUserFixtures() {
-		$this->Task->expects($this->at(0))->method('in')->will($this->returnValue('y'));
-		$this->Task->expects($this->at(1))->method('in')
-			->will($this->returnValue('app.pizza, app.topping, app.side_dish'));
+		$this->Task->expects($this->exactly(2))
+			->method('in')
+			->willReturnOnConsecutiveCalls('y', 'app.pizza, app.topping, app.side_dish');
 
 		$result = $this->Task->getUserFixtures();
 		$expected = array('app.pizza', 'app.topping', 'app.side_dish');
@@ -620,11 +625,17 @@ class TestTaskTest extends CakeTestCase {
 			->method('createFile')
 			->with($path, $this->anything());
 
-		$this->Task->stdout->expects($this->at(21))
+		$writeCalls = [];
+		$this->Task->stdout->expects($this->any())
 			->method('write')
-			->with('1. OtherHelperHelper');
+			->willReturnCallback(function($message) use (&$writeCalls) {
+				$writeCalls[] = $message;
+			});
 
 		$this->Task->execute();
+
+		$this->assertArrayHasKey(21, $writeCalls);
+		$this->assertEquals('1. OtherHelperHelper', $writeCalls[21]);
 	}
 
 	public static function caseFileNameProvider() {
@@ -678,7 +689,7 @@ class TestTaskTest extends CakeTestCase {
  */
 	public function testExecuteWithOneArg() {
 		$this->Task->args[0] = 'Model';
-		$this->Task->expects($this->at(0))->method('in')->will($this->returnValue('TestTaskTag'));
+		$this->Task->expects($this->once())->method('in')->will($this->returnValue('TestTaskTag'));
 		$this->Task->expects($this->once())->method('isLoadableClass')->will($this->returnValue(true));
 		$this->Task->expects($this->once())->method('createFile')
 			->with(
@@ -695,7 +706,8 @@ class TestTaskTest extends CakeTestCase {
  */
 	public function testExecuteWithTwoArgs() {
 		$this->Task->args = array('Model', 'TestTaskTag');
-		$this->Task->expects($this->at(0))->method('in')->will($this->returnValue('TestTaskTag'));
+		$this->Task->expects($this->exactly(0))
+			->method('in');
 		$this->Task->expects($this->once())->method('createFile')
 			->with(
 				$this->anything(),
@@ -712,7 +724,8 @@ class TestTaskTest extends CakeTestCase {
  */
 	public function testExecuteWithTwoArgsLowerCase() {
 		$this->Task->args = array('model', 'TestTaskTag');
-		$this->Task->expects($this->at(0))->method('in')->will($this->returnValue('TestTaskTag'));
+		$this->Task->expects($this->exactly(0))
+			->method('in');
 		$this->Task->expects($this->once())->method('createFile')
 			->with(
 				$this->anything(),

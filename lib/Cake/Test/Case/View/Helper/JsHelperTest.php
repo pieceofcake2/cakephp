@@ -162,8 +162,9 @@ class JsHelperTest extends CakeTestCase {
  * @return void
  */
 	public function tearDown() : void {
-		parent::tearDown();
 		unset($this->Js);
+
+		parent::tearDown();
 	}
 
 /**
@@ -209,18 +210,35 @@ class JsHelperTest extends CakeTestCase {
  * @return void
  */
 	public function testMethodDispatching() {
-		$this->expectWarning();
-		$this->_useMock();
+		$warningTriggered = false;
+		$warningMessage = '';
+		set_error_handler(function($errno, $errstr) use (&$warningTriggered, &$warningMessage) {
+			if ($errno === E_WARNING || $errno === E_USER_WARNING) {
+				$warningTriggered = true;
+				$warningMessage = $errstr;
+				return true;
+			}
+			return false;
+		}, E_WARNING | E_USER_WARNING);
 
-		$this->Js->TestJsEngine
-			->expects($this->once())
-			->method('event')
-			->with('click', 'callback');
+		try {
+			$this->_useMock();
 
-		$this->Js->event('click', 'callback');
+			$this->Js->TestJsEngine
+				->expects($this->once())
+				->method('event')
+				->with('click', 'callback');
 
-		$this->Js->TestJsEngine = new StdClass();
-		$this->Js->someMethodThatSurelyDoesntExist();
+			$this->Js->event('click', 'callback');
+
+			$this->Js->TestJsEngine = new StdClass();
+			$this->Js->someMethodThatSurelyDoesntExist();
+		} finally {
+			restore_error_handler();
+		}
+
+		$this->assertTrue($warningTriggered, 'Expected warning was not triggered');
+		$this->assertSame('JsHelper:: Missing Method someMethodThatSurelyDoesntExist is undefined', $warningMessage);
 	}
 
 /**
@@ -398,19 +416,35 @@ class JsHelperTest extends CakeTestCase {
 
 		$options = array('update' => '#content');
 
-		$this->Js->TestJsEngine->expects($this->at(0))
-			->method('get');
+		$callSequence = [];
 
-		$this->Js->TestJsEngine->expects($this->at(1))
+		$this->Js->TestJsEngine->expects($this->once())
+			->method('get')
+			->willReturnCallback(function() use (&$callSequence) {
+				$callSequence[] = 'get';
+				return null;
+			});
+
+		$this->Js->TestJsEngine->expects($this->once())
 			->method('request')
 			->with('/posts/view/1', $options)
-			->will($this->returnValue('--ajax code--'));
+			->willReturnCallback(function() use (&$callSequence) {
+				$callSequence[] = 'request';
+				return '--ajax code--';
+			});
 
-		$this->Js->TestJsEngine->expects($this->at(2))
+		$this->Js->TestJsEngine->expects($this->once())
 			->method('event')
-			->with('click', '--ajax code--', $options + array('buffer' => null));
+			->with('click', '--ajax code--', $options + array('buffer' => null))
+			->willReturnCallback(function() use (&$callSequence) {
+				$callSequence[] = 'event';
+				return null;
+			});
 
 		$result = $this->Js->link('test link', '/posts/view/1', $options);
+
+		$this->assertEquals(['get', 'request', 'event'], $callSequence);
+
 		$expected = array(
 			'a' => array('id' => 'preg:/link-\d+/', 'href' => '/posts/view/1'),
 			'test link',
@@ -483,17 +517,33 @@ class JsHelperTest extends CakeTestCase {
 	public function testLinkWithNoBuffering() {
 		$this->_useMock();
 
-		$this->Js->TestJsEngine->expects($this->at(1))
+		$methodCalls = [];
+
+		$this->Js->TestJsEngine->expects($this->any())
+			->method('get')
+			->willReturn(null);
+
+		$this->Js->TestJsEngine->expects($this->once())
 			->method('request')
 			->with('/posts/view/1', array('update' => '#content'))
-			->will($this->returnValue('ajax code'));
+			->willReturnCallback(function() use (&$methodCalls) {
+				$methodCalls[] = 'request';
+				return 'ajax code';
+			});
 
-		$this->Js->TestJsEngine->expects($this->at(2))
+		$this->Js->TestJsEngine->expects($this->once())
 			->method('event')
-			->will($this->returnValue('-event handler-'));
+			->willReturnCallback(function() use (&$methodCalls) {
+				$methodCalls[] = 'event';
+				return '-event handler-';
+			});
 
 		$options = array('update' => '#content', 'buffer' => false);
 		$result = $this->Js->link('test link', '/posts/view/1', $options);
+
+		$this->assertContains('request', $methodCalls);
+		$this->assertContains('event', $methodCalls);
+
 		$expected = array(
 			'a' => array('id' => 'preg:/link-\d+/', 'href' => '/posts/view/1'),
 			'test link',
@@ -515,17 +565,32 @@ class JsHelperTest extends CakeTestCase {
 	public function testLinkWithNoBufferingAndSafe() {
 		$this->_useMock();
 
-		$this->Js->TestJsEngine->expects($this->at(1))
+		$methodCalls = [];
+
+		$this->Js->TestJsEngine->expects($this->any())
+			->method('get')
+			->willReturn(null);
+
+		$this->Js->TestJsEngine->expects($this->once())
 			->method('request')
 			->with('/posts/view/1', array('update' => '#content'))
-			->will($this->returnValue('ajax code'));
+			->willReturnCallback(function() use (&$methodCalls) {
+				$methodCalls[] = 'request';
+				return 'ajax code';
+			});
 
-		$this->Js->TestJsEngine->expects($this->at(2))
+		$this->Js->TestJsEngine->expects($this->once())
 			->method('event')
-			->will($this->returnValue('-event handler-'));
+			->willReturnCallback(function() use (&$methodCalls) {
+				$methodCalls[] = 'event';
+				return '-event handler-';
+			});
 
 		$options = array('update' => '#content', 'buffer' => false, 'safe' => false);
 		$result = $this->Js->link('test link', '/posts/view/1', $options);
+
+		$this->assertContains('request', $methodCalls);
+		$this->assertContains('event', $methodCalls);
 
 		$expected = array(
 			'a' => array('id' => 'preg:/link-\d+/', 'href' => '/posts/view/1'),
@@ -548,27 +613,46 @@ class JsHelperTest extends CakeTestCase {
 
 		$options = array('update' => '#content', 'id' => 'test-submit', 'style' => 'margin: 0');
 
-		$this->Js->TestJsEngine->expects($this->at(0))
-			->method('get');
+		$callSequence = [];
 
-		$this->Js->TestJsEngine->expects($this->at(1))
+		$this->Js->TestJsEngine->expects($this->once())
+			->method('get')
+			->willReturnCallback(function() use (&$callSequence) {
+				$callSequence[] = 'get';
+				return null;
+			});
+
+		$this->Js->TestJsEngine->expects($this->once())
 			->method('serializeForm')
-			->will($this->returnValue('serialize-code'));
+			->willReturnCallback(function() use (&$callSequence) {
+				$callSequence[] = 'serializeForm';
+				return 'serialize-code';
+			});
 
-		$this->Js->TestJsEngine->expects($this->at(2))
+		$this->Js->TestJsEngine->expects($this->once())
 			->method('request')
-			->will($this->returnValue('ajax-code'));
+			->willReturnCallback(function() use (&$callSequence) {
+				$callSequence[] = 'request';
+				return 'ajax-code';
+			});
 
 		$params = array(
 			'update' => $options['update'], 'data' => 'serialize-code',
 			'method' => 'post', 'dataExpression' => true, 'buffer' => null
 		);
 
-		$this->Js->TestJsEngine->expects($this->at(3))
+		$this->Js->TestJsEngine->expects($this->once())
 			->method('event')
-			->with('click', "ajax-code", $params);
+			->with('click', 'ajax-code', $params)
+			->willReturnCallback(function() use (&$callSequence) {
+				$callSequence[] = 'event';
+				return null;
+			});
 
 		$result = $this->Js->submit('Save', $options);
+
+		$this->assertEquals(['get', 'serializeForm', 'request', 'event'], $callSequence);
+
 		$expected = array(
 			'div' => array('class' => 'submit'),
 			'input' => array('type' => 'submit', 'id' => $options['id'], 'value' => 'Save', 'style' => 'margin: 0'),
@@ -585,12 +669,21 @@ class JsHelperTest extends CakeTestCase {
 	public function testSubmitWithMockRequestParams() {
 		$this->_useMock();
 
-		$this->Js->TestJsEngine->expects($this->at(0))
-			->method('get');
+		$callSequence = [];
 
-		$this->Js->TestJsEngine->expects($this->at(1))
+		$this->Js->TestJsEngine->expects($this->once())
+			->method('get')
+			->willReturnCallback(function() use (&$callSequence) {
+				$callSequence[] = 'get';
+				return null;
+			});
+
+		$this->Js->TestJsEngine->expects($this->once())
 			->method('serializeForm')
-			->will($this->returnValue('serialize-code'));
+			->willReturnCallback(function() use (&$callSequence) {
+				$callSequence[] = 'serializeForm';
+				return 'serialize-code';
+			});
 
 		$requestParams = array(
 			'update' => '#content',
@@ -599,22 +692,32 @@ class JsHelperTest extends CakeTestCase {
 			'dataExpression' => true
 		);
 
-		$this->Js->TestJsEngine->expects($this->at(2))
+		$this->Js->TestJsEngine->expects($this->once())
 			->method('request')
 			->with('/custom/url', $requestParams)
-			->will($this->returnValue('ajax-code'));
+			->willReturnCallback(function() use (&$callSequence) {
+				$callSequence[] = 'request';
+				return 'ajax-code';
+			});
 
 		$params = array(
 			'update' => '#content', 'data' => 'serialize-code',
 			'method' => 'post', 'dataExpression' => true, 'buffer' => null
 		);
 
-		$this->Js->TestJsEngine->expects($this->at(3))
+		$this->Js->TestJsEngine->expects($this->once())
 			->method('event')
-			->with('click', "ajax-code", $params);
+			->with('click', 'ajax-code', $params)
+			->willReturnCallback(function() use (&$callSequence) {
+				$callSequence[] = 'event';
+				return null;
+			});
 
 		$options = array('update' => '#content', 'id' => 'test-submit', 'url' => '/custom/url');
 		$result = $this->Js->submit('Save', $options);
+
+		$this->assertEquals(['get', 'serializeForm', 'request', 'event'], $callSequence);
+
 		$expected = array(
 			'div' => array('class' => 'submit'),
 			'input' => array('type' => 'submit', 'id' => $options['id'], 'value' => 'Save'),
@@ -632,31 +735,46 @@ class JsHelperTest extends CakeTestCase {
 		$this->_useMock();
 		$options = array('update' => '#content', 'id' => 'test-submit', 'buffer' => false, 'safe' => false);
 
-		$this->Js->TestJsEngine->expects($this->at(0))
-			->method('get');
+		$methodSequence = [];
 
-		$this->Js->TestJsEngine->expects($this->at(1))
+		$this->Js->TestJsEngine->expects($this->any())
+			->method('get')
+			->willReturnCallback(function() use (&$methodSequence) {
+				$methodSequence[] = 'get';
+				return null;
+			});
+
+		$this->Js->TestJsEngine->expects($this->once())
 			->method('serializeForm')
-			->will($this->returnValue('serialize-code'));
+			->willReturnCallback(function() use (&$methodSequence) {
+				$methodSequence[] = 'serializeForm';
+				return 'serialize-code';
+			});
 
-		$this->Js->TestJsEngine->expects($this->at(2))
+		$this->Js->TestJsEngine->expects($this->once())
 			->method('request')
-			->will($this->returnValue('ajax-code'));
-
-		$this->Js->TestJsEngine->expects($this->at(3))
-			->method('event')
-			->will($this->returnValue('event-handler'));
+			->willReturnCallback(function() use (&$methodSequence) {
+				$methodSequence[] = 'request';
+				return 'ajax-code';
+			});
 
 		$params = array(
 			'update' => $options['update'], 'data' => 'serialize-code',
 			'method' => 'post', 'dataExpression' => true, 'buffer' => false
 		);
 
-		$this->Js->TestJsEngine->expects($this->at(3))
+		$this->Js->TestJsEngine->expects($this->once())
 			->method('event')
-			->with('click', "ajax-code", $params);
+			->with('click', 'ajax-code', $params)
+			->willReturnCallback(function() use (&$methodSequence) {
+				$methodSequence[] = 'event';
+				return 'event-handler';
+			});
 
 		$result = $this->Js->submit('Save', $options);
+
+		$this->assertEquals(['get', 'serializeForm', 'request', 'event'], $methodSequence);
+
 		$expected = array(
 			'div' => array('class' => 'submit'),
 			'input' => array('type' => 'submit', 'id' => $options['id'], 'value' => 'Save'),
@@ -762,8 +880,9 @@ class JsBaseEngineTest extends CakeTestCase {
  * @return void
  */
 	public function tearDown() : void {
-		parent::tearDown();
 		unset($this->JsEngine);
+
+		parent::tearDown();
 	}
 
 /**

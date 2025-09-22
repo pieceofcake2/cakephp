@@ -138,7 +138,8 @@ abstract class CakeTestCase extends \PHPUnit\Framework\TestCase {
 		if (isset($_GET['debug']) && $_GET['debug']) {
 			ob_flush();
 		}
-		unset($this->_configure, $this->_pathRestore);
+		$this->_configure = [];
+		$this->_pathRestore = [];
 	}
 
 /**

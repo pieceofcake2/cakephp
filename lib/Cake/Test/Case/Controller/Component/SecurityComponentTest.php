@@ -186,12 +186,13 @@ class SecurityComponentTest extends CakeTestCase {
  * @return void
  */
 	public function tearDown() : void {
-		parent::tearDown();
 		$this->Controller->Session->delete('_Token');
 		$this->Controller->Session->destroy();
 		unset($this->Controller->Security);
 		unset($this->Controller->Component);
 		unset($this->Controller);
+
+		parent::tearDown();
 	}
 
 	public function validatePost($expectedException = null, $expectedExceptionMessage = null) {
@@ -1332,12 +1333,13 @@ class SecurityComponentTest extends CakeTestCase {
 		$this->assertTrue($this->validatePost());
 
 		$request = $this->getMock('CakeRequest', array('here'), array('articles/edit/1', false));
-		$request->expects($this->at(0))
+
+		$request->expects($this->exactly(2))
 			->method('here')
-			->will($this->returnValue('/posts/index?page=1'));
-		$request->expects($this->at(1))
-			->method('here')
-			->will($this->returnValue('/posts/edit/1'));
+			->willReturnOnConsecutiveCalls(
+				'/posts/index?page=1',
+				'/posts/edit/1'
+			);
 
 		$request->data = $this->Controller->request->data;
 		$this->Controller->request = $request;

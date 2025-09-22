@@ -56,11 +56,11 @@ class ProjectTaskTest extends CakeTestCase {
  * @return void
  */
 	public function tearDown() : void {
-		parent::tearDown();
-
 		$Folder = new Folder($this->Task->path . 'bake_test_app');
 		$Folder->delete();
 		unset($this->Task);
+
+		parent::tearDown();
 	}
 
 /**
@@ -70,7 +70,7 @@ class ProjectTaskTest extends CakeTestCase {
  */
 	protected function _setupTestProject() {
 		$skel = CAKE . 'Console' . DS . 'Templates' . DS . 'skel';
-		$this->Task->expects($this->at(0))->method('in')->will($this->returnValue('y'));
+		$this->Task->expects($this->once())->method('in')->will($this->returnValue('y'));
 		$this->Task->bake($this->Task->path . 'bake_test_app', $skel);
 	}
 
@@ -136,7 +136,7 @@ class ProjectTaskTest extends CakeTestCase {
 	public function testExecuteWithAbsolutePath() {
 		$path = $this->Task->args[0] = TMP . 'tests' . DS . 'bake_test_app';
 		$this->Task->params['skel'] = CAKE . 'Console' . DS . 'Templates' . DS . 'skel';
-		$this->Task->expects($this->at(0))->method('in')->will($this->returnValue('y'));
+		$this->Task->expects($this->once())->method('in')->will($this->returnValue('y'));
 		$this->Task->execute();
 
 		$this->assertTrue(is_dir($this->Task->args[0]), 'No project dir');
@@ -162,7 +162,7 @@ class ProjectTaskTest extends CakeTestCase {
 
 		$path = $this->Task->args[0] = TMP . 'tests' . DS . 'bake_test_app';
 		$this->Task->params['skel'] = CAKE . 'Console' . DS . 'Templates' . DS . 'skel';
-		$this->Task->expects($this->at(0))->method('in')->will($this->returnValue('y'));
+		$this->Task->expects($this->once())->method('in')->will($this->returnValue('y'));
 		$this->Task->execute();
 
 		$this->assertTrue(is_dir($this->Task->args[0]), 'No project dir');
@@ -295,9 +295,15 @@ class ProjectTaskTest extends CakeTestCase {
 		$this->assertEquals('admin_', $result);
 
 		Configure::write('Routing.prefixes', null);
-		$this->_setupTestProject();
+
+		$this->Task->expects($this->exactly(2))
+			->method('in')
+			->willReturnOnConsecutiveCalls('y', 'super_duper_admin');
+
+		$skel = CAKE . 'Console' . DS . 'Templates' . DS . 'skel';
+		$this->Task->bake($this->Task->path . 'bake_test_app', $skel);
+
 		$this->Task->configPath = $this->Task->path . 'bake_test_app' . DS . 'Config' . DS;
-		$this->Task->expects($this->once())->method('in')->will($this->returnValue('super_duper_admin'));
 
 		$result = $this->Task->getPrefix();
 		$this->assertEquals('super_duper_admin_', $result);
@@ -333,9 +339,15 @@ class ProjectTaskTest extends CakeTestCase {
  */
 	public function testGetPrefixWithMultiplePrefixes() {
 		Configure::write('Routing.prefixes', array('admin', 'ninja', 'shinobi'));
-		$this->_setupTestProject();
+
+		$this->Task->expects($this->exactly(2))
+			->method('in')
+			->willReturnOnConsecutiveCalls('y', 2);
+
+		$skel = CAKE . 'Console' . DS . 'Templates' . DS . 'skel';
+		$this->Task->bake($this->Task->path . 'bake_test_app', $skel);
+
 		$this->Task->configPath = $this->Task->path . 'bake_test_app' . DS . 'Config' . DS;
-		$this->Task->expects($this->once())->method('in')->will($this->returnValue(2));
 
 		$result = $this->Task->getPrefix();
 		$this->assertEquals('ninja_', $result);
@@ -351,8 +363,10 @@ class ProjectTaskTest extends CakeTestCase {
 		$this->Task->params['working'] = TMP . 'tests' . DS;
 
 		$path = $this->Task->path . 'bake_test_app';
-		$this->Task->expects($this->at(0))->method('in')->will($this->returnValue($path));
-		$this->Task->expects($this->at(1))->method('in')->will($this->returnValue('y'));
+
+		$this->Task->expects($this->exactly(2))
+			->method('in')
+			->willReturnOnConsecutiveCalls($path, 'y');
 
 		$this->Task->execute();
 		$this->assertTrue(is_dir($path), 'No project dir');

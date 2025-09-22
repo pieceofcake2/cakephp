@@ -83,11 +83,12 @@ class MemcachedEngineTest extends CakeTestCase {
  * @return void
  */
 	public function tearDown() : void {
-		parent::tearDown();
 		Cache::drop('memcached');
 		Cache::drop('memcached_groups');
 		Cache::drop('memcached_helper');
 		Cache::config('default');
+
+		parent::tearDown();
 	}
 
 /**
@@ -343,6 +344,7 @@ class MemcachedEngineTest extends CakeTestCase {
  */
 	public function testSaslAuthException() {
 		$this->skipIf(version_compare(PHP_VERSION, '7.0.0', '>='));
+
 		$Memcached = new TestMemcachedEngine();
 		$settings = array(
 			'engine' => 'Memcached',
@@ -352,8 +354,24 @@ class MemcachedEngineTest extends CakeTestCase {
 			'password' => 'password'
 		);
 
-		$this->expectWarning();
-		$Memcached->init($settings);
+		$warningTriggered = false;
+		$warningMessage = '';
+		set_error_handler(function($errno, $errstr) use (&$warningTriggered, &$warningMessage) {
+			if ($errno === E_WARNING || $errno === E_USER_WARNING) {
+				$warningTriggered = true;
+				$warningMessage = $errstr;
+				return true;
+			}
+			return false;
+		}, E_WARNING | E_USER_WARNING);
+
+		try {
+			$Memcached->init($settings);
+		} finally {
+			restore_error_handler();
+		}
+
+		$this->assertTrue($warningTriggered, 'Expected warning was not triggered');
 	}
 
 /**

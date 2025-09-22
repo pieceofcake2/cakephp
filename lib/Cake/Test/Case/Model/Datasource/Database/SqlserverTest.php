@@ -280,9 +280,10 @@ class SqlserverTest extends CakeTestCase {
  * @return void
  */
 	public function tearDown() : void {
-		parent::tearDown();
 		unset($this->Dbo);
 		unset($this->model);
+
+		parent::tearDown();
 	}
 
 /**

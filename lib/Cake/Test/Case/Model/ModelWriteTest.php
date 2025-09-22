@@ -8183,8 +8183,9 @@ class ModelWriteTest extends BaseModelTest {
 
 		// begin -> [  begin(false) ] -> commit
 		$db = $this->_getMockDboSource(array('begin', 'commit', 'rollback'));
-		$db->expects($this->at(0))->method('begin')->will($this->returnValue(true));
-		$db->expects($this->at(1))->method('begin')->will($this->returnValue(false));
+		$db->expects($this->exactly(2))
+			->method('begin')
+			->willReturnOnConsecutiveCalls(true, false);
 		$db->expects($this->once())->method('commit');
 		$db->expects($this->never())->method('rollback');
 		$Post->setDataSourceObject($db);
@@ -8252,8 +8253,9 @@ class ModelWriteTest extends BaseModelTest {
 
 		// begin -> [  begin(false) ] -> commit
 		$db = $this->_getMockDboSource(array('begin', 'commit', 'rollback'));
-		$db->expects($this->at(0))->method('begin')->will($this->returnValue(true));
-		$db->expects($this->at(1))->method('begin')->will($this->returnValue(false));
+		$db->expects($this->exactly(2))
+			->method('begin')
+			->willReturnOnConsecutiveCalls(true, false);
 		$db->expects($this->once())->method('commit');
 		$db->expects($this->never())->method('rollback');
 		$Author->setDataSourceObject($db);

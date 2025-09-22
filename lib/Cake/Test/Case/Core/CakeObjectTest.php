@@ -304,9 +304,10 @@ class ObjectTest extends CakeTestCase {
  * @return void
  */
 	public function tearDown() : void {
-		parent::tearDown();
 		CakePlugin::unload();
 		unset($this->object);
+
+		parent::tearDown();
 	}
 
 /**

@@ -236,7 +236,6 @@ class PostgresTest extends CakeTestCase {
  * @return void
  */
 	public function tearDown() : void {
-		parent::tearDown();
 		Configure::write('Cache.disable', false);
 		unset($this->Dbo2);
 
@@ -244,6 +243,8 @@ class PostgresTest extends CakeTestCase {
 			setlocale(LC_NUMERIC, $this->restoreLocaleNumeric);
 			$this->restoreLocaleNumeric = null;
 		}
+
+		parent::tearDown();
 	}
 
 /**
@@ -1036,23 +1037,30 @@ class PostgresTest extends CakeTestCase {
 		$Article = new Article();
 
 		$this->Dbo = $this->getMock('Postgres', array('execute'), array($db->config));
-
-		$this->Dbo->expects($this->at(0))->method('execute')
+		$this->Dbo->expects($this->once())
+			->method('execute')
 			->with("DELETE FROM \"$schema\".\"articles\"");
 		$this->Dbo->truncate($Article);
 
-		$this->Dbo->expects($this->at(0))->method('execute')
+		$this->Dbo = $this->getMock('Postgres', array('execute'), array($db->config));
+		$this->Dbo->expects($this->once())
+			->method('execute')
 			->with("DELETE FROM \"$schema\".\"articles\"");
 		$this->Dbo->truncate('articles');
 
 		// #2355: prevent duplicate prefix
+		$this->Dbo = $this->getMock('Postgres', array('execute'), array($db->config));
 		$this->Dbo->config['prefix'] = 'tbl_';
 		$Article->tablePrefix = 'tbl_';
-		$this->Dbo->expects($this->at(0))->method('execute')
+		$this->Dbo->expects($this->once())
+			->method('execute')
 			->with("DELETE FROM \"$schema\".\"tbl_articles\"");
 		$this->Dbo->truncate($Article);
 
-		$this->Dbo->expects($this->at(0))->method('execute')
+		$this->Dbo = $this->getMock('Postgres', array('execute'), array($db->config));
+		$this->Dbo->config['prefix'] = 'tbl_';
+		$this->Dbo->expects($this->once())
+			->method('execute')
 			->with("DELETE FROM \"$schema\".\"tbl_articles\"");
 		$this->Dbo->truncate('articles');
 	}

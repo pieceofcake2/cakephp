@@ -527,23 +527,14 @@ class PaginatorComponentTest extends CakeTestCase {
  * @return void
  */
 	public function testPageParamCasting() {
-		$this->Controller->Post->expects($this->at(0))
+		$this->Controller->Post->expects($this->exactly(2))
 			->method('hasMethod')
-			->with('paginate')
-			->will($this->returnValue(false));
+			->withConsecutive(['paginate'], ['paginateCount'])
+			->willReturn(false);
 
-		$this->Controller->Post->expects($this->at(1))
+		$this->Controller->Post->expects($this->exactly(2))
 			->method('find')
-			->will($this->returnValue(array('stuff')));
-
-		$this->Controller->Post->expects($this->at(2))
-			->method('hasMethod')
-			->with('paginateCount')
-			->will($this->returnValue(false));
-
-		$this->Controller->Post->expects($this->at(3))
-			->method('find')
-			->will($this->returnValue(2));
+			->willReturnOnConsecutiveCalls(array('stuff'), 2);
 
 		$this->request->params['named'] = array('page' => '1 " onclick="alert(\'xss\');">');
 		$this->Paginator->settings = array('limit' => 1, 'maxLimit' => 10, 'paramType' => 'named');
@@ -1217,15 +1208,13 @@ class PaginatorComponentTest extends CakeTestCase {
 		$model = $this->getMock('Model');
 		$model->alias = 'model';
 
-		$model->expects($this->at(0))
+		$model->expects($this->exactly(2))
 			->method('hasField')
-			->with('something')
-			->will($this->returnValue(false));
-
-		$model->expects($this->at(1))
-			->method('hasField')
-			->with('something', true)
-			->will($this->returnValue(true));
+			->withConsecutive(
+				['something'],
+				['something', true]
+			)
+			->willReturnOnConsecutiveCalls(false, true);
 
 		$options = array('sort' => 'something', 'direction' => 'desc');
 		$result = $this->Paginator->validateSort($model, $options);
@@ -1247,7 +1236,7 @@ class PaginatorComponentTest extends CakeTestCase {
 		$model->expects($this->never())
 			->method('hasField');
 
-		$model->Child->expects($this->at(0))
+		$model->Child->expects($this->once())
 			->method('hasField')
 			->with('something')
 			->will($this->returnValue(true));

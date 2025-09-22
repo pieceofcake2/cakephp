@@ -248,11 +248,11 @@ class Postgres extends DboSource {
 				$fields[$c->name] = array(
 					'type' => $this->column($type),
 					'null' => ($c->null === 'NO' ? false : true),
-					'default' => preg_replace(
+					'default' => $c->default ? preg_replace(
 						"/^'(.*)'$/",
 						"$1",
 						preg_replace('/::[\w\s]+/', '', $c->default)
-					),
+					) : null,
 					'length' => $length,
 				);
 

@@ -237,10 +237,10 @@ class CakeEventManagerTest extends CakeTestCase {
 		$manager->attach(array($anotherListener, 'listenerFunction'), 'fake.event');
 		$event = new CakeEvent('fake.event');
 
-		$listener->expects($this->at(0))->method('listenerFunction')
+		$listener->expects($this->once())->method('listenerFunction')
 			->with($event)
 			->will($this->returnValue('something special'));
-		$anotherListener->expects($this->at(0))
+		$anotherListener->expects($this->once())
 			->method('listenerFunction')
 			->with($event);
 		$manager->dispatch($event);
@@ -261,7 +261,7 @@ class CakeEventManagerTest extends CakeTestCase {
 		$manager->attach(array($anotherListener, 'listenerFunction'), 'fake.event');
 		$event = new CakeEvent('fake.event');
 
-		$listener->expects($this->at(0))->method('listenerFunction')
+		$listener->expects($this->once())->method('listenerFunction')
 			->with($event)
 			->will($this->returnValue(false));
 		$anotherListener->expects($this->never())
@@ -326,7 +326,7 @@ class CakeEventManagerTest extends CakeTestCase {
 		$expected = array('listenerFunction');
 		$this->assertEquals($expected, $listener->callStack);
 
-		$listener->expects($this->at(0))->method('secondListenerFunction')->with('data');
+		$listener->expects($this->once())->method('secondListenerFunction')->with('data');
 		$event = new CakeEvent('another.event', $this, array('some' => 'data'));
 		$manager->dispatch($event);
 

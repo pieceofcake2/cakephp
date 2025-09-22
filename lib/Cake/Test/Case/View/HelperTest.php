@@ -226,11 +226,12 @@ class HelperTest extends CakeTestCase {
  * @return void
  */
 	public function tearDown() : void {
-		parent::tearDown();
 		Configure::delete('Asset');
 
 		CakePlugin::unload();
 		unset($this->Helper, $this->View);
+
+		parent::tearDown();
 	}
 
 /**

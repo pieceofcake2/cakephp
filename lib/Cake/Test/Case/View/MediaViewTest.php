@@ -51,8 +51,9 @@ class MediaViewTest extends CakeTestCase {
  * @return void
  */
 	public function tearDown() : void {
-		parent::tearDown();
 		unset($this->MediaView);
+
+		parent::tearDown();
 	}
 
 /**
@@ -132,6 +133,7 @@ class MediaViewTest extends CakeTestCase {
 			->will($this->returnArgument(0));
 
 		$this->MediaView->render();
-	}
 
+		$this->assertTrue(true, 'UPPERCASE extension was handled correctly');
+	}
 }

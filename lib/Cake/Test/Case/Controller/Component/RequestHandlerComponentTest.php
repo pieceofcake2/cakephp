@@ -131,12 +131,13 @@ class RequestHandlerComponentTest extends CakeTestCase {
  * @return void
  */
 	public function tearDown() : void {
-		parent::tearDown();
 		unset($this->RequestHandler, $this->Controller);
 		if (!headers_sent()) {
 			header('Content-type: text/html'); //reset content type.
 		}
 		call_user_func_array('Router::parseExtensions', $this->_extensions);
+
+		parent::tearDown();
 	}
 
 /**
@@ -505,13 +506,16 @@ class RequestHandlerComponentTest extends CakeTestCase {
 			->will($this->returnValue(array('1.0' => array('application/xml'))));
 
 		$this->RequestHandler->response = $this->getMock('CakeResponse', array('type', 'download', 'charset'));
-		$this->RequestHandler->response->expects($this->at(0))
+
+		$this->RequestHandler->response->expects($this->once())
 			->method('type')
 			->with('application/xml');
-		$this->RequestHandler->response->expects($this->at(1))
+
+		$this->RequestHandler->response->expects($this->once())
 			->method('charset')
 			->with('UTF-8');
-		$this->RequestHandler->response->expects($this->at(2))
+
+		$this->RequestHandler->response->expects($this->once())
 			->method('download')
 			->with('myfile.xml');
 
@@ -527,10 +531,13 @@ class RequestHandlerComponentTest extends CakeTestCase {
  */
 	public function testRespondAs() {
 		$this->RequestHandler->response = $this->getMock('CakeResponse', array('type'));
-		$this->RequestHandler->response->expects($this->at(0))->method('type')
-			->with('application/json');
-		$this->RequestHandler->response->expects($this->at(1))->method('type')
-			->with('text/xml');
+
+		$this->RequestHandler->response->expects($this->exactly(2))
+			->method('type')
+			->withConsecutive(
+				['application/json'],
+				['text/xml']
+			);
 
 		$result = $this->RequestHandler->respondAs('json');
 		$this->assertTrue($result);
@@ -713,21 +720,16 @@ class RequestHandlerComponentTest extends CakeTestCase {
  */
 	public function testRequestMethod() {
 		$request = $this->getMock('CakeRequest');
-		$request->expects($this->at(0))->method('is')
-			->with('get')
-			->will($this->returnValue(true));
 
-		$request->expects($this->at(1))->method('is')
-			->with('post')
-			->will($this->returnValue(false));
-
-		$request->expects($this->at(2))->method('is')
-			->with('delete')
-			->will($this->returnValue(true));
-
-		$request->expects($this->at(3))->method('is')
-			->with('put')
-			->will($this->returnValue(false));
+		$request->expects($this->exactly(4))
+			->method('is')
+			->withConsecutive(
+				['get'],
+				['post'],
+				['delete'],
+				['put']
+			)
+			->willReturnOnConsecutiveCalls(true, false, true, false);
 
 		$this->RequestHandler->request = $request;
 		$this->assertTrue($this->RequestHandler->isGet());

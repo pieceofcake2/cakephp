@@ -72,8 +72,9 @@ class CacheSessionTest extends CakeTestCase {
  * @return void
  */
 	public function tearDown() : void {
-		parent::tearDown();
 		unset($this->storage);
+
+		parent::tearDown();
 	}
 
 /**

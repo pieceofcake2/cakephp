@@ -97,6 +97,7 @@ class CacheHelperTest extends CakeTestCase {
 	public function tearDown() : void {
 		clearCache();
 		unset($this->Cache);
+
 		parent::tearDown();
 	}
 

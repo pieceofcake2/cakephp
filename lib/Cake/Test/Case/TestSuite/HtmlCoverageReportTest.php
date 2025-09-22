@@ -237,6 +237,7 @@ class HtmlCoverageReportTest extends CakeTestCase {
 	public function tearDown() : void {
 		CakePlugin::unload();
 		unset($this->Coverage);
+
 		parent::tearDown();
 	}
 }

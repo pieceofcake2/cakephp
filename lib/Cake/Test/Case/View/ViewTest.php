@@ -347,7 +347,6 @@ class ViewTest extends CakeTestCase {
  * @return void
  */
 	public function tearDown() : void {
-		parent::tearDown();
 		CakePlugin::unload();
 		unset($this->View);
 		unset($this->PostsController);
@@ -355,6 +354,8 @@ class ViewTest extends CakeTestCase {
 		unset($this->ThemeView);
 		unset($this->ThemePostsController);
 		unset($this->ThemeController);
+
+		parent::tearDown();
 	}
 
 /**
@@ -770,8 +771,25 @@ class ViewTest extends CakeTestCase {
  * @return void
  */
 	public function testElementInexistent() {
-		$this->expectNotice();
-		$this->View->element('non_existent_element');
+		$noticeTriggered = false;
+		$noticeMessage = '';
+		set_error_handler(function($errno, $errstr) use (&$noticeTriggered, &$noticeMessage) {
+			if ($errno === E_NOTICE || $errno === E_USER_NOTICE) {
+				$noticeTriggered = true;
+				$noticeMessage = $errstr;
+				return true;
+			}
+			return false;
+		}, E_NOTICE | E_USER_NOTICE);
+
+		try {
+			$this->View->element('non_existent_element');
+		} finally {
+			restore_error_handler();
+		}
+
+		$this->assertTrue($noticeTriggered, 'Expected notice was not triggered');
+		$this->assertSame('Element Not Found: Elements/non_existent_element.ctp', $noticeMessage);
 	}
 
 /**
@@ -780,8 +798,25 @@ class ViewTest extends CakeTestCase {
  * @return void
  */
 	public function testElementInexistent2() {
-		$this->expectNotice();
-		$this->View->element('TestPlugin.plugin_element', array(), array('plugin' => 'test_plugin'));
+		$noticeTriggered = false;
+		$noticeMessage = '';
+		set_error_handler(function($errno, $errstr) use (&$noticeTriggered, &$noticeMessage) {
+			if ($errno === E_NOTICE || $errno === E_USER_NOTICE) {
+				$noticeTriggered = true;
+				$noticeMessage = $errstr;
+				return true;
+			}
+			return false;
+		}, E_NOTICE | E_USER_NOTICE);
+
+		try {
+			$this->View->element('TestPlugin.plugin_element', array(), array('plugin' => 'test_plugin'));
+		} finally {
+			restore_error_handler();
+		}
+
+		$this->assertTrue($noticeTriggered, 'Expected notice was not triggered');
+		$this->assertSame('Element Not Found: TestPlugin.Elements/TestPlugin.plugin_element.ctp', $noticeMessage);
 	}
 
 /**
@@ -790,8 +825,25 @@ class ViewTest extends CakeTestCase {
  * @return void
  */
 	public function testElementInexistent3() {
-		$this->expectNotice();
-		$this->View->element('test_plugin.plugin_element');
+		$noticeTriggered = false;
+		$noticeMessage = '';
+		set_error_handler(function($errno, $errstr) use (&$noticeTriggered, &$noticeMessage) {
+			if ($errno === E_NOTICE || $errno === E_USER_NOTICE) {
+				$noticeTriggered = true;
+				$noticeMessage = $errstr;
+				return true;
+			}
+			return false;
+		}, E_NOTICE | E_USER_NOTICE);
+
+		try {
+			$this->View->element('test_plugin.plugin_element');
+		} finally {
+			restore_error_handler();
+		}
+
+		$this->assertTrue($noticeTriggered, 'Expected notice was not triggered');
+		$this->assertSame('Element Not Found: test_plugin.Elements/plugin_element.ctp', $noticeMessage);
 	}
 
 /**
@@ -807,10 +859,23 @@ class ViewTest extends CakeTestCase {
 		$this->View->Helpers->set('ElementCallbackMockHtml', $Helper);
 		$this->View->ElementCallbackMockHtml = $Helper;
 
-		$this->View->ElementCallbackMockHtml->expects($this->at(0))->method('beforeRender');
-		$this->View->ElementCallbackMockHtml->expects($this->at(1))->method('afterRender');
+		$callSequence = [];
+
+		$this->View->ElementCallbackMockHtml->expects($this->once())
+			->method('beforeRender')
+			->willReturnCallback(function() use (&$callSequence) {
+				$callSequence[] = 'beforeRender';
+			});
+
+		$this->View->ElementCallbackMockHtml->expects($this->once())
+			->method('afterRender')
+			->willReturnCallback(function() use (&$callSequence) {
+				$callSequence[] = 'afterRender';
+			});
 
 		$this->View->element('test_element', array(), array('callbacks' => true));
+
+		$this->assertEquals(['beforeRender', 'afterRender'], $callSequence);
 	}
 
 /**
@@ -986,109 +1051,28 @@ class ViewTest extends CakeTestCase {
 		$View->helpers = array();
 		$View->Helpers = $this->getMock('HelperCollection', array('trigger'), array($View));
 
-		$View->Helpers->expects($this->at(0))->method('trigger')
-			->with(
-				$this->logicalAnd(
-					$this->isInstanceOf('CakeEvent'),
-					$this->callback(function (CakeEvent $event) {
-						return $event->name() === 'View.beforeRender';
-					}),
-					$this->callback(function (CakeEvent $event) use ($View) {
-						return $event->subject() === $View;
-					}),
-				)
-			);
-		$View->Helpers->expects($this->at(1))->method('trigger')
-			->with(
-				$this->logicalAnd(
-					$this->isInstanceOf('CakeEvent'),
-					$this->callback(function (CakeEvent $event) {
-						return $event->name() === 'View.beforeRenderFile';
-					}),
-					$this->callback(function (CakeEvent $event) use ($View) {
-						return $event->subject() === $View;
-					}),
-				)
-			);
-
-		$View->Helpers->expects($this->at(2))->method('trigger')
-			->with(
-				$this->logicalAnd(
-					$this->isInstanceOf('CakeEvent'),
-					$this->callback(function (CakeEvent $event) {
-						return $event->name() === 'View.afterRenderFile';
-					}),
-					$this->callback(function (CakeEvent $event) use ($View) {
-						return $event->subject() === $View;
-					}),
-				)
-			);
-		$View->Helpers->expects($this->at(3))->method('trigger')
-			->with(
-				$this->logicalAnd(
-					$this->isInstanceOf('CakeEvent'),
-					$this->callback(function (CakeEvent $event) {
-						return $event->name() === 'View.afterRender';
-					}),
-					$this->callback(function (CakeEvent $event) use ($View) {
-						return $event->subject() === $View;
-					}),
-				)
-			);
-
-		$View->Helpers->expects($this->at(4))->method('trigger')
-			->with(
-				$this->logicalAnd(
-					$this->isInstanceOf('CakeEvent'),
-					$this->callback(function (CakeEvent $event) {
-						return $event->name() === 'View.beforeLayout';
-					}),
-					$this->callback(function (CakeEvent $event) use ($View) {
-						return $event->subject() === $View;
-					}),
-				)
-			);
-
-		$View->Helpers->expects($this->at(5))->method('trigger')
-			->with(
-				$this->logicalAnd(
-					$this->isInstanceOf('CakeEvent'),
-					$this->callback(function (CakeEvent $event) {
-						return $event->name() === 'View.beforeRenderFile';
-					}),
-					$this->callback(function (CakeEvent $event) use ($View) {
-						return $event->subject() === $View;
-					}),
-				)
-			);
-
-		$View->Helpers->expects($this->at(6))->method('trigger')
-			->with(
-				$this->logicalAnd(
-					$this->isInstanceOf('CakeEvent'),
-					$this->callback(function (CakeEvent $event) {
-						return $event->name() === 'View.afterRenderFile';
-					}),
-					$this->callback(function (CakeEvent $event) use ($View) {
-						return $event->subject() === $View;
-					}),
-				)
-			);
-
-		$View->Helpers->expects($this->at(7))->method('trigger')
-			->with(
-				$this->logicalAnd(
-					$this->isInstanceOf('CakeEvent'),
-					$this->callback(function (CakeEvent $event) {
-						return $event->name() === 'View.afterLayout';
-					}),
-					$this->callback(function (CakeEvent $event) use ($View) {
-						return $event->subject() === $View;
-					}),
-				)
-			);
+		$triggerCalls = [];
+		$View->Helpers->expects($this->exactly(8))
+			->method('trigger')
+			->willReturnCallback(function($event) use (&$triggerCalls, $View) {
+				$this->assertInstanceOf('CakeEvent', $event);
+				$this->assertSame($View, $event->subject());
+				$triggerCalls[] = $event->name();
+			});
 
 		$View->render('index');
+
+		$expectedEvents = [
+			'View.beforeRender',
+			'View.beforeRenderFile',
+			'View.afterRenderFile',
+			'View.afterRender',
+			'View.beforeLayout',
+			'View.beforeRenderFile',
+			'View.afterRenderFile',
+			'View.afterLayout'
+		];
+		$this->assertEquals($expectedEvents, $triggerCalls);
 	}
 
 /**

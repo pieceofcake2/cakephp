@@ -51,6 +51,7 @@ class TaskCollectionTest extends CakeTestCase {
  */
 	public function tearDown() : void {
 		unset($this->Tasks);
+
 		parent::tearDown();
 	}
 

@@ -85,9 +85,10 @@ class CompletionShellTest extends CakeTestCase {
  * @return void
  */
 	public function tearDown() : void {
-		parent::tearDown();
 		unset($this->Shell);
 		CakePlugin::unload();
+
+		parent::tearDown();
 	}
 
 /**

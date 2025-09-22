@@ -403,8 +403,9 @@ class ControllerTest extends CakeTestCase {
  * @return void
  */
 	public function tearDown() : void {
-		parent::tearDown();
 		CakePlugin::unload();
+
+		parent::tearDown();
 	}
 
 /**
@@ -852,7 +853,7 @@ class ControllerTest extends CakeTestCase {
 		$Controller->response->expects($this->once())->method('header')
 			->with('Location', 'http://example.com/test/2');
 
-		$Controller->response->expects($this->at(1))->method('statusCode')
+		$Controller->response->expects($this->once())->method('statusCode')
 			->with(302);
 
 		$Controller->expects($this->never())->method('_stop');
@@ -896,9 +897,12 @@ class ControllerTest extends CakeTestCase {
 				'exit' => true
 			)));
 
-		$Controller->response->expects($this->at(0))
+		$Controller->response->expects($this->exactly(2))
 			->method('header')
-			->with('Location', 'http://example.org');
+			->withConsecutive(
+				['Location', 'http://example.org'],
+				['Content-Type', 'text/html; charset=UTF-8']
+			);
 
 		$Controller->expects($this->once())->method('_stop');
 		$Controller->redirect('https://cakephp.org');
@@ -1227,8 +1231,12 @@ class ControllerTest extends CakeTestCase {
 	public function testControllerHttpCodes() {
 		$response = $this->getMock('CakeResponse', array('httpCodes'));
 		$Controller = new Controller(null, $response);
-		$Controller->response->expects($this->at(0))->method('httpCodes')->with(null);
-		$Controller->response->expects($this->at(1))->method('httpCodes')->with(100);
+		$Controller->response->expects($this->exactly(2))
+			->method('httpCodes')
+			->withConsecutive(
+				[null],
+				[100]
+			);
 		$Controller->httpCodes();
 		$Controller->httpCodes(100);
 	}
@@ -1242,33 +1250,22 @@ class ControllerTest extends CakeTestCase {
 		$Controller = $this->getMock('Controller', array('getEventManager'));
 
 		$eventManager = $this->getMock('CakeEventManager');
-		$eventManager->expects($this->at(0))->method('dispatch')
-			->with(
-				$this->logicalAnd(
-					$this->isInstanceOf('CakeEvent'),
-					$this->callback(function (CakeEvent $event) {
-						return $event->name() === 'Controller.initialize';
-					}),
-					$this->callback(function (CakeEvent $event) use ($Controller) {
-						return $event->subject() === $Controller;
-					}),
-				)
-			);
-		$eventManager->expects($this->at(1))->method('dispatch')
-			->with(
-				$this->logicalAnd(
-					$this->isInstanceOf('CakeEvent'),
-					$this->callback(function (CakeEvent $event) {
-						return $event->name() === 'Controller.startup';
-					}),
-					$this->callback(function (CakeEvent $event) use ($Controller) {
-						return $event->subject() === $Controller;
-					}),
-				)
-			);
-		$Controller->expects($this->exactly(2))->method('getEventManager')
+
+		$dispatchedEvents = [];
+		$eventManager->expects($this->exactly(2))
+			->method('dispatch')
+			->willReturnCallback(function($event) use (&$dispatchedEvents, $Controller) {
+				$this->assertInstanceOf('CakeEvent', $event);
+				$this->assertSame($Controller, $event->subject());
+				$dispatchedEvents[] = $event->name();
+			});
+
+		$Controller->expects($this->exactly(2))
+			->method('getEventManager')
 			->will($this->returnValue($eventManager));
 		$Controller->startupProcess();
+
+		$this->assertEquals(['Controller.initialize', 'Controller.startup'], $dispatchedEvents);
 	}
 
 /**

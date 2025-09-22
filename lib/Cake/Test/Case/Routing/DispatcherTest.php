@@ -572,7 +572,6 @@ class DispatcherTest extends CakeTestCase {
  * @return void
  */
 	public function tearDown() : void {
-		parent::tearDown();
 		$_GET = $this->_get;
 		$_POST = $this->_post;
 		$_FILES = $this->_files;
@@ -583,6 +582,8 @@ class DispatcherTest extends CakeTestCase {
 		Configure::write('Cache', $this->_cache);
 		Configure::write('debug', $this->_debug);
 		Configure::write('Dispatcher.filters', array());
+
+		parent::tearDown();
 	}
 
 /**

@@ -49,12 +49,13 @@ class FileEngineTest extends CakeTestCase {
  * @return void
  */
 	public function tearDown() : void {
-		parent::tearDown();
 		// Cache::clear(false, 'file_test');
 		Cache::drop('file_test');
 		Cache::drop('file_groups');
 		Cache::drop('file_groups2');
 		Cache::drop('file_groups3');
+
+		parent::tearDown();
 	}
 
 /**
@@ -384,12 +385,25 @@ class FileEngineTest extends CakeTestCase {
  * @return void
  */
 	public function testPathDoesNotExist() {
-		$this->skipIf(is_dir(TMP . 'tests' . DS . 'autocreate'), 'Cannot run if test directory exists.');
+		if (is_dir(TMP . 'tests' . DS . 'autocreate')) {
+			rmdir(TMP . 'tests' . DS . 'autocreate');
+		}
 
-		Cache::config('autocreate', array(
-			'engine' => 'File',
-			'path' => TMP . 'tests' . DS . 'autocreate'
-		));
+		$exceptionThrown = false;
+		try {
+			Cache::config('autocreate', array(
+				'engine' => 'File',
+				'path' => TMP . 'tests' . DS . 'autocreate'
+			));
+		} catch (CacheException $e) {
+			$exceptionThrown = true;
+		}
+
+		$this->assertFalse($exceptionThrown, 'CacheException should not be thrown when path does not exist in debug mode');
+
+		$config = Cache::config('autocreate');
+		$this->assertIsArray($config);
+		$this->assertEquals('File', $config['engine']);
 
 		Cache::drop('autocreate');
 	}

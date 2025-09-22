@@ -82,8 +82,8 @@ abstract class BaseModelTest extends CakeTestCase {
  * @return void
  */
 	public function setUp() : void {
-		parent::setUp();
 		$this->debug = Configure::read('debug');
+		parent::setUp();
 	}
 
 /**
@@ -92,8 +92,9 @@ abstract class BaseModelTest extends CakeTestCase {
  * @return void
  */
 	public function tearDown() : void {
-		parent::tearDown();
 		Configure::write('debug', $this->debug);
 		ClassRegistry::flush();
+
+		parent::tearDown();
 	}
 }

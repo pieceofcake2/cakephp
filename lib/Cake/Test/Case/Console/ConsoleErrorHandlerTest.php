@@ -43,6 +43,7 @@ class ConsoleErrorHandlerTest extends CakeTestCase {
  */
 	public function tearDown() : void {
 		unset($this->Error);
+
 		parent::tearDown();
 	}
 

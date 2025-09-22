@@ -411,13 +411,13 @@ class AuthComponentTest extends CakeTestCase {
  * @return void
  */
 	public function tearDown() : void {
-		parent::tearDown();
-
 		TestAuthComponent::clearUser();
 		$this->Auth->Session->delete('Auth');
 		$this->Auth->Session->delete('Message.auth');
 		$this->Auth->Session->destroy();
 		unset($this->Controller, $this->Auth);
+
+		parent::tearDown();
 	}
 
 /**
@@ -1284,9 +1284,14 @@ class AuthComponentTest extends CakeTestCase {
 		Router::setRequestInfo($this->Auth->request);
 
 		$this->Controller->response = $this->getMock('CakeResponse', array('_sendHeader'));
-		$this->Controller->response->expects($this->at(0))
+
+		$sendHeaderCalls = [];
+		$this->Controller->response->expects($this->exactly(3))
 			->method('_sendHeader')
-			->with('HTTP/1.1 403 Forbidden', null);
+			->willReturnCallback(function() use (&$sendHeaderCalls) {
+				$sendHeaderCalls[] = func_get_args();
+			});
+
 		$this->Auth->initialize($this->Controller);
 
 		ob_start();
@@ -1297,6 +1302,10 @@ class AuthComponentTest extends CakeTestCase {
 		$this->assertEquals('this is the test element', $this->Controller->response->body());
 		$this->assertArrayNotHasKey('Location', $this->Controller->response->header());
 		$this->assertNull($this->Controller->testUrl, 'redirect() not called');
+
+		$this->assertNotEmpty($sendHeaderCalls);
+		$this->assertEquals(['HTTP/1.1 403 Forbidden', null], $sendHeaderCalls[0]);
+
 		unset($_SERVER['HTTP_X_REQUESTED_WITH']);
 	}
 
@@ -1317,15 +1326,24 @@ class AuthComponentTest extends CakeTestCase {
 		Router::setRequestInfo($this->Auth->request);
 
 		$this->Controller->response = $this->getMock('CakeResponse', array('_sendHeader'));
-		$this->Controller->response->expects($this->at(0))
+
+		$sendHeaderCalls = [];
+		$this->Controller->response->expects($this->exactly(3))
 			->method('_sendHeader')
-			->with('HTTP/1.1 403 Forbidden', null);
+			->willReturnCallback(function() use (&$sendHeaderCalls) {
+				$sendHeaderCalls[] = func_get_args();
+			});
+
 		$this->Auth->initialize($this->Controller);
 
 		$this->Auth->startup($this->Controller);
 
 		$this->assertArrayNotHasKey('Location', $this->Controller->response->header());
 		$this->assertNull($this->Controller->testUrl, 'redirect() not called');
+
+		$this->assertArrayNotHasKey('Location', $this->Controller->response->header());
+		$this->assertNull($this->Controller->testUrl, 'redirect() not called');
+
 		unset($_SERVER['HTTP_X_REQUESTED_WITH']);
 	}
 

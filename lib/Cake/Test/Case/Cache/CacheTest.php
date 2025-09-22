@@ -47,12 +47,13 @@ class CacheTest extends CakeTestCase {
  * @return void
  */
 	public function tearDown() : void {
-		parent::tearDown();
 		Cache::drop('latest');
 		Cache::drop('page');
 		Cache::drop('archive');
 		Configure::write('Cache.disable', $this->_cacheDisable);
 		Cache::config('default', $this->_defaultCacheConfig['settings']);
+
+		parent::tearDown();
 	}
 
 /**
@@ -88,10 +89,18 @@ class CacheTest extends CakeTestCase {
 		Configure::write('Cache.disable', true);
 		Cache::config('test', array('engine' => 'File', 'path' => TMP, 'prefix' => 'error_test_'));
 
-		Cache::write('no_save', 'Noooo!', 'test');
-		Cache::read('no_save', 'test');
-		Cache::delete('no_save', 'test');
-		Cache::set('duration', '+10 minutes');
+		$writeResult = Cache::write('no_save', 'Noooo!', 'test');
+		$readResult = Cache::read('no_save', 'test');
+		$deleteResult = Cache::delete('no_save', 'test');
+		$setResult = Cache::set('duration', '+10 minutes');
+
+		$this->assertFalse($writeResult);
+		$this->assertFalse($readResult);
+		$this->assertFalse($deleteResult);
+
+		$this->assertIsArray($setResult);
+		$this->assertArrayHasKey('duration', $setResult);
+		$this->assertEquals(600, $setResult['duration']);
 
 		Configure::write('Cache.disable', false);
 	}
@@ -131,22 +140,42 @@ class CacheTest extends CakeTestCase {
  * @return void
  */
 	public function testInvalidConfig() {
-		$this->expectWarning();
+		$this->expectException(CacheException::class);
+		$this->expectExceptionMessage('Cache engine "invalid" is not properly configured');
+
 		// In debug mode it would auto create the folder.
 		$debug = Configure::read('debug');
 		Configure::write('debug', 0);
 
-		Cache::config('invalid', array(
-			'engine' => 'File',
-			'duration' => '+1 year',
-			'prefix' => 'testing_invalid_',
-			'path' => 'data/',
-			'serialize' => true,
-			'random' => 'wii'
-		));
-		Cache::read('Test', 'invalid');
+		$warningTriggered = false;
+		$warningMessage = '';
+		set_error_handler(function($errno, $errstr) use (&$warningTriggered, &$warningMessage) {
+			if ($errno === E_WARNING || $errno === E_USER_WARNING) {
+				$warningTriggered = true;
+				$warningMessage = $errstr;
+				return true;
+			}
+			return false;
+		}, E_WARNING | E_USER_WARNING);
 
-		Configure::write('debug', $debug);
+		try {
+			Cache::config('invalid', array(
+				'engine' => 'File',
+				'duration' => '+1 year',
+				'prefix' => 'testing_invalid_',
+				'path' => 'data/',
+				'serialize' => true,
+				'random' => 'wii'
+			));
+			Cache::read('Test', 'invalid');
+		} finally {
+			restore_error_handler();
+
+			Configure::write('debug', $debug);
+		}
+
+		$this->assertTrue($warningTriggered, 'Expected warning was not triggered');
+		$this->assertSame('data/ is not writable', $warningMessage);
 	}
 
 /**
@@ -406,13 +435,24 @@ class CacheTest extends CakeTestCase {
 			'Plugin' => array(CAKE . 'Test' . DS . 'test_app' . DS . 'Plugin' . DS)
 		), App::RESET);
 
-		Cache::config('test_trigger', array('engine' => 'TestAppCache', 'prefix' => ''));
+		$errorTriggered = false;
+		$errorMessage = '';
+		set_error_handler(function($errno, $errstr) use (&$errorTriggered, &$errorMessage) {
+			$errorTriggered = true;
+			$errorMessage = $errstr;
+			return true;
+		});
+
 		try {
+			Cache::config('test_trigger', array('engine' => 'TestAppCache', 'prefix' => ''));
 			Cache::write('fail', 'value', 'test_trigger');
-			$this->fail('No exception thrown');
-		} catch (PHPUnit\Framework\Error\Error $e) {
-			$this->assertTrue(true);
+		} finally {
+			restore_error_handler();
 		}
+
+		$this->assertTrue($errorTriggered, 'Expected error was not triggered');
+		$this->assertSame('test_trigger cache was unable to write \'fail\' to TestAppCache cache', $errorMessage);
+
 		Cache::drop('test_trigger');
 		App::build();
 	}

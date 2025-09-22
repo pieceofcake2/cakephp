@@ -464,12 +464,13 @@ class CakeSchemaTest extends CakeTestCase {
  * @return void
  */
 	public function tearDown() : void {
-		parent::tearDown();
 		if (file_exists(TMP . 'tests' . DS . 'schema.php')) {
 			unlink(TMP . 'tests' . DS . 'schema.php');
 		}
 		unset($this->Schema);
 		CakePlugin::unload();
+
+		parent::tearDown();
 	}
 
 /**
@@ -544,16 +545,23 @@ class CakeSchemaTest extends CakeTestCase {
 		$connections = ConnectionManager::enumConnectionObjects();
 		ConnectionManager::drop('default');
 		ConnectionManager::create('default', $connections['test']);
+
 		try {
-			$this->Schema->read(array(
+			$result = $this->Schema->read(array(
 				'connection' => 'default',
 				'name' => 'TestApp',
 				'models' => array('AppModel')
 			));
+
+			$this->assertIsArray($result);
+			$this->assertArrayHasKey('name', $result);
+			$this->assertEquals('TestApp', $result['name']);
+
 		} catch(MissingTableException $mte) {
 			ConnectionManager::drop('default');
 			$this->fail($mte->getMessage());
 		}
+
 		ConnectionManager::drop('default');
 	}
 

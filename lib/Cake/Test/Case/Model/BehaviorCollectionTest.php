@@ -1135,6 +1135,9 @@ class BehaviorCollectionTest extends CakeTestCase {
 		$Sample->Behaviors->unload('Test3');
 
 		$Sample->Behaviors->trigger('beforeTest', array(&$Sample));
+
+		$this->assertTrue($Sample->Behaviors->enabled('Test2'));
+		$this->assertFalse($Sample->Behaviors->enabled('Test3'));
 	}
 
 /**

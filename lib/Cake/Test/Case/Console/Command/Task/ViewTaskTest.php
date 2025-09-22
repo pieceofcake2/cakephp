@@ -209,8 +209,9 @@ class ViewTaskTest extends CakeTestCase {
  * @return void
  */
 	public function tearDown() : void {
-		parent::tearDown();
 		unset($this->Task, $this->Dispatch);
+
+		parent::tearDown();
 	}
 
 /**
@@ -290,7 +291,7 @@ class ViewTaskTest extends CakeTestCase {
 	public function testBakeView() {
 		$this->Task->controllerName = 'ViewTaskComments';
 
-		$this->Task->expects($this->at(0))->method('createFile')
+		$this->Task->expects($this->once())->method('createFile')
 			->with(
 				TMP . 'ViewTaskComments' . DS . 'view.ctp',
 				$this->stringContains('View Task Articles')
@@ -307,7 +308,7 @@ class ViewTaskTest extends CakeTestCase {
 	public function testBakeEdit() {
 		$this->Task->controllerName = 'ViewTaskComments';
 
-		$this->Task->expects($this->at(0))->method('createFile')
+		$this->Task->expects($this->once())->method('createFile')
 			->with(
 				TMP . 'ViewTaskComments' . DS . 'edit.ctp',
 				new \PHPUnit\Framework\Constraint\IsAnything()
@@ -324,7 +325,7 @@ class ViewTaskTest extends CakeTestCase {
 		$this->Task->controllerName = 'ViewTaskComments';
 
 		$expected = file_get_contents(CAKE . 'Test' . DS . 'bake_compare' . DS . 'View' . DS . 'index.ctp');
-		$this->Task->expects($this->at(0))->method('createFile')
+		$this->Task->expects($this->once())->method('createFile')
 			->with(
 				TMP . 'ViewTaskComments' . DS . 'index.ctp',
 				$expected
@@ -377,23 +378,23 @@ class ViewTaskTest extends CakeTestCase {
 	public function testBakeActions() {
 		$this->Task->controllerName = 'ViewTaskComments';
 
-		$this->Task->expects($this->at(0))->method('createFile')
-			->with(
-				TMP . 'ViewTaskComments' . DS . 'view.ctp',
-				$this->stringContains('View Task Comments')
-			);
-		$this->Task->expects($this->at(1))->method('createFile')
-			->with(
-				TMP . 'ViewTaskComments' . DS . 'edit.ctp',
-				$this->stringContains('Edit View Task Comment')
-			);
-		$this->Task->expects($this->at(2))->method('createFile')
-			->with(
-				TMP . 'ViewTaskComments' . DS . 'index.ctp',
-				$this->stringContains('ViewTaskComment')
-			);
+		$createFileCalls = [];
+		$this->Task->expects($this->exactly(3))
+			->method('createFile')
+			->willReturnCallback(function($path, $content) use (&$createFileCalls) {
+				$createFileCalls[] = ['path' => $path, 'content' => $content];
+			});
 
 		$this->Task->bakeActions(array('view', 'edit', 'index'), array());
+
+		$this->assertEquals(TMP . 'ViewTaskComments' . DS . 'view.ctp', $createFileCalls[0]['path']);
+		$this->assertStringContainsString('View Task Comments', $createFileCalls[0]['content']);
+
+		$this->assertEquals(TMP . 'ViewTaskComments' . DS . 'edit.ctp', $createFileCalls[1]['path']);
+		$this->assertStringContainsString('Edit View Task Comment', $createFileCalls[1]['content']);
+
+		$this->assertEquals(TMP . 'ViewTaskComments' . DS . 'index.ctp', $createFileCalls[2]['path']);
+		$this->assertStringContainsString('ViewTaskComment', $createFileCalls[2]['content']);
 	}
 
 /**
@@ -427,19 +428,17 @@ class ViewTaskTest extends CakeTestCase {
 		$this->Task->Controller->expects($this->once())->method('listAll')
 			->will($this->returnValue(array('view_task_comments')));
 
-		$this->Task->expects($this->at(0))->method('createFile')
-			->with(
-				TMP . 'ViewTaskComments' . DS . 'index.ctp',
-				$this->anything()
-			);
-		$this->Task->expects($this->at(1))->method('createFile')
-			->with(
-				TMP . 'ViewTaskComments' . DS . 'add.ctp',
-				$this->anything()
-			);
-		$this->Task->expects($this->exactly(2))->method('createFile');
+		$createFileCalls = [];
+		$this->Task->expects($this->exactly(2))
+			->method('createFile')
+			->willReturnCallback(function($path, $content) use (&$createFileCalls) {
+				$createFileCalls[] = ['path' => $path, 'content' => $content];
+			});
 
 		$this->Task->execute();
+
+		$this->assertEquals(TMP . 'ViewTaskComments' . DS . 'index.ctp', $createFileCalls[0]['path']);
+		$this->assertEquals(TMP . 'ViewTaskComments' . DS . 'add.ctp', $createFileCalls[1]['path']);
 	}
 
 /**
@@ -488,19 +487,17 @@ class ViewTaskTest extends CakeTestCase {
 	public function testExecuteWithController() {
 		$this->Task->args[0] = 'ViewTaskComments';
 
-		$this->Task->expects($this->at(0))->method('createFile')
-			->with(
-				TMP . 'ViewTaskComments' . DS . 'index.ctp',
-				$this->anything()
-			);
-		$this->Task->expects($this->at(1))->method('createFile')
-			->with(
-				TMP . 'ViewTaskComments' . DS . 'add.ctp',
-				$this->anything()
-			);
-		$this->Task->expects($this->exactly(2))->method('createFile');
+		$createFileCalls = [];
+		$this->Task->expects($this->exactly(2))
+			->method('createFile')
+			->willReturnCallback(function($path, $content) use (&$createFileCalls) {
+				$createFileCalls[] = ['path' => $path, 'content' => $content];
+			});
 
 		$this->Task->execute();
+
+		$this->assertEquals(TMP . 'ViewTaskComments' . DS . 'index.ctp', $createFileCalls[0]['path']);
+		$this->assertEquals(TMP . 'ViewTaskComments' . DS . 'add.ctp', $createFileCalls[1]['path']);
 	}
 
 /**
@@ -521,17 +518,17 @@ class ViewTaskTest extends CakeTestCase {
 	public function testExecuteWithControllerVariations($name) {
 		$this->Task->args = array($name);
 
-		$this->Task->expects($this->at(0))->method('createFile')
-			->with(
-				TMP . 'ViewTaskComments' . DS . 'index.ctp',
-				$this->anything()
-			);
-		$this->Task->expects($this->at(1))->method('createFile')
-			->with(
-				TMP . 'ViewTaskComments' . DS . 'add.ctp',
-				$this->anything()
-			);
+		$createFileCalls = [];
+		$this->Task->expects($this->exactly(2))
+			->method('createFile')
+			->willReturnCallback(function($path, $content) use (&$createFileCalls) {
+				$createFileCalls[] = ['path' => $path, 'content' => $content];
+			});
+
 		$this->Task->execute();
+
+		$this->assertEquals(TMP . 'ViewTaskComments' . DS . 'index.ctp', $createFileCalls[0]['path']);
+		$this->assertEquals(TMP . 'ViewTaskComments' . DS . 'add.ctp', $createFileCalls[1]['path']);
 	}
 
 /**
@@ -550,15 +547,20 @@ class ViewTaskTest extends CakeTestCase {
 
 		$this->Task->expects($this->exactly(4))->method('createFile');
 
+		$createFileCalls = [];
+		$this->Task->expects($this->exactly(4))
+			->method('createFile')
+			->willReturnCallback(function($path, $content) use (&$createFileCalls) {
+				$createFileCalls[] = ['path' => $path, 'content' => $content];
+			});
+
+		$this->Task->execute();
+
 		$views = array('admin_index.ctp', 'admin_add.ctp', 'admin_view.ctp', 'admin_edit.ctp');
 		foreach ($views as $i => $view) {
-			$this->Task->expects($this->at($i))->method('createFile')
-				->with(
-					TMP . 'ViewTaskArticles' . DS . $view,
-					$this->anything()
-				);
+			$this->assertEquals(TMP . 'ViewTaskArticles' . DS . $view, $createFileCalls[$i]['path']);
 		}
-		$this->Task->execute();
+
 		Configure::write('Routing', $_back);
 	}
 
@@ -578,32 +580,26 @@ class ViewTaskTest extends CakeTestCase {
 		$this->Task->expects($this->any())->method('in')
 			->will($this->onConsecutiveCalls('y', 'y', 'n'));
 
-		$this->Task->expects($this->at(3))->method('createFile')
-			->with(
-				TMP . 'ViewTaskComments' . DS . 'index.ctp',
-				$this->stringContains('ViewTaskComment')
-			);
+		$createFileCalls = [];
+		$this->Task->expects($this->exactly(4))
+			->method('createFile')
+			->willReturnCallback(function($path, $content) use (&$createFileCalls) {
+				$createFileCalls[] = ['path' => $path, 'content' => $content];
+			});
 
-		$this->Task->expects($this->at(4))->method('createFile')
-			->with(
-				TMP . 'ViewTaskComments' . DS . 'view.ctp',
-				$this->stringContains('ViewTaskComment')
-			);
-
-		$this->Task->expects($this->at(5))->method('createFile')
-			->with(
-				TMP . 'ViewTaskComments' . DS . 'add.ctp',
-				$this->stringContains('Add View Task Comment')
-			);
-
-		$this->Task->expects($this->at(6))->method('createFile')
-			->with(
-				TMP . 'ViewTaskComments' . DS . 'edit.ctp',
-				$this->stringContains('Edit View Task Comment')
-			);
-
-		$this->Task->expects($this->exactly(4))->method('createFile');
 		$this->Task->execute();
+
+		$this->assertEquals(TMP . 'ViewTaskComments' . DS . 'index.ctp', $createFileCalls[0]['path']);
+		$this->assertStringContainsString('ViewTaskComment', $createFileCalls[0]['content']);
+
+		$this->assertEquals(TMP . 'ViewTaskComments' . DS . 'view.ctp', $createFileCalls[1]['path']);
+		$this->assertStringContainsString('ViewTaskComment', $createFileCalls[1]['content']);
+
+		$this->assertEquals(TMP . 'ViewTaskComments' . DS . 'add.ctp', $createFileCalls[2]['path']);
+		$this->assertStringContainsString('Add View Task Comment', $createFileCalls[2]['content']);
+
+		$this->assertEquals(TMP . 'ViewTaskComments' . DS . 'edit.ctp', $createFileCalls[3]['path']);
+		$this->assertStringContainsString('Edit View Task Comment', $createFileCalls[3]['content']);
 	}
 
 /**
@@ -643,32 +639,26 @@ class ViewTaskTest extends CakeTestCase {
 		$this->Task->expects($this->any())->method('in')
 			->will($this->onConsecutiveCalls('y', 'n', 'y'));
 
-		$this->Task->expects($this->at(3))->method('createFile')
-			->with(
-				TMP . 'ViewTaskComments' . DS . 'admin_index.ctp',
-				$this->stringContains('ViewTaskComment')
-			);
+		$createFileCalls = [];
+		$this->Task->expects($this->exactly(4))
+			->method('createFile')
+			->willReturnCallback(function($path, $content) use (&$createFileCalls) {
+				$createFileCalls[] = ['path' => $path, 'content' => $content];
+			});
 
-		$this->Task->expects($this->at(4))->method('createFile')
-			->with(
-				TMP . 'ViewTaskComments' . DS . 'admin_view.ctp',
-				$this->stringContains('ViewTaskComment')
-			);
-
-		$this->Task->expects($this->at(5))->method('createFile')
-			->with(
-				TMP . 'ViewTaskComments' . DS . 'admin_add.ctp',
-				$this->stringContains('Add View Task Comment')
-			);
-
-		$this->Task->expects($this->at(6))->method('createFile')
-			->with(
-				TMP . 'ViewTaskComments' . DS . 'admin_edit.ctp',
-				$this->stringContains('Edit View Task Comment')
-			);
-
-		$this->Task->expects($this->exactly(4))->method('createFile');
 		$this->Task->execute();
+
+		$this->assertEquals(TMP . 'ViewTaskComments' . DS . 'admin_index.ctp', $createFileCalls[0]['path']);
+		$this->assertStringContainsString('ViewTaskComment', $createFileCalls[0]['content']);
+
+		$this->assertEquals(TMP . 'ViewTaskComments' . DS . 'admin_view.ctp', $createFileCalls[1]['path']);
+		$this->assertStringContainsString('ViewTaskComment', $createFileCalls[1]['content']);
+
+		$this->assertEquals(TMP . 'ViewTaskComments' . DS . 'admin_add.ctp', $createFileCalls[2]['path']);
+		$this->assertStringContainsString('Add View Task Comment', $createFileCalls[2]['content']);
+
+		$this->assertEquals(TMP . 'ViewTaskComments' . DS . 'admin_edit.ctp', $createFileCalls[3]['path']);
+		$this->assertStringContainsString('Edit View Task Comment', $createFileCalls[3]['content']);
 	}
 
 /**

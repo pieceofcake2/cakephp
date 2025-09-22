@@ -46,11 +46,12 @@ class XcacheEngineTest extends CakeTestCase {
  * @return void
  */
 	public function tearDown() : void {
-		parent::tearDown();
 		Configure::write('Cache.disable', $this->_cacheDisable);
 		Cache::drop('xcache');
 		Cache::drop('xcache_groups');
 		Cache::config('default');
+
+		parent::tearDown();
 	}
 
 /**

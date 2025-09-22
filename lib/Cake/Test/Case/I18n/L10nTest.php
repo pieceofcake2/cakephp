@@ -36,6 +36,19 @@ class L10nTest extends CakeTestCase {
 	}
 
 /**
+ * tearDown method
+ *
+ * @return void
+ */
+	public function tearDown() : void {
+		if (isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
+			unset($_SERVER['HTTP_ACCEPT_LANGUAGE']);
+		}
+
+		parent::tearDown();
+	}
+
+/**
  * testGet method
  *
  * @return void

@@ -80,7 +80,6 @@ class ErrorHandlerTest extends CakeTestCase {
  * @return void
  */
 	public function tearDown() : void {
-		parent::tearDown();
 		if ($this->_restoreError) {
 			restore_error_handler();
 		}
@@ -91,6 +90,8 @@ class ErrorHandlerTest extends CakeTestCase {
 		if (CakeLog::stream('stderr') !== false) {
 			CakeLog::enable('stderr');
 		}
+
+		parent::tearDown();
 	}
 
 /**
@@ -312,12 +313,18 @@ class ErrorHandlerTest extends CakeTestCase {
  */
 	public function testHandleFatalErrorPage() {
 		$line = __LINE__;
+		$initialLevel = ob_get_level();
 
 		ob_start();
 		ob_start();
 		Configure::write('debug', 1);
 		ErrorHandler::handleFatalError(E_ERROR, 'Something wrong', __FILE__, $line);
 		$result = ob_get_clean();
+
+		while (ob_get_level() > $initialLevel) {
+			ob_end_clean();
+		}
+
 		$this->assertStringContainsString('Something wrong', $result, 'message missing.');
 		$this->assertStringContainsString(__FILE__, $result, 'filename missing.');
 		$this->assertStringContainsString((string)$line, $result, 'line missing.');
@@ -327,6 +334,11 @@ class ErrorHandlerTest extends CakeTestCase {
 		Configure::write('debug', 0);
 		ErrorHandler::handleFatalError(E_ERROR, 'Something wrong', __FILE__, $line);
 		$result = ob_get_clean();
+
+		while (ob_get_level() > $initialLevel) {
+			ob_end_clean();
+		}
+
 		$this->assertStringNotContainsString('Something wrong', $result, 'message must not appear.');
 		$this->assertStringNotContainsString(__FILE__, $result, 'filename must not appear.');
 		$this->assertStringContainsString('An Internal Error Has Occurred', $result);
@@ -342,9 +354,14 @@ class ErrorHandlerTest extends CakeTestCase {
 			unlink(LOGS . 'error.log');
 		}
 
+		$initialLevel = ob_get_level();
+
+		ob_start();
 		ob_start();
 		ErrorHandler::handleFatalError(E_ERROR, 'Something wrong', __FILE__, __LINE__);
-		ob_clean();
+		while (ob_get_level() > $initialLevel) {
+			ob_end_clean();
+		}
 
 		$log = file(LOGS . 'error.log');
 		$this->assertStringContainsString(__FILE__, $log[0], 'missing filename');

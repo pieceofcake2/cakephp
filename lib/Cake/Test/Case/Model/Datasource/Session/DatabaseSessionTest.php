@@ -88,6 +88,7 @@ class DatabaseSessionTest extends CakeTestCase {
 	public function tearDown() : void {
 		unset($this->storage);
 		ClassRegistry::flush();
+
 		parent::tearDown();
 	}
 
@@ -198,26 +199,14 @@ class DatabaseSessionTest extends CakeTestCase {
 		);
 		Configure::write('Session.handler.model', 'MockedSessionTestModel');
 
-		$counter = 0;
-		// First save
-		$mockedModel->expects($this->at($counter++))
+		$mockedModel->expects($this->exactly(4))
 			->method('exists')
-			->will($this->returnValue(false));
-
-		// Second save
-		$mockedModel->expects($this->at($counter++))
-			->method('exists')
-			->will($this->returnValue(false));
-
-		// Second save retry
-		$mockedModel->expects($this->at($counter++))
-			->method('exists')
-			->will($this->returnValue(true));
-
-		// Datasource exists check
-		$mockedModel->expects($this->at($counter++))
-			->method('exists')
-			->will($this->returnValue(true));
+			->willReturnOnConsecutiveCalls(
+				false,  // First save
+				false,  // Second save
+				true,   // Second save retry
+				true    // Datasource exists check
+			);
 
 		$this->storage = new DatabaseSession();
 

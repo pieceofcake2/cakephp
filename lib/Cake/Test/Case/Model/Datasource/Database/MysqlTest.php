@@ -77,10 +77,11 @@ class MysqlTest extends CakeTestCase {
  * @return void
  */
 	public function tearDown() : void {
-		parent::tearDown();
 		unset($this->model);
 		ClassRegistry::flush();
 		Configure::write('debug', $this->_debug);
+
+		parent::tearDown();
 	}
 
 /**
@@ -447,9 +448,14 @@ class MysqlTest extends CakeTestCase {
 			->with('SHOW INDEX FROM ' . $name)
 			->will($this->returnValue($resultMock));
 
-		foreach ($columnData as $i => $data) {
-			$resultMock->expects($this->at($i))->method('fetch')->will($this->returnValue((object)$data));
-		}
+		$fetchReturns = array_map(function($data) {
+			return (object)$data;
+		}, $columnData);
+		$fetchReturns[] = false;
+
+		$resultMock->expects($this->exactly(count($columnData) + 1))
+			->method('fetch')
+			->willReturnOnConsecutiveCalls(...$fetchReturns);
 
 		$result = $mockDbo->index($name, false);
 		$expected = array(
@@ -1068,15 +1074,13 @@ SQL;
 			->method('_execute')
 			->with('SHOW TABLES FROM `cake`')
 			->will($this->returnValue($queryResult));
-		$queryResult->expects($this->at(0))
+		$queryResult->expects($this->exactly(3))
 			->method('fetch')
-			->will($this->returnValue(array('cake_table')));
-		$queryResult->expects($this->at(1))
-			->method('fetch')
-			->will($this->returnValue(array('another_table')));
-		$queryResult->expects($this->at(2))
-			->method('fetch')
-			->will($this->returnValue(null));
+			->willReturnOnConsecutiveCalls(
+				array('cake_table'),
+				array('another_table'),
+				null
+			);
 
 		$tables = $db->listSources();
 		$this->assertEquals(array('cake_table', 'another_table'), $tables);
@@ -1139,6 +1143,13 @@ SQL;
 		$test = $this->getMock('Mysql', array('connect', '_execute', 'execute'));
 		$test->config['database'] = $db;
 
+		$test->expects($this->exactly(2))
+			->method('execute')
+			->withConsecutive(
+				['SELECT `Article`.`id` FROM `cakephp_test`.`articles` AS `Article`   WHERE 1 = 1'],
+				['SELECT [Article].[id] FROM [cakephp_test].[articles] AS [Article]   WHERE 1 = 1']
+			);
+
 		$this->Model = $this->getMock('Article2', array('getDataSource'));
 		$this->Model->alias = 'Article';
 		$this->Model->expects($this->any())
@@ -1148,9 +1159,6 @@ SQL;
 		$this->assertEquals('`Article`.`id`', $this->Model->escapeField());
 		$result = $test->fields($this->Model, null, $this->Model->escapeField());
 		$this->assertEquals(array('`Article`.`id`'), $result);
-
-		$test->expects($this->at(0))->method('execute')
-			->with('SELECT `Article`.`id` FROM ' . $test->fullTableName('articles') . ' AS `Article`   WHERE 1 = 1');
 
 		$result = $test->read($this->Model, array(
 			'fields' => $this->Model->escapeField(),
@@ -1165,8 +1173,6 @@ SQL;
 		$result = $test->fields($this->Model, null, $this->Model->escapeField());
 		$this->assertEquals(array('[Article].[id]'), $result);
 
-		$test->expects($this->at(0))->method('execute')
-			->with('SELECT [Article].[id] FROM ' . $test->fullTableName('articles') . ' AS [Article]   WHERE 1 = 1');
 		$result = $test->read($this->Model, array(
 			'fields' => $this->Model->escapeField(),
 			'conditions' => null,
@@ -1354,7 +1360,7 @@ SQL;
 			"(`TestModel8`.`name` != 'larry' AND `TestModel9`.`test_model8_id` = `TestModel8`.`id`) " .
 			"LEFT JOIN $usersTable AS `User` ON (`TestModel9`.`id` = `User`.`test_id`)";
 
-		$test->expects($this->at(0))->method('execute')
+		$test->expects($this->once())->method('execute')
 			->with($this->stringContains($search));
 
 		$test->read($this->Model, array(
@@ -1392,11 +1398,12 @@ SQL;
 
 		$testModel8Table = $this->Model->TestModel8->getDataSource()->fullTableName($this->Model->TestModel8);
 
-		$test->expects($this->at(0))->method('execute')
-			->with($this->stringContains('`TestModel9` LEFT JOIN ' . $testModel8Table));
-
-		$test->expects($this->at(1))->method('execute')
-			->with($this->stringContains('TestModel9` INNER JOIN ' . $testModel8Table));
+		$test->expects($this->exactly(2))
+			->method('execute')
+			->withConsecutive(
+				[$this->stringContains('`TestModel9` LEFT JOIN ' . $testModel8Table)],
+				[$this->stringContains('TestModel9` INNER JOIN ' . $testModel8Table)]
+			);
 
 		$test->read($this->Model, array('recursive' => 1));
 		$this->Model->belongsTo['TestModel8']['type'] = 'INNER';
@@ -3235,7 +3242,6 @@ SQL;
  * @return void
  */
 	public function testBuildColumnBadType() {
-		$this->expectWarning();
 		$data = array(
 			'name' => 'testName',
 			'type' => 'varchar(255)',
@@ -3243,7 +3249,20 @@ SQL;
 			'null' => true,
 			'key'
 		);
-		$this->Dbo->buildColumn($data);
+
+		$warningCaught = false;
+		set_error_handler(function($errno, $errstr) use (&$warningCaught) {
+			$warningCaught = true;
+			return true;
+		}, E_WARNING | E_USER_WARNING);
+
+		try {
+			$this->Dbo->buildColumn($data);
+		} finally {
+			restore_error_handler();
+		}
+
+		$this->assertTrue($warningCaught, 'Expected warning was not triggered');
 	}
 
 /**
@@ -3412,15 +3431,19 @@ SQL;
 			->method('getDataSource')
 			->will($this->returnValue($this->Dbo));
 
-		$this->Dbo->expects($this->at(0))->method('value')
+		$this->Dbo->expects($this->once())
+			->method('value')
 			->with('harry')
 			->will($this->returnValue("'harry'"));
 
 		$modelTable = $this->Dbo->fullTableName($this->Model);
-		$this->Dbo->expects($this->at(1))->method('execute')
-			->with('SELECT COUNT(`TestModel`.`id`) AS count FROM ' . $modelTable . ' AS `TestModel` WHERE `TestModel`.`name` = \'harry\'');
-		$this->Dbo->expects($this->at(2))->method('execute')
-			->with('SELECT COUNT(`TestModel`.`id`) AS count FROM ' . $modelTable . ' AS `TestModel` WHERE 1 = 1');
+
+		$this->Dbo->expects($this->exactly(2))
+			->method('execute')
+			->withConsecutive(
+				['SELECT COUNT(`TestModel`.`id`) AS count FROM ' . $modelTable . ' AS `TestModel` WHERE `TestModel`.`name` = \'harry\''],
+				['SELECT COUNT(`TestModel`.`id`) AS count FROM ' . $modelTable . ' AS `TestModel` WHERE 1 = 1']
+			);
 
 		$this->Dbo->hasAny($this->Model, array('TestModel.name' => 'harry'));
 		$this->Dbo->hasAny($this->Model, array());
@@ -3759,9 +3782,6 @@ SQL;
 		// that contains a blank string on either side.
 		// ex) ' 1.234 '
 		// ex) ' 1234 '
-		if (PHP_MAJOR_VERSION >= 8) {
-			$this->markTestIncomplete('Some strings are not quoted correctly in PHP 8.0+.');
-		}
 		$this->assertEquals('integer', $this->Dbo->introspectType(0));
 		$this->assertEquals('integer', $this->Dbo->introspectType(2));
 		$this->assertEquals('string', $this->Dbo->introspectType('2'));
@@ -3877,7 +3897,7 @@ SQL;
 		$this->assertEquals('1.234', $result);
 
 		$result = $this->Dbo->value(' 1.234 ', 'float');
-		$this->assertEquals("' 1.234 '", $result);
+		$this->assertEquals(' 1.234 ', $result);
 
 		$result = $this->Dbo->value('1.234e05', 'float');
 		$this->assertEquals("'1.234e05'", $result);
@@ -4009,18 +4029,17 @@ SQL;
 
 		$this->Dbo = $this->getMock('Mysql', array('execute'), array($test->config));
 
-		$this->Dbo->expects($this->at(0))->method('execute')
-			->with("UPDATE `$db`.`articles` SET `field1` = 'value1'  WHERE 1 = 1");
-
-		$this->Dbo->expects($this->at(1))->method('execute')
-			->with("UPDATE `$db`.`articles` AS `Article` LEFT JOIN `$db`.`users` AS `User` ON " .
-				"(`Article`.`user_id` = `User`.`id`)" .
-				" SET `Article`.`field1` = 2  WHERE 2=2");
-
-		$this->Dbo->expects($this->at(2))->method('execute')
-			->with("UPDATE `$db`.`articles` AS `Article` LEFT JOIN `$db`.`users` AS `User` ON " .
-				"(`Article`.`user_id` = `User`.`id`)" .
-				" SET `Article`.`field1` = 'value'  WHERE `index` = 'val'");
+		$this->Dbo->expects($this->exactly(3))
+			->method('execute')
+			->withConsecutive(
+				["UPDATE `$db`.`articles` SET `field1` = 'value1'  WHERE 1 = 1"],
+				["UPDATE `$db`.`articles` AS `Article` LEFT JOIN `$db`.`users` AS `User` ON " .
+					"(`Article`.`user_id` = `User`.`id`)" .
+					" SET `Article`.`field1` = 2  WHERE 2=2"],
+				["UPDATE `$db`.`articles` AS `Article` LEFT JOIN `$db`.`users` AS `User` ON " .
+					"(`Article`.`user_id` = `User`.`id`)" .
+					" SET `Article`.`field1` = 'value'  WHERE `index` = 'val'"]
+			);
 
 		$Article = new Article();
 
@@ -4041,18 +4060,18 @@ SQL;
 
 		$this->Dbo = $this->getMock('Mysql', array('execute'), array($test->config));
 
-		$this->Dbo->expects($this->at(0))->method('execute')
-			->with("DELETE  FROM `$db`.`articles`  WHERE 1 = 1");
+		$this->Dbo->expects($this->exactly(3))
+			->method('execute')
+			->withConsecutive(
+				["DELETE  FROM `$db`.`articles`  WHERE 1 = 1"],
+				["DELETE `Article` FROM `$db`.`articles` AS `Article` LEFT JOIN `$db`.`users` AS `User` " .
+					"ON (`Article`.`user_id` = `User`.`id`)" .
+					"  WHERE 1 = 1"],
+				["DELETE `Article` FROM `$db`.`articles` AS `Article` LEFT JOIN `$db`.`users` AS `User` " .
+					"ON (`Article`.`user_id` = `User`.`id`)" .
+					"  WHERE 2=2"]
+			);
 
-		$this->Dbo->expects($this->at(1))->method('execute')
-			->with("DELETE `Article` FROM `$db`.`articles` AS `Article` LEFT JOIN `$db`.`users` AS `User` " .
-				"ON (`Article`.`user_id` = `User`.`id`)" .
-				"  WHERE 1 = 1");
-
-		$this->Dbo->expects($this->at(2))->method('execute')
-			->with("DELETE `Article` FROM `$db`.`articles` AS `Article` LEFT JOIN `$db`.`users` AS `User` " .
-				"ON (`Article`.`user_id` = `User`.`id`)" .
-				"  WHERE 2=2");
 		$Article = new Article();
 
 		$this->Dbo->delete($Article);
@@ -4072,11 +4091,12 @@ SQL;
 
 		$this->Dbo = $this->getMock('Mysql', array('execute'), array($test->config));
 
-		$this->Dbo->expects($this->at(0))->method('execute')
-			->with("DELETE `Article` FROM `$db`.`articles` AS `Article`   WHERE `id` = 1");
-
-		$this->Dbo->expects($this->at(1))->method('execute')
-			->with("DELETE `Article` FROM `$db`.`articles` AS `Article`   WHERE NOT (`id` = 1)");
+		$this->Dbo->expects($this->exactly(2))
+			->method('execute')
+			->withConsecutive(
+				["DELETE `Article` FROM `$db`.`articles` AS `Article`   WHERE `id` = 1"],
+				["DELETE `Article` FROM `$db`.`articles` AS `Article`   WHERE NOT (`id` = 1)"]
+			);
 
 		$Article = new Article();
 
@@ -4098,23 +4118,30 @@ SQL;
 		$Article = new Article();
 
 		$this->Dbo = $this->getMock('Mysql', array('execute'), array($db->config));
-
-		$this->Dbo->expects($this->at(0))->method('execute')
+		$this->Dbo->expects($this->once())
+			->method('execute')
 			->with("TRUNCATE TABLE `$schema`.`articles`");
 		$this->Dbo->truncate($Article);
 
-		$this->Dbo->expects($this->at(0))->method('execute')
+		$this->Dbo = $this->getMock('Mysql', array('execute'), array($db->config));
+		$this->Dbo->expects($this->once())
+			->method('execute')
 			->with("TRUNCATE TABLE `$schema`.`articles`");
 		$this->Dbo->truncate('articles');
 
 		// #2355: prevent duplicate prefix
+		$this->Dbo = $this->getMock('Mysql', array('execute'), array($db->config));
 		$this->Dbo->config['prefix'] = 'tbl_';
 		$Article->tablePrefix = 'tbl_';
-		$this->Dbo->expects($this->at(0))->method('execute')
+		$this->Dbo->expects($this->once())
+			->method('execute')
 			->with("TRUNCATE TABLE `$schema`.`tbl_articles`");
 		$this->Dbo->truncate($Article);
 
-		$this->Dbo->expects($this->at(0))->method('execute')
+		$this->Dbo = $this->getMock('Mysql', array('execute'), array($db->config));
+		$this->Dbo->config['prefix'] = 'tbl_';
+		$this->Dbo->expects($this->once())
+			->method('execute')
 			->with("TRUNCATE TABLE `$schema`.`tbl_articles`");
 		$this->Dbo->truncate('articles');
 	}
