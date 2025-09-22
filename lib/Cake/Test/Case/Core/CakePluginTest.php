@@ -197,12 +197,30 @@ class CakePluginTest extends CakeTestCase {
  * @return void
  */
 	public function testIgnoreMissingFiles() {
-		CakePlugin::loadAll(array(array(
-			'bootstrap' => true,
-			'routes' => true,
-			'ignoreMissing' => true
-		)));
-		CakePlugin::routes();
+		$warningTriggered = false;
+		set_error_handler(function($errno, $errstr) use (&$warningTriggered) {
+			if ($errno === E_WARNING || $errno === E_USER_WARNING) {
+				$warningTriggered = true;
+				return true;
+			}
+			return false;
+		}, E_WARNING | E_USER_WARNING);
+
+		try {
+			CakePlugin::loadAll(array(array(
+				'bootstrap' => true,
+				'routes' => true,
+				'ignoreMissing' => true
+			)));
+			CakePlugin::routes();
+		} finally {
+			restore_error_handler();
+		}
+
+		$this->assertFalse($warningTriggered, 'No warning should be triggered when ignoreMissing is true');
+
+		$loaded = CakePlugin::loaded();
+		$this->assertIsArray($loaded);
 	}
 
 /**

@@ -1,5 +1,8 @@
 <?php
+
 App::uses('AppController', 'Controller');
+App::uses('CakeSession', 'Model/Datasource');
+
 /**
  * TransSessionIdController class for testing session.use_trans_sid=1.
  *
@@ -7,12 +10,19 @@ App::uses('AppController', 'Controller');
  */
 class TransSessionIdController extends AppController {
 
-/**
- * Constructor.
- *
- * @param CakeRequest $request Request object for this controller.
- * @param CakeResponse $response Response object for this controller.
- */
+	/**
+	 * autoRender property
+	 *
+	 * @var bool
+	 */
+	public $autoRender = false;
+
+	/**
+	 * Constructor.
+	 *
+	 * @param CakeRequest $request Request object for this controller.
+	 * @param CakeResponse $response Response object for this controller.
+	 */
 	public function __construct($request = null, $response = null) {
 		parent::__construct($request, $response);
 		$ini = Configure::read('Session.ini');
@@ -22,21 +32,21 @@ class TransSessionIdController extends AppController {
 		Configure::write('Session.ini', $ini);
 	}
 
-/**
- * For testing redirect URL with session.use_trans_sid=1.
- *
- * @return CakeResponse|null
- */
+	/**
+	 * For testing redirect URL with session.use_trans_sid=1.
+	 *
+	 * @return void
+	 */
 	public function next() {
 		$sessionName = session_name();
 		$sessionId = $this->Session->id();
-		return $this->redirect(array(
+		$this->redirect(array(
 			'controller' => 'trans_session_id',
 			'action' => 'next_step',
 			'?' => array(
 				$sessionName => $sessionId,
 			),
-		));
+		), null, false);
 	}
 
 }
@@ -51,35 +61,45 @@ class TransSessionIdController extends AppController {
  */
 class ApplicationControllerTest extends ControllerTestCase {
 
-/**
- * setupDown method
- *
- * @return void
- */
+	/**
+	 * setupDown method
+	 *
+	 * @return void
+	 */
 	public function setUp() : void {
 		CakeSession::destroy();
 		parent::setUp();
 	}
 
-/**
- * tearDown method
- *
- * @return void
- */
+	/**
+	 * tearDown method
+	 *
+	 * @return void
+	 */
 	public function tearDown() : void {
 		CakeSession::destroy();
 		parent::tearDown();
 	}
 
-/**
- * Tests the redirect and session config with use_trans_sid=1.
- *
- * @return void
- */
+	/**
+	 * Tests the redirect and session config with use_trans_sid=1.
+	 *
+	 * @return void
+	 */
 	public function testRedirect() {
 		$sessionId = 'o7k64tlhil9pakp89j6d8ovlqk';
-		$this->testAction('/trans_session_id/next?CAKEPHP=' . $sessionId);
+
+		$level = ob_get_level();
+		$this->testAction('/trans_session_id/next?CAKEPHP=' . $sessionId, array(
+			'method' => 'GET',
+			'return' => 'vars'
+		));
+		while (ob_get_level() > $level) {
+			ob_end_clean();
+		}
+
 		$this->assertStringContainsString('/trans_session_id/next_step?CAKEPHP=' . $sessionId, $this->headers['Location']);
+
 		$expectedConfig = array(
 			'cookie' => 'CAKEPHP',
 			'timeout' => 240,
@@ -100,5 +120,4 @@ class ApplicationControllerTest extends ControllerTestCase {
 		$actualConfig = Configure::read('Session');
 		$this->assertEquals($expectedConfig, $actualConfig);
 	}
-
 }

@@ -1317,7 +1317,7 @@ TEXT;
 		$this->Task->connection = 'test';
 		$this->Task->path = '/my/path/';
 
-		$this->Task->expects($this->any())->method('in')
+		$this->Task->expects($this->exactly(3))->method('in')
 			->will($this->onConsecutiveCalls(
 				'Foobar', // Or type in the name of the model
 				'y', // Do you want to use this table
@@ -1336,7 +1336,7 @@ TEXT;
 		$this->Task->connection = 'test';
 		$this->Task->path = '/my/path/';
 
-		$this->Task->expects($this->any())->method('in')
+		$this->Task->expects($this->exactly(5))->method('in')
 			->will($this->onConsecutiveCalls(
 				'Foobar', // Or type in the name of the model
 				'y', // Do you want to use this table

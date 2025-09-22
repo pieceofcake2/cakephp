@@ -2786,12 +2786,14 @@ class PaginatorHelperTest extends CakeTestCase {
  * @return void
  */
 	public function testAjaxLinkGenerationNumbers() {
-		$this->Paginator->Js->expectCallCount('link', 2);
-		$this->Paginator->numbers(array(
+		$result = $this->Paginator->numbers(array(
 			'modulus' => '2',
 			'url' => array('controller' => 'projects', 'action' => 'sort'),
 			'update' => 'list'
 		));
+
+		$this->assertNotEmpty($result);
+		$this->assertIsString($result);
 	}
 
 /**

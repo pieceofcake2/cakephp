@@ -88,10 +88,18 @@ class CacheTest extends CakeTestCase {
 		Configure::write('Cache.disable', true);
 		Cache::config('test', array('engine' => 'File', 'path' => TMP, 'prefix' => 'error_test_'));
 
-		Cache::write('no_save', 'Noooo!', 'test');
-		Cache::read('no_save', 'test');
-		Cache::delete('no_save', 'test');
-		Cache::set('duration', '+10 minutes');
+		$writeResult = Cache::write('no_save', 'Noooo!', 'test');
+		$readResult = Cache::read('no_save', 'test');
+		$deleteResult = Cache::delete('no_save', 'test');
+		$setResult = Cache::set('duration', '+10 minutes');
+
+		$this->assertFalse($writeResult);
+		$this->assertFalse($readResult);
+		$this->assertFalse($deleteResult);
+
+		$this->assertIsArray($setResult);
+		$this->assertArrayHasKey('duration', $setResult);
+		$this->assertEquals(600, $setResult['duration']);
 
 		Configure::write('Cache.disable', false);
 	}

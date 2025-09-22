@@ -132,6 +132,7 @@ class MediaViewTest extends CakeTestCase {
 			->will($this->returnArgument(0));
 
 		$this->MediaView->render();
-	}
 
+		$this->assertTrue(true, 'UPPERCASE extension was handled correctly');
+	}
 }

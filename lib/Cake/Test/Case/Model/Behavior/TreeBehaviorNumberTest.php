@@ -1055,7 +1055,11 @@ class TreeBehaviorNumberTest extends CakeTestCase {
 		extract($this->settings);
 		$this->Tree = new $modelClass();
 		$this->Tree->initialize(2, 2);
+		$initialCount = $this->Tree->find('count');
 		$this->Tree->delete(99999);
+
+		$laterCount = $this->Tree->find('count');
+		$this->assertEquals($initialCount, $laterCount);
 	}
 
 /**

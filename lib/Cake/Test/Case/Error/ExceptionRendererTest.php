@@ -524,9 +524,9 @@ class ExceptionRendererTest extends CakeTestCase {
 /**
  * Returns an array of tests to run for the various CakeException classes.
  *
- * @return void
+ * @return array
  */
-	public static function testProvider() {
+	protected static function testProvider(): array {
 		return array(
 			array(
 				new MissingActionException(array('controller' => 'PostsController', 'action' => 'index')),

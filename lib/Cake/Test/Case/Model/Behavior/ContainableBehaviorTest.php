@@ -181,7 +181,23 @@ class ContainableBehaviorTest extends CakeTestCase {
  */
 	public function testInvalidContainmentsNoNotices() {
 		$this->Article->Behaviors->load('Containable', array('notices' => false));
-		$this->_containments($this->Article, array('Comment', 'InvalidBinding'));
+
+		$warningTriggered = false;
+		set_error_handler(function($errno, $errstr) use (&$warningTriggered) {
+			if ($errno === E_WARNING || $errno === E_USER_WARNING) {
+				$warningTriggered = true;
+				return true;
+			}
+			return false;
+		}, E_WARNING | E_USER_WARNING);
+
+		try {
+			$this->_containments($this->Article, array('Comment', 'InvalidBinding'));
+		} finally {
+			restore_error_handler();
+		}
+
+		$this->assertFalse($warningTriggered, 'Expected warning was not triggered');
 	}
 
 /**

@@ -404,7 +404,9 @@ class SmtpTransportTest extends CakeTestCase {
 		$this->socket->expects($this->any())->method('write')->with($this->logicalNot($this->stringContains('AUTH LOGIN')));
 
 		$this->SmtpTransport->config(array('username' => null, 'password' => null));
-		$this->SmtpTransport->auth();
+		$result = $this->SmtpTransport->auth();
+
+		$this->assertNull($result);
 	}
 
 /**

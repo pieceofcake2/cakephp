@@ -628,8 +628,14 @@ class ControllerTestCaseTest extends CakeTestCase {
 		$this->Case->generate('TestsApps');
 
 		$options = array('method' => 'get');
+
 		$this->Case->testAction('/tests_apps/redirect_to', $options);
+		$this->assertNotNull($this->Case->headers);
+		$this->assertArrayHasKey('Location', $this->Case->headers);
+
 		$this->Case->testAction('/tests_apps/redirect_to', $options);
+		$this->assertNotNull($this->Case->headers);
+		$this->assertArrayHasKey('Location', $this->Case->headers);
 	}
 
 /**
