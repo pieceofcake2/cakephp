@@ -1145,8 +1145,8 @@ SQL;
 		$test->expects($this->exactly(2))
 			->method('execute')
 			->withConsecutive(
-				'SELECT `Article`.`id` FROM ' . $test->fullTableName('articles') . ' AS `Article`   WHERE 1 = 1',
-				'SELECT [Article].[id] FROM ' . $test->fullTableName('articles') . ' AS [Article]   WHERE 1 = 1'
+				['SELECT `Article`.`id` FROM ' . $test->fullTableName('articles') . ' AS `Article`   WHERE 1 = 1'],
+				['SELECT [Article].[id] FROM ' . $test->fullTableName('articles') . ' AS [Article]   WHERE 1 = 1']
 			);
 
 		$this->Model = $this->getMock('Article2', array('getDataSource'));
