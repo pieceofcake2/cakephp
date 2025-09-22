@@ -327,20 +327,23 @@ class CakeRequestTest extends CakeTestCase {
 		));
 
 		$request = $this->getMock('TestCakeRequest', array('_readInput'));
-		$request->expects($this->at(0))->method('_readInput')
+		$request->expects($this->once())
+			->method('_readInput')
 			->will($this->returnValue('data[Article][]=title'));
 		$request->reConstruct();
 		$this->assertEquals($data['data'], $request->data);
 
 		$data = array('one' => 1, 'two' => 'three');
 		$request = $this->getMock('TestCakeRequest', array('_readInput'));
-		$request->expects($this->at(0))->method('_readInput')
+		$request->expects($this->once())
+			->method('_readInput')
 			->will($this->returnValue('one=1&two=three'));
 		$request->reConstruct();
 		$this->assertEquals($data, $request->data);
 
 		$request = $this->getMock('TestCakeRequest', array('_readInput'));
-		$request->expects($this->at(0))->method('_readInput')
+		$request->expects($this->once())
+			->method('_readInput')
 			->will($this->returnValue('data[Article][title]=Testing&action=update'));
 		$request->reConstruct();
 		$expected = array(
@@ -355,7 +358,8 @@ class CakeRequestTest extends CakeTestCase {
 			'Tag' => array('Tag' => array(1, 2))
 		));
 		$request = $this->getMock('TestCakeRequest', array('_readInput'));
-		$request->expects($this->at(0))->method('_readInput')
+		$request->expects($this->once())
+			->method('_readInput')
 			->will($this->returnValue('data[Article][]=title&Tag[Tag][]=1&Tag[Tag][]=2'));
 		$request->reConstruct();
 		$this->assertEquals($data['data'], $request->data);
@@ -365,7 +369,8 @@ class CakeRequestTest extends CakeTestCase {
 			'Tag' => array('Tag' => array(1, 2))
 		));
 		$request = $this->getMock('TestCakeRequest', array('_readInput'));
-		$request->expects($this->at(0))->method('_readInput')
+		$request->expects($this->once())
+			->method('_readInput')
 			->will($this->returnValue('data[Article][title]=some%20title&Tag[Tag][]=1&Tag[Tag][]=2'));
 		$request->reConstruct();
 		$this->assertEquals($data['data'], $request->data);
@@ -375,7 +380,8 @@ class CakeRequestTest extends CakeTestCase {
 			'b' => array(1, 2)
 		);
 		$request = $this->getMock('TestCakeRequest', array('_readInput'));
-		$request->expects($this->at(0))->method('_readInput')
+		$request->expects($this->once())
+			->method('_readInput')
 			->will($this->returnValue('a[]=1&a[]=2&b[]=1&b[]=2'));
 		$request->reConstruct();
 		$this->assertEquals($data, $request->data);
@@ -391,7 +397,8 @@ class CakeRequestTest extends CakeTestCase {
 		$_SERVER['CONTENT_TYPE'] = 'application/json';
 
 		$request = $this->getMock('TestCakeRequest', array('_readInput'));
-		$request->expects($this->at(0))->method('_readInput')
+		$request->expects($this->once())
+			->method('_readInput')
 			->will($this->returnValue('{"Article":["title"]}'));
 		$request->reConstruct();
 		$result = $request->input('json_decode', true);

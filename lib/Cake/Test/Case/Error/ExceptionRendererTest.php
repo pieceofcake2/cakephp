@@ -489,10 +489,19 @@ class ExceptionRendererTest extends CakeTestCase {
 		$ExceptionRenderer->controller->response = $this->getMock('CakeResponse', array('_sendHeader'));
 		$ExceptionRenderer->controller->response->header($headers);
 
-		$ExceptionRenderer->controller->response->expects($this->at(1))->method('_sendHeader')->with('Allow', 'POST, DELETE');
+		$sendHeaderCalls = [];
+		$ExceptionRenderer->controller->response->expects($this->exactly(4))
+			->method('_sendHeader')
+			->willReturnCallback(function() use (&$sendHeaderCalls) {
+				$sendHeaderCalls[] = func_get_args();
+			});
+
 		ob_start();
 		$ExceptionRenderer->render();
 		ob_get_clean();
+
+		$this->assertArrayHasKey(1, $sendHeaderCalls);
+		$this->assertEquals(['Allow', 'POST, DELETE'], $sendHeaderCalls[1]);
 	}
 
 /**
@@ -688,7 +697,7 @@ class ExceptionRendererTest extends CakeTestCase {
 		$ExceptionRenderer->controller = $this->getMock('Controller', array('render'));
 		$ExceptionRenderer->controller->helpers = array('Fail', 'Boom');
 		$ExceptionRenderer->controller->request = $this->getMock('CakeRequest');
-		$ExceptionRenderer->controller->expects($this->at(0))
+		$ExceptionRenderer->controller->expects($this->once())
 			->method('render')
 			->with('missingHelper')
 			->will($this->throwException($exception));

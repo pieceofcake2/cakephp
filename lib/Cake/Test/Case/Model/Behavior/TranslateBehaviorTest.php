@@ -764,7 +764,7 @@ class TranslateBehaviorTest extends CakeTestCase {
 		$Mock = $this->getMockForModel('TranslateTestModel', array('save'));
 		$TestModel->Behaviors->Translate->runtime[$TestModel->alias]['model'] = $Mock;
 
-		$with = array(
+		$contentWith = array(
 			'TranslateTestModel' => array (
 				'model' => 'TranslatedItem',
 				'foreign_key' => '4',
@@ -773,9 +773,8 @@ class TranslateBehaviorTest extends CakeTestCase {
 				'content' => 'Content #4',
 			)
 		);
-		$Mock->expects($this->at(0))->method('save')->with($with, array('atomic' => false));
 
-		$with = array(
+		$titleWith = array(
 			'TranslateTestModel' => array (
 				'model' => 'TranslatedItem',
 				'foreign_key' => '4',
@@ -784,7 +783,13 @@ class TranslateBehaviorTest extends CakeTestCase {
 				'content' => 'Title #4',
 			)
 		);
-		$Mock->expects($this->at(1))->method('save')->with($with, array('atomic' => false));
+
+		$Mock->expects($this->exactly(2))
+			->method('save')
+			->withConsecutive(
+				[$contentWith, array('atomic' => false)],
+				[$titleWith, array('atomic' => false)]
+			);
 
 		$TestModel->create();
 		$TestModel->saveAssociated($data, array('atomic' => false));

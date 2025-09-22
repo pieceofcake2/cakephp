@@ -1424,14 +1424,44 @@ class DboSourceTest extends CakeTestCase {
 		$db->useNestedTransactions = true;
 		$db->nestedSupport = true;
 
-		$conn->expects($this->at(0))->method('beginTransaction')->will($this->returnValue(true));
-		$conn->expects($this->at(1))->method('exec')->with($this->equalTo('SAVEPOINT LEVEL1'))->will($this->returnValue(0));
-		$conn->expects($this->at(2))->method('exec')->with($this->equalTo('RELEASE SAVEPOINT LEVEL1'))->will($this->returnValue(0));
-		$conn->expects($this->at(3))->method('exec')->with($this->equalTo('SAVEPOINT LEVEL1'))->will($this->returnValue(0));
-		$conn->expects($this->at(4))->method('exec')->with($this->equalTo('ROLLBACK TO SAVEPOINT LEVEL1'))->will($this->returnValue(0));
-		$conn->expects($this->at(5))->method('commit')->will($this->returnValue(true));
+		$conn->expects($this->once())
+			->method('beginTransaction')
+			->willReturnCallback(function() use (&$methodCalls) {
+				$methodCalls[] = 'beginTransaction';
+				return true;
+			});
+
+		$conn->expects($this->exactly(4))
+			->method('exec')
+			->withConsecutive(
+				[$this->equalTo('SAVEPOINT LEVEL1')],
+				[$this->equalTo('RELEASE SAVEPOINT LEVEL1')],
+				[$this->equalTo('SAVEPOINT LEVEL1')],
+				[$this->equalTo('ROLLBACK TO SAVEPOINT LEVEL1')]
+			)
+			->willReturnCallback(function($sql) use (&$methodCalls) {
+				$methodCalls[] = 'exec: ' . $sql;
+				return 0;
+			});
+
+		$conn->expects($this->once())
+			->method('commit')
+			->willReturnCallback(function() use (&$methodCalls) {
+				$methodCalls[] = 'commit';
+				return true;
+			});
 
 		$this->_runTransactions($db);
+
+		$expected = [
+			'beginTransaction',
+			'exec: SAVEPOINT LEVEL1',
+			'exec: RELEASE SAVEPOINT LEVEL1',
+			'exec: SAVEPOINT LEVEL1',
+			'exec: ROLLBACK TO SAVEPOINT LEVEL1',
+			'commit'
+		];
+		$this->assertEquals($expected, $methodCalls);
 	}
 
 /**
@@ -1668,21 +1698,14 @@ class DboSourceTest extends CakeTestCase {
 		$db = new DboTestSource();
 		$db->setConnection($conn);
 
-		$conn->expects($this->at(0))
+		$conn->expects($this->exactly(3))
 			->method('quote')
-			->will($this->returnValue('just text'));
+			->willReturnOnConsecutiveCalls('just text', 'just text', 'other text');
 
 		$conditions = array('Article.name' => 'just text');
 		$result = $db->conditionKeysToString($conditions, true, $Article);
 		$expected = "Article.name = just text";
 		$this->assertEquals($expected, $result[0]);
-
-		$conn->expects($this->at(0))
-			->method('quote')
-			->will($this->returnValue('just text'));
-		$conn->expects($this->at(1))
-			->method('quote')
-			->will($this->returnValue('other text'));
 
 		$conditions = array('Article.name' => array('just text', 'other text'));
 		$result = $db->conditionKeysToString($conditions, true, $Article);
@@ -1704,21 +1727,14 @@ class DboSourceTest extends CakeTestCase {
 		$db = new DboTestSource();
 		$db->setConnection($conn);
 
-		$conn->expects($this->at(0))
+		$conn->expects($this->exactly(3))
 			->method('quote')
-			->will($this->returnValue('just text'));
+			->willReturnOnConsecutiveCalls('just text', 'just text', 'other text');
 
 		$conditions = array('Article.extra' => 'just text');
 		$result = $db->conditionKeysToString($conditions, true, $Article);
 		$expected = "(" . $Article->virtualFields['extra']->value . ") = just text";
 		$this->assertEquals($expected, $result[0]);
-
-		$conn->expects($this->at(0))
-			->method('quote')
-			->will($this->returnValue('just text'));
-		$conn->expects($this->at(1))
-			->method('quote')
-			->will($this->returnValue('other text'));
 
 		$conditions = array('Article.extra' => array('just text', 'other text'));
 		$result = $db->conditionKeysToString($conditions, true, $Article);
@@ -1740,21 +1756,14 @@ class DboSourceTest extends CakeTestCase {
 		$db = new DboTestSource();
 		$db->setConnection($conn);
 
-		$conn->expects($this->at(0))
+		$conn->expects($this->exactly(3))
 			->method('quote')
-			->will($this->returnValue('just text'));
+			->willReturnOnConsecutiveCalls('just text', 'just text', 'other text');
 
 		$conditions = array('Article.extra' => 'just text');
 		$result = $db->conditionKeysToString($conditions, true, $Article);
 		$expected = "(" . $Article->virtualFields['extra'] . ") = just text";
 		$this->assertEquals($expected, $result[0]);
-
-		$conn->expects($this->at(0))
-			->method('quote')
-			->will($this->returnValue('just text'));
-		$conn->expects($this->at(1))
-			->method('quote')
-			->will($this->returnValue('other text'));
 
 		$conditions = array('Article.extra' => array('just text', 'other text'));
 		$result = $db->conditionKeysToString($conditions, true, $Article);
@@ -2003,8 +2012,13 @@ class DboSourceTest extends CakeTestCase {
 
 		$Author = new Author();
 		$Post = $this->getMock('Post', array('afterFind'), array(), '', true);
-		$Post->expects($this->at(0))->method('afterFind')->with(array(array('Post' => $expected['Post'][0])), $this->isFalse())->will($this->returnArgument(0));
-		$Post->expects($this->at(1))->method('afterFind')->with(array(array('Post' => $expected['Post'][1])), $this->isFalse())->will($this->returnArgument(0));
+		$Post->expects($this->exactly(2))
+			->method('afterFind')
+			->withConsecutive(
+				[array(array('Post' => $expected['Post'][0])), $this->isFalse()],
+				[array(array('Post' => $expected['Post'][1])), $this->isFalse()]
+			)
+			->will($this->returnArgument(0));
 
 		$Author->bindModel(array('hasMany' => array('Post' => array('limit' => 2, 'order' => 'Post.id'))));
 		$Author->Post = $Post;

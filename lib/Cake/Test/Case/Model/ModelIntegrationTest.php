@@ -2399,13 +2399,9 @@ class ModelIntegrationTest extends BaseModelTest {
 		$Article = new Article();
 		$Article->Behaviors = $this->getMock('BehaviorCollection');
 
-		$Article->Behaviors->expects($this->at(0))
+		$Article->Behaviors->expects($this->exactly(2))
 			->method('hasMethod')
-			->will($this->returnValue(true));
-
-		$Article->Behaviors->expects($this->at(1))
-			->method('hasMethod')
-			->will($this->returnValue(false));
+			->willReturnOnConsecutiveCalls(true, false);
 
 		$this->assertTrue($Article->hasMethod('find'));
 

@@ -64,9 +64,14 @@ class SyslogLogTest extends CakeTestCase {
  */
 	public function testWriteMultiLine() {
 		$log = $this->getMock('SyslogLog', array('_open', '_write'));
-		$log->expects($this->at(1))->method('_write')->with(LOG_DEBUG, 'debug: Foo');
-		$log->expects($this->at(2))->method('_write')->with(LOG_DEBUG, 'debug: Bar');
-		$log->expects($this->exactly(2))->method('_write');
+
+		$log->expects($this->exactly(2))
+			->method('_write')
+			->withConsecutive(
+				[LOG_DEBUG, 'debug: Foo'],
+				[LOG_DEBUG, 'debug: Bar']
+			);
+
 		$log->write('debug', "Foo\nBar");
 	}
 

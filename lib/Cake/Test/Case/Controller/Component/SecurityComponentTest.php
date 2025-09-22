@@ -1332,12 +1332,13 @@ class SecurityComponentTest extends CakeTestCase {
 		$this->assertTrue($this->validatePost());
 
 		$request = $this->getMock('CakeRequest', array('here'), array('articles/edit/1', false));
-		$request->expects($this->at(0))
+
+		$request->expects($this->exactly(2))
 			->method('here')
-			->will($this->returnValue('/posts/index?page=1'));
-		$request->expects($this->at(1))
-			->method('here')
-			->will($this->returnValue('/posts/edit/1'));
+			->willReturnOnConsecutiveCalls(
+				'/posts/index?page=1',
+				'/posts/edit/1'
+			);
 
 		$request->data = $this->Controller->request->data;
 		$this->Controller->request = $request;
