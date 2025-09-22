@@ -159,6 +159,7 @@ class CookieComponentTest extends CakeTestCase {
  * @return void
  */
 	public function testReadCorruptedCookieData() {
+		$this->skipIf(!extension_loaded('mcrypt'), 'No Mcrypt, skipping.');
 		$this->Cookie->type('aes');
 		$this->Cookie->key = sha1('some bad key');
 
@@ -507,6 +508,7 @@ class CookieComponentTest extends CakeTestCase {
  * @return void
  */
 	public function testDeleteCorruptedCookieData() {
+		$this->skipIf(!extension_loaded('mcrypt'), 'No Mcrypt, skipping.');
 		$this->Cookie->type('aes');
 		$this->Cookie->key = sha1('some bad key');
 
