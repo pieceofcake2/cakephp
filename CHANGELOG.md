@@ -32,6 +32,11 @@
 - Fix "Trying to access array offset on value of type bool" error in L10n.php (#2)
 - Fix I18n and L10n locale handling issues (#2)
 
+### CI/CD Improvements
+
+- Add MySQL 8.0 support to GitHub Actions workflow (#3)
+- Add Docker Compose configuration for local testing (#3)
+
 ### Other Fixes
 
 - Fix controller tests by setting `autoRender` property (#2)
