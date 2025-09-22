@@ -2,21 +2,34 @@
 
 ## v2.10.24.3
 
-- Fix PHPUnit deprecation `at` warnings.
-- Fix PHPUnit deprecation `expectError` / `expectWarning` / `expectNotice` warnings.
-- Fix PHPUnit risky tests by adding missing assertions.
-- Fix output buffering issues in tests.
-- Fix controller tests by setting `autoRender` property.
-- Fix MysqlTest for PHP 8.0+ by removing version check and fixing float assertions.
-- Fix Postgres `preg_replace` with null.
-- Fix PHP 8.0+ "Trying to access array offset on value of type bool" error in L10n.php.
-- Fix I18nTest failures by properly clearing I18n state between tests.
-- Fix test isolation issues by cleaning up global state in tearDown methods:
-  - BasicsTest: Clean up Config.language setting
-  - CakeTimeTest: Reset App::build paths and Config.language
+### PHPUnit Compatibility Fixes
+
+- Fix PHPUnit deprecation warnings for `at()` method usage
+- Fix PHPUnit deprecation for `expectError()`, `expectWarning()`, `expectNotice()` methods
+- Fix PHPUnit data provider naming issue in ExceptionRendererTest
+- Fix PHPUnit risky tests by adding missing assertions
+- Fix output buffering issues in tests
+- Skip CookieComponent AES tests when mcrypt extension is not available
+
+### Test Isolation Improvements
+
+- Fix test isolation issues by properly cleaning up global state:
+  - BasicsTest: Clean up Config.language setting in tearDown
   - CakeRequestTest: Clean up HTTP_ACCEPT_LANGUAGE server variable
-  - L10nTest: Clean up HTTP_ACCEPT_LANGUAGE server variable
-  - I18nTest: Simplify clear() method to only reset domains
+  - L10nTest: Add tearDown to clean up HTTP_ACCEPT_LANGUAGE
+  - I18nTest: Improve state management and simplify clear() method
+
+### PHP 8.0+ Compatibility
+
+- Fix MysqlTest for PHP 8.0+ by removing version check and fixing float assertions
+- Fix PostgreSQL `preg_replace()` with null parameter
+- Fix "Trying to access array offset on value of type bool" error in L10n.php
+- Fix I18n and L10n locale handling issues
+
+### Other Fixes
+
+- Fix controller tests by setting `autoRender` property
+- Revert ApplicationControllerTest redirect changes
 
 ## v2.10.24.2
 
