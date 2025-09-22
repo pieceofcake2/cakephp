@@ -300,6 +300,7 @@ class I18n {
 		$self->_domains = array();
 		$self->_lang = null;
 		$self->_noLocale = false;
+		$self->_escape = null;
 		$self->domain = null;
 		$self->category = 'LC_MESSAGES';
 		// Reset L10n instance to default state
