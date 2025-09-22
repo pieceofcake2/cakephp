@@ -526,7 +526,7 @@ class ExceptionRendererTest extends CakeTestCase {
  *
  * @return array
  */
-	protected static function testProvider(): array {
+	public static function exceptionProvider(): array {
 		return array(
 			array(
 				new MissingActionException(array('controller' => 'PostsController', 'action' => 'index')),
@@ -666,7 +666,7 @@ class ExceptionRendererTest extends CakeTestCase {
 /**
  * Test the various CakeException sub classes
  *
- * @dataProvider testProvider
+ * @dataProvider exceptionProvider
  * @return void
  */
 	public function testCakeExceptionHandling($exception, $patterns, $code) {
