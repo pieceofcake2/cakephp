@@ -645,7 +645,7 @@ class HttpSocketTest extends CakeTestCase {
 		$number = mt_rand(0, 9999999);
 		$this->Socket->expects($this->any())->method('connect')->will($this->returnValue(true));
 		$serverResponse = "HTTP/1.x 200 OK\r\nDate: Mon, 16 Apr 2007 04:14:16 GMT\r\nServer: CakeHttp Server\r\nContent-Type: text/html\r\n\r\n<h1>Hello, your lucky number is " . $number . "</h1>";
-		$this->Socket->expects($this->at(0))->method('write')
+		$this->Socket->expects($this->once())->method('write')
 			->with("GET / HTTP/1.1\r\nHost: www.cakephp.org\r\nConnection: close\r\nUser-Agent: CakePHP\r\n\r\n");
 
 		$this->Socket->expects($this->any())
@@ -701,12 +701,14 @@ class HttpSocketTest extends CakeTestCase {
 		);
 		$http = $this->getMock('TestHttpSocket', array('read', 'write', 'connect', 'request'), array($request));
 
-		$expected = array('method' => 'GET', 'uri' => 'http://localhost:5984/_test');
-		$http->expects($this->at(0))->method('request')->with($expected);
-		$http->get('/_test');
+		$http->expects($this->exactly(2))
+			->method('request')
+			->withConsecutive(
+				[array('method' => 'GET', 'uri' => 'http://localhost:5984/_test')],
+				[array('method' => 'GET', 'uri' => 'http://localhost:5984/_test?count=4')]
+			);
 
-		$expected = array('method' => 'GET', 'uri' => 'http://localhost:5984/_test?count=4');
-		$http->expects($this->at(0))->method('request')->with($expected);
+		$http->get('/_test');
 		$http->get('/_test', array('count' => 4));
 	}
 
@@ -750,32 +752,39 @@ class HttpSocketTest extends CakeTestCase {
 		$this->Socket->connected = true;
 		$this->Socket->config['request']['cookies'] = array();
 
-		$serverResponse = "HTTP/1.x 200 OK\r\nSet-Cookie: foo=bar\r\nDate: Mon, 16 Apr 2007 04:14:16 GMT\r\nServer: CakeHttp Server\r\nContent-Type: text/html\r\n\r\n<h1>This is a test!</h1>";
+		$readCounter = 0;
+		$this->Socket->expects($this->any())
+			->method('read')
+			->willReturnCallback(function() use (&$readCounter) {
+				$responses = [
+					"HTTP/1.x 200 OK\r\nSet-Cookie: foo=bar\r\nDate: Mon, 16 Apr 2007 04:14:16 GMT\r\nServer: CakeHttp Server\r\nContent-Type: text/html\r\n\r\n<h1>This is a test!</h1>",
+					false,
+					"HTTP/1.x 200 OK\r\nSet-Cookie: bar=foo\r\nDate: Mon, 16 Apr 2007 04:14:16 GMT\r\nServer: CakeHttp Server\r\nContent-Type: text/html\r\n\r\n<h1>This is a test!</h1>",
+					false,
+					"HTTP/1.x 200 OK\r\nDate: Mon, 16 Apr 2007 04:14:16 GMT\r\nServer: CakeHttp Server\r\nContent-Type: text/html\r\n\r\n<h1>This is a test!</h1>",
+					false,
+					"HTTP/1.x 200 OK\r\nSet-Cookie: foobar=ok\r\nDate: Mon, 16 Apr 2007 04:14:16 GMT\r\nServer: CakeHttp Server\r\nContent-Type: text/html\r\n\r\n<h1>This is a test!</h1>",
+					false
+				];
+				return $responses[$readCounter++];
+			});
 
-		$this->Socket->expects($this->at(1))->method('read')->will($this->returnValue($serverResponse));
-		$this->Socket->expects($this->at(2))->method('read')->will($this->returnValue(false));
-
+		// Request 1
 		$expected = array('www.cakephp.org' => array('foo' => array('value' => 'bar')));
 		$this->Socket->request('http://www.cakephp.org/');
 		$this->assertEquals($expected, $this->Socket->config['request']['cookies']);
 
-		$serverResponse = "HTTP/1.x 200 OK\r\nSet-Cookie: bar=foo\r\nDate: Mon, 16 Apr 2007 04:14:16 GMT\r\nServer: CakeHttp Server\r\nContent-Type: text/html\r\n\r\n<h1>This is a test!</h1>";
-		$this->Socket->expects($this->at(1))->method('read')->will($this->returnValue($serverResponse));
-		$this->Socket->expects($this->at(2))->method('read')->will($this->returnValue(false));
+		// Request 2
 		$this->Socket->request('http://www.cakephp.org/other');
 		$this->assertEquals(array('foo' => array('value' => 'bar')), $this->Socket->request['cookies']);
 		$expected['www.cakephp.org'] += array('bar' => array('value' => 'foo'));
 		$this->assertEquals($expected, $this->Socket->config['request']['cookies']);
 
-		$serverResponse = "HTTP/1.x 200 OK\r\nDate: Mon, 16 Apr 2007 04:14:16 GMT\r\nServer: CakeHttp Server\r\nContent-Type: text/html\r\n\r\n<h1>This is a test!</h1>";
-		$this->Socket->expects($this->at(1))->method('read')->will($this->returnValue($serverResponse));
-		$this->Socket->expects($this->at(2))->method('read')->will($this->returnValue(false));
+		// Request 3
 		$this->Socket->request('/other2');
 		$this->assertEquals($expected, $this->Socket->config['request']['cookies']);
 
-		$serverResponse = "HTTP/1.x 200 OK\r\nSet-Cookie: foobar=ok\r\nDate: Mon, 16 Apr 2007 04:14:16 GMT\r\nServer: CakeHttp Server\r\nContent-Type: text/html\r\n\r\n<h1>This is a test!</h1>";
-		$this->Socket->expects($this->at(1))->method('read')->will($this->returnValue($serverResponse));
-		$this->Socket->expects($this->at(2))->method('read')->will($this->returnValue(false));
+		// Request 4
 		$this->Socket->request('http://www.cake.com');
 		$this->assertTrue(empty($this->Socket->request['cookies']));
 		$expected['www.cake.com'] = array('foobar' => array('value' => 'ok'));
@@ -810,27 +819,28 @@ class HttpSocketTest extends CakeTestCase {
 			'uri' => 'http://localhost/oneuri',
 			'redirect' => 1
 		);
-		$serverResponse1 = "HTTP/1.x 302 Found\r\nDate: Mon, 16 Apr 2007 04:14:16 GMT\r\nServer: CakeHttp Server\r\nContent-Type: text/html\r\nLocation: http://i.cmpnet.com%2Ftechonline%2Fpdf%2Fa+b.pdf=\r\n\r\n";
-		$serverResponse2 = "HTTP/1.x 200 OK\r\nDate: Mon, 16 Apr 2007 04:14:16 GMT\r\nServer: CakeHttp Server\r\nContent-Type: text/html\r\n\r\n<h1>You have been redirected</h1>";
 
-		$this->Socket->expects($this->at(1))
+		$readCounter = 0;
+		$this->Socket->expects($this->exactly(4))
 			->method('read')
-			->will($this->returnValue($serverResponse1));
+			->willReturnOnConsecutiveCalls(
+				"HTTP/1.x 302 Found\r\nDate: Mon, 16 Apr 2007 04:14:16 GMT\r\nServer: CakeHttp Server\r\nContent-Type: text/html\r\nLocation: http://i.cmpnet.com%2Ftechonline%2Fpdf%2Fa+b.pdf=\r\n\r\n",
+				false,
+				"HTTP/1.x 200 OK\r\nDate: Mon, 16 Apr 2007 04:14:16 GMT\r\nServer: CakeHttp Server\r\nContent-Type: text/html\r\n\r\n<h1>You have been redirected</h1>",
+				false
+			);
 
-		$this->Socket->expects($this->at(3))
-			->method('write')
-			->with($this->logicalAnd(
-				$this->stringContains('Host: i.cmpnet.com'),
-				$this->stringContains('GET /techonline/pdf/a+b.pdf')
-			));
-
-		$this->Socket->expects($this->at(4))
-			->method('read')
-			->will($this->returnValue($serverResponse2));
+		$writeCalls = [];
 		$this->Socket->expects($this->any())
-			->method('read')->will($this->returnValue(false));
+			->method('write')
+			->willReturnCallback(function($data) use (&$writeCalls) {
+				$writeCalls[] = $data;
+			});
 
 		$response = $this->Socket->request($request);
+
+		$this->assertStringContainsString('Host: i.cmpnet.com', $writeCalls[1]);
+		$this->assertStringContainsString('GET /techonline/pdf/a+b.pdf', $writeCalls[1]);
 		$this->assertEquals('<h1>You have been redirected</h1>', $response->body());
 	}
 
@@ -1036,33 +1046,17 @@ class HttpSocketTest extends CakeTestCase {
 	public function testGet() {
 		$this->RequestSocket->reset();
 
-		$this->RequestSocket->expects($this->at(0))
+		$this->RequestSocket->expects($this->exactly(7))
 			->method('request')
-			->with(array('method' => 'GET', 'uri' => 'http://www.google.com/'));
-
-		$this->RequestSocket->expects($this->at(1))
-			->method('request')
-			->with(array('method' => 'GET', 'uri' => 'http://www.google.com/?foo=bar'));
-
-		$this->RequestSocket->expects($this->at(2))
-			->method('request')
-			->with(array('method' => 'GET', 'uri' => 'http://www.google.com/?foo=bar'));
-
-		$this->RequestSocket->expects($this->at(3))
-			->method('request')
-			->with(array('method' => 'GET', 'uri' => 'http://www.google.com/?foo=23&foobar=42'));
-
-		$this->RequestSocket->expects($this->at(4))
-			->method('request')
-			->with(array('method' => 'GET', 'uri' => 'http://www.google.com/', 'version' => '1.0'));
-
-		$this->RequestSocket->expects($this->at(5))
-			->method('request')
-			->with(array('method' => 'GET', 'uri' => 'https://secure.example.com/test.php?one=two'));
-
-		$this->RequestSocket->expects($this->at(6))
-			->method('request')
-			->with(array('method' => 'GET', 'uri' => 'https://example.com/oauth/access?clientid=123&redirect_uri=http%3A%2F%2Fexample.com&code=456'));
+			->withConsecutive(
+				[array('method' => 'GET', 'uri' => 'http://www.google.com/')],
+				[array('method' => 'GET', 'uri' => 'http://www.google.com/?foo=bar')],
+				[array('method' => 'GET', 'uri' => 'http://www.google.com/?foo=bar')],
+				[array('method' => 'GET', 'uri' => 'http://www.google.com/?foo=23&foobar=42')],
+				[array('method' => 'GET', 'uri' => 'http://www.google.com/', 'version' => '1.0')],
+				[array('method' => 'GET', 'uri' => 'https://secure.example.com/test.php?one=two')],
+				[array('method' => 'GET', 'uri' => 'https://example.com/oauth/access?clientid=123&redirect_uri=http%3A%2F%2Fexample.com&code=456')]
+			);
 
 		$this->RequestSocket->get('http://www.google.com/');
 		$this->RequestSocket->get('http://www.google.com/', array('foo' => 'bar'));
@@ -1084,33 +1078,18 @@ class HttpSocketTest extends CakeTestCase {
  */
 	public function testHead() {
 		$this->RequestSocket->reset();
-		$this->RequestSocket->expects($this->at(0))
-			->method('request')
-			->with(array('method' => 'HEAD', 'uri' => 'http://www.google.com/'));
 
-		$this->RequestSocket->expects($this->at(1))
+		$this->RequestSocket->expects($this->exactly(7))
 			->method('request')
-			->with(array('method' => 'HEAD', 'uri' => 'http://www.google.com/?foo=bar'));
-
-		$this->RequestSocket->expects($this->at(2))
-			->method('request')
-			->with(array('method' => 'HEAD', 'uri' => 'http://www.google.com/?foo=bar'));
-
-		$this->RequestSocket->expects($this->at(3))
-			->method('request')
-			->with(array('method' => 'HEAD', 'uri' => 'http://www.google.com/?foo=23&foobar=42'));
-
-		$this->RequestSocket->expects($this->at(4))
-			->method('request')
-			->with(array('method' => 'HEAD', 'uri' => 'http://www.google.com/', 'version' => '1.0'));
-
-		$this->RequestSocket->expects($this->at(5))
-			->method('request')
-			->with(array('method' => 'HEAD', 'uri' => 'https://secure.example.com/test.php?one=two'));
-
-		$this->RequestSocket->expects($this->at(6))
-			->method('request')
-			->with(array('method' => 'HEAD', 'uri' => 'https://example.com/oauth/access?clientid=123&redirect_uri=http%3A%2F%2Fexample.com&code=456'));
+			->withConsecutive(
+				[array('method' => 'HEAD', 'uri' => 'http://www.google.com/')],
+				[array('method' => 'HEAD', 'uri' => 'http://www.google.com/?foo=bar')],
+				[array('method' => 'HEAD', 'uri' => 'http://www.google.com/?foo=bar')],
+				[array('method' => 'HEAD', 'uri' => 'http://www.google.com/?foo=23&foobar=42')],
+				[array('method' => 'HEAD', 'uri' => 'http://www.google.com/', 'version' => '1.0')],
+				[array('method' => 'HEAD', 'uri' => 'https://secure.example.com/test.php?one=two')],
+				[array('method' => 'HEAD', 'uri' => 'https://example.com/oauth/access?clientid=123&redirect_uri=http%3A%2F%2Fexample.com&code=456')]
+			);
 
 		$this->RequestSocket->head('http://www.google.com/');
 		$this->RequestSocket->head('http://www.google.com/', array('foo' => 'bar'));
@@ -1206,17 +1185,14 @@ class HttpSocketTest extends CakeTestCase {
  */
 	public function testPost() {
 		$this->RequestSocket->reset();
-		$this->RequestSocket->expects($this->at(0))
-			->method('request')
-			->with(array('method' => 'POST', 'uri' => 'http://www.google.com/', 'body' => array()));
 
-		$this->RequestSocket->expects($this->at(1))
+		$this->RequestSocket->expects($this->exactly(3))
 			->method('request')
-			->with(array('method' => 'POST', 'uri' => 'http://www.google.com/', 'body' => array('Foo' => 'bar')));
-
-		$this->RequestSocket->expects($this->at(2))
-			->method('request')
-			->with(array('method' => 'POST', 'uri' => 'http://www.google.com/', 'body' => null, 'line' => 'Hey Server'));
+			->withConsecutive(
+				[array('method' => 'POST', 'uri' => 'http://www.google.com/', 'body' => array())],
+				[array('method' => 'POST', 'uri' => 'http://www.google.com/', 'body' => array('Foo' => 'bar'))],
+				[array('method' => 'POST', 'uri' => 'http://www.google.com/', 'body' => null, 'line' => 'Hey Server')]
+			);
 
 		$this->RequestSocket->post('http://www.google.com/');
 		$this->RequestSocket->post('http://www.google.com/', array('Foo' => 'bar'));
@@ -1230,17 +1206,14 @@ class HttpSocketTest extends CakeTestCase {
  */
 	public function testPut() {
 		$this->RequestSocket->reset();
-		$this->RequestSocket->expects($this->at(0))
-			->method('request')
-			->with(array('method' => 'PUT', 'uri' => 'http://www.google.com/', 'body' => array()));
 
-		$this->RequestSocket->expects($this->at(1))
+		$this->RequestSocket->expects($this->exactly(3))
 			->method('request')
-			->with(array('method' => 'PUT', 'uri' => 'http://www.google.com/', 'body' => array('Foo' => 'bar')));
-
-		$this->RequestSocket->expects($this->at(2))
-			->method('request')
-			->with(array('method' => 'PUT', 'uri' => 'http://www.google.com/', 'body' => null, 'line' => 'Hey Server'));
+			->withConsecutive(
+				[array('method' => 'PUT', 'uri' => 'http://www.google.com/', 'body' => array())],
+				[array('method' => 'PUT', 'uri' => 'http://www.google.com/', 'body' => array('Foo' => 'bar'))],
+				[array('method' => 'PUT', 'uri' => 'http://www.google.com/', 'body' => null, 'line' => 'Hey Server')]
+			);
 
 		$this->RequestSocket->put('http://www.google.com/');
 		$this->RequestSocket->put('http://www.google.com/', array('Foo' => 'bar'));
@@ -1254,17 +1227,14 @@ class HttpSocketTest extends CakeTestCase {
  */
 	public function testPatch() {
 		$this->RequestSocket->reset();
-		$this->RequestSocket->expects($this->at(0))
-			->method('request')
-			->with(array('method' => 'PATCH', 'uri' => 'http://www.google.com/', 'body' => array()));
 
-		$this->RequestSocket->expects($this->at(1))
+		$this->RequestSocket->expects($this->exactly(3))
 			->method('request')
-			->with(array('method' => 'PATCH', 'uri' => 'http://www.google.com/', 'body' => array('Foo' => 'bar')));
-
-		$this->RequestSocket->expects($this->at(2))
-			->method('request')
-			->with(array('method' => 'PATCH', 'uri' => 'http://www.google.com/', 'body' => null, 'line' => 'Hey Server'));
+			->withConsecutive(
+				[array('method' => 'PATCH', 'uri' => 'http://www.google.com/', 'body' => array())],
+				[array('method' => 'PATCH', 'uri' => 'http://www.google.com/', 'body' => array('Foo' => 'bar'))],
+				[array('method' => 'PATCH', 'uri' => 'http://www.google.com/', 'body' => null, 'line' => 'Hey Server')]
+			);
 
 		$this->RequestSocket->patch('http://www.google.com/');
 		$this->RequestSocket->patch('http://www.google.com/', array('Foo' => 'bar'));
@@ -1278,17 +1248,14 @@ class HttpSocketTest extends CakeTestCase {
  */
 	public function testDelete() {
 		$this->RequestSocket->reset();
-		$this->RequestSocket->expects($this->at(0))
-			->method('request')
-			->with(array('method' => 'DELETE', 'uri' => 'http://www.google.com/', 'body' => array()));
 
-		$this->RequestSocket->expects($this->at(1))
+		$this->RequestSocket->expects($this->exactly(3))
 			->method('request')
-			->with(array('method' => 'DELETE', 'uri' => 'http://www.google.com/', 'body' => array('Foo' => 'bar')));
-
-		$this->RequestSocket->expects($this->at(2))
-			->method('request')
-			->with(array('method' => 'DELETE', 'uri' => 'http://www.google.com/', 'body' => null, 'line' => 'Hey Server'));
+			->withConsecutive(
+				[array('method' => 'DELETE', 'uri' => 'http://www.google.com/', 'body' => array())],
+				[array('method' => 'DELETE', 'uri' => 'http://www.google.com/', 'body' => array('Foo' => 'bar'))],
+				[array('method' => 'DELETE', 'uri' => 'http://www.google.com/', 'body' => null, 'line' => 'Hey Server')]
+			);
 
 		$this->RequestSocket->delete('http://www.google.com/');
 		$this->RequestSocket->delete('http://www.google.com/', array('Foo' => 'bar'));
