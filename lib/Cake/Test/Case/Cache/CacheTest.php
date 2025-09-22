@@ -434,13 +434,24 @@ class CacheTest extends CakeTestCase {
 			'Plugin' => array(CAKE . 'Test' . DS . 'test_app' . DS . 'Plugin' . DS)
 		), App::RESET);
 
-		Cache::config('test_trigger', array('engine' => 'TestAppCache', 'prefix' => ''));
+		$errorTriggered = false;
+		$errorMessage = '';
+		set_error_handler(function($errno, $errstr) use (&$errorTriggered, &$errorMessage) {
+			$errorTriggered = true;
+			$errorMessage = $errstr;
+			return true;
+		});
+
 		try {
+			Cache::config('test_trigger', array('engine' => 'TestAppCache', 'prefix' => ''));
 			Cache::write('fail', 'value', 'test_trigger');
-			$this->fail('No exception thrown');
-		} catch (PHPUnit\Framework\Error\Error $e) {
-			$this->assertTrue(true);
+		} finally {
+			restore_error_handler();
 		}
+
+		$this->assertTrue($errorTriggered, 'Expected error was not triggered');
+		$this->assertSame('test_trigger cache was unable to write \'fail\' to TestAppCache cache', $errorMessage);
+
 		Cache::drop('test_trigger');
 		App::build();
 	}

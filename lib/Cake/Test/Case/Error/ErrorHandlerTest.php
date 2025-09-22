@@ -356,9 +356,8 @@ class ErrorHandlerTest extends CakeTestCase {
 		$initialLevel = ob_get_level();
 
 		ob_start();
+		ob_start();
 		ErrorHandler::handleFatalError(E_ERROR, 'Something wrong', __FILE__, __LINE__);
-		ob_end_clean();
-
 		while (ob_get_level() > $initialLevel) {
 			ob_end_clean();
 		}

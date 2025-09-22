@@ -86,6 +86,9 @@ class CakeRequestTest extends CakeTestCase {
 		if (!empty($this->_case)) {
 			$_GET['case'] = $this->_case;
 		}
+		if (isset($_SERVER['HTTP_ACCEPT_LANGUAGE'])) {
+			unset($_SERVER['HTTP_ACCEPT_LANGUAGE']);
+		}
 		Configure::write('App', $this->_app);
 	}
 

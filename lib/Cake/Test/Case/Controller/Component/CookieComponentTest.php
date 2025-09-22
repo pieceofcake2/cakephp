@@ -19,6 +19,7 @@
 App::uses('Component', 'Controller');
 App::uses('Controller', 'Controller');
 App::uses('CookieComponent', 'Controller/Component');
+App::uses('CakeRequest', 'Network');
 
 /**
  * CookieComponentTestController class

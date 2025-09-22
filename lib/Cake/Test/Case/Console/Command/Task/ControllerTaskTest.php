@@ -160,9 +160,9 @@ class ControllerTaskTest extends CakeTestCase {
 			$this->markTestSkipped('Additional tables detected.');
 		}
 		$this->Task->interactive = true;
-		$this->Task->expects($this->any())->method('in')->will(
-			$this->onConsecutiveCalls(3, 1)
-		);
+		$this->Task->expects($this->exactly(2))
+			->method('in')
+			->will($this->onConsecutiveCalls(3, 1));
 
 		$result = $this->Task->getName('test');
 		$expected = 'BakeComments';
@@ -180,7 +180,8 @@ class ControllerTaskTest extends CakeTestCase {
  */
 	public function testGetNameInvalidIndex() {
 		$this->Task->interactive = true;
-		$this->Task->expects($this->any())->method('in')
+		$this->Task->expects($this->exactly(2))
+			->method('in')
 			->will($this->onConsecutiveCalls(50, 'q'));
 
 		$this->Task->expects($this->once())->method('err');

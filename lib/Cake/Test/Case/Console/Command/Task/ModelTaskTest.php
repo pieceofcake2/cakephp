@@ -155,7 +155,9 @@ class ModelTaskTest extends CakeTestCase {
  */
 	public function testGetNameValidOption() {
 		$listing = $this->Task->listAll('test');
-		$this->Task->expects($this->any())->method('in')->will($this->onConsecutiveCalls(1, 4));
+		$this->Task->expects($this->exactly(2))
+			->method('in')
+			->will($this->onConsecutiveCalls(1, 4));
 
 		$result = $this->Task->getName('test');
 		$this->assertEquals(Inflector::classify($listing[0]), $result);
@@ -170,8 +172,11 @@ class ModelTaskTest extends CakeTestCase {
  * @return void
  */
 	public function testGetNameWithOutOfBoundsOption() {
-		$this->Task->expects($this->any())->method('in')->will($this->onConsecutiveCalls(99, 1));
-		$this->Task->expects($this->once())->method('err');
+		$this->Task->expects($this->exactly(2))
+			->method('in')
+			->will($this->onConsecutiveCalls(99, 1));
+		$this->Task->expects($this->once())
+			->method('err');
 
 		$this->Task->getName('test');
 	}

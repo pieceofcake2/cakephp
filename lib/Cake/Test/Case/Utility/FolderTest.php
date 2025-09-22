@@ -256,16 +256,25 @@ class FolderTest extends CakeTestCase {
 		mkdir($path);
 		chmod($path, '0444');
 
+		$warningTriggered = false;
+		$warningMessage = '';
+		set_error_handler(function($errno, $errstr) use (&$warningTriggered, &$warningMessage) {
+			$warningTriggered = true;
+			$warningMessage = $errstr;
+		}, E_WARNING | E_USER_WARNING);
+
 		try {
 			$Folder = new Folder($path);
 			$result = $Folder->create($path . DS . 'two' . DS . 'three');
 			$this->assertFalse($result);
-		} catch (\PHPUnit\Framework\Error\Error $e) {
-			$this->assertTrue(true);
+		} finally {
+			restore_error_handler();
+			chmod($path, '0777');
+			rmdir($path);
 		}
 
-		chmod($path, '0777');
-		rmdir($path);
+		$this->assertTrue($warningTriggered || $result === false, 'Expected error or false result');
+		$this->assertSame('mkdir(): Permission denied', $warningMessage);
 	}
 
 /**

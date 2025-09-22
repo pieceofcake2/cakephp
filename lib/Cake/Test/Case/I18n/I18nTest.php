@@ -43,7 +43,6 @@ class I18nTest extends CakeTestCase {
 
 		// Clear I18n state for each test
 		I18n::clear();
-		Configure::delete('Config.language');
 	}
 
 /**
@@ -52,14 +51,7 @@ class I18nTest extends CakeTestCase {
  * @return void
  */
 	public function tearDown() : void {
-		// Clear I18n state after each test
-		I18n::clear();
-		Configure::delete('Config.language');
-
-		// Clear all cache
-		Cache::clear(false, '_cake_core_');
 		Cache::delete('object_map', '_cake_core_');
-
 		CakeSession::destroy();
 		App::build();
 		CakePlugin::unload();

@@ -11,6 +11,12 @@
 - Fix Postgres `preg_replace` with null.
 - Fix PHP 8.0+ "Trying to access array offset on value of type bool" error in L10n.php.
 - Fix I18nTest failures by properly clearing I18n state between tests.
+- Fix test isolation issues by cleaning up global state in tearDown methods:
+  - BasicsTest: Clean up Config.language setting
+  - CakeTimeTest: Reset App::build paths and Config.language
+  - CakeRequestTest: Clean up HTTP_ACCEPT_LANGUAGE server variable
+  - L10nTest: Clean up HTTP_ACCEPT_LANGUAGE server variable
+  - I18nTest: Simplify clear() method to only reset domains
 
 ## v2.10.24.2
 

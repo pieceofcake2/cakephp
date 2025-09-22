@@ -298,13 +298,6 @@ class I18n {
 	public static function clear() {
 		$self = I18n::getInstance();
 		$self->_domains = array();
-		$self->_lang = null;
-		$self->_noLocale = false;
-		$self->_escape = null;
-		$self->domain = null;
-		$self->category = 'LC_MESSAGES';
-		// Reset L10n instance to default state
-		$self->l10n = new L10n();
 	}
 
 /**
