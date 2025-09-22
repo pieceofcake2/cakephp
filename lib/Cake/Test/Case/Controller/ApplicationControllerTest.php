@@ -35,18 +35,18 @@ class TransSessionIdController extends AppController {
 	/**
 	 * For testing redirect URL with session.use_trans_sid=1.
 	 *
-	 * @return void
+	 * @return CakeResponse|null
 	 */
 	public function next() {
 		$sessionName = session_name();
 		$sessionId = $this->Session->id();
-		$this->redirect(array(
+		return $this->redirect(array(
 			'controller' => 'trans_session_id',
 			'action' => 'next_step',
 			'?' => array(
 				$sessionName => $sessionId,
 			),
-		), null, false);
+		));
 	}
 
 }
