@@ -409,9 +409,11 @@ class L10n {
 
 		if ($this->default && $language !== $this->default) {
 			$catalog = $this->catalog($this->default);
-			$fallback = $catalog['localeFallback'];
-			if (!in_array($fallback, $this->languagePath)) {
-				$this->languagePath[] = $fallback;
+			if ($catalog && isset($catalog['localeFallback'])) {
+				$fallback = $catalog['localeFallback'];
+				if (!in_array($fallback, $this->languagePath)) {
+					$this->languagePath[] = $fallback;
+				}
 			}
 		}
 
@@ -480,7 +482,7 @@ class L10n {
  * Attempts to find catalog record for requested language
  *
  * @param string|array $language string requested language, array of requested languages, or null for whole catalog
- * @return array|bool array catalog record for requested language, array of catalog records, whole catalog,
+ * @return array|false array catalog record for requested language, array of catalog records, whole catalog,
  *    or false when language doesn't exist
  */
 	public function catalog($language = null) {

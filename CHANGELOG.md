@@ -9,6 +9,8 @@
 - Fix controller tests by setting `autoRender` property.
 - Fix MysqlTest for PHP 8.0+ by removing version check and fixing float assertions.
 - Fix Postgres `preg_replace` with null.
+- Fix PHP 8.0+ "Trying to access array offset on value of type bool" error in L10n.php.
+- Fix I18nTest failures by properly clearing I18n state between tests.
 
 ## v2.10.24.2
 

@@ -40,6 +40,10 @@ class I18nTest extends CakeTestCase {
 			'Plugin' => array(CAKE . 'Test' . DS . 'test_app' . DS . 'Plugin' . DS)
 		), App::RESET);
 		CakePlugin::load(array('TestPlugin'));
+
+		// Clear I18n state for each test
+		I18n::clear();
+		Configure::delete('Config.language');
 	}
 
 /**
