@@ -277,13 +277,30 @@ class MootoolsEngineHelperTest extends CakeTestCase {
  * @return void
  */
 	public function testDropWithMissingOption() {
-		$this->expectWarning();
-		$this->Moo->get('#drop-me');
-		$this->Moo->drop(array(
-			'drop' => 'onDrop',
-			'leave' => 'onLeave',
-			'hover' => 'onHover',
-		));
+		$warningTriggered = false;
+		$warningMessage = '';
+		set_error_handler(function($errno, $errstr) use (&$warningTriggered, &$warningMessage) {
+			if ($errno === E_WARNING || $errno === E_USER_WARNING) {
+				$warningTriggered = true;
+				$warningMessage = $errstr;
+				return true;
+			}
+			return false;
+		}, E_WARNING | E_USER_WARNING);
+
+		try {
+			$this->Moo->get('#drop-me');
+			$this->Moo->drop(array(
+				'drop' => 'onDrop',
+				'leave' => 'onLeave',
+				'hover' => 'onHover',
+			));
+		} finally {
+			restore_error_handler();
+		}
+
+		$this->assertTrue($warningTriggered, 'Expected warning was not triggered');
+		$this->assertSame('MootoolsEngine::drop() requires a "drag" option to properly function', $warningMessage);
 	}
 
 /**

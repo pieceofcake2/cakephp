@@ -209,18 +209,35 @@ class JsHelperTest extends CakeTestCase {
  * @return void
  */
 	public function testMethodDispatching() {
-		$this->expectWarning();
-		$this->_useMock();
+		$warningTriggered = false;
+		$warningMessage = '';
+		set_error_handler(function($errno, $errstr) use (&$warningTriggered, &$warningMessage) {
+			if ($errno === E_WARNING || $errno === E_USER_WARNING) {
+				$warningTriggered = true;
+				$warningMessage = $errstr;
+				return true;
+			}
+			return false;
+		}, E_WARNING | E_USER_WARNING);
 
-		$this->Js->TestJsEngine
-			->expects($this->once())
-			->method('event')
-			->with('click', 'callback');
+		try {
+			$this->_useMock();
 
-		$this->Js->event('click', 'callback');
+			$this->Js->TestJsEngine
+				->expects($this->once())
+				->method('event')
+				->with('click', 'callback');
 
-		$this->Js->TestJsEngine = new StdClass();
-		$this->Js->someMethodThatSurelyDoesntExist();
+			$this->Js->event('click', 'callback');
+
+			$this->Js->TestJsEngine = new StdClass();
+			$this->Js->someMethodThatSurelyDoesntExist();
+		} finally {
+			restore_error_handler();
+		}
+
+		$this->assertTrue($warningTriggered, 'Expected warning was not triggered');
+		$this->assertSame('JsHelper:: Missing Method someMethodThatSurelyDoesntExist is undefined', $warningMessage);
 	}
 
 /**

@@ -2297,8 +2297,25 @@ class ValidationTest extends CakeTestCase {
  * @return void
  */
 	public function testPassThroughMethodFailure() {
-		$this->expectWarning();
-		Validation::phone('text', null, 'testNl');
+		$warningTriggered = false;
+		$warningMessage = '';
+		set_error_handler(function($errno, $errstr) use (&$warningTriggered, &$warningMessage) {
+			if ($errno === E_WARNING || $errno === E_USER_WARNING) {
+				$warningTriggered = true;
+				$warningMessage = $errstr;
+				return true;
+			}
+			return false;
+		}, E_WARNING | E_USER_WARNING);
+
+		try {
+			Validation::phone('text', null, 'testNl');
+		} finally {
+			restore_error_handler();
+		}
+
+		$this->assertTrue($warningTriggered, 'Expected warning was not triggered');
+		$this->assertSame('Method phone does not exist on TestNlValidation unable to complete validation.', $warningMessage);
 	}
 
 /**
@@ -2307,8 +2324,25 @@ class ValidationTest extends CakeTestCase {
  * @return void
  */
 	public function testPassThroughClassFailure() {
-		$this->expectWarning();
-		Validation::postal('text', null, 'AUTOFAIL');
+		$warningTriggered = false;
+		$warningMessage = '';
+		set_error_handler(function($errno, $errstr) use (&$warningTriggered, &$warningMessage) {
+			if ($errno === E_WARNING || $errno === E_USER_WARNING) {
+				$warningTriggered = true;
+				$warningMessage = $errstr;
+				return true;
+			}
+			return false;
+		}, E_WARNING | E_USER_WARNING);
+
+		try {
+			Validation::postal('text', null, 'AUTOFAIL');
+		} finally {
+			restore_error_handler();
+		}
+
+		$this->assertTrue($warningTriggered, 'Expected warning was not triggered');
+		$this->assertSame('Could not find AUTOFAILValidation class, unable to complete validation.', $warningMessage);
 	}
 
 /**

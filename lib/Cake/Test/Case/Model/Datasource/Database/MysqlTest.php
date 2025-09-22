@@ -3241,7 +3241,6 @@ SQL;
  * @return void
  */
 	public function testBuildColumnBadType() {
-		$this->expectWarning();
 		$data = array(
 			'name' => 'testName',
 			'type' => 'varchar(255)',
@@ -3249,7 +3248,20 @@ SQL;
 			'null' => true,
 			'key'
 		);
-		$this->Dbo->buildColumn($data);
+
+		$warningCaught = false;
+		set_error_handler(function($errno, $errstr) use (&$warningCaught) {
+			$warningCaught = true;
+			return true;
+		}, E_WARNING | E_USER_WARNING);
+
+		try {
+			$this->Dbo->buildColumn($data);
+		} finally {
+			restore_error_handler();
+		}
+
+		$this->assertTrue($warningCaught, 'Expected warning was not triggered');
 	}
 
 /**

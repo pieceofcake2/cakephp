@@ -153,8 +153,25 @@ class ContainableBehaviorTest extends CakeTestCase {
  * @return void
  */
 	public function testInvalidContainments() {
-		$this->expectWarning();
-		$this->_containments($this->Article, array('Comment', 'InvalidBinding'));
+		$warningTriggered = false;
+		$warningMessage = '';
+		set_error_handler(function($errno, $errstr) use (&$warningTriggered, &$warningMessage) {
+			if ($errno === E_WARNING || $errno === E_USER_WARNING) {
+				$warningTriggered = true;
+				$warningMessage = $errstr;
+				return true;
+			}
+			return false;
+		}, E_WARNING | E_USER_WARNING);
+
+		try {
+			$this->_containments($this->Article, array('Comment', 'InvalidBinding'));
+		} finally {
+			restore_error_handler();
+		}
+
+		$this->assertTrue($warningTriggered, 'Expected warning was not triggered');
+		$this->assertSame('Model "Article" is not associated with model "InvalidBinding"', $warningMessage);
 	}
 
 /**
@@ -244,8 +261,25 @@ class ContainableBehaviorTest extends CakeTestCase {
  * @return void
  */
 	public function testBeforeFindWithNonExistingBinding() {
-		$this->expectWarning();
-		$this->Article->find('all', array('contain' => array('Comment' => 'NonExistingBinding')));
+		$warningTriggered = false;
+		$warningMessage = '';
+		set_error_handler(function($errno, $errstr) use (&$warningTriggered, &$warningMessage) {
+			if ($errno === E_WARNING || $errno === E_USER_WARNING) {
+				$warningTriggered = true;
+				$warningMessage = $errstr;
+				return true;
+			}
+			return false;
+		}, E_WARNING | E_USER_WARNING);
+
+		try {
+			$this->Article->find('all', array('contain' => array('Comment' => 'NonExistingBinding')));
+		} finally {
+			restore_error_handler();
+		}
+
+		$this->assertTrue($warningTriggered, 'Expected warning was not triggered');
+		$this->assertSame('Model "Comment" is not associated with model "NonExistingBinding"', $warningMessage);
 	}
 
 /**

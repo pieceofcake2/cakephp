@@ -172,9 +172,23 @@ class CakePluginTest extends CakeTestCase {
  * @return void
  */
 	public function testLoadMultipleWithDefaultsMissingFile() {
-		$this->expectWarning();
-		CakePlugin::load(array('TestPlugin', 'TestPluginTwo'), array('bootstrap' => true, 'routes' => true));
-		CakePlugin::routes();
+		$warningTriggered = false;
+		set_error_handler(function($errno, $errstr) use (&$warningTriggered) {
+			if ($errno === E_WARNING || $errno === E_USER_WARNING) {
+				$warningTriggered = true;
+				return true;
+			}
+			return false;
+		}, E_WARNING | E_USER_WARNING);
+
+		try {
+			CakePlugin::load(array('TestPlugin', 'TestPluginTwo'), array('bootstrap' => true, 'routes' => true));
+			CakePlugin::routes();
+		} finally {
+			restore_error_handler();
+		}
+
+		$this->assertTrue($warningTriggered, 'Expected warning was not triggered');
 	}
 
 /**

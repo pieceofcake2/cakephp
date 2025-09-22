@@ -770,8 +770,25 @@ class ViewTest extends CakeTestCase {
  * @return void
  */
 	public function testElementInexistent() {
-		$this->expectNotice();
-		$this->View->element('non_existent_element');
+		$noticeTriggered = false;
+		$noticeMessage = '';
+		set_error_handler(function($errno, $errstr) use (&$noticeTriggered, &$noticeMessage) {
+			if ($errno === E_NOTICE || $errno === E_USER_NOTICE) {
+				$noticeTriggered = true;
+				$noticeMessage = $errstr;
+				return true;
+			}
+			return false;
+		}, E_NOTICE | E_USER_NOTICE);
+
+		try {
+			$this->View->element('non_existent_element');
+		} finally {
+			restore_error_handler();
+		}
+
+		$this->assertTrue($noticeTriggered, 'Expected notice was not triggered');
+		$this->assertSame('Element Not Found: Elements/non_existent_element.ctp', $noticeMessage);
 	}
 
 /**
@@ -780,8 +797,25 @@ class ViewTest extends CakeTestCase {
  * @return void
  */
 	public function testElementInexistent2() {
-		$this->expectNotice();
-		$this->View->element('TestPlugin.plugin_element', array(), array('plugin' => 'test_plugin'));
+		$noticeTriggered = false;
+		$noticeMessage = '';
+		set_error_handler(function($errno, $errstr) use (&$noticeTriggered, &$noticeMessage) {
+			if ($errno === E_NOTICE || $errno === E_USER_NOTICE) {
+				$noticeTriggered = true;
+				$noticeMessage = $errstr;
+				return true;
+			}
+			return false;
+		}, E_NOTICE | E_USER_NOTICE);
+
+		try {
+			$this->View->element('TestPlugin.plugin_element', array(), array('plugin' => 'test_plugin'));
+		} finally {
+			restore_error_handler();
+		}
+
+		$this->assertTrue($noticeTriggered, 'Expected notice was not triggered');
+		$this->assertSame('Element Not Found: TestPlugin.Elements/TestPlugin.plugin_element.ctp', $noticeMessage);
 	}
 
 /**
@@ -790,8 +824,25 @@ class ViewTest extends CakeTestCase {
  * @return void
  */
 	public function testElementInexistent3() {
-		$this->expectNotice();
-		$this->View->element('test_plugin.plugin_element');
+		$noticeTriggered = false;
+		$noticeMessage = '';
+		set_error_handler(function($errno, $errstr) use (&$noticeTriggered, &$noticeMessage) {
+			if ($errno === E_NOTICE || $errno === E_USER_NOTICE) {
+				$noticeTriggered = true;
+				$noticeMessage = $errstr;
+				return true;
+			}
+			return false;
+		}, E_NOTICE | E_USER_NOTICE);
+
+		try {
+			$this->View->element('test_plugin.plugin_element');
+		} finally {
+			restore_error_handler();
+		}
+
+		$this->assertTrue($noticeTriggered, 'Expected notice was not triggered');
+		$this->assertSame('Element Not Found: test_plugin.Elements/plugin_element.ctp', $noticeMessage);
 	}
 
 /**

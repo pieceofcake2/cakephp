@@ -90,8 +90,25 @@ class SecurityTest extends CakeTestCase {
  * @return void
  */
 	public function testHashInvalidSalt() {
-		$this->expectWarning();
-		Security::hash('someKey', 'blowfish', true);
+		$warningTriggered = false;
+		$warningMessage = '';
+		set_error_handler(function($errno, $errstr) use (&$warningTriggered, &$warningMessage) {
+			if ($errno === E_WARNING || $errno === E_USER_WARNING) {
+				$warningTriggered = true;
+				$warningMessage = $errstr;
+				return true;
+			}
+			return false;
+		}, E_WARNING | E_USER_WARNING);
+
+		try {
+			Security::hash('someKey', 'blowfish', true);
+		} finally {
+			restore_error_handler();
+		}
+
+		$this->assertTrue($warningTriggered, 'Expected warning was not triggered');
+		$this->assertSame('Invalid salt: 1 for blowfish Please visit http://www.php.net/crypt and read the appropriate section for building blowfish salts.', $warningMessage);
 	}
 
 /**
@@ -100,8 +117,25 @@ class SecurityTest extends CakeTestCase {
  * @return void
  */
 	public function testHashAnotherInvalidSalt() {
-		$this->expectWarning();
-		Security::hash('someKey', 'blowfish', '$1$lksdjoijfaoijs');
+		$warningTriggered = false;
+		$warningMessage = '';
+		set_error_handler(function($errno, $errstr) use (&$warningTriggered, &$warningMessage) {
+			if ($errno === E_WARNING || $errno === E_USER_WARNING) {
+				$warningTriggered = true;
+				$warningMessage = $errstr;
+				return true;
+			}
+			return false;
+		}, E_WARNING | E_USER_WARNING);
+
+		try {
+			Security::hash('someKey', 'blowfish', '$1$lksdjoijfaoijs');
+		} finally {
+			restore_error_handler();
+		}
+
+		$this->assertTrue($warningTriggered, 'Expected warning was not triggered');
+		$this->assertSame('Invalid salt: $1$lksdjoijfaoijs for blowfish Please visit http://www.php.net/crypt and read the appropriate section for building blowfish salts.', $warningMessage);
 	}
 
 /**
@@ -110,8 +144,25 @@ class SecurityTest extends CakeTestCase {
  * @return void
  */
 	public function testHashYetAnotherInvalidSalt() {
-		$this->expectWarning();
-		Security::hash('someKey', 'blowfish', '$2a$10$123');
+		$warningTriggered = false;
+		$warningMessage = '';
+		set_error_handler(function($errno, $errstr) use (&$warningTriggered, &$warningMessage) {
+			if ($errno === E_WARNING || $errno === E_USER_WARNING) {
+				$warningTriggered = true;
+				$warningMessage = $errstr;
+				return true;
+			}
+			return false;
+		}, E_WARNING | E_USER_WARNING);
+
+		try {
+			Security::hash('someKey', 'blowfish', '$2a$10$123');
+		} finally {
+			restore_error_handler();
+		}
+
+		$this->assertTrue($warningTriggered, 'Expected warning was not triggered');
+		$this->assertSame('Invalid salt: $2a$10$123 for blowfish Please visit http://www.php.net/crypt and read the appropriate section for building blowfish salts.', $warningMessage);
 	}
 
 /**
@@ -120,9 +171,28 @@ class SecurityTest extends CakeTestCase {
  * @return void
  */
 	public function testHashInvalidCost() {
-		$this->expectWarning();
-		Security::setCost(1000);
+		$warningTriggered = false;
+		$warningMessage = '';
+
+		set_error_handler(function($errno, $errstr) use (&$warningTriggered, &$warningMessage) {
+			if ($errno === E_WARNING || $errno === E_USER_WARNING) {
+				$warningTriggered = true;
+				$warningMessage = $errstr;
+				return true;
+			}
+			return false;
+		}, E_WARNING | E_USER_WARNING);
+
+		try {
+			Security::setCost(1000);
+		} finally {
+			restore_error_handler();
+		}
+
+		$this->assertTrue($warningTriggered, 'Expected warning was not triggered');
+		$this->assertSame('Invalid value, cost must be between 4 and 31', $warningMessage);
 	}
+
 /**
  * testHash method
  *
@@ -272,10 +342,27 @@ class SecurityTest extends CakeTestCase {
  * @return void
  */
 	public function testCipherEmptyKey() {
-		$this->expectWarning();
-		$txt = 'some_text';
-		$key = '';
-		Security::cipher($txt, $key);
+		$warningTriggered = false;
+		$warningMessage = '';
+		set_error_handler(function($errno, $errstr) use (&$warningTriggered, &$warningMessage) {
+			if ($errno === E_WARNING || $errno === E_USER_WARNING) {
+				$warningTriggered = true;
+				$warningMessage = $errstr;
+				return true;
+			}
+			return false;
+		}, E_WARNING | E_USER_WARNING);
+
+		try {
+			$txt = 'some_text';
+			$key = '';
+			Security::cipher($txt, $key);
+		} finally {
+			restore_error_handler();
+		}
+
+		$this->assertTrue($warningTriggered, 'Expected warning was not triggered');
+		$this->assertSame('You cannot use an empty key for Security::cipher()', $warningMessage);
 	}
 
 /**
@@ -324,10 +411,27 @@ class SecurityTest extends CakeTestCase {
  * @return void
  */
 	public function testRijndaelInvalidOperation() {
-		$this->expectWarning();
-		$txt = 'The quick brown fox jumped over the lazy dog.';
-		$key = 'DYhG93b0qyJfIxfs2guVoUubWwvniR2G0FgaC9mi';
-		Security::rijndael($txt, $key, 'foo');
+		$warningTriggered = false;
+		$warningMessage = '';
+		set_error_handler(function($errno, $errstr) use (&$warningTriggered, &$warningMessage) {
+			if ($errno === E_WARNING || $errno === E_USER_WARNING) {
+				$warningTriggered = true;
+				$warningMessage = $errstr;
+				return true;
+			}
+			return false;
+		}, E_WARNING | E_USER_WARNING);
+
+		try {
+			$txt = 'The quick brown fox jumped over the lazy dog.';
+			$key = 'DYhG93b0qyJfIxfs2guVoUubWwvniR2G0FgaC9mi';
+			Security::rijndael($txt, $key, 'foo');
+		} finally {
+			restore_error_handler();
+		}
+
+		$this->assertTrue($warningTriggered, 'Expected warning was not triggered');
+		$this->assertSame('You must specify the operation for Security::rijndael(), either encrypt or decrypt', $warningMessage);
 	}
 
 /**
@@ -336,10 +440,27 @@ class SecurityTest extends CakeTestCase {
  * @return void
  */
 	public function testRijndaelInvalidKey() {
-		$this->expectWarning();
-		$txt = 'The quick brown fox jumped over the lazy dog.';
-		$key = 'too small';
-		Security::rijndael($txt, $key, 'encrypt');
+		$warningTriggered = false;
+		$warningMessage = '';
+		set_error_handler(function($errno, $errstr) use (&$warningTriggered, &$warningMessage) {
+			if ($errno === E_WARNING || $errno === E_USER_WARNING) {
+				$warningTriggered = true;
+				$warningMessage = $errstr;
+				return true;
+			}
+			return false;
+		}, E_WARNING | E_USER_WARNING);
+
+		try {
+			$txt = 'The quick brown fox jumped over the lazy dog.';
+			$key = 'too small';
+			Security::rijndael($txt, $key, 'encrypt');
+		} finally {
+			restore_error_handler();
+		}
+
+		$this->assertTrue($warningTriggered, 'Expected warning was not triggered');
+		$this->assertSame('You must use a key larger than 32 bytes for Security::rijndael()', $warningMessage);
 	}
 
 /**

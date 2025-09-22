@@ -63,7 +63,6 @@ class CrudAuthorizeTest extends CakeTestCase {
  * @return void
  */
 	public function testAuthorizeNoMappedAction() {
-		$this->expectWarning();
 		$request = new CakeRequest('/posts/foobar', false);
 		$request->addParams(array(
 			'controller' => 'posts',
@@ -71,7 +70,25 @@ class CrudAuthorizeTest extends CakeTestCase {
 		));
 		$user = array('User' => array('user' => 'mark'));
 
-		$this->auth->authorize($user, $request);
+		$warningTriggered = false;
+		$warningMessage = '';
+		set_error_handler(function($errno, $errstr) use (&$warningTriggered, &$warningMessage) {
+			if ($errno === E_WARNING || $errno === E_USER_WARNING) {
+				$warningTriggered = true;
+				$warningMessage = $errstr;
+				return true;
+			}
+			return false;
+		}, E_WARNING | E_USER_WARNING);
+
+		try {
+			$this->auth->authorize($user, $request);
+		} finally {
+			restore_error_handler();
+		}
+
+		$this->assertTrue($warningTriggered, 'Expected warning was not triggered');
+		$this->assertSame('CrudAuthorize::authorize() - Attempted access of un-mapped action "foobar" in controller "posts"', $warningMessage);
 	}
 
 /**

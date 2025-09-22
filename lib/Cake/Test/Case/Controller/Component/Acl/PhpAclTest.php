@@ -333,7 +333,6 @@ class PhpAclTest extends CakeTestCase {
 				'Role/b' => 'User/b',
 				'User/a' => 'Role/a, Role/b',
 				'User/b' => 'User/a',
-
 			),
 			'rules' => array(
 				'allow' => array(
@@ -342,9 +341,25 @@ class PhpAclTest extends CakeTestCase {
 			),
 		);
 
-		$this->expectError();
-		$this->expectErrorMessage('cycle detected');
-		$this->PhpAcl->build($config);
+		$noticeTriggered = false;
+		$noticeMessage = '';
+		set_error_handler(function($errno, $errstr) use (&$noticeTriggered, &$noticeMessage) {
+			if ($errno === E_NOTICE || $errno === E_USER_NOTICE) {
+				$noticeTriggered = true;
+				$noticeMessage = $errstr;
+				return true;
+			}
+			return false;
+		}, E_NOTICE | E_USER_NOTICE);
+
+		try {
+			$this->PhpAcl->build($config);
+		} finally {
+			restore_error_handler();
+		}
+
+		$this->assertTrue($noticeTriggered, 'Expected notice was not triggered');
+		$this->assertSame('cycle detected when inheriting Role/b from User/b. Path: Role/b -> Role/b', $noticeMessage);
 	}
 
 /**

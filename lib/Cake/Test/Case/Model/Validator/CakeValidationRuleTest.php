@@ -104,16 +104,32 @@ class CakeValidationRuleTest extends CakeTestCase {
  * @return void
  */
 	public function testCustomMethodMissingError() {
-		$this->expectWarning();
-		$this->expectWarningMessage('Could not find validation handler totallyMissing for fieldName');
-		$def = array('rule' => array('totallyMissing'));
-		$data = array(
-			'fieldName' => 'some data'
-		);
-		$methods = array('mytestrule' => array($this, 'myTestRule'));
+		$warningTriggered = false;
+		$warningMessage = '';
+		set_error_handler(function($errno, $errstr) use (&$warningTriggered, &$warningMessage) {
+			if ($errno === E_WARNING || $errno === E_USER_WARNING) {
+				$warningTriggered = true;
+				$warningMessage = $errstr;
+				return true;
+			}
+			return false;
+		}, E_WARNING | E_USER_WARNING);
 
-		$Rule = new CakeValidationRule($def);
-		$Rule->process('fieldName', $data, $methods);
+		try {
+			$def = array('rule' => array('totallyMissing'));
+			$data = array(
+				'fieldName' => 'some data'
+			);
+			$methods = array('mytestrule' => array($this, 'myTestRule'));
+
+			$Rule = new CakeValidationRule($def);
+			$Rule->process('fieldName', $data, $methods);
+		} finally {
+			restore_error_handler();
+		}
+
+		$this->assertTrue($warningTriggered, 'Expected warning was not triggered');
+		$this->assertSame('Could not find validation handler totallyMissing for fieldName', $warningMessage);
 	}
 
 /**

@@ -775,18 +775,35 @@ class ModelValidationTest extends BaseModelTest {
  * @return void
  */
 	public function testMissingValidationErrorTriggering() {
-		$this->expectWarning();
 		Configure::write('debug', 2);
 
-		$TestModel = new ValidationTest1();
-		$TestModel->create(array('title' => 'foo'));
-		$TestModel->validate = array(
-			'title' => array(
-				'rule' => array('thisOneBringsThePain'),
-				'required' => true
-			)
-		);
-		$TestModel->invalidFields(array('fieldList' => array('title')));
+		$warningTriggered = false;
+		$warningMessage = '';
+		set_error_handler(function($errno, $errstr) use (&$warningTriggered, &$warningMessage) {
+			if ($errno === E_WARNING || $errno === E_USER_WARNING) {
+				$warningTriggered = true;
+				$warningMessage = $errstr;
+				return true;
+			}
+			return false;
+		}, E_WARNING | E_USER_WARNING);
+
+		try {
+			$TestModel = new ValidationTest1();
+			$TestModel->create(array('title' => 'foo'));
+			$TestModel->validate = array(
+				'title' => array(
+					'rule' => array('thisOneBringsThePain'),
+					'required' => true
+				)
+			);
+			$TestModel->invalidFields(array('fieldList' => array('title')));
+		} finally {
+			restore_error_handler();
+		}
+
+		$this->assertTrue($warningTriggered, 'Expected warning was not triggered');
+		$this->assertSame('Could not find validation handler thisOneBringsThePain for title', $warningMessage);
 	}
 
 /**

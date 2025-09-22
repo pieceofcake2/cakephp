@@ -131,22 +131,42 @@ class CacheTest extends CakeTestCase {
  * @return void
  */
 	public function testInvalidConfig() {
-		$this->expectWarning();
+		$this->expectException(CacheException::class);
+		$this->expectExceptionMessage('Cache engine "invalid" is not properly configured');
+
 		// In debug mode it would auto create the folder.
 		$debug = Configure::read('debug');
 		Configure::write('debug', 0);
 
-		Cache::config('invalid', array(
-			'engine' => 'File',
-			'duration' => '+1 year',
-			'prefix' => 'testing_invalid_',
-			'path' => 'data/',
-			'serialize' => true,
-			'random' => 'wii'
-		));
-		Cache::read('Test', 'invalid');
+		$warningTriggered = false;
+		$warningMessage = '';
+		set_error_handler(function($errno, $errstr) use (&$warningTriggered, &$warningMessage) {
+			if ($errno === E_WARNING || $errno === E_USER_WARNING) {
+				$warningTriggered = true;
+				$warningMessage = $errstr;
+				return true;
+			}
+			return false;
+		}, E_WARNING | E_USER_WARNING);
 
-		Configure::write('debug', $debug);
+		try {
+			Cache::config('invalid', array(
+				'engine' => 'File',
+				'duration' => '+1 year',
+				'prefix' => 'testing_invalid_',
+				'path' => 'data/',
+				'serialize' => true,
+				'random' => 'wii'
+			));
+			Cache::read('Test', 'invalid');
+		} finally {
+			restore_error_handler();
+
+			Configure::write('debug', $debug);
+		}
+
+		$this->assertTrue($warningTriggered, 'Expected warning was not triggered');
+		$this->assertSame('data/ is not writable', $warningMessage);
 	}
 
 /**
