@@ -98,19 +98,35 @@ class DbConfigTaskTest extends CakeTestCase {
 		);
 
 		$this->Task->expects($this->once())->method('_stop');
-		$this->Task->expects($this->at(0))->method('in')->will($this->returnValue('default')); //name
-		$this->Task->expects($this->at(1))->method('in')->will($this->returnValue('mysql')); //db type
-		$this->Task->expects($this->at(2))->method('in')->will($this->returnValue('n')); //persistent
-		$this->Task->expects($this->at(3))->method('in')->will($this->returnValue('localhost')); //server
-		$this->Task->expects($this->at(4))->method('in')->will($this->returnValue('n')); //port
-		$this->Task->expects($this->at(5))->method('in')->will($this->returnValue('root')); //user
-		$this->Task->expects($this->at(6))->method('in')->will($this->returnValue('password')); //password
-		$this->Task->expects($this->at(10))->method('in')->will($this->returnValue('cake_test')); //db
-		$this->Task->expects($this->at(11))->method('in')->will($this->returnValue('n')); //prefix
-		$this->Task->expects($this->at(12))->method('in')->will($this->returnValue('n')); //encoding
-		$this->Task->expects($this->at(13))->method('in')->will($this->returnValue('y')); //looks good
-		$this->Task->expects($this->at(14))->method('in')->will($this->returnValue('n')); //another
-		$this->Task->expects($this->at(15))->method('bake')
+
+		$inReturns = [
+			'default',    // 0: name
+			'mysql',      // 1: db type
+			'n',          // 2: persistent
+			'localhost',  // 3: server
+			'n',          // 4: port
+			'root',       // 5: user
+			'password',   // 6: password
+			null,
+			null,
+			null,
+			'cake_test',  // 10: db
+			'n',          // 11: prefix
+			'n',          // 12: encoding
+			'y',          // 13: looks good
+			'n'           // 14: another
+		];
+		$inCallIndex = 0;
+		$this->Task->expects($this->any())
+			->method('in')
+			->willReturnCallback(function() use ($inReturns, &$inCallIndex) {
+				$return = $inReturns[$inCallIndex] ?? null;
+				$inCallIndex++;
+				return $return;
+			});
+
+		$this->Task->expects($this->once())
+			->method('bake')
 			->with(array(
 				array(
 					'name' => 'default',

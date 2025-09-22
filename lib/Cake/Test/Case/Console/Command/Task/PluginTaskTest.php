@@ -80,26 +80,26 @@ class PluginTaskTest extends CakeTestCase {
  * @return void
  */
 	public function testBakeFoldersAndFiles() {
-		$this->Task->expects($this->at(0))
+		$this->Task->expects($this->exactly(2))
 			->method('in')
-			->will($this->returnValue($this->_testPath));
-		$this->Task->expects($this->at(1))
-			->method('in')
-			->will($this->returnValue('y'));
+			->willReturnOnConsecutiveCalls($this->_testPath, 'y');
 
 		$path = $this->Task->path . 'BakeTestPlugin';
 
-		$file = $path . DS . 'Controller' . DS . 'BakeTestPluginAppController.php';
-		$this->Task->expects($this->at(2))
+		$createFileCalls = [];
+		$this->Task->expects($this->exactly(2))
 			->method('createFile')
-			->with($file, new \PHPUnit\Framework\Constraint\IsAnything());
-
-		$file = $path . DS . 'Model' . DS . 'BakeTestPluginAppModel.php';
-		$this->Task->expects($this->at(3))
-			->method('createFile')
-			->with($file, new \PHPUnit\Framework\Constraint\IsAnything());
+			->willReturnCallback(function($file, $content) use (&$createFileCalls) {
+				$createFileCalls[] = ['file' => $file, 'content' => $content];
+			});
 
 		$this->Task->bake('BakeTestPlugin');
+
+		$file1 = $path . DS . 'Controller' . DS . 'BakeTestPluginAppController.php';
+		$this->assertEquals($file1, $createFileCalls[0]['file']);
+
+		$file2 = $path . DS . 'Model' . DS . 'BakeTestPluginAppModel.php';
+		$this->assertEquals($file2, $createFileCalls[1]['file']);
 
 		$path = $this->Task->path . 'BakeTestPlugin';
 		$this->assertTrue(is_dir($path), 'No plugin dir %s');
@@ -140,22 +140,27 @@ class PluginTaskTest extends CakeTestCase {
  * @return void
  */
 	public function testExecuteWithNoArgs() {
-		$this->Task->expects($this->at(0))->method('in')->will($this->returnValue('TestPlugin'));
-		$this->Task->expects($this->at(1))->method('in')->will($this->returnValue($this->_testPath));
-		$this->Task->expects($this->at(2))->method('in')->will($this->returnValue('y'));
+		$this->Task->expects($this->exactly(3))
+			->method('in')
+			->willReturnOnConsecutiveCalls('TestPlugin', $this->_testPath, 'y');
 
 		$path = $this->Task->path . 'TestPlugin';
-		$file = $path . DS . 'Controller' . DS . 'TestPluginAppController.php';
 
-		$this->Task->expects($this->at(3))->method('createFile')
-			->with($file, $this->anything());
-
-		$file = $path . DS . 'Model' . DS . 'TestPluginAppModel.php';
-		$this->Task->expects($this->at(4))->method('createFile')
-			->with($file, $this->anything());
+		$createFileCalls = [];
+		$this->Task->expects($this->exactly(2))
+			->method('createFile')
+			->willReturnCallback(function($file, $content) use (&$createFileCalls) {
+				$createFileCalls[] = ['file' => $file, 'content' => $content];
+			});
 
 		$this->Task->args = array();
 		$this->Task->execute();
+
+		$file1 = $path . DS . 'Controller' . DS . 'TestPluginAppController.php';
+		$this->assertEquals($file1, $createFileCalls[0]['file']);
+
+		$file2 = $path . DS . 'Model' . DS . 'TestPluginAppModel.php';
+		$this->assertEquals($file2, $createFileCalls[1]['file']);
 
 		$Folder = new Folder($path);
 		$Folder->delete();
@@ -167,24 +172,27 @@ class PluginTaskTest extends CakeTestCase {
  * @return void
  */
 	public function testExecuteWithOneArg() {
-		$this->Task->expects($this->at(0))->method('in')
-			->will($this->returnValue($this->_testPath));
-		$this->Task->expects($this->at(1))->method('in')
-			->will($this->returnValue('y'));
+		$this->Task->expects($this->exactly(2))
+			->method('in')
+			->willReturnOnConsecutiveCalls($this->_testPath, 'y');
 
 		$path = $this->Task->path . 'BakeTestPlugin';
-		$file = $path . DS . 'Controller' . DS . 'BakeTestPluginAppController.php';
-		$this->Task->expects($this->at(2))->method('createFile')
-			->with($file, new \PHPUnit\Framework\Constraint\IsAnything());
 
-		$path = $this->Task->path . 'BakeTestPlugin';
-		$file = $path . DS . 'Model' . DS . 'BakeTestPluginAppModel.php';
-		$this->Task->expects($this->at(3))->method('createFile')
-			->with($file, new \PHPUnit\Framework\Constraint\IsAnything());
+		$createFileCalls = [];
+		$this->Task->expects($this->exactly(2))
+			->method('createFile')
+			->willReturnCallback(function($file, $content) use (&$createFileCalls) {
+				$createFileCalls[] = ['file' => $file, 'content' => $content];
+			});
 
 		$this->Task->args = array('BakeTestPlugin');
-
 		$this->Task->execute();
+
+		$file1 = $path . DS . 'Controller' . DS . 'BakeTestPluginAppController.php';
+		$this->assertEquals($file1, $createFileCalls[0]['file']);
+
+		$file2 = $path . DS . 'Model' . DS . 'BakeTestPluginAppModel.php';
+		$this->assertEquals($file2, $createFileCalls[1]['file']);
 
 		$Folder = new Folder($this->Task->path . 'BakeTestPlugin');
 		$Folder->delete();

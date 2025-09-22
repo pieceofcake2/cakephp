@@ -182,7 +182,7 @@ class ModelTaskTest extends CakeTestCase {
  * @return void
  */
 	public function testGetTableName() {
-		$this->Task->expects($this->at(0))->method('in')->will($this->returnValue('y'));
+		$this->Task->expects($this->once())->method('in')->will($this->returnValue('y'));
 		$result = $this->Task->getTable('BakeArticle', 'test');
 		$expected = 'bake_articles';
 		$this->assertEquals($expected, $result);
@@ -335,10 +335,18 @@ class ModelTaskTest extends CakeTestCase {
 		$this->Task->expects($this->any())->method('in')
 			->will($this->onConsecutiveCalls('999999', '26', 'n'));
 
-		$this->Task->expects($this->at(10))->method('out')
-			->with($this->stringContains('make a valid'));
+		$outCalls = [];
+		$this->Task->expects($this->any())
+			->method('out')
+			->willReturnCallback(function($message = '') use (&$outCalls) {
+				$outCalls[] = $message;
+			});
 
 		$result = $this->Task->fieldValidation('text', array('type' => 'string', 'length' => 10, 'null' => false));
+
+		$this->assertArrayHasKey(6, $outCalls);
+		$this->assertStringContainsString('make a valid', $outCalls[6]);
+
 		$expected = array('notBlank' => 'notBlank');
 		$this->assertEquals($expected, $result);
 	}
@@ -548,7 +556,7 @@ class ModelTaskTest extends CakeTestCase {
 			'id' => array(), 'tagname' => array(), 'body' => array(),
 			'created' => array(), 'modified' => array()
 		);
-		$this->Task->expects($this->at(0))->method('in')->will($this->returnValue('n'));
+		$this->Task->expects($this->once())->method('in')->will($this->returnValue('n'));
 		$result = $this->Task->findDisplayField($fields);
 		$this->assertFalse($result);
 	}
@@ -741,7 +749,7 @@ class ModelTaskTest extends CakeTestCase {
 	public function testBakeFixture() {
 		$this->Task->plugin = 'TestPlugin';
 		$this->Task->interactive = true;
-		$this->Task->Fixture->expects($this->at(0))->method('bake')->with('BakeArticle', 'bake_articles');
+		$this->Task->Fixture->expects($this->once())->method('bake')->with('BakeArticle', 'bake_articles');
 		$this->Task->bakeFixture('BakeArticle', 'bake_articles');
 
 		$this->assertEquals($this->Task->plugin, $this->Task->Fixture->plugin);
@@ -757,7 +765,7 @@ class ModelTaskTest extends CakeTestCase {
 	public function testBakeTest() {
 		$this->Task->plugin = 'TestPlugin';
 		$this->Task->interactive = true;
-		$this->Task->Test->expects($this->at(0))->method('bake')->with('Model', 'BakeArticle');
+		$this->Task->Test->expects($this->once())->method('bake')->with('Model', 'BakeArticle');
 		$this->Task->bakeTest('BakeArticle');
 
 		$this->assertEquals($this->Task->plugin, $this->Task->Test->plugin);
@@ -817,16 +825,28 @@ class ModelTaskTest extends CakeTestCase {
 		$this->_useMockedOut();
 
 		$options = array('one', 'two', 'three');
-		$this->Task->expects($this->at(0))->method('out')->with('1. one');
-		$this->Task->expects($this->at(1))->method('out')->with('2. two');
-		$this->Task->expects($this->at(2))->method('out')->with('3. three');
-		$this->Task->expects($this->at(3))->method('in')->will($this->returnValue(10));
 
-		$this->Task->expects($this->at(4))->method('out')->with('1. one');
-		$this->Task->expects($this->at(5))->method('out')->with('2. two');
-		$this->Task->expects($this->at(6))->method('out')->with('3. three');
-		$this->Task->expects($this->at(7))->method('in')->will($this->returnValue(2));
+		$outCalls = [];
+		$this->Task->expects($this->exactly(6))
+			->method('out')
+			->willReturnCallback(function($message = '') use (&$outCalls) {
+				$outCalls[] = $message;
+			});
+
+		$this->Task->expects($this->exactly(2))
+			->method('in')
+			->willReturnOnConsecutiveCalls(10, 2);
+
 		$result = $this->Task->inOptions($options, 'Pick a number');
+
+		$this->assertEquals('1. one', $outCalls[0]);
+		$this->assertEquals('2. two', $outCalls[1]);
+		$this->assertEquals('3. three', $outCalls[2]);
+
+		$this->assertEquals('1. one', $outCalls[3]);
+		$this->assertEquals('2. two', $outCalls[4]);
+		$this->assertEquals('3. three', $outCalls[5]);
+
 		$this->assertEquals(1, $result);
 	}
 
@@ -1013,7 +1033,7 @@ TEXT;
 		$this->Task->args = array($name);
 		$filename = '/my/path/BakeArticle.php';
 
-		$this->Task->expects($this->at(0))->method('createFile')
+		$this->Task->expects($this->once())->method('createFile')
 			->with($filename, $this->stringContains('class BakeArticle extends AppModel'));
 		$this->Task->execute();
 	}
@@ -1030,7 +1050,7 @@ TEXT;
 		$filename = '/my/path/BakeArticle.php';
 
 		$this->Task->expects($this->once())->method('_checkUnitTest')->will($this->returnValue(1));
-		$this->Task->expects($this->at(0))->method('createFile')
+		$this->Task->expects($this->once())->method('createFile')
 			->with($filename, $this->stringContains("'BakeComment' => array("));
 
 		$this->Task->execute();
@@ -1055,39 +1075,40 @@ TEXT;
 		$this->Task->Fixture->expects($this->exactly(6))->method('bake');
 		$this->Task->Test->expects($this->exactly(6))->method('bake');
 
-		$filename = '/my/path/BakeArticle.php';
-		$this->Task->expects($this->at(1))->method('createFile')
-			->with($filename, $this->stringContains('class BakeArticle'));
-
-		$filename = '/my/path/BakeArticlesBakeTag.php';
-		$this->Task->expects($this->at(2))->method('createFile')
-			->with($filename, $this->stringContains('class BakeArticlesBakeTag'));
-
-		$filename = '/my/path/BakeComment.php';
-		$this->Task->expects($this->at(3))->method('createFile')
-			->with($filename, $this->stringContains('class BakeComment'));
-
-		$filename = '/my/path/BakeComment.php';
-		$this->Task->expects($this->at(3))->method('createFile')
-			->with($filename, $this->stringContains('public $primaryKey = \'otherid\';'));
-
-		$filename = '/my/path/BakeTag.php';
-		$this->Task->expects($this->at(4))->method('createFile')
-			->with($filename, $this->stringContains('class BakeTag'));
-
-		$filename = '/my/path/BakeTag.php';
-		$this->Task->expects($this->at(4))->method('createFile')
-			->with($filename, $this->logicalNot($this->stringContains('public $primaryKey')));
-
-		$filename = '/my/path/CategoryThread.php';
-		$this->Task->expects($this->at(5))->method('createFile')
-			->with($filename, $this->stringContains('class CategoryThread'));
-
-		$filename = '/my/path/NumberTree.php';
-		$this->Task->expects($this->at(6))->method('createFile')
-			->with($filename, $this->stringContains('class NumberTree'));
+		$createFileCalls = [];
+		$this->Task->expects($this->exactly(6))
+			->method('createFile')
+			->willReturnCallback(function($filename, $content) use (&$createFileCalls) {
+				$createFileCalls[] = ['filename' => $filename, 'content' => $content];
+			});
 
 		$this->Task->execute();
+
+		// BakeArticle
+		$this->assertEquals('/my/path/BakeArticle.php', $createFileCalls[0]['filename']);
+		$this->assertStringContainsString('class BakeArticle', $createFileCalls[0]['content']);
+
+		// BakeArticlesBakeTag
+		$this->assertEquals('/my/path/BakeArticlesBakeTag.php', $createFileCalls[1]['filename']);
+		$this->assertStringContainsString('class BakeArticlesBakeTag', $createFileCalls[1]['content']);
+
+		// BakeComment
+		$this->assertEquals('/my/path/BakeComment.php', $createFileCalls[2]['filename']);
+		$this->assertStringContainsString('class BakeComment', $createFileCalls[2]['content']);
+		$this->assertStringContainsString('public $primaryKey = \'otherid\';', $createFileCalls[2]['content']);
+
+		// BakeTag
+		$this->assertEquals('/my/path/BakeTag.php', $createFileCalls[3]['filename']);
+		$this->assertStringContainsString('class BakeTag', $createFileCalls[3]['content']);
+		$this->assertStringNotContainsString('public $primaryKey', $createFileCalls[3]['content']);
+
+		// CategoryThread
+		$this->assertEquals('/my/path/CategoryThread.php', $createFileCalls[4]['filename']);
+		$this->assertStringContainsString('class CategoryThread', $createFileCalls[4]['content']);
+
+		// NumberTree
+		$this->assertEquals('/my/path/NumberTree.php', $createFileCalls[5]['filename']);
+		$this->assertStringContainsString('class NumberTree', $createFileCalls[5]['content']);
 
 		$this->assertEquals(count(ClassRegistry::keys()), 0);
 		$this->assertEquals(count(ClassRegistry::mapKeys()), 0);
@@ -1114,7 +1135,7 @@ TEXT;
 		$this->Task->expects($this->once())->method('getAllTables')->will($this->returnValue(array('bake_odd')));
 		$object = new Model(array('name' => 'BakeOdd', 'table' => 'bake_odd', 'ds' => 'test'));
 		$this->Task->expects($this->once())->method('_getModelObject')->with('BakeOdd', 'bake_odd')->will($this->returnValue($object));
-		$this->Task->expects($this->at(3))->method('bake')->with($object, false)->will($this->returnValue(true));
+		$this->Task->expects($this->once())->method('bake')->with($object, false)->will($this->returnValue(true));
 		$this->Task->expects($this->once())->method('bakeFixture')->with('BakeOdd', 'bake_odd');
 
 		$this->Task->execute();
@@ -1225,23 +1246,26 @@ TEXT;
 		$this->Task->Fixture->expects($this->exactly(4))->method('bake');
 		$this->Task->Test->expects($this->exactly(4))->method('bake');
 
-		$filename = '/my/path/BakeArticle.php';
-		$this->Task->expects($this->at(1))->method('createFile')
-			->with($filename, $this->stringContains('class BakeArticle'));
-
-		$filename = '/my/path/BakeArticlesBakeTag.php';
-		$this->Task->expects($this->at(2))->method('createFile')
-			->with($filename, $this->stringContains('class BakeArticlesBakeTag'));
-
-		$filename = '/my/path/BakeComment.php';
-		$this->Task->expects($this->at(3))->method('createFile')
-			->with($filename, $this->stringContains('class BakeComment'));
-
-		$filename = '/my/path/CategoryThread.php';
-		$this->Task->expects($this->at(4))->method('createFile')
-			->with($filename, $this->stringContains('class CategoryThread'));
+		$createFileCalls = [];
+		$this->Task->expects($this->exactly(4))
+			->method('createFile')
+			->willReturnCallback(function($filename, $content) use (&$createFileCalls) {
+				$createFileCalls[] = ['filename' => $filename, 'content' => $content];
+			});
 
 		$this->Task->execute();
+
+		$this->assertEquals('/my/path/BakeArticle.php', $createFileCalls[0]['filename']);
+		$this->assertStringContainsString('class BakeArticle', $createFileCalls[0]['content']);
+
+		$this->assertEquals('/my/path/BakeArticlesBakeTag.php', $createFileCalls[1]['filename']);
+		$this->assertStringContainsString('class BakeArticlesBakeTag', $createFileCalls[1]['content']);
+
+		$this->assertEquals('/my/path/BakeComment.php', $createFileCalls[2]['filename']);
+		$this->assertStringContainsString('class BakeComment', $createFileCalls[2]['content']);
+
+		$this->assertEquals('/my/path/CategoryThread.php', $createFileCalls[3]['filename']);
+		$this->assertStringContainsString('class CategoryThread', $createFileCalls[3]['content']);
 	}
 
 /**
