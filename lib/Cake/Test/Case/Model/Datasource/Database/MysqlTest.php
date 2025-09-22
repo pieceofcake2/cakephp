@@ -450,8 +450,9 @@ class MysqlTest extends CakeTestCase {
 		$fetchReturns = array_map(function($data) {
 			return (object)$data;
 		}, $columnData);
+		$fetchReturns[] = false;
 
-		$resultMock->expects($this->exactly(count($columnData)))
+		$resultMock->expects($this->exactly(count($columnData) + 1))
 			->method('fetch')
 			->willReturnOnConsecutiveCalls(...$fetchReturns);
 
@@ -1141,6 +1142,13 @@ SQL;
 		$test = $this->getMock('Mysql', array('connect', '_execute', 'execute'));
 		$test->config['database'] = $db;
 
+		$test->expects($this->exactly(2))
+			->method('execute')
+			->withConsecutive(
+				'SELECT `Article`.`id` FROM ' . $test->fullTableName('articles') . ' AS `Article`   WHERE 1 = 1',
+				'SELECT [Article].[id] FROM ' . $test->fullTableName('articles') . ' AS [Article]   WHERE 1 = 1'
+			);
+
 		$this->Model = $this->getMock('Article2', array('getDataSource'));
 		$this->Model->alias = 'Article';
 		$this->Model->expects($this->any())
@@ -1151,22 +1159,11 @@ SQL;
 		$result = $test->fields($this->Model, null, $this->Model->escapeField());
 		$this->assertEquals(array('`Article`.`id`'), $result);
 
-		$test->expects($this->once())
-			->method('execute')
-			->with('SELECT `Article`.`id` FROM ' . $test->fullTableName('articles') . ' AS `Article`   WHERE 1 = 1');
-
 		$result = $test->read($this->Model, array(
 			'fields' => $this->Model->escapeField(),
 			'conditions' => null,
 			'recursive' => -1
 		));
-
-		//
-		$test = $this->getMock('Mysql', array('connect', '_execute', 'execute'));
-		$test->config['database'] = $db;
-		$this->Model->expects($this->any())
-			->method('getDataSource')
-			->will($this->returnValue($test));
 
 		$test->startQuote = '[';
 		$test->endQuote = ']';
@@ -1174,10 +1171,6 @@ SQL;
 
 		$result = $test->fields($this->Model, null, $this->Model->escapeField());
 		$this->assertEquals(array('[Article].[id]'), $result);
-
-		$test->expects($this->once())
-			->method('execute')
-			->with('SELECT [Article].[id] FROM ' . $test->fullTableName('articles') . ' AS [Article]   WHERE 1 = 1');
 
 		$result = $test->read($this->Model, array(
 			'fields' => $this->Model->escapeField(),
