@@ -4,38 +4,32 @@
 
 ### PHPUnit Compatibility Fixes
 
-- Fix PHPUnit deprecation warnings for `at()` method usage
-- Fix PHPUnit deprecation for `expectError()`, `expectWarning()`, `expectNotice()` methods
-- Fix PHPUnit data provider naming issue in ExceptionRendererTest
-- Fix PHPUnit risky tests by adding missing assertions
-- Fix output buffering issues in tests
-- Skip CookieComponent AES tests when mcrypt extension is not available
+- Fix PHPUnit deprecation warnings for `at()` method usage (#2)
+- Fix PHPUnit deprecation for `expectError()`, `expectWarning()`, `expectNotice()` methods (#2)
+- Fix PHPUnit data provider naming issue in ExceptionRendererTest (#2)
+- Fix PHPUnit risky tests by adding missing assertions (#2)
+- Fix output buffering issues in tests (#2)
+- Skip CookieComponent AES tests when mcrypt extension is not available (#2)
 
 ### Test Isolation Improvements
 
-- Fix test isolation issues by properly cleaning up global state:
+- Fix test isolation issues by properly cleaning up global state (#2):
   - BasicsTest: Clean up Config.language setting in tearDown
   - CakeRequestTest: Clean up HTTP_ACCEPT_LANGUAGE server variable
   - L10nTest: Add tearDown to clean up HTTP_ACCEPT_LANGUAGE
   - I18nTest: Improve state management and simplify clear() method
-- Standardize tearDown method pattern across all test files to call parent::tearDown() at the end
+- Standardize tearDown method pattern across all test files to call parent::tearDown() at the end (#2)
 
 ### PHP 8.0+ Compatibility
 
-- Fix MysqlTest for PHP 8.0+ by removing version check and fixing float assertions
-- Fix PostgreSQL `preg_replace()` with null parameter
-- Fix "Trying to access array offset on value of type bool" error in L10n.php
-- Fix I18n and L10n locale handling issues
-
-### CI/CD Improvements
-
-- Add MySQL 8.0 support to GitHub Actions workflow
-- Add Docker Compose configuration for local testing
+- Fix MysqlTest for PHP 8.0+ by removing version check and fixing float assertions (#2)
+- Fix PostgreSQL `preg_replace()` with null parameter (#2)
+- Fix "Trying to access array offset on value of type bool" error in L10n.php (#2)
+- Fix I18n and L10n locale handling issues (#2)
 
 ### Other Fixes
 
-- Fix controller tests by setting `autoRender` property
-- Revert ApplicationControllerTest redirect changes
+- Fix controller tests by setting `autoRender` property (#2)
 
 ## v2.10.24.2
 
