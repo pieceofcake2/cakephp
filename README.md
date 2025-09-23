@@ -97,13 +97,21 @@ Before migrating to this fork, ensure:
 
 ### Breaking Changes
 
+#### Removed Cache Engines
+
+- **Xcache** support has been removed (Xcache is not compatible with PHP 7.0+)
+- **Wincache** support has been removed (Wincache is not actively maintained for PHP 8.x)
+- If you're using these cache engines, please migrate to Redis, Memcached, or APCu
+
 #### strftime() Replacement
+
 - `strftime()` function has been deprecated in PHP 8.1 and removed in PHP 8.2
 - This fork uses `IntlDateFormatter` via Symfony's ICU Polyfill
 - For backward compatibility, `PHP81_BC\strftime` is used as a fallback
 - Most date formatting will work identically, but edge cases may produce slightly different output
 
 #### PHPUnit Compatibility
+
 - Framework tests have been migrated to PHPUnit 9.6
 - All deprecated PHPUnit features have been fixed to ensure compatibility
 
