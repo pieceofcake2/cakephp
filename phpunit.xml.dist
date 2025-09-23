@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-		 xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.5/phpunit.xsd"
+		 xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.6/phpunit.xsd"
 		 bootstrap="lib/Cake/Test/bootstrap.php"
 		 backupGlobals="true"
 		 stderr="true"
@@ -21,7 +21,7 @@
 			<directory suffix=".php">lib</directory>
 		</include>
 		<exclude>
-			<directory>lib/Test</directory>
+			<directory>lib/Cake/Test</directory>
 		</exclude>
 	</coverage>
 </phpunit>
