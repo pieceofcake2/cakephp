@@ -90,8 +90,8 @@
 ### 2023-12-19
 
 - Muted dynamic property creation warnings in Controller.php
-- Fix passing a null input to h function (PR #56)
-- Fix Hash class callback callable pattern deprecated (PR #58)
+- Fix passing a null input to h function (PR kamilwylegala/cakephp2-php8#56)
+- Fix Hash class callback callable pattern deprecated (PR kamilwylegala/cakephp2-php8#58)
 
 ### 2023-11-13
 
@@ -194,7 +194,7 @@
 	- `Countable`
 	- `IteratorAggregate`
 - PHP 8.0 requirement in composer.json
-- **Warning:** Tests are not updated, Cake's tests rely on old version of PHPUnit so running them may show a lot of deprecations notices. Added issue to cover it: #7
+- **Warning:** Tests are not updated, Cake's tests rely on old version of PHPUnit so running them may show a lot of deprecations notices. Added issue to cover it: kamilwylegala/cakephp2-php8#7
 
 ### 2021-02-24
 

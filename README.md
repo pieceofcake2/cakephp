@@ -7,30 +7,40 @@
 [![Codecov](https://img.shields.io/codecov/c/gh/friendsofcake2/cakephp?label=Coverage)](https://codecov.io/gh/friendsofcake2/cakephp)
 
 This is a community-maintained fork of CakePHP 2.x that provides compatibility with PHP 8.0 and newer versions.
-The original CakePHP 2.x branch [reached end-of-life in June 2021](https://bakery.cakephp.org/2021/10/02/cakephp_2_eol.html).
+The original CakePHP 2.x branch [reached End of Life in June 2021](https://bakery.cakephp.org/2021/10/02/cakephp_2_eol.html).
 
 > [!IMPORTANT]
 > This fork is based on CakePHP 2.10.24. Earlier versions are not supported.
 
-## Supported Versions
+> [!WARNING]
+> **Do not use CakePHP 2.x for new projects!** This fork is only for maintaining existing legacy applications.
+> For new projects, please use [CakePHP 5.x](https://cakephp.org/) which has modern PHP support, better performance, and active development.
 
-| PHP Version | Support Status |
-|------------|----------------|
-| 8.0 | ✅ Fully Supported |
-| 8.1 | ✅ Fully Supported |
-| 8.2 | ✅ Fully Supported |
-| 8.3 | ✅ Fully Supported |
-| 8.4 | ✅ Fully Supported |
+[CakePHP 2.x Documentation](https://book.cakephp.org/2/en/) | [CHANGELOG](CHANGELOG.md)
 
-## Test Coverage
+## Requirements & Compatibility
 
-Tests are actively maintained and run on GitHub Actions with PHPUnit 9.6 and the following database engines:
+### PHP Versions
 
-- MySQL 5.6
-- PostgreSQL 9.4
-- SQLite
+- PHP 8.0, 8.1, 8.2, 8.3, 8.4
 
-All tests pass on all supported PHP versions (8.0 - 8.4) with all database engines.
+### Database Support
+
+- MySQL 5.6+
+- PostgreSQL 9.4+
+- SQLite 3
+- Microsoft SQL Server (with `pdo_sqlsrv` extension)
+
+### Required PHP Extensions
+
+- `mbstring` - Multi-byte string support
+- `intl` - Internationalization support (optional, uses Symfony polyfill as fallback)
+- `openssl` - OpenSSL support (optional, required for SSL/TLS connections and encryption)
+- `mcrypt` - Mcrypt support (optional, deprecated in PHP 7.1+, only for legacy AES encryption)
+
+### Testing
+
+- All tests pass with PHPUnit 9.6 across all supported PHP versions and databases
 
 ## Installation
 
@@ -50,8 +60,8 @@ composer update
 ```
 
 > [!NOTE]
-> This package automatically replaces `cakephp/cakephp` through Composer's `replace` directive, so you don't need to manually remove the original package.
-> Simply adding `friendsofcake2/cakephp` to your `composer.json` will seamlessly replace the original CakePHP 2.x installation.
+> This package uses Composer's `replace` directive to replace `cakephp/cakephp`.
+> This ensures that all plugins and packages that depend on `cakephp/cakephp:^2.x` will continue to work correctly with this fork.
 
 ## Security
 
@@ -95,10 +105,7 @@ Before migrating to this fork, ensure:
 
 #### PHPUnit Compatibility
 - Framework tests have been migrated to PHPUnit 9.6
-- Test methods using deprecated PHPUnit features have been updated:
-  - `at()` → `willReturnCallback()` or `willReturnOnConsecutiveCalls()`
-  - `expectError()` → `expectException()` with error handlers
-  - Data provider methods must not have "test" prefix
+- All deprecated PHPUnit features have been fixed to ensure compatibility
 
 ## Running Tests
 
@@ -148,7 +155,7 @@ We welcome contributions! Please:
 If you find any PHP 8.x compatibility issues, please:
 - Create an issue with a clear description
 - Include PHP version and error messages
-- Provide minimal code to reproduce the issue
+- Provide minimal code to reproduce the issue (if possible)
 
 ## Project Goals
 
@@ -164,6 +171,6 @@ This project maintains the original MIT License from CakePHP. See [LICENSE](LICE
 
 ## Acknowledgments
 
-- Original CakePHP 2.x framework by [CakePHP](https://github.com/cakephp/cakephp/tree/2.10.24)
+- Original CakePHP 2.x framework by [cakephp/cakephp](https://github.com/cakephp/cakephp/tree/2.10.24)
 - Initial PHP 8 compatibility work by [kamilwylegala/cakephp2-php8](https://github.com/kamilwylegala/cakephp2-php8)
 - All contributors who help maintain this fork
