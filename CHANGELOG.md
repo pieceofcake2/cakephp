@@ -1,6 +1,11 @@
 ## CHANGELOG
 
-## v2.10.24.3
+## v2.10.24.3 (Unreleased)
+
+### Breaking Changes
+
+- Remove Xcache cache engine support (Xcache is not compatible with PHP 7.0+)
+- Remove Wincache cache engine support (Wincache is not actively maintained for PHP 8.x)
 
 ### PHPUnit Compatibility Fixes
 
