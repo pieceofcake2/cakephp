@@ -112,14 +112,14 @@ Before migrating to this fork, ensure:
 ### Using Docker (Recommended)
 
 ```bash
-# Set up database configuration
-cp app/Config/database.php.default app/Config/database.php
-
-# Install dependencies
-docker-compose exec web composer install
+# Copy test database configuration
+cp lib/Cake/Test/Config/database.php app/Config/database.php
 
 # Start services
 docker-compose up -d
+
+# Install dependencies
+docker-compose exec web composer install
 
 # Run tests with specific database
 DB=mysql docker-compose exec web ./vendors/bin/phpunit

@@ -115,7 +115,7 @@ jobs:
         run: composer install --no-ansi --no-interaction --no-progress
 
       - name: Copy database.php
-        run: cp ./.github/workflows/configs/database.php ./app/Config/
+        run: cp ./lib/Cake/Test/Config/database.php ./app/Config/
 
       - name: Setup problem matchers for PHPUnit
         run: echo "::add-matcher::${{ runner.tool_cache }}/phpunit.json"
