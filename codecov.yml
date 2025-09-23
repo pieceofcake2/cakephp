@@ -1,2 +1,3 @@
 ignore:
   - "lib/Cake/Test"
+  - "lib/Cake/Console/Templates/skel"

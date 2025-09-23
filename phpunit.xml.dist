@@ -21,6 +21,7 @@
 			<directory suffix=".php">lib</directory>
 		</include>
 		<exclude>
+			<directory>lib/Cake/Console/Templates/skel</directory>
 			<directory>lib/Cake/Test</directory>
 		</exclude>
 	</coverage>
