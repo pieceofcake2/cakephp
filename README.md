@@ -137,6 +137,15 @@ These methods provide better database version detection and feature support chec
 - **Token format**: New tokens are compatible with CakePHP 3.x/4.x token format (base64-encoded with 16-byte value + 20-byte HMAC)
 - **No configuration needed**: The security enhancement is automatic and requires no code changes
 
+#### PHP 8 Syntax Modernization
+
+- **Array syntax**: All `array()` syntax has been converted to short array syntax `[]`
+- **String functions**: Uses PHP 8's native `str_contains()`, `str_starts_with()`, and `str_ends_with()` functions
+- **Class references**: Replaced `get_class()` with `::class` constant
+- **Array destructuring**: Uses `[]` instead of `list()` for array destructuring
+- **Null coalescing**: Simplified ternary operators with null coalescing where appropriate
+- **Backward compatibility**: These are syntax changes only and do not affect functionality
+
 ## Running Tests
 
 ### Using Docker (Recommended)

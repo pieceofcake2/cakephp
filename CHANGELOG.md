@@ -1,5 +1,23 @@
 ## CHANGELOG
 
+## v2.10.24.4 (Unreleased)
+
+### Code Modernization
+
+- **PHP 8 Syntax Modernization**: Complete codebase modernization to PHP 8 syntax
+  - Converted all `array()` syntax to short array syntax `[]`
+  - Implemented PHP 8 native string functions (`str_contains()`, `str_starts_with()`, `str_ends_with()`)
+  - Replaced `get_class()` with `::class` constant
+  - Updated array destructuring from `list()` to `[]`
+  - Applied null coalescing operators where appropriate
+  - Modernized 585+ files across lib/Cake, app, Test, TestSuite, and Templates directories
+
+### Development Tools
+
+- Added PHPStan for static analysis with CakePHP 2.x specific extension
+- Added Rector for automated PHP syntax modernization
+- Configured development tools to be excluded from version control
+
 ## v2.10.24.3 (2025-09-24)
 
 ### Security Fixes
