@@ -24,6 +24,7 @@ class TransSessionIdController extends AppController {
 	 * @param CakeResponse $response Response object for this controller.
 	 */
 	public function __construct($request = null, $response = null) {
+		parent::__construct($request, $response);
 		$ini = Configure::read('Session.ini');
 		$ini['session.use_cookies'] = 0;
 		$ini['session.use_only_cookies'] = 0;
@@ -90,7 +91,10 @@ class ApplicationControllerTest extends ControllerTestCase {
 		$sessionId = 'o7k64tlhil9pakp89j6d8ovlqk';
 
 		$level = ob_get_level();
-		$this->testAction();
+		$this->testAction('/trans_session_id/next?CAKEPHP=' . $sessionId, [
+			'method' => 'GET',
+			'return' => 'vars'
+		]);
 		while (ob_get_level() > $level) {
 			ob_end_clean();
 		}

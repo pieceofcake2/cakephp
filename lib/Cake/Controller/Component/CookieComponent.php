@@ -161,6 +161,13 @@ class CookieComponent extends Component {
 	protected $_response = null;
 
 /**
+ * Whether values should be encrypted
+ *
+ * @var bool
+ */
+	protected $_encrypted = true;
+
+/**
  * Constructor
  *
  * @param ComponentCollection $collection A ComponentCollection for this component
@@ -439,13 +446,12 @@ class CookieComponent extends Component {
 			return $value;
 		}
 		$prefix = "Q2FrZQ==.";
+		$cipher = '';
 		if ($this->_type === 'rijndael') {
 			$cipher = Security::rijndael($value, $this->key, 'encrypt');
-		}
-		if ($this->_type === 'cipher') {
+		} elseif ($this->_type === 'cipher') {
 			$cipher = Security::cipher($value, $this->key);
-		}
-		if ($this->_type === 'aes') {
+		} elseif ($this->_type === 'aes') {
 			$cipher = Security::encrypt($value, $this->key);
 		}
 		return $prefix . base64_encode($cipher);
@@ -486,13 +492,12 @@ class CookieComponent extends Component {
 			return $this->_explode($value);
 		}
 		$value = base64_decode(substr($value, strlen($prefix)));
+		$plain = '';
 		if ($this->_type === 'rijndael') {
 			$plain = Security::rijndael($value, $this->key, 'decrypt');
-		}
-		if ($this->_type === 'cipher') {
+		} elseif ($this->_type === 'cipher') {
 			$plain = Security::cipher($value, $this->key);
-		}
-		if ($this->_type === 'aes') {
+		} elseif ($this->_type === 'aes') {
 			$plain = Security::decrypt($value, $this->key);
 		}
 		return $this->_explode($plain);
@@ -519,7 +524,7 @@ class CookieComponent extends Component {
 		$first = substr($string, 0, 1);
 		if ($first === '{' || $first === '[') {
 			$ret = json_decode($string, true);
-			return $ret ?? $string;
+			return ($ret !== null) ? $ret : $string;
 		}
 		$array = [];
 		foreach (explode(',', $string) as $pair) {

@@ -411,7 +411,11 @@ class Controller extends CakeObject implements CakeEventListener {
 				return $this->Components->load('Paginator')->settings;
 		}
 
-		return $this->{$name} ?? null;
+		if (isset($this->{$name})) {
+			return $this->{$name};
+		}
+
+		return null;
 	}
 
 /**
