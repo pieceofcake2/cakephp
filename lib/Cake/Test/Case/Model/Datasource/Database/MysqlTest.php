@@ -1168,6 +1168,54 @@ SQL;
 	}
 
 /**
+ * Test integerDisplayWidthDeprecated() with mocked MariaDB versions
+ *
+ * @return void
+ */
+	public function testIntegerDisplayWidthDeprecatedMariaDB() {
+		$db = $this->getMock('Mysql', array('connect', '_execute'));
+		$mockConnection = $this->getMock('MockPDO', array('getAttribute'));
+
+		// Test MariaDB 10.4 (should never deprecate integer display width)
+		$mockConnection->expects($this->once())
+			->method('getAttribute')
+			->with(PDO::ATTR_SERVER_VERSION)
+			->will($this->returnValue('10.4.8-MariaDB'));
+
+		$reflection = new ReflectionClass($db);
+		$connectionProperty = $reflection->getProperty('_connection');
+		$connectionProperty->setAccessible(true);
+		$connectionProperty->setValue($db, $mockConnection);
+
+		$versionProperty = $reflection->getProperty('_version');
+		$versionProperty->setAccessible(true);
+		$versionProperty->setValue($db, null);
+
+		$serverTypeProperty = $reflection->getProperty('serverType');
+		$serverTypeProperty->setAccessible(true);
+		$serverTypeProperty->setValue($db, '');
+
+		// Call getVersion first to initialize the properties
+		$db->getVersion();
+		$this->assertFalse($db->integerDisplayWidthDeprecated());
+
+		// Test MariaDB 10.6 (still should not deprecate)
+		$mockConnection2 = $this->getMock('MockPDO', array('getAttribute'));
+		$mockConnection2->expects($this->once())
+			->method('getAttribute')
+			->with(PDO::ATTR_SERVER_VERSION)
+			->will($this->returnValue('10.6.5-MariaDB'));
+
+		$connectionProperty->setValue($db, $mockConnection2);
+		$versionProperty->setValue($db, null);
+		$serverTypeProperty->setValue($db, '');
+
+		// Call getVersion first to initialize the properties
+		$db->getVersion();
+		$this->assertFalse($db->integerDisplayWidthDeprecated());
+	}
+
+/**
  * Test integerDisplayWidthDeprecated() with mocked Aurora MySQL versions
  *
  * @return void
