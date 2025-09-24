@@ -2104,7 +2104,7 @@ class SecurityComponentTest extends CakeTestCase {
 	}
 
 /**
- * Test that token fixation attack is prevented
+ * Test that token fixation attack is prevented with HMAC tokens
  *
  * @return void
  */
@@ -2135,6 +2135,92 @@ class SecurityComponentTest extends CakeTestCase {
 			)
 		);
 		$this->Security->startup($this->Controller);
+	}
+
+/**
+ * Test that legacy tokens (without HMAC) are vulnerable to fixation attacks
+ * This demonstrates why the HMAC fix is necessary
+ *
+ * @return void
+ */
+	public function testLegacyTokensVulnerableToFixation() {
+		$this->Security->validatePost = false;
+		$this->Security->csrfCheck = true;
+		$this->Security->csrfExpires = '+10 minutes';
+
+		// Attacker creates their own legacy token (just a random hash without HMAC)
+		$attackerToken = hash('sha512', 'attacker-controlled-value', false);
+
+		// Attacker somehow fixates this token in the session (e.g., via XSS or physical access)
+		$this->Security->Session->write('_Token.csrfTokens', array(
+			$attackerToken => strtotime('+10 minutes')
+		));
+
+		// Now the attacker can use this token in their CSRF attack
+		$this->Controller->request->params['action'] = 'index';
+		$this->Controller->request->data = array(
+			'_Token' => array(
+				'key' => $attackerToken
+			),
+			'Model' => array(
+				'sensitive_action' => 'delete_everything'
+			)
+		);
+
+		// The legacy token passes validation (this is the vulnerability!)
+		$this->Security->startup($this->Controller);
+		$this->assertFalse($this->Controller->failed, 'Legacy token fixation attack succeeded - this demonstrates the vulnerability');
+
+		// Clean up and create new Security component for HMAC test
+		$this->Controller->failed = false;
+		$this->Security->Session->delete('_Token');
+
+		// Create a fresh Security component for HMAC testing
+		$this->Security = new SecurityComponent($this->Controller->Components);
+		$this->Security->validatePost = false;
+		$this->Security->csrfCheck = true;
+		$this->Security->csrfExpires = '+10 minutes';
+		$this->Security->blackHoleCallback = '';
+		$this->Security->Session = $this->Controller->Session;
+
+		// Reset request data for fresh token generation
+		$this->Controller->request->data = array();
+
+		// Generate a fresh HMAC token
+		$this->Security->startup($this->Controller);
+		$token = $this->Security->Session->read('_Token');
+		$this->assertNotEmpty($token, 'Token should be generated');
+		$this->assertNotEmpty($token['csrfTokens'], 'HMAC token should be generated');
+		$validHmacToken = key($token['csrfTokens']);
+
+		// Attacker tries to fixate their own HMAC token
+		$attackerValue = Security::randomBytes(SecurityComponent::TOKEN_VALUE_LENGTH);
+		$attackerHmac = hash_hmac('sha1', $attackerValue, 'attacker-controlled-salt', true);
+		$attackerHmacToken = base64_encode($attackerValue . $attackerHmac);
+
+		// Even if attacker adds their token to the session
+		$this->Security->Session->write('_Token.csrfTokens', array(
+			$validHmacToken => strtotime('+10 minutes'),
+			$attackerHmacToken => strtotime('+10 minutes')
+		));
+
+		// The HMAC validation will fail because the signature doesn't match
+		$this->Controller->request->data = array(
+			'_Token' => array(
+				'key' => $attackerHmacToken
+			),
+			'Model' => array(
+				'sensitive_action' => 'delete_everything'
+			)
+		);
+
+		// This should fail with HMAC tokens
+		try {
+			$this->Security->startup($this->Controller);
+			$this->fail('HMAC token should have prevented fixation attack');
+		} catch (SecurityException $e) {
+			$this->assertEquals('CSRF token mismatch', $e->getMessage());
+		}
 	}
 
 }

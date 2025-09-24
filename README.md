@@ -115,6 +115,13 @@ Before migrating to this fork, ensure:
 - Framework tests have been migrated to PHPUnit 9.6
 - All deprecated PHPUnit features have been fixed to ensure compatibility
 
+#### CSRF Token Security Enhancement
+
+- **New tokens**: All newly generated CSRF tokens now use HMAC-SHA1 signatures for enhanced security (prevents CVE-2020-15400 token fixation attacks)
+- **Backward compatibility**: Existing legacy tokens (without HMAC) continue to work, ensuring no disruption to active user sessions
+- **Token format**: New tokens are compatible with CakePHP 3.x/4.x token format (base64-encoded with 16-byte value + 20-byte HMAC)
+- **No configuration needed**: The security enhancement is automatic and requires no code changes
+
 ## Running Tests
 
 ### Using Docker (Recommended)
