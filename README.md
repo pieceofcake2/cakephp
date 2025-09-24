@@ -72,11 +72,11 @@ The following security vulnerabilities have been reported in the original CakePH
 | CVE | Description | Status in this Fork |
 |-----|-------------|-------------------|
 | [CVE-2015-8379](https://nvd.nist.gov/vuln/detail/CVE-2015-8379) | CSRF protection bypass via _method parameter | ✅ Fixed in [c0fb45e](https://github.com/friendsofcake2/cakephp/commit/c0fb45e79) (*) |
-| [CVE-2020-15400](https://nvd.nist.gov/vuln/detail/CVE-2020-15400) | CSRF token fixation (exploitable with XSS) | ❌ Not yet fixed |
+| [CVE-2020-15400](https://nvd.nist.gov/vuln/detail/CVE-2020-15400) | CSRF token fixation (exploitable with XSS) | ✅ Fixed in [PR #5](https://github.com/friendsofcake2/cakephp/pull/5) |
 
-> [!WARNING]
+> [!NOTE]
 > - **CVE-2015-8379**: The fix has been applied, but additional tests from [original commit](https://github.com/cakephp/cakephp/commit/0f818a23a876c01429196bf7623e1e94a50230f0) should be added.
-> - **CVE-2020-15400**: Requires HMAC-signed CSRF tokens to prevent token fixation attacks. This fix needs to be backported from [CakePHP 4.x PR #14431](https://github.com/cakephp/cakephp/pull/14431) and [CakePHP 3.x PR #16481](https://github.com/cakephp/cakephp/pull/16481).
+> - **CVE-2020-15400**: Fixed by implementing HMAC-signed CSRF tokens that are cryptographically bound to the application. Tokens are now signed with the application's Security.salt, preventing token fixation attacks while maintaining backward compatibility with existing tokens.
 
 ## Migration Guide
 
@@ -129,6 +129,13 @@ These methods provide better database version detection and feature support chec
 
 - Framework tests have been migrated to PHPUnit 9.6
 - All deprecated PHPUnit features have been fixed to ensure compatibility
+
+#### CSRF Token Security Enhancement
+
+- **New tokens**: All newly generated CSRF tokens now use HMAC-SHA1 signatures for enhanced security (prevents CVE-2020-15400 token fixation attacks)
+- **Backward compatibility**: Existing legacy tokens (without HMAC) continue to work, ensuring no disruption to active user sessions
+- **Token format**: New tokens are compatible with CakePHP 3.x/4.x token format (base64-encoded with 16-byte value + 20-byte HMAC)
+- **No configuration needed**: The security enhancement is automatic and requires no code changes
 
 ## Running Tests
 

@@ -1988,4 +1988,319 @@ class SecurityComponentTest extends CakeTestCase {
 		$this->assertTrue($this->Controller->Security->methodsRequired($this->Controller));
 	}
 
+/**
+ * Test that HMAC-signed CSRF tokens are generated correctly
+ *
+ * @return void
+ */
+	public function testGenerateHmacSignedCsrfToken() {
+		$this->Security->validatePost = false;
+		$this->Security->csrfCheck = true;
+		$this->Security->csrfExpires = '+10 minutes';
+		$this->Security->startup($this->Controller);
+
+		$token = $this->Security->Session->read('_Token');
+		$this->assertEquals(1, count($token['csrfTokens']), 'Missing the csrf token.');
+
+		// Check that the token is base64 encoded and has correct length
+		$csrfToken = key($token['csrfTokens']);
+		$decoded = base64_decode($csrfToken, true);
+		$this->assertNotFalse($decoded, 'Token should be valid base64');
+		$this->assertEquals(36, strlen($decoded), 'Decoded token should be 36 bytes (16 bytes value + 20 bytes SHA1 HMAC)');
+
+		// Validate token components
+		$value = substr($decoded, 0, 16);
+		$hmac = substr($decoded, 16);
+		$this->assertEquals(16, strlen($value), 'Random value should be 16 bytes');
+		$this->assertEquals(20, strlen($hmac), 'HMAC should be 20 bytes (SHA1)');
+	}
+
+/**
+ * Test validation of HMAC-signed CSRF tokens
+ *
+ * @return void
+ */
+	public function testValidateHmacSignedCsrfToken() {
+		$this->Security->validatePost = false;
+		$this->Security->csrfCheck = true;
+		$this->Security->csrfExpires = '+10 minutes';
+
+		// Generate a token first
+		$this->Security->startup($this->Controller);
+		$token = $this->Security->Session->read('_Token');
+		$csrfToken = key($token['csrfTokens']);
+
+		// Simulate a POST request with the valid HMAC-signed token
+		$this->Controller->request->params['action'] = 'index';
+		$this->Controller->request->data = array(
+			'_Token' => array(
+				'key' => $csrfToken
+			)
+		);
+		$this->Security->startup($this->Controller);
+		$this->assertFalse($this->Controller->failed, 'Valid HMAC token should not fail');
+	}
+
+/**
+ * Test that modified HMAC tokens are rejected
+ *
+ * @return void
+ */
+	public function testRejectModifiedHmacToken() {
+		$this->expectException(SecurityException::class);
+		$this->expectExceptionMessage('CSRF token mismatch');
+
+		$this->Security->validatePost = false;
+		$this->Security->csrfCheck = true;
+		$this->Security->csrfExpires = '+10 minutes';
+		$this->Security->blackHoleCallback = '';
+
+		// Generate a token first
+		$this->Security->startup($this->Controller);
+		$token = $this->Security->Session->read('_Token');
+		$csrfToken = key($token['csrfTokens']);
+
+		// Modify the HMAC signature
+		$decoded = base64_decode($csrfToken, true);
+		$value = substr($decoded, 0, 16);
+		$modifiedHmac = str_repeat('a', 20);
+		$modifiedToken = base64_encode($value . $modifiedHmac);
+
+		// Simulate a POST request with the modified token
+		$this->Controller->request->params['action'] = 'index';
+		$this->Controller->request->data = array(
+			'_Token' => array(
+				'key' => $modifiedToken
+			)
+		);
+		$this->Security->startup($this->Controller);
+	}
+
+/**
+ * Test backward compatibility with legacy tokens
+ *
+ * @return void
+ */
+	public function testBackwardCompatibilityWithLegacyTokens() {
+		$this->Security->validatePost = false;
+		$this->Security->csrfCheck = true;
+		$this->Security->csrfExpires = '+10 minutes';
+
+		// Manually create a legacy token (without HMAC)
+		$legacyToken = hash('sha512', Security::randomBytes(16), false);
+		$this->Security->Session->write('_Token.csrfTokens', array(
+			$legacyToken => strtotime('+10 minutes')
+		));
+
+		// Simulate a POST request with the legacy token
+		$this->Controller->request->params['action'] = 'index';
+		$this->Controller->request->data = array(
+			'_Token' => array(
+				'key' => $legacyToken
+			)
+		);
+		$this->Security->startup($this->Controller);
+		$this->assertFalse($this->Controller->failed, 'Legacy token should still work');
+	}
+
+/**
+ * Test that token fixation attack is prevented with HMAC tokens
+ *
+ * @return void
+ */
+	public function testPreventTokenFixation() {
+		$this->expectException(SecurityException::class);
+		$this->expectExceptionMessage('CSRF token mismatch');
+
+		$this->Security->validatePost = false;
+		$this->Security->csrfCheck = true;
+		$this->Security->csrfExpires = '+10 minutes';
+		$this->Security->blackHoleCallback = '';
+
+		// Generate a valid token first
+		$this->Security->startup($this->Controller);
+		$token = $this->Security->Session->read('_Token');
+		$validToken = key($token['csrfTokens']);
+
+		// Attacker tries to create their own token with valid format but different HMAC
+		$attackerValue = Security::randomBytes(SecurityComponent::TOKEN_VALUE_LENGTH);
+		$attackerHmac = hash_hmac('sha1', $attackerValue, 'attacker-controlled-salt', true);
+		$attackerToken = base64_encode($attackerValue . $attackerHmac);
+
+		// Try to use the attacker's token
+		$this->Controller->request->params['action'] = 'index';
+		$this->Controller->request->data = array(
+			'_Token' => array(
+				'key' => $attackerToken
+			)
+		);
+		$this->Security->startup($this->Controller);
+	}
+
+/**
+ * Test that legacy tokens (without HMAC) are vulnerable to fixation attacks
+ * This demonstrates why the HMAC fix is necessary
+ *
+ * @return void
+ */
+	public function testLegacyTokensVulnerableToFixation() {
+		$this->Security->validatePost = false;
+		$this->Security->csrfCheck = true;
+		$this->Security->csrfExpires = '+10 minutes';
+
+		// Attacker creates their own legacy token (just a random hash without HMAC)
+		$attackerToken = hash('sha512', 'attacker-controlled-value', false);
+
+		// Attacker somehow fixates this token in the session (e.g., via XSS or physical access)
+		$this->Security->Session->write('_Token.csrfTokens', array(
+			$attackerToken => strtotime('+10 minutes')
+		));
+
+		// Now the attacker can use this token in their CSRF attack
+		$this->Controller->request->params['action'] = 'index';
+		$this->Controller->request->data = array(
+			'_Token' => array(
+				'key' => $attackerToken
+			),
+			'Model' => array(
+				'sensitive_action' => 'delete_everything'
+			)
+		);
+
+		// The legacy token passes validation (this is the vulnerability!)
+		$this->Security->startup($this->Controller);
+		$this->assertFalse($this->Controller->failed, 'Legacy token fixation attack succeeded - this demonstrates the vulnerability');
+
+		// Clean up and create new Security component for HMAC test
+		$this->Controller->failed = false;
+		$this->Security->Session->delete('_Token');
+
+		// Create a fresh Security component for HMAC testing
+		$this->Security = new SecurityComponent($this->Controller->Components);
+		$this->Security->validatePost = false;
+		$this->Security->csrfCheck = true;
+		$this->Security->csrfExpires = '+10 minutes';
+		$this->Security->blackHoleCallback = '';
+		$this->Security->Session = $this->Controller->Session;
+
+		// Reset request data for fresh token generation
+		$this->Controller->request->data = array();
+
+		// Generate a fresh HMAC token
+		$this->Security->startup($this->Controller);
+		$token = $this->Security->Session->read('_Token');
+		$this->assertNotEmpty($token, 'Token should be generated');
+		$this->assertNotEmpty($token['csrfTokens'], 'HMAC token should be generated');
+		$validHmacToken = key($token['csrfTokens']);
+
+		// Attacker tries to fixate their own HMAC token
+		$attackerValue = Security::randomBytes(SecurityComponent::TOKEN_VALUE_LENGTH);
+		$attackerHmac = hash_hmac('sha1', $attackerValue, 'attacker-controlled-salt', true);
+		$attackerHmacToken = base64_encode($attackerValue . $attackerHmac);
+
+		// Even if attacker adds their token to the session
+		$this->Security->Session->write('_Token.csrfTokens', array(
+			$validHmacToken => strtotime('+10 minutes'),
+			$attackerHmacToken => strtotime('+10 minutes')
+		));
+
+		// The HMAC validation will fail because the signature doesn't match
+		$this->Controller->request->data = array(
+			'_Token' => array(
+				'key' => $attackerHmacToken
+			),
+			'Model' => array(
+				'sensitive_action' => 'delete_everything'
+			)
+		);
+
+		// This should fail with HMAC tokens
+		try {
+			$this->Security->startup($this->Controller);
+			$this->fail('HMAC token should have prevented fixation attack');
+		} catch (SecurityException $e) {
+			$this->assertEquals('CSRF token mismatch', $e->getMessage());
+		}
+	}
+
+/**
+ * Test _validateHmacToken directly with invalid base64
+ *
+ * @return void
+ */
+	public function testValidateHmacTokenInvalidBase64() {
+		// Use reflection to access protected method
+		$reflection = new ReflectionClass($this->Security);
+		$method = $reflection->getMethod('_validateHmacToken');
+		$method->setAccessible(true);
+
+		// Test with invalid base64 string (contains invalid characters)
+		$invalidBase64 = 'not-valid-base64!!!@#$%^&*()';
+		$result = $method->invoke($this->Security, $invalidBase64);
+		$this->assertFalse($result, 'Invalid base64 should return false');
+	}
+
+/**
+ * Test _validateHmacToken directly with incorrect length
+ *
+ * @return void
+ */
+	public function testValidateHmacTokenIncorrectLength() {
+		// Use reflection to access protected method
+		$reflection = new ReflectionClass($this->Security);
+		$method = $reflection->getMethod('_validateHmacToken');
+		$method->setAccessible(true);
+
+		// Test with too short token (10 bytes instead of 36)
+		$shortToken = base64_encode(str_repeat('a', 10));
+		$result = $method->invoke($this->Security, $shortToken);
+		$this->assertFalse($result, 'Token with incorrect length should return false');
+
+		// Test with too long token (50 bytes instead of 36)
+		$longToken = base64_encode(str_repeat('b', 50));
+		$result = $method->invoke($this->Security, $longToken);
+		$this->assertFalse($result, 'Token with incorrect length should return false');
+	}
+
+/**
+ * Test _validateHmacToken directly with valid HMAC token
+ *
+ * @return void
+ */
+	public function testValidateHmacTokenValid() {
+		// Use reflection to access protected method
+		$reflection = new ReflectionClass($this->Security);
+		$method = $reflection->getMethod('_validateHmacToken');
+		$method->setAccessible(true);
+
+		// Create a valid HMAC token
+		$value = Security::randomBytes(SecurityComponent::TOKEN_VALUE_LENGTH);
+		$salt = Configure::read('Security.salt');
+		$hmac = hash_hmac('sha1', $value, $salt, true);
+		$validToken = base64_encode($value . $hmac);
+
+		$result = $method->invoke($this->Security, $validToken);
+		$this->assertTrue($result, 'Valid HMAC token should return true');
+	}
+
+/**
+ * Test _validateHmacToken directly with modified HMAC
+ *
+ * @return void
+ */
+	public function testValidateHmacTokenModifiedHmac() {
+		// Use reflection to access protected method
+		$reflection = new ReflectionClass($this->Security);
+		$method = $reflection->getMethod('_validateHmacToken');
+		$method->setAccessible(true);
+
+		// Create a token with modified HMAC
+		$value = Security::randomBytes(SecurityComponent::TOKEN_VALUE_LENGTH);
+		$wrongHmac = str_repeat('x', 20); // Wrong HMAC
+		$modifiedToken = base64_encode($value . $wrongHmac);
+
+		$result = $method->invoke($this->Security, $modifiedToken);
+		$this->assertFalse($result, 'Token with modified HMAC should return false');
+	}
+
 }
