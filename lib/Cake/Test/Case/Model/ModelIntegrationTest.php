@@ -2235,6 +2235,8 @@ class ModelIntegrationTest extends BaseModelTest {
 			$intLength = $this->db->columns['primary_key']['length'];
 		} elseif (isset($this->db->columns['integer']['length'])) {
 			$intLength = $this->db->columns['integer']['length'];
+		} elseif ($this->db instanceof Mysql && $this->db->integerDisplayWidthDeprecated()) {
+			$intLength = null;
 		} else {
 			$intLength = 11;
 		}
