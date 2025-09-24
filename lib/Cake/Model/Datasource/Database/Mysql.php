@@ -26,6 +26,26 @@ App::uses('DboSource', 'Model/Datasource');
  * @package       Cake.Model.Datasource.Database
  */
 class Mysql extends DboSource {
+	/**
+	 * Server type MySQL
+	 *
+	 * @var string
+	 */
+	protected const SERVER_TYPE_MYSQL = 'MySQL';
+
+	/**
+	 * Server type MySQL
+	 *
+	 * @var string
+	 */
+	protected const SERVER_TYPE_AURORA_MYSQL = 'Aurora MySQL';
+
+	/**
+	 * Server type MariaDB
+	 *
+	 * @var string
+	 */
+	protected const SERVER_TYPE_MARIADB = 'MariaDB';
 
 /**
  * Datasource description
@@ -141,6 +161,16 @@ class Mysql extends DboSource {
  * @var array
  */
 	protected $_charsets = array();
+
+	/**
+	 * Server type.
+	 *
+	 * If the underlying server is MariaDB, its value will get set to `'mariadb'`
+	 * after `version()` method is called.
+	 *
+	 * @var string
+	 */
+	protected string $serverType = self::SERVER_TYPE_MYSQL;
 
 /**
  * Connects to the database using options in the given configuration array.
@@ -863,6 +893,65 @@ class Mysql extends DboSource {
 	}
 
 /**
+ * Get the server type
+ *
+ * @return string Server type (MySQL, Aurora MySQL, or MariaDB)
+ */
+	public function getServerType() {
+		// Ensure version has been fetched to determine server type
+		$this->getVersion();
+		return $this->serverType;
+	}
+
+/**
+ * Check if the server supports utf8mb4 character set
+ *
+ * @return bool
+ */
+	public function utf8mb4Supported() {
+		// MariaDB 5.5+ supports utf8mb4
+		if ($this->getServerType() === self::SERVER_TYPE_MARIADB) {
+			return version_compare($this->getVersion(), '5.5', '>=');
+		}
+
+		// Aurora MySQL format is like "5.7.mysql_aurora.2.10.1" or "8.0.mysql_aurora.3.04.0"
+		// Aurora MySQL 5.7+ and 8.0+ all support utf8mb4
+		if ($this->getServerType() === self::SERVER_TYPE_AURORA_MYSQL) {
+			// Aurora MySQL 5.7+ supports utf8mb4
+			return version_compare($this->getVersion(), '5.7', '>=');
+		}
+
+		// Regular MySQL needs 5.5.3+
+		return version_compare($this->getVersion(), '5.5.3', '>=');
+	}
+
+/**
+ * Check if the server has deprecated integer display width (MySQL 8.0.17+)
+ *
+ * In MySQL 8.0.17+, the display width for integer types is deprecated
+ * and int(11) becomes just int in column definitions
+ *
+ * @return bool
+ */
+	public function integerDisplayWidthDeprecated() {
+		// Only applies to MySQL and Aurora MySQL 8.0.17+, not MariaDB
+		if ($this->getServerType() === self::SERVER_TYPE_MARIADB) {
+			return false;
+		}
+
+		// Aurora MySQL returns "8.0.mysql_aurora.3.04.0" format
+		// We need to check if it's 8.0.17+ for regular MySQL
+		// For Aurora MySQL 8.0, assume display width is deprecated
+		if ($this->getServerType() === self::SERVER_TYPE_AURORA_MYSQL) {
+			// Aurora MySQL 8.0 has deprecated integer display width
+			return version_compare($this->getVersion(), '8.0', '>=');
+		}
+
+		// Regular MySQL needs 8.0.17+
+		return version_compare($this->getVersion(), '8.0.17', '>=');
+	}
+
+/**
  * Check if column type is unsigned
  *
  * @param string $real Real database-layer column type (i.e. "varchar(255)")
@@ -924,5 +1013,36 @@ class Mysql extends DboSource {
 			$this->logQuery($sql, $valuesList);
 		}
 		return $result;
+	}
+
+	/**
+	 * Returns connected server version.
+	 *
+	 * @return string
+	 *
+	 * @see  https://github.com/cakephp/cakephp/blob/5.x/src/Database/Driver/Mysql.php
+	 */
+	public function getVersion(): string
+	{
+		if ($this->_version === null) {
+			$version = (string)$this->_connection->getAttribute(PDO::ATTR_SERVER_VERSION);
+
+			if (preg_match('/^(\d+\.\d+(?:\.\d+)?)-MariaDB/', $version, $matches)) {
+				$this->_version = $matches[1];
+				$this->serverType = static::SERVER_TYPE_MARIADB;
+			} elseif (preg_match('/^(\d+\.\d+(?:\.\d+)?)\.mysql_aurora\.(.+)$/', $version, $matches)) {
+				// Aurora MySQL: "5.7.mysql_aurora.2.10.1" -> "5.7"
+				// or "8.0.17.mysql_aurora.3.04.1" -> "8.0.17"
+				$this->_version = $matches[1];
+				$this->serverType = static::SERVER_TYPE_AURORA_MYSQL;
+			} elseif (preg_match('/^(\d+\.\d+(?:\.\d+)?)/', $version, $matches)) {
+				$this->_version = $matches[1];
+				$this->serverType = static::SERVER_TYPE_MYSQL;
+			} else {
+				$this->_version = $version;
+			}
+		}
+
+		return $this->_version;
 	}
 }

@@ -677,6 +677,15 @@ class MysqlTest extends CakeTestCase {
 				)
 			)
 		));
+
+		if ($this->Dbo->utf8mb4Supported()) {
+			$charset = 'utf8mb4';
+			$collate = 'utf8mb4_general_ci';
+		} else {
+			$charset = 'utf8';
+			$collate = 'utf8_general_ci';
+		}
+
 		$this->Dbo->rawQuery($this->Dbo->createSchema($schemaA));
 		$schemaB = new CakeSchema(array(
 			'name' => 'AlterTest1',
@@ -685,24 +694,24 @@ class MysqlTest extends CakeTestCase {
 				'id' => array('type' => 'integer', 'null' => false, 'default' => 0),
 				'name' => array('type' => 'string', 'null' => false, 'length' => 50),
 				'tableParameters' => array(
-					'charset' => 'utf8',
-					'collate' => 'utf8_general_ci',
+					'charset' => $charset,
+					'collate' => $collate,
 					'engine' => 'InnoDB',
 					'comment' => 'Newly table added comment.',
 				)
 			)
 		));
 		$result = $this->Dbo->alterSchema($schemaB->compare($schemaA));
-		$this->assertStringContainsString('DEFAULT CHARSET=utf8', $result);
+		$this->assertStringContainsString('DEFAULT CHARSET=' . $charset, $result);
 		$this->assertStringContainsString('ENGINE=InnoDB', $result);
-		$this->assertStringContainsString('COLLATE=utf8_general_ci', $result);
+		$this->assertStringContainsString('COLLATE=' . $collate, $result);
 		$this->assertStringContainsString('COMMENT=\'Newly table added comment.\'', $result);
 
 		$this->Dbo->rawQuery($result);
 		$result = $this->Dbo->listDetailedSources($this->Dbo->fullTableName('altertest', false, false));
-		$this->assertEquals('utf8_general_ci', $result['Collation']);
+		$this->assertEquals($collate, $result['Collation']);
 		$this->assertEquals('InnoDB', $result['Engine']);
-		$this->assertEquals('utf8', $result['charset']);
+		$this->assertEquals($charset, $result['charset']);
 
 		$this->Dbo->rawQuery($this->Dbo->dropSchema($schemaA));
 	}
@@ -748,17 +757,28 @@ class MysqlTest extends CakeTestCase {
  */
 	public function testReadTableParameters() {
 		$this->Dbo->cacheSources = $this->Dbo->testing = false;
+
 		$tableName = 'tinyint_' . uniqid();
+
+		// utf8
+		if ($this->Dbo->utf8mb4Supported()) {
+			$charset = 'utf8mb4';
+			$collate = 'utf8mb4_unicode_ci';
+		} else {
+			$charset = 'utf8';
+			$collate = 'utf8_unicode_ci';
+		}
 		$table = $this->Dbo->fullTableName($tableName);
-		$this->Dbo->rawQuery('CREATE TABLE ' . $table . ' (id int(11) AUTO_INCREMENT, bool tinyint(1), small_int tinyint(2), primary key(id)) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;');
+		$this->Dbo->rawQuery('CREATE TABLE ' . $table . ' (id int(11) AUTO_INCREMENT, bool tinyint(1), small_int tinyint(2), primary key(id)) ENGINE=InnoDB DEFAULT CHARSET=' . $charset . ' COLLATE=' . $collate . ';');
 		$result = $this->Dbo->readTableParameters($this->Dbo->fullTableName($tableName, false, false));
 		$this->Dbo->rawQuery('DROP TABLE ' . $table);
 		$expected = array(
-			'charset' => 'utf8',
-			'collate' => 'utf8_unicode_ci',
+			'charset' => $charset,
+			'collate' => $collate,
 			'engine' => 'InnoDB');
 		$this->assertEquals($expected, $result);
 
+		// cp1250
 		$table = $this->Dbo->fullTableName($tableName);
 		$this->Dbo->rawQuery('CREATE TABLE ' . $table . ' (id int(11) AUTO_INCREMENT, bool tinyint(1), small_int tinyint(2), primary key(id)) ENGINE=MyISAM DEFAULT CHARSET=cp1250 COLLATE=cp1250_general_ci COMMENT=\'Table\'\'s comment\';');
 		$result = $this->Dbo->readTableParameters($this->Dbo->fullTableName($tableName, false, false));
@@ -778,15 +798,22 @@ class MysqlTest extends CakeTestCase {
  * @return void
  */
 	public function testBuildTableParameters() {
+		if ($this->Dbo->utf8mb4Supported()) {
+			$charset = 'utf8mb4';
+			$collate = 'utf8mb4_unicode_ci';
+		} else {
+			$charset = 'utf8';
+			$collate = 'utf8_unicode_ci';
+		}
 		$this->Dbo->cacheSources = $this->Dbo->testing = false;
 		$data = array(
-			'charset' => 'utf8',
-			'collate' => 'utf8_unicode_ci',
+			'charset' => $charset,
+			'collate' => $collate,
 			'engine' => 'InnoDB');
 		$result = $this->Dbo->buildTableParameters($data);
 		$expected = array(
-			'DEFAULT CHARSET=utf8',
-			'COLLATE=utf8_unicode_ci',
+			'DEFAULT CHARSET=' . $charset,
+			'COLLATE=' . $collate,
 			'ENGINE=InnoDB');
 		$this->assertEquals($expected, $result);
 	}
@@ -797,9 +824,16 @@ class MysqlTest extends CakeTestCase {
  * @return void
  */
 	public function testGetCharsetName() {
+		if ($this->Dbo->utf8mb4Supported()) {
+			$charset = 'utf8mb4';
+			$collate = 'utf8mb4_unicode_ci';
+		} else {
+			$charset = 'utf8';
+			$collate = 'utf8_unicode_ci';
+		}
 		$this->Dbo->cacheSources = $this->Dbo->testing = false;
-		$result = $this->Dbo->getCharsetName('utf8_unicode_ci');
-		$this->assertEquals('utf8', $result);
+		$result = $this->Dbo->getCharsetName($collate);
+		$this->assertEquals($charset, $result);
 		$result = $this->Dbo->getCharsetName('cp1250_general_ci');
 		$this->assertEquals('cp1250', $result);
 	}
@@ -941,6 +975,340 @@ SQL;
 		));
 		$result = $this->Dbo->createSchema($schema);
 		$this->assertStringContainsString('`limit_date` datetime NOT NULL,', $result);
+	}
+
+/**
+ * Test utf8mb4Supported() method
+ *
+ * @return void
+ */
+	public function testUtf8mb4Supported() {
+		$version = $this->Dbo->getVersion();
+		$serverType = $this->Dbo->getServerType();
+
+		if ($serverType === 'MariaDB') {
+			// MariaDB 5.5+ supports utf8mb4
+			$expected = version_compare($version, '5.5', '>=');
+		} elseif ($serverType === 'Aurora MySQL') {
+			// Aurora MySQL 5.7+ supports utf8mb4
+			$expected = version_compare($version, '5.7', '>=');
+		} else {
+			// Regular MySQL needs 5.5.3+
+			$expected = version_compare($version, '5.5.3', '>=');
+		}
+
+		$this->assertEquals($expected, $this->Dbo->utf8mb4Supported());
+	}
+
+/**
+ * Test integerDisplayWidthDeprecated() method
+ *
+ * @return void
+ */
+	public function testIntegerDisplayWidthDeprecated() {
+		$version = $this->Dbo->getVersion();
+		$serverType = $this->Dbo->getServerType();
+
+		if ($serverType === 'MariaDB') {
+			// MariaDB doesn't deprecate integer display width
+			$this->assertFalse($this->Dbo->integerDisplayWidthDeprecated());
+		} elseif ($serverType === 'Aurora MySQL') {
+			// Aurora MySQL 8.0+ has deprecated integer display width
+			$expected = version_compare($version, '8.0', '>=');
+			$this->assertEquals($expected, $this->Dbo->integerDisplayWidthDeprecated());
+		} else {
+			// Regular MySQL needs 8.0.17+
+			$expected = version_compare($version, '8.0.17', '>=');
+			$this->assertEquals($expected, $this->Dbo->integerDisplayWidthDeprecated());
+		}
+	}
+
+/**
+ * Test utf8mb4Supported() with mocked MariaDB versions
+ *
+ * @return void
+ */
+	public function testUtf8mb4SupportedMariaDB() {
+		$db = $this->getMock('Mysql', array('connect', '_execute'));
+		$mockConnection = $this->getMock('MockPDO', array('getAttribute'));
+
+		// Test MariaDB 5.5+ (should support utf8mb4)
+		$mockConnection->expects($this->once())
+			->method('getAttribute')
+			->with(PDO::ATTR_SERVER_VERSION)
+			->will($this->returnValue('5.5.5-MariaDB'));
+
+		$reflection = new ReflectionClass($db);
+		$connectionProperty = $reflection->getProperty('_connection');
+		$connectionProperty->setAccessible(true);
+		$connectionProperty->setValue($db, $mockConnection);
+
+		$versionProperty = $reflection->getProperty('_version');
+		$versionProperty->setAccessible(true);
+		$versionProperty->setValue($db, null);
+
+		$serverTypeProperty = $reflection->getProperty('serverType');
+		$serverTypeProperty->setAccessible(true);
+		$serverTypeProperty->setValue($db, '');
+
+		// Call getVersion first to initialize the properties
+		$db->getVersion();
+		$this->assertTrue($db->utf8mb4Supported());
+
+		// Test MariaDB 5.4 (should not support utf8mb4)
+		$mockConnection2 = $this->getMock('MockPDO', array('getAttribute'));
+		$mockConnection2->expects($this->once())
+			->method('getAttribute')
+			->with(PDO::ATTR_SERVER_VERSION)
+			->will($this->returnValue('5.4.9-MariaDB'));
+
+		$connectionProperty->setValue($db, $mockConnection2);
+		$versionProperty->setValue($db, null);
+		$serverTypeProperty->setValue($db, '');
+
+		// Call getVersion first to initialize the properties
+		$db->getVersion();
+		$this->assertFalse($db->utf8mb4Supported());
+	}
+
+/**
+ * Test utf8mb4Supported() with mocked Aurora MySQL versions
+ *
+ * @return void
+ */
+	public function testUtf8mb4SupportedAuroraMySQL() {
+		$db = $this->getMock('Mysql', array('connect', '_execute'));
+		$mockConnection = $this->getMock('MockPDO', array('getAttribute'));
+
+		// Test Aurora MySQL 5.7+ (should support utf8mb4)
+		$mockConnection->expects($this->once())
+			->method('getAttribute')
+			->with(PDO::ATTR_SERVER_VERSION)
+			->will($this->returnValue('5.7.12.mysql_aurora.2.10.1'));
+
+		$reflection = new ReflectionClass($db);
+		$connectionProperty = $reflection->getProperty('_connection');
+		$connectionProperty->setAccessible(true);
+		$connectionProperty->setValue($db, $mockConnection);
+
+		$versionProperty = $reflection->getProperty('_version');
+		$versionProperty->setAccessible(true);
+		$versionProperty->setValue($db, null);
+
+		$serverTypeProperty = $reflection->getProperty('serverType');
+		$serverTypeProperty->setAccessible(true);
+		$serverTypeProperty->setValue($db, '');
+
+		// Call getVersion first to initialize the properties
+		$db->getVersion();
+		$this->assertTrue($db->utf8mb4Supported());
+
+		// Test Aurora MySQL 5.6 (should not support utf8mb4)
+		$mockConnection2 = $this->getMock('MockPDO', array('getAttribute'));
+		$mockConnection2->expects($this->once())
+			->method('getAttribute')
+			->with(PDO::ATTR_SERVER_VERSION)
+			->will($this->returnValue('5.6.10.mysql_aurora.1.20.0'));
+
+		$connectionProperty->setValue($db, $mockConnection2);
+		$versionProperty->setValue($db, null);
+		$serverTypeProperty->setValue($db, '');
+
+		// Call getVersion first to initialize the properties
+		$db->getVersion();
+		$this->assertFalse($db->utf8mb4Supported());
+	}
+
+/**
+ * Test utf8mb4Supported() with mocked regular MySQL versions
+ *
+ * @return void
+ */
+	public function testUtf8mb4SupportedRegularMySQL() {
+		$db = $this->getMock('Mysql', array('connect', '_execute'));
+		$mockConnection = $this->getMock('MockPDO', array('getAttribute'));
+
+		// Test MySQL 5.5.3+ (should support utf8mb4)
+		$mockConnection->expects($this->once())
+			->method('getAttribute')
+			->with(PDO::ATTR_SERVER_VERSION)
+			->will($this->returnValue('5.5.3'));
+
+		$reflection = new ReflectionClass($db);
+		$connectionProperty = $reflection->getProperty('_connection');
+		$connectionProperty->setAccessible(true);
+		$connectionProperty->setValue($db, $mockConnection);
+
+		$versionProperty = $reflection->getProperty('_version');
+		$versionProperty->setAccessible(true);
+		$versionProperty->setValue($db, null);
+
+		$serverTypeProperty = $reflection->getProperty('serverType');
+		$serverTypeProperty->setAccessible(true);
+		$serverTypeProperty->setValue($db, '');
+
+		// Call getVersion first to initialize the properties
+		$db->getVersion();
+		$this->assertTrue($db->utf8mb4Supported());
+
+		// Test MySQL 5.5.2 (should not support utf8mb4)
+		$mockConnection2 = $this->getMock('MockPDO', array('getAttribute'));
+		$mockConnection2->expects($this->once())
+			->method('getAttribute')
+			->with(PDO::ATTR_SERVER_VERSION)
+			->will($this->returnValue('5.5.2'));
+
+		$connectionProperty->setValue($db, $mockConnection2);
+		$versionProperty->setValue($db, null);
+		$serverTypeProperty->setValue($db, '');
+
+		// Call getVersion first to initialize the properties
+		$db->getVersion();
+		$this->assertFalse($db->utf8mb4Supported());
+	}
+
+/**
+ * Test integerDisplayWidthDeprecated() with mocked MariaDB versions
+ *
+ * @return void
+ */
+	public function testIntegerDisplayWidthDeprecatedMariaDB() {
+		$db = $this->getMock('Mysql', array('connect', '_execute'));
+		$mockConnection = $this->getMock('MockPDO', array('getAttribute'));
+
+		// Test MariaDB 10.4 (should never deprecate integer display width)
+		$mockConnection->expects($this->once())
+			->method('getAttribute')
+			->with(PDO::ATTR_SERVER_VERSION)
+			->will($this->returnValue('10.4.8-MariaDB'));
+
+		$reflection = new ReflectionClass($db);
+		$connectionProperty = $reflection->getProperty('_connection');
+		$connectionProperty->setAccessible(true);
+		$connectionProperty->setValue($db, $mockConnection);
+
+		$versionProperty = $reflection->getProperty('_version');
+		$versionProperty->setAccessible(true);
+		$versionProperty->setValue($db, null);
+
+		$serverTypeProperty = $reflection->getProperty('serverType');
+		$serverTypeProperty->setAccessible(true);
+		$serverTypeProperty->setValue($db, '');
+
+		// Call getVersion first to initialize the properties
+		$db->getVersion();
+		$this->assertFalse($db->integerDisplayWidthDeprecated());
+
+		// Test MariaDB 10.6 (still should not deprecate)
+		$mockConnection2 = $this->getMock('MockPDO', array('getAttribute'));
+		$mockConnection2->expects($this->once())
+			->method('getAttribute')
+			->with(PDO::ATTR_SERVER_VERSION)
+			->will($this->returnValue('10.6.5-MariaDB'));
+
+		$connectionProperty->setValue($db, $mockConnection2);
+		$versionProperty->setValue($db, null);
+		$serverTypeProperty->setValue($db, '');
+
+		// Call getVersion first to initialize the properties
+		$db->getVersion();
+		$this->assertFalse($db->integerDisplayWidthDeprecated());
+	}
+
+/**
+ * Test integerDisplayWidthDeprecated() with mocked Aurora MySQL versions
+ *
+ * @return void
+ */
+	public function testIntegerDisplayWidthDeprecatedAuroraMySQL() {
+		$db = $this->getMock('Mysql', array('connect', '_execute'));
+		$mockConnection = $this->getMock('MockPDO', array('getAttribute'));
+
+		// Test Aurora MySQL 8.0+ (should be deprecated)
+		$mockConnection->expects($this->once())
+			->method('getAttribute')
+			->with(PDO::ATTR_SERVER_VERSION)
+			->will($this->returnValue('8.0.23.mysql_aurora.3.02.0'));
+
+		$reflection = new ReflectionClass($db);
+		$connectionProperty = $reflection->getProperty('_connection');
+		$connectionProperty->setAccessible(true);
+		$connectionProperty->setValue($db, $mockConnection);
+
+		$versionProperty = $reflection->getProperty('_version');
+		$versionProperty->setAccessible(true);
+		$versionProperty->setValue($db, null);
+
+		$serverTypeProperty = $reflection->getProperty('serverType');
+		$serverTypeProperty->setAccessible(true);
+		$serverTypeProperty->setValue($db, '');
+
+		// Call getVersion first to initialize the properties
+		$db->getVersion();
+		$this->assertTrue($db->integerDisplayWidthDeprecated());
+
+		// Test Aurora MySQL 5.7 (should not be deprecated)
+		$mockConnection2 = $this->getMock('MockPDO', array('getAttribute'));
+		$mockConnection2->expects($this->once())
+			->method('getAttribute')
+			->with(PDO::ATTR_SERVER_VERSION)
+			->will($this->returnValue('5.7.12.mysql_aurora.2.10.1'));
+
+		$connectionProperty->setValue($db, $mockConnection2);
+		$versionProperty->setValue($db, null);
+		$serverTypeProperty->setValue($db, '');
+
+		// Call getVersion first to initialize the properties
+		$db->getVersion();
+		$this->assertFalse($db->integerDisplayWidthDeprecated());
+	}
+
+/**
+ * Test integerDisplayWidthDeprecated() with mocked regular MySQL versions
+ *
+ * @return void
+ */
+	public function testIntegerDisplayWidthDeprecatedRegularMySQL() {
+		$db = $this->getMock('Mysql', array('connect', '_execute'));
+		$mockConnection = $this->getMock('MockPDO', array('getAttribute'));
+
+		// Test MySQL 8.0.17+ (should be deprecated)
+		$mockConnection->expects($this->once())
+			->method('getAttribute')
+			->with(PDO::ATTR_SERVER_VERSION)
+			->will($this->returnValue('8.0.17'));
+
+		$reflection = new ReflectionClass($db);
+		$connectionProperty = $reflection->getProperty('_connection');
+		$connectionProperty->setAccessible(true);
+		$connectionProperty->setValue($db, $mockConnection);
+
+		$versionProperty = $reflection->getProperty('_version');
+		$versionProperty->setAccessible(true);
+		$versionProperty->setValue($db, null);
+
+		$serverTypeProperty = $reflection->getProperty('serverType');
+		$serverTypeProperty->setAccessible(true);
+		$serverTypeProperty->setValue($db, '');
+
+		// Call getVersion first to initialize the properties
+		$db->getVersion();
+		$this->assertTrue($db->integerDisplayWidthDeprecated());
+
+		// Test MySQL 8.0.16 (should not be deprecated)
+		$mockConnection2 = $this->getMock('MockPDO', array('getAttribute'));
+		$mockConnection2->expects($this->once())
+			->method('getAttribute')
+			->with(PDO::ATTR_SERVER_VERSION)
+			->will($this->returnValue('8.0.16'));
+
+		$connectionProperty->setValue($db, $mockConnection2);
+		$versionProperty->setValue($db, null);
+		$serverTypeProperty->setValue($db, '');
+
+		// Call getVersion first to initialize the properties
+		$db->getVersion();
+		$this->assertFalse($db->integerDisplayWidthDeprecated());
 	}
 
 /**
@@ -1109,6 +1477,258 @@ SQL;
 	public function testGetVersion() {
 		$version = $this->Dbo->getVersion();
 		$this->assertTrue(is_string($version));
+		$this->assertMatchesRegularExpression('/^\d+\.\d+(\.\d+)?/', $version);
+
+		// Test that version is cached
+		$cachedVersion = $this->Dbo->getVersion();
+		$this->assertEquals($version, $cachedVersion);
+	}
+
+/**
+ * Test getVersion with mocked MySQL responses
+ * @return void
+ */
+	public function testGetVersionWithMockedResponses() {
+		// Test regular MySQL version
+		$db = $this->getMock('Mysql', array('connect', '_execute'));
+		$mockConnection = $this->getMock('stdClass', array('getAttribute'));
+		$mockConnection->expects($this->once())
+			->method('getAttribute')
+			->with(PDO::ATTR_SERVER_VERSION)
+			->will($this->returnValue('8.0.33'));
+
+		$reflection = new ReflectionClass($db);
+		$connectionProperty = $reflection->getProperty('_connection');
+		$connectionProperty->setAccessible(true);
+		$connectionProperty->setValue($db, $mockConnection);
+
+		$version = $db->getVersion();
+		$this->assertEquals('8.0.33', $version);
+
+		// Test MariaDB version
+		$db = $this->getMock('Mysql', array('connect', '_execute'));
+		$mockConnection = $this->getMock('stdClass', array('getAttribute'));
+		$mockConnection->expects($this->once())
+			->method('getAttribute')
+			->with(PDO::ATTR_SERVER_VERSION)
+			->will($this->returnValue('10.6.12-MariaDB-0ubuntu0.22.04.1'));
+
+		$reflection = new ReflectionClass($db);
+		$connectionProperty = $reflection->getProperty('_connection');
+		$connectionProperty->setAccessible(true);
+		$connectionProperty->setValue($db, $mockConnection);
+
+		$version = $db->getVersion();
+		$this->assertEquals('10.6.12', $version);
+
+		// Test Aurora MySQL version
+		$db = $this->getMock('Mysql', array('connect', '_execute'));
+		$mockConnection = $this->getMock('stdClass', array('getAttribute'));
+		$mockConnection->expects($this->once())
+			->method('getAttribute')
+			->with(PDO::ATTR_SERVER_VERSION)
+			->will($this->returnValue('8.0.mysql_aurora.3.04.0'));
+
+		$reflection = new ReflectionClass($db);
+		$connectionProperty = $reflection->getProperty('_connection');
+		$connectionProperty->setAccessible(true);
+		$connectionProperty->setValue($db, $mockConnection);
+
+		$version = $db->getVersion();
+		$this->assertEquals('8.0', $version);
+
+		// Test MySQL 5.7 version
+		$db = $this->getMock('Mysql', array('connect', '_execute'));
+		$mockConnection = $this->getMock('stdClass', array('getAttribute'));
+		$mockConnection->expects($this->once())
+			->method('getAttribute')
+			->with(PDO::ATTR_SERVER_VERSION)
+			->will($this->returnValue('5.7.42'));
+
+		$reflection = new ReflectionClass($db);
+		$connectionProperty = $reflection->getProperty('_connection');
+		$connectionProperty->setAccessible(true);
+		$connectionProperty->setValue($db, $mockConnection);
+
+		$version = $db->getVersion();
+		$this->assertEquals('5.7.42', $version);
+
+		// Test MySQL 5.5.3 version
+		$db = $this->getMock('Mysql', array('connect', '_execute'));
+		$mockConnection = $this->getMock('stdClass', array('getAttribute'));
+		$mockConnection->expects($this->once())
+			->method('getAttribute')
+			->with(PDO::ATTR_SERVER_VERSION)
+			->will($this->returnValue('5.5.3'));
+
+		$reflection = new ReflectionClass($db);
+		$connectionProperty = $reflection->getProperty('_connection');
+		$connectionProperty->setAccessible(true);
+		$connectionProperty->setValue($db, $mockConnection);
+
+		$version = $db->getVersion();
+		$this->assertEquals('5.5.3', $version);
+
+		// Test MariaDB 5.5 version
+		$db = $this->getMock('Mysql', array('connect', '_execute'));
+		$mockConnection = $this->getMock('stdClass', array('getAttribute'));
+		$mockConnection->expects($this->once())
+			->method('getAttribute')
+			->with(PDO::ATTR_SERVER_VERSION)
+			->will($this->returnValue('5.5.68-MariaDB'));
+
+		$reflection = new ReflectionClass($db);
+		$connectionProperty = $reflection->getProperty('_connection');
+		$connectionProperty->setAccessible(true);
+		$connectionProperty->setValue($db, $mockConnection);
+
+		$version = $db->getVersion();
+		$this->assertEquals('5.5.68', $version);
+
+		// Test Aurora MySQL 5.7 version
+		$db = $this->getMock('Mysql', array('connect', '_execute'));
+		$mockConnection = $this->getMock('stdClass', array('getAttribute'));
+		$mockConnection->expects($this->once())
+			->method('getAttribute')
+			->with(PDO::ATTR_SERVER_VERSION)
+			->will($this->returnValue('5.7.mysql_aurora.2.10.2'));
+
+		$reflection = new ReflectionClass($db);
+		$connectionProperty = $reflection->getProperty('_connection');
+		$connectionProperty->setAccessible(true);
+		$connectionProperty->setValue($db, $mockConnection);
+
+		$version = $db->getVersion();
+		$this->assertEquals('5.7', $version);
+
+		// Test version caching
+		$db = $this->getMock('Mysql', array('connect', '_execute'));
+		$mockConnection = $this->getMock('stdClass', array('getAttribute'));
+		$mockConnection->expects($this->once()) // Only once even though we call getVersion twice
+			->method('getAttribute')
+			->with(PDO::ATTR_SERVER_VERSION)
+			->will($this->returnValue('8.0.33'));
+
+		$reflection = new ReflectionClass($db);
+		$connectionProperty = $reflection->getProperty('_connection');
+		$connectionProperty->setAccessible(true);
+		$connectionProperty->setValue($db, $mockConnection);
+
+		$version1 = $db->getVersion();
+		$version2 = $db->getVersion();
+		$this->assertEquals('8.0.33', $version1);
+		$this->assertEquals('8.0.33', $version2);
+
+		// Test non-matching version pattern (fallback to original string)
+		$db = $this->getMock('Mysql', array('connect', '_execute'));
+		$mockConnection = $this->getMock('stdClass', array('getAttribute'));
+		$mockConnection->expects($this->once())
+			->method('getAttribute')
+			->with(PDO::ATTR_SERVER_VERSION)
+			->will($this->returnValue('unknown-version'));
+
+		$reflection = new ReflectionClass($db);
+		$connectionProperty = $reflection->getProperty('_connection');
+		$connectionProperty->setAccessible(true);
+		$connectionProperty->setValue($db, $mockConnection);
+
+		$version = $db->getVersion();
+		$this->assertEquals('unknown-version', $version);
+
+		// Test empty version string
+		$db = $this->getMock('Mysql', array('connect', '_execute'));
+		$mockConnection = $this->getMock('stdClass', array('getAttribute'));
+		$mockConnection->expects($this->once())
+			->method('getAttribute')
+			->with(PDO::ATTR_SERVER_VERSION)
+			->will($this->returnValue(''));
+
+		$reflection = new ReflectionClass($db);
+		$connectionProperty = $reflection->getProperty('_connection');
+		$connectionProperty->setAccessible(true);
+		$connectionProperty->setValue($db, $mockConnection);
+
+		$version = $db->getVersion();
+		$this->assertEquals('', $version);
+	}
+
+/**
+ * Test getServerType method
+ * @return void
+ */
+	public function testGetServerType() {
+		$serverType = $this->Dbo->getServerType();
+		$this->assertContains($serverType, array('MySQL', 'MariaDB', 'Aurora MySQL'));
+
+		// Test that server type is cached
+		$cachedServerType = $this->Dbo->getServerType();
+		$this->assertEquals($serverType, $cachedServerType);
+	}
+
+/**
+ * Test getServerType with mocked MySQL responses
+ * @return void
+ */
+	public function testGetServerTypeWithMockedResponses() {
+		// Test regular MySQL
+		$db = $this->getMock('Mysql', array('connect', '_execute'));
+		$mockConnection = $this->getMock('stdClass', array('getAttribute'));
+		$mockConnection->expects($this->once())
+			->method('getAttribute')
+			->with(PDO::ATTR_SERVER_VERSION)
+			->will($this->returnValue('8.0.33'));
+
+		$reflection = new ReflectionClass($db);
+		$connectionProperty = $reflection->getProperty('_connection');
+		$connectionProperty->setAccessible(true);
+		$connectionProperty->setValue($db, $mockConnection);
+
+		$db->getVersion(); // This sets the server type
+		$serverType = $db->getServerType();
+		$this->assertEquals('MySQL', $serverType);
+		$property = $reflection->getProperty('serverType');
+		$property->setAccessible(true);
+		$this->assertEquals('MySQL', $property->getValue($db));
+
+		// Test MariaDB
+		$db = $this->getMock('Mysql', array('connect', '_execute'));
+		$mockConnection = $this->getMock('stdClass', array('getAttribute'));
+		$mockConnection->expects($this->once())
+			->method('getAttribute')
+			->with(PDO::ATTR_SERVER_VERSION)
+			->will($this->returnValue('10.6.12-MariaDB-0ubuntu0.22.04.1'));
+
+		$reflection = new ReflectionClass($db);
+		$connectionProperty = $reflection->getProperty('_connection');
+		$connectionProperty->setAccessible(true);
+		$connectionProperty->setValue($db, $mockConnection);
+
+		$db->getVersion(); // This sets the server type
+		$serverType = $db->getServerType();
+		$this->assertEquals('MariaDB', $serverType);
+		$property = $reflection->getProperty('serverType');
+		$property->setAccessible(true);
+		$this->assertEquals('MariaDB', $property->getValue($db));
+
+		// Test Aurora MySQL
+		$db = $this->getMock('Mysql', array('connect', '_execute'));
+		$mockConnection = $this->getMock('stdClass', array('getAttribute'));
+		$mockConnection->expects($this->once())
+			->method('getAttribute')
+			->with(PDO::ATTR_SERVER_VERSION)
+			->will($this->returnValue('8.0.mysql_aurora.3.04.0'));
+
+		$reflection = new ReflectionClass($db);
+		$connectionProperty = $reflection->getProperty('_connection');
+		$connectionProperty->setAccessible(true);
+		$connectionProperty->setValue($db, $mockConnection);
+
+		$db->getVersion(); // This sets the server type
+		$serverType = $db->getServerType();
+		$this->assertEquals('Aurora MySQL', $serverType);
+		$property = $reflection->getProperty('serverType');
+		$property->setAccessible(true);
+		$this->assertEquals('Aurora MySQL', $property->getValue($db));
 	}
 
 /**

@@ -26,9 +26,9 @@ The original CakePHP 2.x branch [reached End of Life in June 2021](https://baker
 
 ### Database Support
 
-- MySQL 5.6+
-- PostgreSQL 9.4+
-- SQLite 3
+- MySQL 5.6, 5.7, 8.0+ (with `pdo_mysql` extension)
+- PostgreSQL 9.4+ (with `pdo_pgsql` extension)
+- SQLite 3 (with `pdo_sqlite` extension)
 - Microsoft SQL Server (with `pdo_sqlsrv` extension)
 
 ### Required PHP Extensions
@@ -103,6 +103,21 @@ Before migrating to this fork, ensure:
 - **Wincache** support has been removed (Wincache is not actively maintained for PHP 8.x)
 - If you're using these cache engines, please migrate to Redis, Memcached, or APCu
 
+#### New Database Driver Methods
+
+The following new methods have been added to database drivers:
+
+**MySQL Driver (Mysql.php):**
+- `getVersion(): string` - Returns the MySQL/MariaDB/Aurora MySQL version as a string
+- `getServerType(): string` - Returns the server type: 'MySQL', 'MariaDB', or 'Aurora MySQL'
+- `utf8mb4Supported(): bool` - Checks if the server supports utf8mb4 character set
+- `integerDisplayWidthDeprecated(): bool` - Checks if integer display width is deprecated (MySQL 8.0.17+)
+
+**PostgreSQL Driver (Postgres.php):**
+- `getVersion(): string` - Returns the PostgreSQL version as a string
+
+These methods provide better database version detection and feature support checking.
+
 #### strftime() Replacement
 
 - `strftime()` function has been deprecated in PHP 8.1 and removed in PHP 8.2
@@ -131,6 +146,7 @@ docker-compose exec web composer install
 
 # Run tests with specific database
 DB=mysql docker-compose exec web ./vendors/bin/phpunit
+DB=mysql80 docker-compose exec web ./vendors/bin/phpunit
 DB=pgsql docker-compose exec web ./vendors/bin/phpunit
 DB=sqlite docker-compose exec web ./vendors/bin/phpunit
 ```

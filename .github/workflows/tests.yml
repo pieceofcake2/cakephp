@@ -27,26 +27,11 @@ jobs:
           - '8.4'
         db-type:
           - mysql
+          - mysql80
           - pgsql
           - sqlite
 
     services:
-      mysql:
-        image: mysql:5.6
-        env:
-          MYSQL_ROOT_PASSWORD: root
-          MYSQL_DATABASE: cakephp_test
-        ports:
-          - 3306:3306
-        options: --health-cmd="mysqladmin ping" --health-interval=10s --health-timeout=5s --health-retries=3
-      postgres:
-        image: postgres:9.4
-        env:
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: cakephp_test
-        ports:
-          - 5432:5432
-        options: --health-cmd="pg_isready" --health-interval=10s --health-timeout=5s --health-retries=5
       redis:
         image: redis
         ports:
@@ -62,6 +47,75 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v5
+
+      - name: Start MySQL 5.6
+        if: matrix.db-type == 'mysql'
+        run: |
+          docker run -d --name mysql56 \
+            -e MYSQL_ROOT_PASSWORD=root \
+            -e MYSQL_DATABASE=cakephp_test \
+            -p 3306:3306 \
+            --health-cmd="mysqladmin ping" \
+            --health-interval=10s \
+            --health-timeout=5s \
+            --health-retries=3 \
+            mysql:5.6
+
+          # Wait for MySQL to be ready
+          for i in {1..30}; do
+            if docker exec mysql56 mysqladmin ping -h localhost -u root -proot &> /dev/null; then
+              echo "MySQL 5.6 is ready"
+              break
+            fi
+            echo "Waiting for MySQL 5.6..."
+            sleep 2
+          done
+
+      - name: Start MySQL 8.0
+        if: matrix.db-type == 'mysql80'
+        run: |
+          docker run -d --name mysql80 \
+            -e MYSQL_ROOT_PASSWORD=root \
+            -e MYSQL_DATABASE=cakephp_test \
+            -p 3307:3306 \
+            --health-cmd="mysqladmin ping" \
+            --health-interval=10s \
+            --health-timeout=5s \
+            --health-retries=3 \
+            mysql:8.0
+
+          # Wait for MySQL 8.0 to be ready
+          for i in {1..30}; do
+            if docker exec mysql80 mysqladmin ping -h localhost -u root -proot &> /dev/null; then
+              echo "MySQL 8.0 is ready"
+              break
+            fi
+            echo "Waiting for MySQL 8.0..."
+            sleep 2
+          done
+
+      - name: Start PostgreSQL 9.4
+        if: matrix.db-type == 'pgsql'
+        run: |
+          docker run -d --name postgres94 \
+            -e POSTGRES_PASSWORD=postgres \
+            -e POSTGRES_DB=cakephp_test \
+            -p 5432:5432 \
+            --health-cmd="pg_isready" \
+            --health-interval=10s \
+            --health-timeout=5s \
+            --health-retries=5 \
+            postgres:9.4
+
+          # Wait for PostgreSQL to be ready
+          for i in {1..30}; do
+            if docker exec postgres94 pg_isready -U postgres &> /dev/null; then
+              echo "PostgreSQL 9.4 is ready"
+              break
+            fi
+            echo "Waiting for PostgreSQL 9.4..."
+            sleep 2
+          done
 
       - name: Install PHP with extensions
         uses: shivammathur/setup-php@v2
@@ -89,6 +143,12 @@ jobs:
         run: |
           env MYSQL_PWD=root mysql -h 127.0.0.1 -u root -e 'CREATE DATABASE cakephp_test2;';
           env MYSQL_PWD=root mysql -h 127.0.0.1 -u root -e 'CREATE DATABASE cakephp_test3;';
+
+      - name: Create Another Databases for MySQL 8.0
+        if: matrix.db-type == 'mysql80'
+        run: |
+          env MYSQL_PWD=root mysql -h 127.0.0.1 -P 3307 -u root -e 'CREATE DATABASE cakephp_test2;';
+          env MYSQL_PWD=root mysql -h 127.0.0.1 -P 3307 -u root -e 'CREATE DATABASE cakephp_test3;';
 
       - name: Create Another Databases for PostgreSQL
         if: matrix.db-type == 'pgsql'
@@ -138,3 +198,15 @@ jobs:
           use_oidc: true
           flags: php${{ matrix.php-version }}-${{ matrix.db-type }}
           name: PHP ${{ matrix.php-version }} - ${{ matrix.db-type }}
+
+      - name: Stop MySQL 5.6
+        if: always() && matrix.db-type == 'mysql'
+        run: docker stop mysql56 && docker rm mysql56 || true
+
+      - name: Stop MySQL 8.0
+        if: always() && matrix.db-type == 'mysql80'
+        run: docker stop mysql80 && docker rm mysql80 || true
+
+      - name: Stop PostgreSQL 9.4
+        if: always() && matrix.db-type == 'pgsql'
+        run: docker stop postgres94 && docker rm postgres94 || true

@@ -103,7 +103,7 @@ class DboSource extends DataSource {
 /**
  * Time the last query took
  *
- * @var int
+ * @var int|null
  */
 	public $took = null;
 
@@ -255,6 +255,13 @@ class DboSource extends DataSource {
  */
 	public $map = array();
 
+	/**
+	 * The server version
+	 *
+	 * @var string|null
+	 */
+	protected ?string $_version = null;
+
 /**
  * Constructor
  *
@@ -315,6 +322,7 @@ class DboSource extends DataSource {
 		}
 		$this->_connection = null;
 		$this->connected = false;
+		$this->_version = null;
 		return true;
 	}
 
@@ -332,8 +340,8 @@ class DboSource extends DataSource {
  *
  * @return string The database version
  */
-	public function getVersion() {
-		return $this->_connection->getAttribute(PDO::ATTR_SERVER_VERSION);
+	public function getVersion(): string {
+		return $this->_version ??= (string)$this->_connection->getAttribute(PDO::ATTR_SERVER_VERSION);
 	}
 
 /**
@@ -469,7 +477,7 @@ class DboSource extends DataSource {
 		$this->_result = $this->_execute($sql, $params);
 
 		if ($options['log']) {
-			$this->took = round((microtime(true) - $t) * 1000, 0);
+			$this->took = (int)round((microtime(true) - $t) * 1000, 0, PHP_ROUND_HALF_UP);
 			$this->numRows = $this->affected = $this->lastAffected();
 			$this->logQuery($sql, $params);
 		}
@@ -3349,7 +3357,7 @@ class DboSource extends DataSource {
 			$statement->closeCursor();
 
 			if ($this->fullDebug) {
-				$this->took = round((microtime(true) - $t) * 1000, 0);
+				$this->took = (int)round((microtime(true) - $t) * 1000, 0, PHP_ROUND_HALF_UP);
 				$this->numRows = $this->affected = $statement->rowCount();
 				$this->logQuery($sql, $value);
 			}

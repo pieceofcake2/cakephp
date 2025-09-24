@@ -566,12 +566,22 @@ class Postgres extends DboSource {
 								if (!isset($col['name'])) {
 									$col['name'] = $field;
 								}
-								$original = $schema[$field];
+
+								// Check if field exists in schema
+								$original = isset($schema[$field]) ? $schema[$field] : null;
 								$fieldName = $this->name($field);
 
 								$default = isset($col['default']) ? $col['default'] : null;
 								$nullable = isset($col['null']) ? $col['null'] : null;
-								$boolToInt = $original['type'] === 'boolean' && $col['type'] === 'integer';
+
+								// Only perform type conversion checks if original field exists
+								$boolToInt = false;
+								$textToInt = false;
+								if ($original !== null) {
+									$boolToInt = $original['type'] === 'boolean' && $col['type'] === 'integer';
+									$textToInt = $original['type'] === 'text' && $col['type'] === 'integer';
+								}
+
 								unset($col['default'], $col['null']);
 								if ($field !== $col['name']) {
 									$newName = $this->name($col['name']);
@@ -584,7 +594,7 @@ class Postgres extends DboSource {
 									$colList[] = 'ALTER COLUMN ' . $fieldName . '  SET DEFAULT NULL';
 									$colList[] = 'ALTER COLUMN ' . $fieldName . ' TYPE ' . str_replace(array($fieldName, 'NOT NULL'), '', $this->buildColumn($col)) . ' USING CASE WHEN TRUE THEN 1 ELSE 0 END';
 								} else {
-									if ($original['type'] === 'text' && $col['type'] === 'integer') {
+									if ($textToInt) {
 										$colList[] = 'ALTER COLUMN ' . $fieldName . ' TYPE ' . str_replace(array($fieldName, 'NOT NULL'), '', $this->buildColumn($col)) . " USING cast({$fieldName} as INTEGER)";
 									} else {
 										$colList[] = 'ALTER COLUMN ' . $fieldName . ' TYPE ' . str_replace(array($fieldName, 'NOT NULL'), '', $this->buildColumn($col));
@@ -1010,4 +1020,27 @@ class Postgres extends DboSource {
 		return $this->useNestedTransactions && version_compare($this->getVersion(), '8.0', '>=');
 	}
 
+/**
+ * Returns connected server version.
+ *
+ * @return string Numeric version string (e.g., "15.3", "14.8")
+ */
+	public function getVersion(): string {
+		if ($this->_version === null) {
+			$version = (string)$this->_connection->getAttribute(PDO::ATTR_SERVER_VERSION);
+
+			// Extract numeric version from PostgreSQL version string
+			// Examples:
+			// "15.3" -> "15.3"
+			// "14.8 (Ubuntu 14.8-0ubuntu0.22.04.1)" -> "14.8"
+			// "13.11 on x86_64-pc-linux-gnu" -> "13.11"
+			if (preg_match('/^(\d+\.\d+(?:\.\d+)?)/', $version, $matches)) {
+				$this->_version = $matches[1];
+			} else {
+				$this->_version = $version;
+			}
+		}
+
+		return $this->_version;
+	}
 }
