@@ -42,6 +42,11 @@ class SecurityComponent extends Component {
 	const DEFAULT_EXCEPTION_MESSAGE = 'The request has been black-holed';
 
 /**
+ * Length of the CSRF token random value in bytes
+ */
+	const TOKEN_VALUE_LENGTH = 16;
+
+/**
  * The controller method that will be called if this request is black-hole'd
  *
  * @var string
@@ -730,7 +735,7 @@ class SecurityComponent extends Component {
 			}
 			return false;
 		}
-		$authKey = hash('sha512', Security::randomBytes(16), false);
+		$authKey = $this->_createCsrfToken();
 		$token = array(
 			'key' => $authKey,
 			'allowedControllers' => $this->allowedControllers,
@@ -780,8 +785,24 @@ class SecurityComponent extends Component {
 			throw new SecurityException('Missing CSRF token');
 		}
 
-		if (!isset($token['csrfTokens'][$requestToken])) {
-			throw new SecurityException('CSRF token mismatch');
+		// Check if this is a new HMAC-signed token (base64 with proper length) or legacy token
+		$decoded = base64_decode($requestToken, true);
+		$isHmacToken = ($decoded !== false && strlen($decoded) === 36); // 16 bytes value + 20 bytes HMAC
+
+		if ($isHmacToken) {
+			// New HMAC-signed token format (CakePHP 3.x/4.x compatible)
+			if (!$this->_validateHmacToken($requestToken)) {
+				throw new SecurityException('CSRF token mismatch');
+			}
+			// Check if token exists in session
+			if (!isset($token['csrfTokens'][$requestToken])) {
+				throw new SecurityException('CSRF token mismatch');
+			}
+		} else {
+			// Legacy token format for backward compatibility
+			if (!isset($token['csrfTokens'][$requestToken])) {
+				throw new SecurityException('CSRF token mismatch');
+			}
 		}
 
 		if ($token['csrfTokens'][$requestToken] < time()) {
@@ -884,6 +905,58 @@ class SecurityComponent extends Component {
 		}
 
 		return sprintf($missingMessage, implode(', ', $expectedFieldNames));
+	}
+
+/**
+ * Create a new CSRF token with HMAC signature to prevent token fixation.
+ * Compatible with CakePHP 3.x/4.x token format.
+ *
+ * @return string Base64 encoded token containing random value and HMAC signature
+ */
+	protected function _createCsrfToken() {
+		// Generate random bytes (same as CakePHP 4.x)
+		$value = Security::randomBytes(static::TOKEN_VALUE_LENGTH);
+
+		// Create HMAC using SHA1 (compatible with CakePHP 3.x/4.x)
+		$salt = Configure::read('Security.salt');
+		$hmac = hash_hmac('sha1', $value, $salt, true);
+
+		// Return base64 encoded token containing both value and HMAC
+		return base64_encode($value . $hmac);
+	}
+
+/**
+ * Validate HMAC signature of a CSRF token to prevent token fixation.
+ * Compatible with CakePHP 3.x/4.x token format.
+ *
+ * @param string $token Base64 encoded token to validate
+ * @return bool True if token has valid HMAC signature
+ */
+	protected function _validateHmacToken($token) {
+		$decoded = base64_decode($token, true);
+		if ($decoded === false) {
+			return false;
+		}
+
+		$valueLength = static::TOKEN_VALUE_LENGTH;
+		// SHA1 HMAC is 20 bytes
+		$hmacLength = 20;
+		$expectedLength = $valueLength + $hmacLength;
+
+		if (strlen($decoded) !== $expectedLength) {
+			return false;
+		}
+
+		// Extract value and HMAC from decoded token
+		$value = substr($decoded, 0, $valueLength);
+		$providedHmac = substr($decoded, $valueLength);
+
+		// Recreate HMAC with the value and application salt
+		$salt = Configure::read('Security.salt');
+		$expectedHmac = hash_hmac('sha1', $value, $salt, true);
+
+		// Use hash_equals for constant-time comparison (always available in PHP 8.0+)
+		return hash_equals($expectedHmac, $providedHmac);
 	}
 
 }
