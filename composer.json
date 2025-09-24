@@ -21,13 +21,20 @@
 	},
 	"require-dev": {
 		"cakephp/cakephp-codesniffer": "^1.0.0",
+		"phpstan/extension-installer": "^1.4",
+		"phpstan/phpstan": "^2.1",
+		"phpstan/phpstan-deprecation-rules": "^2.0",
+		"phpstan/phpstan-strict-rules": "^2.0",
 		"phpunit/phpunit": "^9.6",
 		"rector/rector": "^2.1"
 	},
 	"config": {
 		"vendor-dir": "vendors/",
 		"process-timeout": 0,
-		"sort-packages": true
+		"sort-packages": true,
+		"allow-plugins": {
+			"phpstan/extension-installer": true
+		}
 	},
 	"bin": [
 		"lib/Cake/Console/cake"

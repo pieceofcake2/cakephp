@@ -1,0 +1,29 @@
+parameters:
+    level: 5
+    phpVersion: 80000
+    paths:
+        - lib/Cake
+    excludePaths:
+        - lib/Cake/Test
+        - lib/Cake/Console/Templates
+        - lib/Cake/View/Scaffolds
+        - lib/Cake/TestSuite
+    treatPhpDocTypesAsCertain: false
+    ignoreErrors:
+        # Ignore dynamic property creation for now
+        - '#Access to an undefined property#'
+        - '#Creating dynamic property#'
+        # Ignore deprecated functions that are part of CakePHP 2.x
+        - '#Function strftime\(\) is deprecated#'
+        - '#Function mcrypt_.*\(\) is deprecated#'
+        # Ignore missing return types for now
+        - '#Method .* has no return type specified#'
+        - '#Method .* has parameter .* with no type specified#'
+        # Ignore array shape issues
+        - '#Method .* return type has no value type specified in iterable type array#'
+        - '#Method .* has parameter .* with no value type specified in iterable type array#'
+    parallel:
+        processTimeout: 300.0
+        maximumNumberOfProcesses: 4
+        minimumNumberOfJobsPerProcess: 2
+    reportUnmatchedIgnoredErrors: false

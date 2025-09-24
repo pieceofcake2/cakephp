@@ -43,7 +43,7 @@ class CakeObject {
  * @return string The name of this class
  */
 	public function toString() {
-		$class = get_class($this);
+		$class = static::class;
 		return $class;
 	}
 
@@ -67,7 +67,7 @@ class CakeObject {
  * @return mixed Boolean true or false on success/failure, or contents
  *    of rendered action if 'return' is set in $extra.
  */
-	public function requestAction($url, $extra = array()) {
+	public function requestAction($url, $extra = []) {
 		if (empty($url)) {
 			return false;
 		}
@@ -78,22 +78,22 @@ class CakeObject {
 		}
 		$arrayUrl = is_array($url);
 		if ($arrayUrl && !isset($extra['url'])) {
-			$extra['url'] = array();
+			$extra['url'] = [];
 		}
 		if ($arrayUrl && !isset($extra['data'])) {
-			$extra['data'] = array();
+			$extra['data'] = [];
 		}
-		$extra += array('autoRender' => 0, 'return' => 1, 'bare' => 1, 'requested' => 1);
-		$data = isset($extra['data']) ? $extra['data'] : null;
+		$extra += ['autoRender' => 0, 'return' => 1, 'bare' => 1, 'requested' => 1];
+		$data = $extra['data'] ?? null;
 		unset($extra['data']);
 
-		if (is_string($url) && strpos($url, Router::fullBaseUrl()) === 0) {
+		if (is_string($url) && str_starts_with($url, Router::fullBaseUrl())) {
 			$url = Router::normalize(str_replace(Router::fullBaseUrl(), '', $url));
 		}
 		if (is_string($url)) {
 			$request = new CakeRequest($url);
 		} elseif (is_array($url)) {
-			$params = $url + array('pass' => array(), 'named' => array(), 'base' => false);
+			$params = $url + ['pass' => [], 'named' => [], 'base' => false];
 			$params = $extra + $params;
 			$request = new CakeRequest(Router::reverse($params));
 		}
@@ -115,7 +115,7 @@ class CakeObject {
  * @param array $params Parameter list to use when calling $method
  * @return mixed Returns the result of the method call
  */
-	public function dispatchMethod($method, $params = array()) {
+	public function dispatchMethod($method, $params = []) {
 		switch (count($params)) {
 			case 0:
 				return $this->{$method}();
@@ -130,7 +130,7 @@ class CakeObject {
 			case 5:
 				return $this->{$method}($params[0], $params[1], $params[2], $params[3], $params[4]);
 			default:
-				return call_user_func_array(array(&$this, $method), $params);
+				return call_user_func_array([&$this, $method], $params);
 		}
 	}
 
@@ -170,7 +170,7 @@ class CakeObject {
  * @param array $properties An associative array containing properties and corresponding values.
  * @return void
  */
-	protected function _set($properties = array()) {
+	protected function _set($properties = []) {
 		if (is_array($properties) && !empty($properties)) {
 			$vars = get_object_vars($this);
 			foreach ($properties as $key => $val) {

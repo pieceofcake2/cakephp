@@ -97,7 +97,7 @@ class IniReader implements ConfigReaderInterface {
  *  Or when files contain '..' as this could lead to abusive reads.
  */
 	public function read($key) {
-		if (strpos($key, '..') !== false) {
+		if (str_contains($key, '..')) {
 			throw new ConfigureException(__d('cake_dev', 'Cannot load configuration files with ../ in them.'));
 		}
 
@@ -110,12 +110,12 @@ class IniReader implements ConfigReaderInterface {
 		if (!empty($this->_section) && isset($contents[$this->_section])) {
 			$values = $this->_parseNestedValues($contents[$this->_section]);
 		} else {
-			$values = array();
+			$values = [];
 			foreach ($contents as $section => $attribs) {
 				if (is_array($attribs)) {
 					$values[$section] = $this->_parseNestedValues($attribs);
 				} else {
-					$parse = $this->_parseNestedValues(array($attribs));
+					$parse = $this->_parseNestedValues([$attribs]);
 					$values[$section] = array_shift($parse);
 				}
 			}
@@ -138,7 +138,7 @@ class IniReader implements ConfigReaderInterface {
 				$value = false;
 			}
 			unset($values[$key]);
-			if (strpos($key, '.') !== false) {
+			if (str_contains($key, '.')) {
 				$values = Hash::insert($values, $key, $value);
 			} else {
 				$values[$key] = $value;
@@ -156,7 +156,7 @@ class IniReader implements ConfigReaderInterface {
  * @return int Bytes saved.
  */
 	public function dump($key, $data) {
-		$result = array();
+		$result = [];
 		foreach ($data as $k => $value) {
 			$isSection = false;
 			if ($k[0] !== '[') {
@@ -206,15 +206,15 @@ class IniReader implements ConfigReaderInterface {
  * @return string Full file path
  */
 	protected function _getFilePath($key) {
-		if (substr($key, -8) === '.ini.php') {
+		if (str_ends_with($key, '.ini.php')) {
 			$key = substr($key, 0, -8);
-			list($plugin, $key) = pluginSplit($key);
+			[$plugin, $key] = pluginSplit($key);
 			$key .= '.ini.php';
 		} else {
-			if (substr($key, -4) === '.ini') {
+			if (str_ends_with($key, '.ini')) {
 				$key = substr($key, 0, -4);
 			}
-			list($plugin, $key) = pluginSplit($key);
+			[$plugin, $key] = pluginSplit($key);
 			$key .= '.ini';
 		}
 
