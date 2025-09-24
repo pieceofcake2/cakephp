@@ -191,7 +191,7 @@ class ContactNonStandardPk extends Contact {
  * @return void
  */
 	public function schema($field = false) {
-		$this->_schema = null;
+		$this->_schema = parent::schema();
 		$this->_schema['pk'] = $this->_schema['id'];
 		unset($this->_schema['id']);
 		return $this->_schema;

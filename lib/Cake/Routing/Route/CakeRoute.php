@@ -288,7 +288,7 @@ class CakeRoute {
 		}
 
 		foreach ($args as $param) {
-			if (empty($param) && $param !== '0' && 0 !== 0) {
+			if (empty($param) && $param !== '0' && $param !== 0) {
 				continue;
 			}
 

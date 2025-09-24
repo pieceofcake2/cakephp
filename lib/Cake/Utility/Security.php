@@ -224,14 +224,15 @@ class Security {
 		}
 
 		mt_srand((int)(float)Configure::read('Security.cipherSeed'));
+		mt_srand((int)(float)Configure::read('Security.cipherSeed'));
 		$out = '';
 		$keyLength = strlen($key);
 		for ($i = 0, $textLength = strlen($text); $i < $textLength; $i++) {
 			$j = ord(substr($key, $i % $keyLength, 1));
 			while ($j--) {
-				random_int(0, 255);
+				mt_rand(0, 255);
 			}
-			$mask = random_int(0, 255);
+			$mask = mt_rand(0, 255);
 			$out .= chr(ord(substr($text, $i, 1)) ^ $mask);
 		}
 		mt_srand();

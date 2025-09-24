@@ -4,7 +4,7 @@
 
 ### Code Modernization
 
-- **PHP 8 Syntax Modernization**: Complete codebase modernization to PHP 8 syntax
+- **PHP 8 Syntax Modernization**: Complete codebase modernization to PHP 8 syntax ([PR #7](https://github.com/friendsofcake2/cakephp/pull/7))
   - Converted all `array()` syntax to short array syntax `[]`
   - Implemented PHP 8 native string functions (`str_contains()`, `str_starts_with()`, `str_ends_with()`)
   - Replaced `get_class()` with `::class` constant

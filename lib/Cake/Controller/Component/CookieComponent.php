@@ -165,7 +165,7 @@ class CookieComponent extends Component {
  *
  * @var bool
  */
-	protected $_encrypted = true;
+	protected $_encrypted;
 
 /**
  * Constructor
@@ -465,7 +465,6 @@ class CookieComponent extends Component {
  */
 	protected function _decrypt($values) {
 		$decrypted = [];
-		$type = $this->_type;
 
 		foreach ((array)$values as $name => $value) {
 			if (is_array($value)) {
