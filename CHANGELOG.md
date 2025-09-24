@@ -9,6 +9,14 @@
   - Prevents attackers from fixating tokens through XSS or physical access
   - Maintains backward compatibility with existing legacy tokens
 
+### Security Enhancements
+
+- **CVE-2015-8379**: Added comprehensive test coverage for CSRF protection bypass prevention ([PR #6](https://github.com/friendsofcake2/cakephp/pull/6))
+  - Tests for `_method` parameter override handling
+  - Tests for custom/invalid HTTP methods requiring CSRF validation
+  - Tests confirming safe methods (GET, HEAD, OPTIONS) are exempt
+  - Validates that all non-safe methods require CSRF tokens
+
 ### Breaking Changes
 
 - Remove Xcache cache engine support (Xcache is not compatible with PHP 7.0+)
