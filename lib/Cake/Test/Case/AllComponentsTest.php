@@ -1,4 +1,7 @@
 <?php
+
+use PHPUnit\Framework\TestSuite;
+
 /**
  * AllComponentsTest file
  *
@@ -15,7 +18,6 @@
  * @since         CakePHP(tm) v 2.0
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
-
 /**
  * AllComponentsTest class
  *
@@ -23,7 +25,7 @@
  *
  * @package       Cake.Test.Case
  */
-class AllComponentsTest extends \PHPUnit\Framework\TestSuite {
+class AllComponentsTest extends TestSuite {
 
 /**
  * suite method, defines tests for this suite.

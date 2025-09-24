@@ -1,4 +1,7 @@
 <?php
+
+use PHPUnit\Framework\TestSuite;
+
 /**
  * AllTests file
  *
@@ -15,7 +18,6 @@
  * @since         CakePHP(tm) v 2.0
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
-
 /**
  * AllTests class
  *
@@ -23,7 +25,7 @@
  *
  * @package       Cake.Test.Case
  */
-class AllTestsTest extends \PHPUnit\Framework\TestSuite {
+class AllTestsTest extends TestSuite {
 
 /**
  * Suite define the tests for this suite
@@ -31,7 +33,7 @@ class AllTestsTest extends \PHPUnit\Framework\TestSuite {
  * @return void
  */
 	public static function suite() {
-		$suite = new \PHPUnit\Framework\TestSuite('All Tests');
+		$suite = new TestSuite('All Tests');
 
 		$path = CORE_TEST_CASES . DS;
 

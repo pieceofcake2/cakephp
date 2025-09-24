@@ -57,7 +57,7 @@ abstract class BaseCoverageReport {
  *
  * @var array
  */
-	protected $_testNames = array();
+	protected $_testNames = [];
 
 /**
  * Constructor
@@ -119,9 +119,9 @@ abstract class BaseCoverageReport {
  * @return array Array of coverage data for files that match the given path.
  */
 	public function filterCoverageDataByPath($path) {
-		$files = array();
+		$files = [];
 		foreach ($this->_rawCoverage as $fileName => $fileCoverage) {
-			if (strpos($fileName, $path) !== 0) {
+			if (!str_starts_with($fileName, $path)) {
 				continue;
 			}
 			$files[$fileName] = $fileCoverage;
@@ -155,11 +155,11 @@ abstract class BaseCoverageReport {
 			if (is_array($coverageData[$lineno]) && !empty($coverageData[$lineno])) {
 				$covered++;
 				$total++;
-			} elseif ($coverageData[$lineno] === -1 || $coverageData[$lineno] === array()) {
+			} elseif ($coverageData[$lineno] === -1 || $coverageData[$lineno] === []) {
 				$total++;
 			}
 		}
-		return array($covered, $total);
+		return [$covered, $total];
 	}
 
 /**

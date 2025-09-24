@@ -187,7 +187,7 @@ class SmtpTransport extends AbstractTransport {
 			if ($replyCode == '334') {
 				try {
 					$this->_smtpSend(base64_encode($this->_config['username']), '334');
-				} catch (SocketException $e) {
+				} catch (SocketException) {
 					throw new SocketException(__d('cake_dev', 'SMTP server did not accept the username.'));
 				}
 				try {

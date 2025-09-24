@@ -1,4 +1,6 @@
 <?php
+use PHPUnit\Framework\TestSuite;
+
 /**
  * A class to contain test cases and run them with shared fixtures
  *
@@ -23,7 +25,7 @@ App::uses('Folder', 'Utility');
  *
  * @package       Cake.TestSuite
  */
-class CakeTestSuite extends \PHPUnit\Framework\TestSuite {
+class CakeTestSuite extends TestSuite {
 
 /**
  * Adds all the files in a directory to the test suite. Does not recurse through directories.
@@ -33,10 +35,10 @@ class CakeTestSuite extends \PHPUnit\Framework\TestSuite {
  */
 	public function addTestDirectory($directory = '.') {
 		$Folder = new Folder($directory);
-		list(, $files) = $Folder->read(true, true, true);
+		[, $files] = $Folder->read(true, true, true);
 
 		foreach ($files as $file) {
-			if (substr($file, -4) === '.php') {
+			if (str_ends_with($file, '.php')) {
 				$this->addTestFile($file);
 			}
 		}
@@ -53,7 +55,7 @@ class CakeTestSuite extends \PHPUnit\Framework\TestSuite {
 		$files = $Folder->tree(null, true, 'files');
 
 		foreach ($files as $file) {
-			if (substr($file, -4) === '.php') {
+			if (str_ends_with($file, '.php')) {
 				$this->addTestFile($file);
 			}
 		}

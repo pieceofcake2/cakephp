@@ -1,4 +1,7 @@
 <?php
+
+use PHPUnit\Framework\TestSuite;
+
 /**
  * AllDbRelatedTest file
  *
@@ -15,7 +18,6 @@
  * @since         CakePHP(tm) v 2.3
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
-
 /**
  * AllDbRelatedTest class
  *
@@ -23,7 +25,7 @@
  *
  * @package       Cake.Test.Case
  */
-class AllDbRelatedTest extends \PHPUnit\Framework\TestSuite {
+class AllDbRelatedTest extends TestSuite {
 
 /**
  * Suite define the tests for this suite
@@ -31,7 +33,7 @@ class AllDbRelatedTest extends \PHPUnit\Framework\TestSuite {
  * @return void
  */
 	public static function suite() {
-		$suite = new \PHPUnit\Framework\TestSuite('All Db Related Tests');
+		$suite = new TestSuite('All Db Related Tests');
 
 		$path = CORE_TEST_CASES . DS;
 
