@@ -2223,4 +2223,84 @@ class SecurityComponentTest extends CakeTestCase {
 		}
 	}
 
+/**
+ * Test _validateHmacToken directly with invalid base64
+ *
+ * @return void
+ */
+	public function testValidateHmacTokenInvalidBase64() {
+		// Use reflection to access protected method
+		$reflection = new ReflectionClass($this->Security);
+		$method = $reflection->getMethod('_validateHmacToken');
+		$method->setAccessible(true);
+
+		// Test with invalid base64 string (contains invalid characters)
+		$invalidBase64 = 'not-valid-base64!!!@#$%^&*()';
+		$result = $method->invoke($this->Security, $invalidBase64);
+		$this->assertFalse($result, 'Invalid base64 should return false');
+	}
+
+/**
+ * Test _validateHmacToken directly with incorrect length
+ *
+ * @return void
+ */
+	public function testValidateHmacTokenIncorrectLength() {
+		// Use reflection to access protected method
+		$reflection = new ReflectionClass($this->Security);
+		$method = $reflection->getMethod('_validateHmacToken');
+		$method->setAccessible(true);
+
+		// Test with too short token (10 bytes instead of 36)
+		$shortToken = base64_encode(str_repeat('a', 10));
+		$result = $method->invoke($this->Security, $shortToken);
+		$this->assertFalse($result, 'Token with incorrect length should return false');
+
+		// Test with too long token (50 bytes instead of 36)
+		$longToken = base64_encode(str_repeat('b', 50));
+		$result = $method->invoke($this->Security, $longToken);
+		$this->assertFalse($result, 'Token with incorrect length should return false');
+	}
+
+/**
+ * Test _validateHmacToken directly with valid HMAC token
+ *
+ * @return void
+ */
+	public function testValidateHmacTokenValid() {
+		// Use reflection to access protected method
+		$reflection = new ReflectionClass($this->Security);
+		$method = $reflection->getMethod('_validateHmacToken');
+		$method->setAccessible(true);
+
+		// Create a valid HMAC token
+		$value = Security::randomBytes(SecurityComponent::TOKEN_VALUE_LENGTH);
+		$salt = Configure::read('Security.salt');
+		$hmac = hash_hmac('sha1', $value, $salt, true);
+		$validToken = base64_encode($value . $hmac);
+
+		$result = $method->invoke($this->Security, $validToken);
+		$this->assertTrue($result, 'Valid HMAC token should return true');
+	}
+
+/**
+ * Test _validateHmacToken directly with modified HMAC
+ *
+ * @return void
+ */
+	public function testValidateHmacTokenModifiedHmac() {
+		// Use reflection to access protected method
+		$reflection = new ReflectionClass($this->Security);
+		$method = $reflection->getMethod('_validateHmacToken');
+		$method->setAccessible(true);
+
+		// Create a token with modified HMAC
+		$value = Security::randomBytes(SecurityComponent::TOKEN_VALUE_LENGTH);
+		$wrongHmac = str_repeat('x', 20); // Wrong HMAC
+		$modifiedToken = base64_encode($value . $wrongHmac);
+
+		$result = $method->invoke($this->Security, $modifiedToken);
+		$this->assertFalse($result, 'Token with modified HMAC should return false');
+	}
+
 }
