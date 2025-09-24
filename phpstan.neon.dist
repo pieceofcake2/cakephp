@@ -1,3 +1,6 @@
+includes:
+    - vendors/friendsofcake2/phpstan-cakephp2/extension.neon
+
 parameters:
     level: 5
     phpVersion: 80000
@@ -8,6 +11,8 @@ parameters:
         - lib/Cake/Console/Templates
         - lib/Cake/View/Scaffolds
         - lib/Cake/TestSuite
+    bootstrapFiles:
+        - lib/Cake/Test/bootstrap.php
     treatPhpDocTypesAsCertain: false
     ignoreErrors:
         # Ignore dynamic property creation for now
