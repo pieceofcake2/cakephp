@@ -1024,6 +1024,246 @@ SQL;
 	}
 
 /**
+ * Test utf8mb4Supported() with mocked MariaDB versions
+ *
+ * @return void
+ */
+	public function testUtf8mb4SupportedMariaDB() {
+		$db = $this->getMock('Mysql', array('connect', '_execute'));
+		$mockConnection = $this->getMock('MockPDO', array('getAttribute'));
+
+		// Test MariaDB 5.5+ (should support utf8mb4)
+		$mockConnection->expects($this->once())
+			->method('getAttribute')
+			->with(PDO::ATTR_SERVER_VERSION)
+			->will($this->returnValue('5.5.5-MariaDB'));
+
+		$reflection = new ReflectionClass($db);
+		$connectionProperty = $reflection->getProperty('_connection');
+		$connectionProperty->setAccessible(true);
+		$connectionProperty->setValue($db, $mockConnection);
+
+		$versionProperty = $reflection->getProperty('_version');
+		$versionProperty->setAccessible(true);
+		$versionProperty->setValue($db, null);
+
+		$serverTypeProperty = $reflection->getProperty('serverType');
+		$serverTypeProperty->setAccessible(true);
+		$serverTypeProperty->setValue($db, '');
+
+		// Call getVersion first to initialize the properties
+		$db->getVersion();
+		$this->assertTrue($db->utf8mb4Supported());
+
+		// Test MariaDB 5.4 (should not support utf8mb4)
+		$mockConnection2 = $this->getMock('MockPDO', array('getAttribute'));
+		$mockConnection2->expects($this->once())
+			->method('getAttribute')
+			->with(PDO::ATTR_SERVER_VERSION)
+			->will($this->returnValue('5.4.9-MariaDB'));
+
+		$connectionProperty->setValue($db, $mockConnection2);
+		$versionProperty->setValue($db, null);
+		$serverTypeProperty->setValue($db, '');
+
+		// Call getVersion first to initialize the properties
+		$db->getVersion();
+		$this->assertFalse($db->utf8mb4Supported());
+	}
+
+/**
+ * Test utf8mb4Supported() with mocked Aurora MySQL versions
+ *
+ * @return void
+ */
+	public function testUtf8mb4SupportedAuroraMySQL() {
+		$db = $this->getMock('Mysql', array('connect', '_execute'));
+		$mockConnection = $this->getMock('MockPDO', array('getAttribute'));
+
+		// Test Aurora MySQL 5.7+ (should support utf8mb4)
+		$mockConnection->expects($this->once())
+			->method('getAttribute')
+			->with(PDO::ATTR_SERVER_VERSION)
+			->will($this->returnValue('5.7.12.mysql_aurora.2.10.1'));
+
+		$reflection = new ReflectionClass($db);
+		$connectionProperty = $reflection->getProperty('_connection');
+		$connectionProperty->setAccessible(true);
+		$connectionProperty->setValue($db, $mockConnection);
+
+		$versionProperty = $reflection->getProperty('_version');
+		$versionProperty->setAccessible(true);
+		$versionProperty->setValue($db, null);
+
+		$serverTypeProperty = $reflection->getProperty('serverType');
+		$serverTypeProperty->setAccessible(true);
+		$serverTypeProperty->setValue($db, '');
+
+		// Call getVersion first to initialize the properties
+		$db->getVersion();
+		$this->assertTrue($db->utf8mb4Supported());
+
+		// Test Aurora MySQL 5.6 (should not support utf8mb4)
+		$mockConnection2 = $this->getMock('MockPDO', array('getAttribute'));
+		$mockConnection2->expects($this->once())
+			->method('getAttribute')
+			->with(PDO::ATTR_SERVER_VERSION)
+			->will($this->returnValue('5.6.10.mysql_aurora.1.20.0'));
+
+		$connectionProperty->setValue($db, $mockConnection2);
+		$versionProperty->setValue($db, null);
+		$serverTypeProperty->setValue($db, '');
+
+		// Call getVersion first to initialize the properties
+		$db->getVersion();
+		$this->assertFalse($db->utf8mb4Supported());
+	}
+
+/**
+ * Test utf8mb4Supported() with mocked regular MySQL versions
+ *
+ * @return void
+ */
+	public function testUtf8mb4SupportedRegularMySQL() {
+		$db = $this->getMock('Mysql', array('connect', '_execute'));
+		$mockConnection = $this->getMock('MockPDO', array('getAttribute'));
+
+		// Test MySQL 5.5.3+ (should support utf8mb4)
+		$mockConnection->expects($this->once())
+			->method('getAttribute')
+			->with(PDO::ATTR_SERVER_VERSION)
+			->will($this->returnValue('5.5.3'));
+
+		$reflection = new ReflectionClass($db);
+		$connectionProperty = $reflection->getProperty('_connection');
+		$connectionProperty->setAccessible(true);
+		$connectionProperty->setValue($db, $mockConnection);
+
+		$versionProperty = $reflection->getProperty('_version');
+		$versionProperty->setAccessible(true);
+		$versionProperty->setValue($db, null);
+
+		$serverTypeProperty = $reflection->getProperty('serverType');
+		$serverTypeProperty->setAccessible(true);
+		$serverTypeProperty->setValue($db, '');
+
+		// Call getVersion first to initialize the properties
+		$db->getVersion();
+		$this->assertTrue($db->utf8mb4Supported());
+
+		// Test MySQL 5.5.2 (should not support utf8mb4)
+		$mockConnection2 = $this->getMock('MockPDO', array('getAttribute'));
+		$mockConnection2->expects($this->once())
+			->method('getAttribute')
+			->with(PDO::ATTR_SERVER_VERSION)
+			->will($this->returnValue('5.5.2'));
+
+		$connectionProperty->setValue($db, $mockConnection2);
+		$versionProperty->setValue($db, null);
+		$serverTypeProperty->setValue($db, '');
+
+		// Call getVersion first to initialize the properties
+		$db->getVersion();
+		$this->assertFalse($db->utf8mb4Supported());
+	}
+
+/**
+ * Test integerDisplayWidthDeprecated() with mocked Aurora MySQL versions
+ *
+ * @return void
+ */
+	public function testIntegerDisplayWidthDeprecatedAuroraMySQL() {
+		$db = $this->getMock('Mysql', array('connect', '_execute'));
+		$mockConnection = $this->getMock('MockPDO', array('getAttribute'));
+
+		// Test Aurora MySQL 8.0+ (should be deprecated)
+		$mockConnection->expects($this->once())
+			->method('getAttribute')
+			->with(PDO::ATTR_SERVER_VERSION)
+			->will($this->returnValue('8.0.23.mysql_aurora.3.02.0'));
+
+		$reflection = new ReflectionClass($db);
+		$connectionProperty = $reflection->getProperty('_connection');
+		$connectionProperty->setAccessible(true);
+		$connectionProperty->setValue($db, $mockConnection);
+
+		$versionProperty = $reflection->getProperty('_version');
+		$versionProperty->setAccessible(true);
+		$versionProperty->setValue($db, null);
+
+		$serverTypeProperty = $reflection->getProperty('serverType');
+		$serverTypeProperty->setAccessible(true);
+		$serverTypeProperty->setValue($db, '');
+
+		// Call getVersion first to initialize the properties
+		$db->getVersion();
+		$this->assertTrue($db->integerDisplayWidthDeprecated());
+
+		// Test Aurora MySQL 5.7 (should not be deprecated)
+		$mockConnection2 = $this->getMock('MockPDO', array('getAttribute'));
+		$mockConnection2->expects($this->once())
+			->method('getAttribute')
+			->with(PDO::ATTR_SERVER_VERSION)
+			->will($this->returnValue('5.7.12.mysql_aurora.2.10.1'));
+
+		$connectionProperty->setValue($db, $mockConnection2);
+		$versionProperty->setValue($db, null);
+		$serverTypeProperty->setValue($db, '');
+
+		// Call getVersion first to initialize the properties
+		$db->getVersion();
+		$this->assertFalse($db->integerDisplayWidthDeprecated());
+	}
+
+/**
+ * Test integerDisplayWidthDeprecated() with mocked regular MySQL versions
+ *
+ * @return void
+ */
+	public function testIntegerDisplayWidthDeprecatedRegularMySQL() {
+		$db = $this->getMock('Mysql', array('connect', '_execute'));
+		$mockConnection = $this->getMock('MockPDO', array('getAttribute'));
+
+		// Test MySQL 8.0.17+ (should be deprecated)
+		$mockConnection->expects($this->once())
+			->method('getAttribute')
+			->with(PDO::ATTR_SERVER_VERSION)
+			->will($this->returnValue('8.0.17'));
+
+		$reflection = new ReflectionClass($db);
+		$connectionProperty = $reflection->getProperty('_connection');
+		$connectionProperty->setAccessible(true);
+		$connectionProperty->setValue($db, $mockConnection);
+
+		$versionProperty = $reflection->getProperty('_version');
+		$versionProperty->setAccessible(true);
+		$versionProperty->setValue($db, null);
+
+		$serverTypeProperty = $reflection->getProperty('serverType');
+		$serverTypeProperty->setAccessible(true);
+		$serverTypeProperty->setValue($db, '');
+
+		// Call getVersion first to initialize the properties
+		$db->getVersion();
+		$this->assertTrue($db->integerDisplayWidthDeprecated());
+
+		// Test MySQL 8.0.16 (should not be deprecated)
+		$mockConnection2 = $this->getMock('MockPDO', array('getAttribute'));
+		$mockConnection2->expects($this->once())
+			->method('getAttribute')
+			->with(PDO::ATTR_SERVER_VERSION)
+			->will($this->returnValue('8.0.16'));
+
+		$connectionProperty->setValue($db, $mockConnection2);
+		$versionProperty->setValue($db, null);
+		$serverTypeProperty->setValue($db, '');
+
+		// Call getVersion first to initialize the properties
+		$db->getVersion();
+		$this->assertFalse($db->integerDisplayWidthDeprecated());
+	}
+
+/**
  * test that a describe() gets additional fieldParameters
  *
  * @return void

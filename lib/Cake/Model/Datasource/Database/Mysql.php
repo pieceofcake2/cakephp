@@ -910,13 +910,13 @@ class Mysql extends DboSource {
  */
 	public function utf8mb4Supported() {
 		// MariaDB 5.5+ supports utf8mb4
-		if ($this->serverType === self::SERVER_TYPE_MARIADB) {
+		if ($this->getServerType() === self::SERVER_TYPE_MARIADB) {
 			return version_compare($this->getVersion(), '5.5', '>=');
 		}
 
 		// Aurora MySQL format is like "5.7.mysql_aurora.2.10.1" or "8.0.mysql_aurora.3.04.0"
 		// Aurora MySQL 5.7+ and 8.0+ all support utf8mb4
-		if ($this->serverType === self::SERVER_TYPE_AURORA_MYSQL) {
+		if ($this->getServerType() === self::SERVER_TYPE_AURORA_MYSQL) {
 			// Aurora MySQL 5.7+ supports utf8mb4
 			return version_compare($this->getVersion(), '5.7', '>=');
 		}
@@ -935,14 +935,14 @@ class Mysql extends DboSource {
  */
 	public function integerDisplayWidthDeprecated() {
 		// Only applies to MySQL and Aurora MySQL 8.0.17+, not MariaDB
-		if ($this->serverType === self::SERVER_TYPE_MARIADB) {
+		if ($this->getServerType() === self::SERVER_TYPE_MARIADB) {
 			return false;
 		}
 
 		// Aurora MySQL returns "8.0.mysql_aurora.3.04.0" format
 		// We need to check if it's 8.0.17+ for regular MySQL
 		// For Aurora MySQL 8.0, assume display width is deprecated
-		if ($this->serverType === self::SERVER_TYPE_AURORA_MYSQL) {
+		if ($this->getServerType() === self::SERVER_TYPE_AURORA_MYSQL) {
 			// Aurora MySQL 8.0 has deprecated integer display width
 			return version_compare($this->getVersion(), '8.0', '>=');
 		}
