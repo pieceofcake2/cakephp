@@ -6,6 +6,10 @@
 
 - Remove Xcache cache engine support (Xcache is not compatible with PHP 7.0+)
 - Remove Wincache cache engine support (Wincache is not actively maintained for PHP 8.x)
+- Add new `getVersion()` method to MySQL and PostgreSQL drivers (returns string) (#3)
+- Add new `getServerType()` method to MySQL driver (returns string: 'MySQL', 'MariaDB', or 'Aurora MySQL') (#3)
+- Add new `utf8mb4Supported()` method to MySQL driver (returns bool) (#3)
+- Add new `integerDisplayWidthDeprecated()` method to MySQL driver (returns bool) (#3)
 
 ### PHPUnit Compatibility Fixes
 
@@ -31,11 +35,13 @@
 - Fix PostgreSQL `preg_replace()` with null parameter (#2)
 - Fix "Trying to access array offset on value of type bool" error in L10n.php (#2)
 - Fix I18n and L10n locale handling issues (#2)
+- Fix PostgreSQL alterSchema null array offset error when field doesn't exist in schema (#3)
 
 ### CI/CD Improvements
 
 - Add MySQL 8.0 support to GitHub Actions workflow (#3)
 - Add Docker Compose configuration for local testing (#3)
+- Replace GitHub Actions services with Docker commands for databases (#3)
 
 ### Other Fixes
 
