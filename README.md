@@ -143,6 +143,8 @@ These methods provide better database version detection and feature support chec
 - **String functions**: Uses PHP 8's native `str_contains()`, `str_starts_with()`, and `str_ends_with()` functions
 - **Class references**: Replaced `get_class()` with `::class` constant
 - **Array destructuring**: Uses `[]` instead of `list()` for array destructuring
+- **Directory constants**: Replaced `dirname(__FILE__)` with `__DIR__` magic constant
+- **Multi-level paths**: Uses `dirname(__DIR__, n)` for parent directory access (PHP 7.0+ feature)
 - **Null coalescing**: Simplified ternary operators with null coalescing where appropriate
 - **Backward compatibility**: These are syntax changes only and do not affect functionality
 

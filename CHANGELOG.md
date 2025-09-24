@@ -10,7 +10,9 @@
   - Replaced `get_class()` with `::class` constant
   - Updated array destructuring from `list()` to `[]`
   - Applied null coalescing operators where appropriate
-  - Modernized 585+ files across lib/Cake, app, Test, TestSuite, and Templates directories
+  - Replaced `dirname(__FILE__)` with `__DIR__` magic constant
+  - Converted `dirname(__FILE__, n)` to `dirname(__DIR__, n)` for multi-level parent directories
+  - Modernized 600+ files across lib/Cake, app, Test, TestSuite, and Templates directories
 
 ### Development Tools
 
