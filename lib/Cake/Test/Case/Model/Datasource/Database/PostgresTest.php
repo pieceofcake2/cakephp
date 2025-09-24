@@ -1256,4 +1256,108 @@ class PostgresTest extends CakeTestCase {
 		$this->assertSame($expected, $data['year']);
 		$db->execute('DROP TABLE test_function_default_describe');
 	}
+
+/**
+ * Test getVersion method
+ *
+ * @return void
+ */
+	public function testGetVersion() {
+		$version = $this->Dbo->getVersion();
+		$this->assertTrue(is_string($version));
+		$this->assertMatchesRegularExpression('/^\d+\.\d+/', $version);
+
+		// Test that version is cached
+		$cachedVersion = $this->Dbo->getVersion();
+		$this->assertEquals($version, $cachedVersion);
+	}
+
+/**
+ * Test getVersion with mocked PostgreSQL responses
+ *
+ * @return void
+ */
+	public function testGetVersionWithMockedResponses() {
+		// Test PostgreSQL 15.3 version
+		$db = $this->getMock('Postgres', array('connect', '_execute'));
+		$mockConnection = $this->getMock('stdClass', array('getAttribute'));
+		$mockConnection->expects($this->once())
+			->method('getAttribute')
+			->with(PDO::ATTR_SERVER_VERSION)
+			->will($this->returnValue('15.3'));
+
+		$reflection = new ReflectionClass($db);
+		$connectionProperty = $reflection->getProperty('_connection');
+		$connectionProperty->setAccessible(true);
+		$connectionProperty->setValue($db, $mockConnection);
+
+		$version = $db->getVersion();
+		$this->assertEquals('15.3', $version);
+
+		// Test PostgreSQL with Ubuntu version string
+		$db = $this->getMock('Postgres', array('connect', '_execute'));
+		$mockConnection = $this->getMock('stdClass', array('getAttribute'));
+		$mockConnection->expects($this->once())
+			->method('getAttribute')
+			->with(PDO::ATTR_SERVER_VERSION)
+			->will($this->returnValue('14.8 (Ubuntu 14.8-0ubuntu0.22.04.1)'));
+
+		$reflection = new ReflectionClass($db);
+		$connectionProperty = $reflection->getProperty('_connection');
+		$connectionProperty->setAccessible(true);
+		$connectionProperty->setValue($db, $mockConnection);
+
+		$version = $db->getVersion();
+		$this->assertEquals('14.8', $version);
+
+		// Test PostgreSQL with platform info
+		$db = $this->getMock('Postgres', array('connect', '_execute'));
+		$mockConnection = $this->getMock('stdClass', array('getAttribute'));
+		$mockConnection->expects($this->once())
+			->method('getAttribute')
+			->with(PDO::ATTR_SERVER_VERSION)
+			->will($this->returnValue('13.11 on x86_64-pc-linux-gnu'));
+
+		$reflection = new ReflectionClass($db);
+		$connectionProperty = $reflection->getProperty('_connection');
+		$connectionProperty->setAccessible(true);
+		$connectionProperty->setValue($db, $mockConnection);
+
+		$version = $db->getVersion();
+		$this->assertEquals('13.11', $version);
+
+		// Test PostgreSQL with prefix (if it occurs)
+		$db = $this->getMock('Postgres', array('connect', '_execute'));
+		$mockConnection = $this->getMock('stdClass', array('getAttribute'));
+		$mockConnection->expects($this->once())
+			->method('getAttribute')
+			->with(PDO::ATTR_SERVER_VERSION)
+			->will($this->returnValue('PostgreSQL 15.3'));
+
+		$reflection = new ReflectionClass($db);
+		$connectionProperty = $reflection->getProperty('_connection');
+		$connectionProperty->setAccessible(true);
+		$connectionProperty->setValue($db, $mockConnection);
+
+		$version = $db->getVersion();
+		$this->assertEquals('15.3', $version);
+
+		// Test version caching
+		$db = $this->getMock('Postgres', array('connect', '_execute'));
+		$mockConnection = $this->getMock('stdClass', array('getAttribute'));
+		$mockConnection->expects($this->once()) // Only once even though we call getVersion twice
+			->method('getAttribute')
+			->with(PDO::ATTR_SERVER_VERSION)
+			->will($this->returnValue('15.3'));
+
+		$reflection = new ReflectionClass($db);
+		$connectionProperty = $reflection->getProperty('_connection');
+		$connectionProperty->setAccessible(true);
+		$connectionProperty->setValue($db, $mockConnection);
+
+		$version1 = $db->getVersion();
+		$version2 = $db->getVersion();
+		$this->assertEquals('15.3', $version1);
+		$this->assertEquals('15.3', $version2);
+	}
 }
