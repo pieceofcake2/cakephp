@@ -97,13 +97,13 @@ Before migrating to this fork, ensure:
 
 ### Breaking Changes
 
-#### Removed Cache Engines
+#### Removed Cache Engines [PR #4](https://github.com/friendsofcake2/cakephp/pull/4)
 
 - **Xcache** support has been removed (Xcache is not compatible with PHP 7.0+)
 - **Wincache** support has been removed (Wincache is not actively maintained for PHP 8.x)
 - If you're using these cache engines, please migrate to Redis, Memcached, or APCu
 
-#### New Database Driver Methods
+#### New Database Driver Methods [PR #3](https://github.com/friendsofcake2/cakephp/pull/3)
 
 The following new methods have been added to database drivers:
 
@@ -130,7 +130,7 @@ These methods provide better database version detection and feature support chec
 - Framework tests have been migrated to PHPUnit 9.6
 - All deprecated PHPUnit features have been fixed to ensure compatibility
 
-#### CSRF Token Security Enhancement
+#### CSRF Token Security Enhancement [PR #5](https://github.com/friendsofcake2/cakephp/pull/5)
 
 - **New tokens**: All newly generated CSRF tokens now use HMAC-SHA1 signatures for enhanced security (prevents CVE-2020-15400 token fixation attacks)
 - **Backward compatibility**: Existing legacy tokens (without HMAC) continue to work, ensuring no disruption to active user sessions

@@ -19,48 +19,48 @@
 
 ### Breaking Changes
 
-- Remove Xcache cache engine support (Xcache is not compatible with PHP 7.0+)
-- Remove Wincache cache engine support (Wincache is not actively maintained for PHP 8.x)
-- Add new `getVersion()` method to MySQL and PostgreSQL drivers (returns string) (#3)
-- Add new `getServerType()` method to MySQL driver (returns string: 'MySQL', 'MariaDB', or 'Aurora MySQL') (#3)
-- Add new `utf8mb4Supported()` method to MySQL driver (returns bool) (#3)
-- Add new `integerDisplayWidthDeprecated()` method to MySQL driver (returns bool) (#3)
+- Remove Xcache cache engine support (Xcache is not compatible with PHP 7.0+) ([PR #4](https://github.com/friendsofcake2/cakephp/pull/4))
+- Remove Wincache cache engine support (Wincache is not actively maintained for PHP 8.x) ([PR #4](https://github.com/friendsofcake2/cakephp/pull/4))
+- Add new `getVersion()` method to MySQL and PostgreSQL drivers (returns string) ([PR #3](https://github.com/friendsofcake2/cakephp/pull/3))
+- Add new `getServerType()` method to MySQL driver (returns string: 'MySQL', 'MariaDB', or 'Aurora MySQL') ([PR #3](https://github.com/friendsofcake2/cakephp/pull/3))
+- Add new `utf8mb4Supported()` method to MySQL driver (returns bool) ([PR #3](https://github.com/friendsofcake2/cakephp/pull/3))
+- Add new `integerDisplayWidthDeprecated()` method to MySQL driver (returns bool) ([PR #3](https://github.com/friendsofcake2/cakephp/pull/3))
 
 ### PHPUnit Compatibility Fixes
 
-- Fix PHPUnit deprecation warnings for `at()` method usage (#2)
-- Fix PHPUnit deprecation for `expectError()`, `expectWarning()`, `expectNotice()` methods (#2)
-- Fix PHPUnit data provider naming issue in ExceptionRendererTest (#2)
-- Fix PHPUnit risky tests by adding missing assertions (#2)
-- Fix output buffering issues in tests (#2)
-- Skip CookieComponent AES tests when mcrypt extension is not available (#2)
+- Fix PHPUnit deprecation warnings for `at()` method usage ([PR #2](https://github.com/friendsofcake2/cakephp/pull/2))
+- Fix PHPUnit deprecation for `expectError()`, `expectWarning()`, `expectNotice()` methods ([PR #2](https://github.com/friendsofcake2/cakephp/pull/2))
+- Fix PHPUnit data provider naming issue in ExceptionRendererTest ([PR #2](https://github.com/friendsofcake2/cakephp/pull/2))
+- Fix PHPUnit risky tests by adding missing assertions ([PR #2](https://github.com/friendsofcake2/cakephp/pull/2))
+- Fix output buffering issues in tests ([PR #2](https://github.com/friendsofcake2/cakephp/pull/2))
+- Skip CookieComponent AES tests when mcrypt extension is not available ([PR #2](https://github.com/friendsofcake2/cakephp/pull/2))
 
 ### Test Isolation Improvements
 
-- Fix test isolation issues by properly cleaning up global state (#2):
+- Fix test isolation issues by properly cleaning up global state ([PR #2](https://github.com/friendsofcake2/cakephp/pull/2)):
   - BasicsTest: Clean up Config.language setting in tearDown
   - CakeRequestTest: Clean up HTTP_ACCEPT_LANGUAGE server variable
   - L10nTest: Add tearDown to clean up HTTP_ACCEPT_LANGUAGE
   - I18nTest: Improve state management and simplify clear() method
-- Standardize tearDown method pattern across all test files to call parent::tearDown() at the end (#2)
+- Standardize tearDown method pattern across all test files to call parent::tearDown() at the end ([PR #2](https://github.com/friendsofcake2/cakephp/pull/2))
 
 ### PHP 8.0+ Compatibility
 
-- Fix MysqlTest for PHP 8.0+ by removing version check and fixing float assertions (#2)
-- Fix PostgreSQL `preg_replace()` with null parameter (#2)
-- Fix "Trying to access array offset on value of type bool" error in L10n.php (#2)
-- Fix I18n and L10n locale handling issues (#2)
-- Fix PostgreSQL alterSchema null array offset error when field doesn't exist in schema (#3)
+- Fix MysqlTest for PHP 8.0+ by removing version check and fixing float assertions ([PR #2](https://github.com/friendsofcake2/cakephp/pull/2))
+- Fix PostgreSQL `preg_replace()` with null parameter ([PR #2](https://github.com/friendsofcake2/cakephp/pull/2))
+- Fix "Trying to access array offset on value of type bool" error in L10n.php ([PR #2](https://github.com/friendsofcake2/cakephp/pull/2))
+- Fix I18n and L10n locale handling issues ([PR #2](https://github.com/friendsofcake2/cakephp/pull/2))
+- Fix PostgreSQL alterSchema null array offset error when field doesn't exist in schema ([PR #3](https://github.com/friendsofcake2/cakephp/pull/3))
 
 ### CI/CD Improvements
 
-- Add MySQL 8.0 support to GitHub Actions workflow (#3)
-- Add Docker Compose configuration for local testing (#3)
-- Replace GitHub Actions services with Docker commands for databases (#3)
+- Add MySQL 8.0 support to GitHub Actions workflow ([PR #3](https://github.com/friendsofcake2/cakephp/pull/3))
+- Add Docker Compose configuration for local testing ([PR #3](https://github.com/friendsofcake2/cakephp/pull/3))
+- Replace GitHub Actions services with Docker commands for databases ([PR #3](https://github.com/friendsofcake2/cakephp/pull/3))
 
 ### Other Fixes
 
-- Fix controller tests by setting `autoRender` property (#2)
+- Fix controller tests by setting `autoRender` property ([PR #2](https://github.com/friendsofcake2/cakephp/pull/2))
 
 ## v2.10.24.2
 
