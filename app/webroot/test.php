@@ -36,14 +36,14 @@ if (!defined('DS')) {
  * The full path to the directory which holds "app", WITHOUT a trailing DS.
  */
 if (!defined('ROOT')) {
-	define('ROOT', dirname(__FILE__, 3));
+	define('ROOT', dirname(__DIR__, 2));
 }
 
 /**
  * The actual directory name for the "app".
  */
 if (!defined('APP_DIR')) {
-	define('APP_DIR', basename(dirname(__FILE__, 2)));
+	define('APP_DIR', basename(dirname(__DIR__)));
 }
 
 /**

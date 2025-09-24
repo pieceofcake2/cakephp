@@ -23,8 +23,8 @@ if (!defined('DS')) {
 $dispatcher = 'Cake' . DS . 'Console' . DS . 'ShellDispatcher.php';
 
 if (function_exists('ini_set')) {
-	$root = dirname(__FILE__, 3);
-	$appDir = basename(dirname(__FILE__, 2));
+	$root = dirname(__DIR__, 2);
+	$appDir = basename(dirname(__DIR__));
 	$install = $root . DS . 'lib';
 	$composerInstall = $root . DS . $appDir . DS . 'Vendor' . DS . 'cakephp' . DS . 'cakephp' . DS . 'lib';
 

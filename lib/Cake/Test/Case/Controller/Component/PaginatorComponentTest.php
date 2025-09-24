@@ -23,7 +23,7 @@ App::uses('PaginatorComponent', 'Controller/Component');
 App::uses('CakeRequest', 'Network');
 App::uses('CakeResponse', 'Network');
 
-require_once dirname(__FILE__, 3) . DS . 'Model' . DS . 'models.php';
+require_once dirname(__DIR__, 2) . DS . 'Model' . DS . 'models.php';
 
 /**
  * PaginatorTestController class

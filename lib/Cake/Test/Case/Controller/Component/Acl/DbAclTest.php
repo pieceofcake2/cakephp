@@ -21,7 +21,7 @@ App::uses('AclComponent', 'Controller/Component');
 App::uses('DbAcl', 'Controller/Component/Acl');
 App::uses('AclNode', 'Model');
 App::uses('Permission', 'Model');
-require_once dirname(__FILE__, 4) . DS . 'Model' . DS . 'models.php';
+require_once dirname(__DIR__, 3) . DS . 'Model' . DS . 'models.php';
 
 /**
  * AclNodeTwoTestBase class

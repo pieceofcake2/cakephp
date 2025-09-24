@@ -23,7 +23,7 @@ App::uses('Model', 'Model');
 App::uses('AppModel', 'Model');
 App::uses('CakeHtmlReporter', 'TestSuite/Reporter');
 
-require_once dirname(__FILE__, 2) . DS . 'Model' . DS . 'models.php';
+require_once dirname(__DIR__) . DS . 'Model' . DS . 'models.php';
 
 if (!class_exists('AppController', false)) {
 /**

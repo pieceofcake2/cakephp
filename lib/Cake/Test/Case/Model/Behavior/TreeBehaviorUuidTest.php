@@ -22,7 +22,7 @@ App::uses('Model', 'Model');
 App::uses('AppModel', 'Model');
 App::uses('CakeText', 'Utility');
 
-require_once dirname(__FILE__, 2) . DS . 'models.php';
+require_once dirname(__DIR__) . DS . 'models.php';
 
 /**
  * TreeBehaviorUuidTest class

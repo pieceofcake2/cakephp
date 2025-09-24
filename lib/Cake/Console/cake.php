@@ -33,8 +33,8 @@ foreach ($paths as $path) {
 }
 
 if (!$found) {
-	$rootInstall = dirname(__FILE__, 3) . DS . $dispatcher;
-	$composerInstall = dirname(__FILE__, 2) . DS . $dispatcher;
+	$rootInstall = dirname(__DIR__, 2) . DS . $dispatcher;
+	$composerInstall = dirname(__DIR__) . DS . $dispatcher;
 
 	if (file_exists($composerInstall)) {
 		include $composerInstall;

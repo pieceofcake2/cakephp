@@ -30,7 +30,7 @@ if (!defined('E_USER_DEPRECATED')) {
 error_reporting(E_ALL & ~E_DEPRECATED);
 
 if (!defined('CAKE_CORE_INCLUDE_PATH')) {
-	define('CAKE_CORE_INCLUDE_PATH', dirname(__FILE__, 2));
+	define('CAKE_CORE_INCLUDE_PATH', dirname(__DIR__));
 }
 
 if (!defined('CORE_PATH')) {

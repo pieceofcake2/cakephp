@@ -20,7 +20,7 @@ App::uses('Model', 'Model');
 App::uses('AppModel', 'Model');
 App::uses('Sqlserver', 'Model/Datasource/Database');
 
-require_once dirname(__FILE__, 3) . DS . 'models.php';
+require_once dirname(__DIR__, 2) . DS . 'models.php';
 
 /**
  * SqlserverTestDb class

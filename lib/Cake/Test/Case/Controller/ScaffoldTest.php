@@ -23,7 +23,7 @@ App::uses('Scaffold', 'Controller');
 App::uses('ScaffoldView', 'View');
 App::uses('AppModel', 'Model');
 
-require_once dirname(__FILE__, 2) . DS . 'Model' . DS . 'models.php';
+require_once dirname(__DIR__) . DS . 'Model' . DS . 'models.php';
 
 /**
  * ScaffoldMockController class

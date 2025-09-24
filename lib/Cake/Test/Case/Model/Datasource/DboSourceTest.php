@@ -24,7 +24,7 @@ App::uses('DboTestSource', 'Model/Datasource');
 App::uses('DboSecondTestSource', 'Model/Datasource');
 App::uses('MockDataSource', 'Model/Datasource');
 
-require_once dirname(__FILE__, 2) . DS . 'models.php';
+require_once dirname(__DIR__) . DS . 'models.php';
 
 /**
  * MockPDO
