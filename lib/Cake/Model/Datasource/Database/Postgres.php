@@ -1034,9 +1034,8 @@ class Postgres extends DboSource {
 			// "15.3" -> "15.3"
 			// "14.8 (Ubuntu 14.8-0ubuntu0.22.04.1)" -> "14.8"
 			// "13.11 on x86_64-pc-linux-gnu" -> "13.11"
-			// "PostgreSQL 15.3" -> "15.3" (if prefixed with PostgreSQL)
-			if (preg_match('/(\d+)\.(\d+)/', $version, $matches)) {
-				$this->_version = $matches[1] . '.' . $matches[2];
+			if (preg_match('/^(\d+\.\d+(?:\.\d+)?)/', $version, $matches)) {
+				$this->_version = $matches[1];
 			} else {
 				$this->_version = $version;
 			}
@@ -1044,5 +1043,4 @@ class Postgres extends DboSource {
 
 		return $this->_version;
 	}
-
 }

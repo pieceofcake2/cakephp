@@ -1326,22 +1326,6 @@ class PostgresTest extends CakeTestCase {
 		$version = $db->getVersion();
 		$this->assertEquals('13.11', $version);
 
-		// Test PostgreSQL with prefix (if it occurs)
-		$db = $this->getMock('Postgres', array('connect', '_execute'));
-		$mockConnection = $this->getMock('stdClass', array('getAttribute'));
-		$mockConnection->expects($this->once())
-			->method('getAttribute')
-			->with(PDO::ATTR_SERVER_VERSION)
-			->will($this->returnValue('PostgreSQL 15.3'));
-
-		$reflection = new ReflectionClass($db);
-		$connectionProperty = $reflection->getProperty('_connection');
-		$connectionProperty->setAccessible(true);
-		$connectionProperty->setValue($db, $mockConnection);
-
-		$version = $db->getVersion();
-		$this->assertEquals('15.3', $version);
-
 		// Test version caching
 		$db = $this->getMock('Postgres', array('connect', '_execute'));
 		$mockConnection = $this->getMock('stdClass', array('getAttribute'));
@@ -1359,5 +1343,37 @@ class PostgresTest extends CakeTestCase {
 		$version2 = $db->getVersion();
 		$this->assertEquals('15.3', $version1);
 		$this->assertEquals('15.3', $version2);
+
+		// Test non-matching version pattern (fallback to original string)
+		$db = $this->getMock('Postgres', array('connect', '_execute'));
+		$mockConnection = $this->getMock('stdClass', array('getAttribute'));
+		$mockConnection->expects($this->once())
+			->method('getAttribute')
+			->with(PDO::ATTR_SERVER_VERSION)
+			->will($this->returnValue('unknown-version'));
+
+		$reflection = new ReflectionClass($db);
+		$connectionProperty = $reflection->getProperty('_connection');
+		$connectionProperty->setAccessible(true);
+		$connectionProperty->setValue($db, $mockConnection);
+
+		$version = $db->getVersion();
+		$this->assertEquals('unknown-version', $version);
+
+		// Test empty version string
+		$db = $this->getMock('Postgres', array('connect', '_execute'));
+		$mockConnection = $this->getMock('stdClass', array('getAttribute'));
+		$mockConnection->expects($this->once())
+			->method('getAttribute')
+			->with(PDO::ATTR_SERVER_VERSION)
+			->will($this->returnValue(''));
+
+		$reflection = new ReflectionClass($db);
+		$connectionProperty = $reflection->getProperty('_connection');
+		$connectionProperty->setAccessible(true);
+		$connectionProperty->setValue($db, $mockConnection);
+
+		$version = $db->getVersion();
+		$this->assertEquals('', $version);
 	}
 }

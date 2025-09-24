@@ -1016,20 +1016,6 @@ class Mysql extends DboSource {
 	}
 
 	/**
-	 * Returns true if the connected server is MariaDB.
-	 *
-	 * @return bool
-	 *
-	 * @see  https://github.com/cakephp/cakephp/blob/5.x/src/Database/Driver/Mysql.php
-	 */
-	public function isMariadb(): bool
-	{
-		$this->getVersion();
-
-		return $this->serverType === static::SERVER_TYPE_MARIADB;
-	}
-
-	/**
 	 * Returns connected server version.
 	 *
 	 * @return string
@@ -1041,14 +1027,16 @@ class Mysql extends DboSource {
 		if ($this->_version === null) {
 			$version = (string)$this->_connection->getAttribute(PDO::ATTR_SERVER_VERSION);
 
-			if (preg_match('/^(\d+)\.(\d+)\..*-MariaDB/', $version, $matches)) {
-				$this->_version = $matches[1] . '.' . $matches[2];
+			if (preg_match('/^(\d+\.\d+(?:\.\d+)?)-MariaDB/', $version, $matches)) {
+				$this->_version = $matches[1];
 				$this->serverType = static::SERVER_TYPE_MARIADB;
-			} elseif (preg_match('/^(\d+)\.(\d+)\.mysql_aurora\.(.+)$/', $version, $matches)) {
-				$this->_version = $matches[1] . '.' . $matches[2];
+			} elseif (preg_match('/^(\d+\.\d+(?:\.\d+)?)\.mysql_aurora\.(.+)$/', $version, $matches)) {
+				// Aurora MySQL: "5.7.mysql_aurora.2.10.1" -> "5.7"
+				// or "8.0.17.mysql_aurora.3.04.1" -> "8.0.17"
+				$this->_version = $matches[1];
 				$this->serverType = static::SERVER_TYPE_AURORA_MYSQL;
-			} elseif (preg_match('/^(\d+)\.(\d+)\.(\d+)/', $version, $matches)) {
-				$this->_version = $matches[1] . '.' . $matches[2] . '.' . $matches[3];
+			} elseif (preg_match('/^(\d+\.\d+(?:\.\d+)?)/', $version, $matches)) {
+				$this->_version = $matches[1];
 				$this->serverType = static::SERVER_TYPE_MYSQL;
 			} else {
 				$this->_version = $version;

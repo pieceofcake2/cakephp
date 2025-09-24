@@ -1231,7 +1231,7 @@ SQL;
 		$connectionProperty->setValue($db, $mockConnection);
 
 		$version = $db->getVersion();
-		$this->assertEquals('10.6', $version);
+		$this->assertEquals('10.6.12', $version);
 
 		// Test Aurora MySQL version
 		$db = $this->getMock('Mysql', array('connect', '_execute'));
@@ -1295,7 +1295,7 @@ SQL;
 		$connectionProperty->setValue($db, $mockConnection);
 
 		$version = $db->getVersion();
-		$this->assertEquals('5.5', $version);
+		$this->assertEquals('5.5.68', $version);
 
 		// Test Aurora MySQL 5.7 version
 		$db = $this->getMock('Mysql', array('connect', '_execute'));
@@ -1330,6 +1330,38 @@ SQL;
 		$version2 = $db->getVersion();
 		$this->assertEquals('8.0.33', $version1);
 		$this->assertEquals('8.0.33', $version2);
+
+		// Test non-matching version pattern (fallback to original string)
+		$db = $this->getMock('Mysql', array('connect', '_execute'));
+		$mockConnection = $this->getMock('stdClass', array('getAttribute'));
+		$mockConnection->expects($this->once())
+			->method('getAttribute')
+			->with(PDO::ATTR_SERVER_VERSION)
+			->will($this->returnValue('unknown-version'));
+
+		$reflection = new ReflectionClass($db);
+		$connectionProperty = $reflection->getProperty('_connection');
+		$connectionProperty->setAccessible(true);
+		$connectionProperty->setValue($db, $mockConnection);
+
+		$version = $db->getVersion();
+		$this->assertEquals('unknown-version', $version);
+
+		// Test empty version string
+		$db = $this->getMock('Mysql', array('connect', '_execute'));
+		$mockConnection = $this->getMock('stdClass', array('getAttribute'));
+		$mockConnection->expects($this->once())
+			->method('getAttribute')
+			->with(PDO::ATTR_SERVER_VERSION)
+			->will($this->returnValue(''));
+
+		$reflection = new ReflectionClass($db);
+		$connectionProperty = $reflection->getProperty('_connection');
+		$connectionProperty->setAccessible(true);
+		$connectionProperty->setValue($db, $mockConnection);
+
+		$version = $db->getVersion();
+		$this->assertEquals('', $version);
 	}
 
 /**
