@@ -1,6 +1,6 @@
 ## CHANGELOG
 
-## v2.10.24.3 (Unreleased)
+## v2.10.24.3 (2025-09-24)
 
 ### Security Fixes
 
