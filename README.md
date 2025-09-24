@@ -72,7 +72,7 @@ The following security vulnerabilities have been reported in the original CakePH
 | CVE | Description | Status in this Fork |
 |-----|-------------|-------------------|
 | [CVE-2015-8379](https://nvd.nist.gov/vuln/detail/CVE-2015-8379) | CSRF protection bypass via _method parameter | ✅ Fixed in [c0fb45e](https://github.com/friendsofcake2/cakephp/commit/c0fb45e79) (*) |
-| [CVE-2020-15400](https://nvd.nist.gov/vuln/detail/CVE-2020-15400) | CSRF token fixation (exploitable with XSS) | ✅ Fixed - HMAC-signed tokens implemented |
+| [CVE-2020-15400](https://nvd.nist.gov/vuln/detail/CVE-2020-15400) | CSRF token fixation (exploitable with XSS) | ✅ Fixed in [PR #5](https://github.com/friendsofcake2/cakephp/pull/5) |
 
 > [!NOTE]
 > - **CVE-2015-8379**: The fix has been applied, but additional tests from [original commit](https://github.com/cakephp/cakephp/commit/0f818a23a876c01429196bf7623e1e94a50230f0) should be added.

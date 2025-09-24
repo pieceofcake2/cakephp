@@ -4,7 +4,7 @@
 
 ### Security Fixes
 
-- **CVE-2020-15400**: Fix CSRF token fixation vulnerability by implementing HMAC-signed tokens
+- **CVE-2020-15400**: Fix CSRF token fixation vulnerability by implementing HMAC-signed tokens ([PR #5](https://github.com/friendsofcake2/cakephp/pull/5))
   - Tokens are now cryptographically signed with the application's Security.salt
   - Prevents attackers from fixating tokens through XSS or physical access
   - Maintains backward compatibility with existing legacy tokens
