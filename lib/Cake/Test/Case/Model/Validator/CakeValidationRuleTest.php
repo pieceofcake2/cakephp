@@ -23,192 +23,202 @@ App::uses('CakeValidationRule', 'Model/Validator');
  *
  * @package       Cake.Test.Case.Model.Validator
  */
-class CakeValidationRuleTest extends CakeTestCase {
+class CakeValidationRuleTest extends CakeTestCase
+{
+    /**
+     * Auxiliary method to test custom validators
+     *
+     * @return bool
+     */
+    public function myTestRule()
+    {
+        return false;
+    }
 
-/**
- * Auxiliary method to test custom validators
- *
- * @return bool
- */
-	public function myTestRule() {
-		return false;
-	}
+    /**
+     * Auxiliary method to test custom validators
+     *
+     * @return bool
+     */
+    public function myTestRule2()
+    {
+        return true;
+    }
 
-/**
- * Auxiliary method to test custom validators
- *
- * @return bool
- */
-	public function myTestRule2() {
-		return true;
-	}
+    /**
+     * Auxiliary method to test custom validators
+     *
+     * @return string
+     */
+    public function myTestRule3()
+    {
+        return 'string';
+    }
 
-/**
- * Auxiliary method to test custom validators
- *
- * @return string
- */
-	public function myTestRule3() {
-		return 'string';
-	}
+    /**
+     * Test isValid method
+     *
+     * @return void
+     */
+    public function testIsValid()
+    {
+        $def = ['rule' => 'notBlank', 'message' => 'Can not be empty'];
+        $data = [
+            'fieldName' => '',
+        ];
+        $methods = [];
 
-/**
- * Test isValid method
- *
- * @return void
- */
-	public function testIsValid() {
-		$def = ['rule' => 'notBlank', 'message' => 'Can not be empty'];
-		$data = [
-			'fieldName' => ''
-		];
-		$methods = [];
+        $Rule = new CakeValidationRule($def);
+        $Rule->process('fieldName', $data, $methods);
+        $this->assertFalse($Rule->isValid());
 
-		$Rule = new CakeValidationRule($def);
-		$Rule->process('fieldName', $data, $methods);
-		$this->assertFalse($Rule->isValid());
+        $data = ['fieldName' => 'not empty'];
+        $Rule->process('fieldName', $data, $methods);
+        $this->assertTrue($Rule->isValid());
+    }
 
-		$data = ['fieldName' => 'not empty'];
-		$Rule->process('fieldName', $data, $methods);
-		$this->assertTrue($Rule->isValid());
-	}
+    /**
+     * tests that passing custom validation methods work
+     *
+     * @return void
+     */
+    public function testCustomMethods()
+    {
+        $def = ['rule' => 'myTestRule'];
+        $data = [
+            'fieldName' => 'some data',
+        ];
+        $methods = ['mytestrule' => [$this, 'myTestRule']];
 
-/**
- * tests that passing custom validation methods work
- *
- * @return void
- */
-	public function testCustomMethods() {
-		$def = ['rule' => 'myTestRule'];
-		$data = [
-			'fieldName' => 'some data'
-		];
-		$methods = ['mytestrule' => [$this, 'myTestRule']];
+        $Rule = new CakeValidationRule($def);
+        $Rule->process('fieldName', $data, $methods);
+        $this->assertFalse($Rule->isValid());
 
-		$Rule = new CakeValidationRule($def);
-		$Rule->process('fieldName', $data, $methods);
-		$this->assertFalse($Rule->isValid());
+        $methods = ['mytestrule' => [$this, 'myTestRule2']];
+        $Rule->process('fieldName', $data, $methods);
+        $this->assertTrue($Rule->isValid());
 
-		$methods = ['mytestrule' => [$this, 'myTestRule2']];
-		$Rule->process('fieldName', $data, $methods);
-		$this->assertTrue($Rule->isValid());
+        $methods = ['mytestrule' => [$this, 'myTestRule3']];
+        $Rule->process('fieldName', $data, $methods);
+        $this->assertFalse($Rule->isValid());
+    }
 
-		$methods = ['mytestrule' => [$this, 'myTestRule3']];
-		$Rule->process('fieldName', $data, $methods);
-		$this->assertFalse($Rule->isValid());
-	}
+    /**
+     * Make sure errors are triggered when validation is missing.
+     *
+     * @return void
+     */
+    public function testCustomMethodMissingError()
+    {
+        $warningTriggered = false;
+        $warningMessage = '';
+        set_error_handler(function ($errno, $errstr) use (&$warningTriggered, &$warningMessage) {
+            if ($errno === E_WARNING || $errno === E_USER_WARNING) {
+                $warningTriggered = true;
+                $warningMessage = $errstr;
 
-/**
- * Make sure errors are triggered when validation is missing.
- *
- * @return void
- */
-	public function testCustomMethodMissingError() {
-		$warningTriggered = false;
-		$warningMessage = '';
-		set_error_handler(function($errno, $errstr) use (&$warningTriggered, &$warningMessage) {
-			if ($errno === E_WARNING || $errno === E_USER_WARNING) {
-				$warningTriggered = true;
-				$warningMessage = $errstr;
-				return true;
-			}
-			return false;
-		}, E_WARNING | E_USER_WARNING);
+                return true;
+            }
 
-		try {
-			$def = ['rule' => ['totallyMissing']];
-			$data = [
-				'fieldName' => 'some data'
-			];
-			$methods = ['mytestrule' => [$this, 'myTestRule']];
+            return false;
+        }, E_WARNING | E_USER_WARNING);
 
-			$Rule = new CakeValidationRule($def);
-			$Rule->process('fieldName', $data, $methods);
-		} finally {
-			restore_error_handler();
-		}
+        try {
+            $def = ['rule' => ['totallyMissing']];
+            $data = [
+                'fieldName' => 'some data',
+            ];
+            $methods = ['mytestrule' => [$this, 'myTestRule']];
 
-		$this->assertTrue($warningTriggered, 'Expected warning was not triggered');
-		$this->assertSame('Could not find validation handler totallyMissing for fieldName', $warningMessage);
-	}
+            $Rule = new CakeValidationRule($def);
+            $Rule->process('fieldName', $data, $methods);
+        } finally {
+            restore_error_handler();
+        }
 
-/**
- * Test isRequired method
- *
- * @return void
- */
-	public function testIsRequired() {
-		$def = ['rule' => 'notBlank', 'required' => true];
-		$Rule = new CakeValidationRule($def);
-		$this->assertTrue($Rule->isRequired());
+        $this->assertTrue($warningTriggered, 'Expected warning was not triggered');
+        $this->assertSame('Could not find validation handler totallyMissing for fieldName', $warningMessage);
+    }
 
-		$def = ['rule' => 'notBlank', 'required' => false];
-		$Rule = new CakeValidationRule($def);
-		$this->assertFalse($Rule->isRequired());
+    /**
+     * Test isRequired method
+     *
+     * @return void
+     */
+    public function testIsRequired()
+    {
+        $def = ['rule' => 'notBlank', 'required' => true];
+        $Rule = new CakeValidationRule($def);
+        $this->assertTrue($Rule->isRequired());
 
-		$def = ['rule' => 'notBlank', 'required' => 'create'];
-		$Rule = new CakeValidationRule($def);
-		$this->assertTrue($Rule->isRequired());
+        $def = ['rule' => 'notBlank', 'required' => false];
+        $Rule = new CakeValidationRule($def);
+        $this->assertFalse($Rule->isRequired());
 
-		$def = ['rule' => 'notBlank', 'required' => 'update'];
-		$Rule = new CakeValidationRule($def);
-		$this->assertFalse($Rule->isRequired());
+        $def = ['rule' => 'notBlank', 'required' => 'create'];
+        $Rule = new CakeValidationRule($def);
+        $this->assertTrue($Rule->isRequired());
 
-		$Rule->isUpdate(true);
-		$this->assertTrue($Rule->isRequired());
-	}
+        $def = ['rule' => 'notBlank', 'required' => 'update'];
+        $Rule = new CakeValidationRule($def);
+        $this->assertFalse($Rule->isRequired());
 
-/**
- * Test isEmptyAllowed method
- *
- * @return void
- */
-	public function testIsEmptyAllowed() {
-		$def = ['rule' => 'aRule', 'allowEmpty' => true];
-		$Rule = new CakeValidationRule($def);
-		$this->assertTrue($Rule->isEmptyAllowed());
+        $Rule->isUpdate(true);
+        $this->assertTrue($Rule->isRequired());
+    }
 
-		$def = ['rule' => 'aRule', 'allowEmpty' => false];
-		$Rule = new CakeValidationRule($def);
-		$this->assertFalse($Rule->isEmptyAllowed());
+    /**
+     * Test isEmptyAllowed method
+     *
+     * @return void
+     */
+    public function testIsEmptyAllowed()
+    {
+        $def = ['rule' => 'aRule', 'allowEmpty' => true];
+        $Rule = new CakeValidationRule($def);
+        $this->assertTrue($Rule->isEmptyAllowed());
 
-		$def = ['rule' => 'notBlank', 'allowEmpty' => false, 'on' => 'update'];
-		$Rule = new CakeValidationRule($def);
-		$this->assertTrue($Rule->isEmptyAllowed());
+        $def = ['rule' => 'aRule', 'allowEmpty' => false];
+        $Rule = new CakeValidationRule($def);
+        $this->assertFalse($Rule->isEmptyAllowed());
 
-		$Rule->isUpdate(true);
-		$this->assertFalse($Rule->isEmptyAllowed());
+        $def = ['rule' => 'notBlank', 'allowEmpty' => false, 'on' => 'update'];
+        $Rule = new CakeValidationRule($def);
+        $this->assertTrue($Rule->isEmptyAllowed());
 
-		$def = ['rule' => 'notBlank', 'allowEmpty' => false, 'on' => 'create'];
-		$Rule = new CakeValidationRule($def);
-		$this->assertFalse($Rule->isEmptyAllowed());
+        $Rule->isUpdate(true);
+        $this->assertFalse($Rule->isEmptyAllowed());
 
-		$Rule->isUpdate(true);
-		$this->assertTrue($Rule->isEmptyAllowed());
-	}
+        $def = ['rule' => 'notBlank', 'allowEmpty' => false, 'on' => 'create'];
+        $Rule = new CakeValidationRule($def);
+        $this->assertFalse($Rule->isEmptyAllowed());
 
-/**
- * Test checkRequired method
- *
- * @return void
- */
-	public function testCheckRequiredWhenRequiredAndAllowEmpty() {
-		$Rule = $this->getMock('CakeValidationRule', ['isRequired']);
-		$Rule->expects($this->any())
-			->method('isRequired')
-			->will($this->returnValue(true));
-		$Rule->allowEmpty = true;
+        $Rule->isUpdate(true);
+        $this->assertTrue($Rule->isEmptyAllowed());
+    }
 
-		$fieldname = 'field';
-		$data = [
-			$fieldname => null
-		];
+    /**
+     * Test checkRequired method
+     *
+     * @return void
+     */
+    public function testCheckRequiredWhenRequiredAndAllowEmpty()
+    {
+        $Rule = $this->getMock('CakeValidationRule', ['isRequired']);
+        $Rule->expects($this->any())
+            ->method('isRequired')
+            ->will($this->returnValue(true));
+        $Rule->allowEmpty = true;
 
-		$this->assertFalse($Rule->checkRequired($fieldname, $data), "A null but present field should not fail requirement check if allowEmpty is true");
+        $fieldname = 'field';
+        $data = [
+            $fieldname => null,
+        ];
 
-		$Rule->allowEmpty = false;
+        $this->assertFalse($Rule->checkRequired($fieldname, $data), 'A null but present field should not fail requirement check if allowEmpty is true');
 
-		$this->assertTrue($Rule->checkRequired($fieldname, $data), "A null but present field should fail requirement check if allowEmpty is false");
-	}
+        $Rule->allowEmpty = false;
 
+        $this->assertTrue($Rule->checkRequired($fieldname, $data), 'A null but present field should fail requirement check if allowEmpty is false');
+    }
 }

@@ -21,39 +21,39 @@
  *
  * @package       Cake.Test.Fixture
  */
-class ArmorsPlayerFixture extends CakeTestFixture {
+class ArmorsPlayerFixture extends CakeTestFixture
+{
+    /**
+     * Datasource
+     *
+     * Used for Multi database fixture test
+     *
+     * @var string
+     */
+    public $useDbConfig = 'test_database_three';
 
-/**
- * Datasource
- *
- * Used for Multi database fixture test
- *
- * @var string
- */
-	public $useDbConfig = 'test_database_three';
+    /**
+     * fields property
+     *
+     * @var array
+     */
+    public $fields = [
+        'id' => ['type' => 'integer', 'key' => 'primary'],
+        'player_id' => ['type' => 'integer', 'null' => false],
+        'armor_id' => ['type' => 'integer', 'null' => false],
+        'broken' => ['type' => 'boolean', 'null' => false, 'default' => false],
+        'created' => 'datetime',
+        'updated' => 'datetime',
+    ];
 
-/**
- * fields property
- *
- * @var array
- */
-	public $fields = [
-		'id' => ['type' => 'integer', 'key' => 'primary'],
-		'player_id' => ['type' => 'integer', 'null' => false],
-		'armor_id' => ['type' => 'integer', 'null' => false],
-		'broken' => ['type' => 'boolean', 'null' => false, 'default' => false],
-		'created' => 'datetime',
-		'updated' => 'datetime'
-	];
-
-/**
- * records property
- *
- * @var array
- */
-	public $records = [
-		['player_id' => 1, 'armor_id' => 1, 'broken' => false],
-		['player_id' => 2, 'armor_id' => 2, 'broken' => false],
-		['player_id' => 3, 'armor_id' => 3, 'broken' => false],
-	];
+    /**
+     * records property
+     *
+     * @var array
+     */
+    public $records = [
+        ['player_id' => 1, 'armor_id' => 1, 'broken' => false],
+        ['player_id' => 2, 'armor_id' => 2, 'broken' => false],
+        ['player_id' => 3, 'armor_id' => 3, 'broken' => false],
+    ];
 }

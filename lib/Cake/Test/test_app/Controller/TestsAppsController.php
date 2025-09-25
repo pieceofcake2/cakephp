@@ -21,35 +21,39 @@
  *
  * @package       Cake.Test.TestApp.Controller
  */
-class TestsAppsController extends AppController {
+class TestsAppsController extends AppController
+{
+    public $uses = [];
 
-	public $uses = [];
+    public $components = ['RequestHandler'];
 
-	public $components = ['RequestHandler'];
+    public function index()
+    {
+        $var = '';
+        if (isset($this->request->query['var'])) {
+            $var = $this->request->query['var'];
+        }
+        $this->set('var', $var);
+    }
 
-	public function index() {
-		$var = '';
-		if (isset($this->request->query['var'])) {
-			$var = $this->request->query['var'];
-		}
-		$this->set('var', $var);
-	}
+    public function some_method()
+    {
+        return 5;
+    }
 
-	public function some_method() {
-		return 5;
-	}
+    public function set_action()
+    {
+        $this->set('var', 'string');
+        $this->render('index');
+    }
 
-	public function set_action() {
-		$this->set('var', 'string');
-		$this->render('index');
-	}
+    public function file()
+    {
+        $this->response->file(__FILE__);
+    }
 
-	public function file() {
-		$this->response->file(__FILE__);
-	}
-
-	public function redirect_to() {
-		return $this->redirect('https://cakephp.org');
-	}
-
+    public function redirect_to()
+    {
+        return $this->redirect('https://cakephp.org');
+    }
 }

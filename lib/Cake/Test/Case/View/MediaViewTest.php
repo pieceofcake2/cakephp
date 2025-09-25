@@ -25,115 +25,120 @@ App::uses('CakeResponse', 'Network');
  *
  * @package       Cake.Test.Case.View
  */
-class MediaViewTest extends CakeTestCase {
+class MediaViewTest extends CakeTestCase
+{
+    /**
+     * setUp method
+     *
+     * @return void
+     */
+    public function setUp(): void
+    {
+        parent::setUp();
+        $this->MediaView = new MediaView();
+        $this->MediaView->response = $this->getMock('CakeResponse', [
+            'cache',
+            'type',
+            'disableCache',
+            'file',
+            'send',
+            'compress',
+        ]);
+    }
 
-/**
- * setUp method
- *
- * @return void
- */
-	public function setUp() : void {
-		parent::setUp();
-		$this->MediaView = new MediaView();
-		$this->MediaView->response = $this->getMock('CakeResponse', [
-			'cache',
-			'type',
-			'disableCache',
-			'file',
-			'send',
-			'compress',
-		]);
-	}
+    /**
+     * tearDown method
+     *
+     * @return void
+     */
+    public function tearDown(): void
+    {
+        unset($this->MediaView);
 
-/**
- * tearDown method
- *
- * @return void
- */
-	public function tearDown() : void {
-		unset($this->MediaView);
+        parent::tearDown();
+    }
 
-		parent::tearDown();
-	}
+    /**
+     * testRender method
+     *
+     * @return void
+     */
+    public function testRender()
+    {
+        $vars = [
+            'path' => CAKE . 'Test' . DS . 'test_app' . DS . 'Vendor' . DS . 'css' . DS,
+            'id' => 'test_asset.css',
+        ];
+        $this->MediaView->viewVars = $vars;
 
-/**
- * testRender method
- *
- * @return void
- */
-	public function testRender() {
-		$vars = [
-			'path' => CAKE . 'Test' . DS . 'test_app' . DS . 'Vendor' . DS . 'css' . DS,
-			'id' => 'test_asset.css'
-		];
-		$this->MediaView->viewVars = $vars;
+        $this->MediaView->response->expects($this->once())
+            ->method('disableCache');
 
-		$this->MediaView->response->expects($this->once())
-			->method('disableCache');
+        $this->MediaView->response->expects($this->once())
+            ->method('file')
+            ->with(
+                $vars['path'] . $vars['id'],
+                ['name' => null, 'download' => null],
+            );
 
-		$this->MediaView->response->expects($this->once())
-			->method('file')
-			->with(
-				$vars['path'] . $vars['id'],
-				['name' => null, 'download' => null]
-			);
+        $this->MediaView->render();
+    }
 
-		$this->MediaView->render();
-	}
+    /**
+     * Test render() when caching is on.
+     *
+     * @return void
+     */
+    public function testRenderCachingAndName()
+    {
+        $vars = [
+            'path' => CAKE . 'Test' . DS . 'test_app' . DS . 'Vendor' . DS . 'css' . DS,
+            'id' => 'test_asset.css',
+            'cache' => '+1 day',
+            'name' => 'something_special',
+            'download' => true,
+        ];
+        $this->MediaView->viewVars = $vars;
 
-/**
- * Test render() when caching is on.
- *
- * @return void
- */
-	public function testRenderCachingAndName() {
-		$vars = [
-			'path' => CAKE . 'Test' . DS . 'test_app' . DS . 'Vendor' . DS . 'css' . DS,
-			'id' => 'test_asset.css',
-			'cache' => '+1 day',
-			'name' => 'something_special',
-			'download' => true,
-		];
-		$this->MediaView->viewVars = $vars;
+        $this->MediaView->response->expects($this->never())
+            ->method('disableCache');
 
-		$this->MediaView->response->expects($this->never())
-			->method('disableCache');
+        $this->MediaView->response->expects($this->once())
+            ->method('cache')
+            ->with($this->anything(), $vars['cache']);
 
-		$this->MediaView->response->expects($this->once())
-			->method('cache')
-			->with($this->anything(), $vars['cache']);
+        $this->MediaView->response->expects($this->once())
+            ->method('file')
+            ->with(
+                $vars['path'] . $vars['id'],
+                [
+                    'name' => 'something_special.css',
+                    'download' => true,
+                ],
+            );
 
-		$this->MediaView->response->expects($this->once())
-			->method('file')
-			->with(
-				$vars['path'] . $vars['id'],
-				[
-					'name' => 'something_special.css',
-					'download' => true
-				]
-			);
+        $this->MediaView->render();
+    }
 
-		$this->MediaView->render();
-	}
+    /**
+     * Test downloading files with UPPERCASE extensions.
+     *
+     * @return void
+     */
+    public function testRenderUpperExtension()
+    {
+        $this->MediaView->viewVars = [
+            'path' => CAKE . 'Test' . DS . 'test_app' . DS . 'Vendor' . DS . 'img' . DS,
+            'id' => 'test_2.JPG',
+        ];
 
-/**
- * Test downloading files with UPPERCASE extensions.
- *
- * @return void
- */
-	public function testRenderUpperExtension() {
-		$this->MediaView->viewVars = [
-			'path' => CAKE . 'Test' . DS . 'test_app' . DS . 'Vendor' . DS . 'img' . DS,
-			'id' => 'test_2.JPG'
-		];
+        $this->MediaView->response->expects($this->any())
+            ->method('type')
+            ->with('jpg')
+            ->will($this->returnArgument(0));
 
-		$this->MediaView->response->expects($this->any())
-			->method('type')
-			->with('jpg')
-			->will($this->returnArgument(0));
+        $this->MediaView->render();
 
-		$this->MediaView->render();
-
-		$this->assertTrue(true, 'UPPERCASE extension was handled correctly');
-	}
+        $this->assertTrue(true, 'UPPERCASE extension was handled correctly');
+    }
 }

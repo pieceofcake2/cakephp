@@ -21,28 +21,28 @@
  *
  * @package       Cake.Test.Fixture
  */
-class ArticlesTagFixture extends CakeTestFixture {
+class ArticlesTagFixture extends CakeTestFixture
+{
+    /**
+     * fields property
+     *
+     * @var array
+     */
+    public $fields = [
+        'article_id' => ['type' => 'integer', 'null' => false],
+        'tag_id' => ['type' => 'integer', 'null' => false],
+        'indexes' => ['UNIQUE_TAG2' => ['column' => ['article_id', 'tag_id'], 'unique' => 1]],
+    ];
 
-/**
- * fields property
- *
- * @var array
- */
-	public $fields = [
-		'article_id' => ['type' => 'integer', 'null' => false],
-		'tag_id' => ['type' => 'integer', 'null' => false],
-		'indexes' => ['UNIQUE_TAG2' => ['column' => ['article_id', 'tag_id'], 'unique' => 1]]
-	];
-
-/**
- * records property
- *
- * @var array
- */
-	public $records = [
-		['article_id' => 1, 'tag_id' => 1],
-		['article_id' => 1, 'tag_id' => 2],
-		['article_id' => 2, 'tag_id' => 1],
-		['article_id' => 2, 'tag_id' => 3]
-	];
+    /**
+     * records property
+     *
+     * @var array
+     */
+    public $records = [
+        ['article_id' => 1, 'tag_id' => 1],
+        ['article_id' => 1, 'tag_id' => 2],
+        ['article_id' => 2, 'tag_id' => 1],
+        ['article_id' => 2, 'tag_id' => 3],
+    ];
 }

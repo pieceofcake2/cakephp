@@ -27,14 +27,14 @@ App::uses('CommandTask', 'Console/Command/Task');
  *
  * @package       Cake.Test.Case.Console.Command
  */
-class TestStringOutput extends ConsoleOutput {
+class TestStringOutput extends ConsoleOutput
+{
+    public $output = '';
 
-	public $output = '';
-
-	protected function _write($message) {
-		$this->output .= $message;
-	}
-
+    protected function _write($message)
+    {
+        $this->output .= $message;
+    }
 }
 
 /**
@@ -42,93 +42,97 @@ class TestStringOutput extends ConsoleOutput {
  *
  * @package       Cake.Test.Case.Console.Command
  */
-class CommandListShellTest extends CakeTestCase {
+class CommandListShellTest extends CakeTestCase
+{
+    /**
+     * setUp method
+     *
+     * @return void
+     */
+    public function setUp(): void
+    {
+        parent::setUp();
+        App::build([
+            'Plugin' => [
+                CAKE . 'Test' . DS . 'test_app' . DS . 'Plugin' . DS,
+            ],
+            'Console/Command' => [
+                CAKE . 'Test' . DS . 'test_app' . DS . 'Console' . DS . 'Command' . DS,
+            ],
+        ], App::RESET);
+        CakePlugin::load(['TestPlugin', 'TestPluginTwo']);
 
-/**
- * setUp method
- *
- * @return void
- */
-	public function setUp() : void {
-		parent::setUp();
-		App::build([
-			'Plugin' => [
-				CAKE . 'Test' . DS . 'test_app' . DS . 'Plugin' . DS
-			],
-			'Console/Command' => [
-				CAKE . 'Test' . DS . 'test_app' . DS . 'Console' . DS . 'Command' . DS
-			]
-		], App::RESET);
-		CakePlugin::load(['TestPlugin', 'TestPluginTwo']);
+        $out = new TestStringOutput();
+        $in = $this->getMock('ConsoleInput', [], [], '', false);
 
-		$out = new TestStringOutput();
-		$in = $this->getMock('ConsoleInput', [], [], '', false);
+        $this->Shell = $this->getMock(
+            'CommandListShell',
+            ['in', '_stop', 'clear'],
+            [$out, $out, $in],
+        );
 
-		$this->Shell = $this->getMock(
-			'CommandListShell',
-			['in', '_stop', 'clear'],
-			[$out, $out, $in]
-		);
+        $this->Shell->Command = $this->getMock(
+            'CommandTask',
+            ['in', '_stop', 'clear'],
+            [$out, $out, $in],
+        );
+    }
 
-		$this->Shell->Command = $this->getMock(
-			'CommandTask',
-			['in', '_stop', 'clear'],
-			[$out, $out, $in]
-		);
-	}
+    /**
+     * tearDown
+     *
+     * @return void
+     */
+    public function tearDown(): void
+    {
+        unset($this->Shell);
+        CakePlugin::unload();
 
-/**
- * tearDown
- *
- * @return void
- */
-	public function tearDown() : void {
-		unset($this->Shell);
-		CakePlugin::unload();
+        parent::tearDown();
+    }
 
-		parent::tearDown();
-	}
+    /**
+     * test that main finds core shells.
+     *
+     * @return void
+     */
+    public function testMain()
+    {
+        $this->Shell->main();
+        $output = $this->Shell->stdout->output;
 
-/**
- * test that main finds core shells.
- *
- * @return void
- */
-	public function testMain() {
-		$this->Shell->main();
-		$output = $this->Shell->stdout->output;
+        $expected = "/\[.*TestPlugin.*\] example/";
+        $this->assertMatchesRegularExpression($expected, $output);
 
-		$expected = "/\[.*TestPlugin.*\] example/";
-		$this->assertMatchesRegularExpression($expected, $output);
+        $expected = "/\[.*TestPluginTwo.*\] example, welcome/";
+        $this->assertMatchesRegularExpression($expected, $output);
 
-		$expected = "/\[.*TestPluginTwo.*\] example, welcome/";
-		$this->assertMatchesRegularExpression($expected, $output);
+        $expected = "/\[.*CORE.*\] acl, api, bake, command_list, completion, console, i18n, schema, server, test, testsuite, upgrade/";
+        $this->assertMatchesRegularExpression($expected, $output);
 
-		$expected = "/\[.*CORE.*\] acl, api, bake, command_list, completion, console, i18n, schema, server, test, testsuite, upgrade/";
-		$this->assertMatchesRegularExpression($expected, $output);
+        $expected = "/\[.*app.*\] sample/";
+        $this->assertMatchesRegularExpression($expected, $output);
+    }
 
-		$expected = "/\[.*app.*\] sample/";
-		$this->assertMatchesRegularExpression($expected, $output);
-	}
+    /**
+     * test xml output.
+     *
+     * @return void
+     */
+    public function testMainXml()
+    {
+        $this->Shell->params['xml'] = true;
+        $this->Shell->main();
 
-/**
- * test xml output.
- *
- * @return void
- */
-	public function testMainXml() {
-		$this->Shell->params['xml'] = true;
-		$this->Shell->main();
+        $output = $this->Shell->stdout->output;
 
-		$output = $this->Shell->stdout->output;
+        $find = '<shell name="sample" call_as="sample" provider="app" help="sample -h"/>';
+        $this->assertStringContainsString($find, $output);
 
-		$find = '<shell name="sample" call_as="sample" provider="app" help="sample -h"/>';
-		$this->assertStringContainsString($find, $output);
+        $find = '<shell name="bake" call_as="bake" provider="CORE" help="bake -h"/>';
+        $this->assertStringContainsString($find, $output);
 
-		$find = '<shell name="bake" call_as="bake" provider="CORE" help="bake -h"/>';
-		$this->assertStringContainsString($find, $output);
-
-		$find = '<shell name="welcome" call_as="TestPluginTwo.welcome" provider="TestPluginTwo" help="TestPluginTwo.welcome -h"/>';
-		$this->assertStringContainsString($find, $output);
-	}
+        $find = '<shell name="welcome" call_as="TestPluginTwo.welcome" provider="TestPluginTwo" help="TestPluginTwo.welcome -h"/>';
+        $this->assertStringContainsString($find, $output);
+    }
 }

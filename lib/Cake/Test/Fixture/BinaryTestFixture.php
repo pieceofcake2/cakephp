@@ -21,22 +21,22 @@
  *
  * @package       Cake.Test.Fixture
  */
-class BinaryTestFixture extends CakeTestFixture {
+class BinaryTestFixture extends CakeTestFixture
+{
+    /**
+     * fields property
+     *
+     * @var array
+     */
+    public $fields = [
+        'id' => ['type' => 'integer', 'key' => 'primary'],
+        'data' => ['type' => 'binary', 'length' => 300],
+    ];
 
-/**
- * fields property
- *
- * @var array
- */
-	public $fields = [
-		'id' => ['type' => 'integer', 'key' => 'primary'],
-		'data' => ['type' => 'binary', 'length' => 300]
-	];
-
-/**
- * records property
- *
- * @var array
- */
-	public $records = [];
+    /**
+     * records property
+     *
+     * @var array
+     */
+    public $records = [];
 }

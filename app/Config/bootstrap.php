@@ -82,17 +82,17 @@ Cache::config('default', ['engine' => 'File']);
  * Feel free to remove or add filters as you see fit for your application. A few examples:
  *
  * Configure::write('Dispatcher.filters', array(
- *		'MyCacheFilter', //  will use MyCacheFilter class from the Routing/Filter package in your app.
- *		'MyCacheFilter' => array('prefix' => 'my_cache_'), //  will use MyCacheFilter class from the Routing/Filter package in your app with settings array.
- *		'MyPlugin.MyFilter', // will use MyFilter class from the Routing/Filter package in MyPlugin plugin.
- *		array('callable' => $aFunction, 'on' => 'before', 'priority' => 9), // A valid PHP callback type to be called on beforeDispatch
- *		array('callable' => $anotherMethod, 'on' => 'after'), // A valid PHP callback type to be called on afterDispatch
+ *      'MyCacheFilter', //  will use MyCacheFilter class from the Routing/Filter package in your app.
+ *      'MyCacheFilter' => array('prefix' => 'my_cache_'), //  will use MyCacheFilter class from the Routing/Filter package in your app with settings array.
+ *      'MyPlugin.MyFilter', // will use MyFilter class from the Routing/Filter package in MyPlugin plugin.
+ *      array('callable' => $aFunction, 'on' => 'before', 'priority' => 9), // A valid PHP callback type to be called on beforeDispatch
+ *      array('callable' => $anotherMethod, 'on' => 'after'), // A valid PHP callback type to be called on afterDispatch
  *
  * ));
  */
 Configure::write('Dispatcher.filters', [
-	'AssetDispatcher',
-	'CacheDispatcher'
+    'AssetDispatcher',
+    'CacheDispatcher',
 ]);
 
 /**
@@ -100,12 +100,12 @@ Configure::write('Dispatcher.filters', [
  */
 App::uses('CakeLog', 'Log');
 CakeLog::config('debug', [
-	'engine' => 'File',
-	'types' => ['notice', 'info', 'debug'],
-	'file' => 'debug',
+    'engine' => 'File',
+    'types' => ['notice', 'info', 'debug'],
+    'file' => 'debug',
 ]);
 CakeLog::config('error', [
-	'engine' => 'File',
-	'types' => ['warning', 'error', 'critical', 'alert', 'emergency'],
-	'file' => 'error',
+    'engine' => 'File',
+    'types' => ['warning', 'error', 'critical', 'alert', 'emergency'],
+    'file' => 'error',
 ]);

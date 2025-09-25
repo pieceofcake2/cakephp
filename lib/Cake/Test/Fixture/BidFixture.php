@@ -21,29 +21,29 @@
  *
  * @package       Cake.Test.Fixture
  */
-class BidFixture extends CakeTestFixture {
+class BidFixture extends CakeTestFixture
+{
+    /**
+     * fields property
+     *
+     * @var array
+     */
+    public $fields = [
+        'id' => ['type' => 'integer', 'key' => 'primary'],
+        'message_id' => ['type' => 'integer', 'null' => false],
+        'name' => ['type' => 'string', 'null' => false],
+    ];
 
-/**
- * fields property
- *
- * @var array
- */
-	public $fields = [
-		'id' => ['type' => 'integer', 'key' => 'primary'],
-		'message_id' => ['type' => 'integer', 'null' => false],
-		'name' => ['type' => 'string', 'null' => false]
-	];
-
-/**
- * records property
- *
- * @var array
- */
-	public $records = [
-		['message_id' => 1, 'name' => 'Bid 1.1'],
-		['message_id' => 1, 'name' => 'Bid 1.2'],
-		['message_id' => 3, 'name' => 'Bid 3.1'],
-		['message_id' => 2, 'name' => 'Bid 2.1'],
-		['message_id' => 2, 'name' => 'Bid 2.2']
-	];
+    /**
+     * records property
+     *
+     * @var array
+     */
+    public $records = [
+        ['message_id' => 1, 'name' => 'Bid 1.1'],
+        ['message_id' => 1, 'name' => 'Bid 1.2'],
+        ['message_id' => 3, 'name' => 'Bid 3.1'],
+        ['message_id' => 2, 'name' => 'Bid 2.1'],
+        ['message_id' => 2, 'name' => 'Bid 2.2'],
+    ];
 }

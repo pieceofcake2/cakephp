@@ -21,30 +21,30 @@
  *
  * @package       Cake.Test.Fixture
  */
-class JoinThingFixture extends CakeTestFixture {
+class JoinThingFixture extends CakeTestFixture
+{
+    /**
+     * fields property
+     *
+     * @var array
+     */
+    public $fields = [
+        'id' => ['type' => 'integer', 'key' => 'primary'],
+        'something_id' => ['type' => 'integer', 'length' => 10, 'null' => true],
+        'something_else_id' => ['type' => 'integer', 'default' => null],
+        'doomed' => ['type' => 'boolean', 'default' => '0'],
+        'created' => ['type' => 'datetime', 'null' => true],
+        'updated' => ['type' => 'datetime', 'null' => true],
+    ];
 
-/**
- * fields property
- *
- * @var array
- */
-	public $fields = [
-		'id' => ['type' => 'integer', 'key' => 'primary'],
-		'something_id' => ['type' => 'integer', 'length' => 10, 'null' => true],
-		'something_else_id' => ['type' => 'integer', 'default' => null],
-		'doomed' => ['type' => 'boolean', 'default' => '0'],
-		'created' => ['type' => 'datetime', 'null' => true],
-		'updated' => ['type' => 'datetime', 'null' => true]
-	];
-
-/**
- * records property
- *
- * @var array
- */
-	public $records = [
-		['something_id' => 1, 'something_else_id' => 2, 'doomed' => '1', 'created' => '2007-03-18 10:39:23', 'updated' => '2007-03-18 10:41:31'],
-		['something_id' => 2, 'something_else_id' => 3, 'doomed' => '0', 'created' => '2007-03-18 10:41:23', 'updated' => '2007-03-18 10:43:31'],
-		['something_id' => 3, 'something_else_id' => 1, 'doomed' => '1', 'created' => '2007-03-18 10:43:23', 'updated' => '2007-03-18 10:45:31']
-	];
+    /**
+     * records property
+     *
+     * @var array
+     */
+    public $records = [
+        ['something_id' => 1, 'something_else_id' => 2, 'doomed' => '1', 'created' => '2007-03-18 10:39:23', 'updated' => '2007-03-18 10:41:31'],
+        ['something_id' => 2, 'something_else_id' => 3, 'doomed' => '0', 'created' => '2007-03-18 10:41:23', 'updated' => '2007-03-18 10:43:31'],
+        ['something_id' => 3, 'something_else_id' => 1, 'doomed' => '1', 'created' => '2007-03-18 10:43:23', 'updated' => '2007-03-18 10:45:31'],
+    ];
 }

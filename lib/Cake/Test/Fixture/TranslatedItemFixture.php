@@ -21,27 +21,27 @@
  *
  * @package       Cake.Test.Fixture
  */
-class TranslatedItemFixture extends CakeTestFixture {
+class TranslatedItemFixture extends CakeTestFixture
+{
+    /**
+     * fields property
+     *
+     * @var array
+     */
+    public $fields = [
+        'id' => ['type' => 'integer', 'key' => 'primary'],
+        'translated_article_id' => ['type' => 'integer'],
+        'slug' => ['type' => 'string', 'null' => false],
+    ];
 
-/**
- * fields property
- *
- * @var array
- */
-	public $fields = [
-		'id' => ['type' => 'integer', 'key' => 'primary'],
-		'translated_article_id' => ['type' => 'integer'],
-		'slug' => ['type' => 'string', 'null' => false]
-	];
-
-/**
- * records property
- *
- * @var array
- */
-	public $records = [
-		['translated_article_id' => 1, 'slug' => 'first_translated'],
-		['translated_article_id' => 1, 'slug' => 'second_translated'],
-		['translated_article_id' => 1, 'slug' => 'third_translated']
-	];
+    /**
+     * records property
+     *
+     * @var array
+     */
+    public $records = [
+        ['translated_article_id' => 1, 'slug' => 'first_translated'],
+        ['translated_article_id' => 1, 'slug' => 'second_translated'],
+        ['translated_article_id' => 1, 'slug' => 'third_translated'],
+    ];
 }

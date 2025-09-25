@@ -25,16 +25,17 @@ App::uses('CakeTime', 'Utility');
  *
  * @package       Cake.Test.Case.View.Helper
  */
-class TimeHelperTestObject extends TimeHelper {
+class TimeHelperTestObject extends TimeHelper
+{
+    public function attach(CakeTimeMock $cakeTime)
+    {
+        $this->_engine = $cakeTime;
+    }
 
-	public function attach(CakeTimeMock $cakeTime) {
-		$this->_engine = $cakeTime;
-	}
-
-	public function engine() {
-		return $this->_engine;
-	}
-
+    public function engine()
+    {
+        return $this->_engine;
+    }
 }
 
 /**
@@ -42,7 +43,8 @@ class TimeHelperTestObject extends TimeHelper {
  *
  * @package       Cake.Test.Case.View.Helper
  */
-class CakeTimeMock {
+class CakeTimeMock
+{
 }
 
 /**
@@ -50,161 +52,165 @@ class CakeTimeMock {
  *
  * @package       Cake.Test.Case.View.Helper
  */
-class TimeHelperTest extends CakeTestCase {
+class TimeHelperTest extends CakeTestCase
+{
+    public $Time = null;
 
-	public $Time = null;
+    public $CakeTime = null;
 
-	public $CakeTime = null;
+    /**
+     * setUp method
+     *
+     * @return void
+     */
+    public function setUp(): void
+    {
+        parent::setUp();
+        $this->View = new View(null);
+    }
 
-/**
- * setUp method
- *
- * @return void
- */
-	public function setUp() : void {
-		parent::setUp();
-		$this->View = new View(null);
-	}
+    /**
+     * tearDown method
+     *
+     * @return void
+     */
+    public function tearDown(): void
+    {
+        unset($this->View);
 
-/**
- * tearDown method
- *
- * @return void
- */
-	public function tearDown() : void {
-		unset($this->View);
+        parent::tearDown();
+    }
 
-		parent::tearDown();
-	}
+    /**
+     * test CakeTime class methods are called correctly
+     *
+     * @return void
+     */
+    public function testTimeHelperProxyMethodCalls()
+    {
+        $methods = [
+            'convertSpecifiers', 'convert', 'serverOffset', 'fromString',
+            'nice', 'niceShort', 'daysAsSql', 'dayAsSql',
+            'isToday', 'isThisMonth', 'isThisYear', 'wasYesterday',
+            'isTomorrow', 'toQuarter', 'toUnix', 'toAtom', 'toRSS',
+            'wasWithinLast', 'gmt', 'format', 'i18nFormat',
+        ];
 
-/**
- * test CakeTime class methods are called correctly
- *
- * @return void
- */
-	public function testTimeHelperProxyMethodCalls() {
-		$methods = [
-			'convertSpecifiers', 'convert', 'serverOffset', 'fromString',
-			'nice', 'niceShort', 'daysAsSql', 'dayAsSql',
-			'isToday', 'isThisMonth', 'isThisYear', 'wasYesterday',
-			'isTomorrow', 'toQuarter', 'toUnix', 'toAtom', 'toRSS',
-			'wasWithinLast', 'gmt', 'format', 'i18nFormat',
-		];
+        $CakeTime = $this->getMock('CakeTimeMock', $methods);
+        $Time = new TimeHelperTestObject($this->View, ['engine' => 'CakeTimeMock']);
+        $Time->attach($CakeTime);
 
-		//
-		$CakeTime = $this->getMock('CakeTimeMock', $methods);
-		$Time = new TimeHelperTestObject($this->View, ['engine' => 'CakeTimeMock']);
-		$Time->attach($CakeTime);
+        $calledMethods = [];
+        foreach ($methods as $method) {
+            $CakeTime->expects($this->once())
+                ->method($method)
+                ->willReturnCallback(function () use ($method, &$calledMethods) {
+                    $calledMethods[] = $method;
 
-		$calledMethods = [];
-		foreach ($methods as $method) {
-			$CakeTime->expects($this->once())
-				->method($method)
-				->willReturnCallback(function() use ($method, &$calledMethods) {
-					$calledMethods[] = $method;
-					return null;
-				});
-		}
+                    return null;
+                });
+        }
 
-		foreach ($methods as $method) {
-			$Time->{$method}('who', 'what', 'when', 'where', 'how');
-		}
+        foreach ($methods as $method) {
+            $Time->{$method}('who', 'what', 'when', 'where', 'how');
+        }
 
-		$this->assertEquals($methods, $calledMethods);
+        $this->assertEquals($methods, $calledMethods);
 
-		//
-		$CakeTime = $this->getMock('CakeTimeMock', ['timeAgoInWords']);
-		$Time = new TimeHelperTestObject($this->View, ['engine' => 'CakeTimeMock']);
-		$Time->attach($CakeTime);
+        $CakeTime = $this->getMock('CakeTimeMock', ['timeAgoInWords']);
+        $Time = new TimeHelperTestObject($this->View, ['engine' => 'CakeTimeMock']);
+        $Time->attach($CakeTime);
 
-		$timeAgoInWordsCalled = false;
-		$CakeTime->expects($this->once())
-			->method('timeAgoInWords')
-			->willReturnCallback(function() use (&$timeAgoInWordsCalled) {
-				$timeAgoInWordsCalled = true;
-				return null;
-			});
+        $timeAgoInWordsCalled = false;
+        $CakeTime->expects($this->once())
+            ->method('timeAgoInWords')
+            ->willReturnCallback(function () use (&$timeAgoInWordsCalled) {
+                $timeAgoInWordsCalled = true;
 
-		$Time->timeAgoInWords('who', ['what']);
+                return null;
+            });
 
-		$this->assertTrue($timeAgoInWordsCalled);
-	}
+        $Time->timeAgoInWords('who', ['what']);
 
-/**
- * test engine override
- *
- * @return void
- */
-	public function testEngineOverride() {
-		App::build([
-			'Utility' => [CAKE . 'Test' . DS . 'test_app' . DS . 'Utility' . DS]
-		], App::REGISTER);
-		$Time = new TimeHelperTestObject($this->View, ['engine' => 'TestAppEngine']);
-		$this->assertInstanceOf('TestAppEngine', $Time->engine());
+        $this->assertTrue($timeAgoInWordsCalled);
+    }
 
-		App::build([
-			'Plugin' => [CAKE . 'Test' . DS . 'test_app' . DS . 'Plugin' . DS]
-		]);
-		CakePlugin::load('TestPlugin');
-		$Time = new TimeHelperTestObject($this->View, ['engine' => 'TestPlugin.TestPluginEngine']);
-		$this->assertInstanceOf('TestPluginEngine', $Time->engine());
-		CakePlugin::unload('TestPlugin');
-	}
+    /**
+     * test engine override
+     *
+     * @return void
+     */
+    public function testEngineOverride()
+    {
+        App::build([
+            'Utility' => [CAKE . 'Test' . DS . 'test_app' . DS . 'Utility' . DS],
+        ], App::REGISTER);
+        $Time = new TimeHelperTestObject($this->View, ['engine' => 'TestAppEngine']);
+        $this->assertInstanceOf('TestAppEngine', $Time->engine());
 
-/**
- * Test element wrapping in timeAgoInWords
- *
- * @return void
- */
-	public function testTimeAgoInWords() {
-		$Time = new TimeHelper($this->View);
-		$timestamp = strtotime('+8 years, +4 months +2 weeks +3 days');
-		$result = $Time->timeAgoInWords($timestamp, [
-			'end' => '1 years',
-			'element' => 'span'
-		]);
-		$expected = [
-			'span' => [
-				'title' => $timestamp,
-				'class' => 'time-ago-in-words'
-			],
-			'on ' . date('j/n/y', $timestamp),
-			'/span'
-		];
-		$this->assertTags($result, $expected);
+        App::build([
+            'Plugin' => [CAKE . 'Test' . DS . 'test_app' . DS . 'Plugin' . DS],
+        ]);
+        CakePlugin::load('TestPlugin');
+        $Time = new TimeHelperTestObject($this->View, ['engine' => 'TestPlugin.TestPluginEngine']);
+        $this->assertInstanceOf('TestPluginEngine', $Time->engine());
+        CakePlugin::unload('TestPlugin');
+    }
 
-		$result = $Time->timeAgoInWords($timestamp, [
-			'end' => '1 years',
-			'element' => [
-				'title' => 'testing',
-				'rel' => 'test'
-			]
-		]);
-		$expected = [
-			'span' => [
-				'title' => 'testing',
-				'class' => 'time-ago-in-words',
-				'rel' => 'test'
-			],
-			'on ' . date('j/n/y', $timestamp),
-			'/span'
-		];
-		$this->assertTags($result, $expected);
+    /**
+     * Test element wrapping in timeAgoInWords
+     *
+     * @return void
+     */
+    public function testTimeAgoInWords()
+    {
+        $Time = new TimeHelper($this->View);
+        $timestamp = strtotime('+8 years, +4 months +2 weeks +3 days');
+        $result = $Time->timeAgoInWords($timestamp, [
+            'end' => '1 years',
+            'element' => 'span',
+        ]);
+        $expected = [
+            'span' => [
+                'title' => $timestamp,
+                'class' => 'time-ago-in-words',
+            ],
+            'on ' . date('j/n/y', $timestamp),
+            '/span',
+        ];
+        $this->assertTags($result, $expected);
 
-		$timestamp = strtotime('+2 weeks');
-		$result = $Time->timeAgoInWords(
-			$timestamp,
-			['end' => '1 years', 'element' => 'div']
-		);
-		$expected = [
-			'div' => [
-				'title' => $timestamp,
-				'class' => 'time-ago-in-words'
-			],
-			'in 2 weeks',
-			'/div'
-		];
-		$this->assertTags($result, $expected);
-	}
+        $result = $Time->timeAgoInWords($timestamp, [
+            'end' => '1 years',
+            'element' => [
+                'title' => 'testing',
+                'rel' => 'test',
+            ],
+        ]);
+        $expected = [
+            'span' => [
+                'title' => 'testing',
+                'class' => 'time-ago-in-words',
+                'rel' => 'test',
+            ],
+            'on ' . date('j/n/y', $timestamp),
+            '/span',
+        ];
+        $this->assertTags($result, $expected);
 
+        $timestamp = strtotime('+2 weeks');
+        $result = $Time->timeAgoInWords(
+            $timestamp,
+            ['end' => '1 years', 'element' => 'div'],
+        );
+        $expected = [
+            'div' => [
+                'title' => $timestamp,
+                'class' => 'time-ago-in-words',
+            ],
+            'in 2 weeks',
+            '/div',
+        ];
+        $this->assertTags($result, $expected);
+    }
 }

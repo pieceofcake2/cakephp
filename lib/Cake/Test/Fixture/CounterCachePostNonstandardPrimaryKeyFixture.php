@@ -21,17 +21,17 @@
  *
  * @package       Cake.Test.Fixture
  */
-class CounterCachePostNonstandardPrimaryKeyFixture extends CakeTestFixture {
+class CounterCachePostNonstandardPrimaryKeyFixture extends CakeTestFixture
+{
+    public $fields = [
+        'pid' => ['type' => 'integer', 'key' => 'primary'],
+        'title' => ['type' => 'string', 'length' => 255, 'null' => false],
+        'uid' => ['type' => 'integer', 'null' => true],
+    ];
 
-	public $fields = [
-		'pid' => ['type' => 'integer', 'key' => 'primary'],
-		'title' => ['type' => 'string', 'length' => 255, 'null' => false],
-		'uid' => ['type' => 'integer', 'null' => true],
-	];
-
-	public $records = [
-		['pid' => 1, 'title' => 'Rock and Roll', 'uid' => 66],
-		['pid' => 2, 'title' => 'Music', 'uid' => 66],
-		['pid' => 3, 'title' => 'Food', 'uid' => 301],
-	];
+    public $records = [
+        ['pid' => 1, 'title' => 'Rock and Roll', 'uid' => 66],
+        ['pid' => 2, 'title' => 'Music', 'uid' => 66],
+        ['pid' => 3, 'title' => 'Food', 'uid' => 301],
+    ];
 }

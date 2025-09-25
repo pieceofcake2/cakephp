@@ -25,17 +25,19 @@ use PHPUnit\Framework\TestSuite;
  *
  * @package       Cake.Test.Case
  */
-class AllConfigureTest extends TestSuite {
+class AllConfigureTest extends TestSuite
+{
+    /**
+     * suite method, defines tests for this suite.
+     *
+     * @return void
+     */
+    public static function suite()
+    {
+        $suite = new CakeTestSuite('All Configure related tests');
 
-/**
- * suite method, defines tests for this suite.
- *
- * @return void
- */
-	public static function suite() {
-		$suite = new CakeTestSuite('All Configure related tests');
+        $suite->addTestDirectory(CORE_TEST_CASES . DS . 'Configure');
 
-		$suite->addTestDirectory(CORE_TEST_CASES . DS . 'Configure');
-		return $suite;
-	}
+        return $suite;
+    }
 }

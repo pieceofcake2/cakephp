@@ -21,69 +21,73 @@
  *
  * @package       Cake.Test.TestApp.Controller
  */
-class TestsAppsPostsController extends AppController {
+class TestsAppsPostsController extends AppController
+{
+    public $uses = ['Post'];
 
-	public $uses = ['Post'];
+    public $viewPath = 'TestsApps';
 
-	public $viewPath = 'TestsApps';
+    /**
+     * add method
+     *
+     * @return void
+     */
+    public function add()
+    {
+        $data = [
+            'Post' => [
+                'title' => 'Test article',
+                'body' => 'Body of article.',
+                'author_id' => 1,
+            ],
+        ];
+        $this->Post->save($data);
 
-/**
- * add method
- *
- * @return void
- */
-	public function add() {
-		$data = [
-			'Post' => [
-				'title' => 'Test article',
-				'body' => 'Body of article.',
-				'author_id' => 1
-			]
-		];
-		$this->Post->save($data);
+        $this->set('posts', $this->Post->find('all'));
+        $this->render('index');
+    }
 
-		$this->set('posts', $this->Post->find('all'));
-		$this->render('index');
-	}
+    /**
+     * check URL params
+     *
+     * @return void
+     */
+    public function url_var()
+    {
+        $this->set('params', $this->request->params);
+        $this->render('index');
+    }
 
-/**
- * check URL params
- *
- * @return void
- */
-	public function url_var() {
-		$this->set('params', $this->request->params);
-		$this->render('index');
-	}
+    /**
+     * post var testing
+     *
+     * @return void
+     */
+    public function post_var()
+    {
+        $this->set('data', $this->request->data);
+        $this->render('index');
+    }
 
-/**
- * post var testing
- *
- * @return void
- */
-	public function post_var() {
-		$this->set('data', $this->request->data);
-		$this->render('index');
-	}
+    /**
+     * input_data()
+     *
+     * @return void
+     */
+    public function input_data()
+    {
+        $this->set('data', $this->request->input('json_decode', true));
+        $this->render('index');
+    }
 
-/**
- * input_data()
- *
- * @return void
- */
-	public function input_data() {
-		$this->set('data', $this->request->input('json_decode', true));
-		$this->render('index');
-	}
-
-/**
- * Fixturized action for testAction()
- *
- * @return void
- */
-	public function fixtured() {
-		$this->set('posts', $this->Post->find('all'));
-		$this->render('index');
-	}
-
+    /**
+     * Fixturized action for testAction()
+     *
+     * @return void
+     */
+    public function fixtured()
+    {
+        $this->set('posts', $this->Post->find('all'));
+        $this->render('index');
+    }
 }

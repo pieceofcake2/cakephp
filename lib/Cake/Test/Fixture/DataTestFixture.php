@@ -21,32 +21,32 @@
  *
  * @package       Cake.Test.Fixture
  */
-class DataTestFixture extends CakeTestFixture {
+class DataTestFixture extends CakeTestFixture
+{
+    /**
+     * Fields property
+     *
+     * @var array
+     */
+    public $fields = [
+        'id' => ['type' => 'integer', 'key' => 'primary'],
+        'count' => ['type' => 'integer', 'default' => 0],
+        'float' => ['type' => 'float', 'default' => 0],
+        'created' => ['type' => 'datetime', 'default' => null],
+        'updated' => ['type' => 'datetime', 'default' => null],
+    ];
 
-/**
- * Fields property
- *
- * @var array
- */
-	public $fields = [
-		'id' => ['type' => 'integer', 'key' => 'primary'],
-		'count' => ['type' => 'integer', 'default' => 0],
-		'float' => ['type' => 'float', 'default' => 0],
-		'created' => ['type' => 'datetime', 'default' => null],
-		'updated' => ['type' => 'datetime', 'default' => null]
-	];
-
-/**
- * Records property
- *
- * @var array
- */
-	public $records = [
-		[
-			'count' => 2,
-			'float' => 2.4,
-			'created' => '2010-09-06 12:28:00',
-			'updated' => '2010-09-06 12:28:00'
-		]
-	];
+    /**
+     * Records property
+     *
+     * @var array
+     */
+    public $records = [
+        [
+            'count' => 2,
+            'float' => 2.4,
+            'created' => '2010-09-06 12:28:00',
+            'updated' => '2010-09-06 12:28:00',
+        ],
+    ];
 }

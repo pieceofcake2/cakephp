@@ -12,51 +12,55 @@
  * @since         2.8
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
-App::uses("ConsoleOutputStub", "TestSuite/Stub");
+App::uses('ConsoleOutputStub', 'TestSuite/Stub');
 
 /*
  * ConsoleOutputStub test
  */
-class ConsoleOutputStubTest extends CakeTestCase {
+class ConsoleOutputStubTest extends CakeTestCase
+{
+    /**
+     * setUp method
+     *
+     * @return void
+     */
+    public function setUp(): void
+    {
+        parent::setUp();
 
-/**
- * setUp method
- *
- * @return void
- */
-	public function setUp() : void {
-		parent::setUp();
+        $this->stub = new ConsoleOutputStub();
+    }
 
-		$this->stub = new ConsoleOutputStub();
-	}
+    /**
+     * Test that stub can be used as an instance of ConsoleOutput
+     *
+     * @return void
+     */
+    public function testCanActAsConsoleOutput()
+    {
+        $this->assertInstanceOf('ConsoleOutput', $this->stub);
+    }
 
-/**
- * Test that stub can be used as an instance of ConsoleOutput
- *
- * @return void
- */
-	public function testCanActAsConsoleOutput() {
-		$this->assertInstanceOf("ConsoleOutput", $this->stub);
-	}
+    /**
+     * Test write method
+     *
+     * @return void
+     */
+    public function testWrite()
+    {
+        $this->stub->write(['foo', 'bar', 'baz']);
+        $this->assertEquals(['foo', 'bar', 'baz'], $this->stub->messages());
+    }
 
-/**
- * Test write method
- *
- * @return void
- */
-	public function testWrite() {
-		$this->stub->write(["foo", "bar", "baz"]);
-		$this->assertEquals(["foo", "bar", "baz"], $this->stub->messages());
-	}
-
-/**
- * Test overwrite method
- *
- * @return void
- */
-	public function testOverwrite() {
-		$this->stub->write(["foo", "bar", "baz"]);
-		$this->stub->overwrite("bat");
-		$this->assertEquals(["foo", "bar", "baz", "", "bat"], $this->stub->messages());
-	}
+    /**
+     * Test overwrite method
+     *
+     * @return void
+     */
+    public function testOverwrite()
+    {
+        $this->stub->write(['foo', 'bar', 'baz']);
+        $this->stub->overwrite('bat');
+        $this->assertEquals(['foo', 'bar', 'baz', '', 'bat'], $this->stub->messages());
+    }
 }

@@ -18,9 +18,9 @@
 ?>
 <?php include __DIR__ . DS . 'header.php'; ?>
 <div id="content">
-	<h2>Missing Test Database Connection</h2>
-	<h3><?php echo $exception->getMessage(); ?></h3>
-	<pre><?php echo $exception->getTraceAsString(); ?></pre>
+    <h2>Missing Test Database Connection</h2>
+    <h3><?php echo $exception->getMessage(); ?></h3>
+    <pre><?php echo $exception->getTraceAsString(); ?></pre>
 </div>
 <?php
 include __DIR__ . DS . 'footer.php';

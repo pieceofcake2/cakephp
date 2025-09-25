@@ -21,12 +21,11 @@
  *
  * @package       Cake.Test.TestApp.Model
  */
-class PersisterTwo extends AppModel {
+class PersisterTwo extends AppModel
+{
+    public $useTable = 'posts';
 
-	public $useTable = 'posts';
+    public $actsAs = ['PersisterOneBehavior', 'TestPlugin.TestPluginPersisterOne'];
 
-	public $actsAs = ['PersisterOneBehavior', 'TestPlugin.TestPluginPersisterOne'];
-
-	public $hasMany = ['Comment', 'TestPlugin.TestPluginComment'];
-
+    public $hasMany = ['Comment', 'TestPlugin.TestPluginComment'];
 }

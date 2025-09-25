@@ -23,45 +23,47 @@ App::uses('CakeLogInterface', 'Log');
  *
  * @package       Cake.Log.Engine
  */
-abstract class BaseLog implements CakeLogInterface {
+abstract class BaseLog implements CakeLogInterface
+{
+    /**
+     * Engine config
+     *
+     * @var string
+     */
+    protected $_config = [];
 
-/**
- * Engine config
- *
- * @var string
- */
-	protected $_config = [];
+    /**
+     * Constructor
+     *
+     * @param array $config Configuration array
+     */
+    public function __construct($config = [])
+    {
+        $this->config($config);
+    }
 
-/**
- * Constructor
- *
- * @param array $config Configuration array
- */
-	public function __construct($config = []) {
-		$this->config($config);
-	}
+    /**
+     * Sets instance config. When $config is null, returns config array
+     *
+     * Config
+     *
+     * - `types` string or array, levels the engine is interested in
+     * - `scopes` string or array, scopes the engine is interested in
+     *
+     * @param array $config engine configuration
+     * @return array
+     */
+    public function config($config = [])
+    {
+        if (!empty($config)) {
+            foreach (['types', 'scopes'] as $option) {
+                if (isset($config[$option]) && is_string($config[$option])) {
+                    $config[$option] = [$config[$option]];
+                }
+            }
+            $this->_config = $config;
+        }
 
-/**
- * Sets instance config. When $config is null, returns config array
- *
- * Config
- *
- * - `types` string or array, levels the engine is interested in
- * - `scopes` string or array, scopes the engine is interested in
- *
- * @param array $config engine configuration
- * @return array
- */
-	public function config($config = []) {
-		if (!empty($config)) {
-			foreach (['types', 'scopes'] as $option) {
-				if (isset($config[$option]) && is_string($config[$option])) {
-					$config[$option] = [$config[$option]];
-				}
-			}
-			$this->_config = $config;
-		}
-		return $this->_config;
-	}
-
+        return $this->_config;
+    }
 }

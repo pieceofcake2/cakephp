@@ -2,6 +2,6 @@
 
 App::uses('CakeRoute', 'Routing/Route');
 
-class TestRoute extends CakeRoute {
-
+class TestRoute extends CakeRoute
+{
 }

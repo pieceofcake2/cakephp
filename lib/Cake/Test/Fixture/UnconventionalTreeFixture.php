@@ -24,18 +24,18 @@
  * @uses          CakeTestFixture
  * @package       Cake.Test.Fixture
  */
-class UnconventionalTreeFixture extends CakeTestFixture {
-
-/**
- * fields property
- *
- * @var array
- */
-	public $fields = [
-		'id'	=> ['type' => 'integer', 'key' => 'primary'],
-		'name'	=> ['type' => 'string', 'null' => false],
-		'join' => 'integer',
-		'left'	=> ['type' => 'integer', 'null' => false],
-		'right'	=> ['type' => 'integer', 'null' => false],
-	];
+class UnconventionalTreeFixture extends CakeTestFixture
+{
+    /**
+     * fields property
+     *
+     * @var array
+     */
+    public $fields = [
+        'id' => ['type' => 'integer', 'key' => 'primary'],
+        'name' => ['type' => 'string', 'null' => false],
+        'join' => 'integer',
+        'left' => ['type' => 'integer', 'null' => false],
+        'right' => ['type' => 'integer', 'null' => false],
+    ];
 }

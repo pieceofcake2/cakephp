@@ -21,28 +21,28 @@
  *
  * @package       Cake.Test.Fixture
  */
-class BookFixture extends CakeTestFixture {
+class BookFixture extends CakeTestFixture
+{
+    /**
+     * fields property
+     *
+     * @var array
+     */
+    public $fields = [
+        'id' => ['type' => 'integer', 'key' => 'primary'],
+        'isbn' => ['type' => 'string', 'length' => 13],
+        'title' => ['type' => 'string', 'length' => 255],
+        'author' => ['type' => 'string', 'length' => 255],
+        'year' => ['type' => 'integer', 'null' => true],
+        'pages' => ['type' => 'integer', 'null' => true],
+    ];
 
-/**
- * fields property
- *
- * @var array
- */
-	public $fields = [
-		'id' => ['type' => 'integer', 'key' => 'primary'],
-		'isbn' => ['type' => 'string', 'length' => 13],
-		'title' => ['type' => 'string', 'length' => 255],
-		'author' => ['type' => 'string', 'length' => 255],
-		'year' => ['type' => 'integer', 'null' => true],
-		'pages' => ['type' => 'integer', 'null' => true]
-	];
-
-/**
- * records property
- *
- * @var array
- */
-	public $records = [
-		['id' => 1, 'isbn' => '1234567890', 'title' => 'Faust', 'author' => 'Johann Wolfgang von Goethe']
-	];
+    /**
+     * records property
+     *
+     * @var array
+     */
+    public $records = [
+        ['id' => 1, 'isbn' => '1234567890', 'title' => 'Faust', 'author' => 'Johann Wolfgang von Goethe'],
+    ];
 }

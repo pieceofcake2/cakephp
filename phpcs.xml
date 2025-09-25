@@ -98,6 +98,8 @@
         <exclude-pattern>lib/Cake/Console/Command/**</exclude-pattern>
         <exclude-pattern>lib/Cake/Console/Templates/skel/Controller/**</exclude-pattern>
         <exclude-pattern>lib/Cake/Console/Templates/skel/Console/Command/**</exclude-pattern>
+        <exclude-pattern>lib/Cake/Test/Case/Console/Command/Task/ViewTaskTest.php</exclude-pattern>
+        <exclude-pattern>lib/Cake/Test/Case/Console/ShellTest.php</exclude-pattern>
         <exclude-pattern>lib/Cake/Test/Case/Controller/ControllerTest.php</exclude-pattern>
         <exclude-pattern>lib/Cake/Test/Case/Controller/Component/AuthComponentTest.php</exclude-pattern>
         <exclude-pattern>lib/Cake/Test/Case/Controller/Component/RequestHandlerComponentTest.php</exclude-pattern>
@@ -139,5 +141,10 @@
     <!-- Allow non-PascalCase class names in database.php files (CakePHP2 convention) -->
     <rule ref="Squiz.Classes.ValidClassName.NotPascalCase">
         <exclude-pattern>**/database.php</exclude-pattern>
+    </rule>
+
+    <!-- Allow public methods with underscore in test files -->
+    <rule ref="CakePHP.NamingConventions.ValidFunctionName.PublicWithUnderscore">
+        <exclude-pattern>lib/Cake/Test/Case/Controller/ControllerTest.php</exclude-pattern>
     </rule>
 </ruleset>

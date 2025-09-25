@@ -21,25 +21,25 @@
  *
  * @package       Cake.Test.Fixture
  */
-class UuidportfolioFixture extends CakeTestFixture {
+class UuidportfolioFixture extends CakeTestFixture
+{
+    /**
+     * fields property
+     *
+     * @var array
+     */
+    public $fields = [
+        'id' => ['type' => 'string', 'length' => 36, 'key' => 'primary'],
+        'name' => ['type' => 'string', 'null' => false],
+    ];
 
-/**
- * fields property
- *
- * @var array
- */
-	public $fields = [
-		'id' => ['type' => 'string', 'length' => 36, 'key' => 'primary'],
-		'name' => ['type' => 'string', 'null' => false]
-	];
-
-/**
- * records property
- *
- * @var array
- */
-	public $records = [
-		['id' => '4806e091-6940-4d2b-b227-303740cf8569', 'name' => 'Portfolio 1'],
-		['id' => '480af662-eb8c-47d3-886b-230540cf8569', 'name' => 'Portfolio 2'],
-	];
+    /**
+     * records property
+     *
+     * @var array
+     */
+    public $records = [
+        ['id' => '4806e091-6940-4d2b-b227-303740cf8569', 'name' => 'Portfolio 1'],
+        ['id' => '480af662-eb8c-47d3-886b-230540cf8569', 'name' => 'Portfolio 2'],
+    ];
 }

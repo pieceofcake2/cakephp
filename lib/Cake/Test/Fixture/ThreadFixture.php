@@ -21,27 +21,27 @@
  *
  * @package       Cake.Test.Fixture
  */
-class ThreadFixture extends CakeTestFixture {
+class ThreadFixture extends CakeTestFixture
+{
+    /**
+     * fields property
+     *
+     * @var array
+     */
+    public $fields = [
+        'id' => ['type' => 'integer', 'key' => 'primary'],
+        'project_id' => ['type' => 'integer', 'null' => false],
+        'name' => ['type' => 'string', 'null' => false],
+    ];
 
-/**
- * fields property
- *
- * @var array
- */
-	public $fields = [
-		'id' => ['type' => 'integer', 'key' => 'primary'],
-		'project_id' => ['type' => 'integer', 'null' => false],
-		'name' => ['type' => 'string', 'null' => false]
-	];
-
-/**
- * records property
- *
- * @var array
- */
-	public $records = [
-		['project_id' => 1, 'name' => 'Project 1, Thread 1'],
-		['project_id' => 1, 'name' => 'Project 1, Thread 2'],
-		['project_id' => 2, 'name' => 'Project 2, Thread 1']
-	];
+    /**
+     * records property
+     *
+     * @var array
+     */
+    public $records = [
+        ['project_id' => 1, 'name' => 'Project 1, Thread 1'],
+        ['project_id' => 1, 'name' => 'Project 1, Thread 2'],
+        ['project_id' => 2, 'name' => 'Project 2, Thread 1'],
+    ];
 }

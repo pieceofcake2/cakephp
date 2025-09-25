@@ -21,29 +21,29 @@
  *
  * @package       Cake.Test.Fixture
  */
-class TranslatedArticleFixture extends CakeTestFixture {
+class TranslatedArticleFixture extends CakeTestFixture
+{
+    /**
+     * fields property
+     *
+     * @var array
+     */
+    public $fields = [
+        'id' => ['type' => 'integer', 'key' => 'primary'],
+        'user_id' => ['type' => 'integer', 'null' => false],
+        'published' => ['type' => 'string', 'length' => 1, 'default' => 'N'],
+        'created' => 'datetime',
+        'updated' => 'datetime',
+    ];
 
-/**
- * fields property
- *
- * @var array
- */
-	public $fields = [
-		'id' => ['type' => 'integer', 'key' => 'primary'],
-		'user_id' => ['type' => 'integer', 'null' => false],
-		'published' => ['type' => 'string', 'length' => 1, 'default' => 'N'],
-		'created' => 'datetime',
-		'updated' => 'datetime'
-	];
-
-/**
- * records property
- *
- * @var array
- */
-	public $records = [
-		['id' => 1, 'user_id' => 1, 'published' => 'Y', 'created' => '2007-03-18 10:39:23', 'updated' => '2007-03-18 10:41:31'],
-		['id' => 2, 'user_id' => 3, 'published' => 'Y', 'created' => '2007-03-18 10:41:23', 'updated' => '2007-03-18 10:43:31'],
-		['id' => 3, 'user_id' => 1, 'published' => 'Y', 'created' => '2007-03-18 10:43:23', 'updated' => '2007-03-18 10:45:31']
-	];
+    /**
+     * records property
+     *
+     * @var array
+     */
+    public $records = [
+        ['id' => 1, 'user_id' => 1, 'published' => 'Y', 'created' => '2007-03-18 10:39:23', 'updated' => '2007-03-18 10:41:31'],
+        ['id' => 2, 'user_id' => 3, 'published' => 'Y', 'created' => '2007-03-18 10:41:23', 'updated' => '2007-03-18 10:43:31'],
+        ['id' => 3, 'user_id' => 1, 'published' => 'Y', 'created' => '2007-03-18 10:43:23', 'updated' => '2007-03-18 10:45:31'],
+    ];
 }

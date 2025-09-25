@@ -29,270 +29,278 @@ require_once dirname(__DIR__) . DS . 'models.php';
  *
  * @package       Cake.Test.Case.Model.Behavior
  */
-class TreeBehaviorUuidTest extends CakeTestCase {
+class TreeBehaviorUuidTest extends CakeTestCase
+{
+    /**
+     * Whether backup global state for each test method or not
+     *
+     * @var bool
+     */
+    public $backupGlobals = false;
 
-/**
- * Whether backup global state for each test method or not
- *
- * @var bool
- */
-	public $backupGlobals = false;
+    /**
+     * settings property
+     *
+     * @var array
+     */
+    public $settings = [
+        'modelClass' => 'UuidTree',
+        'leftField' => 'lft',
+        'rightField' => 'rght',
+        'parentField' => 'parent_id',
+    ];
 
-/**
- * settings property
- *
- * @var array
- */
-	public $settings = [
-		'modelClass' => 'UuidTree',
-		'leftField' => 'lft',
-		'rightField' => 'rght',
-		'parentField' => 'parent_id'
-	];
+    /**
+     * fixtures property
+     *
+     * @var array
+     */
+    public $fixtures = ['core.uuid_tree'];
 
-/**
- * fixtures property
- *
- * @var array
- */
-	public $fixtures = ['core.uuid_tree'];
+    /**
+     * testAddWithPreSpecifiedId method
+     *
+     * @return void
+     */
+    public function testAddWithPreSpecifiedId()
+    {
+        extract($this->settings);
+        $this->Tree = new $modelClass();
+        $this->Tree->order = null;
+        $this->Tree->initialize(2, 2);
 
-/**
- * testAddWithPreSpecifiedId method
- *
- * @return void
- */
-	public function testAddWithPreSpecifiedId() {
-		extract($this->settings);
-		$this->Tree = new $modelClass();
-		$this->Tree->order = null;
-		$this->Tree->initialize(2, 2);
+        $data = $this->Tree->find('first', [
+            'fields' => ['id'],
+            'conditions' => [$modelClass . '.name' => '1.1'],
+        ]);
 
-		$data = $this->Tree->find('first', [
-			'fields' => ['id'],
-			'conditions' => [$modelClass . '.name' => '1.1']
-		]);
+        $id = CakeText::uuid();
+        $this->Tree->create();
+        $result = $this->Tree->save([$modelClass => [
+            'id' => $id,
+            'name' => 'testAddMiddle',
+            $parentField => $data[$modelClass]['id']],
+        ]);
+        $expected = array_merge(
+            [$modelClass => ['id' => $id, 'name' => 'testAddMiddle', $parentField => '2']],
+            $result,
+        );
+        $this->assertSame($expected, $result);
 
-		$id = CakeText::uuid();
-		$this->Tree->create();
-		$result = $this->Tree->save([$modelClass => [
-			'id' => $id,
-			'name' => 'testAddMiddle',
-			$parentField => $data[$modelClass]['id']]
-		]);
-		$expected = array_merge(
-			[$modelClass => ['id' => $id, 'name' => 'testAddMiddle', $parentField => '2']],
-			$result
-		);
-		$this->assertSame($expected, $result);
+        $this->assertTrue($this->Tree->verify());
+    }
 
-		$this->assertTrue($this->Tree->verify());
-	}
+    /**
+     * testMovePromote method
+     *
+     * @return void
+     */
+    public function testMovePromote()
+    {
+        extract($this->settings);
+        $this->Tree = new $modelClass();
+        $this->Tree->order = null;
+        $this->Tree->initialize(2, 2);
+        $this->Tree->id = null;
 
-/**
- * testMovePromote method
- *
- * @return void
- */
-	public function testMovePromote() {
-		extract($this->settings);
-		$this->Tree = new $modelClass();
-		$this->Tree->order = null;
-		$this->Tree->initialize(2, 2);
-		$this->Tree->id = null;
+        $parent = $this->Tree->find('first', ['conditions' => [$modelClass . '.name' => '1. Root']]);
+        $parentId = $parent[$modelClass]['id'];
 
-		$parent = $this->Tree->find('first', ['conditions' => [$modelClass . '.name' => '1. Root']]);
-		$parentId = $parent[$modelClass]['id'];
+        $data = $this->Tree->find('first', ['fields' => ['id'], 'conditions' => [$modelClass . '.name' => '1.1.1']]);
+        $this->Tree->id = $data[$modelClass]['id'];
+        $this->Tree->saveField($parentField, $parentId);
+        $direct = $this->Tree->children($parentId, true, ['name', $leftField, $rightField]);
+        $expected = [[$modelClass => ['name' => '1.1', $leftField => 2, $rightField => 5]],
+            [$modelClass => ['name' => '1.2', $leftField => 6, $rightField => 11]],
+            [$modelClass => ['name' => '1.1.1', $leftField => 12, $rightField => 13]]];
+        $this->assertEquals($expected, $direct);
+        $validTree = $this->Tree->verify();
+        $this->assertTrue($validTree);
+    }
 
-		$data = $this->Tree->find('first', ['fields' => ['id'], 'conditions' => [$modelClass . '.name' => '1.1.1']]);
-		$this->Tree->id = $data[$modelClass]['id'];
-		$this->Tree->saveField($parentField, $parentId);
-		$direct = $this->Tree->children($parentId, true, ['name', $leftField, $rightField]);
-		$expected = [[$modelClass => ['name' => '1.1', $leftField => 2, $rightField => 5]],
-			[$modelClass => ['name' => '1.2', $leftField => 6, $rightField => 11]],
-			[$modelClass => ['name' => '1.1.1', $leftField => 12, $rightField => 13]]];
-		$this->assertEquals($expected, $direct);
-		$validTree = $this->Tree->verify();
-		$this->assertTrue($validTree);
-	}
+    /**
+     * testMoveWithWhitelist method
+     *
+     * @return void
+     */
+    public function testMoveWithWhitelist()
+    {
+        extract($this->settings);
+        $this->Tree = new $modelClass();
+        $this->Tree->order = null;
+        $this->Tree->initialize(2, 2);
+        $this->Tree->id = null;
 
-/**
- * testMoveWithWhitelist method
- *
- * @return void
- */
-	public function testMoveWithWhitelist() {
-		extract($this->settings);
-		$this->Tree = new $modelClass();
-		$this->Tree->order = null;
-		$this->Tree->initialize(2, 2);
-		$this->Tree->id = null;
+        $parent = $this->Tree->find('first', ['conditions' => [$modelClass . '.name' => '1. Root']]);
+        $parentId = $parent[$modelClass]['id'];
 
-		$parent = $this->Tree->find('first', ['conditions' => [$modelClass . '.name' => '1. Root']]);
-		$parentId = $parent[$modelClass]['id'];
+        $data = $this->Tree->find('first', ['fields' => ['id'], 'conditions' => [$modelClass . '.name' => '1.1.1']]);
+        $this->Tree->id = $data[$modelClass]['id'];
+        $this->Tree->whitelist = [$parentField, 'name', 'description'];
+        $this->Tree->saveField($parentField, $parentId);
 
-		$data = $this->Tree->find('first', ['fields' => ['id'], 'conditions' => [$modelClass . '.name' => '1.1.1']]);
-		$this->Tree->id = $data[$modelClass]['id'];
-		$this->Tree->whitelist = [$parentField, 'name', 'description'];
-		$this->Tree->saveField($parentField, $parentId);
+        $result = $this->Tree->children($parentId, true, ['name', $leftField, $rightField]);
+        $expected = [[$modelClass => ['name' => '1.1', $leftField => 2, $rightField => 5]],
+            [$modelClass => ['name' => '1.2', $leftField => 6, $rightField => 11]],
+            [$modelClass => ['name' => '1.1.1', $leftField => 12, $rightField => 13]]];
+        $this->assertEquals($expected, $result);
+        $this->assertTrue($this->Tree->verify());
+    }
 
-		$result = $this->Tree->children($parentId, true, ['name', $leftField, $rightField]);
-		$expected = [[$modelClass => ['name' => '1.1', $leftField => 2, $rightField => 5]],
-			[$modelClass => ['name' => '1.2', $leftField => 6, $rightField => 11]],
-			[$modelClass => ['name' => '1.1.1', $leftField => 12, $rightField => 13]]];
-		$this->assertEquals($expected, $result);
-		$this->assertTrue($this->Tree->verify());
-	}
+    /**
+     * testRemoveNoChildren method
+     *
+     * @return void
+     */
+    public function testRemoveNoChildren()
+    {
+        extract($this->settings);
+        $this->Tree = new $modelClass();
+        $this->Tree->order = null;
+        $this->Tree->initialize(2, 2);
+        $initialCount = $this->Tree->find('count');
 
-/**
- * testRemoveNoChildren method
- *
- * @return void
- */
-	public function testRemoveNoChildren() {
-		extract($this->settings);
-		$this->Tree = new $modelClass();
-		$this->Tree->order = null;
-		$this->Tree->initialize(2, 2);
-		$initialCount = $this->Tree->find('count');
+        $result = $this->Tree->findByName('1.1.1');
+        $this->Tree->removeFromTree($result[$modelClass]['id']);
 
-		$result = $this->Tree->findByName('1.1.1');
-		$this->Tree->removeFromTree($result[$modelClass]['id']);
+        $laterCount = $this->Tree->find('count');
+        $this->assertEquals($initialCount, $laterCount);
 
-		$laterCount = $this->Tree->find('count');
-		$this->assertEquals($initialCount, $laterCount);
+        $nodes = $this->Tree->find('list', ['order' => $leftField]);
+        $expected = [
+            '1. Root',
+            '1.1',
+            '1.1.2',
+            '1.2',
+            '1.2.1',
+            '1.2.2',
+            '1.1.1',
+        ];
 
-		$nodes = $this->Tree->find('list', ['order' => $leftField]);
-		$expected = [
-			'1. Root',
-			'1.1',
-			'1.1.2',
-			'1.2',
-			'1.2.1',
-			'1.2.2',
-			'1.1.1',
-		];
+        $this->assertEquals($expected, array_values($nodes));
 
-		$this->assertEquals($expected, array_values($nodes));
+        $validTree = $this->Tree->verify();
+        $this->assertTrue($validTree);
+    }
 
-		$validTree = $this->Tree->verify();
-		$this->assertTrue($validTree);
-	}
+    /**
+     * testRemoveAndDeleteNoChildren method
+     *
+     * @return void
+     */
+    public function testRemoveAndDeleteNoChildren()
+    {
+        extract($this->settings);
+        $this->Tree = new $modelClass();
+        $this->Tree->order = null;
+        $this->Tree->initialize(2, 2);
+        $initialCount = $this->Tree->find('count');
 
-/**
- * testRemoveAndDeleteNoChildren method
- *
- * @return void
- */
-	public function testRemoveAndDeleteNoChildren() {
-		extract($this->settings);
-		$this->Tree = new $modelClass();
-		$this->Tree->order = null;
-		$this->Tree->initialize(2, 2);
-		$initialCount = $this->Tree->find('count');
+        $result = $this->Tree->findByName('1.1.1');
+        $this->Tree->removeFromTree($result[$modelClass]['id'], true);
 
-		$result = $this->Tree->findByName('1.1.1');
-		$this->Tree->removeFromTree($result[$modelClass]['id'], true);
+        $laterCount = $this->Tree->find('count');
+        $this->assertEquals($initialCount - 1, $laterCount);
 
-		$laterCount = $this->Tree->find('count');
-		$this->assertEquals($initialCount - 1, $laterCount);
+        $nodes = $this->Tree->find('list', ['order' => $leftField]);
+        $expected = [
+            '1. Root',
+            '1.1',
+            '1.1.2',
+            '1.2',
+            '1.2.1',
+            '1.2.2',
+        ];
+        $this->assertEquals($expected, array_values($nodes));
 
-		$nodes = $this->Tree->find('list', ['order' => $leftField]);
-		$expected = [
-			'1. Root',
-			'1.1',
-			'1.1.2',
-			'1.2',
-			'1.2.1',
-			'1.2.2',
-		];
-		$this->assertEquals($expected, array_values($nodes));
+        $validTree = $this->Tree->verify();
+        $this->assertTrue($validTree);
+    }
 
-		$validTree = $this->Tree->verify();
-		$this->assertTrue($validTree);
-	}
+    /**
+     * testChildren method
+     *
+     * @return void
+     */
+    public function testChildren()
+    {
+        extract($this->settings);
+        $this->Tree = new $modelClass();
+        $this->Tree->order = null;
+        $this->Tree->initialize(2, 2);
 
-/**
- * testChildren method
- *
- * @return void
- */
-	public function testChildren() {
-		extract($this->settings);
-		$this->Tree = new $modelClass();
-		$this->Tree->order = null;
-		$this->Tree->initialize(2, 2);
+        $data = $this->Tree->find('first', ['conditions' => [$modelClass . '.name' => '1. Root']]);
+        $this->Tree->id = $data[$modelClass]['id'];
 
-		$data = $this->Tree->find('first', ['conditions' => [$modelClass . '.name' => '1. Root']]);
-		$this->Tree->id = $data[$modelClass]['id'];
+        $direct = $this->Tree->children(null, true, ['name', $leftField, $rightField]);
+        $expected = [[$modelClass => ['name' => '1.1', $leftField => 2, $rightField => 7]],
+            [$modelClass => ['name' => '1.2', $leftField => 8, $rightField => 13]]];
+        $this->assertEquals($expected, $direct);
 
-		$direct = $this->Tree->children(null, true, ['name', $leftField, $rightField]);
-		$expected = [[$modelClass => ['name' => '1.1', $leftField => 2, $rightField => 7]],
-			[$modelClass => ['name' => '1.2', $leftField => 8, $rightField => 13]]];
-		$this->assertEquals($expected, $direct);
+        $total = $this->Tree->children(null, null, ['name', $leftField, $rightField]);
+        $expected = [[$modelClass => ['name' => '1.1', $leftField => 2, $rightField => 7]],
+            [$modelClass => ['name' => '1.1.1', $leftField => 3, $rightField => 4]],
+            [$modelClass => ['name' => '1.1.2', $leftField => 5, $rightField => 6]],
+            [$modelClass => ['name' => '1.2', $leftField => 8, $rightField => 13]],
+            [$modelClass => ['name' => '1.2.1', $leftField => 9, $rightField => 10]],
+            [$modelClass => ['name' => '1.2.2', $leftField => 11, $rightField => 12]]];
+        $this->assertEquals($expected, $total);
+    }
 
-		$total = $this->Tree->children(null, null, ['name', $leftField, $rightField]);
-		$expected = [[$modelClass => ['name' => '1.1', $leftField => 2, $rightField => 7]],
-			[$modelClass => ['name' => '1.1.1', $leftField => 3, $rightField => 4]],
-			[$modelClass => ['name' => '1.1.2', $leftField => 5, $rightField => 6]],
-			[$modelClass => ['name' => '1.2', $leftField => 8, $rightField => 13]],
-			[$modelClass => ['name' => '1.2.1', $leftField => 9, $rightField => 10]],
-			[$modelClass => ['name' => '1.2.2', $leftField => 11, $rightField => 12]]];
-		$this->assertEquals($expected, $total);
-	}
+    /**
+     * testNoAmbiguousColumn method
+     *
+     * @return void
+     */
+    public function testNoAmbiguousColumn()
+    {
+        extract($this->settings);
+        $this->Tree = new $modelClass();
+        $this->Tree->order = null;
+        $this->Tree->initialize(2, 2);
 
-/**
- * testNoAmbiguousColumn method
- *
- * @return void
- */
-	public function testNoAmbiguousColumn() {
-		extract($this->settings);
-		$this->Tree = new $modelClass();
-		$this->Tree->order = null;
-		$this->Tree->initialize(2, 2);
+        $this->Tree->bindModel(['belongsTo' => ['Dummy' =>
+            ['className' => $modelClass, 'foreignKey' => $parentField, 'conditions' => ['Dummy.id' => null]]]], false);
 
-		$this->Tree->bindModel(['belongsTo' => ['Dummy' =>
-			['className' => $modelClass, 'foreignKey' => $parentField, 'conditions' => ['Dummy.id' => null]]]], false);
+        $data = $this->Tree->find('first', [
+            'conditions' => [$modelClass . '.name' => '1. Root'],
+            'recursive' => -1,
+        ]);
+        $this->Tree->id = $data[$modelClass]['id'];
 
-		$data = $this->Tree->find('first', [
-			'conditions' => [$modelClass . '.name' => '1. Root'],
-			'recursive' => -1
-		]);
-		$this->Tree->id = $data[$modelClass]['id'];
+        $direct = $this->Tree->children(null, true, ['name', $leftField, $rightField]);
+        $expected = [[$modelClass => ['name' => '1.1', $leftField => 2, $rightField => 7]],
+            [$modelClass => ['name' => '1.2', $leftField => 8, $rightField => 13]]];
+        $this->assertEquals($expected, $direct);
 
-		$direct = $this->Tree->children(null, true, ['name', $leftField, $rightField]);
-		$expected = [[$modelClass => ['name' => '1.1', $leftField => 2, $rightField => 7]],
-			[$modelClass => ['name' => '1.2', $leftField => 8, $rightField => 13]]];
-		$this->assertEquals($expected, $direct);
+        $total = $this->Tree->children(null, null, ['name', $leftField, $rightField]);
+        $expected = [
+            [$modelClass => ['name' => '1.1', $leftField => 2, $rightField => 7]],
+            [$modelClass => ['name' => '1.1.1', $leftField => 3, $rightField => 4]],
+            [$modelClass => ['name' => '1.1.2', $leftField => 5, $rightField => 6]],
+            [$modelClass => ['name' => '1.2', $leftField => 8, $rightField => 13]],
+            [$modelClass => ['name' => '1.2.1', $leftField => 9, $rightField => 10]],
+            [$modelClass => ['name' => '1.2.2', $leftField => 11, $rightField => 12]],
+        ];
+        $this->assertEquals($expected, $total);
+    }
 
-		$total = $this->Tree->children(null, null, ['name', $leftField, $rightField]);
-		$expected = [
-			[$modelClass => ['name' => '1.1', $leftField => 2, $rightField => 7]],
-			[$modelClass => ['name' => '1.1.1', $leftField => 3, $rightField => 4]],
-			[$modelClass => ['name' => '1.1.2', $leftField => 5, $rightField => 6]],
-			[$modelClass => ['name' => '1.2', $leftField => 8, $rightField => 13]],
-			[$modelClass => ['name' => '1.2.1', $leftField => 9, $rightField => 10]],
-			[$modelClass => ['name' => '1.2.2', $leftField => 11, $rightField => 12]]
-		];
-		$this->assertEquals($expected, $total);
-	}
+    /**
+     * testGenerateTreeListWithSelfJoin method
+     *
+     * @return void
+     */
+    public function testGenerateTreeListWithSelfJoin()
+    {
+        extract($this->settings);
+        $this->Tree = new $modelClass();
+        $this->Tree->order = null;
+        $this->Tree->bindModel(['belongsTo' => ['Dummy' =>
+            ['className' => $modelClass, 'foreignKey' => $parentField, 'conditions' => ['Dummy.id' => null]]]], false);
+        $this->Tree->initialize(2, 2);
 
-/**
- * testGenerateTreeListWithSelfJoin method
- *
- * @return void
- */
-	public function testGenerateTreeListWithSelfJoin() {
-		extract($this->settings);
-		$this->Tree = new $modelClass();
-		$this->Tree->order = null;
-		$this->Tree->bindModel(['belongsTo' => ['Dummy' =>
-			['className' => $modelClass, 'foreignKey' => $parentField, 'conditions' => ['Dummy.id' => null]]]], false);
-		$this->Tree->initialize(2, 2);
-
-		$result = $this->Tree->generateTreeList();
-		$expected = ['1. Root', '_1.1', '__1.1.1', '__1.1.2', '_1.2', '__1.2.1', '__1.2.2'];
-		$this->assertSame($expected, array_values($result));
-	}
+        $result = $this->Tree->generateTreeList();
+        $expected = ['1. Root', '_1.1', '__1.1.1', '__1.1.2', '_1.2', '__1.2.1', '__1.2.2'];
+        $this->assertSame($expected, array_values($result));
+    }
 }

@@ -21,32 +21,32 @@
  *
  * @package       Cake.Test.Fixture
  */
-class AroFixture extends CakeTestFixture {
+class AroFixture extends CakeTestFixture
+{
+    /**
+     * fields property
+     *
+     * @var array
+     */
+    public $fields = [
+        'id' => ['type' => 'integer', 'key' => 'primary'],
+        'parent_id' => ['type' => 'integer', 'length' => 10, 'null' => true],
+        'model' => ['type' => 'string', 'null' => true],
+        'foreign_key' => ['type' => 'integer', 'length' => 10, 'null' => true],
+        'alias' => ['type' => 'string', 'default' => ''],
+        'lft' => ['type' => 'integer', 'length' => 10, 'null' => true],
+        'rght' => ['type' => 'integer', 'length' => 10, 'null' => true],
+    ];
 
-/**
- * fields property
- *
- * @var array
- */
-	public $fields = [
-		'id' => ['type' => 'integer', 'key' => 'primary'],
-		'parent_id' => ['type' => 'integer', 'length' => 10, 'null' => true],
-		'model' => ['type' => 'string', 'null' => true],
-		'foreign_key' => ['type' => 'integer', 'length' => 10, 'null' => true],
-		'alias' => ['type' => 'string', 'default' => ''],
-		'lft' => ['type' => 'integer', 'length' => 10, 'null' => true],
-		'rght' => ['type' => 'integer', 'length' => 10, 'null' => true]
-	];
-
-/**
- * records property
- *
- * @var array
- */
-	public $records = [
-		['parent_id' => null, 'model' => null, 'foreign_key' => null, 'alias' => 'ROOT', 'lft' => 1, 'rght' => 8],
-		['parent_id' => '1', 'model' => 'Group', 'foreign_key' => '1', 'alias' => 'admins', 'lft' => 2, 'rght' => 7],
-		['parent_id' => '2', 'model' => 'AuthUser', 'foreign_key' => '1', 'alias' => 'Gandalf', 'lft' => 3, 'rght' => 4],
-		['parent_id' => '2', 'model' => 'AuthUser', 'foreign_key' => '2', 'alias' => 'Elrond', 'lft' => 5, 'rght' => 6]
-	];
+    /**
+     * records property
+     *
+     * @var array
+     */
+    public $records = [
+        ['parent_id' => null, 'model' => null, 'foreign_key' => null, 'alias' => 'ROOT', 'lft' => 1, 'rght' => 8],
+        ['parent_id' => '1', 'model' => 'Group', 'foreign_key' => '1', 'alias' => 'admins', 'lft' => 2, 'rght' => 7],
+        ['parent_id' => '2', 'model' => 'AuthUser', 'foreign_key' => '1', 'alias' => 'Gandalf', 'lft' => 3, 'rght' => 4],
+        ['parent_id' => '2', 'model' => 'AuthUser', 'foreign_key' => '2', 'alias' => 'Elrond', 'lft' => 5, 'rght' => 6],
+    ];
 }

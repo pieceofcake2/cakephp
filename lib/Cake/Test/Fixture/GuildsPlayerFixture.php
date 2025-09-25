@@ -21,29 +21,29 @@
  *
  * @package       Cake.Test.Fixture
  */
-class GuildsPlayerFixture extends CakeTestFixture {
+class GuildsPlayerFixture extends CakeTestFixture
+{
+    public $useDbConfig = 'test2';
 
-	public $useDbConfig = 'test2';
+    /**
+     * fields property
+     *
+     * @var array
+     */
+    public $fields = [
+        'id' => ['type' => 'integer', 'key' => 'primary'],
+        'player_id' => ['type' => 'integer', 'null' => false],
+        'guild_id' => ['type' => 'integer', 'null' => false],
+    ];
 
-/**
- * fields property
- *
- * @var array
- */
-	public $fields = [
-		'id' => ['type' => 'integer', 'key' => 'primary'],
-		'player_id' => ['type' => 'integer', 'null' => false],
-		'guild_id' => ['type' => 'integer', 'null' => false],
-	];
-
-/**
- * records property
- *
- * @var array
- */
-	public $records = [
-		['player_id' => 1, 'guild_id' => 1],
-		['player_id' => 1, 'guild_id' => 2],
-		['player_id' => 4, 'guild_id' => 3],
-	];
+    /**
+     * records property
+     *
+     * @var array
+     */
+    public $records = [
+        ['player_id' => 1, 'guild_id' => 1],
+        ['player_id' => 1, 'guild_id' => 2],
+        ['player_id' => 4, 'guild_id' => 3],
+    ];
 }

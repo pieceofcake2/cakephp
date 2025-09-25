@@ -30,14 +30,14 @@ require_once dirname(__DIR__) . DS . 'Model' . DS . 'models.php';
  *
  * @package       Cake.Test.Case.Controller
  */
-class ScaffoldMockController extends Controller {
-
-/**
- * scaffold property
- *
- * @var mixed
- */
-	public $scaffold;
+class ScaffoldMockController extends Controller
+{
+    /**
+     * scaffold property
+     *
+     * @var mixed
+     */
+    public $scaffold;
 }
 
 /**
@@ -45,33 +45,34 @@ class ScaffoldMockController extends Controller {
  *
  * @package       Cake.Test.Case.Controller
  */
-class ScaffoldMockControllerWithFields extends Controller {
+class ScaffoldMockControllerWithFields extends Controller
+{
+    /**
+     * name property
+     *
+     * @var string
+     */
+    public $name = 'ScaffoldMock';
 
-/**
- * name property
- *
- * @var string
- */
-	public $name = 'ScaffoldMock';
+    /**
+     * scaffold property
+     *
+     * @var mixed
+     */
+    public $scaffold;
 
-/**
- * scaffold property
- *
- * @var mixed
- */
-	public $scaffold;
+    /**
+     * function beforeScaffold
+     *
+     * @param string $method Method name.
+     * @return bool true
+     */
+    public function beforeScaffold($method)
+    {
+        $this->set('scaffoldFields', ['title']);
 
-/**
- * function beforeScaffold
- *
- * @param string $method Method name.
- * @return bool true
- */
-	public function beforeScaffold($method) {
-		$this->set('scaffoldFields', ['title']);
-		return true;
-	}
-
+        return true;
+    }
 }
 
 /**
@@ -79,32 +80,32 @@ class ScaffoldMockControllerWithFields extends Controller {
  *
  * @package       Cake.Test.Case.Controller
  */
-class ScaffoldMockControllerWithError extends Controller {
+class ScaffoldMockControllerWithError extends Controller
+{
+    /**
+     * name property
+     *
+     * @var string
+     */
+    public $name = 'ScaffoldMock';
 
-/**
- * name property
- *
- * @var string
- */
-	public $name = 'ScaffoldMock';
+    /**
+     * scaffold property
+     *
+     * @var mixed
+     */
+    public $scaffold;
 
-/**
- * scaffold property
- *
- * @var mixed
- */
-	public $scaffold;
-
-/**
- * function beforeScaffold
- *
- * @param string $method Method name.
- * @return bool false
- */
-	public function beforeScaffold($method) {
-		return false;
-	}
-
+    /**
+     * function beforeScaffold
+     *
+     * @param string $method Method name.
+     * @return bool false
+     */
+    public function beforeScaffold($method)
+    {
+        return false;
+    }
 }
 
 /**
@@ -112,27 +113,28 @@ class ScaffoldMockControllerWithError extends Controller {
  *
  * @package       Cake.Test.Case.Controller
  */
-class TestScaffoldMock extends Scaffold {
+class TestScaffoldMock extends Scaffold
+{
+    /**
+     * Overload _scaffold
+     *
+     * @param CakeRequest $request Request object for scaffolding
+     * @return void
+     */
+    protected function _scaffold(CakeRequest $request)
+    {
+        $this->_params = $request;
+    }
 
-/**
- * Overload _scaffold
- *
- * @param CakeRequest $request Request object for scaffolding
- * @return void
- */
-	protected function _scaffold(CakeRequest $request) {
-		$this->_params = $request;
-	}
-
-/**
- * Get Params from the Controller.
- *
- * @return unknown
- */
-	public function getParams() {
-		return $this->_params;
-	}
-
+    /**
+     * Get Params from the Controller.
+     *
+     * @return unknown
+     */
+    public function getParams()
+    {
+        return $this->_params;
+    }
 }
 
 /**
@@ -140,280 +142,289 @@ class TestScaffoldMock extends Scaffold {
  *
  * @package       Cake.Test.Case.Controller
  */
-class ScaffoldTest extends CakeTestCase {
+class ScaffoldTest extends CakeTestCase
+{
+    /**
+     * Controller property
+     *
+     * @var SecurityTestController
+     */
+    public $Controller;
 
-/**
- * Controller property
- *
- * @var SecurityTestController
- */
-	public $Controller;
+    /**
+     * fixtures property
+     *
+     * @var array
+     */
+    public $fixtures = ['core.article', 'core.user', 'core.comment', 'core.join_thing', 'core.tag'];
 
-/**
- * fixtures property
- *
- * @var array
- */
-	public $fixtures = ['core.article', 'core.user', 'core.comment', 'core.join_thing', 'core.tag'];
+    /**
+     * setUp method
+     *
+     * @return void
+     */
+    public function setUp(): void
+    {
+        parent::setUp();
+        Configure::write('Config.language', 'eng');
+        $request = new CakeRequest(null, false);
+        $this->Controller = new ScaffoldMockController($request);
+        $this->Controller->response = $this->getMock('CakeResponse', ['_sendHeader']);
+    }
 
-/**
- * setUp method
- *
- * @return void
- */
-	public function setUp() : void {
-		parent::setUp();
-		Configure::write('Config.language', 'eng');
-		$request = new CakeRequest(null, false);
-		$this->Controller = new ScaffoldMockController($request);
-		$this->Controller->response = $this->getMock('CakeResponse', ['_sendHeader']);
-	}
+    /**
+     * tearDown method
+     *
+     * @return void
+     */
+    public function tearDown(): void
+    {
+        CakeSession::destroy();
+        unset($this->Controller);
 
-/**
- * tearDown method
- *
- * @return void
- */
-	public function tearDown() : void {
-		CakeSession::destroy();
-		unset($this->Controller);
+        parent::tearDown();
+    }
 
-		parent::tearDown();
-	}
+    /**
+     * Test the correct Generation of Scaffold Params.
+     * This ensures that the correct action and view will be generated
+     *
+     * @return void
+     */
+    public function testScaffoldParams()
+    {
+        $params = [
+            'plugin' => null,
+            'pass' => [],
+            'form' => [],
+            'named' => [],
+            'url' => ['url' => 'admin/scaffold_mock/edit'],
+            'controller' => 'scaffold_mock',
+            'action' => 'admin_edit',
+            'admin' => true,
+        ];
+        $this->Controller->request->base = '';
+        $this->Controller->request->webroot = '/';
+        $this->Controller->request->here = '/admin/scaffold_mock/edit';
+        $this->Controller->request->addParams($params);
 
-/**
- * Test the correct Generation of Scaffold Params.
- * This ensures that the correct action and view will be generated
- *
- * @return void
- */
-	public function testScaffoldParams() {
-		$params = [
-			'plugin' => null,
-			'pass' => [],
-			'form' => [],
-			'named' => [],
-			'url' => ['url' => 'admin/scaffold_mock/edit'],
-			'controller' => 'scaffold_mock',
-			'action' => 'admin_edit',
-			'admin' => true,
-		];
-		$this->Controller->request->base = '';
-		$this->Controller->request->webroot = '/';
-		$this->Controller->request->here = '/admin/scaffold_mock/edit';
-		$this->Controller->request->addParams($params);
+        //set router.
+        Router::setRequestInfo($this->Controller->request);
 
-		//set router.
-		Router::setRequestInfo($this->Controller->request);
+        $this->Controller->constructClasses();
+        $Scaffold = new TestScaffoldMock($this->Controller, $this->Controller->request);
+        $result = $Scaffold->getParams();
+        $this->assertEquals('admin_edit', $result['action']);
+    }
 
-		$this->Controller->constructClasses();
-		$Scaffold = new TestScaffoldMock($this->Controller, $this->Controller->request);
-		$result = $Scaffold->getParams();
-		$this->assertEquals('admin_edit', $result['action']);
-	}
+    /**
+     * test that the proper names and variable values are set by Scaffold
+     *
+     * @return void
+     */
+    public function testScaffoldVariableSetting()
+    {
+        $params = [
+            'plugin' => null,
+            'pass' => [],
+            'form' => [],
+            'named' => [],
+            'url' => ['url' => 'admin/scaffold_mock/edit'],
+            'controller' => 'scaffold_mock',
+            'action' => 'admin_edit',
+            'admin' => true,
+        ];
+        $this->Controller->request->base = '';
+        $this->Controller->request->webroot = '/';
+        $this->Controller->request->here = '/admin/scaffold_mock/edit';
+        $this->Controller->request->addParams($params);
 
-/**
- * test that the proper names and variable values are set by Scaffold
- *
- * @return void
- */
-	public function testScaffoldVariableSetting() {
-		$params = [
-			'plugin' => null,
-			'pass' => [],
-			'form' => [],
-			'named' => [],
-			'url' => ['url' => 'admin/scaffold_mock/edit'],
-			'controller' => 'scaffold_mock',
-			'action' => 'admin_edit',
-			'admin' => true,
-		];
-		$this->Controller->request->base = '';
-		$this->Controller->request->webroot = '/';
-		$this->Controller->request->here = '/admin/scaffold_mock/edit';
-		$this->Controller->request->addParams($params);
+        //set router.
+        Router::setRequestInfo($this->Controller->request);
 
-		//set router.
-		Router::setRequestInfo($this->Controller->request);
+        $this->Controller->constructClasses();
+        $Scaffold = new TestScaffoldMock($this->Controller, $this->Controller->request);
+        $result = $Scaffold->controller->viewVars;
 
-		$this->Controller->constructClasses();
-		$Scaffold = new TestScaffoldMock($this->Controller, $this->Controller->request);
-		$result = $Scaffold->controller->viewVars;
+        $this->assertEquals('Scaffold :: Admin Edit :: Scaffold Mock', $result['title_for_layout']);
+        $this->assertEquals('Scaffold Mock', $result['singularHumanName']);
+        $this->assertEquals('Scaffold Mock', $result['pluralHumanName']);
+        $this->assertEquals('ScaffoldMock', $result['modelClass']);
+        $this->assertEquals('id', $result['primaryKey']);
+        $this->assertEquals('title', $result['displayField']);
+        $this->assertEquals('scaffoldMock', $result['singularVar']);
+        $this->assertEquals('scaffoldMock', $result['pluralVar']);
+        $this->assertEquals(['id', 'user_id', 'title', 'body', 'published', 'created', 'updated'], $result['scaffoldFields']);
+        $this->assertArrayHasKey('plugin', $result['associations']['belongsTo']['User']);
+    }
 
-		$this->assertEquals('Scaffold :: Admin Edit :: Scaffold Mock', $result['title_for_layout']);
-		$this->assertEquals('Scaffold Mock', $result['singularHumanName']);
-		$this->assertEquals('Scaffold Mock', $result['pluralHumanName']);
-		$this->assertEquals('ScaffoldMock', $result['modelClass']);
-		$this->assertEquals('id', $result['primaryKey']);
-		$this->assertEquals('title', $result['displayField']);
-		$this->assertEquals('scaffoldMock', $result['singularVar']);
-		$this->assertEquals('scaffoldMock', $result['pluralVar']);
-		$this->assertEquals(['id', 'user_id', 'title', 'body', 'published', 'created', 'updated'], $result['scaffoldFields']);
-		$this->assertArrayHasKey('plugin', $result['associations']['belongsTo']['User']);
-	}
+    /**
+     * test that Scaffold overrides the view property even if its set to 'Theme'
+     *
+     * @return void
+     */
+    public function testScaffoldChangingViewProperty()
+    {
+        $this->Controller->action = 'edit';
+        $this->Controller->theme = 'TestTheme';
+        $this->Controller->viewClass = 'Theme';
+        $this->Controller->constructClasses();
+        new TestScaffoldMock($this->Controller, $this->Controller->request);
 
-/**
- * test that Scaffold overrides the view property even if its set to 'Theme'
- *
- * @return void
- */
-	public function testScaffoldChangingViewProperty() {
-		$this->Controller->action = 'edit';
-		$this->Controller->theme = 'TestTheme';
-		$this->Controller->viewClass = 'Theme';
-		$this->Controller->constructClasses();
-		new TestScaffoldMock($this->Controller, $this->Controller->request);
+        $this->assertEquals('Scaffold', $this->Controller->viewClass);
+    }
 
-		$this->assertEquals('Scaffold', $this->Controller->viewClass);
-	}
+    /**
+     * test that scaffold outputs flash messages when sessions are unset.
+     *
+     * @return void
+     */
+    public function testScaffoldFlashMessages()
+    {
+        $params = [
+            'plugin' => null,
+            'pass' => [1],
+            'form' => [],
+            'named' => [],
+            'url' => ['url' => 'scaffold_mock'],
+            'controller' => 'scaffold_mock',
+            'action' => 'edit',
+        ];
+        $this->Controller->request->base = '';
+        $this->Controller->request->webroot = '/';
+        $this->Controller->request->here = '/scaffold_mock/edit';
+        $this->Controller->request->addParams($params);
 
-/**
- * test that scaffold outputs flash messages when sessions are unset.
- *
- * @return void
- */
-	public function testScaffoldFlashMessages() {
-		$params = [
-			'plugin' => null,
-			'pass' => [1],
-			'form' => [],
-			'named' => [],
-			'url' => ['url' => 'scaffold_mock'],
-			'controller' => 'scaffold_mock',
-			'action' => 'edit',
-		];
-		$this->Controller->request->base = '';
-		$this->Controller->request->webroot = '/';
-		$this->Controller->request->here = '/scaffold_mock/edit';
-		$this->Controller->request->addParams($params);
+        //set router.
+        Router::reload();
+        Router::setRequestInfo($this->Controller->request);
+        $this->Controller->request->data = [
+            'ScaffoldMock' => [
+                'id' => 1,
+                'title' => 'New title',
+                'body' => 'new body',
+            ],
+        ];
+        $this->Controller->constructClasses();
+        unset($this->Controller->Session);
 
-		//set router.
-		Router::reload();
-		Router::setRequestInfo($this->Controller->request);
-		$this->Controller->request->data = [
-			'ScaffoldMock' => [
-				'id' => 1,
-				'title' => 'New title',
-				'body' => 'new body'
-			]
-		];
-		$this->Controller->constructClasses();
-		unset($this->Controller->Session);
+        ob_start();
+        new Scaffold($this->Controller, $this->Controller->request);
+        $this->Controller->response->send();
+        $result = ob_get_clean();
+        $this->assertMatchesRegularExpression('/Scaffold Mock has been updated/', $result);
+    }
 
-		ob_start();
-		new Scaffold($this->Controller, $this->Controller->request);
-		$this->Controller->response->send();
-		$result = ob_get_clean();
-		$this->assertMatchesRegularExpression('/Scaffold Mock has been updated/', $result);
-	}
+    /**
+     * test that habtm relationship keys get added to scaffoldFields.
+     *
+     * @return void
+     */
+    public function testHabtmFieldAdditionWithScaffoldForm()
+    {
+        CakePlugin::unload();
+        $params = [
+            'plugin' => null,
+            'pass' => [1],
+            'form' => [],
+            'named' => [],
+            'url' => ['url' => 'scaffold_mock'],
+            'controller' => 'scaffold_mock',
+            'action' => 'edit',
+        ];
+        $this->Controller->request->base = '';
+        $this->Controller->request->webroot = '/';
+        $this->Controller->request->here = '/scaffold_mock/edit';
+        $this->Controller->request->addParams($params);
 
-/**
- * test that habtm relationship keys get added to scaffoldFields.
- *
- * @return void
- */
-	public function testHabtmFieldAdditionWithScaffoldForm() {
-		CakePlugin::unload();
-		$params = [
-			'plugin' => null,
-			'pass' => [1],
-			'form' => [],
-			'named' => [],
-			'url' => ['url' => 'scaffold_mock'],
-			'controller' => 'scaffold_mock',
-			'action' => 'edit',
-		];
-		$this->Controller->request->base = '';
-		$this->Controller->request->webroot = '/';
-		$this->Controller->request->here = '/scaffold_mock/edit';
-		$this->Controller->request->addParams($params);
+        //set router.
+        Router::reload();
+        Router::setRequestInfo($this->Controller->request);
 
-		//set router.
-		Router::reload();
-		Router::setRequestInfo($this->Controller->request);
+        $this->Controller->constructClasses();
+        ob_start();
+        $Scaffold = new Scaffold($this->Controller, $this->Controller->request);
+        $this->Controller->response->send();
+        $result = ob_get_clean();
+        $this->assertMatchesRegularExpression('/name="data\[ScaffoldTag\]\[ScaffoldTag\]"/', $result);
 
-		$this->Controller->constructClasses();
-		ob_start();
-		$Scaffold = new Scaffold($this->Controller, $this->Controller->request);
-		$this->Controller->response->send();
-		$result = ob_get_clean();
-		$this->assertMatchesRegularExpression('/name="data\[ScaffoldTag\]\[ScaffoldTag\]"/', $result);
+        $result = $Scaffold->controller->viewVars;
+        $this->assertEquals(['id', 'user_id', 'title', 'body', 'published', 'created', 'updated', 'ScaffoldTag'], $result['scaffoldFields']);
+    }
 
-		$result = $Scaffold->controller->viewVars;
-		$this->assertEquals(['id', 'user_id', 'title', 'body', 'published', 'created', 'updated', 'ScaffoldTag'], $result['scaffoldFields']);
-	}
+    /**
+     * test that the proper names and variable values are set by Scaffold
+     *
+     * @return void
+     */
+    public function testEditScaffoldWithScaffoldFields()
+    {
+        $request = new CakeRequest(null, false);
+        $this->Controller = new ScaffoldMockControllerWithFields($request);
+        $this->Controller->response = $this->getMock('CakeResponse', ['_sendHeader']);
 
-/**
- * test that the proper names and variable values are set by Scaffold
- *
- * @return void
- */
-	public function testEditScaffoldWithScaffoldFields() {
-		$request = new CakeRequest(null, false);
-		$this->Controller = new ScaffoldMockControllerWithFields($request);
-		$this->Controller->response = $this->getMock('CakeResponse', ['_sendHeader']);
+        $params = [
+            'plugin' => null,
+            'pass' => [1],
+            'form' => [],
+            'named' => [],
+            'url' => ['url' => 'scaffold_mock/edit'],
+            'controller' => 'scaffold_mock',
+            'action' => 'edit',
+        ];
+        $this->Controller->request->base = '';
+        $this->Controller->request->webroot = '/';
+        $this->Controller->request->here = '/scaffold_mock/edit';
+        $this->Controller->request->addParams($params);
 
-		$params = [
-			'plugin' => null,
-			'pass' => [1],
-			'form' => [],
-			'named' => [],
-			'url' => ['url' => 'scaffold_mock/edit'],
-			'controller' => 'scaffold_mock',
-			'action' => 'edit',
-		];
-		$this->Controller->request->base = '';
-		$this->Controller->request->webroot = '/';
-		$this->Controller->request->here = '/scaffold_mock/edit';
-		$this->Controller->request->addParams($params);
+        //set router.
+        Router::reload();
+        Router::setRequestInfo($this->Controller->request);
 
-		//set router.
-		Router::reload();
-		Router::setRequestInfo($this->Controller->request);
+        $this->Controller->constructClasses();
+        ob_start();
+        new Scaffold($this->Controller, $this->Controller->request);
+        $this->Controller->response->send();
+        $result = ob_get_clean();
 
-		$this->Controller->constructClasses();
-		ob_start();
-		new Scaffold($this->Controller, $this->Controller->request);
-		$this->Controller->response->send();
-		$result = ob_get_clean();
+        $this->assertDoesNotMatchRegularExpression('/textarea name="data\[ScaffoldMock\]\[body\]" cols="30" rows="6" id="ScaffoldMockBody"/', $result);
+    }
 
-		$this->assertDoesNotMatchRegularExpression('/textarea name="data\[ScaffoldMock\]\[body\]" cols="30" rows="6" id="ScaffoldMockBody"/', $result);
-	}
+    /**
+     * test in case of scaffold error
+     *
+     * @return void
+     */
+    public function testScaffoldError()
+    {
+        $request = new CakeRequest(null, false);
+        $this->Controller = new ScaffoldMockControllerWithError($request);
+        $this->Controller->response = $this->getMock('CakeResponse', ['_sendHeader']);
 
-/**
- * test in case of scaffold error
- *
- * @return void
- */
-	public function testScaffoldError() {
-		$request = new CakeRequest(null, false);
-		$this->Controller = new ScaffoldMockControllerWithError($request);
-		$this->Controller->response = $this->getMock('CakeResponse', ['_sendHeader']);
+        $params = [
+            'plugin' => null,
+            'pass' => [1],
+            'form' => [],
+            'named' => [],
+            'url' => ['url' => 'scaffold_mock/edit'],
+            'controller' => 'scaffold_mock',
+            'action' => 'edit',
+        ];
+        $this->Controller->request->base = '';
+        $this->Controller->request->webroot = '/';
+        $this->Controller->request->here = '/scaffold_mock/edit';
+        $this->Controller->request->addParams($params);
 
-		$params = [
-			'plugin' => null,
-			'pass' => [1],
-			'form' => [],
-			'named' => [],
-			'url' => ['url' => 'scaffold_mock/edit'],
-			'controller' => 'scaffold_mock',
-			'action' => 'edit',
-		];
-		$this->Controller->request->base = '';
-		$this->Controller->request->webroot = '/';
-		$this->Controller->request->here = '/scaffold_mock/edit';
-		$this->Controller->request->addParams($params);
+        //set router.
+        Router::reload();
+        Router::setRequestInfo($this->Controller->request);
 
-		//set router.
-		Router::reload();
-		Router::setRequestInfo($this->Controller->request);
+        $this->Controller->constructClasses();
+        ob_start();
+        new Scaffold($this->Controller, $this->Controller->request);
+        $this->Controller->response->send();
+        $result = ob_get_clean();
 
-		$this->Controller->constructClasses();
-		ob_start();
-		new Scaffold($this->Controller, $this->Controller->request);
-		$this->Controller->response->send();
-		$result = ob_get_clean();
-
-		$this->assertMatchesRegularExpression('/Scaffold Error/', $result);
-	}
+        $this->assertMatchesRegularExpression('/Scaffold Error/', $result);
+    }
 }

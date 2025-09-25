@@ -21,41 +21,40 @@
  *
  * @package       Cake.Test.TestApp.Model
  */
-class PersisterOne extends AppModel {
+class PersisterOne extends AppModel
+{
+    public $useTable = 'posts';
 
-	public $useTable = 'posts';
+    public $actsAs = ['PersisterOneBehavior', 'TestPlugin.TestPluginPersisterOne'];
 
-	public $actsAs = ['PersisterOneBehavior', 'TestPlugin.TestPluginPersisterOne'];
+    public $hasMany = ['Comment', 'TestPlugin.TestPluginComment'];
 
-	public $hasMany = ['Comment', 'TestPlugin.TestPluginComment'];
-
-	public $validate = [
-		'title' => [
-			'custom' => [
-				'rule' => ['custom', '.*'],
-				'allowEmpty' => true,
-				'required' => false,
-				'message' => 'Post title is required'
-			],
-			'between' => [
-				'rule' => ['lengthBetween', 5, 15],
-				'message' => ['You may enter up to %s chars (minimum is %s chars)', 14, 6]
-			]
-		],
-		'body' => [
-			'first_rule' => [
-				'rule' => ['custom', '.*'],
-				'allowEmpty' => true,
-				'required' => false,
-				'message' => 'Post body is required'
-			],
-			'second_rule' => [
-				'rule' => ['custom', '.*'],
-				'allowEmpty' => true,
-				'required' => false,
-				'message' => 'Post body is super required'
-			]
-		],
-	];
-
+    public $validate = [
+        'title' => [
+            'custom' => [
+                'rule' => ['custom', '.*'],
+                'allowEmpty' => true,
+                'required' => false,
+                'message' => 'Post title is required',
+            ],
+            'between' => [
+                'rule' => ['lengthBetween', 5, 15],
+                'message' => ['You may enter up to %s chars (minimum is %s chars)', 14, 6],
+            ],
+        ],
+        'body' => [
+            'first_rule' => [
+                'rule' => ['custom', '.*'],
+                'allowEmpty' => true,
+                'required' => false,
+                'message' => 'Post body is required',
+            ],
+            'second_rule' => [
+                'rule' => ['custom', '.*'],
+                'allowEmpty' => true,
+                'required' => false,
+                'message' => 'Post body is super required',
+            ],
+        ],
+    ];
 }

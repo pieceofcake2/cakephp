@@ -21,27 +21,27 @@
  *
  * @package       Cake.Test.Fixture
  */
-class PortfolioFixture extends CakeTestFixture {
+class PortfolioFixture extends CakeTestFixture
+{
+    /**
+     * fields property
+     *
+     * @var array
+     */
+    public $fields = [
+        'id' => ['type' => 'integer', 'key' => 'primary'],
+        'seller_id' => ['type' => 'integer', 'null' => false],
+        'name' => ['type' => 'string', 'null' => false],
+    ];
 
-/**
- * fields property
- *
- * @var array
- */
-	public $fields = [
-		'id' => ['type' => 'integer', 'key' => 'primary'],
-		'seller_id' => ['type' => 'integer', 'null' => false],
-		'name' => ['type' => 'string', 'null' => false]
-	];
-
-/**
- * records property
- *
- * @var array
- */
-	public $records = [
-		['seller_id' => 1, 'name' => 'Portfolio 1'],
-		['seller_id' => 1, 'name' => 'Portfolio 2'],
-		['seller_id' => 2, 'name' => 'Portfolio 1']
-	];
+    /**
+     * records property
+     *
+     * @var array
+     */
+    public $records = [
+        ['seller_id' => 1, 'name' => 'Portfolio 1'],
+        ['seller_id' => 1, 'name' => 'Portfolio 2'],
+        ['seller_id' => 2, 'name' => 'Portfolio 1'],
+    ];
 }

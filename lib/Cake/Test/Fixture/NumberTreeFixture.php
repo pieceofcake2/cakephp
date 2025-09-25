@@ -25,19 +25,19 @@
  *
  * @package       Cake.Test.Fixture
  */
-class NumberTreeFixture extends CakeTestFixture {
-
-/**
- * fields property
- *
- * @var array
- */
-	public $fields = [
-		'id'	=> ['type' => 'integer', 'key' => 'primary'],
-		'name'	=> ['type' => 'string', 'null' => false],
-		'parent_id' => 'integer',
-		'lft'	=> ['type' => 'integer', 'null' => false],
-		'rght'	=> ['type' => 'integer', 'null' => false],
-		'level'	=> ['type' => 'integer', 'null' => true]
-	];
+class NumberTreeFixture extends CakeTestFixture
+{
+    /**
+     * fields property
+     *
+     * @var array
+     */
+    public $fields = [
+        'id' => ['type' => 'integer', 'key' => 'primary'],
+        'name' => ['type' => 'string', 'null' => false],
+        'parent_id' => 'integer',
+        'lft' => ['type' => 'integer', 'null' => false],
+        'rght' => ['type' => 'integer', 'null' => false],
+        'level' => ['type' => 'integer', 'null' => true],
+    ];
 }

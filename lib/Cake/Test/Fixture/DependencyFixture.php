@@ -22,25 +22,25 @@
  * @package       Cake.Test.Fixture
  * @since         CakePHP(tm) v 1.2.0.6879//Correct version number as needed**
  */
-class DependencyFixture extends CakeTestFixture {
+class DependencyFixture extends CakeTestFixture
+{
+    /**
+     * fields property
+     *
+     * @var array
+     */
+    public $fields = [
+        'id' => 'integer',
+        'child_id' => 'integer',
+        'parent_id' => 'integer',
+    ];
 
-/**
- * fields property
- *
- * @var array
- */
-	public $fields = [
-		'id' => 'integer',
-		'child_id' => 'integer',
-		'parent_id' => 'integer'
-	];
-
-/**
- * records property
- *
- * @var array
- */
-	public $records = [
-		['id' => 1, 'child_id' => 1, 'parent_id' => 2],
-	];
+    /**
+     * records property
+     *
+     * @var array
+     */
+    public $records = [
+        ['id' => 1, 'child_id' => 1, 'parent_id' => 2],
+    ];
 }

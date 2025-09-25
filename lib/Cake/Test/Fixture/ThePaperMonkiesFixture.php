@@ -21,22 +21,22 @@
  *
  * @package       Cake.Test.Fixture
  */
-class ThePaperMonkiesFixture extends CakeTestFixture {
+class ThePaperMonkiesFixture extends CakeTestFixture
+{
+    /**
+     * fields property
+     *
+     * @var array
+     */
+    public $fields = [
+        'apple_id' => ['type' => 'integer', 'length' => 10, 'null' => true],
+        'device_id' => ['type' => 'integer', 'length' => 10, 'null' => true],
+    ];
 
-/**
- * fields property
- *
- * @var array
- */
-	public $fields = [
-		'apple_id' => ['type' => 'integer', 'length' => 10, 'null' => true],
-		'device_id' => ['type' => 'integer', 'length' => 10, 'null' => true]
-	];
-
-/**
- * records property
- *
- * @var array
- */
-	public $records = [];
+    /**
+     * records property
+     *
+     * @var array
+     */
+    public $records = [];
 }

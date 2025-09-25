@@ -20,442 +20,467 @@
  *
  * @package       Cake.Network.Http
  */
-class HttpSocketResponse implements ArrayAccess {
+class HttpSocketResponse implements ArrayAccess
+{
+    /**
+     * Body content
+     *
+     * @var string
+     */
+    public $body = '';
 
-/**
- * Body content
- *
- * @var string
- */
-	public $body = '';
+    /**
+     * Headers
+     *
+     * @var array
+     */
+    public $headers = [];
 
-/**
- * Headers
- *
- * @var array
- */
-	public $headers = [];
+    /**
+     * Cookies
+     *
+     * @var array
+     */
+    public $cookies = [];
 
-/**
- * Cookies
- *
- * @var array
- */
-	public $cookies = [];
+    /**
+     * HTTP version
+     *
+     * @var string
+     */
+    public $httpVersion = 'HTTP/1.1';
 
-/**
- * HTTP version
- *
- * @var string
- */
-	public $httpVersion = 'HTTP/1.1';
+    /**
+     * Response code
+     *
+     * @var int
+     */
+    public $code = 0;
 
-/**
- * Response code
- *
- * @var int
- */
-	public $code = 0;
+    /**
+     * Reason phrase
+     *
+     * @var string
+     */
+    public $reasonPhrase = '';
 
-/**
- * Reason phrase
- *
- * @var string
- */
-	public $reasonPhrase = '';
+    /**
+     * Pure raw content
+     *
+     * @var string
+     */
+    public $raw = '';
 
-/**
- * Pure raw content
- *
- * @var string
- */
-	public $raw = '';
+    /**
+     * Context data in the response.
+     * Contains SSL certificates for example.
+     *
+     * @var array
+     */
+    public $context = [];
 
-/**
- * Context data in the response.
- * Contains SSL certificates for example.
- *
- * @var array
- */
-	public $context = [];
+    /**
+     * Constructor
+     *
+     * @param string $message Message to parse.
+     */
+    public function __construct($message = null)
+    {
+        if ($message !== null) {
+            $this->parseResponse($message);
+        }
+    }
 
-/**
- * Constructor
- *
- * @param string $message Message to parse.
- */
-	public function __construct($message = null) {
-		if ($message !== null) {
-			$this->parseResponse($message);
-		}
-	}
+    /**
+     * Body content
+     *
+     * @return string
+     */
+    public function body()
+    {
+        return (string)$this->body;
+    }
 
-/**
- * Body content
- *
- * @return string
- */
-	public function body() {
-		return (string)$this->body;
-	}
+    /**
+     * Get header in case insensitive
+     *
+     * @param string $name Header name.
+     * @param array $headers Headers to format.
+     * @return mixed String if header exists or null
+     */
+    public function getHeader($name, $headers = null)
+    {
+        if (!is_array($headers)) {
+            $headers =& $this->headers;
+        }
+        if (isset($headers[$name])) {
+            return $headers[$name];
+        }
+        foreach ($headers as $key => $value) {
+            if (strcasecmp($key, $name) === 0) {
+                return $value;
+            }
+        }
 
-/**
- * Get header in case insensitive
- *
- * @param string $name Header name.
- * @param array $headers Headers to format.
- * @return mixed String if header exists or null
- */
-	public function getHeader($name, $headers = null) {
-		if (!is_array($headers)) {
-			$headers =& $this->headers;
-		}
-		if (isset($headers[$name])) {
-			return $headers[$name];
-		}
-		foreach ($headers as $key => $value) {
-			if (strcasecmp($key, $name) === 0) {
-				return $value;
-			}
-		}
-		return null;
-	}
+        return null;
+    }
 
-/**
- * If return is 200 (OK)
- *
- * @return bool
- */
-	public function isOk() {
-		return in_array($this->code, [200, 201, 202, 203, 204, 205, 206]);
-	}
+    /**
+     * If return is 200 (OK)
+     *
+     * @return bool
+     */
+    public function isOk()
+    {
+        return in_array($this->code, [200, 201, 202, 203, 204, 205, 206]);
+    }
 
-/**
- * If return is a valid 3xx (Redirection)
- *
- * @return bool
- */
-	public function isRedirect() {
-		return in_array($this->code, [301, 302, 303, 307]) && $this->getHeader('Location') !== null;
-	}
+    /**
+     * If return is a valid 3xx (Redirection)
+     *
+     * @return bool
+     */
+    public function isRedirect()
+    {
+        return in_array($this->code, [301, 302, 303, 307]) && $this->getHeader('Location') !== null;
+    }
 
-/**
- * Parses the given message and breaks it down in parts.
- *
- * @param string $message Message to parse
- * @return void
- * @throws SocketException
- */
-	public function parseResponse($message) {
-		if (!is_string($message)) {
-			throw new SocketException(__d('cake_dev', 'Invalid response.'));
-		}
+    /**
+     * Parses the given message and breaks it down in parts.
+     *
+     * @param string $message Message to parse
+     * @return void
+     * @throws SocketException
+     */
+    public function parseResponse($message)
+    {
+        if (!is_string($message)) {
+            throw new SocketException(__d('cake_dev', 'Invalid response.'));
+        }
 
-		if (!preg_match("/^(.+\r\n)(.*)(?<=\r\n)\r\n/Us", $message, $match)) {
-			throw new SocketException(__d('cake_dev', 'Invalid HTTP response.'));
-		}
+        if (!preg_match("/^(.+\r\n)(.*)(?<=\r\n)\r\n/Us", $message, $match)) {
+            throw new SocketException(__d('cake_dev', 'Invalid HTTP response.'));
+        }
 
-		[, $statusLine, $header] = $match;
-		$this->raw = $message;
-		$this->body = (string)substr($message, strlen($match[0]));
+        [, $statusLine, $header] = $match;
+        $this->raw = $message;
+        $this->body = (string)substr($message, strlen($match[0]));
 
-		if (preg_match("/(.+) ([0-9]{3})(?:\s+(\w.+))?\s*\r\n/DU", $statusLine, $match)) {
-			$this->httpVersion = $match[1];
-			$this->code = $match[2];
-			if (isset($match[3])) {
-				$this->reasonPhrase = $match[3];
-			}
-		}
+        if (preg_match("/(.+) ([0-9]{3})(?:\s+(\w.+))?\s*\r\n/DU", $statusLine, $match)) {
+            $this->httpVersion = $match[1];
+            $this->code = $match[2];
+            if (isset($match[3])) {
+                $this->reasonPhrase = $match[3];
+            }
+        }
 
-		$this->headers = $this->_parseHeader($header);
-		$transferEncoding = $this->getHeader('Transfer-Encoding');
-		$decoded = $this->_decodeBody($this->body, $transferEncoding);
-		$this->body = $decoded['body'];
+        $this->headers = $this->_parseHeader($header);
+        $transferEncoding = $this->getHeader('Transfer-Encoding');
+        $decoded = $this->_decodeBody($this->body, $transferEncoding);
+        $this->body = $decoded['body'];
 
-		if (!empty($decoded['header'])) {
-			$this->headers = $this->_parseHeader($this->_buildHeader($this->headers) . $this->_buildHeader($decoded['header']));
-		}
+        if (!empty($decoded['header'])) {
+            $this->headers = $this->_parseHeader($this->_buildHeader($this->headers) . $this->_buildHeader($decoded['header']));
+        }
 
-		if (!empty($this->headers)) {
-			$this->cookies = $this->parseCookies($this->headers);
-		}
-	}
+        if (!empty($this->headers)) {
+            $this->cookies = $this->parseCookies($this->headers);
+        }
+    }
 
-/**
- * Generic function to decode a $body with a given $encoding. Returns either an array with the keys
- * 'body' and 'header' or false on failure.
- *
- * @param string $body A string containing the body to decode.
- * @param string|bool $encoding Can be false in case no encoding is being used, or a string representing the encoding.
- * @return mixed Array of response headers and body or false.
- */
-	protected function _decodeBody($body, $encoding = 'chunked') {
-		if (!is_string($body)) {
-			return false;
-		}
-		if (empty($encoding)) {
-			return ['body' => $body, 'header' => false];
-		}
-		$decodeMethod = '_decode' . Inflector::camelize(str_replace('-', '_', $encoding)) . 'Body';
+    /**
+     * Generic function to decode a $body with a given $encoding. Returns either an array with the keys
+     * 'body' and 'header' or false on failure.
+     *
+     * @param string $body A string containing the body to decode.
+     * @param string|bool $encoding Can be false in case no encoding is being used, or a string representing the encoding.
+     * @return mixed Array of response headers and body or false.
+     */
+    protected function _decodeBody($body, $encoding = 'chunked')
+    {
+        if (!is_string($body)) {
+            return false;
+        }
+        if (empty($encoding)) {
+            return ['body' => $body, 'header' => false];
+        }
+        $decodeMethod = '_decode' . Inflector::camelize(str_replace('-', '_', $encoding)) . 'Body';
 
-		if (!is_callable([&$this, $decodeMethod])) {
-			return ['body' => $body, 'header' => false];
-		}
-		return $this->{$decodeMethod}($body);
-	}
+        if (!is_callable([&$this, $decodeMethod])) {
+            return ['body' => $body, 'header' => false];
+        }
 
-/**
- * Decodes a chunked message $body and returns either an array with the keys 'body' and 'header' or false as
- * a result.
- *
- * @param string $body A string containing the chunked body to decode.
- * @return mixed Array of response headers and body or false.
- * @throws SocketException
- */
-	protected function _decodeChunkedBody($body) {
-		if (!is_string($body)) {
-			return false;
-		}
+        return $this->{$decodeMethod}($body);
+    }
 
-		$decodedBody = null;
-		$chunkLength = null;
+    /**
+     * Decodes a chunked message $body and returns either an array with the keys 'body' and 'header' or false as
+     * a result.
+     *
+     * @param string $body A string containing the chunked body to decode.
+     * @return mixed Array of response headers and body or false.
+     * @throws SocketException
+     */
+    protected function _decodeChunkedBody($body)
+    {
+        if (!is_string($body)) {
+            return false;
+        }
 
-		while ($chunkLength !== 0) {
-			if (!preg_match('/^([0-9a-f]+)[ ]*(?:;(.+)=(.+))?(?:\r\n|\n)/iU', $body, $match)) {
-				// Handle remaining invalid data as one big chunk.
-				preg_match('/^(.*?)\r\n/', $body, $invalidMatch);
-				$length = isset($invalidMatch[1]) ? strlen($invalidMatch[1]) : 0;
-				$match = [
-					0 => '',
-					1 => dechex($length)
-				];
-			}
-			$chunkSize = 0;
-			$hexLength = 0;
-			if (isset($match[0])) {
-				$chunkSize = $match[0];
-			}
-			if (isset($match[1])) {
-				$hexLength = $match[1];
-			}
+        $decodedBody = null;
+        $chunkLength = null;
 
-			$chunkLength = hexdec($hexLength);
-			$body = substr($body, strlen($chunkSize));
+        while ($chunkLength !== 0) {
+            if (!preg_match('/^([0-9a-f]+)[ ]*(?:;(.+)=(.+))?(?:\r\n|\n)/iU', $body, $match)) {
+                // Handle remaining invalid data as one big chunk.
+                preg_match('/^(.*?)\r\n/', $body, $invalidMatch);
+                $length = isset($invalidMatch[1]) ? strlen($invalidMatch[1]) : 0;
+                $match = [
+                    0 => '',
+                    1 => dechex($length),
+                ];
+            }
+            $chunkSize = 0;
+            $hexLength = 0;
+            if (isset($match[0])) {
+                $chunkSize = $match[0];
+            }
+            if (isset($match[1])) {
+                $hexLength = $match[1];
+            }
 
-			$decodedBody .= substr($body, 0, $chunkLength);
-			if ($chunkLength) {
-				$body = substr($body, $chunkLength + strlen("\r\n"));
-			}
-		}
+            $chunkLength = hexdec($hexLength);
+            $body = substr($body, strlen($chunkSize));
 
-		$entityHeader = false;
-		if (!empty($body)) {
-			$entityHeader = $this->_parseHeader($body);
-		}
-		return ['body' => $decodedBody, 'header' => $entityHeader];
-	}
+            $decodedBody .= substr($body, 0, $chunkLength);
+            if ($chunkLength) {
+                $body = substr($body, $chunkLength + strlen("\r\n"));
+            }
+        }
 
-/**
- * Parses an array based header.
- *
- * @param array $header Header as an indexed array (field => value)
- * @return array|bool Parsed header
- */
-	protected function _parseHeader($header) {
-		if (is_array($header)) {
-			return $header;
-		} elseif (!is_string($header)) {
-			return false;
-		}
+        $entityHeader = false;
+        if (!empty($body)) {
+            $entityHeader = $this->_parseHeader($body);
+        }
 
-		preg_match_all("/(.+):(.+)(?:\r\n|\$)/Uis", $header, $matches, PREG_SET_ORDER);
-		$lines = explode("\r\n", $header);
+        return ['body' => $decodedBody, 'header' => $entityHeader];
+    }
 
-		$header = [];
-		foreach ($lines as $line) {
-			if (strlen($line) === 0) {
-				continue;
-			}
-			$continuation = false;
-			$first = substr($line, 0, 1);
+    /**
+     * Parses an array based header.
+     *
+     * @param array $header Header as an indexed array (field => value)
+     * @return array|bool Parsed header
+     */
+    protected function _parseHeader($header)
+    {
+        if (is_array($header)) {
+            return $header;
+        } elseif (!is_string($header)) {
+            return false;
+        }
 
-			// Multi-line header
-			if ($first === ' ' || $first === "\t") {
-				$value .= preg_replace("/\s+/", ' ', $line);
-				$continuation = true;
-			} elseif (str_contains($line, ':')) {
-				[$field, $value] = explode(':', $line, 2);
-				$field = $this->_unescapeToken($field);
-			}
+        preg_match_all("/(.+):(.+)(?:\r\n|\$)/Uis", $header, $matches, PREG_SET_ORDER);
+        $lines = explode("\r\n", $header);
 
-			$value = trim($value);
-			if (!isset($header[$field]) || $continuation) {
-				$header[$field] = $value;
-			} else {
-				$header[$field] = array_merge((array)$header[$field], (array)$value);
-			}
-		}
-		return $header;
-	}
+        $header = [];
+        foreach ($lines as $line) {
+            if (strlen($line) === 0) {
+                continue;
+            }
+            $continuation = false;
+            $first = substr($line, 0, 1);
 
-/**
- * Parses cookies in response headers.
- *
- * @param array $header Header array containing one ore more 'Set-Cookie' headers.
- * @return mixed Either false on no cookies, or an array of cookies received.
- */
-	public function parseCookies($header) {
-		$cookieHeader = $this->getHeader('Set-Cookie', $header);
-		if (!$cookieHeader) {
-			return false;
-		}
+            // Multi-line header
+            if ($first === ' ' || $first === "\t") {
+                $value .= preg_replace("/\s+/", ' ', $line);
+                $continuation = true;
+            } elseif (str_contains($line, ':')) {
+                [$field, $value] = explode(':', $line, 2);
+                $field = $this->_unescapeToken($field);
+            }
 
-		$cookies = [];
-		foreach ((array)$cookieHeader as $cookie) {
-			if (str_contains($cookie, '";"')) {
-				$cookie = str_replace('";"', "{__cookie_replace__}", $cookie);
-				$parts = str_replace("{__cookie_replace__}", '";"', explode(';', $cookie));
-			} else {
-				$parts = preg_split('/\;[ \t]*/', $cookie);
-			}
+            $value = trim($value);
+            if (!isset($header[$field]) || $continuation) {
+                $header[$field] = $value;
+            } else {
+                $header[$field] = array_merge((array)$header[$field], (array)$value);
+            }
+        }
 
-			$nameParts = explode('=', array_shift($parts), 2);
-			if (count($nameParts) < 2) {
-				$nameParts = ['', $nameParts[0]];
-			}
-			[$name, $value] = $nameParts;
-			$cookies[$name] = compact('value');
+        return $header;
+    }
 
-			foreach ($parts as $part) {
-				if (str_contains($part, '=')) {
-					[$key, $value] = explode('=', $part);
-				} else {
-					$key = $part;
-					$value = true;
-				}
+    /**
+     * Parses cookies in response headers.
+     *
+     * @param array $header Header array containing one ore more 'Set-Cookie' headers.
+     * @return mixed Either false on no cookies, or an array of cookies received.
+     */
+    public function parseCookies($header)
+    {
+        $cookieHeader = $this->getHeader('Set-Cookie', $header);
+        if (!$cookieHeader) {
+            return false;
+        }
 
-				$key = strtolower($key);
-				if (!isset($cookies[$name][$key])) {
-					$cookies[$name][$key] = $value;
-				}
-			}
-		}
-		return $cookies;
-	}
+        $cookies = [];
+        foreach ((array)$cookieHeader as $cookie) {
+            if (str_contains($cookie, '";"')) {
+                $cookie = str_replace('";"', '{__cookie_replace__}', $cookie);
+                $parts = str_replace('{__cookie_replace__}', '";"', explode(';', $cookie));
+            } else {
+                $parts = preg_split('/\;[ \t]*/', $cookie);
+            }
 
-/**
- * Unescapes a given $token according to RFC 2616 (HTTP 1.1 specs)
- *
- * @param string $token Token to unescape.
- * @param array $chars Characters to unescape.
- * @return string Unescaped token
- */
-	protected function _unescapeToken($token, $chars = null) {
-		$regex = '/"([' . implode('', $this->_tokenEscapeChars(true, $chars)) . '])"/';
-		$token = preg_replace($regex, '\\1', $token);
-		return $token;
-	}
+            $nameParts = explode('=', array_shift($parts), 2);
+            if (count($nameParts) < 2) {
+                $nameParts = ['', $nameParts[0]];
+            }
+            [$name, $value] = $nameParts;
+            $cookies[$name] = compact('value');
 
-/**
- * Gets escape chars according to RFC 2616 (HTTP 1.1 specs).
- *
- * @param bool $hex True to get them as HEX values, false otherwise.
- * @param array $chars Characters to uescape.
- * @return array Escape chars
- */
-	protected function _tokenEscapeChars($hex = true, $chars = null) {
-		if (!empty($chars)) {
-			$escape = $chars;
-		} else {
-			$escape = ['"', "(", ")", "<", ">", "@", ",", ";", ":", "\\", "/", "[", "]", "?", "=", "{", "}", " "];
-			for ($i = 0; $i <= 31; $i++) {
-				$escape[] = chr($i);
-			}
-			$escape[] = chr(127);
-		}
+            foreach ($parts as $part) {
+                if (str_contains($part, '=')) {
+                    [$key, $value] = explode('=', $part);
+                } else {
+                    $key = $part;
+                    $value = true;
+                }
 
-		if (!$hex) {
-			return $escape;
-		}
-		foreach ($escape as $key => $char) {
-			$escape[$key] = '\\x' . str_pad(dechex(ord($char)), 2, '0', STR_PAD_LEFT);
-		}
-		return $escape;
-	}
+                $key = strtolower($key);
+                if (!isset($cookies[$name][$key])) {
+                    $cookies[$name][$key] = $value;
+                }
+            }
+        }
 
-/**
- * ArrayAccess - Offset Exists
- *
- * @param mixed $offset Offset to check.
- * @return bool
- */
-	public function offsetExists(mixed $offset) : bool {
-		return in_array($offset, ['raw', 'status', 'header', 'body', 'cookies']);
-	}
+        return $cookies;
+    }
 
-/**
- * ArrayAccess - Offset Get
- *
- * @param mixed $offset Offset to get.
- * @return mixed
- */
-	public function offsetGet(mixed $offset) : mixed {
-		switch ($offset) {
-			case 'raw':
-				$firstLineLength = strpos($this->raw, "\r\n") + 2;
-				if ($this->raw[$firstLineLength] === "\r") {
-					$header = null;
-				} else {
-					$header = substr($this->raw, $firstLineLength, strpos($this->raw, "\r\n\r\n") - $firstLineLength) . "\r\n";
-				}
-				return [
-					'status-line' => $this->httpVersion . ' ' . $this->code . ' ' . $this->reasonPhrase . "\r\n",
-					'header' => $header,
-					'body' => $this->body,
-					'response' => $this->raw
-				];
-			case 'status':
-				return [
-					'http-version' => $this->httpVersion,
-					'code' => $this->code,
-					'reason-phrase' => $this->reasonPhrase
-				];
-			case 'header':
-				return $this->headers;
-			case 'body':
-				return $this->body;
-			case 'cookies':
-				return $this->cookies;
-		}
-		return null;
-	}
+    /**
+     * Unescapes a given $token according to RFC 2616 (HTTP 1.1 specs)
+     *
+     * @param string $token Token to unescape.
+     * @param array $chars Characters to unescape.
+     * @return string Unescaped token
+     */
+    protected function _unescapeToken($token, $chars = null)
+    {
+        $regex = '/"([' . implode('', $this->_tokenEscapeChars(true, $chars)) . '])"/';
+        $token = preg_replace($regex, '\\1', $token);
 
-/**
- * ArrayAccess - Offset Set
- *
- * @param mixed $offset Offset to set.
- * @param mixed $value Value.
- * @return void
- */
-	public function offsetSet(mixed $offset, mixed $value) : void {
-	}
+        return $token;
+    }
 
-/**
- * ArrayAccess - Offset Unset
- *
- * @param string $offset Offset to unset.
- * @return void
- */
-	public function offsetUnset(mixed $offset) : void {
-	}
+    /**
+     * Gets escape chars according to RFC 2616 (HTTP 1.1 specs).
+     *
+     * @param bool $hex True to get them as HEX values, false otherwise.
+     * @param array $chars Characters to uescape.
+     * @return array Escape chars
+     */
+    protected function _tokenEscapeChars($hex = true, $chars = null)
+    {
+        if (!empty($chars)) {
+            $escape = $chars;
+        } else {
+            $escape = ['"', '(', ')', '<', '>', '@', ',', ';', ':', '\\', '/', '[', ']', '?', '=', '{', '}', ' '];
+            for ($i = 0; $i <= 31; $i++) {
+                $escape[] = chr($i);
+            }
+            $escape[] = chr(127);
+        }
 
-/**
- * Instance as string
- *
- * @return string
- */
-	public function __tostring() {
-		return $this->body();
-	}
+        if (!$hex) {
+            return $escape;
+        }
+        foreach ($escape as $key => $char) {
+            $escape[$key] = '\\x' . str_pad(dechex(ord($char)), 2, '0', STR_PAD_LEFT);
+        }
 
+        return $escape;
+    }
+
+    /**
+     * ArrayAccess - Offset Exists
+     *
+     * @param mixed $offset Offset to check.
+     * @return bool
+     */
+    public function offsetExists(mixed $offset): bool
+    {
+        return in_array($offset, ['raw', 'status', 'header', 'body', 'cookies']);
+    }
+
+    /**
+     * ArrayAccess - Offset Get
+     *
+     * @param mixed $offset Offset to get.
+     * @return mixed
+     */
+    public function offsetGet(mixed $offset): mixed
+    {
+        switch ($offset) {
+            case 'raw':
+                $firstLineLength = strpos($this->raw, "\r\n") + 2;
+                if ($this->raw[$firstLineLength] === "\r") {
+                    $header = null;
+                } else {
+                    $header = substr($this->raw, $firstLineLength, strpos($this->raw, "\r\n\r\n") - $firstLineLength) . "\r\n";
+                }
+
+                return [
+                    'status-line' => $this->httpVersion . ' ' . $this->code . ' ' . $this->reasonPhrase . "\r\n",
+                    'header' => $header,
+                    'body' => $this->body,
+                    'response' => $this->raw,
+                ];
+            case 'status':
+                return [
+                    'http-version' => $this->httpVersion,
+                    'code' => $this->code,
+                    'reason-phrase' => $this->reasonPhrase,
+                ];
+            case 'header':
+                return $this->headers;
+            case 'body':
+                return $this->body;
+            case 'cookies':
+                return $this->cookies;
+        }
+
+        return null;
+    }
+
+    /**
+     * ArrayAccess - Offset Set
+     *
+     * @param mixed $offset Offset to set.
+     * @param mixed $value Value.
+     * @return void
+     */
+    public function offsetSet(mixed $offset, mixed $value): void
+    {
+    }
+
+    /**
+     * ArrayAccess - Offset Unset
+     *
+     * @param string $offset Offset to unset.
+     * @return void
+     */
+    public function offsetUnset(mixed $offset): void
+    {
+    }
+
+    /**
+     * Instance as string
+     *
+     * @return string
+     */
+    public function __toString()
+    {
+        return $this->body();
+    }
 }

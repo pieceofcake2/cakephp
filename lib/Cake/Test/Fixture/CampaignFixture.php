@@ -22,26 +22,26 @@
  *
  * @package       Cake.Test.Fixture
  */
-class CampaignFixture extends CakeTestFixture {
+class CampaignFixture extends CakeTestFixture
+{
+    /**
+     * fields property
+     *
+     * @var array
+     */
+    public $fields = [
+        'id' => ['type' => 'integer', 'key' => 'primary'],
+        'name' => ['type' => 'string', 'length' => 255, 'null' => false],
+    ];
 
-/**
- * fields property
- *
- * @var array
- */
-	public $fields = [
-		'id' => ['type' => 'integer', 'key' => 'primary'],
-		'name' => ['type' => 'string', 'length' => 255, 'null' => false],
-	];
-
-/**
- * records property
- *
- * @var array
- */
-	public $records = [
-		['name' => 'Hurtigruten'],
-		['name' => 'Colorline'],
-		['name' => 'Queen of Scandinavia']
-	];
+    /**
+     * records property
+     *
+     * @var array
+     */
+    public $records = [
+        ['name' => 'Hurtigruten'],
+        ['name' => 'Colorline'],
+        ['name' => 'Queen of Scandinavia'],
+    ];
 }

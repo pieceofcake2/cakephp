@@ -28,351 +28,364 @@ App::uses('ComponentCollection', 'Controller');
  *
  * @package       Cake.Test.Case.Console.Command
  */
-class AclShellTest extends CakeTestCase {
+class AclShellTest extends CakeTestCase
+{
+    /**
+     * Fixtures
+     *
+     * @var array
+     */
+    public $fixtures = ['core.aco', 'core.aro', 'core.aros_aco'];
 
-/**
- * Fixtures
- *
- * @var array
- */
-	public $fixtures = ['core.aco', 'core.aro', 'core.aros_aco'];
+    /**
+     * setUp method
+     *
+     * @return void
+     */
+    public function setUp(): void
+    {
+        parent::setUp();
+        Configure::write('Acl.database', 'test');
+        Configure::write('Acl.classname', 'DbAcl');
 
-/**
- * setUp method
- *
- * @return void
- */
-	public function setUp() : void {
-		parent::setUp();
-		Configure::write('Acl.database', 'test');
-		Configure::write('Acl.classname', 'DbAcl');
+        $out = $this->getMock('ConsoleOutput', [], [], '', false);
+        $in = $this->getMock('ConsoleInput', [], [], '', false);
 
-		$out = $this->getMock('ConsoleOutput', [], [], '', false);
-		$in = $this->getMock('ConsoleInput', [], [], '', false);
+        $this->Task = $this->getMock(
+            'AclShell',
+            ['in', 'out', 'hr', 'createFile', 'error', 'err', 'clear', 'dispatchShell'],
+            [$out, $out, $in],
+        );
+        $collection = new ComponentCollection();
+        $this->Task->Acl = new AclComponent($collection);
+        $this->Task->params['datasource'] = 'test';
+    }
 
-		$this->Task = $this->getMock(
-			'AclShell',
-			['in', 'out', 'hr', 'createFile', 'error', 'err', 'clear', 'dispatchShell'],
-			[$out, $out, $in]
-		);
-		$collection = new ComponentCollection();
-		$this->Task->Acl = new AclComponent($collection);
-		$this->Task->params['datasource'] = 'test';
-	}
+    /**
+     * test that model.foreign_key output works when looking at acl rows
+     *
+     * @return void
+     */
+    public function testViewWithModelForeignKeyOutput()
+    {
+        $this->Task->command = 'view';
+        $this->Task->startup();
+        $data = [
+            'parent_id' => null,
+            'model' => 'MyModel',
+            'foreign_key' => 2,
+        ];
+        $this->Task->Acl->Aro->create($data);
+        $this->Task->Acl->Aro->save();
+        $this->Task->args[0] = 'aro';
 
-/**
- * test that model.foreign_key output works when looking at acl rows
- *
- * @return void
- */
-	public function testViewWithModelForeignKeyOutput() {
-		$this->Task->command = 'view';
-		$this->Task->startup();
-		$data = [
-			'parent_id' => null,
-			'model' => 'MyModel',
-			'foreign_key' => 2,
-		];
-		$this->Task->Acl->Aro->create($data);
-		$this->Task->Acl->Aro->save();
-		$this->Task->args[0] = 'aro';
+        $outCalls = [];
+        $this->Task->expects($this->any())
+            ->method('out')
+            ->willReturnCallback(function ($message = '') use (&$outCalls) {
+                $outCalls[] = $message;
+            });
 
-		$outCalls = [];
-		$this->Task->expects($this->any())
-			->method('out')
-			->willReturnCallback(function($message = '') use (&$outCalls) {
-				$outCalls[] = $message;
-			});
+        $this->Task->view();
 
-		$this->Task->view();
+        $this->assertEquals('Aro tree:', $outCalls[0]);
+        $this->assertStringContainsString('[1] ROOT', $outCalls[1]);
+        $this->assertStringContainsString('[3] Gandalf', $outCalls[3]);
+        $this->assertStringContainsString('[5] MyModel.2', $outCalls[5]);
+    }
 
-		$this->assertEquals('Aro tree:', $outCalls[0]);
-		$this->assertStringContainsString('[1] ROOT', $outCalls[1]);
-		$this->assertStringContainsString('[3] Gandalf', $outCalls[3]);
-		$this->assertStringContainsString('[5] MyModel.2', $outCalls[5]);
-	}
+    /**
+     * test view with an argument
+     *
+     * @return void
+     */
+    public function testViewWithArgument()
+    {
+        $this->Task->args = ['aro', 'admins'];
 
-/**
- * test view with an argument
- *
- * @return void
- */
-	public function testViewWithArgument() {
-		$this->Task->args = ['aro', 'admins'];
+        $outCalls = [];
+        $this->Task->expects($this->any())
+            ->method('out')
+            ->willReturnCallback(function ($message = '') use (&$outCalls) {
+                $outCalls[] = $message;
+            });
 
-		$outCalls = [];
-		$this->Task->expects($this->any())
-			->method('out')
-			->willReturnCallback(function($message = '') use (&$outCalls) {
-				$outCalls[] = $message;
-			});
+        $this->Task->view();
 
-		$this->Task->view();
+        $this->assertEquals('Aro tree:', $outCalls[0]);
+        $this->assertEquals('  [2] admins', $outCalls[1]);
+        $this->assertEquals('    [3] Gandalf', $outCalls[2]);
+        $this->assertEquals('    [4] Elrond', $outCalls[3]);
+    }
 
-		$this->assertEquals('Aro tree:', $outCalls[0]);
-		$this->assertEquals('  [2] admins', $outCalls[1]);
-		$this->assertEquals('    [3] Gandalf', $outCalls[2]);
-		$this->assertEquals('    [4] Elrond', $outCalls[3]);
-	}
+    /**
+     * test the method that splits model.foreign key. and that it returns an array.
+     *
+     * @return void
+     */
+    public function testParsingModelAndForeignKey()
+    {
+        $result = $this->Task->parseIdentifier('Model.foreignKey');
+        $expected = ['model' => 'Model', 'foreign_key' => 'foreignKey'];
+        $this->assertEquals($expected, $result);
 
-/**
- * test the method that splits model.foreign key. and that it returns an array.
- *
- * @return void
- */
-	public function testParsingModelAndForeignKey() {
-		$result = $this->Task->parseIdentifier('Model.foreignKey');
-		$expected = ['model' => 'Model', 'foreign_key' => 'foreignKey'];
-		$this->assertEquals($expected, $result);
+        $result = $this->Task->parseIdentifier('mySuperUser');
+        $this->assertEquals('mySuperUser', $result);
 
-		$result = $this->Task->parseIdentifier('mySuperUser');
-		$this->assertEquals('mySuperUser', $result);
+        $result = $this->Task->parseIdentifier('111234');
+        $this->assertEquals('111234', $result);
+    }
 
-		$result = $this->Task->parseIdentifier('111234');
-		$this->assertEquals('111234', $result);
-	}
+    /**
+     * test creating aro/aco nodes
+     *
+     * @return void
+     */
+    public function testCreate()
+    {
+        $outCalls = [];
+        $this->Task->expects($this->any())
+            ->method('out')
+            ->willReturnCallback(function ($message, $newlines = 1) use (&$outCalls) {
+                $outCalls[] = ['message' => $message, 'newlines' => $newlines];
+            });
 
-/**
- * test creating aro/aco nodes
- *
- * @return void
- */
-	public function testCreate() {
-		$outCalls = [];
-		$this->Task->expects($this->any())
-			->method('out')
-			->willReturnCallback(function($message, $newlines = 1) use (&$outCalls) {
-				$outCalls[] = ['message' => $message, 'newlines' => $newlines];
-			});
+        $this->Task->args = ['aro', 'root', 'User.1'];
 
-		$this->Task->args = ['aro', 'root', 'User.1'];
+        $this->Task->create();
 
-		$this->Task->create();
+        $Aro = ClassRegistry::init('Aro');
+        $Aro->cacheQueries = false;
+        $result = $Aro->read();
+        $this->assertEquals('User', $result['Aro']['model']);
+        $this->assertEquals(1, $result['Aro']['foreign_key']);
+        $this->assertEquals(null, $result['Aro']['parent_id']);
+        $id = $result['Aro']['id'];
 
-		$Aro = ClassRegistry::init('Aro');
-		$Aro->cacheQueries = false;
-		$result = $Aro->read();
-		$this->assertEquals('User', $result['Aro']['model']);
-		$this->assertEquals(1, $result['Aro']['foreign_key']);
-		$this->assertEquals(null, $result['Aro']['parent_id']);
-		$id = $result['Aro']['id'];
+        $this->Task->args = ['aro', 'User.1', 'User.3'];
+        $this->Task->create();
 
-		$this->Task->args = ['aro', 'User.1', 'User.3'];
-		$this->Task->create();
+        $Aro = ClassRegistry::init('Aro');
+        $result = $Aro->read();
+        $this->assertEquals('User', $result['Aro']['model']);
+        $this->assertEquals(3, $result['Aro']['foreign_key']);
+        $this->assertEquals($id, $result['Aro']['parent_id']);
 
-		$Aro = ClassRegistry::init('Aro');
-		$result = $Aro->read();
-		$this->assertEquals('User', $result['Aro']['model']);
-		$this->assertEquals(3, $result['Aro']['foreign_key']);
-		$this->assertEquals($id, $result['Aro']['parent_id']);
+        $this->Task->args = ['aro', 'root', 'somealias'];
+        $this->Task->create();
 
-		$this->Task->args = ['aro', 'root', 'somealias'];
-		$this->Task->create();
+        $Aro = ClassRegistry::init('Aro');
+        $result = $Aro->read();
+        $this->assertEquals('somealias', $result['Aro']['alias']);
+        $this->assertEquals(null, $result['Aro']['model']);
+        $this->assertEquals(null, $result['Aro']['foreign_key']);
+        $this->assertEquals(null, $result['Aro']['parent_id']);
 
-		$Aro = ClassRegistry::init('Aro');
-		$result = $Aro->read();
-		$this->assertEquals('somealias', $result['Aro']['alias']);
-		$this->assertEquals(null, $result['Aro']['model']);
-		$this->assertEquals(null, $result['Aro']['foreign_key']);
-		$this->assertEquals(null, $result['Aro']['parent_id']);
+        $this->assertEquals("<success>New Aro</success> 'User.1' created.", $outCalls[0]['message']);
+        $this->assertEquals(2, $outCalls[0]['newlines']);
 
-		$this->assertEquals("<success>New Aro</success> 'User.1' created.", $outCalls[0]['message']);
-		$this->assertEquals(2, $outCalls[0]['newlines']);
+        $this->assertEquals("<success>New Aro</success> 'User.3' created.", $outCalls[1]['message']);
+        $this->assertEquals(2, $outCalls[1]['newlines']);
 
-		$this->assertEquals("<success>New Aro</success> 'User.3' created.", $outCalls[1]['message']);
-		$this->assertEquals(2, $outCalls[1]['newlines']);
+        $this->assertEquals("<success>New Aro</success> 'somealias' created.", $outCalls[2]['message']);
+        $this->assertEquals(2, $outCalls[2]['newlines']);
+    }
 
-		$this->assertEquals("<success>New Aro</success> 'somealias' created.", $outCalls[2]['message']);
-		$this->assertEquals(2, $outCalls[2]['newlines']);
-	}
+    /**
+     * test the delete method with different node types.
+     *
+     * @return void
+     */
+    public function testDelete()
+    {
+        $this->Task->args = ['aro', 'AuthUser.1'];
+        $outCalls = [];
+        $this->Task->expects($this->once())
+            ->method('out')
+            ->willReturnCallback(function ($message, $newlines = 1) use (&$outCalls) {
+                $outCalls[] = ['message' => $message, 'newlines' => $newlines];
+            });
+        $this->Task->delete();
 
-/**
- * test the delete method with different node types.
- *
- * @return void
- */
-	public function testDelete() {
-		$this->Task->args = ['aro', 'AuthUser.1'];
-		$outCalls = [];
-		$this->Task->expects($this->once())
-			->method('out')
-			->willReturnCallback(function($message, $newlines = 1) use (&$outCalls) {
-				$outCalls[] = ['message' => $message, 'newlines' => $newlines];
-			});
-		$this->Task->delete();
+        $Aro = ClassRegistry::init('Aro');
+        $result = $Aro->findById(3);
+        $this->assertSame([], $result);
 
-		$Aro = ClassRegistry::init('Aro');
-		$result = $Aro->findById(3);
-		$this->assertSame([], $result);
+        $this->assertEquals([
+            ['message' => '<success>Aro deleted.</success>', 'newlines' => 2],
+        ], $outCalls);
+    }
 
-		$this->assertEquals([
-			['message' => '<success>Aro deleted.</success>', 'newlines' => 2]
-		], $outCalls);
-	}
+    /**
+     * test setParent method.
+     *
+     * @return void
+     */
+    public function testSetParent()
+    {
+        $this->Task->args = ['aro', 'AuthUser.2', 'root'];
+        $this->Task->setParent();
 
-/**
- * test setParent method.
- *
- * @return void
- */
-	public function testSetParent() {
-		$this->Task->args = ['aro', 'AuthUser.2', 'root'];
-		$this->Task->setParent();
+        $Aro = ClassRegistry::init('Aro');
+        $result = $Aro->read(null, 4);
+        $this->assertEquals(null, $result['Aro']['parent_id']);
+    }
 
-		$Aro = ClassRegistry::init('Aro');
-		$result = $Aro->read(null, 4);
-		$this->assertEquals(null, $result['Aro']['parent_id']);
-	}
+    /**
+     * test grant
+     *
+     * @return void
+     */
+    public function testGrant()
+    {
+        $this->Task->args = ['AuthUser.2', 'ROOT/Controller1', 'create'];
+        $outCalls = [];
+        $this->Task->expects($this->once())
+            ->method('out')
+            ->willReturnCallback(function ($message, $newlines = 1) use (&$outCalls) {
+                $outCalls[] = ['message' => $message, 'newlines' => $newlines];
+            });
+        $this->Task->grant();
+        $node = $this->Task->Acl->Aro->node(['model' => 'AuthUser', 'foreign_key' => 2]);
+        $node = $this->Task->Acl->Aro->read(null, $node[0]['Aro']['id']);
 
-/**
- * test grant
- *
- * @return void
- */
-	public function testGrant() {
-		$this->Task->args = ['AuthUser.2', 'ROOT/Controller1', 'create'];
-		$outCalls = [];
-		$this->Task->expects($this->once())
-			->method('out')
-			->willReturnCallback(function($message, $newlines = 1) use (&$outCalls) {
-				$outCalls[] = ['message' => $message, 'newlines' => $newlines];
-			});
-		$this->Task->grant();
-		$node = $this->Task->Acl->Aro->node(['model' => 'AuthUser', 'foreign_key' => 2]);
-		$node = $this->Task->Acl->Aro->read(null, $node[0]['Aro']['id']);
+        $this->assertFalse(empty($node['Aco'][0]));
+        $this->assertEquals(1, $node['Aco'][0]['Permission']['_create']);
 
-		$this->assertFalse(empty($node['Aco'][0]));
-		$this->assertEquals(1, $node['Aco'][0]['Permission']['_create']);
+        $this->assertCount(1, $outCalls);
+        $this->assertMatchesRegularExpression('/granted/', $outCalls[0]['message']);
+        $this->assertEquals(true, $outCalls[0]['newlines']);
+    }
 
-		$this->assertCount(1, $outCalls);
-		$this->assertMatchesRegularExpression('/granted/', $outCalls[0]['message']);
-		$this->assertEquals(true, $outCalls[0]['newlines']);
-	}
+    /**
+     * test deny
+     *
+     * @return void
+     */
+    public function testDeny()
+    {
+        $this->Task->args = ['AuthUser.2', 'ROOT/Controller1', 'create'];
+        $outCalls = [];
+        $this->Task->expects($this->once())
+            ->method('out')
+            ->willReturnCallback(function ($message, $newlines = 1) use (&$outCalls) {
+                $outCalls[] = ['message' => $message, 'newlines' => $newlines];
+            });
 
-/**
- * test deny
- *
- * @return void
- */
-	public function testDeny() {
-		$this->Task->args = ['AuthUser.2', 'ROOT/Controller1', 'create'];
-		$outCalls = [];
-		$this->Task->expects($this->once())
-			->method('out')
-			->willReturnCallback(function($message, $newlines = 1) use (&$outCalls) {
-				$outCalls[] = ['message' => $message, 'newlines' => $newlines];
-			});
+        $this->Task->deny();
 
-		$this->Task->deny();
+        $node = $this->Task->Acl->Aro->node(['model' => 'AuthUser', 'foreign_key' => 2]);
+        $node = $this->Task->Acl->Aro->read(null, $node[0]['Aro']['id']);
+        $this->assertFalse(empty($node['Aco'][0]));
+        $this->assertEquals(-1, $node['Aco'][0]['Permission']['_create']);
 
-		$node = $this->Task->Acl->Aro->node(['model' => 'AuthUser', 'foreign_key' => 2]);
-		$node = $this->Task->Acl->Aro->read(null, $node[0]['Aro']['id']);
-		$this->assertFalse(empty($node['Aco'][0]));
-		$this->assertEquals(-1, $node['Aco'][0]['Permission']['_create']);
+        $this->assertCount(1, $outCalls);
+        $this->assertStringContainsString('Permission denied', $outCalls[0]['message']);
+        $this->assertEquals(true, $outCalls[0]['newlines']);
+    }
 
-		$this->assertCount(1, $outCalls);
-		$this->assertStringContainsString('Permission denied', $outCalls[0]['message']);
-		$this->assertEquals(true, $outCalls[0]['newlines']);
-	}
+    /**
+     * test checking allowed and denied perms
+     *
+     * @return void
+     */
+    public function testCheck()
+    {
+        $outCalls = [];
+        $this->Task->expects($this->exactly(4))
+            ->method('out')
+            ->willReturnCallback(function ($message, $newlines = 1) use (&$outCalls) {
+                $outCalls[] = ['message' => $message, 'newlines' => $newlines];
+            });
 
-/**
- * test checking allowed and denied perms
- *
- * @return void
- */
-	public function testCheck() {
-		$outCalls = [];
-		$this->Task->expects($this->exactly(4))
-			->method('out')
-			->willReturnCallback(function($message, $newlines = 1) use (&$outCalls) {
-				$outCalls[] = ['message' => $message, 'newlines' => $newlines];
-			});
+        $this->Task->args = ['AuthUser.2', 'ROOT/Controller1', '*'];
+        $this->Task->check();
 
-		$this->Task->args = ['AuthUser.2', 'ROOT/Controller1', '*'];
-		$this->Task->check();
+        $this->Task->args = ['AuthUser.2', 'ROOT/Controller1', 'create'];
+        $this->Task->grant();
 
-		$this->Task->args = ['AuthUser.2', 'ROOT/Controller1', 'create'];
-		$this->Task->grant();
+        $this->Task->args = ['AuthUser.2', 'ROOT/Controller1', 'create'];
+        $this->Task->check();
 
-		$this->Task->args = ['AuthUser.2', 'ROOT/Controller1', 'create'];
-		$this->Task->check();
+        $this->Task->args = ['AuthUser.2', 'ROOT/Controller1', 'delete'];
+        $this->Task->check();
 
-		$this->Task->args = ['AuthUser.2', 'ROOT/Controller1', 'delete'];
-		$this->Task->check();
+        $this->assertMatchesRegularExpression('/not allowed/', $outCalls[0]['message']);
+        $this->assertEquals(true, $outCalls[0]['newlines']);
+        $this->assertMatchesRegularExpression('/granted/', $outCalls[1]['message']);
+        $this->assertEquals(true, $outCalls[1]['newlines']);
+        $this->assertMatchesRegularExpression('/is.*allowed/', $outCalls[2]['message']);
+        $this->assertEquals(true, $outCalls[2]['newlines']);
+        $this->assertMatchesRegularExpression('/not.*allowed/', $outCalls[3]['message']);
+        $this->assertEquals(true, $outCalls[3]['newlines']);
+    }
 
-		$this->assertMatchesRegularExpression('/not allowed/', $outCalls[0]['message']);
-		$this->assertEquals(true, $outCalls[0]['newlines']);
-		$this->assertMatchesRegularExpression('/granted/', $outCalls[1]['message']);
-		$this->assertEquals(true, $outCalls[1]['newlines']);
-		$this->assertMatchesRegularExpression('/is.*allowed/', $outCalls[2]['message']);
-		$this->assertEquals(true, $outCalls[2]['newlines']);
-		$this->assertMatchesRegularExpression('/not.*allowed/', $outCalls[3]['message']);
-		$this->assertEquals(true, $outCalls[3]['newlines']);
-	}
+    /**
+     * test inherit and that it 0's the permission fields.
+     *
+     * @return void
+     */
+    public function testInherit()
+    {
+        $outCalls = [];
+        $this->Task->expects($this->exactly(2))
+            ->method('out')
+            ->willReturnCallback(function ($message, $newlines = 1) use (&$outCalls) {
+                $outCalls[] = ['message' => $message, 'newlines' => $newlines];
+            });
 
-/**
- * test inherit and that it 0's the permission fields.
- *
- * @return void
- */
-	public function testInherit() {
-		$outCalls = [];
-		$this->Task->expects($this->exactly(2))
-			->method('out')
-			->willReturnCallback(function($message, $newlines = 1) use (&$outCalls) {
-				$outCalls[] = ['message' => $message, 'newlines' => $newlines];
-			});
+        $this->Task->args = ['AuthUser.2', 'ROOT/Controller1', 'create'];
+        $this->Task->grant();
 
-		$this->Task->args = ['AuthUser.2', 'ROOT/Controller1', 'create'];
-		$this->Task->grant();
+        $this->Task->args = ['AuthUser.2', 'ROOT/Controller1', 'all'];
+        $this->Task->inherit();
 
-		$this->Task->args = ['AuthUser.2', 'ROOT/Controller1', 'all'];
-		$this->Task->inherit();
+        $node = $this->Task->Acl->Aro->node(['model' => 'AuthUser', 'foreign_key' => 2]);
+        $node = $this->Task->Acl->Aro->read(null, $node[0]['Aro']['id']);
+        $this->assertFalse(empty($node['Aco'][0]));
+        $this->assertEquals(0, $node['Aco'][0]['Permission']['_create']);
 
-		$node = $this->Task->Acl->Aro->node(['model' => 'AuthUser', 'foreign_key' => 2]);
-		$node = $this->Task->Acl->Aro->read(null, $node[0]['Aro']['id']);
-		$this->assertFalse(empty($node['Aco'][0]));
-		$this->assertEquals(0, $node['Aco'][0]['Permission']['_create']);
+        $this->assertMatchesRegularExpression('/Permission .*granted/', $outCalls[0]['message']);
+        $this->assertEquals(true, $outCalls[0]['newlines']);
+        $this->assertMatchesRegularExpression('/Permission .*inherited/', $outCalls[1]['message']);
+        $this->assertEquals(true, $outCalls[1]['newlines']);
+    }
 
-		$this->assertMatchesRegularExpression('/Permission .*granted/', $outCalls[0]['message']);
-		$this->assertEquals(true, $outCalls[0]['newlines']);
-		$this->assertMatchesRegularExpression('/Permission .*inherited/', $outCalls[1]['message']);
-		$this->assertEquals(true, $outCalls[1]['newlines']);
-	}
+    /**
+     * test getting the path for an aro/aco
+     *
+     * @return void
+     */
+    public function testGetPath()
+    {
+        $this->Task->args = ['aro', 'AuthUser.2'];
+        $node = $this->Task->Acl->Aro->node(['model' => 'AuthUser', 'foreign_key' => 2]);
+        $first = $node[0]['Aro']['id'];
+        $second = $node[1]['Aro']['id'];
+        $last = $node[2]['Aro']['id'];
+        $outCalls = [];
+        $this->Task->expects($this->any())
+            ->method('out')
+            ->willReturnCallback(function ($message = '') use (&$outCalls) {
+                $outCalls[] = $message;
+            });
+        $this->Task->getPath();
 
-/**
- * test getting the path for an aro/aco
- *
- * @return void
- */
-	public function testGetPath() {
-		$this->Task->args = ['aro', 'AuthUser.2'];
-		$node = $this->Task->Acl->Aro->node(['model' => 'AuthUser', 'foreign_key' => 2]);
-		$first = $node[0]['Aro']['id'];
-		$second = $node[1]['Aro']['id'];
-		$last = $node[2]['Aro']['id'];
-		$outCalls = [];
-		$this->Task->expects($this->any())
-			->method('out')
-			->willReturnCallback(function($message = '') use (&$outCalls) {
-				$outCalls[] = $message;
-			});
-		$this->Task->getPath();
+        $this->assertEquals('[' . $last . '] ROOT', $outCalls[1]);
+        $this->assertEquals('  [' . $second . '] admins', $outCalls[2]);
+        $this->assertEquals('    [' . $first . '] Elrond', $outCalls[3]);
+    }
 
-		$this->assertEquals('[' . $last . '] ROOT', $outCalls[1]);
-		$this->assertEquals('  [' . $second . '] admins', $outCalls[2]);
-		$this->assertEquals('    [' . $first . '] Elrond', $outCalls[3]);
-	}
+    /**
+     * test that initdb makes the correct call.
+     *
+     * @return void
+     */
+    public function testInitDb()
+    {
+        $this->Task->expects($this->once())->method('dispatchShell')
+            ->with('schema create DbAcl');
 
-/**
- * test that initdb makes the correct call.
- *
- * @return void
- */
-	public function testInitDb() {
-		$this->Task->expects($this->once())->method('dispatchShell')
-			->with('schema create DbAcl');
-
-		$this->Task->initdb();
-	}
+        $this->Task->initdb();
+    }
 }

@@ -21,38 +21,38 @@
  *
  * @package       Cake.Test.Fixture
  */
-class ArmorFixture extends CakeTestFixture {
+class ArmorFixture extends CakeTestFixture
+{
+    /**
+     * Datasource
+     *
+     * Used for Multi database fixture test
+     *
+     * @var string
+     */
+    public $useDbConfig = 'test2';
 
-/**
- * Datasource
- *
- * Used for Multi database fixture test
- *
- * @var string
- */
-	public $useDbConfig = 'test2';
+    /**
+     * fields property
+     *
+     * @var array
+     */
+    public $fields = [
+        'id' => ['type' => 'integer', 'key' => 'primary'],
+        'name' => ['type' => 'string', 'null' => false],
+        'created' => 'datetime',
+        'updated' => 'datetime',
+    ];
 
-/**
- * fields property
- *
- * @var array
- */
-	public $fields = [
-		'id' => ['type' => 'integer', 'key' => 'primary'],
-		'name' => ['type' => 'string', 'null' => false],
-		'created' => 'datetime',
-		'updated' => 'datetime'
-	];
-
-/**
- * records property
- *
- * @var array
- */
-	public $records = [
-		['name' => 'Leather', 'created' => '2007-03-17 01:16:23'],
-		['name' => 'Chainmail', 'created' => '2007-03-17 01:18:23'],
-		['name' => 'Cloak', 'created' => '2007-03-17 01:20:23'],
-		['name' => 'Bikini', 'created' => '2007-03-17 01:22:23'],
-	];
+    /**
+     * records property
+     *
+     * @var array
+     */
+    public $records = [
+        ['name' => 'Leather', 'created' => '2007-03-17 01:16:23'],
+        ['name' => 'Chainmail', 'created' => '2007-03-17 01:18:23'],
+        ['name' => 'Cloak', 'created' => '2007-03-17 01:20:23'],
+        ['name' => 'Bikini', 'created' => '2007-03-17 01:22:23'],
+    ];
 }

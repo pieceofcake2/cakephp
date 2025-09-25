@@ -21,28 +21,28 @@
  *
  * @package       Cake.Test.Fixture
  */
-class TagFixture extends CakeTestFixture {
+class TagFixture extends CakeTestFixture
+{
+    /**
+     * fields property
+     *
+     * @var array
+     */
+    public $fields = [
+        'id' => ['type' => 'integer', 'key' => 'primary'],
+        'tag' => ['type' => 'string', 'null' => false],
+        'created' => ['type' => 'datetime', 'null' => true, 'default' => null],
+        'updated' => ['type' => 'datetime', 'null' => true, 'default' => null],
+    ];
 
-/**
- * fields property
- *
- * @var array
- */
-	public $fields = [
-		'id' => ['type' => 'integer', 'key' => 'primary'],
-		'tag' => ['type' => 'string', 'null' => false],
-		'created' => ['type' => 'datetime', 'null' => true, 'default' => null],
-		'updated' => ['type' => 'datetime', 'null' => true, 'default' => null],
-	];
-
-/**
- * records property
- *
- * @var array
- */
-	public $records = [
-		['tag' => 'tag1', 'created' => '2007-03-18 12:22:23', 'updated' => '2007-03-18 12:24:31'],
-		['tag' => 'tag2', 'created' => '2007-03-18 12:24:23', 'updated' => '2007-03-18 12:26:31'],
-		['tag' => 'tag3', 'created' => '2007-03-18 12:26:23', 'updated' => '2007-03-18 12:28:31']
-	];
+    /**
+     * records property
+     *
+     * @var array
+     */
+    public $records = [
+        ['tag' => 'tag1', 'created' => '2007-03-18 12:22:23', 'updated' => '2007-03-18 12:24:31'],
+        ['tag' => 'tag2', 'created' => '2007-03-18 12:24:23', 'updated' => '2007-03-18 12:26:31'],
+        ['tag' => 'tag3', 'created' => '2007-03-18 12:26:23', 'updated' => '2007-03-18 12:28:31'],
+    ];
 }

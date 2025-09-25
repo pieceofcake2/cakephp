@@ -1,4 +1,5 @@
 <?php
+
 use SebastianBergmann\Diff\Differ;
 
 /**
@@ -25,421 +26,442 @@ App::uses('CakeBaseReporter', 'TestSuite/Reporter');
  *
  * @package       Cake.TestSuite.Reporter
  */
-class CakeHtmlReporter extends CakeBaseReporter {
+class CakeHtmlReporter extends CakeBaseReporter
+{
+    /**
+     * The content buffer
+     *
+     * @var string
+     */
+    protected $_buffer = '';
 
-/**
- * The content buffer
- *
- * @var string
- */
-	protected $_buffer = '';
+    /**
+     * Paints the top of the web page setting the
+     * title to the name of the starting test.
+     *
+     * @return void
+     */
+    public function paintHeader()
+    {
+        $this->_headerSent = true;
+        ob_start();
+        $this->sendContentType();
+        $this->sendNoCacheHeaders();
+        $this->paintDocumentStart();
+        $this->paintTestMenu();
+        echo "<ul class='tests'>\n";
+        $this->_buffer = ob_get_clean();
+    }
 
-/**
- * Paints the top of the web page setting the
- * title to the name of the starting test.
- *
- * @return void
- */
-	public function paintHeader() {
-		$this->_headerSent = true;
-		ob_start();
-		$this->sendContentType();
-		$this->sendNoCacheHeaders();
-		$this->paintDocumentStart();
-		$this->paintTestMenu();
-		echo "<ul class='tests'>\n";
-		$this->_buffer = ob_get_clean();
-	}
+    /**
+     * Set the content-type header so it is in the correct encoding.
+     *
+     * @return void
+     */
+    public function sendContentType()
+    {
+        if (!headers_sent()) {
+            header('Content-Type: text/html; charset=' . Configure::read('App.encoding'));
+        }
+    }
 
-/**
- * Set the content-type header so it is in the correct encoding.
- *
- * @return void
- */
-	public function sendContentType() {
-		if (!headers_sent()) {
-			header('Content-Type: text/html; charset=' . Configure::read('App.encoding'));
-		}
-	}
+    /**
+     * Paints the document start content contained in header.php
+     *
+     * @return void
+     */
+    public function paintDocumentStart()
+    {
+        $baseDir = $this->params['baseDir'];
+        include CAKE . 'TestSuite' . DS . 'templates' . DS . 'header.php';
+    }
 
-/**
- * Paints the document start content contained in header.php
- *
- * @return void
- */
-	public function paintDocumentStart() {
-		$baseDir = $this->params['baseDir'];
-		include CAKE . 'TestSuite' . DS . 'templates' . DS . 'header.php';
-	}
+    /**
+     * Paints the menu on the left side of the test suite interface.
+     * Contains all of the various plugin, core, and app buttons.
+     *
+     * @return void
+     */
+    public function paintTestMenu()
+    {
+        $cases = $this->baseUrl() . '?show=cases';
+        $plugins = App::objects('plugin', null, false);
+        sort($plugins);
+        include CAKE . 'TestSuite' . DS . 'templates' . DS . 'menu.php';
+    }
 
-/**
- * Paints the menu on the left side of the test suite interface.
- * Contains all of the various plugin, core, and app buttons.
- *
- * @return void
- */
-	public function paintTestMenu() {
-		$cases = $this->baseUrl() . '?show=cases';
-		$plugins = App::objects('plugin', null, false);
-		sort($plugins);
-		include CAKE . 'TestSuite' . DS . 'templates' . DS . 'menu.php';
-	}
+    /**
+     * Retrieves and paints the list of tests cases in an HTML format.
+     *
+     * @return void
+     */
+    public function testCaseList()
+    {
+        $testCases = parent::testCaseList();
+        $core = $this->params['core'];
+        $plugin = $this->params['plugin'];
 
-/**
- * Retrieves and paints the list of tests cases in an HTML format.
- *
- * @return void
- */
-	public function testCaseList() {
-		$testCases = parent::testCaseList();
-		$core = $this->params['core'];
-		$plugin = $this->params['plugin'];
+        $buffer = "<h3>App Test Cases:</h3>\n<ul>";
+        $urlExtra = null;
+        if ($core) {
+            $buffer = "<h3>Core Test Cases:</h3>\n<ul>";
+            $urlExtra = '&core=true';
+        } elseif ($plugin) {
+            $buffer = '<h3>' . Inflector::humanize($plugin) . " Test Cases:</h3>\n<ul>";
+            $urlExtra = '&plugin=' . $plugin;
+        }
 
-		$buffer = "<h3>App Test Cases:</h3>\n<ul>";
-		$urlExtra = null;
-		if ($core) {
-			$buffer = "<h3>Core Test Cases:</h3>\n<ul>";
-			$urlExtra = '&core=true';
-		} elseif ($plugin) {
-			$buffer = "<h3>" . Inflector::humanize($plugin) . " Test Cases:</h3>\n<ul>";
-			$urlExtra = '&plugin=' . $plugin;
-		}
+        if (count($testCases) < 1) {
+            $buffer .= '<strong>EMPTY</strong>';
+        }
 
-		if (count($testCases) < 1) {
-			$buffer .= "<strong>EMPTY</strong>";
-		}
+        foreach ($testCases as $testCase) {
+            $title = explode(DS, str_replace('.test.php', '', $testCase));
+            $title[count($title) - 1] = Inflector::camelize($title[count($title) - 1]);
+            $title = implode(' / ', $title);
+                $buffer .= "<li><a href='" . $this->baseUrl() . '?case=' . urlencode($testCase) . $urlExtra . "'>" . $title . "</a></li>\n";
+        }
+        $buffer .= "</ul>\n";
+        echo $buffer;
+    }
 
-		foreach ($testCases as $testCase) {
-			$title = explode(DS, str_replace('.test.php', '', $testCase));
-			$title[count($title) - 1] = Inflector::camelize($title[count($title) - 1]);
-			$title = implode(' / ', $title);
-				$buffer .= "<li><a href='" . $this->baseUrl() . "?case=" . urlencode($testCase) . $urlExtra . "'>" . $title . "</a></li>\n";
-		}
-		$buffer .= "</ul>\n";
-		echo $buffer;
-	}
+    /**
+     * Send the headers necessary to ensure the page is
+     * reloaded on every request. Otherwise you could be
+     * scratching your head over out of date test data.
+     *
+     * @return void
+     */
+    public function sendNoCacheHeaders()
+    {
+        if (!headers_sent()) {
+            header('Expires: Mon, 26 Jul 1997 05:00:00 GMT');
+            header('Last-Modified: ' . gmdate('D, d M Y H:i:s') . ' GMT');
+            header('Cache-Control: no-store, no-cache, must-revalidate');
+            header('Cache-Control: post-check=0, pre-check=0', false);
+            header('Pragma: no-cache');
+        }
+    }
 
-/**
- * Send the headers necessary to ensure the page is
- * reloaded on every request. Otherwise you could be
- * scratching your head over out of date test data.
- *
- * @return void
- */
-	public function sendNoCacheHeaders() {
-		if (!headers_sent()) {
-			header("Expires: Mon, 26 Jul 1997 05:00:00 GMT");
-			header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GMT");
-			header("Cache-Control: no-store, no-cache, must-revalidate");
-			header("Cache-Control: post-check=0, pre-check=0", false);
-			header("Pragma: no-cache");
-		}
-	}
+    /**
+     * Paints the end of the test with a summary of
+     * the passes and failures.
+     *
+     * @param PHPUnit_Framework_TestResult $result Result object
+     * @return void
+     */
+    public function paintFooter($result)
+    {
+        echo $this->_buffer;
+        ob_end_flush();
 
-/**
- * Paints the end of the test with a summary of
- * the passes and failures.
- *
- * @param PHPUnit_Framework_TestResult $result Result object
- * @return void
- */
-	public function paintFooter($result) {
-		echo $this->_buffer;
-		ob_end_flush();
+        $colour = ($result->failureCount() + $result->errorCount() > 0 ? 'red' : 'green');
+        echo "</ul>\n";
+        echo '<div style="';
+        echo "padding: 8px; margin: 1em 0; background-color: $colour; color: white;";
+        echo '">';
+        echo ($result->count() - $result->skippedCount()) . '/' . $result->count();
+        echo " test methods complete:\n";
+        echo '<strong>' . count($result->passed()) . '</strong> passes, ';
+        echo '<strong>' . $result->failureCount() . '</strong> fails, ';
+        echo '<strong>' . $this->numAssertions . '</strong> assertions and ';
+        echo '<strong>' . $result->errorCount() . '</strong> exceptions.';
+        echo "</div>\n";
+        echo '<div style="padding:0 0 5px;">';
+        echo '<p><strong>Time:</strong> ' . $result->time() . ' seconds</p>';
+        echo '<p><strong>Peak memory:</strong> ' . number_format(memory_get_peak_usage()) . ' bytes</p>';
+        echo $this->_paintLinks();
+        echo '</div>';
+        if (isset($this->params['codeCoverage']) && $this->params['codeCoverage']) {
+            $coverage = $result->getCodeCoverage();
+            if (method_exists($coverage, 'getSummary')) {
+                $report = $coverage->getSummary();
+                echo $this->paintCoverage($report);
+            }
+            if (method_exists($coverage, 'getData')) {
+                $report = $coverage->getData();
+                echo $this->paintCoverage($report);
+            }
+        }
+        $this->paintDocumentEnd();
+    }
 
-		$colour = ($result->failureCount() + $result->errorCount() > 0 ? "red" : "green");
-		echo "</ul>\n";
-		echo "<div style=\"";
-		echo "padding: 8px; margin: 1em 0; background-color: $colour; color: white;";
-		echo "\">";
-		echo ($result->count() - $result->skippedCount()) . "/" . $result->count();
-		echo " test methods complete:\n";
-		echo "<strong>" . count($result->passed()) . "</strong> passes, ";
-		echo "<strong>" . $result->failureCount() . "</strong> fails, ";
-		echo "<strong>" . $this->numAssertions . "</strong> assertions and ";
-		echo "<strong>" . $result->errorCount() . "</strong> exceptions.";
-		echo "</div>\n";
-		echo '<div style="padding:0 0 5px;">';
-		echo '<p><strong>Time:</strong> ' . $result->time() . ' seconds</p>';
-		echo '<p><strong>Peak memory:</strong> ' . number_format(memory_get_peak_usage()) . ' bytes</p>';
-		echo $this->_paintLinks();
-		echo '</div>';
-		if (isset($this->params['codeCoverage']) && $this->params['codeCoverage']) {
-			$coverage = $result->getCodeCoverage();
-			if (method_exists($coverage, 'getSummary')) {
-				$report = $coverage->getSummary();
-				echo $this->paintCoverage($report);
-			}
-			if (method_exists($coverage, 'getData')) {
-				$report = $coverage->getData();
-				echo $this->paintCoverage($report);
-			}
-		}
-		$this->paintDocumentEnd();
-	}
+    /**
+     * Paints a code coverage report.
+     *
+     * @param array $coverage The coverage data
+     * @return void
+     */
+    public function paintCoverage(array $coverage)
+    {
+        App::uses('HtmlCoverageReport', 'TestSuite/Coverage');
 
-/**
- * Paints a code coverage report.
- *
- * @param array $coverage The coverage data
- * @return void
- */
-	public function paintCoverage(array $coverage) {
-		App::uses('HtmlCoverageReport', 'TestSuite/Coverage');
+        $reporter = new HtmlCoverageReport($coverage, $this);
+        echo $reporter->report();
+    }
 
-		$reporter = new HtmlCoverageReport($coverage, $this);
-		echo $reporter->report();
-	}
+    /**
+     * Renders the links that for accessing things in the test suite.
+     *
+     * @return void
+     */
+    protected function _paintLinks()
+    {
+        $show = $query = [];
+        if (!empty($this->params['case'])) {
+            $show['show'] = 'cases';
+        }
 
-/**
- * Renders the links that for accessing things in the test suite.
- *
- * @return void
- */
-	protected function _paintLinks() {
-		$show = $query = [];
-		if (!empty($this->params['case'])) {
-			$show['show'] = 'cases';
-		}
+        if (!empty($this->params['core'])) {
+            $show['core'] = $query['core'] = 'true';
+        }
+        if (!empty($this->params['plugin'])) {
+            $show['plugin'] = $query['plugin'] = $this->params['plugin'];
+        }
+        if (!empty($this->params['case'])) {
+            $query['case'] = $this->params['case'];
+        }
+        [$show, $query] = str_split($this->_getQueryLink());
 
-		if (!empty($this->params['core'])) {
-			$show['core'] = $query['core'] = 'true';
-		}
-		if (!empty($this->params['plugin'])) {
-			$show['plugin'] = $query['plugin'] = $this->params['plugin'];
-		}
-		if (!empty($this->params['case'])) {
-			$query['case'] = $this->params['case'];
-		}
-		[$show, $query] = str_split($this->_getQueryLink());
+        echo "<p><a href='" . $this->baseUrl() . $show . "'>Run more tests</a> | <a href='" . $this->baseUrl() . $query . "&amp;show_passes=1'>Show Passes</a> | \n";
+        echo "<a href='" . $this->baseUrl() . $query . "&amp;debug=1'>Enable Debug Output</a> | \n";
+        echo "<a href='" . $this->baseUrl() . $query . "&amp;code_coverage=true'>Analyze Code Coverage</a> | \n";
+        echo "<a href='" . $this->baseUrl() . $query . "&amp;code_coverage=true&amp;show_passes=1&amp;debug=1'>All options enabled</a></p>\n";
+    }
 
-		echo "<p><a href='" . $this->baseUrl() . $show . "'>Run more tests</a> | <a href='" . $this->baseUrl() . $query . "&amp;show_passes=1'>Show Passes</a> | \n";
-		echo "<a href='" . $this->baseUrl() . $query . "&amp;debug=1'>Enable Debug Output</a> | \n";
-		echo "<a href='" . $this->baseUrl() . $query . "&amp;code_coverage=true'>Analyze Code Coverage</a> | \n";
-		echo "<a href='" . $this->baseUrl() . $query . "&amp;code_coverage=true&amp;show_passes=1&amp;debug=1'>All options enabled</a></p>\n";
-	}
+    /**
+     * Convert an array of parameters into a query string url
+     *
+     * @param array $url Url hash to be converted
+     * @return string Converted url query string
+     */
+    protected function _queryString($url)
+    {
+        $out = '?';
+        $params = [];
+        foreach ($url as $key => $value) {
+            $params[] = "$key=$value";
+        }
+        $out .= implode('&amp;', $params);
 
-/**
- * Convert an array of parameters into a query string url
- *
- * @param array $url Url hash to be converted
- * @return string Converted url query string
- */
-	protected function _queryString($url) {
-		$out = '?';
-		$params = [];
-		foreach ($url as $key => $value) {
-			$params[] = "$key=$value";
-		}
-		$out .= implode('&amp;', $params);
-		return $out;
-	}
+        return $out;
+    }
 
-/**
- * Paints the end of the document html.
- *
- * @return void
- */
-	public function paintDocumentEnd() {
-		$baseDir = $this->params['baseDir'];
-		include CAKE . 'TestSuite' . DS . 'templates' . DS . 'footer.php';
-		if (ob_get_length()) {
-			ob_end_flush();
-		}
-	}
+    /**
+     * Paints the end of the document html.
+     *
+     * @return void
+     */
+    public function paintDocumentEnd()
+    {
+        $baseDir = $this->params['baseDir'];
+        include CAKE . 'TestSuite' . DS . 'templates' . DS . 'footer.php';
+        if (ob_get_length()) {
+            ob_end_flush();
+        }
+    }
 
-/**
- * Paints the test failure with a breadcrumbs
- * trail of the nesting test suites below the
- * top level test.
- *
- * @param PHPUnit_Framework_AssertionFailedError $message Failure object displayed in
- *   the context of the other tests.
- * @param mixed $test The test case to paint a failure for.
- * @return void
- */
-	public function paintFail($message, $test) {
-		ob_start();
-		$trace = $this->_getStackTrace($message);
-		$className = $test::class;
-		$testName = $className . '::' . $test->getName() . '()';
+    /**
+     * Paints the test failure with a breadcrumbs
+     * trail of the nesting test suites below the
+     * top level test.
+     *
+     * @param PHPUnit_Framework_AssertionFailedError $message Failure object displayed in
+     *   the context of the other tests.
+     * @param mixed $test The test case to paint a failure for.
+     * @return void
+     */
+    public function paintFail($message, $test)
+    {
+        ob_start();
+        $trace = $this->_getStackTrace($message);
+        $className = $test::class;
+        $testName = $className . '::' . $test->getName() . '()';
 
-		$actualMsg = $expectedMsg = null;
-		if (method_exists($message, 'getComparisonFailure')) {
-			$failure = $message->getComparisonFailure();
-			if (is_object($failure)) {
-				$actualMsg = $failure->getActualAsString();
-				$expectedMsg = $failure->getExpectedAsString();
-			}
-		}
+        $actualMsg = $expectedMsg = null;
+        if (method_exists($message, 'getComparisonFailure')) {
+            $failure = $message->getComparisonFailure();
+            if (is_object($failure)) {
+                $actualMsg = $failure->getActualAsString();
+                $expectedMsg = $failure->getExpectedAsString();
+            }
+        }
 
-		echo "<li class='fail'>\n";
-		echo "<span>Failed</span>";
-		echo "<div class='msg'><pre>" . $this->_htmlEntities($message->toString());
+        echo "<li class='fail'>\n";
+        echo '<span>Failed</span>';
+        echo "<div class='msg'><pre>" . $this->_htmlEntities($message->toString());
 
-		if ((is_string($actualMsg) && is_string($expectedMsg)) || (is_array($actualMsg) && is_array($expectedMsg))) {
+        if ((is_string($actualMsg) && is_string($expectedMsg)) || (is_array($actualMsg) && is_array($expectedMsg))) {
+            $diffs = '';
+            if (class_exists('PHPUnit_Util_Diff')) {
+                $diffs = PHPUnit_Util_Diff::diff($expectedMsg, $actualMsg);
+            } elseif (class_exists(Differ::class)) {
+                $differ = new Differ();
+                $diffs = $differ->diff($expectedMsg, $actualMsg);
+            }
 
-			$diffs = "";
-			if (class_exists('PHPUnit_Util_Diff')) {
-				$diffs = PHPUnit_Util_Diff::diff($expectedMsg, $actualMsg);
-			} elseif (class_exists(Differ::class)) {
-				$differ = new Differ();
-				$diffs = $differ->diff($expectedMsg, $actualMsg);
-			}
+            echo '<br />' . $this->_htmlEntities($diffs);
+        }
 
-			echo "<br />" . $this->_htmlEntities($diffs);
-		}
+        echo "</pre></div>\n";
+        echo "<div class='msg'>" . __d('cake_dev', 'Test case: %s', $testName) . "</div>\n";
+        if (!str_contains($className, 'PHPUnit_')) {
+            [$show, $query] = str_split($this->_getQueryLink());
+            echo "<div class='msg'><a href='" . $this->baseUrl() . $query . '&amp;filter=' . $test->getName() . "'>" . __d('cake_dev', 'Rerun only this test: %s', $testName) . "</a></div>\n";
+        }
+        echo "<div class='msg'>" . __d('cake_dev', 'Stack trace:') . '<br />' . $trace . "</div>\n";
+        echo "</li>\n";
+        $this->_buffer .= ob_get_clean();
+    }
 
-		echo "</pre></div>\n";
-		echo "<div class='msg'>" . __d('cake_dev', 'Test case: %s', $testName) . "</div>\n";
-		if (!str_contains($className, "PHPUnit_")) {
-			[$show, $query] = str_split($this->_getQueryLink());
-			echo "<div class='msg'><a href='" . $this->baseUrl() . $query . "&amp;filter=" . $test->getName() . "'>" . __d('cake_dev', 'Rerun only this test: %s', $testName) . "</a></div>\n";
-		}
-		echo "<div class='msg'>" . __d('cake_dev', 'Stack trace:') . '<br />' . $trace . "</div>\n";
-		echo "</li>\n";
-		$this->_buffer .= ob_get_clean();
-	}
+    /**
+     * Paints the test pass with a breadcrumbs
+     * trail of the nesting test suites below the
+     * top level test.
+     *
+     * @param PHPUnit_Framework_Test $test Test method that just passed
+     * @param float $time time spent to run the test method
+     * @return void
+     */
+    public function paintPass(PHPUnit_Framework_Test $test, $time = null)
+    {
+        ob_start();
+        if (isset($this->params['showPasses']) && $this->params['showPasses']) {
+            echo "<li class='pass'>\n";
+            echo '<span>Passed</span> ';
 
-/**
- * Paints the test pass with a breadcrumbs
- * trail of the nesting test suites below the
- * top level test.
- *
- * @param PHPUnit_Framework_Test $test Test method that just passed
- * @param float $time time spent to run the test method
- * @return void
- */
-	public function paintPass(PHPUnit_Framework_Test $test, $time = null) {
-		ob_start();
-		if (isset($this->params['showPasses']) && $this->params['showPasses']) {
-			echo "<li class='pass'>\n";
-			echo "<span>Passed</span> ";
+            echo '<br />' . $this->_htmlEntities($test->getName()) . " ($time seconds)\n";
+            echo "</li>\n";
+        }
+        $this->_buffer .= ob_get_clean();
+    }
 
-			echo "<br />" . $this->_htmlEntities($test->getName()) . " ($time seconds)\n";
-			echo "</li>\n";
-		}
-		$this->_buffer .= ob_get_clean();
-	}
+    /**
+     * Paints a PHP exception.
+     *
+     * @param Exception $message Exception to display.
+     * @param mixed $test The test that failed.
+     * @return void
+     */
+    public function paintException($message, $test)
+    {
+        ob_start();
+        $trace = $this->_getStackTrace($message);
+        $testName = $test::class . '(' . $test->getName() . ')';
 
-/**
- * Paints a PHP exception.
- *
- * @param Exception $message Exception to display.
- * @param mixed $test The test that failed.
- * @return void
- */
-	public function paintException($message, $test) {
-		ob_start();
-		$trace = $this->_getStackTrace($message);
-		$testName = $test::class . '(' . $test->getName() . ')';
+        echo "<li class='fail'>\n";
+        echo '<span>' . $message::class . '</span>';
 
-		echo "<li class='fail'>\n";
-		echo "<span>" . $message::class . "</span>";
+        echo "<div class='msg'>" . $this->_htmlEntities($message->getMessage()) . "</div>\n";
+        echo "<div class='msg'>" . __d('cake_dev', 'Test case: %s', $testName) . "</div>\n";
+        echo "<div class='msg'>" . __d('cake_dev', 'Stack trace:') . '<br />' . $trace . "</div>\n";
+        echo "</li>\n";
+        $this->_buffer .= ob_get_clean();
+    }
 
-		echo "<div class='msg'>" . $this->_htmlEntities($message->getMessage()) . "</div>\n";
-		echo "<div class='msg'>" . __d('cake_dev', 'Test case: %s', $testName) . "</div>\n";
-		echo "<div class='msg'>" . __d('cake_dev', 'Stack trace:') . '<br />' . $trace . "</div>\n";
-		echo "</li>\n";
-		$this->_buffer .= ob_get_clean();
-	}
+    /**
+     * Prints the message for skipping tests.
+     *
+     * @param string $message Text of skip condition.
+     * @param PHPUnit_Framework_TestCase $test the test method skipped
+     * @return void
+     */
+    public function paintSkip($message, $test)
+    {
+        ob_start();
+        echo "<li class='skipped'>\n";
+        echo '<span>Skipped</span> ';
+        echo $test->getName() . ': ' . $this->_htmlEntities($message->getMessage());
+        echo "</li>\n";
+        $this->_buffer .= ob_get_clean();
+    }
 
-/**
- * Prints the message for skipping tests.
- *
- * @param string $message Text of skip condition.
- * @param PHPUnit_Framework_TestCase $test the test method skipped
- * @return void
- */
-	public function paintSkip($message, $test) {
-		ob_start();
-		echo "<li class='skipped'>\n";
-		echo "<span>Skipped</span> ";
-		echo $test->getName() . ': ' . $this->_htmlEntities($message->getMessage());
-		echo "</li>\n";
-		$this->_buffer .= ob_get_clean();
-	}
+    /**
+     * Paints formatted text such as dumped variables.
+     *
+     * @param string $message Text to show.
+     * @return void
+     */
+    public function paintFormattedMessage($message)
+    {
+        echo '<pre>' . $this->_htmlEntities($message) . '</pre>';
+    }
 
-/**
- * Paints formatted text such as dumped variables.
- *
- * @param string $message Text to show.
- * @return void
- */
-	public function paintFormattedMessage($message) {
-		echo '<pre>' . $this->_htmlEntities($message) . '</pre>';
-	}
+    /**
+     * Character set adjusted entity conversion.
+     *
+     * @param string $message Plain text or Unicode message.
+     * @return string Browser readable message.
+     */
+    protected function _htmlEntities($message)
+    {
+        return htmlentities($message, ENT_COMPAT, $this->_characterSet);
+    }
 
-/**
- * Character set adjusted entity conversion.
- *
- * @param string $message Plain text or Unicode message.
- * @return string Browser readable message.
- */
-	protected function _htmlEntities($message) {
-		return htmlentities($message, ENT_COMPAT, $this->_characterSet);
-	}
+    /**
+     * Gets a formatted stack trace.
+     *
+     * @param Exception $e Exception to get a stack trace for.
+     * @return string Generated stack trace.
+     */
+    protected function _getStackTrace(Exception $e)
+    {
+        $trace = $e->getTrace();
+        $out = [];
+        foreach ($trace as $frame) {
+            if (isset($frame['file']) && isset($frame['line'])) {
+                $out[] = $frame['file'] . ' : ' . $frame['line'];
+            } elseif (isset($frame['class']) && isset($frame['function'])) {
+                $out[] = $frame['class'] . '::' . $frame['function'];
+            } else {
+                $out[] = '[internal]';
+            }
+        }
 
-/**
- * Gets a formatted stack trace.
- *
- * @param Exception $e Exception to get a stack trace for.
- * @return string Generated stack trace.
- */
-	protected function _getStackTrace(Exception $e) {
-		$trace = $e->getTrace();
-		$out = [];
-		foreach ($trace as $frame) {
-			if (isset($frame['file']) && isset($frame['line'])) {
-				$out[] = $frame['file'] . ' : ' . $frame['line'];
-			} elseif (isset($frame['class']) && isset($frame['function'])) {
-				$out[] = $frame['class'] . '::' . $frame['function'];
-			} else {
-				$out[] = '[internal]';
-			}
-		}
-		return implode('<br />', $out);
-	}
+        return implode('<br />', $out);
+    }
 
-/**
- * A test suite started.
- *
- * @param PHPUnit_Framework_TestSuite $suite The test suite to start.
- * @return void
- */
-	public function startTestSuite(PHPUnit_Framework_TestSuite $suite) {
-		if (!$this->_headerSent) {
-			$this->paintHeader();
-		}
-		$this->_buffer .= '<h2>' . __d('cake_dev', 'Running  %s', $suite->getName()) . '</h2>';
-	}
+    /**
+     * A test suite started.
+     *
+     * @param PHPUnit_Framework_TestSuite $suite The test suite to start.
+     * @return void
+     */
+    public function startTestSuite(PHPUnit_Framework_TestSuite $suite)
+    {
+        if (!$this->_headerSent) {
+            $this->paintHeader();
+        }
+        $this->_buffer .= '<h2>' . __d('cake_dev', 'Running  %s', $suite->getName()) . '</h2>';
+    }
 
-/**
- * Returns the query string formatted for ouput in links
- * 
- * @return string
- */
-	protected function _getQueryLink() {
-		$show = $query = [];
-		if (!empty($this->params['case'])) {
-			$show['show'] = 'cases';
-		}
+    /**
+     * Returns the query string formatted for ouput in links
+     *
+     * @return string
+     */
+    protected function _getQueryLink()
+    {
+        $show = $query = [];
+        if (!empty($this->params['case'])) {
+            $show['show'] = 'cases';
+        }
 
-		if (!empty($this->params['core'])) {
-			$show['core'] = $query['core'] = 'true';
-		}
-		if (!empty($this->params['plugin'])) {
-			$show['plugin'] = $query['plugin'] = $this->params['plugin'];
-		}
-		if (!empty($this->params['case'])) {
-			$query['case'] = $this->params['case'];
-		}
-		if (!empty($this->params['filter'])) {
-			$query['filter'] = $this->params['filter'];
-		}
-		$show = $this->_queryString($show);
-		$query = $this->_queryString($query);
-		return [$show, $query];
-	}
+        if (!empty($this->params['core'])) {
+            $show['core'] = $query['core'] = 'true';
+        }
+        if (!empty($this->params['plugin'])) {
+            $show['plugin'] = $query['plugin'] = $this->params['plugin'];
+        }
+        if (!empty($this->params['case'])) {
+            $query['case'] = $this->params['case'];
+        }
+        if (!empty($this->params['filter'])) {
+            $query['filter'] = $this->params['filter'];
+        }
+        $show = $this->_queryString($show);
+        $query = $this->_queryString($query);
 
+        return [$show, $query];
+    }
 }

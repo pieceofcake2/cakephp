@@ -21,5 +21,6 @@
  *
  * @package       Cake.Test.TestApp.Plugin.TestPlugin.Model
  */
-class TestPluginAppModel extends CakeTestModel {
+class TestPluginAppModel extends CakeTestModel
+{
 }

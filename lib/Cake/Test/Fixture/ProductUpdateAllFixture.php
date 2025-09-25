@@ -21,42 +21,42 @@
  *
  * @package       Cake.Test.Fixture
  */
-class ProductUpdateAllFixture extends CakeTestFixture {
+class ProductUpdateAllFixture extends CakeTestFixture
+{
+    public $table = 'product_update_all';
 
-	public $table = 'product_update_all';
+    public $fields = [
+        'id' => ['type' => 'integer', 'null' => false, 'default' => null, 'key' => 'primary'],
+        'name' => ['type' => 'string', 'null' => false, 'length' => 29],
+        'groupcode' => ['type' => 'integer', 'null' => false, 'length' => 4],
+        'group_id' => ['type' => 'integer', 'null' => false, 'length' => 8],
+        'indexes' => ['PRIMARY' => ['column' => 'id', 'unique' => 1]],
+    ];
 
-	public $fields = [
-		'id' => ['type' => 'integer', 'null' => false, 'default' => null, 'key' => 'primary'],
-		'name' => ['type' => 'string', 'null' => false, 'length' => 29],
-		'groupcode' => ['type' => 'integer', 'null' => false, 'length' => 4],
-		'group_id' => ['type' => 'integer', 'null' => false, 'length' => 8],
-		'indexes' => ['PRIMARY' => ['column' => 'id', 'unique' => 1]]
-	];
-
-	public $records = [
-		[
-			'id' => 1,
-			'name' => 'product one',
-			'groupcode' => 120,
-			'group_id' => 1
-		],
-		[
-			'id' => 2,
-			'name' => 'product two',
-			'groupcode' => 120,
-			'group_id' => 1
-		],
-		[
-			'id' => 3,
-			'name' => 'product three',
-			'groupcode' => 125,
-			'group_id' => 2
-		],
-		[
-			'id' => 4,
-			'name' => 'product four',
-			'groupcode' => 135,
-			'group_id' => 4
-		],
-		];
+    public $records = [
+        [
+            'id' => 1,
+            'name' => 'product one',
+            'groupcode' => 120,
+            'group_id' => 1,
+        ],
+        [
+            'id' => 2,
+            'name' => 'product two',
+            'groupcode' => 120,
+            'group_id' => 1,
+        ],
+        [
+            'id' => 3,
+            'name' => 'product three',
+            'groupcode' => 125,
+            'group_id' => 2,
+        ],
+        [
+            'id' => 4,
+            'name' => 'product four',
+            'groupcode' => 135,
+            'group_id' => 4,
+        ],
+        ];
 }

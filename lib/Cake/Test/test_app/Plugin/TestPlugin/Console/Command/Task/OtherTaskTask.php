@@ -21,6 +21,6 @@
  *
  * @package       Cake.Test.TestApp.Plugin.TestPlugin.Console.Command.Task
  */
-class OtherTaskTask extends Shell {
-
+class OtherTaskTask extends Shell
+{
 }
