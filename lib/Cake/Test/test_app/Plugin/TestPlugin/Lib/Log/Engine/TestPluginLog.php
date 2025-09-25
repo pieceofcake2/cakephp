@@ -23,9 +23,9 @@ App::uses('CakeLogInterface', 'Log');
  *
  * @package       Cake.Test.TestApp.Plugin.TestPlugin.Lib.Log.Engine
  */
-class TestPluginLog implements CakeLogInterface {
-
-	public function write($type, $message) {
-	}
-
+class TestPluginLog implements CakeLogInterface
+{
+    public function write($type, $message)
+    {
+    }
 }

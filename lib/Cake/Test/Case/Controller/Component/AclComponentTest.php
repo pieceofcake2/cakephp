@@ -24,68 +24,72 @@ class_exists('AclComponent');
  *
  * @package       Cake.Test.Case.Controller.Component
  */
-class AclComponentTest extends CakeTestCase {
+class AclComponentTest extends CakeTestCase
+{
+    /**
+     * setUp method
+     *
+     * @return void
+     */
+    public function setUp(): void
+    {
+        parent::setUp();
+        if (!class_exists('MockAclImplementation', false)) {
+            $this->getMock('AclInterface', [], [], 'MockAclImplementation');
+        }
+        Configure::write('Acl.classname', 'MockAclImplementation');
+        $Collection = new ComponentCollection();
+        $this->Acl = new AclComponent($Collection);
+    }
 
-/**
- * setUp method
- *
- * @return void
- */
-	public function setUp() : void {
-		parent::setUp();
-		if (!class_exists('MockAclImplementation', false)) {
-			$this->getMock('AclInterface', [], [], 'MockAclImplementation');
-		}
-		Configure::write('Acl.classname', 'MockAclImplementation');
-		$Collection = new ComponentCollection();
-		$this->Acl = new AclComponent($Collection);
-	}
+    /**
+     * tearDown method
+     *
+     * @return void
+     */
+    public function tearDown(): void
+    {
+        unset($this->Acl);
+        parent::tearDown();
+    }
 
-/**
- * tearDown method
- *
- * @return void
- */
-	public function tearDown() : void {
-		unset($this->Acl);
-		parent::tearDown();
-	}
+    /**
+     * test that constructor throws an exception when Acl.classname is a
+     * non-existent class
+     *
+     * @return void
+     */
+    public function testConstrutorException()
+    {
+        $this->expectException(CakeException::class);
+        Configure::write('Acl.classname', 'AclClassNameThatDoesNotExist');
+        $Collection = new ComponentCollection();
+        new AclComponent($Collection);
+    }
 
-/**
- * test that constructor throws an exception when Acl.classname is a
- * non-existent class
- *
- * @return void
- */
-	public function testConstrutorException() {
-		$this->expectException(CakeException::class);
-		Configure::write('Acl.classname', 'AclClassNameThatDoesNotExist');
-		$Collection = new ComponentCollection();
-		new AclComponent($Collection);
-	}
+    /**
+     * test that adapter() allows control of the internal implementation AclComponent uses.
+     *
+     * @return void
+     */
+    public function testAdapter()
+    {
+        $Adapter = $this->getMock('AclInterface');
+        $Adapter->expects($this->once())->method('initialize')->with($this->Acl);
 
-/**
- * test that adapter() allows control of the internal implementation AclComponent uses.
- *
- * @return void
- */
-	public function testAdapter() {
-		$Adapter = $this->getMock('AclInterface');
-		$Adapter->expects($this->once())->method('initialize')->with($this->Acl);
+        $this->assertNull($this->Acl->adapter($Adapter));
+        $this->assertEquals($this->Acl->adapter(), $Adapter, 'Returned object is different %s');
+    }
 
-		$this->assertNull($this->Acl->adapter($Adapter));
-		$this->assertEquals($this->Acl->adapter(), $Adapter, 'Returned object is different %s');
-	}
-
-/**
- * test that adapter() whines when the class does not implement AclInterface
- *
- * @return void
- */
-	public function testAdapterException() {
-		$this->expectException(CakeException::class);
-		$thing = new StdClass();
-		$this->Acl->adapter($thing);
-	}
-
+    /**
+     * test that adapter() whines when the class does not implement AclInterface
+     *
+     * @return void
+     */
+    public function testAdapterException()
+    {
+        $this->expectException(CakeException::class);
+        $thing = new StdClass();
+        $this->Acl->adapter($thing);
+    }
 }

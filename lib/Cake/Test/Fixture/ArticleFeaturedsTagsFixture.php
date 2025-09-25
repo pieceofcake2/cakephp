@@ -21,16 +21,16 @@
  *
  * @package       Cake.Test.Fixture
  */
-class ArticleFeaturedsTagsFixture extends CakeTestFixture {
-
-/**
- * fields property
- *
- * @var array
- */
-	public $fields = [
-		'article_featured_id' => ['type' => 'integer', 'null' => false],
-		'tag_id' => ['type' => 'integer', 'null' => false],
-		'indexes' => ['UNIQUE_FEATURED' => ['column' => ['article_featured_id', 'tag_id'], 'unique' => 1]]
-	];
+class ArticleFeaturedsTagsFixture extends CakeTestFixture
+{
+    /**
+     * fields property
+     *
+     * @var array
+     */
+    public $fields = [
+        'article_featured_id' => ['type' => 'integer', 'null' => false],
+        'tag_id' => ['type' => 'integer', 'null' => false],
+        'indexes' => ['UNIQUE_FEATURED' => ['column' => ['article_featured_id', 'tag_id'], 'unique' => 1]],
+    ];
 }

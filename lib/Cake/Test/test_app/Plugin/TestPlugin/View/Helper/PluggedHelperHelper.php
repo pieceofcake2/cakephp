@@ -21,7 +21,7 @@
  *
  * @package       Cake.Test.TestApp.Plugin.TestPlugin.View.Helper
  */
-class PluggedHelperHelper extends AppHelper {
-
-	public $helpers = ['TestPlugin.OtherHelper'];
+class PluggedHelperHelper extends AppHelper
+{
+    public $helpers = ['TestPlugin.OtherHelper'];
 }

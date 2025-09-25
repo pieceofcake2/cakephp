@@ -21,33 +21,33 @@
  *
  * @package       Cake.Test.Fixture
  */
-class DomainsSiteFixture extends CakeTestFixture {
+class DomainsSiteFixture extends CakeTestFixture
+{
+    /**
+     * fields property
+     *
+     * @var array
+     */
+    public $fields = [
+        'id' => ['type' => 'integer', 'key' => 'primary'],
+        'domain_id' => ['type' => 'integer', 'null' => false],
+        'site_id' => ['type' => 'integer', 'null' => false],
+        'active' => ['type' => 'boolean', 'null' => false, 'default' => false],
+        'created' => 'datetime',
+        'updated' => 'datetime',
+    ];
 
-/**
- * fields property
- *
- * @var array
- */
-	public $fields = [
-		'id' => ['type' => 'integer', 'key' => 'primary'],
-		'domain_id' => ['type' => 'integer', 'null' => false],
-		'site_id' => ['type' => 'integer', 'null' => false],
-		'active' => ['type' => 'boolean', 'null' => false, 'default' => false],
-		'created' => 'datetime',
-		'updated' => 'datetime',
-	];
-
-/**
- * records property
- *
- * @var array
- */
-	public $records = [
-		['site_id' => 1, 'domain_id' => 1, 'active' => true, 'created' => '2007-03-17 01:16:23', 'updated' => '2007-03-17 01:18:31'],
-		['site_id' => 1, 'domain_id' => 2, 'active' => true, 'created' => '2007-03-17 01:16:23', 'updated' => '2007-03-17 01:18:31'],
-		['site_id' => 2, 'domain_id' => 4, 'active' => true, 'created' => '2007-03-17 01:18:23', 'updated' => '2007-03-17 01:20:31'],
-		['site_id' => 2, 'domain_id' => 5, 'active' => true, 'created' => '2007-03-17 01:18:23', 'updated' => '2007-03-17 01:20:31'],
-		['site_id' => 3, 'domain_id' => 6, 'active' => true, 'created' => '2001-02-03 00:01:02', 'updated' => '2007-03-17 01:22:31'],
-		['site_id' => 3, 'domain_id' => 7, 'active' => false, 'created' => '2001-02-03 00:01:02', 'updated' => '2007-03-17 01:22:31'],
-	];
+    /**
+     * records property
+     *
+     * @var array
+     */
+    public $records = [
+        ['site_id' => 1, 'domain_id' => 1, 'active' => true, 'created' => '2007-03-17 01:16:23', 'updated' => '2007-03-17 01:18:31'],
+        ['site_id' => 1, 'domain_id' => 2, 'active' => true, 'created' => '2007-03-17 01:16:23', 'updated' => '2007-03-17 01:18:31'],
+        ['site_id' => 2, 'domain_id' => 4, 'active' => true, 'created' => '2007-03-17 01:18:23', 'updated' => '2007-03-17 01:20:31'],
+        ['site_id' => 2, 'domain_id' => 5, 'active' => true, 'created' => '2007-03-17 01:18:23', 'updated' => '2007-03-17 01:20:31'],
+        ['site_id' => 3, 'domain_id' => 6, 'active' => true, 'created' => '2001-02-03 00:01:02', 'updated' => '2007-03-17 01:22:31'],
+        ['site_id' => 3, 'domain_id' => 7, 'active' => false, 'created' => '2001-02-03 00:01:02', 'updated' => '2007-03-17 01:22:31'],
+    ];
 }

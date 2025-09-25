@@ -21,29 +21,29 @@
  *
  * @package       Cake.Test.Fixture
  */
-class AccountFixture extends CakeTestFixture {
+class AccountFixture extends CakeTestFixture
+{
+    public $table = 'Accounts';
 
-	public $table = 'Accounts';
+    /**
+     * fields property
+     *
+     * @var array
+     */
+    public $fields = [
+        'iAccountId' => ['type' => 'integer', 'key' => 'primary'],
+        'cDescription' => ['type' => 'string', 'length' => 10, 'null' => true],
+    ];
 
-/**
- * fields property
- *
- * @var array
- */
-	public $fields = [
-		'iAccountId'		=> ['type' => 'integer', 'key' => 'primary'],
-		'cDescription'	=> ['type' => 'string', 'length' => 10, 'null' => true]
-	];
-
-/**
- * records property
- *
- * @var array
- */
-	public $records = [
-		['cDescription' => 'gwoo'],
-		['cDescription' => 'phpnut'],
-		['cDescription' => 'schreck'],
-		['cDescription' => 'dude']
-	];
+    /**
+     * records property
+     *
+     * @var array
+     */
+    public $records = [
+        ['cDescription' => 'gwoo'],
+        ['cDescription' => 'phpnut'],
+        ['cDescription' => 'schreck'],
+        ['cDescription' => 'dude'],
+    ];
 }

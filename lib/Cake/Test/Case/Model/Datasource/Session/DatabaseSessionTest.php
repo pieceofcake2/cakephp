@@ -26,10 +26,9 @@ class_exists('CakeSession');
  *
  * @package       Cake.Test.Case.Model.Datasource.Session
  */
-class SessionTestModel extends Model {
-
-	public $useTable = 'sessions';
-
+class SessionTestModel extends Model
+{
+    public $useTable = 'sessions';
 }
 
 /**
@@ -37,185 +36,197 @@ class SessionTestModel extends Model {
  *
  * @package       Cake.Test.Case.Model.Datasource.Session
  */
-class DatabaseSessionTest extends CakeTestCase {
+class DatabaseSessionTest extends CakeTestCase
+{
+    protected static $_sessionBackup;
 
-	protected static $_sessionBackup;
+    /**
+     * fixtures
+     *
+     * @var string
+     */
+    public $fixtures = ['core.session'];
 
-/**
- * fixtures
- *
- * @var string
- */
-	public $fixtures = ['core.session'];
+    /**
+     * test case startup
+     *
+     * @return void
+     */
+    public static function setupBeforeClass(): void
+    {
+        static::$_sessionBackup = Configure::read('Session');
+        Configure::write('Session.handler', [
+            'model' => 'SessionTestModel',
+        ]);
+        Configure::write('Session.timeout', 100);
+    }
 
-/**
- * test case startup
- *
- * @return void
- */
-	public static function setupBeforeClass() : void {
-		static::$_sessionBackup = Configure::read('Session');
-		Configure::write('Session.handler', [
-			'model' => 'SessionTestModel',
-		]);
-		Configure::write('Session.timeout', 100);
-	}
+    /**
+     * cleanup after test case.
+     *
+     * @return void
+     */
+    public static function teardownAfterClass(): void
+    {
+        Configure::write('Session', static::$_sessionBackup);
+    }
 
-/**
- * cleanup after test case.
- *
- * @return void
- */
-	public static function teardownAfterClass() : void {
-		Configure::write('Session', static::$_sessionBackup);
-	}
+    /**
+     * setUp
+     *
+     * @return void
+     */
+    public function setUp(): void
+    {
+        parent::setUp();
+        $this->storage = new DatabaseSession();
+    }
 
-/**
- * setUp
- *
- * @return void
- */
-	public function setUp() : void {
-		parent::setUp();
-		$this->storage = new DatabaseSession();
-	}
+    /**
+     * tearDown
+     *
+     * @return void
+     */
+    public function tearDown(): void
+    {
+        unset($this->storage);
+        ClassRegistry::flush();
 
-/**
- * tearDown
- *
- * @return void
- */
-	public function tearDown() : void {
-		unset($this->storage);
-		ClassRegistry::flush();
+        parent::tearDown();
+    }
 
-		parent::tearDown();
-	}
+    /**
+     * test that constructor sets the right things up.
+     *
+     * @return void
+     */
+    public function testConstructionSettings()
+    {
+        ClassRegistry::flush();
+        new DatabaseSession();
 
-/**
- * test that constructor sets the right things up.
- *
- * @return void
- */
-	public function testConstructionSettings() {
-		ClassRegistry::flush();
-		new DatabaseSession();
+        $session = ClassRegistry::getObject('session');
+        $this->assertInstanceOf('SessionTestModel', $session);
+        $this->assertEquals('Session', $session->alias);
+        $this->assertEquals('test', $session->useDbConfig);
+        $this->assertEquals('sessions', $session->useTable);
+    }
 
-		$session = ClassRegistry::getObject('session');
-		$this->assertInstanceOf('SessionTestModel', $session);
-		$this->assertEquals('Session', $session->alias);
-		$this->assertEquals('test', $session->useDbConfig);
-		$this->assertEquals('sessions', $session->useTable);
-	}
+    /**
+     * test opening the session
+     *
+     * @return void
+     */
+    public function testOpen()
+    {
+        $this->assertTrue($this->storage->open());
+    }
 
-/**
- * test opening the session
- *
- * @return void
- */
-	public function testOpen() {
-		$this->assertTrue($this->storage->open());
-	}
+    /**
+     * test write()
+     *
+     * @return void
+     */
+    public function testWrite()
+    {
+        $this->storage->write('foo', 'Some value');
+        $this->assertEquals($this->storage->read('foo'), 'Some value');
+    }
 
-/**
- * test write()
- *
- * @return void
- */
-	public function testWrite() {
-		$this->storage->write('foo', 'Some value');
-		$this->assertEquals($this->storage->read('foo'), 'Some value');
-	}
+    /**
+     * testReadAndWriteWithDatabaseStorage method
+     *
+     * @return void
+     */
+    public function testWriteEmptySessionId()
+    {
+        $result = $this->storage->write('', 'This is a Test');
+        $this->assertFalse($result);
+    }
 
-/**
- * testReadAndWriteWithDatabaseStorage method
- *
- * @return void
- */
-	public function testWriteEmptySessionId() {
-		$result = $this->storage->write('', 'This is a Test');
-		$this->assertFalse($result);
-	}
+    /**
+     * test read()
+     *
+     * @return void
+     */
+    public function testRead()
+    {
+        $this->storage->write('foo', 'Some value');
+        $this->assertEquals($this->storage->read('foo'), 'Some value');
+        $this->storage->write('bar', 0);
+        $this->assertEquals(0, $this->storage->read('bar'));
+        $this->assertSame('', $this->storage->read('made up value'));
+    }
 
-/**
- * test read()
- *
- * @return void
- */
-	public function testRead() {
-		$this->storage->write('foo', 'Some value');
-		$this->assertEquals($this->storage->read('foo'), 'Some value');
-		$this->storage->write('bar', 0);
-		$this->assertEquals(0, $this->storage->read('bar'));
-		$this->assertSame('', $this->storage->read('made up value'));
-	}
+    /**
+     * test blowing up the session.
+     *
+     * @return void
+     */
+    public function testDestroy()
+    {
+        $this->storage->write('foo', 'Some value');
 
-/**
- * test blowing up the session.
- *
- * @return void
- */
-	public function testDestroy() {
-		$this->storage->write('foo', 'Some value');
+        $this->assertTrue($this->storage->destroy('foo'), 'Destroy failed');
+        $this->assertSame($this->storage->read('foo'), '');
+    }
 
-		$this->assertTrue($this->storage->destroy('foo'), 'Destroy failed');
-		$this->assertSame($this->storage->read('foo'), '');
-	}
+    /**
+     * test the garbage collector
+     *
+     * @return void
+     */
+    public function testGc()
+    {
+        ClassRegistry::flush();
+        Configure::write('Session.timeout', 0);
 
-/**
- * test the garbage collector
- *
- * @return void
- */
-	public function testGc() {
-		ClassRegistry::flush();
-		Configure::write('Session.timeout', 0);
+        $storage = new DatabaseSession();
+        $storage->write('foo', 'Some value');
 
-		$storage = new DatabaseSession();
-		$storage->write('foo', 'Some value');
+        sleep(1);
+        $storage->gc();
+        $this->assertSame($storage->read('foo'), '');
+    }
 
-		sleep(1);
-		$storage->gc();
-		$this->assertSame($storage->read('foo'), '');
-	}
+    /**
+     * testConcurrentInsert
+     *
+     * @return void
+     */
+    public function testConcurrentInsert()
+    {
+        $this->skipIf(
+            $this->db instanceof Sqlite,
+            'Sqlite does not throw exceptions when attempting to insert a duplicate primary key',
+        );
 
-/**
- * testConcurrentInsert
- *
- * @return void
- */
-	public function testConcurrentInsert() {
-		$this->skipIf(
-			$this->db instanceof Sqlite,
-			'Sqlite does not throw exceptions when attempting to insert a duplicate primary key'
-		);
+        ClassRegistry::removeObject('Session');
 
-		ClassRegistry::removeObject('Session');
+        $mockedModel = $this->getMockForModel(
+            'SessionTestModel',
+            ['exists'],
+            ['alias' => 'MockedSessionTestModel', 'table' => 'sessions'],
+        );
+        Configure::write('Session.handler.model', 'MockedSessionTestModel');
 
-		$mockedModel = $this->getMockForModel(
-			'SessionTestModel',
-			['exists'],
-			['alias' => 'MockedSessionTestModel', 'table' => 'sessions']
-		);
-		Configure::write('Session.handler.model', 'MockedSessionTestModel');
+        $mockedModel->expects($this->exactly(4))
+            ->method('exists')
+            ->willReturnOnConsecutiveCalls(
+                false, // First save
+                false, // Second save
+                true, // Second save retry
+                true, // Datasource exists check
+            );
 
-		$mockedModel->expects($this->exactly(4))
-			->method('exists')
-			->willReturnOnConsecutiveCalls(
-				false,  // First save
-				false,  // Second save
-				true,   // Second save retry
-				true    // Datasource exists check
-			);
+        $this->storage = new DatabaseSession();
 
-		$this->storage = new DatabaseSession();
+        $this->storage->write('foo', 'Some value');
+        $return = $this->storage->read('foo');
+        $this->assertSame('Some value', $return);
 
-		$this->storage->write('foo', 'Some value');
-		$return = $this->storage->read('foo');
-		$this->assertSame('Some value', $return);
-
-		$this->storage->write('foo', 'Some other value');
-		$return = $this->storage->read('foo');
-		$this->assertSame('Some other value', $return);
-	}
+        $this->storage->write('foo', 'Some other value');
+        $return = $this->storage->read('foo');
+        $this->assertSame('Some other value', $return);
+    }
 }

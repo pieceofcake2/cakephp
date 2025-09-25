@@ -25,20 +25,22 @@ use PHPUnit\Framework\TestSuite;
  *
  * @package       Cake.Test.Case
  */
-class AllBehaviorsTest extends TestSuite {
+class AllBehaviorsTest extends TestSuite
+{
+    /**
+     * Suite define the tests for this suite
+     *
+     * @return void
+     */
+    public static function suite()
+    {
+        $suite = new CakeTestSuite('Model Behavior and all behaviors');
 
-/**
- * Suite define the tests for this suite
- *
- * @return void
- */
-	public static function suite() {
-		$suite = new CakeTestSuite('Model Behavior and all behaviors');
+        $path = CORE_TEST_CASES . DS . 'Model' . DS . 'Behavior' . DS;
+        $suite->addTestFile(CORE_TEST_CASES . DS . 'Model' . DS . 'BehaviorCollectionTest.php');
 
-		$path = CORE_TEST_CASES . DS . 'Model' . DS . 'Behavior' . DS;
-		$suite->addTestFile(CORE_TEST_CASES . DS . 'Model' . DS . 'BehaviorCollectionTest.php');
+        $suite->addTestDirectory($path);
 
-		$suite->addTestDirectory($path);
-		return $suite;
-	}
+        return $suite;
+    }
 }

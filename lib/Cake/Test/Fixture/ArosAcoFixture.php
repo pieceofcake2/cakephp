@@ -21,27 +21,27 @@
  *
  * @package       Cake.Test.Fixture
  */
-class ArosAcoFixture extends CakeTestFixture {
+class ArosAcoFixture extends CakeTestFixture
+{
+    /**
+     * fields property
+     *
+     * @var array
+     */
+    public $fields = [
+        'id' => ['type' => 'integer', 'key' => 'primary'],
+        'aro_id' => ['type' => 'integer', 'length' => 10, 'null' => false],
+        'aco_id' => ['type' => 'integer', 'length' => 10, 'null' => false],
+        '_create' => ['type' => 'string', 'length' => 2, 'default' => 0],
+        '_read' => ['type' => 'string', 'length' => 2, 'default' => 0],
+        '_update' => ['type' => 'string', 'length' => 2, 'default' => 0],
+        '_delete' => ['type' => 'string', 'length' => 2, 'default' => 0],
+    ];
 
-/**
- * fields property
- *
- * @var array
- */
-	public $fields = [
-		'id' => ['type' => 'integer', 'key' => 'primary'],
-		'aro_id' => ['type' => 'integer', 'length' => 10, 'null' => false],
-		'aco_id' => ['type' => 'integer', 'length' => 10, 'null' => false],
-		'_create' => ['type' => 'string', 'length' => 2, 'default' => 0],
-		'_read' => ['type' => 'string', 'length' => 2, 'default' => 0],
-		'_update' => ['type' => 'string', 'length' => 2, 'default' => 0],
-		'_delete' => ['type' => 'string', 'length' => 2, 'default' => 0]
-	];
-
-/**
- * records property
- *
- * @var array
- */
-	public $records = [];
+    /**
+     * records property
+     *
+     * @var array
+     */
+    public $records = [];
 }

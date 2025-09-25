@@ -21,31 +21,31 @@
  *
  * @package       Cake.Test.Fixture
  */
-class ItemFixture extends CakeTestFixture {
+class ItemFixture extends CakeTestFixture
+{
+    /**
+     * fields property
+     *
+     * @var array
+     */
+    public $fields = [
+        'id' => ['type' => 'integer', 'key' => 'primary'],
+        'syfile_id' => ['type' => 'integer', 'null' => false],
+        'published' => ['type' => 'boolean', 'null' => false],
+        'name' => ['type' => 'string', 'null' => false],
+    ];
 
-/**
- * fields property
- *
- * @var array
- */
-	public $fields = [
-		'id' => ['type' => 'integer', 'key' => 'primary'],
-		'syfile_id' => ['type' => 'integer', 'null' => false],
-		'published' => ['type' => 'boolean', 'null' => false],
-		'name' => ['type' => 'string', 'null' => false]
-	];
-
-/**
- * records property
- *
- * @var array
- */
-	public $records = [
-		['syfile_id' => 1, 'published' => 0, 'name' => 'Item 1'],
-		['syfile_id' => 2, 'published' => 0, 'name' => 'Item 2'],
-		['syfile_id' => 3, 'published' => 0, 'name' => 'Item 3'],
-		['syfile_id' => 4, 'published' => 0, 'name' => 'Item 4'],
-		['syfile_id' => 5, 'published' => 0, 'name' => 'Item 5'],
-		['syfile_id' => 6, 'published' => 0, 'name' => 'Item 6']
-	];
+    /**
+     * records property
+     *
+     * @var array
+     */
+    public $records = [
+        ['syfile_id' => 1, 'published' => 0, 'name' => 'Item 1'],
+        ['syfile_id' => 2, 'published' => 0, 'name' => 'Item 2'],
+        ['syfile_id' => 3, 'published' => 0, 'name' => 'Item 3'],
+        ['syfile_id' => 4, 'published' => 0, 'name' => 'Item 4'],
+        ['syfile_id' => 5, 'published' => 0, 'name' => 'Item 5'],
+        ['syfile_id' => 6, 'published' => 0, 'name' => 'Item 6'],
+    ];
 }

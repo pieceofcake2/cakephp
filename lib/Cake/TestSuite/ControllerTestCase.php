@@ -1,5 +1,4 @@
 <?php
-use PHPUnit\Framework\MockObject\MockObject;
 
 /**
  * ControllerTestCase file
@@ -31,59 +30,61 @@ App::uses('CakeEvent', 'Event');
  *
  * @package       Cake.TestSuite
  */
-class ControllerTestDispatcher extends Dispatcher {
+class ControllerTestDispatcher extends Dispatcher
+{
+    /**
+     * The controller to use in the dispatch process
+     *
+     * @var Controller
+     */
+    public $testController = null;
 
-/**
- * The controller to use in the dispatch process
- *
- * @var Controller
- */
-	public $testController = null;
+    /**
+     * Use custom routes during tests
+     *
+     * @var bool
+     */
+    public $loadRoutes = true;
 
-/**
- * Use custom routes during tests
- *
- * @var bool
- */
-	public $loadRoutes = true;
+    /**
+     * Returns the test controller
+     *
+     * @param CakeRequest $request The request instance.
+     * @param CakeResponse $response The response instance.
+     * @return Controller
+     */
+    protected function _getController($request, $response)
+    {
+        if ($this->testController === null) {
+            $this->testController = parent::_getController($request, $response);
+        }
+        $this->testController->helpers = array_merge(['InterceptContent'], $this->testController->helpers);
+        $this->testController->setRequest($request);
+        $this->testController->response = $this->response;
+        foreach ($this->testController->Components->loaded() as $component) {
+            $object = $this->testController->Components->{$component};
+            if (isset($object->response)) {
+                $object->response = $response;
+            }
+            if (isset($object->request)) {
+                $object->request = $request;
+            }
+        }
 
-/**
- * Returns the test controller
- *
- * @param CakeRequest $request The request instance.
- * @param CakeResponse $response The response instance.
- * @return Controller
- */
-	protected function _getController($request, $response) {
-		if ($this->testController === null) {
-			$this->testController = parent::_getController($request, $response);
-		}
-		$this->testController->helpers = array_merge(['InterceptContent'], $this->testController->helpers);
-		$this->testController->setRequest($request);
-		$this->testController->response = $this->response;
-		foreach ($this->testController->Components->loaded() as $component) {
-			$object = $this->testController->Components->{$component};
-			if (isset($object->response)) {
-				$object->response = $response;
-			}
-			if (isset($object->request)) {
-				$object->request = $request;
-			}
-		}
-		return $this->testController;
-	}
+        return $this->testController;
+    }
 
-/**
- * Loads routes and resets if the test case dictates it should
- *
- * @return void
- */
-	protected function _loadRoutes() {
-		if (!$this->loadRoutes) {
-			Router::reload();
-		}
-	}
-
+    /**
+     * Loads routes and resets if the test case dictates it should
+     *
+     * @return void
+     */
+    protected function _loadRoutes()
+    {
+        if (!$this->loadRoutes) {
+            Router::reload();
+        }
+    }
 }
 
 /**
@@ -91,19 +92,19 @@ class ControllerTestDispatcher extends Dispatcher {
  *
  * @package       Cake.TestSuite
  */
-class InterceptContentHelper extends Helper {
-
-/**
- * Intercepts and stores the contents of the view before the layout is rendered
- *
- * @param string $viewFile The view file
- * @return void
- */
-	public function afterRender($viewFile) {
-		$this->_View->assign('__view_no_layout__', $this->_View->fetch('content'));
-		$this->_View->Helpers->unload('InterceptContent');
-	}
-
+class InterceptContentHelper extends Helper
+{
+    /**
+     * Intercepts and stores the contents of the view before the layout is rendered
+     *
+     * @param string $viewFile The view file
+     * @return void
+     */
+    public function afterRender($viewFile)
+    {
+        $this->_View->assign('__view_no_layout__', $this->_View->fetch('content'));
+        $this->_View->Helpers->unload('InterceptContent');
+    }
 }
 
 /**
@@ -112,336 +113,343 @@ class InterceptContentHelper extends Helper {
  * @package       Cake.TestSuite
  * @method        mixed testAction() testAction($url, $options = array())  Lets you do functional tests of a controller action.
  */
-abstract class ControllerTestCase extends CakeTestCase {
+abstract class ControllerTestCase extends CakeTestCase
+{
+    /**
+     * The controller to test in testAction
+     *
+     * @var Controller
+     */
+    public $controller = null;
 
-/**
- * The controller to test in testAction
- *
- * @var Controller
- */
-	public $controller = null;
+    /**
+     * Automatically mock controllers that aren't mocked
+     *
+     * @var bool
+     */
+    public $autoMock = true;
 
-/**
- * Automatically mock controllers that aren't mocked
- *
- * @var bool
- */
-	public $autoMock = true;
+    /**
+     * Use custom routes during tests
+     *
+     * @var bool
+     */
+    public $loadRoutes = true;
 
-/**
- * Use custom routes during tests
- *
- * @var bool
- */
-	public $loadRoutes = true;
+    /**
+     * The resulting view vars of the last testAction call
+     *
+     * @var array
+     */
+    public $vars = null;
 
-/**
- * The resulting view vars of the last testAction call
- *
- * @var array
- */
-	public $vars = null;
+    /**
+     * The resulting rendered view of the last testAction call
+     *
+     * @var string
+     */
+    public $view = null;
 
-/**
- * The resulting rendered view of the last testAction call
- *
- * @var string
- */
-	public $view = null;
+    /**
+     * The resulting rendered layout+view of the last testAction call
+     *
+     * @var string
+     */
+    public $contents = null;
 
-/**
- * The resulting rendered layout+view of the last testAction call
- *
- * @var string
- */
-	public $contents = null;
+    /**
+     * The returned result of the dispatch (requestAction), if any
+     *
+     * @var string
+     */
+    public $result = null;
 
-/**
- * The returned result of the dispatch (requestAction), if any
- *
- * @var string
- */
-	public $result = null;
+    /**
+     * The headers that would have been sent by the action
+     *
+     * @var string
+     */
+    public $headers = null;
 
-/**
- * The headers that would have been sent by the action
- *
- * @var string
- */
-	public $headers = null;
+    /**
+     * Flag for checking if the controller instance is dirty.
+     * Once a test has been run on a controller it should be rebuilt
+     * to clean up properties.
+     *
+     * @var bool
+     */
+    protected $_dirtyController = false;
 
-/**
- * Flag for checking if the controller instance is dirty.
- * Once a test has been run on a controller it should be rebuilt
- * to clean up properties.
- *
- * @var bool
- */
-	protected $_dirtyController = false;
+    /**
+     * The class name to use for mocking the response object.
+     *
+     * @var string
+     */
+    protected $_responseClass = 'CakeResponse';
 
-/**
- * The class name to use for mocking the response object.
- *
- * @var string
- */
-	protected $_responseClass = 'CakeResponse';
+    /**
+     * Used to enable calling ControllerTestCase::testAction() without the testing
+     * framework thinking that it's a test case
+     *
+     * @param string $name The name of the function
+     * @param array $arguments Array of arguments
+     * @return mixed The return of _testAction.
+     * @throws BadMethodCallException when you call methods that don't exist.
+     */
+    public function __call($name, $arguments)
+    {
+        if ($name === 'testAction') {
+            return call_user_func_array([$this, '_testAction'], $arguments);
+        }
+        throw new BadMethodCallException("Method '{$name}' does not exist.");
+    }
 
-/**
- * Used to enable calling ControllerTestCase::testAction() without the testing
- * framework thinking that it's a test case
- *
- * @param string $name The name of the function
- * @param array $arguments Array of arguments
- * @return mixed The return of _testAction.
- * @throws BadMethodCallException when you call methods that don't exist.
- */
-	public function __call($name, $arguments) {
-		if ($name === 'testAction') {
-			return call_user_func_array([$this, '_testAction'], $arguments);
-		}
-		throw new BadMethodCallException("Method '{$name}' does not exist.");
-	}
+    /**
+     * Lets you do functional tests of a controller action.
+     *
+     * ### Options:
+     *
+     * - `data` Will be used as the request data. If the `method` is GET,
+     *   data will be used a GET params. If the `method` is POST, it will be used
+     *   as POST data. By setting `$options['data']` to a string, you can simulate XML or JSON
+     *   payloads to your controllers allowing you to test REST webservices.
+     * - `method` POST or GET. Defaults to POST.
+     * - `return` Specify the return type you want. Choose from:
+     *     - `vars` Get the set view variables.
+     *     - `view` Get the rendered view, without a layout.
+     *     - `contents` Get the rendered view including the layout.
+     *     - `result` Get the return value of the controller action. Useful
+     *       for testing requestAction methods.
+     *
+     * @param array|string $url The URL to test.
+     * @param array $options See options
+     * @return mixed The specified return type.
+     * @triggers ControllerTestCase $Dispatch, array('request' => $request)
+     */
+    protected function _testAction($url, $options = [])
+    {
+        $this->vars = $this->result = $this->view = $this->contents = $this->headers = null;
 
-/**
- * Lets you do functional tests of a controller action.
- *
- * ### Options:
- *
- * - `data` Will be used as the request data. If the `method` is GET,
- *   data will be used a GET params. If the `method` is POST, it will be used
- *   as POST data. By setting `$options['data']` to a string, you can simulate XML or JSON
- *   payloads to your controllers allowing you to test REST webservices.
- * - `method` POST or GET. Defaults to POST.
- * - `return` Specify the return type you want. Choose from:
- *     - `vars` Get the set view variables.
- *     - `view` Get the rendered view, without a layout.
- *     - `contents` Get the rendered view including the layout.
- *     - `result` Get the return value of the controller action. Useful
- *       for testing requestAction methods.
- *
- * @param string|array $url The URL to test.
- * @param array $options See options
- * @return mixed The specified return type.
- * @triggers ControllerTestCase $Dispatch, array('request' => $request)
- */
-	protected function _testAction($url, $options = []) {
-		$this->vars = $this->result = $this->view = $this->contents = $this->headers = null;
+        $options += [
+            'data' => [],
+            'method' => 'POST',
+            'return' => 'result',
+        ];
 
-		$options += [
-			'data' => [],
-			'method' => 'POST',
-			'return' => 'result'
-		];
+        if (is_array($url)) {
+            $url = Router::url($url);
+        }
 
-		if (is_array($url)) {
-			$url = Router::url($url);
-		}
+        $restore = ['get' => $_GET, 'post' => $_POST];
 
-		$restore = ['get' => $_GET, 'post' => $_POST];
+        $_SERVER['REQUEST_METHOD'] = strtoupper($options['method']);
+        if (is_array($options['data'])) {
+            if (strtoupper($options['method']) === 'GET') {
+                $_GET = $options['data'];
+                $_POST = [];
+            } else {
+                $_POST = $options['data'];
+                $_GET = [];
+            }
+        }
 
-		$_SERVER['REQUEST_METHOD'] = strtoupper($options['method']);
-		if (is_array($options['data'])) {
-			if (strtoupper($options['method']) === 'GET') {
-				$_GET = $options['data'];
-				$_POST = [];
-			} else {
-				$_POST = $options['data'];
-				$_GET = [];
-			}
-		}
+        if (str_contains($url, '?')) {
+            [$url, $query] = explode('?', $url, 2);
+            parse_str($query, $queryArgs);
+            $_GET += $queryArgs;
+        }
 
-		if (str_contains($url, '?')) {
-			[$url, $query] = explode('?', $url, 2);
-			parse_str($query, $queryArgs);
-			$_GET += $queryArgs;
-		}
-
-		$_SERVER['REQUEST_URI'] = $url;
-		/** @var CakeRequest|MockObject $request */
+        $_SERVER['REQUEST_URI'] = $url;
+        /** @var CakeRequest|MockObject $request */
         $request = $this->getMock('CakeRequest', ['_readInput']);
 
-		if (is_string($options['data'])) {
-			$request->expects($this->any())
-				->method('_readInput')
-				->will($this->returnValue($options['data']));
-		}
+        if (is_string($options['data'])) {
+            $request->expects($this->any())
+                ->method('_readInput')
+                ->will($this->returnValue($options['data']));
+        }
 
-		$Dispatch = $this->_createDispatcher();
-		foreach (Router::$routes as $route) {
-			if ($route instanceof RedirectRoute) {
-				$route->response = $this->getMock('CakeResponse', ['send']);
-			}
-		}
-		$Dispatch->loadRoutes = $this->loadRoutes;
-		$Dispatch->parseParams(new CakeEvent('ControllerTestCase', $Dispatch, ['request' => $request]));
-		if (!isset($request->params['controller']) && Router::currentRoute()) {
-			$this->headers = Router::currentRoute()->response->header();
-			return null;
-		}
-		if ($this->_dirtyController) {
-			$this->controller = null;
-		}
+        $Dispatch = $this->_createDispatcher();
+        foreach (Router::$routes as $route) {
+            if ($route instanceof RedirectRoute) {
+                $route->response = $this->getMock('CakeResponse', ['send']);
+            }
+        }
+        $Dispatch->loadRoutes = $this->loadRoutes;
+        $Dispatch->parseParams(new CakeEvent('ControllerTestCase', $Dispatch, ['request' => $request]));
+        if (!isset($request->params['controller']) && Router::currentRoute()) {
+            $this->headers = Router::currentRoute()->response->header();
 
-		$plugin = empty($request->params['plugin']) ? '' : Inflector::camelize($request->params['plugin']) . '.';
-		if ($this->controller === null && $this->autoMock) {
-			$this->generate($plugin . Inflector::camelize($request->params['controller']));
-		}
-		$params = [];
-		if ($options['return'] === 'result') {
-			$params['return'] = 1;
-			$params['bare'] = 1;
-			$params['requested'] = 1;
-		}
-		$Dispatch->testController = $this->controller;
-		$Dispatch->response = $this->getMock($this->_responseClass, ['send', '_clearBuffer']);
-		$this->result = $Dispatch->dispatch($request, $Dispatch->response, $params);
+            return null;
+        }
+        if ($this->_dirtyController) {
+            $this->controller = null;
+        }
 
-		// Clear out any stored requests.
-		while (Router::getRequest()) {
-			Router::popRequest();
-		}
+        $plugin = empty($request->params['plugin']) ? '' : Inflector::camelize($request->params['plugin']) . '.';
+        if ($this->controller === null && $this->autoMock) {
+            $this->generate($plugin . Inflector::camelize($request->params['controller']));
+        }
+        $params = [];
+        if ($options['return'] === 'result') {
+            $params['return'] = 1;
+            $params['bare'] = 1;
+            $params['requested'] = 1;
+        }
+        $Dispatch->testController = $this->controller;
+        $Dispatch->response = $this->getMock($this->_responseClass, ['send', '_clearBuffer']);
+        $this->result = $Dispatch->dispatch($request, $Dispatch->response, $params);
 
-		$this->controller = $Dispatch->testController;
-		$this->vars = $this->controller->viewVars;
-		$this->contents = $this->controller->response->body();
-		if (isset($this->controller->View)) {
-			$this->view = $this->controller->View->fetch('__view_no_layout__');
-		}
-		$this->_dirtyController = true;
-		$this->headers = $Dispatch->response->header();
+        // Clear out any stored requests.
+        while (Router::getRequest()) {
+            Router::popRequest();
+        }
 
-		$_GET = $restore['get'];
-		$_POST = $restore['post'];
+        $this->controller = $Dispatch->testController;
+        $this->vars = $this->controller->viewVars;
+        $this->contents = $this->controller->response->body();
+        if (isset($this->controller->View)) {
+            $this->view = $this->controller->View->fetch('__view_no_layout__');
+        }
+        $this->_dirtyController = true;
+        $this->headers = $Dispatch->response->header();
 
-		return $this->{$options['return']};
-	}
+        $_GET = $restore['get'];
+        $_POST = $restore['post'];
 
-/**
- * Creates the test dispatcher class
- *
- * @return Dispatcher
- */
-	protected function _createDispatcher() {
-		return new ControllerTestDispatcher();
-	}
+        return $this->{$options['return']};
+    }
 
-/**
- * Generates a mocked controller and mocks any classes passed to `$mocks`. By
- * default, `_stop()` is stubbed as is sending the response headers, so to not
- * interfere with testing.
- *
- * ### Mocks:
- *
- * - `methods` Methods to mock on the controller. `_stop()` is mocked by default
- * - `models` Models to mock. Models are added to the ClassRegistry so any
- *   time they are instantiated the mock will be created. Pass as key value pairs
- *   with the value being specific methods on the model to mock. If `true` or
- *   no value is passed, the entire model will be mocked.
- * - `components` Components to mock. Components are only mocked on this controller
- *   and not within each other (i.e., components on components)
- *
- * @param string $controller Controller name
- * @param array $mocks List of classes and methods to mock
- * @return Controller Mocked controller
- * @throws MissingControllerException When controllers could not be created.
- * @throws MissingComponentException When components could not be created.
- */
-	public function generate($controller, $mocks = []) {
-		[$plugin, $controller] = pluginSplit($controller);
-		if ($plugin) {
-			App::uses($plugin . 'AppController', $plugin . '.Controller');
-			$plugin .= '.';
-		}
-		App::uses($controller . 'Controller', $plugin . 'Controller');
-		if (!class_exists($controller . 'Controller')) {
-			throw new MissingControllerException([
-				'class' => $controller . 'Controller',
-				'plugin' => substr($plugin, 0, -1)
-			]);
-		}
-		ClassRegistry::flush();
+    /**
+     * Creates the test dispatcher class
+     *
+     * @return Dispatcher
+     */
+    protected function _createDispatcher()
+    {
+        return new ControllerTestDispatcher();
+    }
 
-		$mocks = array_merge_recursive([
-			'methods' => ['_stop'],
-			'models' => [],
-			'components' => []
-		], (array)$mocks);
+    /**
+     * Generates a mocked controller and mocks any classes passed to `$mocks`. By
+     * default, `_stop()` is stubbed as is sending the response headers, so to not
+     * interfere with testing.
+     *
+     * ### Mocks:
+     *
+     * - `methods` Methods to mock on the controller. `_stop()` is mocked by default
+     * - `models` Models to mock. Models are added to the ClassRegistry so any
+     *   time they are instantiated the mock will be created. Pass as key value pairs
+     *   with the value being specific methods on the model to mock. If `true` or
+     *   no value is passed, the entire model will be mocked.
+     * - `components` Components to mock. Components are only mocked on this controller
+     *   and not within each other (i.e., components on components)
+     *
+     * @param string $controller Controller name
+     * @param array $mocks List of classes and methods to mock
+     * @return Controller Mocked controller
+     * @throws MissingControllerException When controllers could not be created.
+     * @throws MissingComponentException When components could not be created.
+     */
+    public function generate($controller, $mocks = [])
+    {
+        [$plugin, $controller] = pluginSplit($controller);
+        if ($plugin) {
+            App::uses($plugin . 'AppController', $plugin . '.Controller');
+            $plugin .= '.';
+        }
+        App::uses($controller . 'Controller', $plugin . 'Controller');
+        if (!class_exists($controller . 'Controller')) {
+            throw new MissingControllerException([
+                'class' => $controller . 'Controller',
+                'plugin' => substr($plugin, 0, -1),
+            ]);
+        }
+        ClassRegistry::flush();
 
-		[$plugin, $name] = pluginSplit($controller);
-		/** @var Controller|MockObject $controllerObj */
+        $mocks = array_merge_recursive([
+            'methods' => ['_stop'],
+            'models' => [],
+            'components' => [],
+        ], (array)$mocks);
+
+        [$plugin, $name] = pluginSplit($controller);
+        /** @var Controller|MockObject $controllerObj */
         $controllerObj = $this->getMock($name . 'Controller', $mocks['methods'], [], '', false);
-		$controllerObj->name = $name;
-		/** @var CakeRequest|MockObject $request */
+        $controllerObj->name = $name;
+        /** @var CakeRequest|MockObject $request */
         $request = $this->getMock('CakeRequest');
-		/** @var CakeResponse|MockObject $response */
+        /** @var CakeResponse|MockObject $response */
         $response = $this->getMock($this->_responseClass, ['_sendHeader']);
-		$controllerObj->__construct($request, $response);
-		$controllerObj->Components->setController($controllerObj);
+        $controllerObj->__construct($request, $response);
+        $controllerObj->Components->setController($controllerObj);
 
-		$config = ClassRegistry::config('Model');
-		foreach ($mocks['models'] as $model => $methods) {
-			if (is_string($methods)) {
-				$model = $methods;
-				$methods = true;
-			}
-			if ($methods === true) {
-				$methods = [];
-			}
-			$this->getMockForModel($model, $methods, $config);
-		}
+        $config = ClassRegistry::config('Model');
+        foreach ($mocks['models'] as $model => $methods) {
+            if (is_string($methods)) {
+                $model = $methods;
+                $methods = true;
+            }
+            if ($methods === true) {
+                $methods = [];
+            }
+            $this->getMockForModel($model, $methods, $config);
+        }
 
-		foreach ($mocks['components'] as $component => $methods) {
-			if (is_string($methods)) {
-				$component = $methods;
-				$methods = true;
-			}
-			if ($methods === true) {
-				$methods = [];
-			}
-			$config = $controllerObj->components[$component] ?? [];
-			if (isset($config['className'])) {
-				$alias = $component;
-				$component = $config['className'];
-			}
-			[$plugin, $name] = pluginSplit($component, true);
-			if (!isset($alias)) {
-				$alias = $name;
-			}
-			$componentClass = $name . 'Component';
-			App::uses($componentClass, $plugin . 'Controller/Component');
-			if (!class_exists($componentClass)) {
-				throw new MissingComponentException([
-					'class' => $componentClass
-				]);
-			}
-			/** @var Component|MockObject $componentObj */
+        foreach ($mocks['components'] as $component => $methods) {
+            if (is_string($methods)) {
+                $component = $methods;
+                $methods = true;
+            }
+            if ($methods === true) {
+                $methods = [];
+            }
+            $config = $controllerObj->components[$component] ?? [];
+            if (isset($config['className'])) {
+                $alias = $component;
+                $component = $config['className'];
+            }
+            [$plugin, $name] = pluginSplit($component, true);
+            if (!isset($alias)) {
+                $alias = $name;
+            }
+            $componentClass = $name . 'Component';
+            App::uses($componentClass, $plugin . 'Controller/Component');
+            if (!class_exists($componentClass)) {
+                throw new MissingComponentException([
+                    'class' => $componentClass,
+                ]);
+            }
+            /** @var Component|MockObject $componentObj */
             $componentObj = $this->getMock($componentClass, $methods, [$controllerObj->Components, $config]);
-			$controllerObj->Components->set($alias, $componentObj);
-			$controllerObj->Components->enable($alias);
-			unset($alias);
-		}
+            $controllerObj->Components->set($alias, $componentObj);
+            $controllerObj->Components->enable($alias);
+            unset($alias);
+        }
 
-		$controllerObj->constructClasses();
-		$this->_dirtyController = false;
+        $controllerObj->constructClasses();
+        $this->_dirtyController = false;
 
-		$this->controller = $controllerObj;
-		return $this->controller;
-	}
+        $this->controller = $controllerObj;
 
-/**
- * Unsets some properties to free memory.
- *
- * @return void
- */
-	public function tearDown() : void {
-		parent::tearDown();
-		unset(
-			$this->contents,
-			$this->controller,
-			$this->headers,
-			$this->result,
-			$this->view,
-			$this->vars
-		);
-	}
+        return $this->controller;
+    }
+
+    /**
+     * Unsets some properties to free memory.
+     *
+     * @return void
+     */
+    public function tearDown(): void
+    {
+        parent::tearDown();
+        unset(
+            $this->contents,
+            $this->controller,
+            $this->headers,
+            $this->result,
+            $this->view,
+            $this->vars,
+        );
+    }
 }

@@ -21,38 +21,38 @@
  *
  * @package       Cake.Test.Fixture
  */
-class DatatypeFixture extends CakeTestFixture {
+class DatatypeFixture extends CakeTestFixture
+{
+    /**
+     * Fields property
+     *
+     * @var array
+     */
+    public $fields = [
+        'id' => ['type' => 'integer', 'null' => false, 'default' => 0, 'key' => 'primary'],
+        'float_field' => ['type' => 'float', 'length' => '5,2', 'null' => false, 'default' => null],
+        'decimal_field' => ['type' => 'decimal', 'length' => '6,3', 'default' => '0.000'],
+        'huge_int' => ['type' => 'biginteger'],
+        'normal_int' => ['type' => 'integer'],
+        'small_int' => ['type' => 'smallinteger'],
+        'tiny_int' => ['type' => 'tinyinteger'],
+        'bool' => ['type' => 'boolean', 'null' => false, 'default' => false],
+    ];
 
-/**
- * Fields property
- *
- * @var array
- */
-	public $fields = [
-		'id' => ['type' => 'integer', 'null' => false, 'default' => 0, 'key' => 'primary'],
-		'float_field' => ['type' => 'float', 'length' => '5,2', 'null' => false, 'default' => null],
-		'decimal_field' => ['type' => 'decimal', 'length' => '6,3', 'default' => '0.000'],
-		'huge_int' => ['type' => 'biginteger'],
-		'normal_int' => ['type' => 'integer'],
-		'small_int' => ['type' => 'smallinteger'],
-		'tiny_int' => ['type' => 'tinyinteger'],
-		'bool' => ['type' => 'boolean', 'null' => false, 'default' => false],
-	];
-
-/**
- * Records property
- *
- * @var array
- */
-	public $records = [
-		[
-			'id' => 1,
-			'float_field' => 42.23,
-			'huge_int' => '9223372036854775807',
-			'normal_int' => 2147483647,
-			'small_int' => 32767,
-			'tiny_int' => 127,
-			'bool' => 0
-		],
-	];
+    /**
+     * Records property
+     *
+     * @var array
+     */
+    public $records = [
+        [
+            'id' => 1,
+            'float_field' => 42.23,
+            'huge_int' => '9223372036854775807',
+            'normal_int' => 2147483647,
+            'small_int' => 32767,
+            'tiny_int' => 127,
+            'bool' => 0,
+        ],
+    ];
 }

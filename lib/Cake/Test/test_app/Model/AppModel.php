@@ -30,5 +30,6 @@ App::uses('Model', 'Model');
  *
  * @package       Cake.Model
  */
-class AppModel extends Model {
+class AppModel extends Model
+{
 }

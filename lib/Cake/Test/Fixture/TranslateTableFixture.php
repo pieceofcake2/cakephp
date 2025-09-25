@@ -21,35 +21,35 @@
  *
  * @package       Cake.Test.Fixture
  */
-class TranslateTableFixture extends CakeTestFixture {
+class TranslateTableFixture extends CakeTestFixture
+{
+    /**
+     * table property
+     *
+     * @var string
+     */
+    public $table = 'another_i18n';
 
-/**
- * table property
- *
- * @var string
- */
-	public $table = 'another_i18n';
+    /**
+     * fields property
+     *
+     * @var array
+     */
+    public $fields = [
+            'id' => ['type' => 'integer', 'key' => 'primary'],
+            'locale' => ['type' => 'string', 'length' => 6, 'null' => false],
+            'model' => ['type' => 'string', 'null' => false],
+            'foreign_key' => ['type' => 'integer', 'null' => false],
+            'field' => ['type' => 'string', 'null' => false],
+            'content' => ['type' => 'text']];
 
-/**
- * fields property
- *
- * @var array
- */
-	public $fields = [
-			'id' => ['type' => 'integer', 'key' => 'primary'],
-			'locale' => ['type' => 'string', 'length' => 6, 'null' => false],
-			'model' => ['type' => 'string', 'null' => false],
-			'foreign_key' => ['type' => 'integer', 'null' => false],
-			'field' => ['type' => 'string', 'null' => false],
-			'content' => ['type' => 'text']];
-
-/**
- * records property
- *
- * @var array
- */
-	public $records = [
-		['locale' => 'eng', 'model' => 'TranslatedItemWithTable', 'foreign_key' => 1, 'field' => 'title', 'content' => 'Another Title #1'],
-		['locale' => 'eng', 'model' => 'TranslatedItemWithTable', 'foreign_key' => 1, 'field' => 'content', 'content' => 'Another Content #1']
-	];
+    /**
+     * records property
+     *
+     * @var array
+     */
+    public $records = [
+        ['locale' => 'eng', 'model' => 'TranslatedItemWithTable', 'foreign_key' => 1, 'field' => 'title', 'content' => 'Another Title #1'],
+        ['locale' => 'eng', 'model' => 'TranslatedItemWithTable', 'foreign_key' => 1, 'field' => 'content', 'content' => 'Another Content #1'],
+    ];
 }

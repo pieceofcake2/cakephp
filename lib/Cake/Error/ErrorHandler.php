@@ -93,251 +93,266 @@ App::uses('Router', 'Routing');
  * @package       Cake.Error
  * @see ExceptionRenderer for more information on how to customize exception rendering.
  */
-class ErrorHandler {
+class ErrorHandler
+{
+    /**
+     * Whether to give up rendering an exception, if the renderer itself is
+     * throwing exceptions.
+     *
+     * @var bool
+     */
+    protected static $_bailExceptionRendering = false;
 
-/**
- * Whether to give up rendering an exception, if the renderer itself is
- * throwing exceptions.
- *
- * @var bool
- */
-	protected static $_bailExceptionRendering = false;
+    /**
+     * Set as the default exception handler by the CakePHP bootstrap process.
+     *
+     * This will either use custom exception renderer class if configured,
+     * or use the default ExceptionRenderer.
+     *
+     * @param Exception|ParseError $exception The exception to render.
+     * @return void
+     * @see http://php.net/manual/en/function.set-exception-handler.php
+     */
+    public static function handleException($exception)
+    {
+        $config = Configure::read('Exception');
+        static::_log($exception, $config);
 
-/**
- * Set as the default exception handler by the CakePHP bootstrap process.
- *
- * This will either use custom exception renderer class if configured,
- * or use the default ExceptionRenderer.
- *
- * @param Exception|ParseError $exception The exception to render.
- * @return void
- * @see http://php.net/manual/en/function.set-exception-handler.php
- */
-	public static function handleException($exception) {
-		$config = Configure::read('Exception');
-		static::_log($exception, $config);
+        $renderer = $config['renderer'] ?? 'ExceptionRenderer';
+        if ($renderer !== 'ExceptionRenderer') {
+            [$plugin, $renderer] = pluginSplit($renderer, true);
+            App::uses($renderer, $plugin . 'Error');
+        }
+        try {
+            $error = new $renderer($exception);
+            $error->render();
+        } catch (Exception $e) {
+            set_error_handler(Configure::read('Error.handler')); // Should be using configured ErrorHandler
+            Configure::write('Error.trace', false); // trace is useless here since it's internal
+            $message = sprintf(
+                "[%s] %s\n%s", // Keeping same message format
+                $e::class,
+                $e->getMessage(),
+                $e->getTraceAsString(),
+            );
 
-		$renderer = $config['renderer'] ?? 'ExceptionRenderer';
-		if ($renderer !== 'ExceptionRenderer') {
-			[$plugin, $renderer] = pluginSplit($renderer, true);
-			App::uses($renderer, $plugin . 'Error');
-		}
-		try {
-			$error = new $renderer($exception);
-			$error->render();
-		} catch (Exception $e) {
-			set_error_handler(Configure::read('Error.handler')); // Should be using configured ErrorHandler
-			Configure::write('Error.trace', false); // trace is useless here since it's internal
-			$message = sprintf("[%s] %s\n%s", // Keeping same message format
-				$e::class,
-				$e->getMessage(),
-				$e->getTraceAsString()
-			);
+            static::$_bailExceptionRendering = true;
+            trigger_error($message, E_USER_ERROR);
+        }
+    }
 
-			static::$_bailExceptionRendering = true;
-			trigger_error($message, E_USER_ERROR);
-		}
-	}
+    /**
+     * Generates a formatted error message
+     *
+     * @param Exception $exception Exception instance
+     * @return string Formatted message
+     */
+    protected static function _getMessage($exception)
+    {
+        $message = sprintf(
+            '[%s] %s',
+            $exception::class,
+            $exception->getMessage(),
+        );
+        if (method_exists($exception, 'getAttributes')) {
+            $attributes = $exception->getAttributes();
+            if ($attributes) {
+                $message .= "\nException Attributes: " . var_export($exception->getAttributes(), true);
+            }
+        }
+        if (PHP_SAPI !== 'cli') {
+            $request = Router::getRequest();
+            if ($request) {
+                $message .= "\nRequest URL: " . $request->here();
+            }
+        }
+        $message .= "\nStack Trace:\n" . $exception->getTraceAsString();
 
-/**
- * Generates a formatted error message
- *
- * @param Exception $exception Exception instance
- * @return string Formatted message
- */
-	protected static function _getMessage($exception) {
-		$message = sprintf("[%s] %s",
-			$exception::class,
-			$exception->getMessage()
-		);
-		if (method_exists($exception, 'getAttributes')) {
-			$attributes = $exception->getAttributes();
-			if ($attributes) {
-				$message .= "\nException Attributes: " . var_export($exception->getAttributes(), true);
-			}
-		}
-		if (PHP_SAPI !== 'cli') {
-			$request = Router::getRequest();
-			if ($request) {
-				$message .= "\nRequest URL: " . $request->here();
-			}
-		}
-		$message .= "\nStack Trace:\n" . $exception->getTraceAsString();
-		return $message;
-	}
+        return $message;
+    }
 
-/**
- * Handles exception logging
- *
- * @param Exception|ParseError $exception The exception to render.
- * @param array $config An array of configuration for logging.
- * @return bool
- */
-	protected static function _log($exception, $config) {
-		if (empty($config['log'])) {
-			return false;
-		}
+    /**
+     * Handles exception logging
+     *
+     * @param Exception|ParseError $exception The exception to render.
+     * @param array $config An array of configuration for logging.
+     * @return bool
+     */
+    protected static function _log($exception, $config)
+    {
+        if (empty($config['log'])) {
+            return false;
+        }
 
-		if (!empty($config['skipLog'])) {
-			foreach ((array)$config['skipLog'] as $class) {
-				if ($exception instanceof $class) {
-					return false;
-				}
-			}
-		}
-		return CakeLog::write(LOG_ERR, static::_getMessage($exception));
-	}
+        if (!empty($config['skipLog'])) {
+            foreach ((array)$config['skipLog'] as $class) {
+                if ($exception instanceof $class) {
+                    return false;
+                }
+            }
+        }
 
-/**
- * Set as the default error handler by CakePHP. Use Configure::write('Error.handler', $callback), to use your own
- * error handling methods. This function will use Debugger to display errors when debug > 0. And
- * will log errors to CakeLog, when debug == 0.
- *
- * You can use Configure::write('Error.level', $value); to set what type of errors will be handled here.
- * Stack traces for errors can be enabled with Configure::write('Error.trace', true);
- *
- * @param int $code Code of error
- * @param string $description Error description
- * @param string $file File on which error occurred
- * @param int $line Line that triggered the error
- * @param array $context Context
- * @return bool true if error was handled
- */
-	public static function handleError($code, $description, $file = null, $line = null, $context = null) {
-		//PHP8 migration guide: https://www.php.net/manual/en/migration80.incompatible.php
-		//See: @ operator
-		if (!(error_reporting() & $code)) {
-			return false;
-		}
-		[$error, $log] = static::mapErrorCode($code);
-		if ($log === LOG_ERR) {
-			return static::handleFatalError($code, $description, $file, $line);
-		}
+        return CakeLog::write(LOG_ERR, static::_getMessage($exception));
+    }
 
-		$debug = Configure::read('debug');
-		if ($debug) {
-			$data = [
-				'level' => $log,
-				'code' => $code,
-				'error' => $error,
-				'description' => $description,
-				'file' => $file,
-				'line' => $line,
-				'context' => $context,
-				'start' => 2,
-				'path' => Debugger::trimPath($file)
-			];
-			return Debugger::getInstance()->outputError($data);
-		}
-		$message = static::_getErrorMessage($error, $code, $description, $file, $line);
-		return CakeLog::write($log, $message);
-	}
+    /**
+     * Set as the default error handler by CakePHP. Use Configure::write('Error.handler', $callback), to use your own
+     * error handling methods. This function will use Debugger to display errors when debug > 0. And
+     * will log errors to CakeLog, when debug == 0.
+     *
+     * You can use Configure::write('Error.level', $value); to set what type of errors will be handled here.
+     * Stack traces for errors can be enabled with Configure::write('Error.trace', true);
+     *
+     * @param int $code Code of error
+     * @param string $description Error description
+     * @param string $file File on which error occurred
+     * @param int $line Line that triggered the error
+     * @param array $context Context
+     * @return bool true if error was handled
+     */
+    public static function handleError($code, $description, $file = null, $line = null, $context = null)
+    {
+        //PHP8 migration guide: https://www.php.net/manual/en/migration80.incompatible.php
+        //See: @ operator
+        if (!(error_reporting() & $code)) {
+            return false;
+        }
+        [$error, $log] = static::mapErrorCode($code);
+        if ($log === LOG_ERR) {
+            return static::handleFatalError($code, $description, $file, $line);
+        }
 
-/**
- * Generate an error page when some fatal error happens.
- *
- * @param int $code Code of error
- * @param string $description Error description
- * @param string $file File on which error occurred
- * @param int $line Line that triggered the error
- * @return bool
- * @throws FatalErrorException If the Exception renderer threw an exception during rendering, and debug > 0.
- * @throws InternalErrorException If the Exception renderer threw an exception during rendering, and debug is 0.
- */
-	public static function handleFatalError($code, $description, $file, $line) {
-		$logMessage = 'Fatal Error (' . $code . '): ' . $description . ' in [' . $file . ', line ' . $line . ']';
-		CakeLog::write(LOG_ERR, $logMessage);
+        $debug = Configure::read('debug');
+        if ($debug) {
+            $data = [
+                'level' => $log,
+                'code' => $code,
+                'error' => $error,
+                'description' => $description,
+                'file' => $file,
+                'line' => $line,
+                'context' => $context,
+                'start' => 2,
+                'path' => Debugger::trimPath($file),
+            ];
 
-		$exceptionHandler = Configure::read('Exception.handler');
-		if (!is_callable($exceptionHandler)) {
-			return false;
-		}
+            return Debugger::getInstance()->outputError($data);
+        }
+        $message = static::_getErrorMessage($error, $code, $description, $file, $line);
 
-		if (ob_get_level()) {
-			ob_end_clean();
-		}
+        return CakeLog::write($log, $message);
+    }
 
-		if (Configure::read('debug')) {
-			$exception = new FatalErrorException($description, 500, $file, $line);
-		} else {
-			$exception = new InternalErrorException();
-		}
+    /**
+     * Generate an error page when some fatal error happens.
+     *
+     * @param int $code Code of error
+     * @param string $description Error description
+     * @param string $file File on which error occurred
+     * @param int $line Line that triggered the error
+     * @return bool
+     * @throws FatalErrorException If the Exception renderer threw an exception during rendering, and debug > 0.
+     * @throws InternalErrorException If the Exception renderer threw an exception during rendering, and debug is 0.
+     */
+    public static function handleFatalError($code, $description, $file, $line)
+    {
+        $logMessage = 'Fatal Error (' . $code . '): ' . $description . ' in [' . $file . ', line ' . $line . ']';
+        CakeLog::write(LOG_ERR, $logMessage);
 
-		if (static::$_bailExceptionRendering) {
-			static::$_bailExceptionRendering = false;
-			throw $exception;
-		}
+        $exceptionHandler = Configure::read('Exception.handler');
+        if (!is_callable($exceptionHandler)) {
+            return false;
+        }
 
-		call_user_func($exceptionHandler, $exception);
+        if (ob_get_level()) {
+            ob_end_clean();
+        }
 
-		return false;
-	}
+        if (Configure::read('debug')) {
+            $exception = new FatalErrorException($description, 500, $file, $line);
+        } else {
+            $exception = new InternalErrorException();
+        }
 
-/**
- * Map an error code into an Error word, and log location.
- *
- * @param int $code Error code to map
- * @return array Array of error word, and log location.
- */
-	public static function mapErrorCode($code) {
-		$error = $log = null;
-		switch ($code) {
-			case E_PARSE:
-			case E_ERROR:
-			case E_CORE_ERROR:
-			case E_COMPILE_ERROR:
-			case E_USER_ERROR:
-				$error = 'Fatal Error';
-				$log = LOG_ERR;
-				break;
-			case E_WARNING:
-			case E_USER_WARNING:
-			case E_COMPILE_WARNING:
-			case E_RECOVERABLE_ERROR:
-				$error = 'Warning';
-				$log = LOG_WARNING;
-				break;
-			case E_NOTICE:
-			case E_USER_NOTICE:
-				$error = 'Notice';
-				$log = LOG_NOTICE;
-				break;
-			case E_DEPRECATED:
-			case E_USER_DEPRECATED:
-				$error = 'Deprecated';
-				$log = LOG_NOTICE;
-				break;
-		}
-		return [$error, $log];
-	}
+        if (static::$_bailExceptionRendering) {
+            static::$_bailExceptionRendering = false;
+            throw $exception;
+        }
 
-/**
- * Generate the string to use to describe the error.
- *
- * @param string $error The error type (e.g. "Warning")
- * @param int $code Code of error
- * @param string $description Error description
- * @param string $file File on which error occurred
- * @param int $line Line that triggered the error
- * @return string
- */
-	protected static function _getErrorMessage($error, $code, $description, $file, $line) {
-		$errorConfig = Configure::read('Error');
-		$message = $error . ' (' . $code . '): ' . $description . ' in [' . $file . ', line ' . $line . ']';
-		if (!empty($errorConfig['trace'])) {
-			// https://bugs.php.net/bug.php?id=65322
-			if (version_compare(PHP_VERSION, '5.4.21', '<')) {
-				if (!class_exists('Debugger')) {
-					App::load('Debugger');
-				}
-				if (!class_exists('CakeText')) {
-					App::uses('CakeText', 'Utility');
-					App::load('CakeText');
-				}
-			}
-			$trace = Debugger::trace(['start' => 1, 'format' => 'log']);
-			$message .= "\nTrace:\n" . $trace . "\n";
-		}
-		return $message;
-	}
+        call_user_func($exceptionHandler, $exception);
+
+        return false;
+    }
+
+    /**
+     * Map an error code into an Error word, and log location.
+     *
+     * @param int $code Error code to map
+     * @return array Array of error word, and log location.
+     */
+    public static function mapErrorCode($code)
+    {
+        $error = $log = null;
+        switch ($code) {
+            case E_PARSE:
+            case E_ERROR:
+            case E_CORE_ERROR:
+            case E_COMPILE_ERROR:
+            case E_USER_ERROR:
+                $error = 'Fatal Error';
+                $log = LOG_ERR;
+                break;
+            case E_WARNING:
+            case E_USER_WARNING:
+            case E_COMPILE_WARNING:
+            case E_RECOVERABLE_ERROR:
+                $error = 'Warning';
+                $log = LOG_WARNING;
+                break;
+            case E_NOTICE:
+            case E_USER_NOTICE:
+                $error = 'Notice';
+                $log = LOG_NOTICE;
+                break;
+            case E_DEPRECATED:
+            case E_USER_DEPRECATED:
+                $error = 'Deprecated';
+                $log = LOG_NOTICE;
+                break;
+        }
+
+        return [$error, $log];
+    }
+
+    /**
+     * Generate the string to use to describe the error.
+     *
+     * @param string $error The error type (e.g. "Warning")
+     * @param int $code Code of error
+     * @param string $description Error description
+     * @param string $file File on which error occurred
+     * @param int $line Line that triggered the error
+     * @return string
+     */
+    protected static function _getErrorMessage($error, $code, $description, $file, $line)
+    {
+        $errorConfig = Configure::read('Error');
+        $message = $error . ' (' . $code . '): ' . $description . ' in [' . $file . ', line ' . $line . ']';
+        if (!empty($errorConfig['trace'])) {
+            // https://bugs.php.net/bug.php?id=65322
+            if (version_compare(PHP_VERSION, '5.4.21', '<')) {
+                if (!class_exists('Debugger')) {
+                    App::load('Debugger');
+                }
+                if (!class_exists('CakeText')) {
+                    App::uses('CakeText', 'Utility');
+                    App::load('CakeText');
+                }
+            }
+            $trace = Debugger::trace(['start' => 1, 'format' => 'log']);
+            $message .= "\nTrace:\n" . $trace . "\n";
+        }
+
+        return $message;
+    }
 }

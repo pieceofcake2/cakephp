@@ -21,19 +21,18 @@
  *
  * @package       Cake.Test.TestApp.Plugin.TestPlugin.Model
  */
-class TestPluginAuthors extends TestPluginAppModel {
+class TestPluginAuthors extends TestPluginAppModel
+{
+    public $useTable = 'authors';
 
-	public $useTable = 'authors';
+    public $name = 'TestPluginAuthors';
 
-	public $name = 'TestPluginAuthors';
-
-	public $validate = [
-		'field' => [
-			'notBlank' => [
-				'rule' => 'notBlank',
-				'message' => 'I can haz plugin model validation message',
-			],
-		],
-	];
-
+    public $validate = [
+        'field' => [
+            'notBlank' => [
+                'rule' => 'notBlank',
+                'message' => 'I can haz plugin model validation message',
+            ],
+        ],
+    ];
 }

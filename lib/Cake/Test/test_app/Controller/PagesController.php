@@ -28,62 +28,62 @@ App::uses('AppController', 'Controller');
  * @package       Cake.Controller
  * @link https://book.cakephp.org/2.0/en/controllers/pages-controller.html
  */
-class PagesController extends AppController {
+class PagesController extends AppController
+{
+    /**
+     * Default helper
+     *
+     * @var array
+     */
+    public $helpers = ['Html', 'Session'];
 
-/**
- * Default helper
- *
- * @var array
- */
-	public $helpers = ['Html', 'Session'];
+    /**
+     * This controller does not use a model
+     *
+     * @var array
+     */
+    public $uses = [];
 
-/**
- * This controller does not use a model
- *
- * @var array
- */
-	public $uses = [];
+    /**
+     * Displays a view
+     *
+     * @param mixed What page to display
+     * @return void
+     * @throws NotFoundException When the view file could not be found
+     *  or MissingViewException in debug mode.
+     */
+    public function display()
+    {
+        $path = func_get_args();
 
-/**
- * Displays a view
- *
- * @param mixed What page to display
- * @return void
- * @throws NotFoundException When the view file could not be found
- *	or MissingViewException in debug mode.
- */
-	public function display() {
-		$path = func_get_args();
+        $count = count($path);
+        if (!$count) {
+            return $this->redirect('/');
+        }
+        $page = $subpage = $titleForLayout = null;
 
-		$count = count($path);
-		if (!$count) {
-			return $this->redirect('/');
-		}
-		$page = $subpage = $titleForLayout = null;
+        if (!empty($path[0])) {
+            $page = $path[0];
+        }
+        if (!empty($path[1])) {
+            $subpage = $path[1];
+        }
+        if (!empty($path[$count - 1])) {
+            $titleForLayout = Inflector::humanize($path[$count - 1]);
+        }
+        $this->set([
+            'page' => $page,
+            'subpage' => $subpage,
+            'title_for_layout' => $titleForLayout,
+        ]);
 
-		if (!empty($path[0])) {
-			$page = $path[0];
-		}
-		if (!empty($path[1])) {
-			$subpage = $path[1];
-		}
-		if (!empty($path[$count - 1])) {
-			$titleForLayout = Inflector::humanize($path[$count - 1]);
-		}
-		$this->set([
-			'page' => $page,
-			'subpage' => $subpage,
-			'title_for_layout' => $titleForLayout
-		]);
-
-		try {
-			$this->render(implode('/', $path));
-		} catch (MissingViewException $e) {
-			if (Configure::read('debug')) {
-				throw $e;
-			}
-			throw new NotFoundException();
-		}
-	}
-
+        try {
+            $this->render(implode('/', $path));
+        } catch (MissingViewException $e) {
+            if (Configure::read('debug')) {
+                throw $e;
+            }
+            throw new NotFoundException();
+        }
+    }
 }

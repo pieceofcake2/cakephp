@@ -21,29 +21,29 @@
  *
  * @package       Cake.Test.Fixture
  */
-class PlayerFixture extends CakeTestFixture {
+class PlayerFixture extends CakeTestFixture
+{
+    /**
+     * fields property
+     *
+     * @var array
+     */
+    public $fields = [
+        'id' => ['type' => 'integer', 'key' => 'primary'],
+        'name' => ['type' => 'string', 'null' => false],
+        'created' => 'datetime',
+        'updated' => 'datetime',
+    ];
 
-/**
- * fields property
- *
- * @var array
- */
-	public $fields = [
-		'id' => ['type' => 'integer', 'key' => 'primary'],
-		'name' => ['type' => 'string', 'null' => false],
-		'created' => 'datetime',
-		'updated' => 'datetime'
-	];
-
-/**
- * records property
- *
- * @var array
- */
-	public $records = [
-		['name' => 'mark', 'created' => '2007-03-17 01:16:23'],
-		['name' => 'jack', 'created' => '2007-03-17 01:18:23'],
-		['name' => 'larry', 'created' => '2007-03-17 01:20:23'],
-		['name' => 'jose', 'created' => '2007-03-17 01:22:23'],
-	];
+    /**
+     * records property
+     *
+     * @var array
+     */
+    public $records = [
+        ['name' => 'mark', 'created' => '2007-03-17 01:16:23'],
+        ['name' => 'jack', 'created' => '2007-03-17 01:18:23'],
+        ['name' => 'larry', 'created' => '2007-03-17 01:20:23'],
+        ['name' => 'jose', 'created' => '2007-03-17 01:22:23'],
+    ];
 }

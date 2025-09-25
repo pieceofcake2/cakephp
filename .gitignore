@@ -11,8 +11,8 @@
 /tags
 *.mo
 .phpunit.result.cache
+/phpunit.xml
 /rector.php
-/phpstan.neon
 
 # IDE and editor specific files #
 #################################

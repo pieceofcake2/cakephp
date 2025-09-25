@@ -23,5 +23,6 @@ App::uses('AppHelper', 'View/Helper');
  *
  * @package       Cake.Test.TestApp.Plugin.TestPlugin.View.Helper
  */
-class OtherHelperHelper extends AppHelper {
+class OtherHelperHelper extends AppHelper
+{
 }

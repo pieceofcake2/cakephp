@@ -21,24 +21,24 @@
  *
  * @package       Cake.Test.Fixture
  */
-class BakeTagFixture extends CakeTestFixture {
+class BakeTagFixture extends CakeTestFixture
+{
+    /**
+     * fields property
+     *
+     * @var array
+     */
+    public $fields = [
+        'id' => ['type' => 'integer', 'key' => 'primary'],
+        'tag' => ['type' => 'string', 'null' => false],
+        'created' => 'datetime',
+        'updated' => 'datetime',
+    ];
 
-/**
- * fields property
- *
- * @var array
- */
-	public $fields = [
-		'id' => ['type' => 'integer', 'key' => 'primary'],
-		'tag' => ['type' => 'string', 'null' => false],
-		'created' => 'datetime',
-		'updated' => 'datetime'
-	];
-
-/**
- * records property
- *
- * @var array
- */
-	public $records = [];
+    /**
+     * records property
+     *
+     * @var array
+     */
+    public $records = [];
 }

@@ -21,27 +21,27 @@
  *
  * @package       Cake.Test.Fixture
  */
-class BakeCommentFixture extends CakeTestFixture {
+class BakeCommentFixture extends CakeTestFixture
+{
+    /**
+     * fields property
+     *
+     * @var array
+     */
+    public $fields = [
+        'otherid' => ['type' => 'integer', 'key' => 'primary'],
+        'bake_article_id' => ['type' => 'integer', 'null' => false],
+        'bake_user_id' => ['type' => 'integer', 'null' => false],
+        'comment' => 'text',
+        'published' => ['type' => 'string', 'length' => 1, 'default' => 'N'],
+        'created' => 'datetime',
+        'updated' => 'datetime',
+    ];
 
-/**
- * fields property
- *
- * @var array
- */
-	public $fields = [
-		'otherid' => ['type' => 'integer', 'key' => 'primary'],
-		'bake_article_id' => ['type' => 'integer', 'null' => false],
-		'bake_user_id' => ['type' => 'integer', 'null' => false],
-		'comment' => 'text',
-		'published' => ['type' => 'string', 'length' => 1, 'default' => 'N'],
-		'created' => 'datetime',
-		'updated' => 'datetime'
-	];
-
-/**
- * records property
- *
- * @var array
- */
-	public $records = [];
+    /**
+     * records property
+     *
+     * @var array
+     */
+    public $records = [];
 }

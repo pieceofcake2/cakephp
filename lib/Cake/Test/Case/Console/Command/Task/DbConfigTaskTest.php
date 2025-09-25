@@ -27,123 +27,131 @@ App::uses('DbConfigTask', 'Console/Command/Task');
  *
  * @package       Cake.Test.Case.Console.Command.Task
  */
-class DbConfigTaskTest extends CakeTestCase {
+class DbConfigTaskTest extends CakeTestCase
+{
+    /**
+     * setUp method
+     *
+     * @return void
+     */
+    public function setUp(): void
+    {
+        parent::setUp();
+        $out = $this->getMock('ConsoleOutput', [], [], '', false);
+        $in = $this->getMock('ConsoleInput', [], [], '', false);
 
-/**
- * setUp method
- *
- * @return void
- */
-	public function setUp() : void {
-		parent::setUp();
-		$out = $this->getMock('ConsoleOutput', [], [], '', false);
-		$in = $this->getMock('ConsoleInput', [], [], '', false);
+        $this->Task = $this->getMock(
+            'DbConfigTask',
+            ['in', 'out', 'err', 'hr', 'createFile', '_stop', '_checkUnitTest', '_verify'],
+            [$out, $out, $in],
+        );
 
-		$this->Task = $this->getMock('DbConfigTask',
-			['in', 'out', 'err', 'hr', 'createFile', '_stop', '_checkUnitTest', '_verify'],
-			[$out, $out, $in]
-		);
+        $this->Task->path = CONFIG;
+    }
 
-		$this->Task->path = CONFIG;
-	}
+    /**
+     * tearDown method
+     *
+     * @return void
+     */
+    public function tearDown(): void
+    {
+        unset($this->Task);
 
-/**
- * tearDown method
- *
- * @return void
- */
-	public function tearDown() : void {
-		unset($this->Task);
+        parent::tearDown();
+    }
 
-		parent::tearDown();
-	}
+    /**
+     * Test the getConfig method.
+     *
+     * @return void
+     */
+    public function testGetConfig()
+    {
+        $this->Task->expects($this->any())
+            ->method('in')
+            ->will($this->returnValue('test'));
 
-/**
- * Test the getConfig method.
- *
- * @return void
- */
-	public function testGetConfig() {
-		$this->Task->expects($this->any())
-			->method('in')
-			->will($this->returnValue('test'));
+        $result = $this->Task->getConfig();
+        $this->assertEquals('test', $result);
+    }
 
-		$result = $this->Task->getConfig();
-		$this->assertEquals('test', $result);
-	}
+    /**
+     * test that initialize sets the path up.
+     *
+     * @return void
+     */
+    public function testInitialize()
+    {
+        $this->Task->initialize();
+        $this->assertFalse(empty($this->Task->path));
+        $this->assertEquals(CONFIG, $this->Task->path);
+    }
 
-/**
- * test that initialize sets the path up.
- *
- * @return void
- */
-	public function testInitialize() {
-		$this->Task->initialize();
-		$this->assertFalse(empty($this->Task->path));
-		$this->assertEquals(CONFIG, $this->Task->path);
-	}
+    /**
+     * test execute and by extension _interactive
+     *
+     * @return void
+     */
+    public function testExecuteIntoInteractive()
+    {
+        $this->Task->initialize();
 
-/**
- * test execute and by extension _interactive
- *
- * @return void
- */
-	public function testExecuteIntoInteractive() {
-		$this->Task->initialize();
+        $out = $this->getMock('ConsoleOutput', [], [], '', false);
+        $in = $this->getMock('ConsoleInput', [], [], '', false);
+        $this->Task = $this->getMock(
+            'DbConfigTask',
+            ['in', '_stop', 'createFile', 'bake'],
+            [$out, $out, $in],
+        );
 
-		$out = $this->getMock('ConsoleOutput', [], [], '', false);
-		$in = $this->getMock('ConsoleInput', [], [], '', false);
-		$this->Task = $this->getMock(
-			'DbConfigTask',
-			['in', '_stop', 'createFile', 'bake'], [$out, $out, $in]
-		);
+        $this->Task->expects($this->once())->method('_stop');
 
-		$this->Task->expects($this->once())->method('_stop');
+        $inReturns = [
+            'default', // 0: name
+            'mysql', // 1: db type
+            'n', // 2: persistent
+            'localhost', // 3: server
+            'n', // 4: port
+            'root', // 5: user
+            'password', // 6: password
+            null,
+            null,
+            null,
+            'cake_test', // 10: db
+            'n', // 11: prefix
+            'n', // 12: encoding
+            'y', // 13: looks good
+            'n', // 14: another
+        ];
+        $inCallIndex = 0;
+        $this->Task->expects($this->any())
+            ->method('in')
+            ->willReturnCallback(function () use ($inReturns, &$inCallIndex) {
+                $return = $inReturns[$inCallIndex] ?? null;
+                $inCallIndex++;
 
-		$inReturns = [
-			'default',    // 0: name
-			'mysql',      // 1: db type
-			'n',          // 2: persistent
-			'localhost',  // 3: server
-			'n',          // 4: port
-			'root',       // 5: user
-			'password',   // 6: password
-			null,
-			null,
-			null,
-			'cake_test',  // 10: db
-			'n',          // 11: prefix
-			'n',          // 12: encoding
-			'y',          // 13: looks good
-			'n'           // 14: another
-		];
-		$inCallIndex = 0;
-		$this->Task->expects($this->any())
-			->method('in')
-			->willReturnCallback(function() use ($inReturns, &$inCallIndex) {
-				$return = $inReturns[$inCallIndex] ?? null;
-				$inCallIndex++;
-				return $return;
-			});
+                return $return;
+            });
 
-		$this->Task->expects($this->once())
-			->method('bake')
-			->with([
-				[
-					'name' => 'default',
-					'datasource' => 'mysql',
-					'persistent' => 'false',
-					'host' => 'localhost',
-					'login' => 'root',
-					'password' => 'password',
-					'database' => 'cake_test',
-					'prefix' => null,
-					'encoding' => null,
-					'port' => '',
-					'schema' => null
-				]
-			]);
+        $this->Task->expects($this->once())
+            ->method('bake')
+            ->with([
+                [
+                    'name' => 'default',
+                    'datasource' => 'mysql',
+                    'persistent' => 'false',
+                    'host' => 'localhost',
+                    'login' => 'root',
+                    'password' => 'password',
+                    'database' => 'cake_test',
+                    'prefix' => null,
+                    'encoding' => null,
+                    'port' => '',
+                    'schema' => null,
+                ],
+            ]);
 
-		$this->Task->execute();
-	}
+        $this->Task->execute();
+    }
 }

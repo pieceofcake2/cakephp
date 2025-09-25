@@ -23,23 +23,22 @@
  *
  * @package       Cake.Test.TestApp.Model
  */
-class Extract extends AppModel {
+class Extract extends AppModel
+{
+    public $useTable = false;
 
-	public $useTable = false;
-
-	public $validate = [
-		'title' => [
-			'custom' => [
-				'rule' => ['custom', '.*'],
-				'allowEmpty' => true,
-				'required' => false,
-				'message' => 'double "quoted" validation'
-			],
-			'between' => [
-				'rule' => ['lengthBetween', 5, 15],
-				'message' => "single 'quoted' validation"
-			]
-		],
-	];
-
+    public $validate = [
+        'title' => [
+            'custom' => [
+                'rule' => ['custom', '.*'],
+                'allowEmpty' => true,
+                'required' => false,
+                'message' => 'double "quoted" validation',
+            ],
+            'between' => [
+                'rule' => ['lengthBetween', 5, 15],
+                'message' => "single 'quoted' validation",
+            ],
+        ],
+    ];
 }

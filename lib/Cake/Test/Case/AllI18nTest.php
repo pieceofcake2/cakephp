@@ -25,17 +25,19 @@ use PHPUnit\Framework\TestSuite;
  *
  * @package       Cake.Test.Case
  */
-class AllI18nTest extends TestSuite {
+class AllI18nTest extends TestSuite
+{
+    /**
+     * suite method, defines tests for this suite.
+     *
+     * @return void
+     */
+    public static function suite()
+    {
+        $suite = new CakeTestSuite('All localization class tests');
 
-/**
- * suite method, defines tests for this suite.
- *
- * @return void
- */
-	public static function suite() {
-		$suite = new CakeTestSuite('All localization class tests');
+        $suite->addTestDirectory(CORE_TEST_CASES . DS . 'I18n');
 
-		$suite->addTestDirectory(CORE_TEST_CASES . DS . 'I18n');
-		return $suite;
-	}
+        return $suite;
+    }
 }

@@ -22,22 +22,24 @@ App::uses('NumberHelper', 'View/Helper');
 /**
  * NumberHelperTestObject class
  */
-class NumberHelperTestObject extends NumberHelper {
+class NumberHelperTestObject extends NumberHelper
+{
+    public function attach(CakeNumberMock $cakeNumber)
+    {
+        $this->_engine = $cakeNumber;
+    }
 
-	public function attach(CakeNumberMock $cakeNumber) {
-		$this->_engine = $cakeNumber;
-	}
-
-	public function engine() {
-		return $this->_engine;
-	}
-
+    public function engine()
+    {
+        return $this->_engine;
+    }
 }
 
 /**
  * CakeNumberMock class
  */
-class CakeNumberMock {
+class CakeNumberMock
+{
 }
 
 /**
@@ -45,80 +47,84 @@ class CakeNumberMock {
  *
  * @package       Cake.Test.Case.View.Helper
  */
-class NumberHelperTest extends CakeTestCase {
+class NumberHelperTest extends CakeTestCase
+{
+    /**
+     * setUp method
+     *
+     * @return void
+     */
+    public function setUp(): void
+    {
+        parent::setUp();
+        $this->View = new View(null);
+    }
 
-/**
- * setUp method
- *
- * @return void
- */
-	public function setUp() : void {
-		parent::setUp();
-		$this->View = new View(null);
-	}
+    /**
+     * tearDown method
+     *
+     * @return void
+     */
+    public function tearDown(): void
+    {
+        unset($this->View);
 
-/**
- * tearDown method
- *
- * @return void
- */
-	public function tearDown() : void {
-		unset($this->View);
+        parent::tearDown();
+    }
 
-		parent::tearDown();
-	}
+    /**
+     * test CakeNumber class methods are called correctly
+     *
+     * @return void
+     */
+    public function testNumberHelperProxyMethodCalls()
+    {
+        $methods = [
+            'precision', 'toReadableSize', 'toPercentage', 'format',
+            'currency', 'addFormat',
+        ];
 
-/**
- * test CakeNumber class methods are called correctly
- *
- * @return void
- */
-	public function testNumberHelperProxyMethodCalls() {
-		$methods = [
-			'precision', 'toReadableSize', 'toPercentage', 'format',
-			'currency', 'addFormat',
-		];
+        $CakeNumber = $this->getMock('CakeNumberMock', $methods);
+        $Number = new NumberHelperTestObject($this->View, ['engine' => 'CakeNumberMock']);
+        $Number->attach($CakeNumber);
 
-		$CakeNumber = $this->getMock('CakeNumberMock', $methods);
-		$Number = new NumberHelperTestObject($this->View, ['engine' => 'CakeNumberMock']);
-		$Number->attach($CakeNumber);
+        $calledMethods = [];
+        foreach ($methods as $method) {
+            $CakeNumber->expects($this->once())
+                ->method($method)
+                ->willReturnCallback(function () use ($method, &$calledMethods) {
+                    $calledMethods[] = $method;
 
-		$calledMethods = [];
-		foreach ($methods as $method) {
-			$CakeNumber->expects($this->once())
-				->method($method)
-				->willReturnCallback(function() use ($method, &$calledMethods) {
-					$calledMethods[] = $method;
-					return null;
-				});
-		}
+                    return null;
+                });
+        }
 
-		foreach ($methods as $method) {
-			$Number->{$method}('who', 'what', 'when', 'where', 'how');
-		}
+        foreach ($methods as $method) {
+            $Number->{$method}('who', 'what', 'when', 'where', 'how');
+        }
 
-		$this->assertEquals($methods, $calledMethods);
-	}
+        $this->assertEquals($methods, $calledMethods);
+    }
 
-/**
- * test engine override
- *
- * @return void
- */
-	public function testEngineOverride() {
-		App::build([
-			'Utility' => [CAKE . 'Test' . DS . 'test_app' . DS . 'Utility' . DS]
-		], App::REGISTER);
-		$Number = new NumberHelperTestObject($this->View, ['engine' => 'TestAppEngine']);
-		$this->assertInstanceOf('TestAppEngine', $Number->engine());
+    /**
+     * test engine override
+     *
+     * @return void
+     */
+    public function testEngineOverride()
+    {
+        App::build([
+            'Utility' => [CAKE . 'Test' . DS . 'test_app' . DS . 'Utility' . DS],
+        ], App::REGISTER);
+        $Number = new NumberHelperTestObject($this->View, ['engine' => 'TestAppEngine']);
+        $this->assertInstanceOf('TestAppEngine', $Number->engine());
 
-		App::build([
-			'Plugin' => [CAKE . 'Test' . DS . 'test_app' . DS . 'Plugin' . DS]
-		]);
-		CakePlugin::load('TestPlugin');
-		$Number = new NumberHelperTestObject($this->View, ['engine' => 'TestPlugin.TestPluginEngine']);
-		$this->assertInstanceOf('TestPluginEngine', $Number->engine());
-		CakePlugin::unload('TestPlugin');
-	}
-
+        App::build([
+            'Plugin' => [CAKE . 'Test' . DS . 'test_app' . DS . 'Plugin' . DS],
+        ]);
+        CakePlugin::load('TestPlugin');
+        $Number = new NumberHelperTestObject($this->View, ['engine' => 'TestPlugin.TestPluginEngine']);
+        $this->assertInstanceOf('TestPluginEngine', $Number->engine());
+        CakePlugin::unload('TestPlugin');
+    }
 }

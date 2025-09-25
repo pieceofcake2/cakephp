@@ -25,25 +25,27 @@ use PHPUnit\Framework\TestSuite;
  *
  * @package       Cake.Test.Case.Console
  */
-class AllConsoleLibsTest extends TestSuite {
+class AllConsoleLibsTest extends TestSuite
+{
+    /**
+     * suite method, defines tests for this suite.
+     *
+     * @return void
+     */
+    public static function suite()
+    {
+        $suite = new CakeTestSuite('All console lib classes');
 
-/**
- * suite method, defines tests for this suite.
- *
- * @return void
- */
-	public static function suite() {
-		$suite = new CakeTestSuite('All console lib classes');
+        foreach (new DirectoryIterator(__DIR__) as $file) {
+            if (!$file->isFile() || str_starts_with($file, 'All')) {
+                continue;
+            }
+            $fileName = $file->getRealPath();
+            if (str_ends_with($fileName, '.php')) {
+                $suite->addTestFile($file->getRealPath());
+            }
+        }
 
-		foreach (new DirectoryIterator(__DIR__) as $file) {
-			if (!$file->isFile() || str_starts_with($file, 'All')) {
-				continue;
-			}
-			$fileName = $file->getRealPath();
-			if (str_ends_with($fileName, '.php')) {
-				$suite->addTestFile($file->getRealPath());
-			}
-		}
-		return $suite;
-	}
+        return $suite;
+    }
 }

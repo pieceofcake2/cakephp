@@ -64,16 +64,16 @@
  *
  *    $config['rules'] = array(
  *       'allow' => array(
- *       	'*' => 'Role/admin',
- *       	'controllers/users/(dashboard|profile)' => 'Role/default',
- *       	'controllers/invoices/*' => 'Role/accountant',
- *       	'controllers/articles/*' => 'Role/editor',
- *       	'controllers/users/*'  => 'Role/manager',
- *       	'controllers/invoices/delete'  => 'Role/manager',
+ *          '*' => 'Role/admin',
+ *          'controllers/users/(dashboard|profile)' => 'Role/default',
+ *          'controllers/invoices/*' => 'Role/accountant',
+ *          'controllers/articles/*' => 'Role/editor',
+ *          'controllers/users/*'  => 'Role/manager',
+ *          'controllers/invoices/delete'  => 'Role/manager',
  *       ),
  *       'deny' => array(
- *       	'controllers/invoices/delete' => 'Role/accountant, User/jeff',
- *       	'controllers/articles/(delete|publish)' => 'Role/editor',
+ *          'controllers/invoices/delete' => 'Role/accountant, User/jeff',
+ *          'controllers/articles/(delete|publish)' => 'Role/editor',
  *       ),
  *    );
  *
@@ -94,8 +94,8 @@
  * to the roles you defined in the roles configuration.
  */
 $config['map'] = [
-	'User' => 'User/username',
-	'Role' => 'User/group_id',
+    'User' => 'User/username',
+    'Role' => 'User/group_id',
 ];
 
 /**
@@ -103,22 +103,22 @@ $config['map'] = [
  * the roles defined in your role configuration.
  */
 $config['alias'] = [
-	'Role/4' => 'Role/editor',
+    'Role/4' => 'Role/editor',
 ];
 
 /**
  * role configuration
  */
 $config['roles'] = [
-	'Role/admin' => null,
+    'Role/admin' => null,
 ];
 
 /**
  * rule configuration
  */
 $config['rules'] = [
-	'allow' => [
-		'*' => 'Role/admin',
-	],
-	'deny' => [],
+    'allow' => [
+        '*' => 'Role/admin',
+    ],
+    'deny' => [],
 ];

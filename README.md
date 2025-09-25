@@ -3,7 +3,7 @@
 [![GitHub License](https://img.shields.io/github/license/friendsofcake2/cakephp?label=License)](LICENSE)
 [![Packagist Version](https://img.shields.io/packagist/v/friendsofcake2/cakephp?label=Packagist)](https://packagist.org/packages/friendsofcake2/cakephp)
 [![Packagist Dependency Version](https://img.shields.io/packagist/dependency-v/friendsofcake2/cakephp/php?logo=php&logoColor=%23FFFFFF&label=PHP&labelColor=%23777BB4&color=%23FFFFFF)](https://packagist.org/packages/friendsofcake2/cakephp)
-[![Tests](https://img.shields.io/github/actions/workflow/status/friendsofcake2/cakephp/tests.yml?label=Tests)](https://github.com/friendsofcake2/cakephp/actions/workflows/tests.yml)
+[![CI](https://img.shields.io/github/actions/workflow/status/friendsofcake2/cakephp/CI.yml?label=CI)](https://github.com/friendsofcake2/cakephp/actions/workflows/CI.yml)
 [![Codecov](https://img.shields.io/codecov/c/gh/friendsofcake2/cakephp?label=Coverage)](https://codecov.io/gh/friendsofcake2/cakephp)
 
 This is a community-maintained fork of CakePHP 2.x that provides compatibility with PHP 8.0 and newer versions.
@@ -96,6 +96,13 @@ Before migrating to this fork, ensure:
 5. **Test Thoroughly**: Run your application's test suite to ensure compatibility
 
 ### Breaking Changes
+
+#### PHP CodeSniffer Update [PR #8](https://github.com/friendsofcake2/cakephp/pull/8)
+
+- **Development dependency**: Updated `cakephp/cakephp-codesniffer` from 1.0.0 to 5.3
+- **Code formatting**: Applied automatic formatting fixes across the codebase using phpcbf
+- This is primarily a development-time change and should not affect runtime behavior
+- If you have custom coding standards, you may need to update your `phpcs.xml` configuration
 
 #### Removed Cache Engines [PR #4](https://github.com/friendsofcake2/cakephp/pull/4)
 

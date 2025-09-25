@@ -25,33 +25,35 @@ use PHPUnit\Framework\TestSuite;
  *
  * @package       Cake.Test.Case
  */
-class AllDatabaseTest extends TestSuite {
+class AllDatabaseTest extends TestSuite
+{
+    /**
+     * suite method, defines tests for this suite.
+     *
+     * @return void
+     */
+    public static function suite()
+    {
+        $suite = new TestSuite('Datasources, Schema and DbAcl tests');
 
-/**
- * suite method, defines tests for this suite.
- *
- * @return void
- */
-	public static function suite() {
-		$suite = new TestSuite('Datasources, Schema and DbAcl tests');
+        $path = CORE_TEST_CASES . DS . 'Model' . DS;
+        $tasks = [
+            'AclNode',
+            'CakeSchema',
+            'ConnectionManager',
+            'Datasource' . DS . 'DboSource',
+            'Datasource' . DS . 'Database' . DS . 'Mysql',
+            'Datasource' . DS . 'Database' . DS . 'Postgres',
+            'Datasource' . DS . 'Database' . DS . 'Sqlite',
+            'Datasource' . DS . 'Database' . DS . 'Sqlserver',
+            'Datasource' . DS . 'CakeSession',
+            'Datasource' . DS . 'Session' . DS . 'CacheSession',
+            'Datasource' . DS . 'Session' . DS . 'DatabaseSession',
+        ];
+        foreach ($tasks as $task) {
+            $suite->addTestFile($path . $task . 'Test.php');
+        }
 
-		$path = CORE_TEST_CASES . DS . 'Model' . DS;
-		$tasks = [
-			'AclNode',
-			'CakeSchema',
-			'ConnectionManager',
-			'Datasource' . DS . 'DboSource',
-			'Datasource' . DS . 'Database' . DS . 'Mysql',
-			'Datasource' . DS . 'Database' . DS . 'Postgres',
-			'Datasource' . DS . 'Database' . DS . 'Sqlite',
-			'Datasource' . DS . 'Database' . DS . 'Sqlserver',
-			'Datasource' . DS . 'CakeSession',
-			'Datasource' . DS . 'Session' . DS . 'CacheSession',
-			'Datasource' . DS . 'Session' . DS . 'DatabaseSession',
-		];
-		foreach ($tasks as $task) {
-			$suite->addTestFile($path . $task . 'Test.php');
-		}
-		return $suite;
-	}
+        return $suite;
+    }
 }

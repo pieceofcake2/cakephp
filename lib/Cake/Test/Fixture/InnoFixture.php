@@ -21,29 +21,28 @@
  *
  * @package       Cake.Test.Fixture
  */
-class InnoFixture extends CakeTestFixture {
+class InnoFixture extends CakeTestFixture
+{
+    /**
+     * fields property
+     *
+     * @var array
+     */
+    public $fields = [
+        'id' => ['type' => 'integer', 'key' => 'primary'],
+        'name' => ['type' => 'string', 'null' => true],
+        'tableParameters' => [
+            'engine' => 'InnoDB',
+        ],
+    ];
 
-/**
- * fields property
- *
- * @var array
- */
-	public $fields = [
-		'id' => ['type' => 'integer', 'key' => 'primary'],
-		'name' => ['type' => 'string', 'null' => true],
-		'tableParameters' => [
-			'engine' => 'InnoDB'
-		]
-	];
-
-/**
- * records property
- *
- * @var array
- */
-	public $records = [
-		['name' => 'Name 1'],
-		['name' => 'Name 2'],
-	];
-
+    /**
+     * records property
+     *
+     * @var array
+     */
+    public $records = [
+        ['name' => 'Name 1'],
+        ['name' => 'Name 2'],
+    ];
 }

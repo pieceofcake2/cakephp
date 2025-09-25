@@ -30,478 +30,497 @@ App::uses('ExtractTask', 'Console/Command/Task');
  *
  * @package       Cake.Test.Case.Console.Command.Task
  */
-class ExtractTaskTest extends CakeTestCase {
-
-/**
- * setUp method
- *
- * @return void
- */
-	public function setUp() : void {
-		parent::setUp();
-		$out = $this->getMock('ConsoleOutput', [], [], '', false);
-		$in = $this->getMock('ConsoleInput', [], [], '', false);
-
-		$this->Task = $this->getMock(
-			'ExtractTask',
-			['in', 'out', 'err', '_stop'],
-			[$out, $out, $in]
-		);
-		$this->path = TMP . 'tests' . DS . 'extract_task_test';
-		new Folder($this->path . DS . 'locale', true);
-	}
-
-/**
- * tearDown method
- *
- * @return void
- */
-	public function tearDown() : void {
-		unset($this->Task);
-
-		$Folder = new Folder($this->path);
-		$Folder->delete();
-		CakePlugin::unload();
-
-		parent::tearDown();
-	}
-
-/**
- * testExecute method
- *
- * @return void
- */
-	public function testExecute() {
-		$this->Task->interactive = false;
-
-		$this->Task->params['paths'] = CAKE . 'Test' . DS . 'test_app' . DS . 'View' . DS . 'Pages';
-		$this->Task->params['output'] = $this->path . DS;
-		$this->Task->params['extract-core'] = 'no';
-		$this->Task->expects($this->never())->method('err');
-		$this->Task->expects($this->any())->method('in')
-			->will($this->returnValue('y'));
-		$this->Task->expects($this->never())->method('_stop');
-
-		$this->Task->execute();
-		$this->assertTrue(file_exists($this->path . DS . 'default.pot'));
-		$result = file_get_contents($this->path . DS . 'default.pot');
-
-		$this->assertFalse(file_exists($this->path . DS . 'cake.pot'));
-
-		$pattern = '/"Content-Type\: text\/plain; charset\=utf-8/';
-		$this->assertMatchesRegularExpression($pattern, $result);
-		$pattern = '/"Content-Transfer-Encoding\: 8bit/';
-		$this->assertMatchesRegularExpression($pattern, $result);
-		$pattern = '/"Plural-Forms\: nplurals\=INTEGER; plural\=EXPRESSION;/';
-		$this->assertMatchesRegularExpression($pattern, $result);
-
-		// home.ctp
-		$pattern = '/msgid "Your tmp directory is writable."\nmsgstr ""\n/';
-		$this->assertMatchesRegularExpression($pattern, $result);
-
-		$pattern = '/msgid "Your tmp directory is NOT writable."\nmsgstr ""\n/';
-		$this->assertMatchesRegularExpression($pattern, $result);
-
-		$pattern = '/msgid "The %s is being used for caching. To change the config edit ';
-		$pattern .= '%s\/core.php "\nmsgstr ""\n/';
-		$this->assertMatchesRegularExpression($pattern, $result);
-
-		$pattern = '/msgid "Your cache is NOT working. Please check ';
-		$pattern .= 'the settings in %s\/core.php"\nmsgstr ""\n/';
-		$this->assertMatchesRegularExpression($pattern, $result);
-
-		$pattern = '/msgid "Your database configuration file is present."\nmsgstr ""\n/';
-		$this->assertMatchesRegularExpression($pattern, $result);
-
-		$pattern = '/msgid "Your database configuration file is NOT present."\nmsgstr ""\n/';
-		$this->assertMatchesRegularExpression($pattern, $result);
-
-		$pattern = '/msgid "Rename config\/database.php.default to ';
-		$pattern .= 'config\/database.php"\nmsgstr ""\n/';
-		$this->assertMatchesRegularExpression($pattern, $result);
-
-		$pattern = '/msgid "Cake is able to connect to the database."\nmsgstr ""\n/';
-		$this->assertMatchesRegularExpression($pattern, $result);
-
-		$pattern = '/msgid "Cake is NOT able to connect to the database."\nmsgstr ""\n/';
-		$this->assertMatchesRegularExpression($pattern, $result);
-
-		$pattern = '/msgid "Editing this Page"\nmsgstr ""\n/';
-		$this->assertMatchesRegularExpression($pattern, $result);
-
-		$pattern = '/msgid "To change the content of this page, create: APP\/views\/pages\/home\.ctp/';
-		$this->assertMatchesRegularExpression($pattern, $result);
-
-		$pattern = '/To change its layout, create: APP\/views\/layouts\/default\.ctp\./s';
-		$this->assertMatchesRegularExpression($pattern, $result);
-
-		// extract.ctp
-		$pattern = '/\#: extract\.ctp:15;6\n';
-		$pattern .= 'msgid "You have %d new message."\nmsgid_plural "You have %d new messages."/';
-		$this->assertMatchesRegularExpression($pattern, $result);
-
-		$pattern = '/msgid "You have %d new message."\nmsgstr ""/';
-		$this->assertDoesNotMatchRegularExpression($pattern, $result, 'No duplicate msgid');
-
-		$pattern = '/\#: extract\.ctp:7\n';
-		$pattern .= 'msgid "You deleted %d message."\nmsgid_plural "You deleted %d messages."/';
-		$this->assertMatchesRegularExpression($pattern, $result);
-
-		$pattern = '/\#: extract\.ctp:14\n';
-		$pattern .= '\#: home\.ctp:68\n';
-		$pattern .= 'msgid "Editing this Page"\nmsgstr ""/';
-		$this->assertMatchesRegularExpression($pattern, $result);
-
-		$pattern = '/\#: extract\.ctp:22\nmsgid "';
-		$pattern .= 'Hot features!';
-		$pattern .= '\\\n - No Configuration: Set-up the database and let the magic begin';
-		$pattern .= '\\\n - Extremely Simple: Just look at the name...It\'s Cake';
-		$pattern .= '\\\n - Active, Friendly Community: Join us #cakephp on IRC. We\'d love to help you get started';
-		$pattern .= '"\nmsgstr ""/';
-		$this->assertMatchesRegularExpression($pattern, $result);
-
-		$this->assertStringContainsString('msgid "double \\"quoted\\""', $result, 'Strings with quotes not handled correctly');
-		$this->assertStringContainsString("msgid \"single 'quoted'\"", $result, 'Strings with quotes not handled correctly');
-
-		$pattern = '/\#: extract\.ctp:36\nmsgid "letter"/';
-		$this->assertMatchesRegularExpression($pattern, $result, 'Strings with context should not overwrite strings without context');
-
-		$pattern = '/\#: extract\.ctp:37;39\nmsgctxt "A"\nmsgid "letter"/';
-		$this->assertMatchesRegularExpression($pattern, $result, 'Should contain string with context "A"');
-
-		$pattern = '/\#: extract\.ctp:38\nmsgctxt "B"\nmsgid "letter"/';
-		$this->assertMatchesRegularExpression($pattern, $result, 'Should contain string with context "B"');
-
-		$pattern = '/\#: extract\.ctp:40\nmsgid "%d letter"\nmsgid_plural "%d letters"/';
-		$this->assertMatchesRegularExpression($pattern, $result, 'Plural strings with context should not overwrite strings without context');
-
-		$pattern = '/\#: extract\.ctp:41\nmsgctxt "A"\nmsgid "%d letter"\nmsgid_plural "%d letters"/';
-		$this->assertMatchesRegularExpression($pattern, $result, 'Should contain plural string with context "A"');
-
-		// extract.ctp - reading the domain.pot
-		$result = file_get_contents($this->path . DS . 'domain.pot');
-
-		$pattern = '/msgid "You have %d new message."\nmsgid_plural "You have %d new messages."/';
-		$this->assertDoesNotMatchRegularExpression($pattern, $result);
-		$pattern = '/msgid "You deleted %d message."\nmsgid_plural "You deleted %d messages."/';
-		$this->assertDoesNotMatchRegularExpression($pattern, $result);
-
-		$pattern = '/msgid "You have %d new message \(domain\)."\nmsgid_plural "You have %d new messages \(domain\)."/';
-		$this->assertMatchesRegularExpression($pattern, $result);
-		$pattern = '/msgid "You deleted %d message \(domain\)."\nmsgid_plural "You deleted %d messages \(domain\)."/';
-		$this->assertMatchesRegularExpression($pattern, $result);
-	}
-
-/**
- * testExtractCategory method
- *
- * @return void
- */
-	public function testExtractCategory() {
-		$this->Task->interactive = false;
-
-		$this->Task->params['paths'] = CAKE . 'Test' . DS . 'test_app' . DS . 'View' . DS . 'Pages';
-		$this->Task->params['output'] = $this->path . DS;
-		$this->Task->params['extract-core'] = 'no';
-		$this->Task->params['merge'] = 'no';
-		$this->Task->expects($this->never())->method('err');
-		$this->Task->expects($this->any())->method('in')
-			->will($this->returnValue('y'));
-		$this->Task->expects($this->never())->method('_stop');
-
-		$this->Task->execute();
-		$this->assertTrue(file_exists($this->path . DS . 'LC_NUMERIC' . DS . 'default.pot'));
-		$this->assertFalse(file_exists($this->path . DS . 'LC_TIME' . DS . 'default.pot'));
-
-		$result = file_get_contents($this->path . DS . 'default.pot');
-
-		$pattern = '/\#: .*extract\.ctp:31\n/';
-		$this->assertDoesNotMatchRegularExpression($pattern, $result);
-
-		$pattern = '/\#: .*extract\.ctp:33\n/';
-		$this->assertDoesNotMatchRegularExpression($pattern, $result);
-	}
-
-/**
- * testExtractWithoutLocations method
- *
- * @return void
- */
-	public function testExtractWithoutLocations() {
-		$this->Task->interactive = false;
-
-		$this->Task->params['paths'] = CAKE . 'Test' . DS . 'test_app' . DS . 'View' . DS . 'Pages';
-		$this->Task->params['output'] = $this->path . DS;
-		$this->Task->params['extract-core'] = 'no';
-		$this->Task->params['merge'] = 'no';
-		$this->Task->params['no-location'] = true;
-
-		$this->Task->expects($this->never())->method('err');
-		$this->Task->expects($this->any())->method('in')
-			->will($this->returnValue('y'));
-		$this->Task->expects($this->never())->method('_stop');
-
-		$this->Task->execute();
-		$this->assertTrue(file_exists($this->path . DS . 'default.pot'));
-
-		$result = file_get_contents($this->path . DS . 'default.pot');
-
-		$pattern = '/\n\#: .*\n/';
-		$this->assertDoesNotMatchRegularExpression($pattern, $result);
-	}
-
-/**
- * test exclusions
- *
- * @return void
- */
-	public function testExtractWithExclude() {
-		$this->Task->interactive = false;
-
-		$this->Task->params['paths'] = CAKE . 'Test' . DS . 'test_app' . DS . 'View';
-		$this->Task->params['output'] = $this->path . DS;
-		$this->Task->params['exclude'] = 'Pages,Layouts';
-		$this->Task->params['extract-core'] = 'no';
-
-		$this->Task->expects($this->any())->method('in')
-			->will($this->returnValue('y'));
-
-		$this->Task->execute();
-		$this->assertTrue(file_exists($this->path . DS . 'default.pot'));
-		$result = file_get_contents($this->path . DS . 'default.pot');
-
-		$pattern = '/\#: .*extract\.ctp:6\n/';
-		$this->assertDoesNotMatchRegularExpression($pattern, $result);
-
-		$pattern = '/\#: .*default\.ctp:26\n/';
-		$this->assertDoesNotMatchRegularExpression($pattern, $result);
-	}
-
-/**
- * test extract can read more than one path.
- *
- * @return void
- */
-	public function testExtractMultiplePaths() {
-		$this->Task->interactive = false;
-
-		$this->Task->params['paths'] =
-			CAKE . 'Test' . DS . 'test_app' . DS . 'View' . DS . 'Pages,' .
-			CAKE . 'Test' . DS . 'test_app' . DS . 'View' . DS . 'Posts';
-
-		$this->Task->params['output'] = $this->path . DS;
-		$this->Task->params['extract-core'] = 'no';
-		$this->Task->expects($this->never())->method('err');
-		$this->Task->expects($this->never())->method('_stop');
-		$this->Task->execute();
-
-		$result = file_get_contents($this->path . DS . 'default.pot');
-
-		$pattern = '/msgid "Add User"/';
-		$this->assertMatchesRegularExpression($pattern, $result);
-	}
-
-/**
- * Tests that it is possible to exclude plugin paths by enabling the param option for the ExtractTask
- *
- * @return void
- */
-	public function testExtractExcludePlugins() {
-		App::build([
-			'Plugin' => [CAKE . 'Test' . DS . 'test_app' . DS . 'Plugin' . DS]
-		]);
-		$this->out = $this->getMock('ConsoleOutput', [], [], '', false);
-		$this->in = $this->getMock('ConsoleInput', [], [], '', false);
-		$this->Task = $this->getMock('ExtractTask',
-			['_isExtractingApp', '_extractValidationMessages', 'in', 'out', 'err', 'clear', '_stop'],
-			[$this->out, $this->out, $this->in]
-		);
-		$this->Task->expects($this->exactly(2))->method('_isExtractingApp')->will($this->returnValue(true));
-
-		$this->Task->params['paths'] = CAKE . 'Test' . DS . 'test_app' . DS;
-		$this->Task->params['output'] = $this->path . DS;
-		$this->Task->params['exclude-plugins'] = true;
-
-		$this->Task->execute();
-		$result = file_get_contents($this->path . DS . 'default.pot');
-		$this->assertDoesNotMatchRegularExpression('#TestPlugin#', $result);
-	}
-
-/**
- * Test that is possible to extract messages form a single plugin
- *
- * @return void
- */
-	public function testExtractPlugin() {
-		App::build([
-			'Plugin' => [CAKE . 'Test' . DS . 'test_app' . DS . 'Plugin' . DS]
-		]);
-
-		$this->out = $this->getMock('ConsoleOutput', [], [], '', false);
-		$this->in = $this->getMock('ConsoleInput', [], [], '', false);
-		$this->Task = $this->getMock('ExtractTask',
-			['_isExtractingApp', 'in', 'out', 'err', 'clear', '_stop'],
-			[$this->out, $this->out, $this->in]
-		);
-
-		$this->Task->params['output'] = $this->path . DS;
-		$this->Task->params['plugin'] = 'TestPlugin';
-
-		$this->Task->execute();
-		$result = file_get_contents($this->path . DS . 'default.pot');
-		$this->assertDoesNotMatchRegularExpression('#Pages#', $result);
-		$this->assertStringContainsString('translate.ctp:1', $result);
-		$this->assertStringContainsString('This is a translatable string', $result);
-		$this->assertStringContainsString('I can haz plugin model validation message', $result);
-	}
-
-/**
- * Tests that the task will inspect application models and extract the validation messages from them
- *
- * @return void
- */
-	public function testExtractModelValidation() {
-		App::build([
-			'Model' => [CAKE . 'Test' . DS . 'test_app' . DS . 'Model' . DS],
-			'Plugin' => [CAKE . 'Test' . DS . 'test_app' . DS . 'Plugin' . DS]
-		], App::RESET);
-		$this->out = $this->getMock('ConsoleOutput', [], [], '', false);
-		$this->in = $this->getMock('ConsoleInput', [], [], '', false);
-		$this->Task = $this->getMock('ExtractTask',
-			['_isExtractingApp', 'in', 'out', 'err', 'clear', '_stop'],
-			[$this->out, $this->out, $this->in]
-		);
-		$this->Task->expects($this->exactly(2))->method('_isExtractingApp')->will($this->returnValue(true));
-
-		$this->Task->params['paths'] = CAKE . 'Test' . DS . 'test_app' . DS;
-		$this->Task->params['output'] = $this->path . DS;
-		$this->Task->params['extract-core'] = 'no';
-		$this->Task->params['exclude-plugins'] = true;
-		$this->Task->params['ignore-model-validation'] = false;
-
-		$this->Task->execute();
-		$result = file_get_contents($this->path . DS . 'default.pot');
-		$this->assertStringContainsString('Model/PersisterOne.php:validation for field title', $result);
-		$this->assertStringContainsString('Model/PersisterOne.php:validation for field body', $result);
-		$this->assertStringContainsString('msgid "Post title is required"', $result);
-		$this->assertStringContainsString('msgid "You may enter up to %s chars (minimum is %s chars)"', $result);
-		$this->assertStringContainsString('msgid "Post body is required"', $result);
-		$this->assertStringContainsString('msgid "Post body is super required"', $result);
-		$this->assertStringContainsString('msgid "double \\"quoted\\" validation"', $result, 'Strings with quotes not handled correctly');
-		$this->assertStringContainsString("msgid \"single 'quoted' validation\"", $result, 'Strings with quotes not handled correctly');
-	}
-
-/**
- *  Tests that the task will inspect application models and extract the validation messages from them
- *	while using a custom validation domain for the messages set on the model itself
- *
- * @return void
- */
-	public function testExtractModelValidationWithDomainInModel() {
-		App::build([
-			'Model' => [CAKE . 'Test' . DS . 'test_app' . DS . 'Plugin' . DS . 'TestPlugin' . DS . 'Model' . DS]
-		]);
-		$this->out = $this->getMock('ConsoleOutput', [], [], '', false);
-		$this->in = $this->getMock('ConsoleInput', [], [], '', false);
-		$this->Task = $this->getMock('ExtractTask',
-			['_isExtractingApp', 'in', 'out', 'err', 'clear', '_stop'],
-			[$this->out, $this->out, $this->in]
-		);
-		$this->Task->expects($this->exactly(2))->method('_isExtractingApp')->will($this->returnValue(true));
-
-		$this->Task->params['paths'] = CAKE . 'Test' . DS . 'test_app' . DS;
-		$this->Task->params['output'] = $this->path . DS;
-		$this->Task->params['extract-core'] = 'no';
-		$this->Task->params['exclude-plugins'] = true;
-		$this->Task->params['ignore-model-validation'] = false;
-
-		$this->Task->execute();
-		$result = file_get_contents($this->path . DS . 'test_plugin.pot');
-		$this->assertStringContainsString('Plugin/TestPlugin/Model/TestPluginPost.php:validation for field title', $result);
-		$this->assertStringContainsString('Plugin/TestPlugin/Model/TestPluginPost.php:validation for field body', $result);
-		$this->assertStringContainsString('msgid "Post title is required"', $result);
-		$this->assertStringContainsString('msgid "Post body is required"', $result);
-		$this->assertStringContainsString('msgid "Post body is super required"', $result);
-	}
-
-/**
- *  Test that the extract shell can obtain validation messages from models inside a specific plugin
- *
- * @return void
- */
-	public function testExtractModelValidationInPlugin() {
-		App::build([
-			'Plugin' => [CAKE . 'Test' . DS . 'test_app' . DS . 'Plugin' . DS]
-		]);
-		$this->out = $this->getMock('ConsoleOutput', [], [], '', false);
-		$this->in = $this->getMock('ConsoleInput', [], [], '', false);
-		$this->Task = $this->getMock('ExtractTask',
-			['_isExtractingApp', 'in', 'out', 'err', 'clear', '_stop'],
-			[$this->out, $this->out, $this->in]
-		);
-
-		$this->Task->params['output'] = $this->path . DS;
-		$this->Task->params['ignore-model-validation'] = false;
-		$this->Task->params['plugin'] = 'TestPlugin';
-
-		$this->Task->execute();
-		$result = file_get_contents($this->path . DS . 'test_plugin.pot');
-		$this->assertStringContainsString('Model/TestPluginPost.php:validation for field title', $result);
-		$this->assertStringContainsString('Model/TestPluginPost.php:validation for field body', $result);
-		$this->assertStringContainsString('msgid "Post title is required"', $result);
-		$this->assertStringContainsString('msgid "Post body is required"', $result);
-		$this->assertStringContainsString('msgid "Post body is super required"', $result);
-		$this->assertStringNotContainsString('Plugin/TestPlugin/Model/TestPluginPost.php:validation for field title', $result);
-	}
-
-/**
- *  Test that the extract shell overwrites existing files with the overwrite parameter
- *
- * @return void
- */
-	public function testExtractOverwrite() {
-		$this->Task->interactive = false;
-
-		$this->Task->params['paths'] = CAKE . 'Test' . DS . 'test_app' . DS;
-		$this->Task->params['output'] = $this->path . DS;
-		$this->Task->params['extract-core'] = 'no';
-		$this->Task->params['overwrite'] = true;
-
-		file_put_contents($this->path . DS . 'default.pot', 'will be overwritten');
-		$this->assertTrue(file_exists($this->path . DS . 'default.pot'));
-		$original = file_get_contents($this->path . DS . 'default.pot');
-
-		$this->Task->execute();
-		$result = file_get_contents($this->path . DS . 'default.pot');
-		$this->assertNotEquals($original, $result);
-	}
-
-/**
- *  Test that the extract shell scans the core libs
- *
- * @return void
- */
-	public function testExtractCore() {
-		$this->Task->interactive = false;
-
-		$this->Task->params['paths'] = CAKE . 'Test' . DS . 'test_app' . DS;
-		$this->Task->params['output'] = $this->path . DS;
-		$this->Task->params['extract-core'] = 'yes';
-
-		$this->Task->execute();
-		$this->assertTrue(file_exists($this->path . DS . 'cake.pot'));
-		$result = file_get_contents($this->path . DS . 'cake.pot');
-
-		$pattern = '/msgid "Yesterday, %s"\nmsgstr ""\n/';
-		$this->assertMatchesRegularExpression($pattern, $result);
-
-		$this->assertTrue(file_exists($this->path . DS . 'cake_dev.pot'));
-		$result = file_get_contents($this->path . DS . 'cake_dev.pot');
-
-		$pattern = '/#: Console\/Templates\//';
-		$this->assertDoesNotMatchRegularExpression($pattern, $result);
-
-		$pattern = '/#: Test\//';
-		$this->assertDoesNotMatchRegularExpression($pattern, $result);
-	}
+class ExtractTaskTest extends CakeTestCase
+{
+    /**
+     * setUp method
+     *
+     * @return void
+     */
+    public function setUp(): void
+    {
+        parent::setUp();
+        $out = $this->getMock('ConsoleOutput', [], [], '', false);
+        $in = $this->getMock('ConsoleInput', [], [], '', false);
+
+        $this->Task = $this->getMock(
+            'ExtractTask',
+            ['in', 'out', 'err', '_stop'],
+            [$out, $out, $in],
+        );
+        $this->path = TMP . 'tests' . DS . 'extract_task_test';
+        new Folder($this->path . DS . 'locale', true);
+    }
+
+    /**
+     * tearDown method
+     *
+     * @return void
+     */
+    public function tearDown(): void
+    {
+        unset($this->Task);
+
+        $Folder = new Folder($this->path);
+        $Folder->delete();
+        CakePlugin::unload();
+
+        parent::tearDown();
+    }
+
+    /**
+     * testExecute method
+     *
+     * @return void
+     */
+    public function testExecute()
+    {
+        $this->Task->interactive = false;
+
+        $this->Task->params['paths'] = CAKE . 'Test' . DS . 'test_app' . DS . 'View' . DS . 'Pages';
+        $this->Task->params['output'] = $this->path . DS;
+        $this->Task->params['extract-core'] = 'no';
+        $this->Task->expects($this->never())->method('err');
+        $this->Task->expects($this->any())->method('in')
+            ->will($this->returnValue('y'));
+        $this->Task->expects($this->never())->method('_stop');
+
+        $this->Task->execute();
+        $this->assertTrue(file_exists($this->path . DS . 'default.pot'));
+        $result = file_get_contents($this->path . DS . 'default.pot');
+
+        $this->assertFalse(file_exists($this->path . DS . 'cake.pot'));
+
+        $pattern = '/"Content-Type\: text\/plain; charset\=utf-8/';
+        $this->assertMatchesRegularExpression($pattern, $result);
+        $pattern = '/"Content-Transfer-Encoding\: 8bit/';
+        $this->assertMatchesRegularExpression($pattern, $result);
+        $pattern = '/"Plural-Forms\: nplurals\=INTEGER; plural\=EXPRESSION;/';
+        $this->assertMatchesRegularExpression($pattern, $result);
+
+        // home.ctp
+        $pattern = '/msgid "Your tmp directory is writable."\nmsgstr ""\n/';
+        $this->assertMatchesRegularExpression($pattern, $result);
+
+        $pattern = '/msgid "Your tmp directory is NOT writable."\nmsgstr ""\n/';
+        $this->assertMatchesRegularExpression($pattern, $result);
+
+        $pattern = '/msgid "The %s is being used for caching. To change the config edit ';
+        $pattern .= '%s\/core.php "\nmsgstr ""\n/';
+        $this->assertMatchesRegularExpression($pattern, $result);
+
+        $pattern = '/msgid "Your cache is NOT working. Please check ';
+        $pattern .= 'the settings in %s\/core.php"\nmsgstr ""\n/';
+        $this->assertMatchesRegularExpression($pattern, $result);
+
+        $pattern = '/msgid "Your database configuration file is present."\nmsgstr ""\n/';
+        $this->assertMatchesRegularExpression($pattern, $result);
+
+        $pattern = '/msgid "Your database configuration file is NOT present."\nmsgstr ""\n/';
+        $this->assertMatchesRegularExpression($pattern, $result);
+
+        $pattern = '/msgid "Rename config\/database.php.default to ';
+        $pattern .= 'config\/database.php"\nmsgstr ""\n/';
+        $this->assertMatchesRegularExpression($pattern, $result);
+
+        $pattern = '/msgid "Cake is able to connect to the database."\nmsgstr ""\n/';
+        $this->assertMatchesRegularExpression($pattern, $result);
+
+        $pattern = '/msgid "Cake is NOT able to connect to the database."\nmsgstr ""\n/';
+        $this->assertMatchesRegularExpression($pattern, $result);
+
+        $pattern = '/msgid "Editing this Page"\nmsgstr ""\n/';
+        $this->assertMatchesRegularExpression($pattern, $result);
+
+        $pattern = '/msgid "To change the content of this page, create: APP\/views\/pages\/home\.ctp/';
+        $this->assertMatchesRegularExpression($pattern, $result);
+
+        $pattern = '/To change its layout, create: APP\/views\/layouts\/default\.ctp\./s';
+        $this->assertMatchesRegularExpression($pattern, $result);
+
+        // extract.ctp
+        $pattern = '/\#: extract\.ctp:15;6\n';
+        $pattern .= 'msgid "You have %d new message."\nmsgid_plural "You have %d new messages."/';
+        $this->assertMatchesRegularExpression($pattern, $result);
+
+        $pattern = '/msgid "You have %d new message."\nmsgstr ""/';
+        $this->assertDoesNotMatchRegularExpression($pattern, $result, 'No duplicate msgid');
+
+        $pattern = '/\#: extract\.ctp:7\n';
+        $pattern .= 'msgid "You deleted %d message."\nmsgid_plural "You deleted %d messages."/';
+        $this->assertMatchesRegularExpression($pattern, $result);
+
+        $pattern = '/\#: extract\.ctp:14\n';
+        $pattern .= '\#: home\.ctp:68\n';
+        $pattern .= 'msgid "Editing this Page"\nmsgstr ""/';
+        $this->assertMatchesRegularExpression($pattern, $result);
+
+        $pattern = '/\#: extract\.ctp:22\nmsgid "';
+        $pattern .= 'Hot features!';
+        $pattern .= '\\\n - No Configuration: Set-up the database and let the magic begin';
+        $pattern .= '\\\n - Extremely Simple: Just look at the name...It\'s Cake';
+        $pattern .= '\\\n - Active, Friendly Community: Join us #cakephp on IRC. We\'d love to help you get started';
+        $pattern .= '"\nmsgstr ""/';
+        $this->assertMatchesRegularExpression($pattern, $result);
+
+        $this->assertStringContainsString('msgid "double \\"quoted\\""', $result, 'Strings with quotes not handled correctly');
+        $this->assertStringContainsString("msgid \"single 'quoted'\"", $result, 'Strings with quotes not handled correctly');
+
+        $pattern = '/\#: extract\.ctp:36\nmsgid "letter"/';
+        $this->assertMatchesRegularExpression($pattern, $result, 'Strings with context should not overwrite strings without context');
+
+        $pattern = '/\#: extract\.ctp:37;39\nmsgctxt "A"\nmsgid "letter"/';
+        $this->assertMatchesRegularExpression($pattern, $result, 'Should contain string with context "A"');
+
+        $pattern = '/\#: extract\.ctp:38\nmsgctxt "B"\nmsgid "letter"/';
+        $this->assertMatchesRegularExpression($pattern, $result, 'Should contain string with context "B"');
+
+        $pattern = '/\#: extract\.ctp:40\nmsgid "%d letter"\nmsgid_plural "%d letters"/';
+        $this->assertMatchesRegularExpression($pattern, $result, 'Plural strings with context should not overwrite strings without context');
+
+        $pattern = '/\#: extract\.ctp:41\nmsgctxt "A"\nmsgid "%d letter"\nmsgid_plural "%d letters"/';
+        $this->assertMatchesRegularExpression($pattern, $result, 'Should contain plural string with context "A"');
+
+        // extract.ctp - reading the domain.pot
+        $result = file_get_contents($this->path . DS . 'domain.pot');
+
+        $pattern = '/msgid "You have %d new message."\nmsgid_plural "You have %d new messages."/';
+        $this->assertDoesNotMatchRegularExpression($pattern, $result);
+        $pattern = '/msgid "You deleted %d message."\nmsgid_plural "You deleted %d messages."/';
+        $this->assertDoesNotMatchRegularExpression($pattern, $result);
+
+        $pattern = '/msgid "You have %d new message \(domain\)."\nmsgid_plural "You have %d new messages \(domain\)."/';
+        $this->assertMatchesRegularExpression($pattern, $result);
+        $pattern = '/msgid "You deleted %d message \(domain\)."\nmsgid_plural "You deleted %d messages \(domain\)."/';
+        $this->assertMatchesRegularExpression($pattern, $result);
+    }
+
+    /**
+     * testExtractCategory method
+     *
+     * @return void
+     */
+    public function testExtractCategory()
+    {
+        $this->Task->interactive = false;
+
+        $this->Task->params['paths'] = CAKE . 'Test' . DS . 'test_app' . DS . 'View' . DS . 'Pages';
+        $this->Task->params['output'] = $this->path . DS;
+        $this->Task->params['extract-core'] = 'no';
+        $this->Task->params['merge'] = 'no';
+        $this->Task->expects($this->never())->method('err');
+        $this->Task->expects($this->any())->method('in')
+            ->will($this->returnValue('y'));
+        $this->Task->expects($this->never())->method('_stop');
+
+        $this->Task->execute();
+        $this->assertTrue(file_exists($this->path . DS . 'LC_NUMERIC' . DS . 'default.pot'));
+        $this->assertFalse(file_exists($this->path . DS . 'LC_TIME' . DS . 'default.pot'));
+
+        $result = file_get_contents($this->path . DS . 'default.pot');
+
+        $pattern = '/\#: .*extract\.ctp:31\n/';
+        $this->assertDoesNotMatchRegularExpression($pattern, $result);
+
+        $pattern = '/\#: .*extract\.ctp:33\n/';
+        $this->assertDoesNotMatchRegularExpression($pattern, $result);
+    }
+
+    /**
+     * testExtractWithoutLocations method
+     *
+     * @return void
+     */
+    public function testExtractWithoutLocations()
+    {
+        $this->Task->interactive = false;
+
+        $this->Task->params['paths'] = CAKE . 'Test' . DS . 'test_app' . DS . 'View' . DS . 'Pages';
+        $this->Task->params['output'] = $this->path . DS;
+        $this->Task->params['extract-core'] = 'no';
+        $this->Task->params['merge'] = 'no';
+        $this->Task->params['no-location'] = true;
+
+        $this->Task->expects($this->never())->method('err');
+        $this->Task->expects($this->any())->method('in')
+            ->will($this->returnValue('y'));
+        $this->Task->expects($this->never())->method('_stop');
+
+        $this->Task->execute();
+        $this->assertTrue(file_exists($this->path . DS . 'default.pot'));
+
+        $result = file_get_contents($this->path . DS . 'default.pot');
+
+        $pattern = '/\n\#: .*\n/';
+        $this->assertDoesNotMatchRegularExpression($pattern, $result);
+    }
+
+    /**
+     * test exclusions
+     *
+     * @return void
+     */
+    public function testExtractWithExclude()
+    {
+        $this->Task->interactive = false;
+
+        $this->Task->params['paths'] = CAKE . 'Test' . DS . 'test_app' . DS . 'View';
+        $this->Task->params['output'] = $this->path . DS;
+        $this->Task->params['exclude'] = 'Pages,Layouts';
+        $this->Task->params['extract-core'] = 'no';
+
+        $this->Task->expects($this->any())->method('in')
+            ->will($this->returnValue('y'));
+
+        $this->Task->execute();
+        $this->assertTrue(file_exists($this->path . DS . 'default.pot'));
+        $result = file_get_contents($this->path . DS . 'default.pot');
+
+        $pattern = '/\#: .*extract\.ctp:6\n/';
+        $this->assertDoesNotMatchRegularExpression($pattern, $result);
+
+        $pattern = '/\#: .*default\.ctp:26\n/';
+        $this->assertDoesNotMatchRegularExpression($pattern, $result);
+    }
+
+    /**
+     * test extract can read more than one path.
+     *
+     * @return void
+     */
+    public function testExtractMultiplePaths()
+    {
+        $this->Task->interactive = false;
+
+        $this->Task->params['paths'] =
+            CAKE . 'Test' . DS . 'test_app' . DS . 'View' . DS . 'Pages,' .
+            CAKE . 'Test' . DS . 'test_app' . DS . 'View' . DS . 'Posts';
+
+        $this->Task->params['output'] = $this->path . DS;
+        $this->Task->params['extract-core'] = 'no';
+        $this->Task->expects($this->never())->method('err');
+        $this->Task->expects($this->never())->method('_stop');
+        $this->Task->execute();
+
+        $result = file_get_contents($this->path . DS . 'default.pot');
+
+        $pattern = '/msgid "Add User"/';
+        $this->assertMatchesRegularExpression($pattern, $result);
+    }
+
+    /**
+     * Tests that it is possible to exclude plugin paths by enabling the param option for the ExtractTask
+     *
+     * @return void
+     */
+    public function testExtractExcludePlugins()
+    {
+        App::build([
+            'Plugin' => [CAKE . 'Test' . DS . 'test_app' . DS . 'Plugin' . DS],
+        ]);
+        $this->out = $this->getMock('ConsoleOutput', [], [], '', false);
+        $this->in = $this->getMock('ConsoleInput', [], [], '', false);
+        $this->Task = $this->getMock(
+            'ExtractTask',
+            ['_isExtractingApp', '_extractValidationMessages', 'in', 'out', 'err', 'clear', '_stop'],
+            [$this->out, $this->out, $this->in],
+        );
+        $this->Task->expects($this->exactly(2))->method('_isExtractingApp')->will($this->returnValue(true));
+
+        $this->Task->params['paths'] = CAKE . 'Test' . DS . 'test_app' . DS;
+        $this->Task->params['output'] = $this->path . DS;
+        $this->Task->params['exclude-plugins'] = true;
+
+        $this->Task->execute();
+        $result = file_get_contents($this->path . DS . 'default.pot');
+        $this->assertDoesNotMatchRegularExpression('#TestPlugin#', $result);
+    }
+
+    /**
+     * Test that is possible to extract messages form a single plugin
+     *
+     * @return void
+     */
+    public function testExtractPlugin()
+    {
+        App::build([
+            'Plugin' => [CAKE . 'Test' . DS . 'test_app' . DS . 'Plugin' . DS],
+        ]);
+
+        $this->out = $this->getMock('ConsoleOutput', [], [], '', false);
+        $this->in = $this->getMock('ConsoleInput', [], [], '', false);
+        $this->Task = $this->getMock(
+            'ExtractTask',
+            ['_isExtractingApp', 'in', 'out', 'err', 'clear', '_stop'],
+            [$this->out, $this->out, $this->in],
+        );
+
+        $this->Task->params['output'] = $this->path . DS;
+        $this->Task->params['plugin'] = 'TestPlugin';
+
+        $this->Task->execute();
+        $result = file_get_contents($this->path . DS . 'default.pot');
+        $this->assertDoesNotMatchRegularExpression('#Pages#', $result);
+        $this->assertStringContainsString('translate.ctp:1', $result);
+        $this->assertStringContainsString('This is a translatable string', $result);
+        $this->assertStringContainsString('I can haz plugin model validation message', $result);
+    }
+
+    /**
+     * Tests that the task will inspect application models and extract the validation messages from them
+     *
+     * @return void
+     */
+    public function testExtractModelValidation()
+    {
+        App::build([
+            'Model' => [CAKE . 'Test' . DS . 'test_app' . DS . 'Model' . DS],
+            'Plugin' => [CAKE . 'Test' . DS . 'test_app' . DS . 'Plugin' . DS],
+        ], App::RESET);
+        $this->out = $this->getMock('ConsoleOutput', [], [], '', false);
+        $this->in = $this->getMock('ConsoleInput', [], [], '', false);
+        $this->Task = $this->getMock(
+            'ExtractTask',
+            ['_isExtractingApp', 'in', 'out', 'err', 'clear', '_stop'],
+            [$this->out, $this->out, $this->in],
+        );
+        $this->Task->expects($this->exactly(2))->method('_isExtractingApp')->will($this->returnValue(true));
+
+        $this->Task->params['paths'] = CAKE . 'Test' . DS . 'test_app' . DS;
+        $this->Task->params['output'] = $this->path . DS;
+        $this->Task->params['extract-core'] = 'no';
+        $this->Task->params['exclude-plugins'] = true;
+        $this->Task->params['ignore-model-validation'] = false;
+
+        $this->Task->execute();
+        $result = file_get_contents($this->path . DS . 'default.pot');
+        $this->assertStringContainsString('Model/PersisterOne.php:validation for field title', $result);
+        $this->assertStringContainsString('Model/PersisterOne.php:validation for field body', $result);
+        $this->assertStringContainsString('msgid "Post title is required"', $result);
+        $this->assertStringContainsString('msgid "You may enter up to %s chars (minimum is %s chars)"', $result);
+        $this->assertStringContainsString('msgid "Post body is required"', $result);
+        $this->assertStringContainsString('msgid "Post body is super required"', $result);
+        $this->assertStringContainsString('msgid "double \\"quoted\\" validation"', $result, 'Strings with quotes not handled correctly');
+        $this->assertStringContainsString("msgid \"single 'quoted' validation\"", $result, 'Strings with quotes not handled correctly');
+    }
+
+    /**
+     *  Tests that the task will inspect application models and extract the validation messages from them
+     *  while using a custom validation domain for the messages set on the model itself
+     *
+     * @return void
+     */
+    public function testExtractModelValidationWithDomainInModel()
+    {
+        App::build([
+            'Model' => [CAKE . 'Test' . DS . 'test_app' . DS . 'Plugin' . DS . 'TestPlugin' . DS . 'Model' . DS],
+        ]);
+        $this->out = $this->getMock('ConsoleOutput', [], [], '', false);
+        $this->in = $this->getMock('ConsoleInput', [], [], '', false);
+        $this->Task = $this->getMock(
+            'ExtractTask',
+            ['_isExtractingApp', 'in', 'out', 'err', 'clear', '_stop'],
+            [$this->out, $this->out, $this->in],
+        );
+        $this->Task->expects($this->exactly(2))->method('_isExtractingApp')->will($this->returnValue(true));
+
+        $this->Task->params['paths'] = CAKE . 'Test' . DS . 'test_app' . DS;
+        $this->Task->params['output'] = $this->path . DS;
+        $this->Task->params['extract-core'] = 'no';
+        $this->Task->params['exclude-plugins'] = true;
+        $this->Task->params['ignore-model-validation'] = false;
+
+        $this->Task->execute();
+        $result = file_get_contents($this->path . DS . 'test_plugin.pot');
+        $this->assertStringContainsString('Plugin/TestPlugin/Model/TestPluginPost.php:validation for field title', $result);
+        $this->assertStringContainsString('Plugin/TestPlugin/Model/TestPluginPost.php:validation for field body', $result);
+        $this->assertStringContainsString('msgid "Post title is required"', $result);
+        $this->assertStringContainsString('msgid "Post body is required"', $result);
+        $this->assertStringContainsString('msgid "Post body is super required"', $result);
+    }
+
+    /**
+     *  Test that the extract shell can obtain validation messages from models inside a specific plugin
+     *
+     * @return void
+     */
+    public function testExtractModelValidationInPlugin()
+    {
+        App::build([
+            'Plugin' => [CAKE . 'Test' . DS . 'test_app' . DS . 'Plugin' . DS],
+        ]);
+        $this->out = $this->getMock('ConsoleOutput', [], [], '', false);
+        $this->in = $this->getMock('ConsoleInput', [], [], '', false);
+        $this->Task = $this->getMock(
+            'ExtractTask',
+            ['_isExtractingApp', 'in', 'out', 'err', 'clear', '_stop'],
+            [$this->out, $this->out, $this->in],
+        );
+
+        $this->Task->params['output'] = $this->path . DS;
+        $this->Task->params['ignore-model-validation'] = false;
+        $this->Task->params['plugin'] = 'TestPlugin';
+
+        $this->Task->execute();
+        $result = file_get_contents($this->path . DS . 'test_plugin.pot');
+        $this->assertStringContainsString('Model/TestPluginPost.php:validation for field title', $result);
+        $this->assertStringContainsString('Model/TestPluginPost.php:validation for field body', $result);
+        $this->assertStringContainsString('msgid "Post title is required"', $result);
+        $this->assertStringContainsString('msgid "Post body is required"', $result);
+        $this->assertStringContainsString('msgid "Post body is super required"', $result);
+        $this->assertStringNotContainsString('Plugin/TestPlugin/Model/TestPluginPost.php:validation for field title', $result);
+    }
+
+    /**
+     *  Test that the extract shell overwrites existing files with the overwrite parameter
+     *
+     * @return void
+     */
+    public function testExtractOverwrite()
+    {
+        $this->Task->interactive = false;
+
+        $this->Task->params['paths'] = CAKE . 'Test' . DS . 'test_app' . DS;
+        $this->Task->params['output'] = $this->path . DS;
+        $this->Task->params['extract-core'] = 'no';
+        $this->Task->params['overwrite'] = true;
+
+        file_put_contents($this->path . DS . 'default.pot', 'will be overwritten');
+        $this->assertTrue(file_exists($this->path . DS . 'default.pot'));
+        $original = file_get_contents($this->path . DS . 'default.pot');
+
+        $this->Task->execute();
+        $result = file_get_contents($this->path . DS . 'default.pot');
+        $this->assertNotEquals($original, $result);
+    }
+
+    /**
+     *  Test that the extract shell scans the core libs
+     *
+     * @return void
+     */
+    public function testExtractCore()
+    {
+        $this->Task->interactive = false;
+
+        $this->Task->params['paths'] = CAKE . 'Test' . DS . 'test_app' . DS;
+        $this->Task->params['output'] = $this->path . DS;
+        $this->Task->params['extract-core'] = 'yes';
+
+        $this->Task->execute();
+        $this->assertTrue(file_exists($this->path . DS . 'cake.pot'));
+        $result = file_get_contents($this->path . DS . 'cake.pot');
+
+        $pattern = '/msgid "Yesterday, %s"\nmsgstr ""\n/';
+        $this->assertMatchesRegularExpression($pattern, $result);
+
+        $this->assertTrue(file_exists($this->path . DS . 'cake_dev.pot'));
+        $result = file_get_contents($this->path . DS . 'cake_dev.pot');
+
+        $pattern = '/#: Console\/Templates\//';
+        $this->assertDoesNotMatchRegularExpression($pattern, $result);
+
+        $pattern = '/#: Test\//';
+        $this->assertDoesNotMatchRegularExpression($pattern, $result);
+    }
 }

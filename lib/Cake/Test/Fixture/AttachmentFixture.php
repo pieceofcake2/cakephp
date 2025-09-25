@@ -21,27 +21,27 @@
  *
  * @package       Cake.Test.Fixture
  */
-class AttachmentFixture extends CakeTestFixture {
+class AttachmentFixture extends CakeTestFixture
+{
+    /**
+     * fields property
+     *
+     * @var array
+     */
+    public $fields = [
+        'id' => ['type' => 'integer', 'key' => 'primary'],
+        'comment_id' => ['type' => 'integer', 'null' => false],
+        'attachment' => ['type' => 'string', 'null' => false],
+        'created' => 'datetime',
+        'updated' => 'datetime',
+    ];
 
-/**
- * fields property
- *
- * @var array
- */
-	public $fields = [
-		'id' => ['type' => 'integer', 'key' => 'primary'],
-		'comment_id' => ['type' => 'integer', 'null' => false],
-		'attachment' => ['type' => 'string', 'null' => false],
-		'created' => 'datetime',
-		'updated' => 'datetime'
-	];
-
-/**
- * records property
- *
- * @var array
- */
-	public $records = [
-		['comment_id' => 5, 'attachment' => 'attachment.zip', 'created' => '2007-03-18 10:51:23', 'updated' => '2007-03-18 10:53:31']
-	];
+    /**
+     * records property
+     *
+     * @var array
+     */
+    public $records = [
+        ['comment_id' => 5, 'attachment' => 'attachment.zip', 'created' => '2007-03-18 10:51:23', 'updated' => '2007-03-18 10:53:31'],
+    ];
 }

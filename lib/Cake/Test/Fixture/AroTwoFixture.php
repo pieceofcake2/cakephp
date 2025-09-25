@@ -21,38 +21,38 @@
  *
  * @package       Cake.Test.Fixture
  */
-class AroTwoFixture extends CakeTestFixture {
+class AroTwoFixture extends CakeTestFixture
+{
+    /**
+     * fields property
+     *
+     * @var array
+     */
+    public $fields = [
+        'id' => ['type' => 'integer', 'key' => 'primary'],
+        'parent_id' => ['type' => 'integer', 'length' => 10, 'null' => true],
+        'model' => ['type' => 'string', 'null' => true],
+        'foreign_key' => ['type' => 'integer', 'length' => 10, 'null' => true],
+        'alias' => ['type' => 'string', 'default' => ''],
+        'lft' => ['type' => 'integer', 'length' => 10, 'null' => true],
+        'rght' => ['type' => 'integer', 'length' => 10, 'null' => true],
+    ];
 
-/**
- * fields property
- *
- * @var array
- */
-	public $fields = [
-		'id' => ['type' => 'integer', 'key' => 'primary'],
-		'parent_id' => ['type' => 'integer', 'length' => 10, 'null' => true],
-		'model' => ['type' => 'string', 'null' => true],
-		'foreign_key' => ['type' => 'integer', 'length' => 10, 'null' => true],
-		'alias' => ['type' => 'string', 'default' => ''],
-		'lft' => ['type' => 'integer', 'length' => 10, 'null' => true],
-		'rght' => ['type' => 'integer', 'length' => 10, 'null' => true]
-	];
-
-/**
- * records property
- *
- * @var array
- */
-	public $records = [
-		['parent_id' => null, 'model' => null, 'foreign_key' => null, 'alias' => 'root', 'lft' => '1', 'rght' => '20'],
-		['parent_id' => 1, 'model' => 'Group', 'foreign_key' => '1', 'alias' => 'admin', 'lft' => '2', 'rght' => '5'],
-		['parent_id' => 1, 'model' => 'Group', 'foreign_key' => '2', 'alias' => 'managers', 'lft' => '6', 'rght' => '9'],
-		['parent_id' => 1, 'model' => 'Group', 'foreign_key' => '3', 'alias' => 'users', 'lft' => '10', 'rght' => '19'],
-		['parent_id' => 2, 'model' => 'User', 'foreign_key' => '1', 'alias' => 'Bobs', 'lft' => '3', 'rght' => '4'],
-		['parent_id' => 3, 'model' => 'User', 'foreign_key' => '2', 'alias' => 'Lumbergh', 'lft' => '7', 'rght' => '8'],
-		['parent_id' => 4, 'model' => 'User', 'foreign_key' => '3', 'alias' => 'Samir', 'lft' => '11', 'rght' => '12'],
-		['parent_id' => 4, 'model' => 'User', 'foreign_key' => '4', 'alias' => 'Micheal', 'lft' => '13', 'rght' => '14'],
-		['parent_id' => 4, 'model' => 'User', 'foreign_key' => '5', 'alias' => 'Peter', 'lft' => '15', 'rght' => '16'],
-		['parent_id' => 4, 'model' => 'User', 'foreign_key' => '6', 'alias' => 'Milton', 'lft' => '17', 'rght' => '18'],
-	];
+    /**
+     * records property
+     *
+     * @var array
+     */
+    public $records = [
+        ['parent_id' => null, 'model' => null, 'foreign_key' => null, 'alias' => 'root', 'lft' => '1', 'rght' => '20'],
+        ['parent_id' => 1, 'model' => 'Group', 'foreign_key' => '1', 'alias' => 'admin', 'lft' => '2', 'rght' => '5'],
+        ['parent_id' => 1, 'model' => 'Group', 'foreign_key' => '2', 'alias' => 'managers', 'lft' => '6', 'rght' => '9'],
+        ['parent_id' => 1, 'model' => 'Group', 'foreign_key' => '3', 'alias' => 'users', 'lft' => '10', 'rght' => '19'],
+        ['parent_id' => 2, 'model' => 'User', 'foreign_key' => '1', 'alias' => 'Bobs', 'lft' => '3', 'rght' => '4'],
+        ['parent_id' => 3, 'model' => 'User', 'foreign_key' => '2', 'alias' => 'Lumbergh', 'lft' => '7', 'rght' => '8'],
+        ['parent_id' => 4, 'model' => 'User', 'foreign_key' => '3', 'alias' => 'Samir', 'lft' => '11', 'rght' => '12'],
+        ['parent_id' => 4, 'model' => 'User', 'foreign_key' => '4', 'alias' => 'Micheal', 'lft' => '13', 'rght' => '14'],
+        ['parent_id' => 4, 'model' => 'User', 'foreign_key' => '5', 'alias' => 'Peter', 'lft' => '15', 'rght' => '16'],
+        ['parent_id' => 4, 'model' => 'User', 'foreign_key' => '6', 'alias' => 'Milton', 'lft' => '17', 'rght' => '18'],
+    ];
 }

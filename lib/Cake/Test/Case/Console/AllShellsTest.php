@@ -25,19 +25,21 @@ use PHPUnit\Framework\TestSuite;
  *
  * @package       Cake.Test.Case.Console
  */
-class AllShellsTest extends TestSuite {
+class AllShellsTest extends TestSuite
+{
+    /**
+     * suite method, defines tests for this suite.
+     *
+     * @return void
+     */
+    public static function suite()
+    {
+        $suite = new CakeTestSuite('All shell classes');
 
-/**
- * suite method, defines tests for this suite.
- *
- * @return void
- */
-	public static function suite() {
-		$suite = new CakeTestSuite('All shell classes');
+        $path = CORE_TEST_CASES . DS . 'Console' . DS . 'Command' . DS;
 
-		$path = CORE_TEST_CASES . DS . 'Console' . DS . 'Command' . DS;
+        $suite->addTestDirectory($path);
 
-		$suite->addTestDirectory($path);
-		return $suite;
-	}
+        return $suite;
+    }
 }

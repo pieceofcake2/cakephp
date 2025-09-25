@@ -23,43 +23,43 @@
  *
  * @package       Cake.Test.Fixture
  */
-class UnsignedFixture extends CakeTestFixture {
+class UnsignedFixture extends CakeTestFixture
+{
+    /**
+     * table property
+     *
+     * @var array
+     */
+    public $table = 'unsigned';
 
-/**
- * table property
- *
- * @var array
- */
-	public $table = 'unsigned';
+    /**
+     * fields property
+     *
+     * @var array
+     */
+    public $fields = [
+        'uinteger' => ['type' => 'integer', 'null' => '', 'default' => '1', 'length' => '8', 'key' => 'primary', 'unsigned' => true],
+        'integer' => ['type' => 'integer', 'length' => '8', 'unsigned' => false],
+        'usmallinteger' => ['type' => 'smallinteger', 'unsigned' => true],
+        'smallinteger' => ['type' => 'smallinteger', 'unsigned' => false],
+        'utinyinteger' => ['type' => 'tinyinteger', 'unsigned' => true],
+        'tinyinteger' => ['type' => 'tinyinteger', 'unsigned' => false],
+        'udecimal' => ['type' => 'decimal', 'length' => '4', 'unsigned' => true],
+        'decimal' => ['type' => 'decimal', 'length' => '4'],
+        'biginteger' => ['type' => 'biginteger', 'length' => '20', 'default' => 3],
+        'ubiginteger' => ['type' => 'biginteger', 'length' => '20', 'default' => 3, 'unsigned' => true],
+        'float' => ['type' => 'float', 'length' => '4'],
+        'ufloat' => ['type' => 'float', 'length' => '4', 'unsigned' => true],
+        'string' => ['type' => 'string', 'length' => '4'],
+        'tableParameters' => [
+            'engine' => 'MyISAM',
+        ],
+    ];
 
-/**
- * fields property
- *
- * @var array
- */
-	public $fields = [
-		'uinteger' => ['type' => 'integer', 'null' => '', 'default' => '1', 'length' => '8', 'key' => 'primary', 'unsigned' => true],
-		'integer' => ['type' => 'integer', 'length' => '8', 'unsigned' => false],
-		'usmallinteger' => ['type' => 'smallinteger', 'unsigned' => true],
-		'smallinteger' => ['type' => 'smallinteger', 'unsigned' => false],
-		'utinyinteger' => ['type' => 'tinyinteger', 'unsigned' => true],
-		'tinyinteger' => ['type' => 'tinyinteger', 'unsigned' => false],
-		'udecimal' => ['type' => 'decimal', 'length' => '4', 'unsigned' => true],
-		'decimal' => ['type' => 'decimal', 'length' => '4'],
-		'biginteger' => ['type' => 'biginteger', 'length' => '20', 'default' => 3],
-		'ubiginteger' => ['type' => 'biginteger', 'length' => '20', 'default' => 3, 'unsigned' => true],
-		'float' => ['type' => 'float', 'length' => '4'],
-		'ufloat' => ['type' => 'float', 'length' => '4', 'unsigned' => true],
-		'string' => ['type' => 'string', 'length' => '4'],
-		'tableParameters' => [
-			'engine' => 'MyISAM'
-		]
-	];
-
-/**
- * records property
- *
- * @var array
- */
-	public $records = [];
+    /**
+     * records property
+     *
+     * @var array
+     */
+    public $records = [];
 }

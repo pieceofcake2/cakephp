@@ -25,21 +25,23 @@ use PHPUnit\Framework\TestSuite;
  *
  * @package       Cake.Test.Case
  */
-class AllRoutingTest extends TestSuite {
+class AllRoutingTest extends TestSuite
+{
+    /**
+     * suite method, defines tests for this suite.
+     *
+     * @return void
+     */
+    public static function suite()
+    {
+        $suite = new CakeTestSuite('All Routing class tests');
 
-/**
- * suite method, defines tests for this suite.
- *
- * @return void
- */
-	public static function suite() {
-		$suite = new CakeTestSuite('All Routing class tests');
+        $libs = CORE_TEST_CASES . DS;
 
-		$libs = CORE_TEST_CASES . DS;
+        $suite->addTestDirectory($libs . 'Routing');
+        $suite->addTestDirectory($libs . 'Routing' . DS . 'Route');
+        $suite->addTestDirectory($libs . 'Routing' . DS . 'Filter');
 
-		$suite->addTestDirectory($libs . 'Routing');
-		$suite->addTestDirectory($libs . 'Routing' . DS . 'Route');
-		$suite->addTestDirectory($libs . 'Routing' . DS . 'Filter');
-		return $suite;
-	}
+        return $suite;
+    }
 }

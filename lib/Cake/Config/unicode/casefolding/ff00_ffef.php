@@ -14,7 +14,6 @@
  * Licensed under The MIT License
  * For full copyright and license information, please see the LICENSE.txt
  * Redistributions of files must retain the above copyright notice.
- *
  * @copyright     Copyright (c) Cake Software Foundation, Inc. (https://cakefoundation.org)
  * @link          https://cakephp.org CakePHP(tm) Project
  * @package       Cake.Config.unicode.casefolding
@@ -27,7 +26,7 @@
  *
  * The lower filed is an array of the decimal values that form the lower case version of a character.
  *
- *	The status field is:
+ *  The status field is:
  * C: common case folding, common mappings shared by both simple and full mappings.
  * F: full case folding, mappings that cause strings to grow in length. Multiple characters are separated by spaces.
  * S: simple case folding, mappings to single characters where different from F.

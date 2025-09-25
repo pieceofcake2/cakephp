@@ -22,18 +22,18 @@
  * @uses          CakeTestFixture
  * @package       Cake.Test.Fixture
  */
-class UuidTreeFixture extends CakeTestFixture {
-
-/**
- * fields property
- *
- * @var array
- */
-	public $fields = [
-		'id'	=> ['type' => 'string', 'length' => 36, 'key' => 'primary'],
-		'name'	=> ['type' => 'string', 'null' => false],
-		'parent_id' => ['type' => 'string', 'length' => 36, 'null' => true],
-		'lft'	=> ['type' => 'integer', 'null' => false],
-		'rght'	=> ['type' => 'integer', 'null' => false]
-	];
+class UuidTreeFixture extends CakeTestFixture
+{
+    /**
+     * fields property
+     *
+     * @var array
+     */
+    public $fields = [
+        'id' => ['type' => 'string', 'length' => 36, 'key' => 'primary'],
+        'name' => ['type' => 'string', 'null' => false],
+        'parent_id' => ['type' => 'string', 'length' => 36, 'null' => true],
+        'lft' => ['type' => 'integer', 'null' => false],
+        'rght' => ['type' => 'integer', 'null' => false],
+    ];
 }

@@ -21,32 +21,32 @@
  *
  * @package       Cake.Test.Fixture
  */
-class ContentAccountFixture extends CakeTestFixture {
+class ContentAccountFixture extends CakeTestFixture
+{
+    public $table = 'ContentAccounts';
 
-	public $table = 'ContentAccounts';
+    /**
+     * fields property
+     *
+     * @var array
+     */
+    public $fields = [
+        'iContentAccountsId' => ['type' => 'integer', 'key' => 'primary'],
+        'iContentId' => ['type' => 'integer'],
+        'iAccountId' => ['type' => 'integer'],
+    ];
 
-/**
- * fields property
- *
- * @var array
- */
-	public $fields = [
-		'iContentAccountsId' => ['type' => 'integer', 'key' => 'primary'],
-		'iContentId' => ['type' => 'integer'],
-		'iAccountId' => ['type' => 'integer']
-	];
-
-/**
- * records property
- *
- * @var array
- */
-	public $records = [
-		['iContentId' => 1, 'iAccountId' => 1],
-		['iContentId' => 2, 'iAccountId' => 2],
-		['iContentId' => 3, 'iAccountId' => 3],
-		['iContentId' => 4, 'iAccountId' => 4],
-		['iContentId' => 1, 'iAccountId' => 2],
-		['iContentId' => 2, 'iAccountId' => 3],
-	];
+    /**
+     * records property
+     *
+     * @var array
+     */
+    public $records = [
+        ['iContentId' => 1, 'iAccountId' => 1],
+        ['iContentId' => 2, 'iAccountId' => 2],
+        ['iContentId' => 3, 'iAccountId' => 3],
+        ['iContentId' => 4, 'iAccountId' => 4],
+        ['iContentId' => 1, 'iAccountId' => 2],
+        ['iContentId' => 2, 'iAccountId' => 3],
+    ];
 }

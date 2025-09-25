@@ -1,4 +1,4 @@
-name: Tests
+name: CI
 
 on:
   push:
@@ -13,7 +13,7 @@ permissions:
   id-token: write
 
 jobs:
-  linux-tests:
+  phpunit:
     runs-on: ubuntu-latest
 
     strategy:
@@ -168,7 +168,7 @@ jobs:
             ${{ runner.os }}-php${{ matrix.php-version }}-composer-
 
       - name: Install Composer Packages
-        run: composer install --no-ansi --no-interaction --no-progress
+        run: composer install --prefer-dist --no-interaction --no-progress
 
       - name: Copy database.php
         run: cp ./lib/Cake/Test/Config/database.php ./app/Config/
@@ -206,3 +206,32 @@ jobs:
       - name: Stop PostgreSQL 9.4
         if: always() && matrix.db-type == 'pgsql'
         run: docker stop postgres94 && docker rm postgres94 || true
+
+  phpcs:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+
+      - name: Composer get cache directory
+        id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+
+      - name: Cache Composer
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-php8.4-composer-${{ hashFiles('**/composer.json') }}
+          restore-keys: |
+            ${{ runner.os }}-php8.4-composer-
+
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-interaction --no-progress
+
+      - name: Run static type analysis
+        run: ./vendors/bin/phpcs

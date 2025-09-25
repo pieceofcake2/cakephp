@@ -25,101 +25,110 @@
  *
  * @package Cake.TestSuite
  */
-class CakeTestLoader extends PHPUnit_Runner_StandardTestSuiteLoader {
+class CakeTestLoader extends PHPUnit_Runner_StandardTestSuiteLoader
+{
+    /**
+     * Load a file and find the first test case / suite in that file.
+     *
+     * @param string $filePath The file path to load
+     * @param string $params Additional parameters
+     * @return ReflectionClass
+     */
+    public function load($filePath, $params = '')
+    {
+        $file = $this->_resolveTestFile($filePath, $params);
 
-/**
- * Load a file and find the first test case / suite in that file.
- *
- * @param string $filePath The file path to load
- * @param string $params Additional parameters
- * @return ReflectionClass
- */
-	public function load($filePath, $params = '') {
-		$file = $this->_resolveTestFile($filePath, $params);
-		return parent::load('', $file);
-	}
+        return parent::load('', $file);
+    }
 
-/**
- * Convert path fragments used by CakePHP's test runner to absolute paths that can be fed to PHPUnit.
- *
- * @param string $filePath The file path to load.
- * @param string $params Additional parameters.
- * @return string Converted path fragments.
- */
-	protected function _resolveTestFile($filePath, $params) {
-		$basePath = static::_basePath($params) . DS . $filePath;
-		$ending = 'Test.php';
-		return (strpos($basePath, $ending) === (strlen($basePath) - strlen($ending))) ? $basePath : $basePath . $ending;
-	}
+    /**
+     * Convert path fragments used by CakePHP's test runner to absolute paths that can be fed to PHPUnit.
+     *
+     * @param string $filePath The file path to load.
+     * @param string $params Additional parameters.
+     * @return string Converted path fragments.
+     */
+    protected function _resolveTestFile($filePath, $params)
+    {
+        $basePath = static::_basePath($params) . DS . $filePath;
+        $ending = 'Test.php';
 
-/**
- * Generates the base path to a set of tests based on the parameters.
- *
- * @param array $params The path parameters.
- * @return string The base path.
- */
-	protected static function _basePath($params) {
-		$result = null;
-		if (!empty($params['core'])) {
-			$result = CORE_TEST_CASES;
-		} elseif (!empty($params['plugin'])) {
-			if (!CakePlugin::loaded($params['plugin'])) {
-				try {
-					CakePlugin::load($params['plugin']);
-					$result = CakePlugin::path($params['plugin']) . 'Test' . DS . 'Case';
-				} catch (MissingPluginException) {
-				}
-			} else {
-				$result = CakePlugin::path($params['plugin']) . 'Test' . DS . 'Case';
-			}
-		} elseif (!empty($params['app'])) {
-			$result = APP_TEST_CASES;
-		}
-		return $result;
-	}
+        return strpos($basePath, $ending) === strlen($basePath) - strlen($ending) ? $basePath : $basePath . $ending;
+    }
 
-/**
- * Get the list of files for the test listing.
- *
- * @param string $params Path parameters
- * @return array
- */
-	public static function generateTestList($params) {
-		$directory = static::_basePath($params);
-		$fileList = static::_getRecursiveFileList($directory);
+    /**
+     * Generates the base path to a set of tests based on the parameters.
+     *
+     * @param array $params The path parameters.
+     * @return string The base path.
+     */
+    protected static function _basePath($params)
+    {
+        $result = null;
+        if (!empty($params['core'])) {
+            $result = CORE_TEST_CASES;
+        } elseif (!empty($params['plugin'])) {
+            if (!CakePlugin::loaded($params['plugin'])) {
+                try {
+                    CakePlugin::load($params['plugin']);
+                    $result = CakePlugin::path($params['plugin']) . 'Test' . DS . 'Case';
+                } catch (MissingPluginException) {
+                }
+            } else {
+                $result = CakePlugin::path($params['plugin']) . 'Test' . DS . 'Case';
+            }
+        } elseif (!empty($params['app'])) {
+            $result = APP_TEST_CASES;
+        }
 
-		$testCases = [];
-		foreach ($fileList as $testCaseFile) {
-			$case = str_replace($directory . DS, '', $testCaseFile);
-			$case = str_replace('Test.php', '', $case);
-			$testCases[$testCaseFile] = $case;
-		}
-		sort($testCases);
-		return $testCases;
-	}
+        return $result;
+    }
 
-/**
- * Gets a recursive list of files from a given directory and matches then against
- * a given fileTestFunction, like isTestCaseFile()
- *
- * @param string $directory The directory to scan for files.
- * @return array
- */
-	protected static function _getRecursiveFileList($directory = '.') {
-		$fileList = [];
-		if (!is_dir($directory)) {
-			return $fileList;
-		}
+    /**
+     * Get the list of files for the test listing.
+     *
+     * @param string $params Path parameters
+     * @return array
+     */
+    public static function generateTestList($params)
+    {
+        $directory = static::_basePath($params);
+        $fileList = static::_getRecursiveFileList($directory);
 
-		$files = new RegexIterator(
-			new RecursiveIteratorIterator(new RecursiveDirectoryIterator($directory)),
-			'/.*Test.php$/'
-		);
+        $testCases = [];
+        foreach ($fileList as $testCaseFile) {
+            $case = str_replace($directory . DS, '', $testCaseFile);
+            $case = str_replace('Test.php', '', $case);
+            $testCases[$testCaseFile] = $case;
+        }
+        sort($testCases);
 
-		foreach ($files as $file) {
-			$fileList[] = $file->getPathname();
-		}
-		return $fileList;
-	}
+        return $testCases;
+    }
 
+    /**
+     * Gets a recursive list of files from a given directory and matches then against
+     * a given fileTestFunction, like isTestCaseFile()
+     *
+     * @param string $directory The directory to scan for files.
+     * @return array
+     */
+    protected static function _getRecursiveFileList($directory = '.')
+    {
+        $fileList = [];
+        if (!is_dir($directory)) {
+            return $fileList;
+        }
+
+        $files = new RegexIterator(
+            new RecursiveIteratorIterator(new RecursiveDirectoryIterator($directory)),
+            '/.*Test.php$/',
+        );
+
+        foreach ($files as $file) {
+            $fileList[] = $file->getPathname();
+        }
+
+        return $fileList;
+    }
 }

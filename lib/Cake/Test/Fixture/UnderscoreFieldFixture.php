@@ -21,31 +21,30 @@
  *
  * @package       Cake.Test.Fixture
  */
-class UnderscoreFieldFixture extends CakeTestFixture {
+class UnderscoreFieldFixture extends CakeTestFixture
+{
+    /**
+     * fields property
+     *
+     * @var array
+     */
+    public $fields = [
+        'id' => ['type' => 'integer', 'key' => 'primary'],
+        'user_id' => ['type' => 'integer', 'null' => false],
+        'my_model_has_a_field' => ['type' => 'string', 'null' => false],
+        'body_field' => 'text',
+        'published' => ['type' => 'string', 'length' => 1, 'default' => 'N'],
+        'another_field' => ['type' => 'integer', 'length' => 3],
+    ];
 
-/**
- * fields property
- *
- * @var array
- */
-	public $fields = [
-		'id' => ['type' => 'integer', 'key' => 'primary'],
-		'user_id' => ['type' => 'integer', 'null' => false],
-		'my_model_has_a_field' => ['type' => 'string', 'null' => false],
-		'body_field' => 'text',
-		'published' => ['type' => 'string', 'length' => 1, 'default' => 'N'],
-		'another_field' => ['type' => 'integer', 'length' => 3],
-	];
-
-/**
- * records property
- *
- * @var array
- */
-	public $records = [
-		['user_id' => 1, 'my_model_has_a_field' => 'First Article', 'body_field' => 'First Article Body', 'published' => 'Y', 'another_field' => 2],
-		['user_id' => 3, 'my_model_has_a_field' => 'Second Article', 'body_field' => 'Second Article Body', 'published' => 'Y', 'another_field' => 3],
-		['user_id' => 1, 'my_model_has_a_field' => 'Third Article', 'body_field' => 'Third Article Body', 'published' => 'Y', 'another_field' => 5],
-	];
-
+    /**
+     * records property
+     *
+     * @var array
+     */
+    public $records = [
+        ['user_id' => 1, 'my_model_has_a_field' => 'First Article', 'body_field' => 'First Article Body', 'published' => 'Y', 'another_field' => 2],
+        ['user_id' => 3, 'my_model_has_a_field' => 'Second Article', 'body_field' => 'Second Article Body', 'published' => 'Y', 'another_field' => 3],
+        ['user_id' => 1, 'my_model_has_a_field' => 'Third Article', 'body_field' => 'Third Article Body', 'published' => 'Y', 'another_field' => 5],
+    ];
 }

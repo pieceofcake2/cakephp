@@ -21,25 +21,25 @@
  *
  * @package       Cake.Test.Fixture
  */
-class StoryFixture extends CakeTestFixture {
+class StoryFixture extends CakeTestFixture
+{
+    /**
+     * fields property
+     *
+     * @var array
+     */
+    public $fields = [
+        'story' => ['type' => 'integer', 'key' => 'primary'],
+        'title' => ['type' => 'string', 'null' => false],
+    ];
 
-/**
- * fields property
- *
- * @var array
- */
-	public $fields = [
-		'story' => ['type' => 'integer', 'key' => 'primary'],
-		'title' => ['type' => 'string', 'null' => false]
-	];
-
-/**
- * records property
- *
- * @var array
- */
-	public $records = [
-		['title' => 'First Story'],
-		['title' => 'Second Story']
-	];
+    /**
+     * records property
+     *
+     * @var array
+     */
+    public $records = [
+        ['title' => 'First Story'],
+        ['title' => 'Second Story'],
+    ];
 }

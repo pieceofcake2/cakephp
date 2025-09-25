@@ -23,8 +23,8 @@ App::uses('ConsoleLog', 'Log/Engine');
  *
  * @package       Cake.Test.Case.Log.Engine
  */
-class TestConsoleLog extends ConsoleLog {
-
+class TestConsoleLog extends ConsoleLog
+{
 }
 
 /**
@@ -32,12 +32,12 @@ class TestConsoleLog extends ConsoleLog {
  *
  * @package       Cake.Test.Case.Log.Engine
  */
-class TestCakeLog extends CakeLog {
-
-	public static function replace($key, &$engine) {
-		static::$_Collection->{$key} = $engine;
-	}
-
+class TestCakeLog extends CakeLog
+{
+    public static function replace($key, &$engine)
+    {
+        static::$_Collection->{$key} = $engine;
+    }
 }
 
 /**
@@ -45,111 +45,116 @@ class TestCakeLog extends CakeLog {
  *
  * @package       Cake.Test.Case.Log.Engine
  */
-class ConsoleLogTest extends CakeTestCase {
+class ConsoleLogTest extends CakeTestCase
+{
+    public function setUp(): void
+    {
+        parent::setUp();
+        CakeLog::config('debug', [
+            'engine' => 'File',
+            'types' => ['notice', 'info', 'debug'],
+            'file' => 'debug',
+        ]);
+        CakeLog::config('error', [
+            'engine' => 'File',
+            'types' => ['error', 'warning'],
+            'file' => 'error',
+        ]);
+    }
 
-	public function setUp() : void {
-		parent::setUp();
-		CakeLog::config('debug', [
-			'engine' => 'File',
-			'types' => ['notice', 'info', 'debug'],
-			'file' => 'debug',
-		]);
-		CakeLog::config('error', [
-			'engine' => 'File',
-			'types' => ['error', 'warning'],
-			'file' => 'error',
-		]);
-	}
+    public function tearDown(): void
+    {
+        if (file_exists(LOGS . 'error.log')) {
+            unlink(LOGS . 'error.log');
+        }
+        if (file_exists(LOGS . 'debug.log')) {
+            unlink(LOGS . 'debug.log');
+        }
 
-	public function tearDown() : void {
-		if (file_exists(LOGS . 'error.log')) {
-			unlink(LOGS . 'error.log');
-		}
-		if (file_exists(LOGS . 'debug.log')) {
-			unlink(LOGS . 'debug.log');
-		}
+        parent::tearDown();
+    }
 
-		parent::tearDown();
-	}
+    /**
+     * Test writing to ConsoleOutput
+     *
+     * @return void
+     */
+    public function testConsoleOutputWrites()
+    {
+        TestCakeLog::config('test_console_log', [
+            'engine' => 'TestConsole',
+            ]);
 
-/**
- * Test writing to ConsoleOutput
- *
- * @return void
- */
-	public function testConsoleOutputWrites() {
-		TestCakeLog::config('test_console_log', [
-			'engine' => 'TestConsole',
-			]);
+        $mock = $this->getMock('TestConsoleLog', ['write'], [
+            ['types' => 'error'],
+            ]);
+        TestCakeLog::replace('test_console_log', $mock);
 
-		$mock = $this->getMock('TestConsoleLog', ['write'], [
-			['types' => 'error'],
-			]);
-		TestCakeLog::replace('test_console_log', $mock);
+        $message = 'Test error message';
+        $mock->expects($this->once())
+            ->method('write');
+        TestCakeLog::write(LOG_ERR, $message);
+    }
 
-		$message = 'Test error message';
-		$mock->expects($this->once())
-			->method('write');
-		TestCakeLog::write(LOG_ERR, $message);
-	}
+    /**
+     * Test logging to both ConsoleLog and FileLog
+     *
+     * @return void
+     */
+    public function testCombinedLogWriting()
+    {
+        TestCakeLog::config('test_console_log', [
+            'engine' => 'TestConsole',
+            ]);
+        $mock = $this->getMock('TestConsoleLog', ['write'], [
+            ['types' => 'error'],
+            ]);
+        TestCakeLog::replace('test_console_log', $mock);
 
-/**
- * Test logging to both ConsoleLog and FileLog
- *
- * @return void
- */
-	public function testCombinedLogWriting() {
-		TestCakeLog::config('test_console_log', [
-			'engine' => 'TestConsole',
-			]);
-		$mock = $this->getMock('TestConsoleLog', ['write'], [
-			['types' => 'error'],
-			]);
-		TestCakeLog::replace('test_console_log', $mock);
+        // log to both file and console
+        $message = 'Test error message';
+        $mock->expects($this->once())
+            ->method('write');
+        TestCakeLog::write(LOG_ERR, $message);
+        $this->assertTrue(file_exists(LOGS . 'error.log'), 'error.log missing');
+        $logOutput = file_get_contents(LOGS . 'error.log');
+        $this->assertStringContainsString($message, $logOutput);
 
-		// log to both file and console
-		$message = 'Test error message';
-		$mock->expects($this->once())
-			->method('write');
-		TestCakeLog::write(LOG_ERR, $message);
-		$this->assertTrue(file_exists(LOGS . 'error.log'), 'error.log missing');
-		$logOutput = file_get_contents(LOGS . 'error.log');
-		$this->assertStringContainsString($message, $logOutput);
+        // TestConsoleLog is only interested in `error` type
+        $message = 'Test info message';
+        $mock->expects($this->never())
+            ->method('write');
+        TestCakeLog::write(LOG_INFO, $message);
 
-		// TestConsoleLog is only interested in `error` type
-		$message = 'Test info message';
-		$mock->expects($this->never())
-			->method('write');
-		TestCakeLog::write(LOG_INFO, $message);
+        // checks that output is correctly written in the correct logfile
+        $this->assertTrue(file_exists(LOGS . 'error.log'), 'error.log missing');
+        $this->assertTrue(file_exists(LOGS . 'debug.log'), 'debug.log missing');
+        $logOutput = file_get_contents(LOGS . 'error.log');
+        $this->assertStringNotContainsString($message, $logOutput);
+        $logOutput = file_get_contents(LOGS . 'debug.log');
+        $this->assertStringContainsString($message, $logOutput);
+    }
 
-		// checks that output is correctly written in the correct logfile
-		$this->assertTrue(file_exists(LOGS . 'error.log'), 'error.log missing');
-		$this->assertTrue(file_exists(LOGS . 'debug.log'), 'debug.log missing');
-		$logOutput = file_get_contents(LOGS . 'error.log');
-		$this->assertStringNotContainsString($message, $logOutput);
-		$logOutput = file_get_contents(LOGS . 'debug.log');
-		$this->assertStringContainsString($message, $logOutput);
-	}
-
-/**
- * test default value of stream 'outputAs'
- *
- * @return void
- */
-	public function testDefaultOutputAs() {
-		TestCakeLog::config('test_console_log', [
-			'engine' => 'TestConsole',
-			]);
-		if ((DS === '\\' && !(bool)env('ANSICON') && env('ConEmuANSI') !== 'ON') ||
-			(function_exists('posix_isatty') && !posix_isatty(null))
-		) {
-			$expected = ConsoleOutput::PLAIN;
-		} else {
-			$expected = ConsoleOutput::COLOR;
-		}
-		$stream = TestCakeLog::stream('test_console_log');
-		$config = $stream->config();
-		$this->assertEquals($expected, $config['outputAs']);
-	}
-
+    /**
+     * test default value of stream 'outputAs'
+     *
+     * @return void
+     */
+    public function testDefaultOutputAs()
+    {
+        TestCakeLog::config('test_console_log', [
+            'engine' => 'TestConsole',
+            ]);
+        if (
+            (DS === '\\' && !(bool)env('ANSICON') && env('ConEmuANSI') !== 'ON') ||
+            (function_exists('posix_isatty') && !posix_isatty(null))
+        ) {
+            $expected = ConsoleOutput::PLAIN;
+        } else {
+            $expected = ConsoleOutput::COLOR;
+        }
+        $stream = TestCakeLog::stream('test_console_log');
+        $config = $stream->config();
+        $this->assertEquals($expected, $config['outputAs']);
+    }
 }

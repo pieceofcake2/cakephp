@@ -21,25 +21,25 @@
  *
  * @package       Cake.Test.Fixture
  */
-class ExteriorTypeCategoryFixture extends CakeTestFixture {
+class ExteriorTypeCategoryFixture extends CakeTestFixture
+{
+    /**
+     * fields property
+     *
+     * @var array
+     */
+    public $fields = [
+        'id' => ['type' => 'integer', 'key' => 'primary'],
+        'image_id' => ['type' => 'integer', 'null' => false],
+        'name' => ['type' => 'string', 'null' => false],
+    ];
 
-/**
- * fields property
- *
- * @var array
- */
-	public $fields = [
-		'id' => ['type' => 'integer', 'key' => 'primary'],
-		'image_id' => ['type' => 'integer', 'null' => false],
-		'name' => ['type' => 'string', 'null' => false]
-	];
-
-/**
- * records property
- *
- * @var array
- */
-	public $records = [
-		['image_id' => 1, 'name' => 'ExteriorTypeCategory 1']
-	];
+    /**
+     * records property
+     *
+     * @var array
+     */
+    public $records = [
+        ['image_id' => 1, 'name' => 'ExteriorTypeCategory 1'],
+    ];
 }

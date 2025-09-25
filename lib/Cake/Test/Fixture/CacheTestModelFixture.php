@@ -21,16 +21,16 @@
  *
  * @package       Cake.Test.Fixture
  */
-class CacheTestModelFixture extends CakeTestFixture {
-
-/**
- * fields property
- *
- * @var array
- */
-	public $fields = [
-		'id'		=> ['type' => 'string', 'length' => 255, 'key' => 'primary'],
-		'data'		=> ['type' => 'string', 'length' => 255, 'default' => ''],
-		'expires'	=> ['type' => 'integer', 'length' => 10, 'default' => '0'],
-	];
+class CacheTestModelFixture extends CakeTestFixture
+{
+    /**
+     * fields property
+     *
+     * @var array
+     */
+    public $fields = [
+        'id' => ['type' => 'string', 'length' => 255, 'key' => 'primary'],
+        'data' => ['type' => 'string', 'length' => 255, 'default' => ''],
+        'expires' => ['type' => 'integer', 'length' => 10, 'default' => '0'],
+    ];
 }

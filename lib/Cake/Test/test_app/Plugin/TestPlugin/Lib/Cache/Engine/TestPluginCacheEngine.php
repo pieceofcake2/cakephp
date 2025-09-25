@@ -21,29 +21,37 @@
  *
  * @package       Cake.Test.TestApp.Plugin.TestPlugin.Lib.Cache.Engine
  */
-class TestPluginCacheEngine extends CacheEngine {
+class TestPluginCacheEngine extends CacheEngine
+{
+    public function write($key, $value, $duration)
+    {
+    }
 
-	public function write($key, $value, $duration) {
-	}
+    public function read($key)
+    {
+    }
 
-	public function read($key) {
-	}
+    public function increment($key, $offset = 1)
+    {
+    }
 
-	public function increment($key, $offset = 1) {
-	}
+    public function decrement($key, $offset = 1)
+    {
+    }
 
-	public function decrement($key, $offset = 1) {
-	}
+    public function delete($key)
+    {
+    }
 
-	public function delete($key) {
-	}
+    public function clear($check)
+    {
+    }
 
-	public function clear($check) {
-	}
+    public function clearGroup($group)
+    {
+    }
 
-	public function clearGroup($group) {
-	}
-
-	public function add($key, $value, $duration) {
-	}
+    public function add($key, $value, $duration)
+    {
+    }
 }

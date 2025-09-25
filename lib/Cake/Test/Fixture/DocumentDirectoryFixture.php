@@ -21,24 +21,24 @@
  *
  * @package       Cake.Test.Fixture
  */
-class DocumentDirectoryFixture extends CakeTestFixture {
+class DocumentDirectoryFixture extends CakeTestFixture
+{
+    /**
+     * fields property
+     *
+     * @var array
+     */
+    public $fields = [
+        'id' => ['type' => 'integer', 'key' => 'primary'],
+        'name' => ['type' => 'string', 'null' => false],
+    ];
 
-/**
- * fields property
- *
- * @var array
- */
-	public $fields = [
-		'id' => ['type' => 'integer', 'key' => 'primary'],
-		'name' => ['type' => 'string', 'null' => false]
-	];
-
-/**
- * records property
- *
- * @var array
- */
-	public $records = [
-		['name' => 'DocumentDirectory 1']
-	];
+    /**
+     * records property
+     *
+     * @var array
+     */
+    public $records = [
+        ['name' => 'DocumentDirectory 1'],
+    ];
 }

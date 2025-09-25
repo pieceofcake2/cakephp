@@ -24,17 +24,17 @@ App::uses('Component', 'Controller');
  *
  * @package       Cake.Test.Case.Controller
  */
-class ParamTestComponent extends Component {
-
-/**
- * components property
- *
- * @var array
- */
-	public $components = [
-		'Apple' => ['enabled' => true],
-		'Banana' => ['config' => 'value'],
-	];
+class ParamTestComponent extends Component
+{
+    /**
+     * components property
+     *
+     * @var array
+     */
+    public $components = [
+        'Apple' => ['enabled' => true],
+        'Banana' => ['config' => 'value'],
+    ];
 }
 
 /**
@@ -42,15 +42,14 @@ class ParamTestComponent extends Component {
  *
  * @package       Cake.Test.Case.Controller
  */
-class ComponentTestController extends Controller {
-
-/**
- * uses property
- *
- * @var array
- */
-	public $uses = [];
-
+class ComponentTestController extends Controller
+{
+    /**
+     * uses property
+     *
+     * @var array
+     */
+    public $uses = [];
 }
 
 /**
@@ -58,32 +57,32 @@ class ComponentTestController extends Controller {
  *
  * @package       Cake.Test.Case.Controller
  */
-class AppleComponent extends Component {
+class AppleComponent extends Component
+{
+    /**
+     * components property
+     *
+     * @var array
+     */
+    public $components = ['Orange'];
 
-/**
- * components property
- *
- * @var array
- */
-	public $components = ['Orange'];
+    /**
+     * testName property
+     *
+     * @var mixed
+     */
+    public $testName = null;
 
-/**
- * testName property
- *
- * @var mixed
- */
-	public $testName = null;
-
-/**
- * startup method
- *
- * @param Controller $controller
- * @return void
- */
-	public function startup(Controller $controller) {
-		$this->testName = $controller->name;
-	}
-
+    /**
+     * startup method
+     *
+     * @param Controller $controller
+     * @return void
+     */
+    public function startup(Controller $controller)
+    {
+        $this->testName = $controller->name;
+    }
 }
 
 /**
@@ -91,36 +90,37 @@ class AppleComponent extends Component {
  *
  * @package       Cake.Test.Case.Controller
  */
-class OrangeComponent extends Component {
+class OrangeComponent extends Component
+{
+    /**
+     * components property
+     *
+     * @var array
+     */
+    public $components = ['Banana'];
 
-/**
- * components property
- *
- * @var array
- */
-	public $components = ['Banana'];
+    /**
+     * initialize method
+     *
+     * @param Controller $controller
+     * @return void
+     */
+    public function initialize(Controller $controller)
+    {
+        $this->Controller = $controller;
+        $this->Banana->testField = 'OrangeField';
+    }
 
-/**
- * initialize method
- *
- * @param Controller $controller
- * @return void
- */
-	public function initialize(Controller $controller) {
-		$this->Controller = $controller;
-		$this->Banana->testField = 'OrangeField';
-	}
-
-/**
- * startup method
- *
- * @param Controller $controller
- * @return string
- */
-	public function startup(Controller $controller) {
-		$controller->foo = 'pass';
-	}
-
+    /**
+     * startup method
+     *
+     * @param Controller $controller
+     * @return string
+     */
+    public function startup(Controller $controller)
+    {
+        $controller->foo = 'pass';
+    }
 }
 
 /**
@@ -128,25 +128,25 @@ class OrangeComponent extends Component {
  *
  * @package       Cake.Test.Case.Controller
  */
-class BananaComponent extends Component {
+class BananaComponent extends Component
+{
+    /**
+     * testField property
+     *
+     * @var string
+     */
+    public $testField = 'BananaField';
 
-/**
- * testField property
- *
- * @var string
- */
-	public $testField = 'BananaField';
-
-/**
- * startup method
- *
- * @param Controller $controller
- * @return string
- */
-	public function startup(Controller $controller) {
-		$controller->bar = 'fail';
-	}
-
+    /**
+     * startup method
+     *
+     * @param Controller $controller
+     * @return string
+     */
+    public function startup(Controller $controller)
+    {
+        $controller->bar = 'fail';
+    }
 }
 
 /**
@@ -154,14 +154,14 @@ class BananaComponent extends Component {
  *
  * @package       Cake.Test.Case.Controller
  */
-class MutuallyReferencingOneComponent extends Component {
-
-/**
- * components property
- *
- * @var array
- */
-	public $components = ['MutuallyReferencingTwo'];
+class MutuallyReferencingOneComponent extends Component
+{
+    /**
+     * components property
+     *
+     * @var array
+     */
+    public $components = ['MutuallyReferencingTwo'];
 }
 
 /**
@@ -169,14 +169,14 @@ class MutuallyReferencingOneComponent extends Component {
  *
  * @package       Cake.Test.Case.Controller
  */
-class MutuallyReferencingTwoComponent extends Component {
-
-/**
- * components property
- *
- * @var array
- */
-	public $components = ['MutuallyReferencingOne'];
+class MutuallyReferencingTwoComponent extends Component
+{
+    /**
+     * components property
+     *
+     * @var array
+     */
+    public $components = ['MutuallyReferencingOne'];
 }
 
 /**
@@ -184,14 +184,14 @@ class MutuallyReferencingTwoComponent extends Component {
  *
  * @package       Cake.Test.Case.Controller
  */
-class SomethingWithEmailComponent extends Component {
-
-/**
- * components property
- *
- * @var array
- */
-	public $components = ['Email'];
+class SomethingWithEmailComponent extends Component
+{
+    /**
+     * components property
+     *
+     * @var array
+     */
+    public $components = ['Email'];
 }
 
 /**
@@ -199,107 +199,113 @@ class SomethingWithEmailComponent extends Component {
  *
  * @package       Cake.Test.Case.Controller
  */
-class ComponentTest extends CakeTestCase {
+class ComponentTest extends CakeTestCase
+{
+    /**
+     * setUp method
+     *
+     * @return void
+     */
+    public function setUp(): void
+    {
+        parent::setUp();
+        $this->_pluginPaths = App::path('plugins');
+        App::build([
+            'Plugin' => [CAKE . 'Test' . DS . 'test_app' . DS . 'Plugin' . DS],
+        ]);
+    }
 
-/**
- * setUp method
- *
- * @return void
- */
-	public function setUp() : void {
-		parent::setUp();
-		$this->_pluginPaths = App::path('plugins');
-		App::build([
-			'Plugin' => [CAKE . 'Test' . DS . 'test_app' . DS . 'Plugin' . DS]
-		]);
-	}
+    /**
+     * test accessing inner components.
+     *
+     * @return void
+     */
+    public function testInnerComponentConstruction()
+    {
+        $Collection = new ComponentCollection();
+        $Component = new AppleComponent($Collection);
 
-/**
- * test accessing inner components.
- *
- * @return void
- */
-	public function testInnerComponentConstruction() {
-		$Collection = new ComponentCollection();
-		$Component = new AppleComponent($Collection);
+        $this->assertInstanceOf('OrangeComponent', $Component->Orange, 'class is wrong');
+    }
 
-		$this->assertInstanceOf('OrangeComponent', $Component->Orange, 'class is wrong');
-	}
+    /**
+     * test component loading
+     *
+     * @return void
+     */
+    public function testNestedComponentLoading()
+    {
+        $Collection = new ComponentCollection();
+        $Apple = new AppleComponent($Collection);
 
-/**
- * test component loading
- *
- * @return void
- */
-	public function testNestedComponentLoading() {
-		$Collection = new ComponentCollection();
-		$Apple = new AppleComponent($Collection);
+        $this->assertInstanceOf('OrangeComponent', $Apple->Orange, 'class is wrong');
+        $this->assertInstanceOf('BananaComponent', $Apple->Orange->Banana, 'class is wrong');
+        $this->assertTrue(empty($Apple->Session));
+        $this->assertTrue(empty($Apple->Orange->Session));
+    }
 
-		$this->assertInstanceOf('OrangeComponent', $Apple->Orange, 'class is wrong');
-		$this->assertInstanceOf('BananaComponent', $Apple->Orange->Banana, 'class is wrong');
-		$this->assertTrue(empty($Apple->Session));
-		$this->assertTrue(empty($Apple->Orange->Session));
-	}
+    /**
+     * test that component components are not enabled in the collection.
+     *
+     * @return void
+     */
+    public function testInnerComponentsAreNotEnabled()
+    {
+        $Collection = new ComponentCollection();
+        $Apple = $Collection->load('Apple');
 
-/**
- * test that component components are not enabled in the collection.
- *
- * @return void
- */
-	public function testInnerComponentsAreNotEnabled() {
-		$Collection = new ComponentCollection();
-		$Apple = $Collection->load('Apple');
+        $this->assertInstanceOf('OrangeComponent', $Apple->Orange, 'class is wrong');
+        $result = $Collection->enabled();
+        $this->assertEquals(['Apple'], $result, 'Too many components enabled.');
+    }
 
-		$this->assertInstanceOf('OrangeComponent', $Apple->Orange, 'class is wrong');
-		$result = $Collection->enabled();
-		$this->assertEquals(['Apple'], $result, 'Too many components enabled.');
-	}
+    /**
+     * test a component being used more than once.
+     *
+     * @return void
+     */
+    public function testMultipleComponentInitialize()
+    {
+        $Collection = new ComponentCollection();
+        $Banana = $Collection->load('Banana');
+        $Orange = $Collection->load('Orange');
 
-/**
- * test a component being used more than once.
- *
- * @return void
- */
-	public function testMultipleComponentInitialize() {
-		$Collection = new ComponentCollection();
-		$Banana = $Collection->load('Banana');
-		$Orange = $Collection->load('Orange');
+        $this->assertSame($Banana, $Orange->Banana, 'Should be references');
+        $Banana->testField = 'OrangeField';
 
-		$this->assertSame($Banana, $Orange->Banana, 'Should be references');
-		$Banana->testField = 'OrangeField';
+        $this->assertSame($Banana->testField, $Orange->Banana->testField, 'References are broken');
+    }
 
-		$this->assertSame($Banana->testField, $Orange->Banana->testField, 'References are broken');
-	}
+    /**
+     * Test mutually referencing components.
+     *
+     * @return void
+     */
+    public function testSomethingReferencingEmailComponent()
+    {
+        $Controller = new ComponentTestController();
+        $Controller->components = ['SomethingWithEmail'];
+        $Controller->uses = false;
+        $Controller->constructClasses();
+        $Controller->Components->trigger('initialize', [&$Controller]);
+        $Controller->beforeFilter();
+        $Controller->Components->trigger('startup', [&$Controller]);
 
-/**
- * Test mutually referencing components.
- *
- * @return void
- */
-	public function testSomethingReferencingEmailComponent() {
-		$Controller = new ComponentTestController();
-		$Controller->components = ['SomethingWithEmail'];
-		$Controller->uses = false;
-		$Controller->constructClasses();
-		$Controller->Components->trigger('initialize', [&$Controller]);
-		$Controller->beforeFilter();
-		$Controller->Components->trigger('startup', [&$Controller]);
+        $this->assertInstanceOf('SomethingWithEmailComponent', $Controller->SomethingWithEmail);
+        $this->assertInstanceOf('EmailComponent', $Controller->SomethingWithEmail->Email);
+    }
 
-		$this->assertInstanceOf('SomethingWithEmailComponent', $Controller->SomethingWithEmail);
-		$this->assertInstanceOf('EmailComponent', $Controller->SomethingWithEmail->Email);
-	}
-
-/**
- * Test lazy loading of components inside components and both explicit and
- * implicit 'enabled' setting.
- *
- * @return void
- */
-	public function testGet() {
-		$Collection = new ComponentCollection();
-		$ParamTest = $Collection->load('ParamTest');
-		$this->assertTrue($ParamTest->Apple->settings['enabled']);
-		$this->assertFalse($ParamTest->Banana->settings['enabled']);
-	}
-
+    /**
+     * Test lazy loading of components inside components and both explicit and
+     * implicit 'enabled' setting.
+     *
+     * @return void
+     */
+    public function testGet()
+    {
+        $Collection = new ComponentCollection();
+        $ParamTest = $Collection->load('ParamTest');
+        $this->assertTrue($ParamTest->Apple->settings['enabled']);
+        $this->assertFalse($ParamTest->Banana->settings['enabled']);
+    }
 }

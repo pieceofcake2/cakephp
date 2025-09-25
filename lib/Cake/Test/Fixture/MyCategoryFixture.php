@@ -21,26 +21,26 @@
  *
  * @package       Cake.Test.Fixture
  */
-class MyCategoryFixture extends CakeTestFixture {
+class MyCategoryFixture extends CakeTestFixture
+{
+    /**
+     * fields property
+     *
+     * @var array
+     */
+    public $fields = [
+        'id' => ['type' => 'integer', 'key' => 'primary'],
+        'name' => ['type' => 'string', 'null' => false],
+    ];
 
-/**
- * fields property
- *
- * @var array
- */
-	public $fields = [
-		'id' => ['type' => 'integer', 'key' => 'primary'],
-		'name' => ['type' => 'string', 'null' => false],
-	];
-
-/**
- * records property
- *
- * @var array
- */
-	public $records = [
-		['id' => 1, 'name' => 'A'],
-		['id' => 2, 'name' => 'B'],
-		['id' => 3, 'name' => 'C'],
-	];
+    /**
+     * records property
+     *
+     * @var array
+     */
+    public $records = [
+        ['id' => 1, 'name' => 'A'],
+        ['id' => 2, 'name' => 'B'],
+        ['id' => 3, 'name' => 'C'],
+    ];
 }

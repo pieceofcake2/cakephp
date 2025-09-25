@@ -21,27 +21,27 @@
  *
  * @package       Cake.Test.Fixture
  */
-class AdvertisementFixture extends CakeTestFixture {
+class AdvertisementFixture extends CakeTestFixture
+{
+    /**
+     * fields property
+     *
+     * @var array
+     */
+    public $fields = [
+        'id' => ['type' => 'integer', 'key' => 'primary'],
+        'title' => ['type' => 'string', 'null' => false],
+        'created' => 'datetime',
+        'updated' => 'datetime',
+    ];
 
-/**
- * fields property
- *
- * @var array
- */
-	public $fields = [
-		'id' => ['type' => 'integer', 'key' => 'primary'],
-		'title' => ['type' => 'string', 'null' => false],
-		'created' => 'datetime',
-		'updated' => 'datetime'
-	];
-
-/**
- * records property
- *
- * @var array
- */
-	public $records = [
-		['title' => 'First Ad', 'created' => '2007-03-18 10:39:23', 'updated' => '2007-03-18 10:41:31'],
-		['title' => 'Second Ad', 'created' => '2007-03-18 10:41:23', 'updated' => '2007-03-18 10:43:31']
-	];
+    /**
+     * records property
+     *
+     * @var array
+     */
+    public $records = [
+        ['title' => 'First Ad', 'created' => '2007-03-18 10:39:23', 'updated' => '2007-03-18 10:41:31'],
+        ['title' => 'Second Ad', 'created' => '2007-03-18 10:41:23', 'updated' => '2007-03-18 10:43:31'],
+    ];
 }
