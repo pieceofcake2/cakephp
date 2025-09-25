@@ -2,6 +2,18 @@
 
 ## v2.10.24.4 (Unreleased)
 
+### Code Quality
+
+- **PHP CodeSniffer Update**: Upgraded to CakePHP CodeSniffer 5.3 standards ([PR #8](https://github.com/friendsofcake2/cakephp/pull/8))
+  - Updated `cakephp/cakephp-codesniffer` from 1.0.0 to 5.3
+  - Created comprehensive `phpcs.xml` configuration for CakePHP 2.x compatibility
+  - Applied automatic code formatting fixes across 683 files using phpcbf
+  - Added exclusion rules for CakePHP 2.x specific patterns (App::uses, double underscore properties, etc.)
+  - Fixed switch statement fall-through issues with explicit comments
+  - Standardized array alignment using Generic.Formatting.MultipleStatementAlignment
+  - Added proper documentation to SessionHandlerAdapter class
+  - Configured appropriate exclusions for test files and deprecated functions
+
 ### Code Modernization
 
 - **PHP 8 Syntax Modernization**: Complete codebase modernization to PHP 8 syntax ([PR #7](https://github.com/friendsofcake2/cakephp/pull/7))
@@ -18,6 +30,7 @@
 
 - Added PHPStan for static analysis with CakePHP 2.x specific extension
 - Added Rector for automated PHP syntax modernization
+- Upgraded PHP CodeSniffer with CakePHP 5.3 standards
 - Configured development tools to be excluded from version control
 
 ## v2.10.24.3 (2025-09-24)
