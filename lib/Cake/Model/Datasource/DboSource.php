@@ -3448,7 +3448,6 @@ class DboSource extends DataSource
         if (isset($result[2])) {
             $length = $result[2];
         }
-        $sign = isset($result[3]);
 
         if ($length === null) {
             // prevent deprecation warnings

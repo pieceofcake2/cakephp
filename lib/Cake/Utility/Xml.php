@@ -147,7 +147,7 @@ class Xml
         }
         try {
             if ($options['return'] === 'simplexml' || $options['return'] === 'simplexmlelement') {
-                $xml = new SimpleXMLElement($input, LIBXML_NOCDATA);
+                $xml = new SimpleXMLElement($input, $flags);
             } else {
                 $xml = new DOMDocument();
                 $xml->loadXML($input);

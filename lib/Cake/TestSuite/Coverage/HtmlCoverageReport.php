@@ -64,7 +64,7 @@ HTML;
 
         $percentCovered = 100;
         if ($this->_total > 0) {
-            $percentCovered = round(100 * $this->_covered / $this->_total, 2);
+            $percentCovered = round(100 * $this->_covered / $this->_total, 2, PHP_ROUND_HALF_UP);
         }
         $output .= '<div class="total">Overall coverage: <span class="coverage">' . $percentCovered . '%</span></div>';
 
@@ -119,7 +119,7 @@ HTML;
 
         $percentCovered = 100;
         if ($total > 0) {
-            $percentCovered = round(100 * $covered / $total, 2);
+            $percentCovered = round(100 * $covered / $total, 2, PHP_ROUND_HALF_UP);
         }
         $output .= $this->coverageHeader($filename, $percentCovered);
         $output .= implode('', $diff);

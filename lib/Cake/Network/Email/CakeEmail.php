@@ -1792,8 +1792,8 @@ class CakeEmail
 
         $View->loadHelpers();
 
-        [$templatePlugin, $template] = pluginSplit($this->_template);
-        [$layoutPlugin, $layout] = pluginSplit($this->_layout);
+        [$templatePlugin,] = pluginSplit($this->_template);
+        [$layoutPlugin,] = pluginSplit($this->_layout);
         if ($templatePlugin) {
             $View->plugin = $templatePlugin;
         } elseif ($layoutPlugin) {

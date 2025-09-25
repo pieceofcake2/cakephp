@@ -1828,7 +1828,7 @@ SQL;
         $result = $test->fields($this->Model, null, $this->Model->escapeField());
         $this->assertEquals(['`Article`.`id`'], $result);
 
-        $result = $test->read($this->Model, [
+        $test->read($this->Model, [
             'fields' => $this->Model->escapeField(),
             'conditions' => null,
             'recursive' => -1,
@@ -1841,7 +1841,7 @@ SQL;
         $result = $test->fields($this->Model, null, $this->Model->escapeField());
         $this->assertEquals(['[Article].[id]'], $result);
 
-        $result = $test->read($this->Model, [
+        $test->read($this->Model, [
             'fields' => $this->Model->escapeField(),
             'conditions' => null,
             'recursive' => -1,
@@ -2609,7 +2609,7 @@ SQL;
 
         $binding = ['type' => 'hasMany', 'model' => 'TestModel6'];
         $queryData = ['fields' => ['MIN(`TestModel5`.`test_model4_id`)']];
-        $params = &$this->_prepareAssociationQuery($this->Model, $queryData, $binding);
+        $this->_prepareAssociationQuery($this->Model, $queryData, $binding);
         $this->Model->recursive = 0;
 
         $result = $this->Dbo->buildAssociationQuery($this->Model, $queryData);
@@ -2858,7 +2858,7 @@ SQL;
         $expected = " WHERE file = 'index.html'";
         $this->assertEquals($expected, $result);
 
-        $letter = $letter = 'd.a';
+        $letter = 'd.a';
         $conditions = ['Company.name like ' => $letter . '%'];
         $result = $this->Dbo->conditions($conditions);
         $expected = " WHERE `Company`.`name` like 'd.a%'";
@@ -4269,7 +4269,7 @@ SQL;
 
         $test = ConnectionManager::getDatasource('test');
         $test->getLog();
-        $result = $Article->find('all', compact('conditions', 'contain'));
+        $Article->find('all', compact('conditions', 'contain'));
 
         $expected = 'SELECT `Comment`.`id`, `Comment`.`article_id`, `Comment`.`user_id`, `Comment`.`comment`,' .
             ' `Comment`.`published`, `Comment`.`created`,' .

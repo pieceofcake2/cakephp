@@ -147,4 +147,13 @@
     <rule ref="CakePHP.NamingConventions.ValidFunctionName.PublicWithUnderscore">
         <exclude-pattern>lib/Cake/Test/Case/Controller/ControllerTest.php</exclude-pattern>
     </rule>
+
+    <!-- Allow unused variables in test files for testing purposes -->
+    <rule ref="SlevomatCodingStandard.Variables.UnusedVariable.UnusedVariable">
+        <exclude-pattern>lib/Cake/Test/Case/Error/ErrorHandlerTest.php</exclude-pattern>
+        <exclude-pattern>lib/Cake/Test/Case/Utility/DebuggerTest.php</exclude-pattern>
+        <exclude-pattern>lib/Cake/Test/test_app/Config/htmlhelper_tags.php</exclude-pattern>
+        <exclude-pattern>lib/Cake/Test/test_app/Config/var_test.php</exclude-pattern>
+        <exclude-pattern>lib/Cake/Test/test_app/Config/var_test2.php</exclude-pattern>
+    </rule>
 </ruleset>

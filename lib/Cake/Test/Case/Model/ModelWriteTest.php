@@ -1423,7 +1423,9 @@ class ModelWriteTest extends BaseModelTest
         $User->data['User'] = ['password' => 'something'];
         $result = $User->save();
         $this->assertFalse(empty($result));
+
         $result = $User->read();
+        $this->assertFalse(empty($result));
         $this->assertEquals('something', $User->data['User']['password']);
     }
 

@@ -622,7 +622,6 @@ class FormHelperTest extends CakeTestCase
     public function testCreateEndGetNoSecurity()
     {
         $this->Form->request['_Token'] = ['key' => 'testKey'];
-        $encoding = strtolower(Configure::read('App.encoding'));
         $result = $this->Form->create('Contact', ['type' => 'get', 'url' => '/contacts/add']);
         $this->assertStringNotContainsString('Token', $result);
 

@@ -574,7 +574,7 @@ class View extends CakeObject
 
         $type = $response->mapType($response->type());
         if (Configure::read('debug') > 0 && $type === 'html') {
-            echo '<!-- Cached Render Time: ' . round(microtime(true) - (int)$timeStart, 4) . 's -->';
+            echo '<!-- Cached Render Time: ' . round(microtime(true) - (int)$timeStart, 4, PHP_ROUND_HALF_UP) . 's -->';
         }
         $out = ob_get_clean();
 

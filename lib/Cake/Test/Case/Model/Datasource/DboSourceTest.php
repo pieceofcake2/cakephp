@@ -1011,11 +1011,10 @@ class DboSourceTest extends CakeTestCase
 
         $log = $this->testDb->getLog();
         $expected = ['query' => 'Query 1', 'params' => [], 'affected' => '', 'numRows' => '', 'took' => ''];
-
         $this->assertEquals($expected, $log['log'][0]);
+
         $expected = ['query' => 'Query 2', 'params' => [], 'affected' => '', 'numRows' => '', 'took' => ''];
         $this->assertEquals($expected, $log['log'][1]);
-        $expected = ['query' => 'Error 1', 'affected' => '', 'numRows' => '', 'took' => ''];
     }
 
     /**
@@ -1031,6 +1030,7 @@ class DboSourceTest extends CakeTestCase
         $log = $this->testDb->getLog();
         $expected = ['query' => 'Query 1', 'params' => [1, 2, 'abc'], 'affected' => '', 'numRows' => '', 'took' => ''];
         $this->assertEquals($expected, $log['log'][0]);
+
         $expected = ['query' => 'Query 2', 'params' => ['field1' => 1, 'field2' => 'abc'], 'affected' => '', 'numRows' => '', 'took' => ''];
         $this->assertEquals($expected, $log['log'][1]);
     }
@@ -1357,12 +1357,12 @@ class DboSourceTest extends CakeTestCase
 
         $ds = $Article->getDataSource();
         $ds->cacheMethods = true;
-        $first = $ds->fields($Article);
+        $ds->fields($Article);
 
         $Article->schemaName = 'secondSchema';
         $ds = $Article->getDataSource();
         $ds->cacheMethods = true;
-        $second = $ds->fields($Article);
+        $ds->fields($Article);
 
         $this->assertEquals(2, count(DboSource::$methodCache['fields']));
     }

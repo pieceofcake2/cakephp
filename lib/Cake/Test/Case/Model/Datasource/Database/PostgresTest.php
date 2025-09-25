@@ -761,17 +761,17 @@ class PostgresTest extends CakeTestCase
                 'active' => ['type' => 'boolean', 'null' => false],
             ],
         ];
-        $Old = new CakeSchema($default);
-        $result = $this->Dbo->query($this->Dbo->createSchema($Old));
+        $old = new CakeSchema($default);
+        $result = $this->Dbo->query($this->Dbo->createSchema($old));
         $this->assertTrue($result);
 
         $modified = $default;
         $modified['bool_fields']['active'] = ['type' => 'integer', 'null' => true];
 
-        $New = new CakeSchema($modified);
-        $query = $this->Dbo->alterSchema($New->compare($Old));
-        $result = $this->Dbo->query($query);
-        $this->Dbo->query($this->Dbo->dropSchema($Old));
+        $new = new CakeSchema($modified);
+        $query = $this->Dbo->alterSchema($new->compare($old));
+        $this->Dbo->query($query);
+        $this->Dbo->query($this->Dbo->dropSchema($old));
     }
 
     /**

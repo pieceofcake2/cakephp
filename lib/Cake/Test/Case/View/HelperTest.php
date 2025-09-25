@@ -926,6 +926,7 @@ class HelperTest extends CakeTestCase
             'HelperTestTag', '1', 'fake',
         ];
         $this->Helper->setEntity($entity);
+        $this->assertEquals($expected, $this->Helper->entity());
 
         $entity = '1.HelperTestComment.1.HelperTestTag.created.year';
         $this->Helper->setEntity($entity);

@@ -1046,7 +1046,7 @@ class SecurityComponentTest extends CakeTestCase
             '_Token' => compact('fields', 'unlocked'),
         ];
         Configure::write('debug', false);
-        $result = $this->validatePost('SecurityException', 'The request has been black-holed');
+        $this->validatePost('SecurityException', 'The request has been black-holed');
     }
 
     /**
@@ -1831,7 +1831,6 @@ class SecurityComponentTest extends CakeTestCase
         $result = $this->validatePost('SecurityException', 'Invalid security debug token.');
         $this->assertFalse($result);
 
-        $debug = urlencode(json_encode('not an array'));
         $result = $this->validatePost('SecurityException', 'Invalid security debug token.');
         $this->assertFalse($result);
     }
@@ -2211,8 +2210,6 @@ class SecurityComponentTest extends CakeTestCase
 
         // Generate a valid token first
         $this->Security->startup($this->Controller);
-        $token = $this->Security->Session->read('_Token');
-        $validToken = key($token['csrfTokens']);
 
         // Attacker tries to create their own token with valid format but different HMAC
         $attackerValue = Security::randomBytes(SecurityComponent::TOKEN_VALUE_LENGTH);

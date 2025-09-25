@@ -109,7 +109,7 @@ class ProgressShellHelper extends BaseShellHelper
     public function draw()
     {
         $numberLen = strlen(' 100%');
-        $complete = round($this->_progress / $this->_total, 2);
+        $complete = round($this->_progress / $this->_total, 2, PHP_ROUND_HALF_UP);
         $barLen = ($this->_width - $numberLen) * $this->_progress / $this->_total;
         $bar = '';
         if ($barLen > 1) {

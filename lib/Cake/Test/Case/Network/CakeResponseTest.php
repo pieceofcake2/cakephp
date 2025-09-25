@@ -1827,7 +1827,7 @@ class CakeResponseTest extends CakeTestCase
         );
 
         ob_start();
-        $result = $response->send();
+        $response->send();
         ob_get_clean();
 
         $this->assertEquals(['Content-Disposition', 'attachment; filename="test_asset.css"'], $headerCalls[0]);

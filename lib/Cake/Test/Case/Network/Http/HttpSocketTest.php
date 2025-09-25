@@ -845,7 +845,6 @@ class HttpSocketTest extends CakeTestCase
             'redirect' => 1,
         ];
 
-        $readCounter = 0;
         $this->Socket->expects($this->exactly(4))
             ->method('read')
             ->willReturnOnConsecutiveCalls(

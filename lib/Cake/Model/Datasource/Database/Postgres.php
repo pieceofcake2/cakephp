@@ -748,7 +748,7 @@ class Postgres extends DboSource
         $col = str_replace(')', '', $real);
 
         if (str_contains($col, '(')) {
-            [$col, $limit] = explode('(', $col);
+            [$col,] = explode('(', $col);
         }
 
         $floats = [
@@ -795,7 +795,7 @@ class Postgres extends DboSource
     {
         $col = $real;
         if (str_contains($real, '(')) {
-            [$col, $limit] = explode('(', $real);
+            [$col,] = explode('(', $real);
         }
         if ($col === 'uuid') {
             return 36;

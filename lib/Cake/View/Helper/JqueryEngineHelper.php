@@ -235,6 +235,7 @@ class JqueryEngineHelper extends JsBaseEngineHelper
             case 'slideIn':
             case 'slideOut':
                 $name = $name === 'slideIn' ? 'slideDown' : 'slideUp';
+                // Intentional fall-through
             case 'hide':
             case 'show':
             case 'fadeIn':

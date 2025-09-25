@@ -1201,7 +1201,7 @@ class CakeTime
             $now = time();
             $before = $options['before'];
             $after = $options['after'];
-            foreach ($identifiers as $key => $tz) {
+            foreach ($identifiers as $tz) {
                 $abbr = null;
                 if ($options['abbr']) {
                     $dateTimeZone = new DateTimeZone($tz);

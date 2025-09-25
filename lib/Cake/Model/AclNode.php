@@ -156,7 +156,6 @@ class AclNode extends Model
         }
         if (is_array($ref)) {
             if (is_array(current($ref)) && is_string(key($ref))) {
-                $name = key($ref);
                 $ref = current($ref);
             }
             foreach ($ref as $key => $val) {

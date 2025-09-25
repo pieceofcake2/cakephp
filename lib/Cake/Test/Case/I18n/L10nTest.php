@@ -124,6 +124,7 @@ class L10nTest extends CakeTestCase
         $localize = new L10n();
         $localize->default = 'en-us';
         $lang = $localize->get();
+        $this->assertEquals('es-mx', $lang);
         $this->assertEquals(['es_mx', 'spa', 'eng'], $localize->languagePath);
 
         $_SERVER['HTTP_ACCEPT_LANGUAGE'] = 'en_xy,en_ca';

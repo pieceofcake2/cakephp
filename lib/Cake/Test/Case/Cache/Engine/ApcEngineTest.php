@@ -30,7 +30,12 @@ class ApcEngineTest extends CakeTestCase
      *
      * @var string
      */
-    protected $_apcExtension = 'apc';
+    protected string $_apcExtension = 'apc';
+
+    /**
+     * @var bool
+     */
+    protected bool $_cacheDisable;
 
     /**
      * setUp method
@@ -194,7 +199,7 @@ class ApcEngineTest extends CakeTestCase
     public function testIncrement()
     {
         $hasSupport = function_exists('apc_inc') || function_exists('apcu_inc');
-        $this->skipIf(!function_exists('apc_inc'), 'No apc_inc()/apcu_inc() function, cannot test increment().');
+        $this->skipIf(!$hasSupport, 'No apc_inc()/apcu_inc() function, cannot test increment().');
 
         $result = Cache::write('test_increment', 5, 'apc');
         $this->assertTrue($result);

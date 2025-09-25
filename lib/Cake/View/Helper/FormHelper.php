@@ -445,6 +445,7 @@ class FormHelper extends AppHelper
             case 'file':
                 $htmlAttributes['enctype'] = 'multipart/form-data';
                 $options['type'] = $created ? 'put' : 'post';
+                // Intentional fall-through
             case 'post':
             case 'put':
             case 'delete':
@@ -452,6 +453,7 @@ class FormHelper extends AppHelper
                     'name' => '_method', 'value' => strtoupper($options['type']), 'id' => null,
                     'secure' => static::SECURE_SKIP,
                 ]);
+                // Intentional fall-through
             default:
                 $htmlAttributes['method'] = 'post';
         }
@@ -2762,7 +2764,7 @@ class FormHelper extends AppHelper
                     $changeValue = floor($changeValue);
                     break;
                 default:
-                    $changeValue = round($changeValue);
+                    $changeValue = round($changeValue, 0, PHP_ROUND_HALF_UP);
             }
             $change = ($changeValue * $interval) - $min;
             $current->modify($change > 0 ? "+$change minutes" : "$change minutes");

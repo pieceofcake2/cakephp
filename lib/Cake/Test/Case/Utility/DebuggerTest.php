@@ -83,7 +83,7 @@ class DebuggerTest extends CakeTestCase
         $result = Debugger::excerpt(__FILE__, __LINE__, 2);
         $this->assertTrue(is_array($result));
         $this->assertEquals(5, count($result));
-        $this->assertMatchesRegularExpression('/function(.+)testExcerpt/', $result[1]);
+        $this->assertMatchesRegularExpression('/function(.+)testExcerpt/', $result[0]);
 
         $result = Debugger::excerpt(__FILE__, 2, 2);
         $this->assertTrue(is_array($result));

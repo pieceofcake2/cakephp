@@ -142,7 +142,6 @@ class CakeTestSuiteDispatcher
     {
         $found = $this->loadTestFramework();
         if (!$found) {
-            $baseDir = $this->_baseDir;
             include CAKE . 'TestSuite' . DS . 'templates' . DS . 'phpunit.php';
             exit;
         }
@@ -198,7 +197,6 @@ class CakeTestSuiteDispatcher
     protected function _checkXdebug()
     {
         if (!extension_loaded('xdebug')) {
-            $baseDir = $this->_baseDir;
             include CAKE . 'TestSuite' . DS . 'templates' . DS . 'xdebug.php';
             exit;
         }
@@ -290,7 +288,6 @@ class CakeTestSuiteDispatcher
             $command->run($options);
         } catch (MissingConnectionException $exception) {
             ob_end_clean();
-            $baseDir = $this->_baseDir;
             include CAKE . 'TestSuite' . DS . 'templates' . DS . 'missing_connection.php';
             exit;
         }

@@ -117,11 +117,11 @@ class CakeNumber
         switch (true) {
             case $size < 1024:
                 return __dn('cake', '%d Byte', '%d Bytes', $size, $size);
-            case round($size / 1024) < 1024:
+            case round($size / 1024, 0, PHP_ROUND_HALF_UP) < 1024:
                 return __d('cake', '%s KB', static::precision($size / 1024, 0));
-            case round($size / 1024 / 1024, 2) < 1024:
+            case round($size / 1024 / 1024, 2, PHP_ROUND_HALF_UP) < 1024:
                 return __d('cake', '%s MB', static::precision($size / 1024 / 1024, 2));
-            case round($size / 1024 / 1024 / 1024, 2) < 1024:
+            case round($size / 1024 / 1024 / 1024, 2, PHP_ROUND_HALF_UP) < 1024:
                 return __d('cake', '%s GB', static::precision($size / 1024 / 1024 / 1024, 2));
             default:
                 return __d('cake', '%s TB', static::precision($size / 1024 / 1024 / 1024 / 1024, 2));

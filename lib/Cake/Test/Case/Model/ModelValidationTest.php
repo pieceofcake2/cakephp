@@ -1853,10 +1853,10 @@ class ModelValidationTest extends BaseModelTest
         $TestModel = new Article();
         $Validator = $TestModel->validator();
 
-        $result = $Validator->setValidationDomain('default');
+        $Validator->setValidationDomain('default');
         $this->assertEquals('default', $TestModel->validationDomain);
 
-        $result = $Validator->setValidationDomain('other');
+        $Validator->setValidationDomain('other');
         $this->assertEquals('other', $TestModel->validationDomain);
     }
 

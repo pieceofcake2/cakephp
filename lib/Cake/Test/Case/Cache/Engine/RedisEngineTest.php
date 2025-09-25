@@ -27,6 +27,11 @@ App::uses('RedisEngine', 'Cache/Engine');
 class RedisEngineTest extends CakeTestCase
 {
     /**
+     * @var bool
+     */
+    protected bool $_cacheDisable;
+
+    /**
      * setUp method
      *
      * @return void
@@ -157,13 +162,13 @@ class RedisEngineTest extends CakeTestCase
      */
     public function testWriteNumbers()
     {
-        $result = Cache::write('test-counter', 1, 'redis');
+        Cache::write('test-counter', 1, 'redis');
         $this->assertSame(1, Cache::read('test-counter', 'redis'));
 
-        $result = Cache::write('test-counter', 0, 'redis');
+        Cache::write('test-counter', 0, 'redis');
         $this->assertSame(0, Cache::read('test-counter', 'redis'));
 
-        $result = Cache::write('test-counter', -1, 'redis');
+        Cache::write('test-counter', -1, 'redis');
         $this->assertSame(-1, Cache::read('test-counter', 'redis'));
     }
 

@@ -3727,11 +3727,11 @@ class ContainableBehaviorTest extends CakeTestCase
         ];
         $this->Article->unbindModel(['hasAndBelongsToMany' => ['Tag']]);
         $this->Article->bindModel($binding);
-        $result = $this->Article->find('all', ['limit' => 1, 'contain' => ['ArticlesTag', 'Tag']]);
+        $this->Article->find('all', ['limit' => 1, 'contain' => ['ArticlesTag', 'Tag']]);
 
         $this->Article->unbindModel(['hasAndBelongsToMany' => ['Tag']]);
         $this->Article->bindModel($binding);
-        $result = $this->Article->find('all', ['limit' => 1, 'contain' => ['ArticlesTag', 'Tag']]);
+        $this->Article->find('all', ['limit' => 1, 'contain' => ['ArticlesTag', 'Tag']]);
 
         $associated = $this->Article->getAssociated();
         $this->assertEquals('hasAndBelongsToMany', $associated['Tag']);

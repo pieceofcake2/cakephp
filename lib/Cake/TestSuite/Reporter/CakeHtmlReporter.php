@@ -72,7 +72,6 @@ class CakeHtmlReporter extends CakeBaseReporter
      */
     public function paintDocumentStart()
     {
-        $baseDir = $this->params['baseDir'];
         include CAKE . 'TestSuite' . DS . 'templates' . DS . 'header.php';
     }
 
@@ -84,7 +83,6 @@ class CakeHtmlReporter extends CakeBaseReporter
      */
     public function paintTestMenu()
     {
-        $cases = $this->baseUrl() . '?show=cases';
         $plugins = App::objects('plugin', null, false);
         sort($plugins);
         include CAKE . 'TestSuite' . DS . 'templates' . DS . 'menu.php';
@@ -254,7 +252,6 @@ class CakeHtmlReporter extends CakeBaseReporter
      */
     public function paintDocumentEnd()
     {
-        $baseDir = $this->params['baseDir'];
         include CAKE . 'TestSuite' . DS . 'templates' . DS . 'footer.php';
         if (ob_get_length()) {
             ob_end_flush();
@@ -306,7 +303,7 @@ class CakeHtmlReporter extends CakeBaseReporter
         echo "</pre></div>\n";
         echo "<div class='msg'>" . __d('cake_dev', 'Test case: %s', $testName) . "</div>\n";
         if (!str_contains($className, 'PHPUnit_')) {
-            [$show, $query] = str_split($this->_getQueryLink());
+            [, $query] = str_split($this->_getQueryLink());
             echo "<div class='msg'><a href='" . $this->baseUrl() . $query . '&amp;filter=' . $test->getName() . "'>" . __d('cake_dev', 'Rerun only this test: %s', $testName) . "</a></div>\n";
         }
         echo "<div class='msg'>" . __d('cake_dev', 'Stack trace:') . '<br />' . $trace . "</div>\n";

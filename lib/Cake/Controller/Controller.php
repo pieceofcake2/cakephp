@@ -381,7 +381,7 @@ class Controller extends CakeObject implements CakeEventListener
         }
 
         if ($name === $this->modelClass) {
-            [$plugin, $class] = pluginSplit($name, true);
+            [$plugin,] = pluginSplit($name, true);
             if (!$plugin) {
                 $plugin = $this->plugin ? $this->plugin . '.' : null;
             }

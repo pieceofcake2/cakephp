@@ -733,10 +733,8 @@ class UpgradeShell extends AppShell
 
             preg_match('@^.*[\\\/]plugins[\\\/](.*?)[\\\/]@', $file, $match);
             $base = $cwd . DS;
-            $plugin = false;
             if ($match) {
                 $base = $match[0];
-                $plugin = $match[1];
             }
 
             if ($options['checkFolder'] && !empty($this->_map[$type])) {
