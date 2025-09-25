@@ -97,6 +97,13 @@ Before migrating to this fork, ensure:
 
 ### Breaking Changes
 
+#### PHP CodeSniffer Update [PR #8](https://github.com/friendsofcake2/cakephp/pull/8)
+
+- **Development dependency**: Updated `cakephp/cakephp-codesniffer` from 1.0.0 to 5.3
+- **Code formatting**: Applied automatic formatting fixes across the codebase using phpcbf
+- This is primarily a development-time change and should not affect runtime behavior
+- If you have custom coding standards, you may need to update your `phpcs.xml` configuration
+
 #### Removed Cache Engines [PR #4](https://github.com/friendsofcake2/cakephp/pull/4)
 
 - **Xcache** support has been removed (Xcache is not compatible with PHP 7.0+)
