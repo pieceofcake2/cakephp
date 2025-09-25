@@ -27,9 +27,9 @@ App::uses('RedisEngine', 'Cache/Engine');
 class RedisEngineTest extends CakeTestCase
 {
     /**
-     * @var bool
+     * @var bool|null
      */
-    protected bool $_cacheDisable;
+    protected ?bool $_cacheDisable;
 
     /**
      * setUp method

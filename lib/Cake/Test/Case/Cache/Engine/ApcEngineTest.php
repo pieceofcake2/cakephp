@@ -33,9 +33,9 @@ class ApcEngineTest extends CakeTestCase
     protected string $_apcExtension = 'apc';
 
     /**
-     * @var bool
+     * @var bool|null
      */
-    protected bool $_cacheDisable;
+    protected ?bool $_cacheDisable;
 
     /**
      * setUp method
