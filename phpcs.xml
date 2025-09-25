@@ -1,0 +1,143 @@
+<?xml version="1.0"?>
+<ruleset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         name="CakePHP Core"
+         xsi:noNamespaceSchemaLocation="vendors/squizlabs/php_codesniffer/phpcs.xsd">
+    <config name="php_version" value="80000"/>
+
+    <file>index.php</file>
+    <file>app/</file>
+    <file>lib/Cake/</file>
+
+    <arg value="ps"/>
+    <arg name="colors"/>
+
+    <rule ref="CakePHP">
+        <!-- ===== Namespace and Class Rules ===== -->
+        <!-- CakePHP2 uses App::uses() instead of namespaces -->
+        <exclude name="PSR1.Classes.ClassDeclaration.MissingNamespace"/>
+        <!-- CakePHP2 uses App::uses() which PSR1 considers side effects -->
+        <exclude name="PSR1.Files.SideEffects.FoundWithSymbols"/>
+        <!-- Don't enforce filename matching class name (CakePHP2 has specific conventions) -->
+        <exclude name="Squiz.Classes.ClassFileName.NoMatch"/>
+
+        <!-- ===== Namespace/Import Rules ===== -->
+        <!-- Allow fully qualified class names without namespace (CakePHP2 uses global namespace) -->
+        <exclude name="SlevomatCodingStandard.Namespaces.ReferenceUsedNamesOnly.ReferenceViaFullyQualifiedNameWithoutNamespace"/>
+        <!-- Don't require fully qualified class names in annotations (CakePHP2 has no namespaces) -->
+        <exclude name="SlevomatCodingStandard.Namespaces.FullyQualifiedClassNameInAnnotation.NonFullyQualifiedClassName"/>
+
+        <!-- ===== Type Hints Rules ===== -->
+        <!-- Exclude type hints rules as CakePHP2 doesn't support PHP 7+ type declarations -->
+        <exclude name="SlevomatCodingStandard.TypeHints"/>
+
+        <!-- ===== Variable Naming Rules ===== -->
+        <!-- Allow CakePHP2 style variable naming ($Model, $LinkModel, $_locale, etc.) -->
+        <exclude name="Zend.NamingConventions.ValidVariableName.StringVarNotCamelCaps"/>
+        <!-- Allow underscore in public properties (CakePHP2 convention) -->
+        <exclude name="Zend.NamingConventions.ValidVariableName.PublicHasUnderscore"/>
+        <!-- Allow double underscore public properties (CakePHP2 internal convention) -->
+        <exclude name="Zend.NamingConventions.ValidVariableName.PublicVarHasUnderscore"/>
+
+        <!-- ===== Control Structure Rules ===== -->
+        <!-- Allow assignment in conditions (common pattern in CakePHP2: while ($row = $result->fetch())) -->
+        <exclude name="SlevomatCodingStandard.ControlStructures.AssignmentInCondition.AssignmentInCondition"/>
+
+        <!-- ===== Formatting Rules ===== -->
+        <!-- Allow blank lines after function comments (CakePHP2 style) -->
+        <exclude name="CakePHP.Commenting.FunctionComment.SpacingAfter"/>
+        <!-- Exclude line length checks for CakePHP2 -->
+        <exclude name="Generic.Files.LineLength"/>
+    </rule>
+
+    <!-- Include additional whitespace checking rule -->
+    <rule ref="Generic.Formatting.MultipleStatementAlignment">
+        <properties>
+            <property name="maxPadding" value="1"/>
+        </properties>
+    </rule>
+
+    <rule ref="Generic.PHP.DeprecatedFunctions.Deprecated">
+        <!-- Using the deprecated libxml_disable_entity_loader functions. -->
+        <exclude-pattern>/lib/Cake/Utility/Xml.php</exclude-pattern>
+        <!-- Using the deprecated get_magic_quotes_gpc function. -->
+        <exclude-pattern>lib/Cake/View/Helper.php</exclude-pattern>
+        <!-- Using the deprecated mcrypt_* functions. -->
+        <exclude-pattern>lib/Cake/Utility/Security.php</exclude-pattern>
+        <!-- Using the deprecated strftime functions. -->
+        <exclude-pattern>lib/Cake/View/Helper/FormHelper.php</exclude-pattern>
+        <exclude-pattern>lib/Cake/Utility/CakeTime.php</exclude-pattern>
+        <exclude-pattern>lib/Cake/Test/Case/Utility/CakeTimeTest.php</exclude-pattern>
+        <!-- Using the deprecated utf8_decode functions. -->
+        <exclude-pattern>lib/Cake/Test/Case/Utility/ValidationTest.php</exclude-pattern>
+    </rule>
+
+    <rule ref="CakePHP.Commenting.FunctionComment.Missing">
+        <exclude-pattern>lib/Cake/Error/exceptions.php</exclude-pattern>
+        <exclude-pattern>lib/Cake/Test/Case/**</exclude-pattern>
+        <exclude-pattern>lib/Cake/Test/test_app/**</exclude-pattern>
+        <exclude-pattern>lib/Cake/TestSuite/Fixture/CakeFixtureInjector.php</exclude-pattern>
+    </rule>
+
+    <rule ref="Squiz.PHP.NonExecutableCode.Unreachable">
+        <exclude-pattern>**/acl.ini.php</exclude-pattern>
+    </rule>
+
+    <!-- Allow multiple classes in test files only (CakePHP2 test pattern) -->
+    <rule ref="PSR1.Classes.ClassDeclaration.MultipleClasses">
+        <exclude-pattern>lib/Cake/Controller/Component/Acl/PhpAcl.php</exclude-pattern>
+        <exclude-pattern>lib/Cake/Error/exceptions.php</exclude-pattern>
+        <exclude-pattern>lib/Cake/Test/Case/**</exclude-pattern>
+        <exclude-pattern>lib/Cake/TestSuite/ControllerTestCase.ph</exclude-pattern>
+    </rule>
+
+    <!-- Allow non-camelCase method names in Controllers (CakePHP2 action naming convention) -->
+    <rule ref="PSR1.Methods.CamelCapsMethodName.NotCamelCaps">
+        <exclude-pattern>app/Controller/**</exclude-pattern>
+        <exclude-pattern>app/Console/Command/**</exclude-pattern>
+        <exclude-pattern>lib/Cake/Controller/**</exclude-pattern>
+        <exclude-pattern>lib/Cake/Console/Command/**</exclude-pattern>
+        <exclude-pattern>lib/Cake/Console/Templates/skel/Controller/**</exclude-pattern>
+        <exclude-pattern>lib/Cake/Console/Templates/skel/Console/Command/**</exclude-pattern>
+        <exclude-pattern>lib/Cake/Test/Case/Controller/ControllerTest.php</exclude-pattern>
+        <exclude-pattern>lib/Cake/Test/Case/Controller/Component/AuthComponentTest.php</exclude-pattern>
+        <exclude-pattern>lib/Cake/Test/Case/Controller/Component/RequestHandlerComponentTest.php</exclude-pattern>
+        <exclude-pattern>lib/Cake/Test/Case/Core/CakeObjectTest.php</exclude-pattern>
+        <exclude-pattern>lib/Cake/Test/Case/View/ViewTest.php</exclude-pattern>
+        <exclude-pattern>lib/Cake/Test/Case/View/Helper/CacheHelperTest.php</exclude-pattern>
+        <exclude-pattern>lib/Cake/Test/Case/Routing/DispatcherTest.php</exclude-pattern>
+        <exclude-pattern>lib/Cake/Test/bake_compare/Controller/**</exclude-pattern>
+        <exclude-pattern>lib/Cake/Test/bake_compare/Console/Command/**</exclude-pattern>
+        <exclude-pattern>lib/Cake/Test/test_app/Controller/**</exclude-pattern>
+        <exclude-pattern>lib/Cake/Test/test_app/Console/Command/**</exclude-pattern>
+        <exclude-pattern>lib/Cake/Test/test_app/Plugin/*/Controller/**</exclude-pattern>
+        <exclude-pattern>lib/Cake/Test/test_app/Plugin/*/Console/Command/**</exclude-pattern>
+    </rule>
+
+    <!-- Allow @ error suppression in specific files where it's necessary -->
+    <rule ref="Generic.PHP.NoSilencedErrors.Discouraged">
+        <exclude-pattern>lib/Cake/basics.php</exclude-pattern>
+        <exclude-pattern>lib/Cake/Cache/Engine/FileEngine.php</exclude-pattern>
+        <exclude-pattern>lib/Cake/Console/Command/ConsoleShell.php</exclude-pattern>
+        <exclude-pattern>lib/Cake/Console/Shell.php</exclude-pattern>
+        <exclude-pattern>lib/Cake/Network/CakeResponse.php</exclude-pattern>
+        <exclude-pattern>lib/Cake/Network/Email/MailTransport.php</exclude-pattern>
+        <exclude-pattern>lib/Cake/Test/Case/Cache/CacheTest.php</exclude-pattern>
+        <exclude-pattern>lib/Cake/Test/Case/Cache/Engine/MemcacheEngineTest.php</exclude-pattern>
+        <exclude-pattern>lib/Cake/Test/Case/Cache/Engine/MemcachedEngineTest.php</exclude-pattern>
+        <exclude-pattern>lib/Cake/Test/Case/Cache/Engine/RedisEngineTest.php</exclude-pattern>
+        <exclude-pattern>lib/Cake/Test/Case/Error/ErrorHandlerTest.php</exclude-pattern>
+        <exclude-pattern>lib/Cake/Utility/Folder.php</exclude-pattern>
+        <exclude-pattern>lib/Cake/View/Helper.php</exclude-pattern>
+        <exclude-pattern>lib/Cake/View/View.php</exclude-pattern>
+    </rule>
+
+    <!-- Allow eval() in ConsoleShell for interactive console functionality -->
+    <rule ref="Squiz.PHP.Eval.Discouraged">
+        <exclude-pattern>lib/Cake/Console/Command/ConsoleShell.php</exclude-pattern>
+    </rule>
+
+    <!-- Allow non-PascalCase class names in database.php files (CakePHP2 convention) -->
+    <rule ref="Squiz.Classes.ValidClassName.NotPascalCase">
+        <exclude-pattern>**/database.php</exclude-pattern>
+    </rule>
+</ruleset>
