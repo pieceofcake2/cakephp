@@ -1,6 +1,6 @@
 ## CHANGELOG
 
-## v2.10.24.4 (Unreleased)
+## v2.10.24.4 (2025-09-25)
 
 ### Code Quality
 
