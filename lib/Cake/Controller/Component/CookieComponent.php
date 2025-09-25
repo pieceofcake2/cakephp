@@ -38,7 +38,7 @@ class CookieComponent extends Component {
  *
  * @var string
  */
-	public $name = 'CakeCookie';
+	public string $name = 'CakeCookie';
 
 /**
  * The time a cookie will remain valid.
@@ -48,9 +48,9 @@ class CookieComponent extends Component {
  * Overridden with the controller beforeFilter();
  * $this->Cookie->time = '5 Days';
  *
- * @var mixed
+ * @var string|int|null
  */
-	public $time = null;
+	public string|int|null $time = null;
 
 /**
  * Cookie path.
@@ -65,7 +65,7 @@ class CookieComponent extends Component {
  *
  * @var string
  */
-	public $path = '/';
+	public string $path = '/';
 
 /**
  * Domain path.
@@ -80,7 +80,7 @@ class CookieComponent extends Component {
  *
  * @var string
  */
-	public $domain = '';
+	public string $domain = '';
 
 /**
  * Secure HTTPS only cookie.
@@ -93,7 +93,7 @@ class CookieComponent extends Component {
  *
  * @var bool
  */
-	public $secure = false;
+	public bool $secure = false;
 
 /**
  * Encryption key.
@@ -101,9 +101,9 @@ class CookieComponent extends Component {
  * Overridden with the controller beforeFilter();
  * $this->Cookie->key = 'SomeRandomString';
  *
- * @var string
+ * @var string|null
  */
-	public $key = null;
+	public ?string $key = null;
 
 /**
  * HTTP only cookie
@@ -113,7 +113,7 @@ class CookieComponent extends Component {
  *
  * @var bool
  */
-	public $httpOnly = false;
+	public bool $httpOnly = false;
 
 /**
  * Values stored in the cookie.
@@ -121,9 +121,9 @@ class CookieComponent extends Component {
  * Accessed in the controller using $this->Cookie->read('Name.key');
  *
  * @see CookieComponent::read();
- * @var string
+ * @var array
  */
-	protected $_values = [];
+	protected array $_values = [];
 
 /**
  * Type of encryption to use.
@@ -135,37 +135,37 @@ class CookieComponent extends Component {
  *
  * @var string
  */
-	protected $_type = 'cipher';
+	protected string $_type = 'cipher';
 
 /**
  * Used to reset cookie time if $expire is passed to CookieComponent::write()
  *
- * @var string
+ * @var int|null
  */
-	protected $_reset = null;
+	protected ?int $_reset = null;
 
 /**
  * Expire time of the cookie
  *
  * This is controlled by CookieComponent::time;
  *
- * @var string
+ * @var int
  */
-	protected $_expires = 0;
+	protected int $_expires = 0;
 
 /**
  * A reference to the Controller's CakeResponse object
  *
  * @var CakeResponse
  */
-	protected $_response = null;
+	protected CakeResponse $_response;
 
 /**
  * Whether values should be encrypted
  *
  * @var bool
  */
-	protected $_encrypted;
+	protected bool $_encrypted = false;
 
 /**
  * Constructor
@@ -384,10 +384,10 @@ class CookieComponent extends Component {
 		$now = new DateTime();
 
 		if (is_int($expires) || is_numeric($expires)) {
-			return $this->_expires = $now->format('U') + (int)$expires;
+			return $this->_expires = (int)$now->format('U') + (int)$expires;
 		}
 		$now->modify($expires);
-		return $this->_expires = $now->format('U');
+		return $this->_expires = (int)$now->format('U');
 	}
 
 /**

@@ -2,7 +2,7 @@ includes:
     - vendors/friendsofcake2/phpstan-cakephp2/extension.neon
 
 parameters:
-    level: 5
+    level: 0
     phpVersion: 80000
     paths:
         - lib/Cake

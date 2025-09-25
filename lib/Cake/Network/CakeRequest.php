@@ -763,6 +763,8 @@ class CakeRequest implements ArrayAccess {
  */
 	public static function header($name) {
 		$httpName = 'HTTP_' . strtoupper(str_replace('-', '_', $name));
+		// Use the provided value, in some configurations apache will
+		// pass Authorization with no prefix and in Titlecase.
 		return $_SERVER[$httpName] ?? $_SERVER[$name] ?? false;
 	}
 
