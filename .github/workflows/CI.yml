@@ -168,7 +168,7 @@ jobs:
             ${{ runner.os }}-php${{ matrix.php-version }}-composer-
 
       - name: Install Composer Packages
-        run: composer install --no-ansi --no-interaction --no-progress
+        run: composer install --prefer-dist --no-interaction --no-progress
 
       - name: Copy database.php
         run: cp ./lib/Cake/Test/Config/database.php ./app/Config/
@@ -231,7 +231,7 @@ jobs:
             ${{ runner.os }}-php8.4-composer-
 
       - name: Install dependencies
-        run: composer install --prefer-dist --no-progress
+        run: composer install --prefer-dist --no-interaction --no-progress
 
       - name: Run static type analysis
-        run: ./vendor/bin/phpcs
+        run: ./vendors/bin/phpcs
