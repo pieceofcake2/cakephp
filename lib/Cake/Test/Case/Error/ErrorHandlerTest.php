@@ -54,11 +54,11 @@ class ErrorHandlerTest extends CakeTestCase {
  */
 	public function setUp() : void {
 		parent::setUp();
-		App::build(array(
-			'View' => array(
+		App::build([
+			'View' => [
 				CAKE . 'Test' . DS . 'test_app' . DS . 'View' . DS
-			)
-		), App::RESET);
+			]
+		], App::RESET);
 		Router::reload();
 
 		$request = new CakeRequest(null, false);
@@ -120,10 +120,10 @@ class ErrorHandlerTest extends CakeTestCase {
  * @return void
  */
 	public static function errorProvider() {
-		return array(
-			array(E_USER_NOTICE, 'Notice'),
-			array(E_USER_WARNING, 'Warning'),
-		);
+		return [
+			[E_USER_NOTICE, 'Notice'],
+			[E_USER_WARNING, 'Warning'],
+		];
 	}
 
 /**
@@ -264,7 +264,7 @@ class ErrorHandlerTest extends CakeTestCase {
 			unlink(LOGS . 'error.log');
 		}
 		Configure::write('Exception.log', true);
-		Configure::write('Exception.skipLog', array('NotFoundException'));
+		Configure::write('Exception.skipLog', ['NotFoundException']);
 		$notFound = new NotFoundException('Kaboom!');
 		$forbidden = new ForbiddenException('Fooled you!');
 
@@ -289,11 +289,11 @@ class ErrorHandlerTest extends CakeTestCase {
  * @return void
  */
 	public function testLoadPluginHandler() {
-		App::build(array(
-			'Plugin' => array(
+		App::build([
+			'Plugin' => [
 				CAKE . 'Test' . DS . 'test_app' . DS . 'Plugin' . DS
-			)
-		), App::RESET);
+			]
+		], App::RESET);
 		CakePlugin::load('TestPlugin');
 		Configure::write('Exception.renderer', 'TestPlugin.TestPluginExceptionRenderer');
 		$error = new NotFoundException('Kaboom!');

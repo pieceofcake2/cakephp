@@ -53,29 +53,29 @@ class CompletionShellTest extends CakeTestCase {
  */
 	public function setUp() : void {
 		parent::setUp();
-		App::build(array(
-			'Plugin' => array(
+		App::build([
+			'Plugin' => [
 				CAKE . 'Test' . DS . 'test_app' . DS . 'Plugin' . DS
-			),
-			'Console/Command' => array(
+			],
+			'Console/Command' => [
 				CAKE . 'Test' . DS . 'test_app' . DS . 'Console' . DS . 'Command' . DS
-			)
-		), App::RESET);
-		CakePlugin::load(array('TestPlugin', 'TestPluginTwo'));
+			]
+		], App::RESET);
+		CakePlugin::load(['TestPlugin', 'TestPluginTwo']);
 
 		$out = new TestCompletionStringOutput();
-		$in = $this->getMock('ConsoleInput', array(), array(), '', false);
+		$in = $this->getMock('ConsoleInput', [], [], '', false);
 
 		$this->Shell = $this->getMock(
 			'CompletionShell',
-			array('in', '_stop', 'clear'),
-			array($out, $out, $in)
+			['in', '_stop', 'clear'],
+			[$out, $out, $in]
 		);
 
 		$this->Shell->Command = $this->getMock(
 			'CommandTask',
-			array('in', '_stop', 'clear'),
-			array($out, $out, $in)
+			['in', '_stop', 'clear'],
+			[$out, $out, $in]
 		);
 	}
 
@@ -97,7 +97,7 @@ class CompletionShellTest extends CakeTestCase {
  * @return void
  */
 	public function testStartup() {
-		$this->Shell->runCommand('main', array());
+		$this->Shell->runCommand('main', []);
 		$output = $this->Shell->stdout->output;
 
 		$needle = 'Welcome to CakePHP';
@@ -110,7 +110,7 @@ class CompletionShellTest extends CakeTestCase {
  * @return void
  */
 	public function testMain() {
-		$this->Shell->runCommand('main', array());
+		$this->Shell->runCommand('main', []);
 		$output = $this->Shell->stdout->output;
 
 		$expected = "/This command is not intended to be called manually/";
@@ -123,7 +123,7 @@ class CompletionShellTest extends CakeTestCase {
  * @return void
  */
 	public function testCommands() {
-		$this->Shell->runCommand('commands', array());
+		$this->Shell->runCommand('commands', []);
 		$output = $this->Shell->stdout->output;
 
 		$expected = "TestPlugin.example TestPlugin.test_plugin TestPluginTwo.example TestPluginTwo.welcome acl api bake command_list completion console i18n schema server test testsuite upgrade sample\n";
@@ -136,7 +136,7 @@ class CompletionShellTest extends CakeTestCase {
  * @return void
  */
 	public function testOptionsNoArguments() {
-		$this->Shell->runCommand('options', array());
+		$this->Shell->runCommand('options', []);
 		$output = $this->Shell->stdout->output;
 
 		$expected = "--help -h --verbose -v --quiet -q\n";
@@ -149,7 +149,7 @@ class CompletionShellTest extends CakeTestCase {
  * @return void
  */
 	public function testOptionsNonExistingCommand() {
-		$this->Shell->runCommand('options', array('options', 'foo'));
+		$this->Shell->runCommand('options', ['options', 'foo']);
 		$output = $this->Shell->stdout->output;
 
 		$expected = "--help -h --verbose -v --quiet -q\n";
@@ -162,7 +162,7 @@ class CompletionShellTest extends CakeTestCase {
  * @return void
  */
 	public function testOptions() {
-		$this->Shell->runCommand('options', array('options', 'bake'));
+		$this->Shell->runCommand('options', ['options', 'bake']);
 		$output = $this->Shell->stdout->output;
 
 		$expected = "--help -h --verbose -v --quiet -q --connection -c --theme -t\n";
@@ -175,7 +175,7 @@ class CompletionShellTest extends CakeTestCase {
  * @return void
  */
 	public function testSubCommandsCorePlugin() {
-		$this->Shell->runCommand('subCommands', array('subCommands', 'CORE.bake'));
+		$this->Shell->runCommand('subCommands', ['subCommands', 'CORE.bake']);
 		$output = $this->Shell->stdout->output;
 
 		$expected = "controller db_config fixture model plugin project test view\n";
@@ -188,7 +188,7 @@ class CompletionShellTest extends CakeTestCase {
  * @return void
  */
 	public function testSubCommandsAppPlugin() {
-		$this->Shell->runCommand('subCommands', array('subCommands', 'app.sample'));
+		$this->Shell->runCommand('subCommands', ['subCommands', 'app.sample']);
 		$output = $this->Shell->stdout->output;
 
 		$expected = '';
@@ -201,7 +201,7 @@ class CompletionShellTest extends CakeTestCase {
  * @return void
  */
 	public function testSubCommandsPlugin() {
-		$this->Shell->runCommand('subCommands', array('subCommands', 'TestPluginTwo.welcome'));
+		$this->Shell->runCommand('subCommands', ['subCommands', 'TestPluginTwo.welcome']);
 		$output = $this->Shell->stdout->output;
 
 		$expected = "say_hello\n";
@@ -214,7 +214,7 @@ class CompletionShellTest extends CakeTestCase {
  * @return void
  */
 	public function testSubCommandsNoArguments() {
-		$this->Shell->runCommand('subCommands', array());
+		$this->Shell->runCommand('subCommands', []);
 		$output = $this->Shell->stdout->output;
 
 		$expected = '';
@@ -227,7 +227,7 @@ class CompletionShellTest extends CakeTestCase {
  * @return void
  */
 	public function testSubCommandsNonExistingCommand() {
-		$this->Shell->runCommand('subCommands', array('subCommands', 'foo'));
+		$this->Shell->runCommand('subCommands', ['subCommands', 'foo']);
 		$output = $this->Shell->stdout->output;
 
 		$expected = '';
@@ -240,7 +240,7 @@ class CompletionShellTest extends CakeTestCase {
  * @return void
  */
 	public function testSubCommands() {
-		$this->Shell->runCommand('subCommands', array('subCommands', 'bake'));
+		$this->Shell->runCommand('subCommands', ['subCommands', 'bake']);
 		$output = $this->Shell->stdout->output;
 
 		$expected = "controller db_config fixture model plugin project test view\n";
@@ -253,7 +253,7 @@ class CompletionShellTest extends CakeTestCase {
  * @return void
  */
 	public function testFuzzy() {
-		$this->Shell->runCommand('fuzzy', array());
+		$this->Shell->runCommand('fuzzy', []);
 		$output = $this->Shell->stdout->output;
 
 		$expected = '';

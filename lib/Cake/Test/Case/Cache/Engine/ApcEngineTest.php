@@ -52,7 +52,7 @@ class ApcEngineTest extends CakeTestCase {
 
 		$this->_cacheDisable = Configure::read('Cache.disable');
 		Configure::write('Cache.disable', false);
-		Cache::config('apc', array('engine' => 'Apc', 'prefix' => 'cake_'));
+		Cache::config('apc', ['engine' => 'Apc', 'prefix' => 'cake_']);
 	}
 
 /**
@@ -75,7 +75,7 @@ class ApcEngineTest extends CakeTestCase {
  * @return void
  */
 	public function testReadAndWriteCache() {
-		Cache::set(array('duration' => 1), 'apc');
+		Cache::set(['duration' => 1], 'apc');
 
 		$result = Cache::read('test', 'apc');
 		$expecting = '';
@@ -98,7 +98,7 @@ class ApcEngineTest extends CakeTestCase {
  * @return void
  */
 	public function testReadWriteDurationZero() {
-		Cache::config('apc', array('engine' => 'Apc', 'duration' => 0, 'prefix' => 'cake_'));
+		Cache::config('apc', ['engine' => 'Apc', 'duration' => 0, 'prefix' => 'cake_']);
 		Cache::write('zero', 'Should save', 'apc');
 		sleep(1);
 
@@ -112,7 +112,7 @@ class ApcEngineTest extends CakeTestCase {
  * @return void
  */
 	public function testExpiry() {
-		Cache::set(array('duration' => 1), 'apc');
+		Cache::set(['duration' => 1], 'apc');
 
 		$result = Cache::read('test', 'apc');
 		$this->assertFalse($result);
@@ -125,7 +125,7 @@ class ApcEngineTest extends CakeTestCase {
 		$result = Cache::read('other_test', 'apc');
 		$this->assertFalse($result);
 
-		Cache::set(array('duration' => 1), 'apc');
+		Cache::set(['duration' => 1], 'apc');
 
 		$data = 'this is a test of the emergency broadcasting system';
 		$result = Cache::write('other_test', $data, 'apc');
@@ -233,12 +233,12 @@ class ApcEngineTest extends CakeTestCase {
  */
 	public function testGroupsReadWrite() {
 		$incFunc = $this->_apcExtension . '_inc';
-		Cache::config('apc_groups', array(
+		Cache::config('apc_groups', [
 			'engine' => 'Apc',
 			'duration' => 0,
-			'groups' => array('group_a', 'group_b'),
+			'groups' => ['group_a', 'group_b'],
 			'prefix' => 'test_'
-		));
+		]);
 		$this->assertTrue(Cache::write('test_groups', 'value', 'apc_groups'));
 		$this->assertEquals('value', Cache::read('test_groups', 'apc_groups'));
 
@@ -259,12 +259,12 @@ class ApcEngineTest extends CakeTestCase {
  * @return void
  */
 	public function testGroupDelete() {
-		Cache::config('apc_groups', array(
+		Cache::config('apc_groups', [
 			'engine' => 'Apc',
 			'duration' => 0,
-			'groups' => array('group_a', 'group_b'),
+			'groups' => ['group_a', 'group_b'],
 			'prefix' => 'test_'
-		));
+		]);
 		$this->assertTrue(Cache::write('test_groups', 'value', 'apc_groups'));
 		$this->assertEquals('value', Cache::read('test_groups', 'apc_groups'));
 		$this->assertTrue(Cache::delete('test_groups', 'apc_groups'));
@@ -278,12 +278,12 @@ class ApcEngineTest extends CakeTestCase {
  * @return void
  */
 	public function testGroupClear() {
-		Cache::config('apc_groups', array(
+		Cache::config('apc_groups', [
 			'engine' => 'Apc',
 			'duration' => 0,
-			'groups' => array('group_a', 'group_b'),
+			'groups' => ['group_a', 'group_b'],
 			'prefix' => 'test_'
-		));
+		]);
 
 		$this->assertTrue(Cache::write('test_groups', 'value', 'apc_groups'));
 		$this->assertTrue(Cache::clearGroup('group_a', 'apc_groups'));

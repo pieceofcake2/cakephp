@@ -1,4 +1,7 @@
 <?php
+
+use PHPUnit\Framework\TestSuite;
+
 /**
  * Tree Behavior test file - runs all the tree behavior tests
  *
@@ -15,7 +18,6 @@
  * @since         CakePHP(tm) v 2.0
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
-
 /**
  * Tree Behavior test
  *
@@ -23,7 +25,7 @@
  *
  * @package       Cake.Test.Case.Model.Behavior
  */
-class TreeBehaviorTest extends \PHPUnit\Framework\TestSuite {
+class TreeBehaviorTest extends TestSuite {
 
 /**
  * suite method, defines tests for this suite.

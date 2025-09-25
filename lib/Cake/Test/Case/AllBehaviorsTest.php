@@ -1,4 +1,7 @@
 <?php
+
+use PHPUnit\Framework\TestSuite;
+
 /**
  * AllBehaviorsTest file
  *
@@ -15,7 +18,6 @@
  * @since         CakePHP(tm) v 2.0
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
-
 /**
  * AllBehaviorsTest class
  *
@@ -23,7 +25,7 @@
  *
  * @package       Cake.Test.Case
  */
-class AllBehaviorsTest extends \PHPUnit\Framework\TestSuite {
+class AllBehaviorsTest extends TestSuite {
 
 /**
  * Suite define the tests for this suite

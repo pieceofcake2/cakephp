@@ -77,7 +77,7 @@ class CakeSessionTest extends CakeTestCase {
  *
  * @var array
  */
-	public $fixtures = array('core.session');
+	public $fixtures = ['core.session'];
 
 /**
  * setup before class.
@@ -107,13 +107,13 @@ class CakeSessionTest extends CakeTestCase {
  */
 	public function setUp() : void {
 		parent::setUp();
-		Configure::write('Session', array(
+		Configure::write('Session', [
 			'defaults' => 'php',
 			'cookie' => 'cakephp',
 			'timeout' => 120,
 			'cookieTimeout' => 120,
-			'ini' => array(),
-		));
+			'ini' => [],
+		]);
 	}
 
 /**
@@ -138,15 +138,15 @@ class CakeSessionTest extends CakeTestCase {
 	public function testSessionConfigIniSetting() {
 		$_SESSION = null;
 
-		Configure::write('Session', array(
+		Configure::write('Session', [
 			'cookie' => 'test',
 			'checkAgent' => false,
 			'timeout' => 86400,
-			'ini' => array(
+			'ini' => [
 				'session.referer_check' => 'example.com',
 				'session.use_trans_sid' => false
-			)
-		));
+			]
+		]);
 		TestCakeSession::start();
 		$this->assertEquals('', ini_get('session.use_trans_sid'), 'Ini value is incorrect');
 		$this->assertEquals('example.com', ini_get('session.referer_check'), 'Ini value is incorrect');
@@ -258,12 +258,12 @@ class CakeSessionTest extends CakeTestCase {
 		$result = TestCakeSession::read('testing');
 		$this->assertEquals('1,2,3', $result);
 
-		TestCakeSession::write('testing', array('1' => 'one', '2' => 'two', '3' => 'three'));
+		TestCakeSession::write('testing', ['1' => 'one', '2' => 'two', '3' => 'three']);
 		$result = TestCakeSession::read('testing.1');
 		$this->assertEquals('one', $result);
 
 		$result = TestCakeSession::read('testing');
-		$this->assertEquals(array('1' => 'one', '2' => 'two', '3' => 'three'), $result);
+		$this->assertEquals(['1' => 'one', '2' => 'two', '3' => 'three'], $result);
 
 		$result = TestCakeSession::read();
 		$this->assertTrue(isset($result['testing']));
@@ -290,15 +290,15 @@ class CakeSessionTest extends CakeTestCase {
  * @return void
  */
 	public function testWriteArray() {
-		$result = TestCakeSession::write(array(
+		$result = TestCakeSession::write([
 			'one' => 1,
 			'two' => 2,
-			'three' => array('something'),
+			'three' => ['something'],
 			'null' => null
-		));
+		]);
 		$this->assertTrue($result);
 		$this->assertEquals(1, TestCakeSession::read('one'));
-		$this->assertEquals(array('something'), TestCakeSession::read('three'));
+		$this->assertEquals(['something'], TestCakeSession::read('three'));
 		$this->assertEquals(null, TestCakeSession::read('null'));
 	}
 
@@ -322,9 +322,9 @@ class CakeSessionTest extends CakeTestCase {
 		TestCakeSession::write('Some.string', 'value');
 		$this->assertEquals('value', TestCakeSession::read('Some.string'));
 
-		TestCakeSession::write('Some.string.array', array('values'));
+		TestCakeSession::write('Some.string.array', ['values']);
 		$this->assertEquals(
-			array('values'),
+			['values'],
 			TestCakeSession::read('Some.string.array')
 		);
 	}
@@ -336,7 +336,7 @@ class CakeSessionTest extends CakeTestCase {
  */
 	public function testConsume() {
 		TestCakeSession::write('Some.string', 'value');
-		TestCakeSession::write('Some.array', array('key1' => 'value1', 'key2' => 'value2'));
+		TestCakeSession::write('Some.array', ['key1' => 'value1', 'key2' => 'value2']);
 		$this->assertEquals('value', TestCakeSession::read('Some.string'));
 		$value = TestCakeSession::consume('Some.string');
 		$this->assertEquals('value', $value);
@@ -346,7 +346,7 @@ class CakeSessionTest extends CakeTestCase {
 		$value = TestCakeSession::consume(null);
 		$this->assertNull($value);
 		$value = TestCakeSession::consume('Some.array');
-		$expected = array('key1' => 'value1', 'key2' => 'value2');
+		$expected = ['key1' => 'value1', 'key2' => 'value2'];
 		$this->assertEquals($expected, $value);
 		$this->assertFalse(TestCakeSession::check('Some.array'));
 	}
@@ -430,7 +430,7 @@ class CakeSessionTest extends CakeTestCase {
 		TestCakeSession::clear(false);
 		$this->assertNull(TestCakeSession::read('Some'));
 
-		TestCakeSession::write('Some.string.array', array('values'));
+		TestCakeSession::write('Some.string.array', ['values']);
 		TestCakeSession::clear(false);
 		$this->assertFalse(TestCakeSession::read());
 	}
@@ -613,18 +613,18 @@ class CakeSessionTest extends CakeTestCase {
  * @return void
  */
 	public function testUsingAppLibsHandler() {
-		App::build(array(
-			'Model/Datasource/Session' => array(
+		App::build([
+			'Model/Datasource/Session' => [
 				CAKE . 'Test' . DS . 'test_app' . DS . 'Model' . DS . 'Datasource' . DS . 'Session' . DS
-			),
-			'Plugin' => array(CAKE . 'Test' . DS . 'test_app' . DS . 'Plugin' . DS)
-		), App::RESET);
-		Configure::write('Session', array(
+			],
+			'Plugin' => [CAKE . 'Test' . DS . 'test_app' . DS . 'Plugin' . DS]
+		], App::RESET);
+		Configure::write('Session', [
 			'defaults' => 'cake',
-			'handler' => array(
+			'handler' => [
 				'engine' => 'TestAppLibSession'
-			)
-		));
+			]
+		]);
 
 		TestCakeSession::start();
 		$this->assertTrue(TestCakeSession::started());
@@ -641,17 +641,17 @@ class CakeSessionTest extends CakeTestCase {
  * @return void
  */
 	public function testUsingPluginHandler() {
-		App::build(array(
-			'Plugin' => array(CAKE . 'Test' . DS . 'test_app' . DS . 'Plugin' . DS)
-		), App::RESET);
+		App::build([
+			'Plugin' => [CAKE . 'Test' . DS . 'test_app' . DS . 'Plugin' . DS]
+		], App::RESET);
 		CakePlugin::load('TestPlugin');
 
-		Configure::write('Session', array(
+		Configure::write('Session', [
 			'defaults' => 'cake',
-			'handler' => array(
+			'handler' => [
 				'engine' => 'TestPlugin.TestPluginSession'
-			)
-		));
+			]
+		]);
 
 		TestCakeSession::start();
 		$this->assertTrue(TestCakeSession::started());
@@ -708,10 +708,10 @@ class CakeSessionTest extends CakeTestCase {
 		Configure::write('Session.handler.engine', 'TestCacheSession');
 		Configure::write('Session.handler.config', 'session_test');
 
-		Cache::config('session_test', array(
+		Cache::config('session_test', [
 			'engine' => 'File',
 			'prefix' => 'session_test_',
-		));
+		]);
 
 		TestCakeSession::init();
 		TestCakeSession::start();
@@ -770,9 +770,9 @@ class CakeSessionTest extends CakeTestCase {
 		TestCakeSession::destroy();
 		$this->assertNull(TestCakeSession::read('SessionTestCase'));
 
-		Configure::write('Session', array(
+		Configure::write('Session', [
 			'defaults' => 'php'
-		));
+		]);
 		TestCakeSession::init();
 	}
 
@@ -815,10 +815,10 @@ class CakeSessionTest extends CakeTestCase {
  */
 	public function testCookieTimeoutFallback() {
 		$_SESSION = null;
-		Configure::write('Session', array(
+		Configure::write('Session', [
 			'defaults' => 'cake',
 			'timeout' => 400,
-		));
+		]);
 		TestCakeSession::start();
 		$this->assertEquals(400, Configure::read('Session.cookieTimeout'));
 		$this->assertEquals(400, Configure::read('Session.timeout'));
@@ -826,11 +826,11 @@ class CakeSessionTest extends CakeTestCase {
 		$this->assertEquals(400 * 60, ini_get('session.gc_maxlifetime'));
 
 		$_SESSION = null;
-		Configure::write('Session', array(
+		Configure::write('Session', [
 			'defaults' => 'cake',
 			'timeout' => 400,
 			'cookieTimeout' => 600
-		));
+		]);
 		TestCakeSession::start();
 		$this->assertEquals(600, Configure::read('Session.cookieTimeout'));
 		$this->assertEquals(400, Configure::read('Session.timeout'));

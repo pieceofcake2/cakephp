@@ -1,4 +1,6 @@
 <?php
+use PHPUnit\TextUI\Command;
+
 /**
  * TestRunner for CakePHP Test suite.
  *
@@ -16,10 +18,6 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-if (!class_exists('PHPUnit_TextUI_Command')) {
-	require_once 'PHPUnit/TextUI/Command.php';
-}
-
 App::uses('CakeTestRunner', 'TestSuite');
 App::uses('CakeTestLoader', 'TestSuite');
 App::uses('CakeTestSuite', 'TestSuite');
@@ -32,7 +30,7 @@ App::uses('CakeTestModel', 'TestSuite/Fixture');
  *
  * @package       Cake.TestSuite
  */
-class CakeTestSuiteCommand extends PHPUnit_TextUI_Command {
+class CakeTestSuiteCommand extends Command {
 
 /**
  * Construct method
@@ -41,9 +39,9 @@ class CakeTestSuiteCommand extends PHPUnit_TextUI_Command {
  * @param array $params list of options to be used for this run
  * @throws MissingTestLoaderException When a loader class could not be found.
  */
-	public function __construct($loader, $params = array()) {
+	public function __construct($loader, $params = []) {
 		if ($loader && !class_exists($loader)) {
-			throw new MissingTestLoaderException(array('class' => $loader));
+			throw new MissingTestLoaderException(['class' => $loader]);
 		}
 		$this->arguments['loader'] = $loader;
 		$this->arguments['test'] = $params['case'];
@@ -61,7 +59,8 @@ class CakeTestSuiteCommand extends PHPUnit_TextUI_Command {
  * @param bool $exit The exit mode.
  * @return void
  */
-	public function run(array $argv, $exit = true) {
+	public function run(array $argv, $exit = true): int
+	{
 		$this->handleArguments($argv);
 
 		$runner = $this->getRunner($this->arguments['loader']);

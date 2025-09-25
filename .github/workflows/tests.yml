@@ -121,14 +121,10 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php-version }}
-          extensions: apcu, memcache, memcached, redis, mcrypt, pdo_mysql, pdo_pgsql, pdo_sqlite, xdebug
+          extensions: apcu, memcache, memcached, redis, mcrypt, pdo_mysql, pdo_pgsql, pdo_sqlite
           ini-values: |
-            assert.exception=1,
-            zend.assertions=1,
-            error_reporting=-1,
-            display_errors=On,
             apc.enable_cli=1
-          tools: composer
+          coverage: xdebug
 
       - name: Enable Autoload
         run: echo "require_once dirname(__DIR__, 2) . DS . 'vendors/autoload.php';" >> app/Config/bootstrap.php

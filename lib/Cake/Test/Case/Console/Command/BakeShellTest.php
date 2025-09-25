@@ -38,7 +38,7 @@ class BakeShellTest extends CakeTestCase {
  *
  * @var array
  */
-	public $fixtures = array('core.user');
+	public $fixtures = ['core.user'];
 
 /**
  * setup test
@@ -47,13 +47,13 @@ class BakeShellTest extends CakeTestCase {
  */
 	public function setUp() : void {
 		parent::setUp();
-		$out = $this->getMock('ConsoleOutput', array(), array(), '', false);
-		$in = $this->getMock('ConsoleInput', array(), array(), '', false);
+		$out = $this->getMock('ConsoleOutput', [], [], '', false);
+		$in = $this->getMock('ConsoleInput', [], [], '', false);
 
 		$this->Shell = $this->getMock(
 			'BakeShell',
-			array('in', 'out', 'hr', 'err', 'createFile', '_stop', '_checkUnitTest'),
-			array($out, $out, $in)
+			['in', 'out', 'hr', 'err', 'createFile', '_stop', '_checkUnitTest'],
+			[$out, $out, $in]
 		);
 	}
 
@@ -78,10 +78,10 @@ class BakeShellTest extends CakeTestCase {
 		$userExists = class_exists('User');
 		$this->skipIf($userExists, 'User class exists, cannot test `bake all [param]`.');
 
-		$this->Shell->Model = $this->getMock('ModelTask', array(), array(&$this->Dispatcher));
-		$this->Shell->Controller = $this->getMock('ControllerTask', array(), array(&$this->Dispatcher));
-		$this->Shell->View = $this->getMock('ModelTask', array(), array(&$this->Dispatcher));
-		$this->Shell->DbConfig = $this->getMock('DbConfigTask', array(), array(&$this->Dispatcher));
+		$this->Shell->Model = $this->getMock('ModelTask', [], [&$this->Dispatcher]);
+		$this->Shell->Controller = $this->getMock('ControllerTask', [], [&$this->Dispatcher]);
+		$this->Shell->View = $this->getMock('ModelTask', [], [&$this->Dispatcher]);
+		$this->Shell->DbConfig = $this->getMock('DbConfigTask', [], [&$this->Dispatcher]);
 
 		$this->Shell->DbConfig->expects($this->once())
 			->method('getConfig')
@@ -111,8 +111,8 @@ class BakeShellTest extends CakeTestCase {
 			});
 
 		$this->Shell->connection = '';
-		$this->Shell->params = array();
-		$this->Shell->args = array('User');
+		$this->Shell->params = [];
+		$this->Shell->args = ['User'];
 		$this->Shell->all();
 
 		$this->assertEquals('Bake All', $outCalls[0]);

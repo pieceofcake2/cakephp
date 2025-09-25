@@ -12,6 +12,7 @@
 *.mo
 .phpunit.result.cache
 /rector.php
+/phpstan.neon
 
 # IDE and editor specific files #
 #################################

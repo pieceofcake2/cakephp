@@ -31,7 +31,7 @@ class ConsoleOutputTest extends CakeTestCase {
 	 */
 	public function setUp() : void {
 		parent::setUp();
-		$this->output = $this->getMock('ConsoleOutput', array('_write'));
+		$this->output = $this->getMock('ConsoleOutput', ['_write']);
 		$this->output->outputAs(ConsoleOutput::COLOR);
 	}
 
@@ -91,7 +91,7 @@ class ConsoleOutputTest extends CakeTestCase {
 		$this->output->expects($this->once())->method('_write')
 			->with('Line' . PHP_EOL . 'Line' . PHP_EOL . 'Line' . PHP_EOL);
 
-		$this->output->write(array('Line', 'Line', 'Line'));
+		$this->output->write(['Line', 'Line', 'Line']);
 	}
 
 	/**
@@ -104,7 +104,7 @@ class ConsoleOutputTest extends CakeTestCase {
 		$overwriteTestString = "Overwriting text";
 
 		$actualCalls = [];
-		$this->output->expects($this->any(4))
+		$this->output->expects($this->any())
 			->method('_write')
 			->willReturnCallback(function($arg) use (&$actualCalls) {
 				$actualCalls[] = $arg;
@@ -129,14 +129,14 @@ class ConsoleOutputTest extends CakeTestCase {
 	 */
 	public function testStylesGet() {
 		$result = $this->output->styles('error');
-		$expected = array('text' => 'red', 'underline' => true);
+		$expected = ['text' => 'red', 'underline' => true];
 		$this->assertEquals($expected, $result);
 
 		$this->assertNull($this->output->styles('made_up_goop'));
 
 		$result = $this->output->styles();
-		$this->assertNotEmpty($result, 'error', 'Error is missing');
-		$this->assertNotEmpty($result, 'warning', 'Warning is missing');
+		$this->assertNotEmpty($result, 'error');
+		$this->assertNotEmpty($result, 'warning');
 	}
 
 /**
@@ -145,9 +145,9 @@ class ConsoleOutputTest extends CakeTestCase {
  * @return void
  */
 	public function testStylesAdding() {
-		$this->output->styles('test', array('text' => 'red', 'background' => 'black'));
+		$this->output->styles('test', ['text' => 'red', 'background' => 'black']);
 		$result = $this->output->styles('test');
-		$expected = array('text' => 'red', 'background' => 'black');
+		$expected = ['text' => 'red', 'background' => 'black'];
 		$this->assertEquals($expected, $result);
 
 		$this->assertTrue($this->output->styles('test', false), 'Removing a style should return true.');
@@ -184,12 +184,12 @@ class ConsoleOutputTest extends CakeTestCase {
  * @return void
  */
 	public function testFormattingCustom() {
-		$this->output->styles('annoying', array(
+		$this->output->styles('annoying', [
 			'text' => 'magenta',
 			'background' => 'cyan',
 			'blink' => true,
 			'underline' => true
-		));
+		]);
 
 		$this->output->expects($this->once())->method('_write')
 			->with("\033[35;46;5;4mAnnoy:\033[0m Something bad");
@@ -266,7 +266,7 @@ class ConsoleOutputTest extends CakeTestCase {
  * @return void
  */
 	public function testOutputAsPlainWhenOutputStream() {
-		$output = $this->getMock('ConsoleOutput', array('_write'), array('php://output'));
+		$output = $this->getMock('ConsoleOutput', ['_write'], ['php://output']);
 		$this->assertEquals(ConsoleOutput::PLAIN, $output->outputAs());
 	}
 

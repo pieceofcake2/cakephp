@@ -41,12 +41,12 @@ class PluginTaskTest extends CakeTestCase {
  */
 	public function setUp() : void {
 		parent::setUp();
-		$this->out = $this->getMock('ConsoleOutput', array(), array(), '', false);
-		$this->in = $this->getMock('ConsoleInput', array(), array(), '', false);
+		$this->out = $this->getMock('ConsoleOutput', [], [], '', false);
+		$this->in = $this->getMock('ConsoleInput', [], [], '', false);
 
 		$this->Task = $this->getMock('PluginTask',
-			array('in', 'err', 'createFile', '_stop', 'clear'),
-			array($this->out, $this->out, $this->in)
+			['in', 'err', 'createFile', '_stop', 'clear'],
+			[$this->out, $this->out, $this->in]
 		);
 		$this->Task->path = TMP . 'tests' . DS;
 		$this->Task->bootstrap = TMP . 'tests' . DS . 'bootstrap.php';
@@ -59,7 +59,7 @@ class PluginTaskTest extends CakeTestCase {
 			}
 		}
 		$this->_testPath = array_push($paths, TMP . 'tests' . DS) - 1;
-		App::build(array('plugins' => $paths));
+		App::build(['plugins' => $paths]);
 	}
 
 /**
@@ -105,7 +105,7 @@ class PluginTaskTest extends CakeTestCase {
 		$path = $this->Task->path . 'BakeTestPlugin';
 		$this->assertTrue(is_dir($path), 'No plugin dir %s');
 
-		$directories = array(
+		$directories = [
 			'Config' . DS . 'Schema',
 			'Console' . DS . 'Command' . DS . 'Task',
 			'Console' . DS . 'Templates',
@@ -126,7 +126,7 @@ class PluginTaskTest extends CakeTestCase {
 			'webroot' . DS . 'css',
 			'webroot' . DS . 'js',
 			'webroot' . DS . 'img',
-		);
+		];
 		foreach ($directories as $dir) {
 			$this->assertTrue(is_dir($path . DS . $dir), 'Missing directory for ' . $dir);
 		}
@@ -154,7 +154,7 @@ class PluginTaskTest extends CakeTestCase {
 				$createFileCalls[] = ['file' => $file, 'content' => $content];
 			});
 
-		$this->Task->args = array();
+		$this->Task->args = [];
 		$this->Task->execute();
 
 		$file1 = $path . DS . 'Controller' . DS . 'TestPluginAppController.php';
@@ -186,7 +186,7 @@ class PluginTaskTest extends CakeTestCase {
 				$createFileCalls[] = ['file' => $file, 'content' => $content];
 			});
 
-		$this->Task->args = array('BakeTestPlugin');
+		$this->Task->args = ['BakeTestPlugin'];
 		$this->Task->execute();
 
 		$file1 = $path . DS . 'Controller' . DS . 'BakeTestPluginAppController.php';
@@ -212,8 +212,8 @@ class PluginTaskTest extends CakeTestCase {
 		$paths[] = '/fake/path2';
 
 		$this->Task = $this->getMock('PluginTask',
-			array('in', 'out', 'err', 'createFile', '_stop'),
-			array($this->out, $this->out, $this->in)
+			['in', 'out', 'err', 'createFile', '_stop'],
+			[$this->out, $this->out, $this->in]
 		);
 		$this->Task->path = TMP . 'tests' . DS;
 

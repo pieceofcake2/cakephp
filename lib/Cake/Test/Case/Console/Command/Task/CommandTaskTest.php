@@ -30,23 +30,23 @@ class CommandTaskTest extends CakeTestCase {
  */
 	public function setUp() : void {
 		parent::setUp();
-		App::build(array(
-			'Plugin' => array(
+		App::build([
+			'Plugin' => [
 				CAKE . 'Test' . DS . 'test_app' . DS . 'Plugin' . DS
-			),
-			'Console/Command' => array(
+			],
+			'Console/Command' => [
 				CAKE . 'Test' . DS . 'test_app' . DS . 'Console' . DS . 'Command' . DS
-			)
-		), App::RESET);
-		CakePlugin::load(array('TestPlugin', 'TestPluginTwo'));
+			]
+		], App::RESET);
+		CakePlugin::load(['TestPlugin', 'TestPluginTwo']);
 
-		$out = $this->getMock('ConsoleOutput', array(), array(), '', false);
-		$in = $this->getMock('ConsoleInput', array(), array(), '', false);
+		$out = $this->getMock('ConsoleOutput', [], [], '', false);
+		$in = $this->getMock('ConsoleInput', [], [], '', false);
 
 		$this->CommandTask = $this->getMock(
 			'CommandTask',
-			array('in', '_stop', 'clear'),
-			array($out, $out, $in)
+			['in', '_stop', 'clear'],
+			[$out, $out, $in]
 		);
 	}
 
@@ -70,8 +70,8 @@ class CommandTaskTest extends CakeTestCase {
 	public function testGetShellList() {
 		$result = $this->CommandTask->getShellList();
 
-		$expected = array(
-			'CORE' => array(
+		$expected = [
+			'CORE' => [
 				'acl',
 				'api',
 				'bake',
@@ -84,19 +84,19 @@ class CommandTaskTest extends CakeTestCase {
 				'test',
 				'testsuite',
 				'upgrade'
-			),
-			'TestPlugin' => array(
+			],
+			'TestPlugin' => [
 				'example',
 				'test_plugin'
-			),
-			'TestPluginTwo' => array(
+			],
+			'TestPluginTwo' => [
 				'example',
 				'welcome'
-			),
-			'app' => array(
+			],
+			'app' => [
 				'sample'
-			),
-		);
+			],
+		];
 		$this->assertEquals($expected, $result);
 	}
 
@@ -108,7 +108,7 @@ class CommandTaskTest extends CakeTestCase {
 	public function testCommands() {
 		$result = $this->CommandTask->commands();
 
-		$expected = array(
+		$expected = [
 			'TestPlugin.example',
 			'TestPlugin.test_plugin',
 			'TestPluginTwo.example',
@@ -126,7 +126,7 @@ class CommandTaskTest extends CakeTestCase {
 			'testsuite',
 			'upgrade',
 			'sample'
-		);
+		];
 		$this->assertEquals($expected, $result);
 	}
 
@@ -138,7 +138,7 @@ class CommandTaskTest extends CakeTestCase {
 	public function testSubCommands() {
 		$result = $this->CommandTask->subCommands('acl');
 
-		$expected = array(
+		$expected = [
 			'check',
 			'create',
 			'db_config',
@@ -152,7 +152,7 @@ class CommandTaskTest extends CakeTestCase {
 			'parseIdentifier',
 			'setParent',
 			'view'
-		);
+		];
 		$this->assertEquals($expected, $result);
 	}
 
@@ -164,7 +164,7 @@ class CommandTaskTest extends CakeTestCase {
 	public function testSubCommandsUnknownCommand() {
 		$result = $this->CommandTask->subCommands('yoghurt');
 
-		$expected = array();
+		$expected = [];
 		$this->assertEquals($expected, $result);
 	}
 
@@ -206,7 +206,7 @@ class CommandTaskTest extends CakeTestCase {
 	public function testOptions() {
 		$result = $this->CommandTask->options('bake');
 
-		$expected = array(
+		$expected = [
 			'--help',
 			'-h',
 			'--verbose',
@@ -217,7 +217,7 @@ class CommandTaskTest extends CakeTestCase {
 			'-c',
 			'--theme',
 			'-t'
-		);
+		];
 		$this->assertEquals($expected, $result);
 	}
 
@@ -229,14 +229,14 @@ class CommandTaskTest extends CakeTestCase {
 	public function testOptionsUnknownCommand() {
 		$result = $this->CommandTask->options('pie');
 
-		$expected = array(
+		$expected = [
 			'--help',
 			'-h',
 			'--verbose',
 			'-v',
 			'--quiet',
 			'-q'
-		);
+		];
 		$this->assertEquals($expected, $result);
 	}
 

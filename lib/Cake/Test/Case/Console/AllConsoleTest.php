@@ -1,4 +1,7 @@
 <?php
+
+use PHPUnit\Framework\TestSuite;
+
 /**
  * AllConsoleTest file
  *
@@ -15,7 +18,6 @@
  * @since         CakePHP(tm) v 2.0
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
-
 /**
  * AllConsoleTest class
  *
@@ -23,7 +25,7 @@
  *
  * @package       Cake.Test.Case.Console
  */
-class AllConsoleTest extends \PHPUnit\Framework\TestSuite {
+class AllConsoleTest extends TestSuite {
 
 /**
  * suite method, defines tests for this suite.

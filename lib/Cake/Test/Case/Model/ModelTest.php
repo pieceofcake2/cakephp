@@ -1,4 +1,7 @@
 <?php
+
+use PHPUnit\Framework\TestSuite;
+
 /**
  * ModelTest file
  *
@@ -15,7 +18,6 @@
  * @since         CakePHP(tm) v 2.0
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
-
 /**
  * ModelTest class
  *
@@ -23,7 +25,7 @@
  *
  * @package       Cake.Test.Case
  */
-class ModelTest extends \PHPUnit\Framework\TestSuite {
+class ModelTest extends TestSuite {
 
 /**
  * suite method, defines tests for this suite.
@@ -31,7 +33,7 @@ class ModelTest extends \PHPUnit\Framework\TestSuite {
  * @return void
  */
 	public static function suite() {
-		$suite = new \PHPUnit\Framework\TestSuite('All Model related class tests');
+		$suite = new TestSuite('All Model related class tests');
 
 		$suite->addTestFile(CORE_TEST_CASES . DS . 'Model' . DS . 'Validator' . DS . 'CakeValidationSetTest.php');
 		$suite->addTestFile(CORE_TEST_CASES . DS . 'Model' . DS . 'Validator' . DS . 'CakeValidationRuleTest.php');

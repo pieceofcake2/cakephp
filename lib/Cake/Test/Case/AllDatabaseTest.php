@@ -1,4 +1,7 @@
 <?php
+
+use PHPUnit\Framework\TestSuite;
+
 /**
  * AllDatabaseTest file
  *
@@ -15,7 +18,6 @@
  * @since         CakePHP(tm) v 2.0
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
-
 /**
  * AllDatabaseTest class
  *
@@ -23,7 +25,7 @@
  *
  * @package       Cake.Test.Case
  */
-class AllDatabaseTest extends \PHPUnit\Framework\TestSuite {
+class AllDatabaseTest extends TestSuite {
 
 /**
  * suite method, defines tests for this suite.
@@ -31,10 +33,10 @@ class AllDatabaseTest extends \PHPUnit\Framework\TestSuite {
  * @return void
  */
 	public static function suite() {
-		$suite = new \PHPUnit\Framework\TestSuite('Datasources, Schema and DbAcl tests');
+		$suite = new TestSuite('Datasources, Schema and DbAcl tests');
 
 		$path = CORE_TEST_CASES . DS . 'Model' . DS;
-		$tasks = array(
+		$tasks = [
 			'AclNode',
 			'CakeSchema',
 			'ConnectionManager',
@@ -46,7 +48,7 @@ class AllDatabaseTest extends \PHPUnit\Framework\TestSuite {
 			'Datasource' . DS . 'CakeSession',
 			'Datasource' . DS . 'Session' . DS . 'CacheSession',
 			'Datasource' . DS . 'Session' . DS . 'DatabaseSession',
-		);
+		];
 		foreach ($tasks as $task) {
 			$suite->addTestFile($path . $task . 'Test.php');
 		}
