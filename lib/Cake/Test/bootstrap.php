@@ -3,6 +3,8 @@
  * Bootstrap for phpunit command
  */
 
+use PHPUnit\Util\ErrorHandler;
+
 if (!defined('DS')) {
     define('DS', DIRECTORY_SEPARATOR);
 }
@@ -26,5 +28,4 @@ App::uses('CakeTestSuite', 'TestSuite');
 App::uses('ControllerTestCase', 'TestSuite');
 App::uses('CakeTestModel', 'TestSuite/Fixture');
 
-restore_error_handler();
-restore_exception_handler();
+set_error_handler(new ErrorHandler(true, true, true, true));
