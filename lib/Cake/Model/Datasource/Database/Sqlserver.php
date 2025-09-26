@@ -298,7 +298,10 @@ class Sqlserver extends DboSource
                 $fields[$field]['length'] = null;
             }
             if ($fields[$field]['type'] === 'float' && !empty($column->Size)) {
-                $fields[$field]['length'] = $fields[$field]['length'] . ',' . $column->Size;
+                // For float types, include precision information if Size is available
+                if ($column->Size > 0) {
+                    $fields[$field]['length'] = $fields[$field]['length'] . ',' . $column->Size;
+                }
             }
         }
         $this->_cacheDescription($table, $fields);
@@ -448,6 +451,15 @@ class Sqlserver extends DboSource
             return true;
         }
 
+        // Fix SQL Server NOT operator syntax for boolean fields
+        foreach ($fields as $field => $value) {
+            if (is_string($value) && preg_match('/^NOT\s+(.+)$/i', $value, $matches)) {
+                // SQL Server uses 1 - field or ~ for bitwise NOT on boolean/bit fields
+                // Using 1 - field is more compatible with bit columns
+                $fields[$field] = '1 - ' . $matches[1];
+            }
+        }
+
         return parent::update($model, array_keys($fields), array_values($fields), $conditions);
     }
 
@@ -556,6 +568,11 @@ class Sqlserver extends DboSource
             }
 
             return $length->Length;
+        }
+
+        // If it's an object but doesn't have Length property, extract the Type string
+        if (is_object($length) && isset($length->Type)) {
+            return parent::length($length->Type);
         }
 
         return parent::length($length);

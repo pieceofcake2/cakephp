@@ -3138,6 +3138,18 @@ class DboSource extends DataSource
         $operator = trim($operator);
 
         if (is_array($value)) {
+            // Handle empty array for SQL Server - it doesn't support IN ()
+            if (empty($value)) {
+                switch ($operator) {
+                    case '=':
+                    case 'IN':
+                        return '(1 = 0)'; // Always false
+                    case '!=':
+                    case '<>':
+                    case 'NOT IN':
+                        return '(1 = 1)'; // Always true
+                }
+            }
             $value = implode(', ', $value);
 
             switch ($operator) {
@@ -3432,7 +3444,7 @@ class DboSource extends DataSource
      * Gets the length of a database-native column description, or null if no length
      *
      * @param string $real Real database-layer column type (i.e. "varchar(255)")
-     * @return mixed An integer or string representing the length of the column, or null for unknown length.
+     * @return string|int|null An integer or string representing the length of the column, or null for unknown length.
      */
     public function length($real)
     {
