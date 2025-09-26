@@ -6,7 +6,7 @@ initialize_db() {
     echo "Waiting for SQL Server to be ready..."
     echo "Using password from MSSQL_SA_PASSWORD environment variable"
     for i in {1..60}; do
-        if /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P "${MSSQL_SA_PASSWORD}" -Q "SELECT 1" -No &> /dev/null; then
+        if /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P "${MSSQL_SA_PASSWORD}" -Q "SELECT 1" -C -No &> /dev/null; then
             echo "SQL Server is ready"
             break
         fi
@@ -14,7 +14,7 @@ initialize_db() {
     done
 
     # Check if databases already exist
-    DB_EXISTS=$(/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P "${MSSQL_SA_PASSWORD}" -Q "SET NOCOUNT ON; SELECT COUNT(*) FROM sys.databases WHERE name = 'cakephp_test'" -h -1 -No 2>/dev/null | tr -d ' ')
+    DB_EXISTS=$(/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P "${MSSQL_SA_PASSWORD}" -Q "SET NOCOUNT ON; SELECT COUNT(*) FROM sys.databases WHERE name = 'cakephp_test'" -h -1 -C -No 2>/dev/null | tr -d ' ')
 
     if [ "$DB_EXISTS" = "0" ]; then
         echo "Initializing databases..."
@@ -25,7 +25,7 @@ initialize_db() {
                 case "$f" in
                     *.sql)
                         echo "Running $f"
-                        /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P "${MSSQL_SA_PASSWORD}" -i "$f" -No
+                        /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P "${MSSQL_SA_PASSWORD}" -i "$f" -C -No
                         ;;
                     *.sh)
                         if [ "$f" != "/docker-entrypoint-initdb.d/docker-entrypoint.sh" ]; then

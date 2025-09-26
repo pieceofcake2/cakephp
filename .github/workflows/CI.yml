@@ -91,16 +91,6 @@ jobs:
             --health-retries=5 \
             postgres:9.4
 
-      - name: Install Microsoft ODBC Driver for SQL Server
-        if: matrix.db-type == 'sqlsrv'
-        run: |
-          sudo apt-get update
-          sudo DEBIAN_FRONTEND=noninteractive apt-get install -y curl gnupg
-          curl https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add -
-          curl https://packages.microsoft.com/config/ubuntu/$(lsb_release -rs)/prod.list | sudo tee /etc/apt/sources.list.d/mssql-release.list
-          sudo apt-get update
-          sudo ACCEPT_EULA=Y DEBIAN_FRONTEND=noninteractive apt-get install -y msodbcsql18
-
       - name: Start SQL Server 2022
         if: matrix.db-type == 'sqlsrv'
         run: |
@@ -110,11 +100,22 @@ jobs:
             -e MSSQL_PID=Developer \
             -p 1433:1433 \
             -v ${{ github.workspace }}/docker/sqlsrv:/docker-entrypoint-initdb.d:ro \
-            --health-cmd="env SQLCMDPASSWORD='Password123!' sqlcmd -S localhost -U sa -Q 'SELECT 1' -C" \
+            --entrypoint /docker-entrypoint-initdb.d/docker-entrypoint.sh \
+            --health-cmd="/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P 'Password123!' -Q 'SELECT 1' -C -No" \
             --health-interval=10s \
             --health-timeout=5s \
             --health-retries=5 \
             mcr.microsoft.com/mssql/server:2022-latest
+
+      - name: Install Microsoft ODBC Driver for SQL Server
+        if: matrix.db-type == 'sqlsrv'
+        run: |
+          sudo apt-get update
+          sudo DEBIAN_FRONTEND=noninteractive apt-get install -y curl gnupg
+          curl https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add -
+          curl https://packages.microsoft.com/config/ubuntu/$(lsb_release -rs)/prod.list | sudo tee /etc/apt/sources.list.d/mssql-release.list
+          sudo apt-get update
+          sudo ACCEPT_EULA=Y DEBIAN_FRONTEND=noninteractive apt-get install -y msodbcsql18
 
       - name: Install PHP with extensions
         uses: shivammathur/setup-php@v2
@@ -132,12 +133,6 @@ jobs:
         run: |
           sudo locale-gen de_DE;
           sudo locale-gen es_ES;
-
-      - name: Run SQL Server init script
-        if: matrix.db-type == 'sqlsrv'
-        run: |
-          # Run init script after SQL Server is ready
-          docker exec sqlsrv2022 /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P 'Password123!' -i /docker-entrypoint-initdb.d/init.sql
 
       - name: Make temporary directories writable
         run: chmod -R 777 ./app/tmp

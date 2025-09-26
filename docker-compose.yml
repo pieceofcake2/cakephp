@@ -40,7 +40,7 @@ services:
       MYSQL_USER: cakephp_test
       MYSQL_PASSWORD: secret
     volumes:
-      - ./docker/mysql:/docker-entrypoint-initdb.d:cached
+      - ./docker/mysql:/docker-entrypoint-initdb.d:ro:cached
       - mysql80-data:/var/lib/mysql
     ports:
       - "3307:3306"
@@ -53,7 +53,7 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
     volumes:
-      - ./docker/pgsql:/docker-entrypoint-initdb.d:cached
+      - ./docker/pgsql:/docker-entrypoint-initdb.d:ro:cached
       - pgsql-data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
@@ -68,8 +68,8 @@ services:
     ports:
       - "1433:1433"
     volumes:
+      - ./docker/sqlsrv:/docker-entrypoint-initdb.d:ro:cached
       - sqlsrv-data:/var/opt/mssql
-      - ./docker/sqlsrv:/docker-entrypoint-initdb.d:cached
     entrypoint: /docker-entrypoint-initdb.d/docker-entrypoint.sh
     healthcheck:
       test: ["CMD", "/opt/mssql-tools/bin/sqlcmd", "-S", "localhost", "-U", "sa", "-P", "Password123!", "-Q", "SELECT 1"]
