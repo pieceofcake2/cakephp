@@ -123,18 +123,18 @@ jobs:
         run: |
           docker run -d --name mssql2022 \
             -e ACCEPT_EULA=Y \
-            -e MSSQL_SA_PASSWORD=password \
+            -e MSSQL_SA_PASSWORD=Password123! \
             -e MSSQL_PID=Developer \
             -p 1433:1433 \
-            --health-cmd="/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P password -Q 'SELECT 1'" \
+            --health-cmd="/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P 'Password123!' -Q 'SELECT 1' -C" \
             --health-interval=10s \
             --health-timeout=5s \
             --health-retries=5 \
             mcr.microsoft.com/mssql/server:2022-latest
 
           # Wait for MSSQL to be ready
-          for i in {1..30}; do
-            if docker exec mssql2022 /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P 'password' -Q "SELECT 1" &> /dev/null; then
+          for i in {1..60}; do
+            if docker exec mssql2022 /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P 'Password123!' -Q "SELECT 1" -C &> /dev/null; then
               echo "MSSQL Server 2022 is ready"
               break
             fi
@@ -180,9 +180,9 @@ jobs:
       - name: Create Databases for MSSQL
         if: matrix.db-type == 'sqlsrv'
         run: |
-          docker exec mssql2022 /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P 'password' -Q "CREATE DATABASE cakephp_test;"
-          docker exec mssql2022 /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P 'password' -Q "CREATE DATABASE cakephp_test2;"
-          docker exec mssql2022 /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P 'password' -Q "CREATE DATABASE cakephp_test3;"
+          docker exec mssql2022 /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P 'Password123!' -Q "CREATE DATABASE cakephp_test;" -C
+          docker exec mssql2022 /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P 'Password123!' -Q "CREATE DATABASE cakephp_test2;" -C
+          docker exec mssql2022 /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P 'Password123!' -Q "CREATE DATABASE cakephp_test3;" -C
 
       - name: Make temporary directories writable
         run: chmod -R 777 ./app/tmp
