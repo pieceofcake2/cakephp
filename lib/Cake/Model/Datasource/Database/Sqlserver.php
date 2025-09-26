@@ -130,6 +130,12 @@ class Sqlserver extends DboSource
         $config = $this->config;
         $this->connected = false;
 
+        // Fix locale issues on macOS with SQL Server driver
+        // Prevents "collate_byname<char>::collate_byname failed to construct for UTF-8" error
+        if (PHP_OS === 'Darwin' && !getenv('LC_ALL')) {
+            setlocale(LC_ALL, 'en_US.UTF-8');
+        }
+
         if (isset($config['persistent']) && $config['persistent']) {
             throw new InvalidArgumentException('Config setting "persistent" cannot be set to true, as the Sqlserver PDO driver does not support PDO::ATTR_PERSISTENT');
         }
