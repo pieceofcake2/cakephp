@@ -146,7 +146,7 @@ jobs:
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php-version }}
-          extensions: apcu, memcache, memcached, redis, mcrypt, pdo_mysql, pdo_pgsql, pdo_sqlite, pdo_sqlsrv
+          extensions: apcu, memcache, memcached, redis, mcrypt, pdo_mysql, pdo_pgsql, pdo_sqlite, sqlsrv, pdo_sqlsrv
           ini-values: |
             apc.enable_cli=1
           coverage: xdebug
