@@ -25,3 +25,6 @@ App::uses('CakeTestCase', 'TestSuite');
 App::uses('CakeTestSuite', 'TestSuite');
 App::uses('ControllerTestCase', 'TestSuite');
 App::uses('CakeTestModel', 'TestSuite/Fixture');
+
+restore_error_handler();
+restore_exception_handler();

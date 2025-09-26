@@ -775,6 +775,8 @@ class Sqlserver extends DboSource
         $result = parent::buildColumn($column);
         $result = preg_replace('/(bigint|int|integer)\([0-9]+\)/i', '$1', $result);
         $result = preg_replace('/(bit)\([0-9]+\)/i', '$1', $result);
+        // SQL Server doesn't support length specification for float types
+        $result = preg_replace('/(float|real)\([0-9,]+\)/i', '$1', $result);
         if (str_contains($result, 'DEFAULT NULL')) {
             if (isset($column['default']) && $column['default'] === '') {
                 $result = str_replace('DEFAULT NULL', "DEFAULT ''", $result);
