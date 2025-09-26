@@ -101,7 +101,7 @@ jobs:
             -p 1433:1433 \
             -v ${{ github.workspace }}/docker/sqlsrv:/docker-entrypoint-initdb.d:ro \
             --entrypoint /docker-entrypoint-initdb.d/docker-entrypoint.sh \
-            --health-cmd="/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P 'Password123!' -Q 'SELECT 1' -C -No" \
+            --health-cmd="/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P 'Password123!' -Q 'SELECT 1' -No" \
             --health-interval=10s \
             --health-timeout=5s \
             --health-retries=5 \
