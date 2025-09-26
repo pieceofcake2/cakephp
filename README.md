@@ -29,7 +29,7 @@ The original CakePHP 2.x branch [reached End of Life in June 2021](https://baker
 - MySQL 5.6, 5.7, 8.0+ (with `pdo_mysql` extension)
 - PostgreSQL 9.4+ (with `pdo_pgsql` extension)
 - SQLite 3 (with `pdo_sqlite` extension)
-- Microsoft SQL Server (with `pdo_sqlsrv` extension)
+- Microsoft SQL Server 2022+ (with `pdo_sqlsrv` extension)
 
 ### Required PHP Extensions
 
@@ -174,6 +174,7 @@ DB=mysql docker-compose exec web ./vendors/bin/phpunit
 DB=mysql80 docker-compose exec web ./vendors/bin/phpunit
 DB=pgsql docker-compose exec web ./vendors/bin/phpunit
 DB=sqlite docker-compose exec web ./vendors/bin/phpunit
+DB=sqlsrv docker-compose exec web ./vendors/bin/phpunit
 ```
 
 ### Local Installation

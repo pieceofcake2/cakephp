@@ -11,8 +11,10 @@ services:
     depends_on:
       - mysql
       - pgsql
+      - sqlsrv
       - memcached
       - redis
+
   mysql:
     image: mysql:5.6
     platform: linux/amd64
@@ -27,6 +29,7 @@ services:
       - mysql-data:/var/lib/mysql
     ports:
       - "3306:3306"
+
   mysql80:
     image: mysql:8.0
     platform: linux/amd64
@@ -41,6 +44,7 @@ services:
       - mysql80-data:/var/lib/mysql
     ports:
       - "3307:3306"
+
   pgsql:
     image: postgres:9.4
     platform: linux/amd64
@@ -53,17 +57,40 @@ services:
       - pgsql-data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
+
+  sqlsrv:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    platform: linux/amd64
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: "Password123!"
+      MSSQL_PID: "Developer"
+    ports:
+      - "1433:1433"
+    volumes:
+      - sqlsrv-data:/var/opt/mssql
+      - ./docker/sqlsrv:/docker-entrypoint-initdb.d:cached
+    entrypoint: /docker-entrypoint-initdb.d/docker-entrypoint.sh
+    healthcheck:
+      test: ["CMD", "/opt/mssql-tools/bin/sqlcmd", "-S", "localhost", "-U", "sa", "-P", "Password123!", "-Q", "SELECT 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   memcached:
     image: memcached:latest
     hostname: memcached
     ports:
       - "11211:11211"
+
   redis:
     image: "redis:latest"
     hostname: redis
     ports:
       - "6379:6379"
+
 volumes:
   mysql-data:
   mysql80-data:
   pgsql-data:
+  sqlsrv-data:

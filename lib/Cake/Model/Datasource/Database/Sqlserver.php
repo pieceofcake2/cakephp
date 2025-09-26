@@ -134,17 +134,35 @@ class Sqlserver extends DboSource
             throw new InvalidArgumentException('Config setting "persistent" cannot be set to true, as the Sqlserver PDO driver does not support PDO::ATTR_PERSISTENT');
         }
 
-        $flags = $config['flags'] + [
+        $flags = $config['flags'] ?? [] + [
             PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
         ];
 
         if (!empty($config['encoding'])) {
-            $flags[PDO::SQLSRV_ATTR_ENCODING] = $config['encoding'];
+            $encoding = $config['encoding'];
+            if ($encoding === 'utf8') {
+                $flags[PDO::SQLSRV_ATTR_ENCODING] = PDO::SQLSRV_ENCODING_UTF8;
+            }
+        }
+
+        // Build connection string
+        $server = $config['host'];
+        if (!empty($config['port'])) {
+            $server .= ',' . $config['port'];
+        }
+
+        $dsn = "sqlsrv:server={$server};Database={$config['database']}";
+
+        // Add additional connection options (SSL/TLS, etc.)
+        if (!empty($config['options'])) {
+            foreach ($config['options'] as $key => $value) {
+                $dsn .= ";{$key}={$value}";
+            }
         }
 
         try {
             $this->_connection = new PDO(
-                "sqlsrv:server={$config['host']};Database={$config['database']}",
+                $dsn,
                 $config['login'],
                 $config['password'],
                 $flags,
@@ -213,7 +231,7 @@ class Sqlserver extends DboSource
      * @return array Fields in table. Keys are name and type
      * @throws CakeException
      */
-    public function describe($model)
+    public function describe($model): array
     {
         $table = $this->fullTableName($model, false, false);
         $fulltable = $this->fullTableName($model, false, true);
@@ -311,7 +329,20 @@ class Sqlserver extends DboSource
                 }
                 if (str_contains($fields[$i], 'COUNT(DISTINCT')) {
                     $prepend = 'COUNT(DISTINCT ';
-                    $fields[$i] = trim(str_replace('COUNT(DISTINCT', '', $this->_quoteFields($fields[$i])));
+                    $temp = str_replace('COUNT(DISTINCT', '', $fields[$i]);
+                    $temp = rtrim($temp, ')');
+                    $quotedField = $this->_quoteFields(trim($temp));
+
+                    // Extract the alias from the quoted field (e.g., [Car].[country_code] -> Car__country_code)
+                    if (str_contains($quotedField, '.')) {
+                        $parts = explode('.', str_replace(['[', ']'], '', $quotedField));
+                        $fieldAlias = $this->name($parts[0] . '__' . $parts[1]);
+                    } else {
+                        $fieldAlias = $this->name($alias . '__' . str_replace(['[', ']'], '', $quotedField));
+                    }
+
+                    // Set the complete field with AS clause
+                    $fields[$i] = $quotedField . ") AS {$fieldAlias}";
                 }
 
                 if (!preg_match('/\s+AS\s+/i', $fields[$i])) {

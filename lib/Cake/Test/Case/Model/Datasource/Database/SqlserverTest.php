@@ -44,6 +44,11 @@ class SqlserverTestDb extends Sqlserver
     public $executeResultsStack = [];
 
     /**
+     * @var array|null
+     */
+    public ?array $describe = null;
+
+    /**
      * execute method
      *
      * @param mixed $sql
@@ -61,10 +66,11 @@ class SqlserverTestDb extends Sqlserver
     /**
      * fetchAll method
      *
-     * @param mixed $sql
-     * @return void
+     * @param Model $model
+     * @param mixed $conditions
+     * @return string
      */
-    protected function _matchRecords(Model $model, $conditions = null)
+    protected function _matchRecords(Model $model, $conditions = null): string
     {
         return $this->conditions(['id' => [1, 2]]);
     }
@@ -74,7 +80,7 @@ class SqlserverTestDb extends Sqlserver
      *
      * @return string
      */
-    public function getLastQuery()
+    public function getLastQuery(): string
     {
         return $this->simulated[count($this->simulated) - 1];
     }
@@ -103,10 +109,10 @@ class SqlserverTestDb extends Sqlserver
     /**
      * describe method
      *
-     * @param Model $model
-     * @return void
+     * @param Model|string $model
+     * @return array
      */
-    public function describe($model)
+    public function describe($model): array
     {
         return empty($this->describe) ? parent::describe($model) : $this->describe;
     }
@@ -170,7 +176,7 @@ class SqlserverTestModel extends CakeTestModel
      * @param mixed $fields
      * @param mixed $order
      * @param mixed $recursive
-     * @return void
+     * @return mixed
      */
     public function find($conditions = null, $fields = null, $order = null, $recursive = null)
     {
@@ -388,7 +394,8 @@ class SqlserverTest extends CakeTestCase
      *
      * @return void
      */
-    public function testDistinctFields()
+    public function
+    testDistinctFields()
     {
         $result = $this->db->fields($this->model, null, ['DISTINCT Car.country_code']);
         $expected = ['DISTINCT [Car].[country_code] AS [Car__country_code]'];
@@ -665,7 +672,7 @@ class SqlserverTest extends CakeTestCase
 
         $result = $this->db->getLastQuery();
         $this->assertDoesNotMatchRegularExpression('/SqlserverTestModel/', $result);
-        $this->assertMatchesRegularExpression('/^UPDATE \[sqlserver_test_models\]/', $result);
+        $this->assertMatchesRegularExpression('/^UPDATE (\[[^\]]+\]\.)?\[sqlserver_test_models\]/', $result);
         $this->assertMatchesRegularExpression('/SET \[client_id\] = \[client_id\] \+ 1/', $result);
     }
 

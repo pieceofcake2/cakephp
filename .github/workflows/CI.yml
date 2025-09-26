@@ -30,6 +30,7 @@ jobs:
           - mysql80
           - pgsql
           - sqlite
+          - sqlsrv
 
     services:
       redis:
@@ -117,11 +118,35 @@ jobs:
             sleep 2
           done
 
+      - name: Start MSSQL Server 2022
+        if: matrix.db-type == 'sqlsrv'
+        run: |
+          docker run -d --name mssql2022 \
+            -e ACCEPT_EULA=Y \
+            -e MSSQL_SA_PASSWORD=password \
+            -e MSSQL_PID=Developer \
+            -p 1433:1433 \
+            --health-cmd="/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P password -Q 'SELECT 1'" \
+            --health-interval=10s \
+            --health-timeout=5s \
+            --health-retries=5 \
+            mcr.microsoft.com/mssql/server:2022-latest
+
+          # Wait for MSSQL to be ready
+          for i in {1..30}; do
+            if docker exec mssql2022 /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P 'password' -Q "SELECT 1" &> /dev/null; then
+              echo "MSSQL Server 2022 is ready"
+              break
+            fi
+            echo "Waiting for MSSQL Server 2022..."
+            sleep 2
+          done
+
       - name: Install PHP with extensions
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php-version }}
-          extensions: apcu, memcache, memcached, redis, mcrypt, pdo_mysql, pdo_pgsql, pdo_sqlite
+          extensions: apcu, memcache, memcached, redis, mcrypt, pdo_mysql, pdo_pgsql, pdo_sqlite, pdo_sqlsrv
           ini-values: |
             apc.enable_cli=1
           coverage: xdebug
@@ -151,6 +176,13 @@ jobs:
         run: |
           env PGPASSWORD=postgres psql -c 'CREATE SCHEMA test2;' -h 127.0.0.1 -U postgres -d cakephp_test;
           env PGPASSWORD=postgres psql -c 'CREATE SCHEMA test3;' -h 127.0.0.1 -U postgres -d cakephp_test;
+
+      - name: Create Databases for MSSQL
+        if: matrix.db-type == 'sqlsrv'
+        run: |
+          docker exec mssql2022 /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P 'password' -Q "CREATE DATABASE cakephp_test;"
+          docker exec mssql2022 /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P 'password' -Q "CREATE DATABASE cakephp_test2;"
+          docker exec mssql2022 /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P 'password' -Q "CREATE DATABASE cakephp_test3;"
 
       - name: Make temporary directories writable
         run: chmod -R 777 ./app/tmp
@@ -206,6 +238,10 @@ jobs:
       - name: Stop PostgreSQL 9.4
         if: always() && matrix.db-type == 'pgsql'
         run: docker stop postgres94 && docker rm postgres94 || true
+
+      - name: Stop MSSQL Server 2022
+        if: always() && matrix.db-type == 'sqlsrv'
+        run: docker stop mssql2022 && docker rm mssql2022 || true
 
   phpcs:
     runs-on: ubuntu-latest
