@@ -230,7 +230,9 @@ class PostgresTest extends CakeTestCase
         parent::setUp();
         Configure::write('Cache.disable', true);
         $this->Dbo = ConnectionManager::getDataSource('test');
-        $this->skipIf(!($this->Dbo instanceof Postgres));
+        if (!($this->Dbo instanceof Postgres)) {
+            $this->markTestSkipped('The Postgres extension is not available.');
+        }
         $this->Dbo2 = new DboPostgresTestDb($this->Dbo->config, false);
         $this->model = new PostgresTestModel();
     }
