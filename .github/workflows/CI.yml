@@ -142,7 +142,7 @@ jobs:
             sleep 2
           done
 
-      - name: Install Microsoft ODBC Driver for SQL Server
+      - name: Install Microsoft ODBC Driver and SQL Tools for SQL Server
         if: matrix.db-type == 'sqlsrv'
         run: |
           sudo apt-get update
@@ -150,7 +150,8 @@ jobs:
           curl https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add -
           curl https://packages.microsoft.com/config/ubuntu/$(lsb_release -rs)/prod.list | sudo tee /etc/apt/sources.list.d/mssql-release.list
           sudo apt-get update
-          sudo ACCEPT_EULA=Y DEBIAN_FRONTEND=noninteractive apt-get install -y msodbcsql18 unixodbc-dev
+          sudo ACCEPT_EULA=Y DEBIAN_FRONTEND=noninteractive apt-get install -y msodbcsql18 mssql-tools18
+          echo 'export PATH="$PATH:/opt/mssql-tools18/bin"' >> ~/.bashrc
 
       - name: Install PHP with extensions
         uses: shivammathur/setup-php@v2
@@ -190,9 +191,9 @@ jobs:
       - name: Create Databases for SQL Server
         if: matrix.db-type == 'sqlsrv'
         run: |
-          docker exec sqlsrv2022 /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P 'Password123!' -Q "CREATE DATABASE cakephp_test;" -C
-          docker exec sqlsrv2022 /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P 'Password123!' -Q "CREATE DATABASE cakephp_test2;" -C
-          docker exec sqlsrv2022 /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P 'Password123!' -Q "CREATE DATABASE cakephp_test3;" -C
+          env SQLCMDPASSWORD='Password123!' sqlcmd -S 127.0.0.1 -U sa -Q "CREATE DATABASE cakephp_test;" -C
+          env SQLCMDPASSWORD='Password123!' sqlcmd -S 127.0.0.1 -U sa -Q "CREATE DATABASE cakephp_test2;" -C
+          env SQLCMDPASSWORD='Password123!' sqlcmd -S 127.0.0.1 -U sa -Q "CREATE DATABASE cakephp_test3;" -C
 
       - name: Make temporary directories writable
         run: chmod -R 777 ./app/tmp
