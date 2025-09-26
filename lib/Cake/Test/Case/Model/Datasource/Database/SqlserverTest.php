@@ -281,12 +281,16 @@ class SqlserverTest extends CakeTestCase
     public function setUp(): void
     {
         parent::setUp();
-        $this->Dbo = ConnectionManager::getDataSource('test');
-        if (!($this->Dbo instanceof Sqlserver)) {
-            $this->markTestSkipped('Please configure the test datasource to use SQL Server.');
+        try {
+            $this->Dbo = ConnectionManager::getDataSource('test');
+            if (!($this->Dbo instanceof Sqlserver)) {
+                $this->markTestSkipped('Please configure the test datasource to use SQL Server.');
+            }
+            $this->db = new SqlserverTestDb($this->Dbo->config);
+            $this->model = new SqlserverTestModel();
+        } catch (\Exception $e) {
+            $this->markTestSkipped('SQL Server connection not available: ' . $e->getMessage());
         }
-        $this->db = new SqlserverTestDb($this->Dbo->config);
-        $this->model = new SqlserverTestModel();
     }
 
     /**
