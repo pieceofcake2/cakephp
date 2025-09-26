@@ -394,8 +394,7 @@ class SqlserverTest extends CakeTestCase
      *
      * @return void
      */
-    public function
-    testDistinctFields()
+    public function testDistinctFields()
     {
         $result = $this->db->fields($this->model, null, ['DISTINCT Car.country_code']);
         $expected = ['DISTINCT [Car].[country_code] AS [Car__country_code]'];
