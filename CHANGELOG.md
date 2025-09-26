@@ -1,5 +1,19 @@
 ## CHANGELOG
 
+## Unreleased
+
+### Database Support
+
+- **SQL Server 2022 Support**: Added modern SQL Server support for testing and development
+  - Added SQL Server 2022 container to docker-compose.yml with automatic database initialization
+  - Modernized SQL Server driver to support latest SQL Server versions (previously only supported legacy versions)
+  - Created custom entrypoint script for automatic database creation (cakephp_test, cakephp_test2, cakephp_test3)
+  - Added SSL/TLS connection options support via DSN parameters
+  - Fixed COUNT(DISTINCT) field handling bug in SQL Server driver
+  - Updated CI workflow to include SQL Server testing with GitHub Actions
+  - Installed pdo_sqlsrv extension in Docker web container
+  - Switched to mssql-tools18 for SQL Server 2022 compatibility
+
 ## v2.10.24.4 (2025-09-25)
 
 ### Code Quality

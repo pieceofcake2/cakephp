@@ -125,6 +125,23 @@ The following new methods have been added to database drivers:
 
 These methods provide better database version detection and feature support checking.
 
+#### SQL Server Driver Updates
+
+**Configuration Changes:**
+- **New `options` array**: SSL/TLS and other connection options should now be configured via the `options` array instead of directly in the DSN
+  ```php
+  'options' => [
+      'TrustServerCertificate' => 'yes',
+      'Encrypt' => 'no',
+  ]
+  ```
+- **Encoding handling**: The `encoding` configuration now properly maps to PDO constants (e.g., 'utf8' → PDO::SQLSRV_ENCODING_UTF8)
+
+**Method Signature Changes:**
+- `describe()` method now has an explicit return type declaration: `describe($model): array`
+
+These changes modernize the SQL Server driver to support SQL Server 2022 and improve connection configuration flexibility.
+
 #### strftime() Replacement
 
 - `strftime()` function has been deprecated in PHP 8.1 and removed in PHP 8.2
