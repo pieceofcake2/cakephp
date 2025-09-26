@@ -513,8 +513,8 @@ class CakeSchemaTest extends CakeTestCase
 
         if (isset($read['tables']['datatypes']['float_field']['length'])) {
             $this->assertEquals(
-                $read['tables']['datatypes']['float_field']['length'],
                 $this->Schema->tables['datatypes']['float_field']['length'],
+                $read['tables']['datatypes']['float_field']['length'],
             );
         }
 
