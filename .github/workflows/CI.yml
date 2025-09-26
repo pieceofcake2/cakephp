@@ -118,30 +118,6 @@ jobs:
             sleep 2
           done
 
-      - name: Start SQL Server 2022
-        if: matrix.db-type == 'sqlsrv'
-        run: |
-          docker run -d --name sqlsrv2022 \
-            -e ACCEPT_EULA=Y \
-            -e MSSQL_SA_PASSWORD=Password123! \
-            -e MSSQL_PID=Developer \
-            -p 1433:1433 \
-            --health-cmd="/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P 'Password123!' -Q 'SELECT 1' -C" \
-            --health-interval=10s \
-            --health-timeout=5s \
-            --health-retries=5 \
-            mcr.microsoft.com/mssql/server:2022-latest
-
-          # Wait for SQL to be ready
-          for i in {1..60}; do
-            if env SQLCMDPASSWORD='Password123!' /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -Q "SELECT 1" -C &> /dev/null; then
-              echo "SQL Server 2022 is ready"
-              break
-            fi
-            echo "Waiting for SQL Server 2022..."
-            sleep 2
-          done
-
       - name: Install Microsoft ODBC Driver and SQL Tools for SQL Server
         if: matrix.db-type == 'sqlsrv'
         run: |
@@ -151,6 +127,31 @@ jobs:
           curl https://packages.microsoft.com/config/ubuntu/$(lsb_release -rs)/prod.list | sudo tee /etc/apt/sources.list.d/mssql-release.list
           sudo apt-get update
           sudo ACCEPT_EULA=Y DEBIAN_FRONTEND=noninteractive apt-get install -y msodbcsql18 mssql-tools18
+          echo "/opt/mssql-tools18/bin" >> "$GITHUB_PATH"
+
+      - name: Start SQL Server 2022
+        if: matrix.db-type == 'sqlsrv'
+        run: |
+          docker run -d --name sqlsrv2022 \
+            -e ACCEPT_EULA=Y \
+            -e MSSQL_SA_PASSWORD=Password123! \
+            -e MSSQL_PID=Developer \
+            -p 1433:1433 \
+            --health-cmd="env SQLCMDPASSWORD='Password123!' sqlcmd -S localhost -U sa -Q 'SELECT 1' -C" \
+            --health-interval=10s \
+            --health-timeout=5s \
+            --health-retries=5 \
+            mcr.microsoft.com/mssql/server:2022-latest
+
+          # Wait for SQL to be ready
+          for i in {1..60}; do
+            if env SQLCMDPASSWORD='Password123!' sqlcmd -S localhost -U sa -Q "SELECT 1" -C &> /dev/null; then
+              echo "SQL Server 2022 is ready"
+              break
+            fi
+            echo "Waiting for SQL Server 2022..."
+            sleep 2
+          done
 
       - name: Install PHP with extensions
         uses: shivammathur/setup-php@v2
@@ -190,9 +191,9 @@ jobs:
       - name: Create Databases for SQL Server
         if: matrix.db-type == 'sqlsrv'
         run: |
-          env SQLCMDPASSWORD='Password123!' /opt/mssql-tools18/bin/sqlcmd -S 127.0.0.1 -U sa -Q "CREATE DATABASE cakephp_test;" -C
-          env SQLCMDPASSWORD='Password123!' /opt/mssql-tools18/bin/sqlcmd -S 127.0.0.1 -U sa -Q "CREATE DATABASE cakephp_test2;" -C
-          env SQLCMDPASSWORD='Password123!' /opt/mssql-tools18/bin/sqlcmd -S 127.0.0.1 -U sa -Q "CREATE DATABASE cakephp_test3;" -C
+          env SQLCMDPASSWORD='Password123!' sqlcmd -S 127.0.0.1 -U sa -Q "CREATE DATABASE cakephp_test;" -C
+          env SQLCMDPASSWORD='Password123!' sqlcmd -S 127.0.0.1 -U sa -Q "CREATE DATABASE cakephp_test2;" -C
+          env SQLCMDPASSWORD='Password123!' sqlcmd -S 127.0.0.1 -U sa -Q "CREATE DATABASE cakephp_test3;" -C
 
       - name: Make temporary directories writable
         run: chmod -R 777 ./app/tmp
