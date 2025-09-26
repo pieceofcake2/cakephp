@@ -44,17 +44,16 @@ class DATABASE_CONFIG
             'host' => '127.0.0.1',
             'login' => 'sa',
             'password' => 'Password123!',
-            'database' => 'cakephp_test',
+            'database' => [
+                'default' => 'cakephp_test',
+                'test' => 'cakephp_test',
+                'test2' => 'cakephp_test2',
+                'test_database_three' => 'cakephp_test3',
+            ],
             'encoding' => 'utf8',
             'options' => [
                 'TrustServerCertificate' => 'yes',
                 'Encrypt' => 'no',
-            ],
-            'schema' => [
-                'default' => 'dbo',
-                'test' => 'dbo',
-                'test2' => 'test2',
-                'test_database_three' => 'test3',
             ],
         ],
     ];

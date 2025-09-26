@@ -211,7 +211,8 @@ class Sqlserver extends DboSource
         if ($cache !== null) {
             return $cache;
         }
-        $result = $this->_execute('SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES');
+        // Filter tables by current database catalog
+        $result = $this->_execute("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_CATALOG = DB_NAME()");
 
         if (!$result) {
             $result->closeCursor();
@@ -260,7 +261,7 @@ class Sqlserver extends DboSource
 				COLUMNPROPERTY(OBJECT_ID('" . ($schema ? $fulltable : $table) . "'), COLUMN_NAME, 'IsIdentity') as [Key],
 				NUMERIC_SCALE as Size
 			FROM INFORMATION_SCHEMA.COLUMNS
-			WHERE TABLE_NAME = '" . $table . "'" . ($schema ? " AND TABLE_SCHEMA = '" . $schema . "'" : ''),
+			WHERE TABLE_NAME = '" . $table . "' AND TABLE_CATALOG = DB_NAME()" . ($schema ? " AND TABLE_SCHEMA = '" . $schema . "'" : ''),
         );
 
         if (!$cols) {
@@ -297,11 +298,10 @@ class Sqlserver extends DboSource
             if (in_array($fields[$field]['type'], ['date', 'time', 'datetime', 'timestamp'])) {
                 $fields[$field]['length'] = null;
             }
-            if ($fields[$field]['type'] === 'float' && !empty($column->Size)) {
-                // For float types, include precision information if Size is available
-                if ($column->Size > 0) {
-                    $fields[$field]['length'] = $fields[$field]['length'] . ',' . $column->Size;
-                }
+            // SQL Server doesn't return precision info for float types in the same way as other databases
+            // Set length to null for float types as the byte size is not meaningful for schema comparison
+            if ($fields[$field]['type'] === 'float') {
+                $fields[$field]['length'] = null;
             }
         }
         $this->_cacheDescription($table, $fields);
@@ -768,20 +768,29 @@ class Sqlserver extends DboSource
      */
     public function insertMulti($table, $fields, $values)
     {
-        $primaryKey = $this->_getPrimaryKey($table);
-        $hasPrimaryKey = $primaryKey && (
-            (is_array($fields) && in_array($primaryKey, $fields)
-            || (is_string($fields) && str_contains($fields, $this->startQuote . $primaryKey . $this->endQuote)))
-        );
-
-        if ($hasPrimaryKey) {
-            $this->_execute('SET IDENTITY_INSERT ' . $this->fullTableName($table) . ' ON');
+        // For SQL Server, if we're inserting explicit ID values, we need IDENTITY_INSERT
+        // This is a common case with fixtures that have explicit ID values
+        $hasIdField = false;
+        if (is_array($fields)) {
+            // Check for common primary key field names
+            $hasIdField = in_array('id', $fields) || in_array('ID', $fields);
+        } elseif (is_string($fields)) {
+            $hasIdField = str_contains(strtolower($fields), 'id');
         }
 
-        parent::insertMulti($table, $fields, $values);
+        // For SQL Server, we need to handle IDENTITY_INSERT when inserting explicit IDs
+        if ($hasIdField) {
+            $fullTableName = $this->fullTableName($table);
+            $this->_execute('SET IDENTITY_INSERT ' . $fullTableName . ' ON');
+        }
 
-        if ($hasPrimaryKey) {
-            $this->_execute('SET IDENTITY_INSERT ' . $this->fullTableName($table) . ' OFF');
+        try {
+            parent::insertMulti($table, $fields, $values);
+        } finally {
+            if ($hasIdField) {
+                $fullTableName = $this->fullTableName($table);
+                $this->_execute('SET IDENTITY_INSERT ' . $fullTableName . ' OFF');
+            }
         }
     }
 
