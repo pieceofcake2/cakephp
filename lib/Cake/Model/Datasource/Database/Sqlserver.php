@@ -220,7 +220,7 @@ class Sqlserver extends DboSource
         $schema = $this->getSchemaName() ?? false;
 
         // Filter tables by current database catalog
-        $result = $this->_execute("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES" . ($schema ? " WHERE TABLE_SCHEMA = '" . $schema . "'" : ''));
+        $result = $this->_execute('SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES' . ($schema ? " WHERE TABLE_SCHEMA = '" . $schema . "'" : ''));
 
         if (!$result) {
             $result->closeCursor();
@@ -555,7 +555,7 @@ class Sqlserver extends DboSource
      * Handle SQLServer specific length properties.
      * SQLServer handles text types as nvarchar/varchar with a length of -1.
      *
-     * @param string|object $length Either the length as a string, or a Column descriptor object.
+     * @param object|string $length Either the length as a string, or a Column descriptor object.
      * @return mixed null|integer with length of column.
      */
     public function length($length)

@@ -394,7 +394,7 @@ class MissingConnectionException extends CakeException
             $message += ['enabled' => true];
         }
         if (isset($message['message'])) {
-            $this->_messageTemplate .= ' (%s)';
+            $this->_messageTemplate .= ' %s';
         }
         parent::__construct($message, $code);
     }
