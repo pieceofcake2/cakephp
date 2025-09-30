@@ -127,6 +127,11 @@ class Sqlserver extends DboSource
      */
     public function connect()
     {
+        // Set default schema to 'dbo' if not specified
+        if (!isset($this->config['schema']) || $this->config['schema'] === '') {
+            $this->config['schema'] = 'dbo';
+        }
+
         $config = $this->config;
         $this->connected = false;
 
@@ -211,8 +216,11 @@ class Sqlserver extends DboSource
         if ($cache !== null) {
             return $cache;
         }
+
+        $schema = $this->getSchemaName() ?? false;
+
         // Filter tables by current database catalog
-        $result = $this->_execute("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_CATALOG = DB_NAME()");
+        $result = $this->_execute("SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES" . ($schema ? " WHERE TABLE_SCHEMA = '" . $schema . "'" : ''));
 
         if (!$result) {
             $result->closeCursor();
@@ -249,7 +257,7 @@ class Sqlserver extends DboSource
         }
 
         $fields = [];
-        $schema = is_object($model) ? $model->schemaName : false;
+        $schema = is_object($model) ? $model->schemaName : $this->getSchemaName() ?? false;
 
         $cols = $this->_execute(
             "SELECT
@@ -261,7 +269,7 @@ class Sqlserver extends DboSource
 				COLUMNPROPERTY(OBJECT_ID('" . ($schema ? $fulltable : $table) . "'), COLUMN_NAME, 'IsIdentity') as [Key],
 				NUMERIC_SCALE as Size
 			FROM INFORMATION_SCHEMA.COLUMNS
-			WHERE TABLE_NAME = '" . $table . "' AND TABLE_CATALOG = DB_NAME()" . ($schema ? " AND TABLE_SCHEMA = '" . $schema . "'" : ''),
+			WHERE TABLE_NAME = '" . $table . "'" . ($schema ? " AND TABLE_SCHEMA = '" . $schema . "'" : ''),
         );
 
         if (!$cols) {
@@ -298,8 +306,6 @@ class Sqlserver extends DboSource
             if (in_array($fields[$field]['type'], ['date', 'time', 'datetime', 'timestamp'])) {
                 $fields[$field]['length'] = null;
             }
-            // SQL Server doesn't return precision info for float types in the same way as other databases
-            // Set length to null for float types as the byte size is not meaningful for schema comparison
             if ($fields[$field]['type'] === 'float') {
                 $fields[$field]['length'] = null;
             }
@@ -336,7 +342,7 @@ class Sqlserver extends DboSource
                     $prepend = 'DISTINCT ';
                     $fields[$i] = trim(str_replace('DISTINCT', '', $fields[$i]));
                 }
-                if (str_contains($fields[$i], 'COUNT(DISTINCT')) {
+                if (str_contains($fields[$i], 'COUNT(DISTINCT') && !preg_match('/\s+AS\s+/i', $fields[$i])) {
                     $prepend = 'COUNT(DISTINCT ';
                     $temp = str_replace('COUNT(DISTINCT', '', $fields[$i]);
                     $temp = rtrim($temp, ')');
@@ -377,11 +383,11 @@ class Sqlserver extends DboSource
                         $build[0] = trim($build[0], '[]');
                         $build[1] = trim($build[1], '[]');
                         $name = $build[0] . '.' . $build[1];
-                        $alias = $build[0] . '__' . $build[1];
+                        $_alias = $build[0] . '__' . $build[1];
 
-                        $this->_fieldMappings[$alias] = $name;
+                        $this->_fieldMappings[$_alias] = $name;
                         $fieldName = $this->name($name);
-                        $fieldAlias = $this->name($alias);
+                        $fieldAlias = $this->name($_alias);
                     }
                     if ($model->getColumnType($fields[$i]) === 'datetime') {
                         $fieldName = "CONVERT(VARCHAR(20), {$fieldName}, 20)";
@@ -453,10 +459,8 @@ class Sqlserver extends DboSource
 
         // Fix SQL Server NOT operator syntax for boolean fields
         foreach ($fields as $field => $value) {
-            if (is_string($value) && preg_match('/^NOT\s+(.+)$/i', $value, $matches)) {
-                // SQL Server uses 1 - field or ~ for bitwise NOT on boolean/bit fields
-                // Using 1 - field is more compatible with bit columns
-                $fields[$field] = '1 - ' . $matches[1];
+            if (is_string($value) && preg_match('/^NOT\s+((?:\[?\w+\]?.)?\[?\w+\]?)$/i', $value, $matches)) {
+                $fields[$field] = $matches[1] . ' ^ 1';
             }
         }
 
@@ -551,12 +555,16 @@ class Sqlserver extends DboSource
      * Handle SQLServer specific length properties.
      * SQLServer handles text types as nvarchar/varchar with a length of -1.
      *
-     * @param mixed $length Either the length as a string, or a Column descriptor object.
+     * @param string|object $length Either the length as a string, or a Column descriptor object.
      * @return mixed null|integer with length of column.
      */
     public function length($length)
     {
-        if (is_object($length) && isset($length->Length)) {
+        if (is_object($length)) {
+            if (!isset($length->Length) || $length->Length === null) {
+                return null;
+            }
+
             if ($length->Length == -1 && str_contains($length->Type, 'char')) {
                 return null;
             }
@@ -568,11 +576,6 @@ class Sqlserver extends DboSource
             }
 
             return $length->Length;
-        }
-
-        // If it's an object but doesn't have Length property, extract the Type string
-        if (is_object($length) && isset($length->Type)) {
-            return parent::length($length->Type);
         }
 
         return parent::length($length);
@@ -762,34 +765,27 @@ class Sqlserver extends DboSource
      * Inserts multiple values into a table
      *
      * @param string $table The table to insert into.
-     * @param string $fields The fields to set.
+     * @param array $fields The fields to set.
      * @param array $values The values to set.
-     * @return void
+     * @return bool
      */
     public function insertMulti($table, $fields, $values)
     {
-        // For SQL Server, if we're inserting explicit ID values, we need IDENTITY_INSERT
-        // This is a common case with fixtures that have explicit ID values
-        $hasIdField = false;
-        if (is_array($fields)) {
-            // Check for common primary key field names
-            $hasIdField = in_array('id', $fields) || in_array('ID', $fields);
-        } elseif (is_string($fields)) {
-            $hasIdField = str_contains(strtolower($fields), 'id');
-        }
+        $primaryKey = $this->_getPrimaryKey($table);
+        $hasPrimaryKey = $primaryKey && (
+            (is_array($fields) && in_array($primaryKey, $fields)
+            || (is_string($fields) && str_contains($fields, $this->startQuote . $primaryKey . $this->endQuote)))
+        );
 
-        // For SQL Server, we need to handle IDENTITY_INSERT when inserting explicit IDs
-        if ($hasIdField) {
-            $fullTableName = $this->fullTableName($table);
-            $this->_execute('SET IDENTITY_INSERT ' . $fullTableName . ' ON');
+        if ($hasPrimaryKey) {
+            $this->_execute('SET IDENTITY_INSERT ' . $this->fullTableName($table) . ' ON');
         }
 
         try {
-            parent::insertMulti($table, $fields, $values);
+            return parent::insertMulti($table, $fields, $values);
         } finally {
-            if ($hasIdField) {
-                $fullTableName = $this->fullTableName($table);
-                $this->_execute('SET IDENTITY_INSERT ' . $fullTableName . ' OFF');
+            if ($hasPrimaryKey) {
+                $this->_execute('SET IDENTITY_INSERT ' . $this->fullTableName($table) . ' OFF');
             }
         }
     }
@@ -807,8 +803,8 @@ class Sqlserver extends DboSource
         $result = parent::buildColumn($column);
         $result = preg_replace('/(bigint|int|integer)\([0-9]+\)/i', '$1', $result);
         $result = preg_replace('/(bit)\([0-9]+\)/i', '$1', $result);
-        // SQL Server doesn't support length specification for float types
-        $result = preg_replace('/(float|real)\([0-9,]+\)/i', '$1', $result);
+        $result = preg_replace('/(float|real)\((\d+),(\d+)\)/i', '$1', $result);
+
         if (str_contains($result, 'DEFAULT NULL')) {
             if (isset($column['default']) && $column['default'] === '') {
                 $result = str_replace('DEFAULT NULL', "DEFAULT ''", $result);
@@ -819,6 +815,11 @@ class Sqlserver extends DboSource
             $result .= ' NULL';
         } elseif (strpos($result, "DEFAULT N'")) {
             $result = str_replace("DEFAULT N'", "DEFAULT '", $result);
+        }
+
+        // Add PRIMARY KEY inline for primary key columns
+        if (isset($column['key']) && $column['key'] === 'primary') {
+            $result .= ' PRIMARY KEY';
         }
 
         return $result;
@@ -908,6 +909,7 @@ class Sqlserver extends DboSource
 
             return parent::_execute($sql, $params, $prepareOptions);
         }
+
         try {
             $this->_lastAffected = $this->_connection->exec($sql);
             if ($this->_lastAffected === false) {
@@ -947,7 +949,7 @@ class Sqlserver extends DboSource
      */
     public function getSchemaName()
     {
-        return $this->config['schema'];
+        return $this->config['schema'] ?? 'dbo';
     }
 
     /**

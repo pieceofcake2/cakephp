@@ -5,18 +5,6 @@ BEGIN
 END
 GO
 
-IF NOT EXISTS (SELECT * FROM sys.databases WHERE name = 'cakephp_test2')
-BEGIN
-    CREATE DATABASE cakephp_test2;
-END
-GO
-
-IF NOT EXISTS (SELECT * FROM sys.databases WHERE name = 'cakephp_test3')
-BEGIN
-    CREATE DATABASE cakephp_test3;
-END
-GO
-
 -- Use cakephp_test as the default database
 USE cakephp_test;
 GO

@@ -547,7 +547,7 @@ class SqlserverTest extends CakeTestCase
     {
         $column = ['name' => 'id', 'type' => 'integer', 'null' => false, 'default' => '', 'length' => '8', 'key' => 'primary'];
         $result = $this->db->buildColumn($column);
-        $expected = '[id] int IDENTITY (1, 1) NOT NULL';
+        $expected = '[id] int IDENTITY (1, 1) NOT NULL PRIMARY KEY';
         $this->assertEquals($expected, $result);
 
         $column = ['name' => 'client_id', 'type' => 'integer', 'null' => false, 'default' => '0', 'length' => '11'];
