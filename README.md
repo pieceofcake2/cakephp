@@ -135,6 +135,7 @@ These methods provide better database version detection and feature support chec
       'Encrypt' => 'no',
   ]
   ```
+- **Port support**: Port can now be specified separately and will be appended to the server in the DSN (e.g., 'host,port')
 - **Encoding handling**: The `encoding` configuration now properly maps to PDO constants (e.g., 'utf8' → PDO::SQLSRV_ENCODING_UTF8)
 
 **Method Signature Changes:**
