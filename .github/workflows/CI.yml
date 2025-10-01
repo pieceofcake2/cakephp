@@ -201,7 +201,7 @@ jobs:
         if: always() && matrix.db-type == 'sqlsrv'
         run: docker stop sqlsrv2022 && docker rm sqlsrv2022 || true
 
-  consume-qlty:
+  qlty:
     runs-on: ubuntu-latest
 
     needs:
