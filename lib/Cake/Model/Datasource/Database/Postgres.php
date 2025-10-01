@@ -44,7 +44,6 @@ class Postgres extends DboSource
         'schema' => 'public',
         'port' => 5432,
         'encoding' => '',
-        'sslmode' => 'allow',
         'flags' => [],
     ];
 
@@ -120,7 +119,10 @@ class Postgres extends DboSource
             PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
         ];
 
-        $dsn = "pgsql:host={$config['host']};port={$config['port']};dbname={$config['database']};sslmode={$config['sslmode']}";
+        $dsn = "pgsql:host={$config['host']};port={$config['port']};dbname={$config['database']}";
+        if (!empty($config['sslmode'])) {
+            $dsn .= ";sslmode={$config['sslmode']}";
+        }
         if (!empty($config['encoding'])) {
             $dsn .= ";options='--client_encoding={$config['encoding']}'";
         }
