@@ -1165,6 +1165,7 @@ class PostgresTest extends CakeTestCase
         $this->Dbo = ConnectionManager::getDataSource('test');
         $this->skipIf(!($this->Dbo instanceof Postgres));
 
+        // Test settings configuration
         $config2 = $this->Dbo->config;
         $config2['settings']['datestyle'] = 'sql, dmy';
         ConnectionManager::create('test2', $config2);
@@ -1174,6 +1175,29 @@ class PostgresTest extends CakeTestCase
         $this->assertEquals($expected, $r);
         $dbo2->execute('SET DATESTYLE TO ISO');
         $dbo2->disconnect();
+
+        // Test encoding configuration in DSN
+        $config3 = $this->Dbo->config;
+        $config3['encoding'] = 'UTF8';
+        $dbo3 = new Postgres($config3, true);
+        $this->assertTrue($dbo3->connected);
+        $encoding = $dbo3->getEncoding();
+        $this->assertEquals('UTF8', $encoding);
+        $dbo3->disconnect();
+
+        // Test sslmode configuration in DSN
+        $config4 = $this->Dbo->config;
+        $config4['sslmode'] = 'allow';
+        $dbo4 = new Postgres($config4, true);
+        $this->assertTrue($dbo4->connected);
+        $dbo4->disconnect();
+
+        // Test optional sslmode (empty string should work)
+        $config5 = $this->Dbo->config;
+        $config5['sslmode'] = '';
+        $dbo5 = new Postgres($config5, true);
+        $this->assertTrue($dbo5->connected);
+        $dbo5->disconnect();
     }
 
     /**
