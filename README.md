@@ -97,81 +97,149 @@ Before migrating to this fork, ensure:
 
 ### Breaking Changes
 
-#### PHP CodeSniffer Update [PR #8](https://github.com/friendsofcake2/cakephp/pull/8)
+#### 1. Cache Engines Removed ([PR #4](https://github.com/friendsofcake2/cakephp/pull/4))
 
-- **Development dependency**: Updated `cakephp/cakephp-codesniffer` from 1.0.0 to 5.3
-- **Code formatting**: Applied automatic formatting fixes across the codebase using phpcbf
-- This is primarily a development-time change and should not affect runtime behavior
-- If you have custom coding standards, you may need to update your `phpcs.xml` configuration
+**Breaking Change:**
+- **Xcache** support has been removed (not compatible with PHP 7.0+)
+- **Wincache** support has been removed (not actively maintained for PHP 8.x)
 
-#### Removed Cache Engines [PR #4](https://github.com/friendsofcake2/cakephp/pull/4)
+**Migration:**
+- If using these cache engines, migrate to Redis, Memcached, or APCu
 
-- **Xcache** support has been removed (Xcache is not compatible with PHP 7.0+)
-- **Wincache** support has been removed (Wincache is not actively maintained for PHP 8.x)
-- If you're using these cache engines, please migrate to Redis, Memcached, or APCu
+#### 2. Database Driver Methods Added ([PR #3](https://github.com/friendsofcake2/cakephp/pull/3))
 
-#### New Database Driver Methods [PR #3](https://github.com/friendsofcake2/cakephp/pull/3)
-
-The following new methods have been added to database drivers:
+**Breaking Change:**
+- New methods added to database drivers (may cause issues if you have custom driver implementations)
 
 **MySQL Driver (Mysql.php):**
-- `getVersion(): string` - Returns the MySQL/MariaDB/Aurora MySQL version as a string
-- `getServerType(): string` - Returns the server type: 'MySQL', 'MariaDB', or 'Aurora MySQL'
-- `utf8mb4Supported(): bool` - Checks if the server supports utf8mb4 character set
+- `getVersion(): string` - Returns MySQL/MariaDB/Aurora MySQL version
+- `getServerType(): string` - Returns 'MySQL', 'MariaDB', or 'Aurora MySQL'
+- `utf8mb4Supported(): bool` - Checks utf8mb4 character set support
 - `integerDisplayWidthDeprecated(): bool` - Checks if integer display width is deprecated (MySQL 8.0.17+)
 
 **PostgreSQL Driver (Postgres.php):**
-- `getVersion(): string` - Returns the PostgreSQL version as a string
+- `getVersion(): string` - Returns PostgreSQL version
 
-These methods provide better database version detection and feature support checking.
+**Migration:**
+- If you have custom database drivers extending these classes, implement these methods
 
-#### SQL Server Driver Updates
+#### 3. Database Charset Configuration Changes ([PR #11](https://github.com/friendsofcake2/cakephp/pull/11))
 
-**Configuration Changes:**
-- **New `options` array**: SSL/TLS and other connection options should now be configured via the `options` array instead of directly in the DSN
+**Breaking Change:**
+- Character set configuration moved from `SET NAMES` to DSN connection options
+- **MySQL**: Charset now in DSN (e.g., `mysql:...;charset=utf8`)
+- **PostgreSQL**: Client encoding in DSN options (e.g., `pgsql:...;options='--client_encoding=UTF8'`)
+- **PostgreSQL**: `sslmode` parameter is now optional in DSN
+
+**Migration:**
+- No action required - changes are backward compatible
+- `setEncoding()` methods still work for runtime changes
+- More efficient connection setup with charset in DSN
+
+#### 4. SQL Server Driver Updates ([PR #9](https://github.com/friendsofcake2/cakephp/pull/9))
+
+**Breaking Changes:**
+
+**4.1 Configuration Format**
+- **Schema-based configuration**: Use schema mapping instead of multiple databases
+  ```php
+  // Old approach (still works)
+  'database' => 'cakephp_test2'
+
+  // New recommended approach
+  'database' => 'cakephp_test',
+  'schema' => [
+      'default' => 'dbo',
+      'test2' => 'test2',
+      'test_database_three' => 'test3',
+  ]
+  ```
+
+- **Connection options**: SSL/TLS options now in `options` array
   ```php
   'options' => [
       'TrustServerCertificate' => 'yes',
       'Encrypt' => 'no',
   ]
   ```
-- **Port support**: Port can now be specified separately and will be appended to the server in the DSN (e.g., 'host,port')
-- **Encoding handling**: The `encoding` configuration now properly maps to PDO constants (e.g., 'utf8' → PDO::SQLSRV_ENCODING_UTF8)
 
-**Method Signature Changes:**
-- `describe()` method now has an explicit return type declaration: `describe($model): array`
+- **Port configuration**: Specify port separately (automatically appended to server)
 
-These changes modernize the SQL Server driver to support SQL Server 2022 and improve connection configuration flexibility.
+**4.2 Method Signature Changes**
+- `describe($model): array` - Now has explicit return type
+- `insertMulti()` - Now returns `bool` instead of `void`
 
-#### strftime() Replacement
+**Migration:**
+- Update SQL Server configuration to use schema mapping (optional but recommended)
+- Move SSL/TLS options to `options` array if using inline DSN
+- If extending Sqlserver class, update method signatures to match
 
-- `strftime()` function has been deprecated in PHP 8.1 and removed in PHP 8.2
-- This fork uses `IntlDateFormatter` via Symfony's ICU Polyfill
-- For backward compatibility, `PHP81_BC\strftime` is used as a fallback
-- Most date formatting will work identically, but edge cases may produce slightly different output
+#### 5. Mail Function Updates ([PR #10](https://github.com/friendsofcake2/cakephp/pull/10))
 
-#### PHPUnit Compatibility
+**Breaking Change:**
+- `MailTransport::_mail()` method signature changed with strict types
+- Old: `protected function _mail($to, $subject, $message, $headers, $params = null)`
+- New: `protected function _mail(string $to, string $subject, string $message, array|string $headers = [], string $params = ''): void`
 
-- Framework tests have been migrated to PHPUnit 9.6
-- All deprecated PHPUnit features have been fixed to ensure compatibility
+**Migration:**
+- No action required unless you've extended `MailTransport` class
+- If extending, update method signature to match strict types
 
-#### CSRF Token Security Enhancement [PR #5](https://github.com/friendsofcake2/cakephp/pull/5)
+#### 6. CSRF Token Security Enhancement ([PR #5](https://github.com/friendsofcake2/cakephp/pull/5))
 
-- **New tokens**: All newly generated CSRF tokens now use HMAC-SHA1 signatures for enhanced security (prevents CVE-2020-15400 token fixation attacks)
-- **Backward compatibility**: Existing legacy tokens (without HMAC) continue to work, ensuring no disruption to active user sessions
-- **Token format**: New tokens are compatible with CakePHP 3.x/4.x token format (base64-encoded with 16-byte value + 20-byte HMAC)
-- **No configuration needed**: The security enhancement is automatic and requires no code changes
+**Breaking Change:**
+- New CSRF tokens use HMAC-SHA1 signatures (prevents CVE-2020-15400)
+- Token format changed to base64-encoded (16-byte value + 20-byte HMAC)
 
-#### PHP 8 Syntax Modernization ([PR #7](https://github.com/friendsofcake2/cakephp/pull/7))
+**Migration:**
+- **No action required** - automatic and backward compatible
+- Existing tokens continue to work
+- New tokens generated with enhanced security
 
-- **Array syntax**: All `array()` syntax has been converted to short array syntax `[]`
-- **String functions**: Uses PHP 8's native `str_contains()`, `str_starts_with()`, and `str_ends_with()` functions
-- **Class references**: Replaced `get_class()` with `::class` constant
-- **Array destructuring**: Uses `[]` instead of `list()` for array destructuring
-- **Directory constants**: Replaced `dirname(__FILE__)` with `__DIR__` magic constant
-- **Multi-level paths**: Uses `dirname(__DIR__, n)` for parent directory access (PHP 7.0+ feature)
-- **Null coalescing**: Simplified ternary operators with null coalescing where appropriate
-- **Backward compatibility**: These are syntax changes only and do not affect functionality
+#### 7. strftime() Replacement
+
+**Breaking Change:**
+- `strftime()` deprecated in PHP 8.1, removed in PHP 8.2
+- Now uses `IntlDateFormatter` via Symfony's ICU Polyfill
+- Fallback to `PHP81_BC\strftime` for compatibility
+
+**Migration:**
+- Most date formatting works identically
+- Edge cases may produce slightly different output
+- Test date formatting in your application
+
+#### 8. Development Tools Updates
+
+**8.1 PHP CodeSniffer ([PR #8](https://github.com/friendsofcake2/cakephp/pull/8))**
+- Updated from 1.0.0 to 5.3
+- Applied automatic formatting fixes
+
+**Migration:**
+- Development-time change only
+- Update `phpcs.xml` if you have custom coding standards
+
+**8.2 PHPUnit Compatibility**
+- Framework tests migrated to PHPUnit 9.6
+- All deprecated PHPUnit features fixed
+
+**Migration:**
+- Update your tests if using deprecated PHPUnit features
+
+#### 9. PHP 8 Syntax Modernization ([PR #7](https://github.com/friendsofcake2/cakephp/pull/7))
+
+**Breaking Change:**
+- Codebase modernized to PHP 8 syntax
+
+**Changes:**
+- `array()` → `[]`
+- `get_class()` → `::class`
+- `list()` → `[]` for array destructuring
+- `dirname(__FILE__)` → `__DIR__`
+- Added null coalescing operators
+- Native `str_contains()`, `str_starts_with()`, `str_ends_with()`
+
+**Migration:**
+- **No action required** - syntax changes only, no functionality changes
 
 ## Running Tests
 

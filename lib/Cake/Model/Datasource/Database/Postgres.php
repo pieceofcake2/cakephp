@@ -44,7 +44,6 @@ class Postgres extends DboSource
         'schema' => 'public',
         'port' => 5432,
         'encoding' => '',
-        'sslmode' => 'allow',
         'flags' => [],
     ];
 
@@ -120,18 +119,23 @@ class Postgres extends DboSource
             PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
         ];
 
+        $dsn = "pgsql:host={$config['host']};port={$config['port']};dbname={$config['database']}";
+        if (!empty($config['sslmode'])) {
+            $dsn .= ";sslmode={$config['sslmode']}";
+        }
+        if (!empty($config['encoding'])) {
+            $dsn .= ";options='--client_encoding={$config['encoding']}'";
+        }
+
         try {
             $this->_connection = new PDO(
-                "pgsql:host={$config['host']};port={$config['port']};dbname={$config['database']};sslmode={$config['sslmode']}",
+                $dsn,
                 $config['login'],
                 $config['password'],
                 $flags,
             );
 
             $this->connected = true;
-            if (!empty($config['encoding'])) {
-                $this->setEncoding($config['encoding']);
-            }
             if (!empty($config['schema'])) {
                 $this->_execute('SET search_path TO "' . $config['schema'] . '"');
             }
