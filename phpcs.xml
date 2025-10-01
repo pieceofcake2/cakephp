@@ -122,7 +122,6 @@
         <exclude-pattern>lib/Cake/Console/Command/ConsoleShell.php</exclude-pattern>
         <exclude-pattern>lib/Cake/Console/Shell.php</exclude-pattern>
         <exclude-pattern>lib/Cake/Network/CakeResponse.php</exclude-pattern>
-        <exclude-pattern>lib/Cake/Network/Email/MailTransport.php</exclude-pattern>
         <exclude-pattern>lib/Cake/Test/Case/Cache/CacheTest.php</exclude-pattern>
         <exclude-pattern>lib/Cake/Test/Case/Cache/Engine/MemcacheEngineTest.php</exclude-pattern>
         <exclude-pattern>lib/Cake/Test/Case/Cache/Engine/MemcachedEngineTest.php</exclude-pattern>
