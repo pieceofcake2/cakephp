@@ -35,10 +35,7 @@ class MailTransport extends AbstractTransport
     {
         // https://github.com/cakephp/cakephp/issues/2209
         // https://bugs.php.net/bug.php?id=47983
-        $eol = "\r\n";
-        if (isset($this->_config['eol'])) {
-            $eol = $this->_config['eol'];
-        }
+        $eol = $this->_config['eol'] ?? "\r\n";
         $headers = $email->getHeaders(['from', 'sender', 'replyTo', 'readReceipt', 'returnPath', 'to', 'cc', 'bcc']);
         $to = $headers['To'];
         unset($headers['To']);
@@ -51,7 +48,7 @@ class MailTransport extends AbstractTransport
 
         $message = implode($eol, $email->message());
 
-        $params = $this->_config['additionalParameters'] ?? null;
+        $params = $this->_config['additionalParameters'] ?? '';
         $this->_mail($to, $subject, $message, $headers, $params);
 
         $headers .= $eol . 'Subject: ' . $subject;
@@ -66,24 +63,31 @@ class MailTransport extends AbstractTransport
      * @param string $to email's recipient
      * @param string $subject email's subject
      * @param string $message email's body
-     * @param string $headers email's custom headers
-     * @param string $params additional params for sending email, will be ignored when in safe_mode
+     * @param array|string $headers email's custom headers
+     * @param string $params additional params for sending email
      * @throws SocketException if mail could not be sent
      * @return void
      */
-    protected function _mail($to, $subject, $message, $headers, $params = null)
+    protected function _mail(string $to, string $subject, string $message, array|string $headers = [], string $params = ''): void
     {
-        if (ini_get('safe_mode')) {
-            //@codingStandardsIgnoreStart
-            if (!@mail($to, $subject, $message, $headers)) {
-                $error = error_get_last();
-                $msg = 'Could not send email: ' . ($error['message'] ?? 'unknown');
-                throw new SocketException($msg);
-            }
-        } elseif (!@mail($to, $subject, $message, $headers, $params)) {
-            $error = error_get_last();
-            $msg = 'Could not send email: ' . ($error['message'] ?? 'unknown');
-            //@codingStandardsIgnoreEnd
+        $errors = [];
+        set_error_handler(function ($errno, $errstr, $errfile, $errline) use (&$errors) {
+            $errors[] = [
+                'level' => $errno,
+                'message' => $errstr,
+                'file' => $errfile,
+                'line' => $errline,
+            ];
+
+            return true;
+        });
+        $result = mail($to, $subject, $message, $headers, $params);
+        restore_error_handler();
+
+        if (!$result) {
+            $lastError = !empty($errors) ? end($errors) : null;
+            $msg = 'Could not send email: ' . ($lastError['message'] ?? 'unknown');
+
             throw new SocketException($msg);
         }
     }

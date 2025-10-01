@@ -80,8 +80,6 @@ class BasicsTest extends CakeTestCase
      */
     public function testEnv()
     {
-        $this->skipIf(!function_exists('ini_get') || ini_get('safe_mode') === '1', 'Safe mode is on.');
-
         $server = $_SERVER;
         $env = $_ENV;
 
