@@ -182,7 +182,7 @@ jobs:
         with:
           oidc: true
           command: publish
-          files: coverage/clover.xml
+          files: coverage.xml
           incomplete: true
 
       - name: Stop MySQL 5.6
