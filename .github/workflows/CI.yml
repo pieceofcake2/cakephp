@@ -183,7 +183,9 @@ jobs:
           oidc: true
           command: publish
           files: coverage.xml
+          format: clover
           incomplete: true
+          name: PHP ${{ matrix.php-version }} - ${{ matrix.db-type }}
 
       - name: Stop MySQL 5.6
         if: always() && matrix.db-type == 'mysql'
