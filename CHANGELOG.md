@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+### PHP Support
+
+- **PHP 8.5 Support**: Added PHP 8.5 to CI testing matrix
+  - All tests pass on PHP 8.5
+  - Confirmed compatibility across all database types (MySQL, PostgreSQL, SQLite, SQL Server)
+
 ### CI/CD Improvements
 
 - **Qlty Coverage Integration**: Added Qlty code coverage reporting to CI workflow

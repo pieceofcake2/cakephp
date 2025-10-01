@@ -22,7 +22,7 @@ The original CakePHP 2.x branch [reached End of Life in June 2021](https://baker
 
 ### PHP Versions
 
-- PHP 8.0, 8.1, 8.2, 8.3, 8.4
+- PHP 8.0, 8.1, 8.2, 8.3, 8.4, 8.5
 
 ### Database Support
 
