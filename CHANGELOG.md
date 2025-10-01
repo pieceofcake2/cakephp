@@ -2,9 +2,20 @@
 
 ## Unreleased
 
+### PHP 8.0+ Compatibility
+
+- **Mail Function Compatibility**: Updated mail transport for PHP 8.0+ strict typing ([PR #10](https://github.com/friendsofcake2/cakephp/pull/10))
+  - Changed `mail()` function parameter defaults from `null` to empty string
+  - Added strict type declarations to `MailTransport::_mail()` method
+  - Updated method signature: `_mail(string $to, string $subject, string $message, array|string $headers = [], string $params = ''): void`
+  - Replaced `@` error suppression with `set_error_handler()` for better error handling
+  - Updated `CakeEmail::send()` default parameter from `null` to empty string
+  - Removed deprecated `safe_mode` checks (removed in PHP 7.2.0)
+  - Removed `MailTransport.php` from phpcs exclusions (now coding standards compliant)
+
 ### Database Support
 
-- **SQL Server 2022 Support**: Added comprehensive SQL Server 2022 support for testing and development
+- **SQL Server 2022 Support**: Added comprehensive SQL Server 2022 support for testing and development ([PR #9](https://github.com/friendsofcake2/cakephp/pull/9))
   - **Docker Infrastructure**:
     - Added SQL Server 2022 container to docker-compose.yml with automatic database initialization
     - Created custom entrypoint script for automatic database and schema creation (cakephp_test with schemas: dbo, test2, test3)
