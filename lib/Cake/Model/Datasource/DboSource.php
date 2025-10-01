@@ -3138,18 +3138,6 @@ class DboSource extends DataSource
         $operator = trim($operator);
 
         if (is_array($value)) {
-            // Handle empty array for SQL Server - it doesn't support IN ()
-            if (empty($value)) {
-                switch ($operator) {
-                    case '=':
-                    case 'IN':
-                        return '(1 = 0)'; // Always false
-                    case '!=':
-                    case '<>':
-                    case 'NOT IN':
-                        return '(1 = 1)'; // Always true
-                }
-            }
             $value = implode(', ', $value);
 
             switch ($operator) {
