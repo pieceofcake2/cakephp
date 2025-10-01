@@ -4,7 +4,7 @@
 
 ### PHP Support
 
-- **PHP 8.5 Support**: Added PHP 8.5 to CI testing matrix
+- **PHP 8.5 Support**: Added PHP 8.5 to CI testing matrix ([PR #12](https://github.com/friendsofcake2/cakephp/pull/12))
   - All tests pass on PHP 8.5
   - Confirmed compatibility across all database types (MySQL, PostgreSQL, SQLite, SQL Server)
 
