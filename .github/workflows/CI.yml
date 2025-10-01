@@ -177,6 +177,14 @@ jobs:
           flags: php${{ matrix.php-version }}-${{ matrix.db-type }}
           name: PHP ${{ matrix.php-version }} - ${{ matrix.db-type }}
 
+      - name: Upload coverage reports to Qlty
+        uses: qltysh/qlty-action/coverage@v2
+        with:
+          oidc: true
+          command: publish
+          files: coverage/clover.xml
+          incomplete: true
+
       - name: Stop MySQL 5.6
         if: always() && matrix.db-type == 'mysql'
         run: docker stop mysql56 && docker rm mysql56 || true
@@ -192,6 +200,18 @@ jobs:
       - name: Stop SQL Server 2022
         if: always() && matrix.db-type == 'sqlsrv'
         run: docker stop sqlsrv2022 && docker rm sqlsrv2022 || true
+
+  consume-qlty:
+    runs-on: ubuntu-latest
+
+    needs:
+      - phpunit
+
+    steps:
+      - uses: qltysh/qlty-action/coverage@v2
+        with:
+          oidc: true
+          command: complete
 
   phpcs:
     runs-on: ubuntu-latest

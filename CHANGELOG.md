@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### CI/CD Improvements
+
+- **Qlty Coverage Integration**: Added Qlty code coverage reporting to CI workflow
+
 ### PHP 8.0+ Compatibility
 
 - **Mail Function Compatibility**: Updated mail transport for PHP 8.0+ strict typing ([PR #10](https://github.com/friendsofcake2/cakephp/pull/10))
