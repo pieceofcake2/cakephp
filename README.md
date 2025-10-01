@@ -29,7 +29,7 @@ The original CakePHP 2.x branch [reached End of Life in June 2021](https://baker
 - MySQL 5.6, 5.7, 8.0+ (with `pdo_mysql` extension)
 - PostgreSQL 9.4+ (with `pdo_pgsql` extension)
 - SQLite 3 (with `pdo_sqlite` extension)
-- Microsoft SQL Server (with `pdo_sqlsrv` extension)
+- Microsoft SQL Server 2022+ (with `pdo_sqlsrv` extension)
 
 ### Required PHP Extensions
 
@@ -125,6 +125,24 @@ The following new methods have been added to database drivers:
 
 These methods provide better database version detection and feature support checking.
 
+#### SQL Server Driver Updates
+
+**Configuration Changes:**
+- **New `options` array**: SSL/TLS and other connection options should now be configured via the `options` array instead of directly in the DSN
+  ```php
+  'options' => [
+      'TrustServerCertificate' => 'yes',
+      'Encrypt' => 'no',
+  ]
+  ```
+- **Port support**: Port can now be specified separately and will be appended to the server in the DSN (e.g., 'host,port')
+- **Encoding handling**: The `encoding` configuration now properly maps to PDO constants (e.g., 'utf8' → PDO::SQLSRV_ENCODING_UTF8)
+
+**Method Signature Changes:**
+- `describe()` method now has an explicit return type declaration: `describe($model): array`
+
+These changes modernize the SQL Server driver to support SQL Server 2022 and improve connection configuration flexibility.
+
 #### strftime() Replacement
 
 - `strftime()` function has been deprecated in PHP 8.1 and removed in PHP 8.2
@@ -174,6 +192,7 @@ DB=mysql docker-compose exec web ./vendors/bin/phpunit
 DB=mysql80 docker-compose exec web ./vendors/bin/phpunit
 DB=pgsql docker-compose exec web ./vendors/bin/phpunit
 DB=sqlite docker-compose exec web ./vendors/bin/phpunit
+DB=sqlsrv docker-compose exec web ./vendors/bin/phpunit
 ```
 
 ### Local Installation

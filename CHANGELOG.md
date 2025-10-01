@@ -1,5 +1,40 @@
 ## CHANGELOG
 
+## Unreleased
+
+### Database Support
+
+- **SQL Server 2022 Support**: Added comprehensive SQL Server 2022 support for testing and development
+  - **Docker Infrastructure**:
+    - Added SQL Server 2022 container to docker-compose.yml with automatic database initialization
+    - Created custom entrypoint script for automatic database and schema creation (cakephp_test with schemas: dbo, test2, test3)
+    - Configured health checks using mssql-tools18 for SQL Server 2022 compatibility
+    - Added pdo_sqlsrv extension and Microsoft ODBC Driver installation to Docker web container
+  - **SQL Server Driver Modernization**:
+    - Implemented schema-based configuration system (replaces cross-database approach)
+    - Added default schema support with 'dbo' fallback
+    - Improved DSN connection string building with support for port and SSL/TLS options via `options` array
+    - Fixed encoding configuration to properly map to PDO constants (e.g., 'utf8' → PDO::SQLSRV_ENCODING_UTF8)
+    - Fixed macOS locale issues that caused "collate_byname failed to construct for UTF-8" errors
+    - Enhanced NULL length handling for column descriptions
+    - Fixed COUNT(DISTINCT field) to properly generate field aliases
+    - Implemented XOR-based NOT operator for bit fields (replaces subtraction approach)
+    - Improved IDENTITY_INSERT handling with primary key detection
+    - Added PRIMARY KEY inline constraint to column definitions
+    - Added explicit return type declaration to `describe()` method: `describe($model): array`
+  - **CI/CD Integration**:
+    - Added SQL Server to GitHub Actions CI matrix
+    - Automated ODBC driver installation in CI workflow
+    - Streamlined database initialization using Docker volumes
+  - **Test Improvements**:
+    - Removed obsolete SQL Server workarounds in TranslateBehaviorTest
+    - Added SQL Server incompatibility skips for cache query tests
+    - Fixed assertion order in CakeSchemaTest for better compatibility
+    - Updated SqlserverTest to expect PRIMARY KEY in column definitions
+  - **Configuration Changes**:
+    - Schema configuration now uses array mapping: `'schema' => ['default' => 'dbo', 'test2' => 'test2', ...]`
+    - Connection options (SSL/TLS) now configured via `options` array instead of inline DSN
+
 ## v2.10.24.4 (2025-09-25)
 
 ### Code Quality

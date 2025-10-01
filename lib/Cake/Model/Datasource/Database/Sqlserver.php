@@ -127,24 +127,53 @@ class Sqlserver extends DboSource
      */
     public function connect()
     {
+        // Set default schema to 'dbo' if not specified
+        if (!isset($this->config['schema']) || $this->config['schema'] === '') {
+            $this->config['schema'] = 'dbo';
+        }
+
         $config = $this->config;
         $this->connected = false;
+
+        // Fix locale issues on macOS with SQL Server driver
+        // Prevents "collate_byname<char>::collate_byname failed to construct for UTF-8" error
+        if (PHP_OS === 'Darwin' && !getenv('LC_ALL')) {
+            setlocale(LC_ALL, 'en_US.UTF-8');
+        }
 
         if (isset($config['persistent']) && $config['persistent']) {
             throw new InvalidArgumentException('Config setting "persistent" cannot be set to true, as the Sqlserver PDO driver does not support PDO::ATTR_PERSISTENT');
         }
 
-        $flags = $config['flags'] + [
+        $flags = $config['flags'] ?? [] + [
             PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
         ];
 
         if (!empty($config['encoding'])) {
-            $flags[PDO::SQLSRV_ATTR_ENCODING] = $config['encoding'];
+            $encoding = $config['encoding'];
+            if ($encoding === 'utf8') {
+                $flags[PDO::SQLSRV_ATTR_ENCODING] = PDO::SQLSRV_ENCODING_UTF8;
+            }
+        }
+
+        // Build connection string
+        $server = $config['host'];
+        if (!empty($config['port'])) {
+            $server .= ',' . $config['port'];
+        }
+
+        $dsn = "sqlsrv:server={$server};Database={$config['database']}";
+
+        // Add additional connection options (SSL/TLS, etc.)
+        if (!empty($config['options'])) {
+            foreach ($config['options'] as $key => $value) {
+                $dsn .= ";{$key}={$value}";
+            }
         }
 
         try {
             $this->_connection = new PDO(
-                "sqlsrv:server={$config['host']};Database={$config['database']}",
+                $dsn,
                 $config['login'],
                 $config['password'],
                 $flags,
@@ -187,7 +216,11 @@ class Sqlserver extends DboSource
         if ($cache !== null) {
             return $cache;
         }
-        $result = $this->_execute('SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES');
+
+        $schema = $this->getSchemaName() ?? false;
+
+        // Filter tables by current database catalog
+        $result = $this->_execute('SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES' . ($schema ? " WHERE TABLE_SCHEMA = '" . $schema . "'" : ''));
 
         if (!$result) {
             $result->closeCursor();
@@ -213,7 +246,7 @@ class Sqlserver extends DboSource
      * @return array Fields in table. Keys are name and type
      * @throws CakeException
      */
-    public function describe($model)
+    public function describe($model): array
     {
         $table = $this->fullTableName($model, false, false);
         $fulltable = $this->fullTableName($model, false, true);
@@ -224,7 +257,7 @@ class Sqlserver extends DboSource
         }
 
         $fields = [];
-        $schema = is_object($model) ? $model->schemaName : false;
+        $schema = is_object($model) ? $model->schemaName : $this->getSchemaName() ?? false;
 
         $cols = $this->_execute(
             "SELECT
@@ -273,8 +306,8 @@ class Sqlserver extends DboSource
             if (in_array($fields[$field]['type'], ['date', 'time', 'datetime', 'timestamp'])) {
                 $fields[$field]['length'] = null;
             }
-            if ($fields[$field]['type'] === 'float' && !empty($column->Size)) {
-                $fields[$field]['length'] = $fields[$field]['length'] . ',' . $column->Size;
+            if ($fields[$field]['type'] === 'float') {
+                $fields[$field]['length'] = null;
             }
         }
         $this->_cacheDescription($table, $fields);
@@ -309,9 +342,22 @@ class Sqlserver extends DboSource
                     $prepend = 'DISTINCT ';
                     $fields[$i] = trim(str_replace('DISTINCT', '', $fields[$i]));
                 }
-                if (str_contains($fields[$i], 'COUNT(DISTINCT')) {
+                if (str_contains($fields[$i], 'COUNT(DISTINCT') && !preg_match('/\s+AS\s+/i', $fields[$i])) {
                     $prepend = 'COUNT(DISTINCT ';
-                    $fields[$i] = trim(str_replace('COUNT(DISTINCT', '', $this->_quoteFields($fields[$i])));
+                    $temp = str_replace('COUNT(DISTINCT', '', $fields[$i]);
+                    $temp = rtrim($temp, ')');
+                    $quotedField = $this->_quoteFields(trim($temp));
+
+                    // Extract the alias from the quoted field (e.g., [Car].[country_code] -> Car__country_code)
+                    if (str_contains($quotedField, '.')) {
+                        $parts = explode('.', str_replace(['[', ']'], '', $quotedField));
+                        $fieldAlias = $this->name($parts[0] . '__' . $parts[1]);
+                    } else {
+                        $fieldAlias = $this->name($alias . '__' . str_replace(['[', ']'], '', $quotedField));
+                    }
+
+                    // Set the complete field with AS clause
+                    $fields[$i] = $quotedField . ") AS {$fieldAlias}";
                 }
 
                 if (!preg_match('/\s+AS\s+/i', $fields[$i])) {
@@ -337,11 +383,11 @@ class Sqlserver extends DboSource
                         $build[0] = trim($build[0], '[]');
                         $build[1] = trim($build[1], '[]');
                         $name = $build[0] . '.' . $build[1];
-                        $alias = $build[0] . '__' . $build[1];
+                        $_alias = $build[0] . '__' . $build[1];
 
-                        $this->_fieldMappings[$alias] = $name;
+                        $this->_fieldMappings[$_alias] = $name;
                         $fieldName = $this->name($name);
-                        $fieldAlias = $this->name($alias);
+                        $fieldAlias = $this->name($_alias);
                     }
                     if ($model->getColumnType($fields[$i]) === 'datetime') {
                         $fieldName = "CONVERT(VARCHAR(20), {$fieldName}, 20)";
@@ -409,6 +455,13 @@ class Sqlserver extends DboSource
         }
         if (empty($fields)) {
             return true;
+        }
+
+        // Fix SQL Server NOT operator syntax for boolean fields
+        foreach ($fields as $field => $value) {
+            if (is_string($value) && preg_match('/^NOT\s+((?:\[?\w+\]?.)?\[?\w+\]?)$/i', $value, $matches)) {
+                $fields[$field] = $matches[1] . ' ^ 1';
+            }
         }
 
         return parent::update($model, array_keys($fields), array_values($fields), $conditions);
@@ -502,12 +555,16 @@ class Sqlserver extends DboSource
      * Handle SQLServer specific length properties.
      * SQLServer handles text types as nvarchar/varchar with a length of -1.
      *
-     * @param mixed $length Either the length as a string, or a Column descriptor object.
+     * @param object|string $length Either the length as a string, or a Column descriptor object.
      * @return mixed null|integer with length of column.
      */
     public function length($length)
     {
-        if (is_object($length) && isset($length->Length)) {
+        if (is_object($length)) {
+            if (!isset($length->Length) || $length->Length === null) {
+                return null;
+            }
+
             if ($length->Length == -1 && str_contains($length->Type, 'char')) {
                 return null;
             }
@@ -708,9 +765,9 @@ class Sqlserver extends DboSource
      * Inserts multiple values into a table
      *
      * @param string $table The table to insert into.
-     * @param string $fields The fields to set.
+     * @param array $fields The fields to set.
      * @param array $values The values to set.
-     * @return void
+     * @return bool
      */
     public function insertMulti($table, $fields, $values)
     {
@@ -724,10 +781,12 @@ class Sqlserver extends DboSource
             $this->_execute('SET IDENTITY_INSERT ' . $this->fullTableName($table) . ' ON');
         }
 
-        parent::insertMulti($table, $fields, $values);
-
-        if ($hasPrimaryKey) {
-            $this->_execute('SET IDENTITY_INSERT ' . $this->fullTableName($table) . ' OFF');
+        try {
+            return parent::insertMulti($table, $fields, $values);
+        } finally {
+            if ($hasPrimaryKey) {
+                $this->_execute('SET IDENTITY_INSERT ' . $this->fullTableName($table) . ' OFF');
+            }
         }
     }
 
@@ -744,6 +803,8 @@ class Sqlserver extends DboSource
         $result = parent::buildColumn($column);
         $result = preg_replace('/(bigint|int|integer)\([0-9]+\)/i', '$1', $result);
         $result = preg_replace('/(bit)\([0-9]+\)/i', '$1', $result);
+        $result = preg_replace('/(float|real)\((\d+),(\d+)\)/i', '$1', $result);
+
         if (str_contains($result, 'DEFAULT NULL')) {
             if (isset($column['default']) && $column['default'] === '') {
                 $result = str_replace('DEFAULT NULL', "DEFAULT ''", $result);
@@ -754,6 +815,11 @@ class Sqlserver extends DboSource
             $result .= ' NULL';
         } elseif (strpos($result, "DEFAULT N'")) {
             $result = str_replace("DEFAULT N'", "DEFAULT '", $result);
+        }
+
+        // Add PRIMARY KEY inline for primary key columns
+        if (isset($column['key']) && $column['key'] === 'primary') {
+            $result .= ' PRIMARY KEY';
         }
 
         return $result;
@@ -843,6 +909,7 @@ class Sqlserver extends DboSource
 
             return parent::_execute($sql, $params, $prepareOptions);
         }
+
         try {
             $this->_lastAffected = $this->_connection->exec($sql);
             if ($this->_lastAffected === false) {
@@ -882,7 +949,7 @@ class Sqlserver extends DboSource
      */
     public function getSchemaName()
     {
-        return $this->config['schema'];
+        return $this->config['schema'] ?? 'dbo';
     }
 
     /**

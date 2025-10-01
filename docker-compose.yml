@@ -11,8 +11,10 @@ services:
     depends_on:
       - mysql
       - pgsql
+      - sqlsrv
       - memcached
       - redis
+
   mysql:
     image: mysql:5.6
     platform: linux/amd64
@@ -23,10 +25,11 @@ services:
       MYSQL_USER: cakephp_test
       MYSQL_PASSWORD: secret
     volumes:
-      - ./docker/mysql:/docker-entrypoint-initdb.d:cached
+      - ./docker/mysql:/docker-entrypoint-initdb.d:ro
       - mysql-data:/var/lib/mysql
     ports:
       - "3306:3306"
+
   mysql80:
     image: mysql:8.0
     platform: linux/amd64
@@ -37,10 +40,11 @@ services:
       MYSQL_USER: cakephp_test
       MYSQL_PASSWORD: secret
     volumes:
-      - ./docker/mysql:/docker-entrypoint-initdb.d:cached
+      - ./docker/mysql:/docker-entrypoint-initdb.d:ro
       - mysql80-data:/var/lib/mysql
     ports:
       - "3307:3306"
+
   pgsql:
     image: postgres:9.4
     platform: linux/amd64
@@ -49,21 +53,44 @@ services:
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
     volumes:
-      - ./docker/pgsql:/docker-entrypoint-initdb.d:cached
+      - ./docker/pgsql:/docker-entrypoint-initdb.d:ro
       - pgsql-data:/var/lib/postgresql/data
     ports:
       - "5432:5432"
+
+  sqlsrv:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    platform: linux/amd64
+    environment:
+      ACCEPT_EULA: "Y"
+      MSSQL_SA_PASSWORD: "Password123!"
+      MSSQL_PID: "Developer"
+    ports:
+      - "1433:1433"
+    volumes:
+      - ./docker/sqlsrv:/docker-entrypoint-initdb.d:ro
+      - sqlsrv-data:/var/opt/mssql
+    entrypoint: /docker-entrypoint-initdb.d/docker-entrypoint.sh
+    healthcheck:
+      test: ["CMD", "/opt/mssql-tools18/bin/sqlcmd", "-S", "localhost", "-U", "sa", "-P", "Password123!", "-Q", "SELECT 1", "-No"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
   memcached:
     image: memcached:latest
     hostname: memcached
     ports:
       - "11211:11211"
+
   redis:
     image: "redis:latest"
     hostname: redis
     ports:
       - "6379:6379"
+
 volumes:
   mysql-data:
   mysql80-data:
   pgsql-data:
+  sqlsrv-data:

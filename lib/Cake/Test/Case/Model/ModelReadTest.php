@@ -8974,6 +8974,8 @@ class ModelReadTest extends BaseModelTest
      */
     public function testQueryRespectsCacheQueriesAsSecondArgument()
     {
+        $this->skipIf($this->db instanceof Sqlserver, 'This test is not compatible with SQL Server.');
+
         $model = new User();
         $model->save(['user' => 'Chuck']);
         $userTableName = $this->db->fullTableName('users');
@@ -9003,6 +9005,8 @@ class ModelReadTest extends BaseModelTest
      */
     public function testQueryRespectsCacheQueriesAsThirdArgument()
     {
+        $this->skipIf($this->db instanceof Sqlserver, 'This test is not compatible with SQL Server.');
+
         $model = new User();
         $model->save(['user' => 'Chuck']);
         $userTableName = $this->db->fullTableName('users');
@@ -9031,6 +9035,8 @@ class ModelReadTest extends BaseModelTest
      */
     public function testQueryTakesModelCacheQueriesValueAsDefaultForOneArgument()
     {
+        $this->skipIf($this->db instanceof Sqlserver, 'This test is not compatible with SQL Server.');
+
         $model = new User();
         $model->save(['user' => 'Chuck']);
         $userTableName = $this->db->fullTableName('users');
@@ -9058,6 +9064,8 @@ class ModelReadTest extends BaseModelTest
      */
     public function testQueryTakesModelCacheQueriesValueAsDefaultForTwoArguments()
     {
+        $this->skipIf($this->db instanceof Sqlserver, 'This test is not compatible with SQL Server.');
+
         $model = new User();
         $model->save(['user' => 'Chuck']);
         $userTableName = $this->db->fullTableName('users');

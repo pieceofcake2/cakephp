@@ -59,6 +59,11 @@ class MysqlTest extends CakeTestCase
     public $Dbo = null;
 
     /**
+     * @var bool|null
+     */
+    protected ?bool $_debug = null;
+
+    /**
      * Sets up a Dbo class instance for testing
      *
      * @return void

@@ -513,19 +513,19 @@ class CakeSchemaTest extends CakeTestCase
 
         if (isset($read['tables']['datatypes']['float_field']['length'])) {
             $this->assertEquals(
-                $read['tables']['datatypes']['float_field']['length'],
                 $this->Schema->tables['datatypes']['float_field']['length'],
+                $read['tables']['datatypes']['float_field']['length'],
             );
         }
 
         $this->assertEquals(
-            $read['tables']['datatypes']['float_field']['type'],
             $this->Schema->tables['datatypes']['float_field']['type'],
+            $read['tables']['datatypes']['float_field']['type'],
         );
 
         $this->assertEquals(
-            $read['tables']['datatypes']['float_field']['null'],
             $this->Schema->tables['datatypes']['float_field']['null'],
+            $read['tables']['datatypes']['float_field']['null'],
         );
 
         $db = ConnectionManager::getDataSource('test');
@@ -688,6 +688,8 @@ class CakeSchemaTest extends CakeTestCase
 
         $db = ConnectionManager::getDataSource('test2');
         $fixture = new SchemaCrossDatabaseFixture();
+
+        $fixture->drop($db);
         $fixture->create($db);
         $fixture->insert($db);
 
@@ -696,6 +698,7 @@ class CakeSchemaTest extends CakeTestCase
             'name' => 'TestApp',
             'models' => ['SchemaCrossDatabase', 'SchemaPost'],
         ]);
+
         $this->assertTrue(isset($read['tables']['posts']));
         $this->assertFalse(isset($read['tables']['cross_database']), 'Cross database should not appear');
         $this->assertFalse(isset($read['tables']['missing']['cross_database']), 'Cross database should not appear');

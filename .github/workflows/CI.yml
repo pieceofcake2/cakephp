@@ -30,6 +30,7 @@ jobs:
           - mysql80
           - pgsql
           - sqlite
+          - sqlsrv
 
     services:
       redis:
@@ -55,21 +56,12 @@ jobs:
             -e MYSQL_ROOT_PASSWORD=root \
             -e MYSQL_DATABASE=cakephp_test \
             -p 3306:3306 \
+            -v ${{ github.workspace }}/docker/mysql:/docker-entrypoint-initdb.d:ro \
             --health-cmd="mysqladmin ping" \
             --health-interval=10s \
             --health-timeout=5s \
             --health-retries=3 \
             mysql:5.6
-
-          # Wait for MySQL to be ready
-          for i in {1..30}; do
-            if docker exec mysql56 mysqladmin ping -h localhost -u root -proot &> /dev/null; then
-              echo "MySQL 5.6 is ready"
-              break
-            fi
-            echo "Waiting for MySQL 5.6..."
-            sleep 2
-          done
 
       - name: Start MySQL 8.0
         if: matrix.db-type == 'mysql80'
@@ -78,21 +70,12 @@ jobs:
             -e MYSQL_ROOT_PASSWORD=root \
             -e MYSQL_DATABASE=cakephp_test \
             -p 3307:3306 \
+            -v ${{ github.workspace }}/docker/mysql:/docker-entrypoint-initdb.d:ro \
             --health-cmd="mysqladmin ping" \
             --health-interval=10s \
             --health-timeout=5s \
             --health-retries=3 \
             mysql:8.0
-
-          # Wait for MySQL 8.0 to be ready
-          for i in {1..30}; do
-            if docker exec mysql80 mysqladmin ping -h localhost -u root -proot &> /dev/null; then
-              echo "MySQL 8.0 is ready"
-              break
-            fi
-            echo "Waiting for MySQL 8.0..."
-            sleep 2
-          done
 
       - name: Start PostgreSQL 9.4
         if: matrix.db-type == 'pgsql'
@@ -101,27 +84,44 @@ jobs:
             -e POSTGRES_PASSWORD=postgres \
             -e POSTGRES_DB=cakephp_test \
             -p 5432:5432 \
+            -v ${{ github.workspace }}/docker/pgsql:/docker-entrypoint-initdb.d:ro \
             --health-cmd="pg_isready" \
             --health-interval=10s \
             --health-timeout=5s \
             --health-retries=5 \
             postgres:9.4
 
-          # Wait for PostgreSQL to be ready
-          for i in {1..30}; do
-            if docker exec postgres94 pg_isready -U postgres &> /dev/null; then
-              echo "PostgreSQL 9.4 is ready"
-              break
-            fi
-            echo "Waiting for PostgreSQL 9.4..."
-            sleep 2
-          done
+      - name: Start SQL Server 2022
+        if: matrix.db-type == 'sqlsrv'
+        run: |
+          docker run -d --name sqlsrv2022 \
+            -e ACCEPT_EULA=Y \
+            -e MSSQL_SA_PASSWORD=Password123! \
+            -e MSSQL_PID=Developer \
+            -p 1433:1433 \
+            -v ${{ github.workspace }}/docker/sqlsrv:/docker-entrypoint-initdb.d:ro \
+            --entrypoint /docker-entrypoint-initdb.d/docker-entrypoint.sh \
+            --health-cmd="/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P 'Password123!' -Q 'SELECT 1' -No" \
+            --health-interval=10s \
+            --health-timeout=5s \
+            --health-retries=5 \
+            mcr.microsoft.com/mssql/server:2022-latest
+
+      - name: Install Microsoft ODBC Driver for SQL Server
+        if: matrix.db-type == 'sqlsrv'
+        run: |
+          sudo apt-get update
+          sudo DEBIAN_FRONTEND=noninteractive apt-get install -y curl gnupg
+          curl https://packages.microsoft.com/keys/microsoft.asc | sudo apt-key add -
+          curl https://packages.microsoft.com/config/ubuntu/$(lsb_release -rs)/prod.list | sudo tee /etc/apt/sources.list.d/mssql-release.list
+          sudo apt-get update
+          sudo ACCEPT_EULA=Y DEBIAN_FRONTEND=noninteractive apt-get install -y msodbcsql18
 
       - name: Install PHP with extensions
         uses: shivammathur/setup-php@v2
         with:
           php-version: ${{ matrix.php-version }}
-          extensions: apcu, memcache, memcached, redis, mcrypt, pdo_mysql, pdo_pgsql, pdo_sqlite
+          extensions: apcu, memcache, memcached, redis, mcrypt, pdo_mysql, pdo_pgsql, pdo_sqlite, pdo_sqlsrv
           ini-values: |
             apc.enable_cli=1
           coverage: xdebug
@@ -133,24 +133,6 @@ jobs:
         run: |
           sudo locale-gen de_DE;
           sudo locale-gen es_ES;
-
-      - name: Create Another Databases for MySQL
-        if: matrix.db-type == 'mysql'
-        run: |
-          env MYSQL_PWD=root mysql -h 127.0.0.1 -u root -e 'CREATE DATABASE cakephp_test2;';
-          env MYSQL_PWD=root mysql -h 127.0.0.1 -u root -e 'CREATE DATABASE cakephp_test3;';
-
-      - name: Create Another Databases for MySQL 8.0
-        if: matrix.db-type == 'mysql80'
-        run: |
-          env MYSQL_PWD=root mysql -h 127.0.0.1 -P 3307 -u root -e 'CREATE DATABASE cakephp_test2;';
-          env MYSQL_PWD=root mysql -h 127.0.0.1 -P 3307 -u root -e 'CREATE DATABASE cakephp_test3;';
-
-      - name: Create Another Databases for PostgreSQL
-        if: matrix.db-type == 'pgsql'
-        run: |
-          env PGPASSWORD=postgres psql -c 'CREATE SCHEMA test2;' -h 127.0.0.1 -U postgres -d cakephp_test;
-          env PGPASSWORD=postgres psql -c 'CREATE SCHEMA test3;' -h 127.0.0.1 -U postgres -d cakephp_test;
 
       - name: Make temporary directories writable
         run: chmod -R 777 ./app/tmp
@@ -206,6 +188,10 @@ jobs:
       - name: Stop PostgreSQL 9.4
         if: always() && matrix.db-type == 'pgsql'
         run: docker stop postgres94 && docker rm postgres94 || true
+
+      - name: Stop SQL Server 2022
+        if: always() && matrix.db-type == 'sqlsrv'
+        run: docker stop sqlsrv2022 && docker rm sqlsrv2022 || true
 
   phpcs:
     runs-on: ubuntu-latest

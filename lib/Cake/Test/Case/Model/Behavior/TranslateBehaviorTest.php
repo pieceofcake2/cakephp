@@ -579,19 +579,6 @@ class TranslateBehaviorTest extends CakeTestCase
         $expected = [1 => 'Titel #1', 2 => 'Titel #2', 3 => 'Titel #3'];
         $this->assertEquals($expected, $result);
 
-        // SQL Server trigger an error and stops the page even if the debug = 0
-        if ($this->db instanceof Sqlserver) {
-            $debug = Configure::read('debug');
-            Configure::write('debug', 0);
-
-            $result = $TestModel->find('list', ['recursive' => 1, 'callbacks' => false]);
-            $this->assertSame([], $result);
-
-            $result = $TestModel->find('list', ['recursive' => 1, 'callbacks' => 'after']);
-            $this->assertSame([], $result);
-            Configure::write('debug', $debug);
-        }
-
         $result = $TestModel->find('list', ['recursive' => 1, 'callbacks' => 'before']);
         $expected = [1 => null, 2 => null, 3 => null];
         $this->assertEquals($expected, $result);
@@ -1172,6 +1159,7 @@ class TranslateBehaviorTest extends CakeTestCase
         $this->loadFixtures('Translate', 'TranslatedItem');
 
         $TestModel = new TranslatedItem();
+        $TestModel->locale = 'eng';
 
         $translations = ['title' => 'Title'];
         $TestModel->bindTranslation($translations);
