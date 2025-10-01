@@ -19,7 +19,7 @@
 
 ### Database Support
 
-- **Database Charset Configuration**: Moved character set configuration from `SET NAMES` to DSN connection options
+- **Database Charset Configuration**: Moved character set configuration from `SET NAMES` to DSN connection options ([PR #11](https://github.com/friendsofcake2/cakephp/pull/11))
   - **MySQL**: Charset now added directly to DSN (e.g., `mysql:...;charset=utf8`)
   - **PostgreSQL**: Client encoding added to DSN via options parameter (e.g., `pgsql:...;options='--client_encoding=UTF8'`)
   - **PostgreSQL**: `sslmode` parameter is now optional in DSN

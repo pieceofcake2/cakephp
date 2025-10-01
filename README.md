@@ -123,7 +123,7 @@ Before migrating to this fork, ensure:
 **Migration:**
 - If you have custom database drivers extending these classes, implement these methods
 
-#### 3. Database Charset Configuration Changes
+#### 3. Database Charset Configuration Changes ([PR #11](https://github.com/friendsofcake2/cakephp/pull/11))
 
 **Breaking Change:**
 - Character set configuration moved from `SET NAMES` to DSN connection options
