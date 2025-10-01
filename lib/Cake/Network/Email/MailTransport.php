@@ -76,8 +76,9 @@ class MailTransport extends AbstractTransport
                 'level' => $errno,
                 'message' => $errstr,
                 'file' => $errfile,
-                'line' => $errline
+                'line' => $errline,
             ];
+
             return true;
         });
         $result = mail($to, $subject, $message, $headers, $params);
