@@ -19,6 +19,13 @@
 
 ### Database Support
 
+- **Database Charset Configuration**: Moved character set configuration from `SET NAMES` to DSN connection options
+  - **MySQL**: Charset now added directly to DSN (e.g., `mysql:...;charset=utf8`)
+  - **PostgreSQL**: Client encoding added to DSN via options parameter (e.g., `pgsql:...;options='--client_encoding=UTF8'`)
+  - **PostgreSQL**: `sslmode` parameter is now optional in DSN
+  - `setEncoding()` methods still use `SET NAMES` for runtime changes
+  - More efficient and reliable than executing `SET NAMES` after connection
+
 - **SQL Server 2022 Support**: Added comprehensive SQL Server 2022 support for testing and development ([PR #9](https://github.com/friendsofcake2/cakephp/pull/9))
   - **Docker Infrastructure**:
     - Added SQL Server 2022 container to docker-compose.yml with automatic database initialization
