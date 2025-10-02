@@ -471,7 +471,7 @@ class Sqlserver extends DboSource
      * Returns a limit statement in the correct format for the particular database.
      *
      * @param int $limit Limit of results returned
-     * @param int $offset Offset from which to start results
+     * @param int|null $offset Offset from which to start results
      * @return string SQL limit/offset statement
      */
     public function limit($limit, $offset = null)

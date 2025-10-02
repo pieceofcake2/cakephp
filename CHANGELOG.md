@@ -2,6 +2,19 @@
 
 ## Unreleased
 
+### PHP Support
+
+- **PHP 8.5 Support**: Added PHP 8.5 to CI testing matrix ([PR #12](https://github.com/friendsofcake2/cakephp/pull/12))
+  - All tests pass on PHP 8.5
+  - Confirmed compatibility across all database types (MySQL, PostgreSQL, SQLite, SQL Server)
+  - Fixed int cast warnings for values outside int range:
+    - `Security::cipher()` - Suppress cipherSeed cast warning (maintains encrypted data compatibility)
+    - `PaginatorComponent::paginate()` - Suppress page number cast warning (maintains pagination behavior)
+    - `DboSource::limit()` - Suppress limit/offset sprintf warnings (maintains query generation)
+    - `Postgres::limit()` - Suppress limit/offset sprintf warnings (maintains query generation)
+    - `Sqlite::limit()` - Suppress limit/offset sprintf warnings (maintains query generation)
+  - Added return type hints to database `limit()` methods: `?string`
+
 ### CI/CD Improvements
 
 - **Qlty Coverage Integration**: Added Qlty code coverage reporting to CI workflow

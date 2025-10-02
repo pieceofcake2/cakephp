@@ -202,10 +202,16 @@ class PaginatorComponent extends Component
             $extra['type'] = $type;
         }
 
+        // Suppress PHP 8.5+ warning for backward compatibility with existing pagination behavior
+        // The cast behavior is undefined for values outside int range, but must remain
+        // consistent with previous PHP versions for page number validation
+        set_error_handler(function () {
+        }, E_WARNING);
         if ((int)$page < 1) {
             $page = 1;
         }
         $page = $options['page'] = (int)$page;
+        restore_error_handler();
 
         if ($object->hasMethod('paginate')) {
             $results = $object->paginate(
