@@ -25,7 +25,7 @@
   - Falls back to Mozilla CA bundle provided by composer/ca-bundle
   - Supports both `cafile` (single bundle file) and `capath` (certificate directory) configurations
   - Automatically updated and maintained by Composer ecosystem
-  - Removed outdated `lib/Cake/Config/cacert.pem` file (last updated 2023)
+  - Removed outdated `lib/Cake/Config/cacert.pem` file (last updated 2016)
   - Updated `FolderTest` to reflect removed cacert.pem file
 
 ### PHPUnit Integration
