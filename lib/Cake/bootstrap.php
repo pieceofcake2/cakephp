@@ -132,7 +132,7 @@ require_once CAKE . 'basics.php';
 require_once CAKE . 'Core' . DS . 'App.php';
 require_once CAKE . 'Error' . DS . 'exceptions.php';
 
-spl_autoload_register(['App', 'load']);
+spl_autoload_register(['App', 'load'], true, true);
 
 App::uses('ErrorHandler', 'Error');
 App::uses('Configure', 'Core');
