@@ -906,7 +906,9 @@ class App
                 ],
                 'Vendor' => [
                     '%s' . 'Vendor' . DS,
+                    ROOT . DS . 'vendor' . DS,
                     ROOT . DS . 'vendors' . DS,
+                    dirname(CAKE, 2) . DS . 'vendor' . DS,
                     dirname(CAKE, 2) . DS . 'vendors' . DS,
                 ],
                 'Plugin' => [

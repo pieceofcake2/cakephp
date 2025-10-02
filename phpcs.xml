@@ -4,7 +4,6 @@
          xsi:noNamespaceSchemaLocation="vendors/squizlabs/php_codesniffer/phpcs.xsd">
     <config name="php_version" value="80000"/>
 
-    <file>index.php</file>
     <file>app/</file>
     <file>lib/Cake/</file>
 

@@ -80,7 +80,7 @@ if (!is_dir(VENDORS)) {
     trigger_error(
         'Composer vendors directory not found at "' . VENDORS . '". ' .
         'Please run "composer install" in the project root directory to install dependencies.',
-        E_USER_ERROR
+        E_USER_ERROR,
     );
 }
 
@@ -88,7 +88,7 @@ if (!is_file(VENDORS . 'autoload.php')) {
     trigger_error(
         'Composer autoload file not found at "' . VENDORS . 'autoload.php". ' .
         'Please run "composer install" to generate the autoload file.',
-        E_USER_ERROR
+        E_USER_ERROR,
     );
 }
 
@@ -98,7 +98,7 @@ if (!include 'Cake' . DS . 'bootstrap.php') {
     trigger_error(
         'CakePHP core could not be found. ' .
         'Please run "composer require friendsofcake2/cakephp" to install CakePHP core.',
-        E_USER_ERROR
+        E_USER_ERROR,
     );
 }
 

@@ -19,7 +19,6 @@ use PHPUnit\TextUI\Command;
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('CakeTestRunner', 'TestSuite');
 App::uses('CakeTestLoader', 'TestSuite');
 App::uses('CakeTestSuite', 'TestSuite');
 App::uses('CakeTestCase', 'TestSuite');
@@ -55,79 +54,6 @@ class CakeTestSuiteCommand extends Command
     }
 
     /**
-     * Ugly hack to get around PHPUnit having a hard coded class name for the Runner. :(
-     *
-     * @param array $argv The command arguments
-     * @param bool $exit The exit mode.
-     * @return void
-     */
-    public function run(array $argv, $exit = true): int
-    {
-        $this->handleArguments($argv);
-
-        $runner = $this->getRunner($this->arguments['loader']);
-
-        if (
-            is_object($this->arguments['test']) &&
-            $this->arguments['test'] instanceof PHPUnit_Framework_Test
-        ) {
-            $suite = $this->arguments['test'];
-        } else {
-            $suite = $runner->getTest(
-                $this->arguments['test'],
-                $this->arguments['testFile'],
-            );
-        }
-
-        if ($this->arguments['listGroups']) {
-            PHPUnit_TextUI_TestRunner::printVersionString();
-
-            print "Available test group(s):\n";
-
-            $groups = $suite->getGroups();
-            sort($groups);
-
-            foreach ($groups as $group) {
-                print " - $group\n";
-            }
-
-            exit(PHPUnit_TextUI_TestRunner::SUCCESS_EXIT);
-        }
-
-        unset($this->arguments['test']);
-        unset($this->arguments['testFile']);
-
-        try {
-            $result = $runner->doRun($suite, $this->arguments, false);
-        } catch (PHPUnit_Framework_Exception $e) {
-            print $e->getMessage() . "\n";
-        }
-
-        if ($exit) {
-            if (!isset($result) || $result->errorCount() > 0) {
-                exit(PHPUnit_TextUI_TestRunner::EXCEPTION_EXIT);
-            }
-            if ($result->failureCount() > 0) {
-                exit(PHPUnit_TextUI_TestRunner::FAILURE_EXIT);
-            }
-
-            // Default to success even if there are warnings to match phpunit's behavior
-            exit(PHPUnit_TextUI_TestRunner::SUCCESS_EXIT);
-        }
-    }
-
-    /**
-     * Create a runner for the command.
-     *
-     * @param mixed $loader The loader to be used for the test run.
-     * @return CakeTestRunner
-     */
-    public function getRunner($loader)
-    {
-        return new CakeTestRunner($loader, $this->_params);
-    }
-
-    /**
      * Handler for customizing the FixtureManager class/
      *
      * @param string $class Name of the class that will be the fixture manager
@@ -142,12 +68,10 @@ class CakeTestSuiteCommand extends Command
      * Handles output flag used to change printing on webrunner.
      *
      * @param string $reporter The reporter class to use.
-     * @return void
+     * @return CakeBaseReporter
      */
     public function handleReporter($reporter)
     {
-        $object = null;
-
         $reporter = ucwords($reporter);
         $coreClass = 'Cake' . $reporter . 'Reporter';
         App::uses($coreClass, 'TestSuite/Reporter');

@@ -15,6 +15,8 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+use PHPUnit\Framework\TestResult;
+
 App::uses('CakeBaseReporter', 'TestSuite/Reporter');
 App::uses('TextCoverageReport', 'TestSuite/Coverage');
 
@@ -73,10 +75,10 @@ class CakeTextReporter extends CakeBaseReporter
      * Paints the end of the test with a summary of
      * the passes and failures.
      *
-     * @param PHPUnit_Framework_TestResult $result Result object
+     * @param TestResult $result Result object
      * @return void
      */
-    public function paintFooter($result)
+    public function paintFooter(TestResult $result)
     {
         if ($result->failureCount() + $result->errorCount()) {
             echo "FAILURES!!!\n";
