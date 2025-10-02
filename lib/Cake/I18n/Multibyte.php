@@ -123,14 +123,7 @@ class Multibyte
      */
     public static function stripos($haystack, $needle, $offset = 0)
     {
-        if (Multibyte::checkMultibyte($haystack)) {
-            $haystack = Multibyte::strtoupper($haystack);
-            $needle = Multibyte::strtoupper($needle);
-
-            return Multibyte::strpos($haystack, $needle, $offset);
-        }
-
-        return stripos($haystack, $needle, $offset);
+        return mb_stripos($haystack, $needle, $offset);
     }
 
     /**
@@ -146,55 +139,7 @@ class Multibyte
      */
     public static function stristr($haystack, $needle, $part = false)
     {
-        $php = (PHP_VERSION < 5.3);
-
-        if (($php && $part) || Multibyte::checkMultibyte($haystack)) {
-            $check = Multibyte::strtoupper($haystack);
-            $check = Multibyte::utf8($check);
-            $found = false;
-
-            $haystack = Multibyte::utf8($haystack);
-            $haystackCount = count($haystack);
-
-            $needle = Multibyte::strtoupper($needle);
-            $needle = Multibyte::utf8($needle);
-            $needleCount = count($needle);
-
-            $parts = [];
-            $position = 0;
-
-            while (($found === false) && ($position < $haystackCount)) {
-                if (isset($needle[0]) && $needle[0] === $check[$position]) {
-                    for ($i = 1; $i < $needleCount; $i++) {
-                        if ($needle[$i] !== $check[$position + $i]) {
-                            break;
-                        }
-                    }
-                    if ($i === $needleCount) {
-                        $found = true;
-                    }
-                }
-                if (!$found) {
-                    $parts[] = $haystack[$position];
-                    unset($haystack[$position]);
-                }
-                $position++;
-            }
-
-            if ($found && $part && !empty($parts)) {
-                return Multibyte::ascii($parts);
-            } elseif ($found && !empty($haystack)) {
-                return Multibyte::ascii($haystack);
-            }
-
-            return false;
-        }
-
-        if (!$php) {
-            return stristr($haystack, $needle, $part);
-        }
-
-        return stristr($haystack, $needle);
+        return mb_stristr($haystack, $needle, $part);
     }
 
     /**
@@ -205,13 +150,7 @@ class Multibyte
      */
     public static function strlen($string)
     {
-        if (Multibyte::checkMultibyte($string)) {
-            $string = Multibyte::utf8($string);
-
-            return count($string);
-        }
-
-        return strlen($string);
+        return mb_strlen($string);
     }
 
     /**
@@ -225,39 +164,7 @@ class Multibyte
      */
     public static function strpos($haystack, $needle, $offset = 0)
     {
-        if (Multibyte::checkMultibyte($haystack)) {
-            $found = false;
-
-            $haystack = Multibyte::utf8($haystack);
-            $haystackCount = count($haystack);
-
-            $needle = Multibyte::utf8($needle);
-            $needleCount = count($needle);
-
-            $position = $offset;
-
-            while (($found === false) && ($position < $haystackCount)) {
-                if (isset($needle[0]) && $needle[0] === $haystack[$position]) {
-                    for ($i = 1; $i < $needleCount; $i++) {
-                        if ($needle[$i] !== $haystack[$position + $i]) {
-                            break;
-                        }
-                    }
-                    if ($i === $needleCount) {
-                        $found = true;
-                        $position--;
-                    }
-                }
-                $position++;
-            }
-            if ($found) {
-                return $position;
-            }
-
-            return false;
-        }
-
-        return strpos($haystack, $needle, $offset);
+        return mb_strpos($haystack, $needle, $offset);
     }
 
     /**
@@ -273,53 +180,7 @@ class Multibyte
      */
     public static function strrchr($haystack, $needle, $part = false)
     {
-        $check = Multibyte::utf8($haystack);
-        $found = false;
-
-        $haystack = Multibyte::utf8($haystack);
-        $haystackCount = count($haystack);
-
-        $matches = array_count_values($check);
-
-        $needle = Multibyte::utf8($needle);
-        $needleCount = count($needle);
-
-        $parts = [];
-        $position = 0;
-
-        while (($found === false) && ($position < $haystackCount)) {
-            if (isset($needle[0]) && $needle[0] === $check[$position]) {
-                for ($i = 1; $i < $needleCount; $i++) {
-                    if ($needle[$i] !== $check[$position + $i]) {
-                        if ($needle[$i] === $check[$position + $i - 1]) {
-                            $found = true;
-                        }
-                        unset($parts[$position - 1]);
-                        $haystack = array_merge([$haystack[$position]], $haystack);
-                        break;
-                    }
-                }
-                if (isset($matches[$needle[0]]) && $matches[$needle[0]] > 1) {
-                    $matches[$needle[0]] = $matches[$needle[0]] - 1;
-                } elseif ($i === $needleCount) {
-                    $found = true;
-                }
-            }
-
-            if (!$found && isset($haystack[$position])) {
-                $parts[] = $haystack[$position];
-                unset($haystack[$position]);
-            }
-            $position++;
-        }
-
-        if ($found && $part && !empty($parts)) {
-            return Multibyte::ascii($parts);
-        } elseif ($found && !empty($haystack)) {
-            return Multibyte::ascii($haystack);
-        }
-
-        return false;
+        return mb_strrchr($haystack, $needle, $part);
     }
 
     /**
@@ -335,55 +196,7 @@ class Multibyte
      */
     public static function strrichr($haystack, $needle, $part = false)
     {
-        $check = Multibyte::strtoupper($haystack);
-        $check = Multibyte::utf8($check);
-        $found = false;
-
-        $haystack = Multibyte::utf8($haystack);
-        $haystackCount = count($haystack);
-
-        $matches = array_count_values($check);
-
-        $needle = Multibyte::strtoupper($needle);
-        $needle = Multibyte::utf8($needle);
-        $needleCount = count($needle);
-
-        $parts = [];
-        $position = 0;
-
-        while (($found === false) && ($position < $haystackCount)) {
-            if (isset($needle[0]) && $needle[0] === $check[$position]) {
-                for ($i = 1; $i < $needleCount; $i++) {
-                    if ($needle[$i] !== $check[$position + $i]) {
-                        if ($needle[$i] === $check[$position + $i - 1]) {
-                            $found = true;
-                        }
-                        unset($parts[$position - 1]);
-                        $haystack = array_merge([$haystack[$position]], $haystack);
-                        break;
-                    }
-                }
-                if (isset($matches[$needle[0]]) && $matches[$needle[0]] > 1) {
-                    $matches[$needle[0]] = $matches[$needle[0]] - 1;
-                } elseif ($i === $needleCount) {
-                    $found = true;
-                }
-            }
-
-            if (!$found && isset($haystack[$position])) {
-                $parts[] = $haystack[$position];
-                unset($haystack[$position]);
-            }
-            $position++;
-        }
-
-        if ($found && $part && !empty($parts)) {
-            return Multibyte::ascii($parts);
-        } elseif ($found && !empty($haystack)) {
-            return Multibyte::ascii($haystack);
-        }
-
-        return false;
+        return mb_strrichr($haystack, $needle, $part);
     }
 
     /**
@@ -397,46 +210,7 @@ class Multibyte
      */
     public static function strripos($haystack, $needle, $offset = 0)
     {
-        if (Multibyte::checkMultibyte($haystack)) {
-            $found = false;
-            $haystack = Multibyte::strtoupper($haystack);
-            $haystack = Multibyte::utf8($haystack);
-            $haystackCount = count($haystack);
-
-            $matches = array_count_values($haystack);
-
-            $needle = Multibyte::strtoupper($needle);
-            $needle = Multibyte::utf8($needle);
-            $needleCount = count($needle);
-
-            $position = $offset;
-
-            while (($found === false) && ($position < $haystackCount)) {
-                if (isset($needle[0]) && $needle[0] === $haystack[$position]) {
-                    for ($i = 1; $i < $needleCount; $i++) {
-                        if ($needle[$i] !== $haystack[$position + $i]) {
-                            if ($needle[$i] === $haystack[$position + $i - 1]) {
-                                $position--;
-                                $found = true;
-                                continue;
-                            }
-                        }
-                    }
-
-                    if (!$offset && isset($matches[$needle[0]]) && $matches[$needle[0]] > 1) {
-                        $matches[$needle[0]] = $matches[$needle[0]] - 1;
-                    } elseif ($i === $needleCount) {
-                        $found = true;
-                        $position--;
-                    }
-                }
-                $position++;
-            }
-
-            return $found ? $position : false;
-        }
-
-        return strripos($haystack, $needle, $offset);
+        return mb_strripos($haystack, $needle, $offset);
     }
 
     /**
@@ -451,45 +225,7 @@ class Multibyte
      */
     public static function strrpos($haystack, $needle, $offset = 0)
     {
-        if (Multibyte::checkMultibyte($haystack)) {
-            $found = false;
-
-            $haystack = Multibyte::utf8($haystack);
-            $haystackCount = count($haystack);
-
-            $matches = array_count_values($haystack);
-
-            $needle = Multibyte::utf8($needle);
-            $needleCount = count($needle);
-
-            $position = $offset;
-
-            while (($found === false) && ($position < $haystackCount)) {
-                if (isset($needle[0]) && $needle[0] === $haystack[$position]) {
-                    for ($i = 1; $i < $needleCount; $i++) {
-                        if ($needle[$i] !== $haystack[$position + $i]) {
-                            if ($needle[$i] === $haystack[$position + $i - 1]) {
-                                $position--;
-                                $found = true;
-                                continue;
-                            }
-                        }
-                    }
-
-                    if (!$offset && isset($matches[$needle[0]]) && $matches[$needle[0]] > 1) {
-                        $matches[$needle[0]] = $matches[$needle[0]] - 1;
-                    } elseif ($i === $needleCount) {
-                        $found = true;
-                        $position--;
-                    }
-                }
-                $position++;
-            }
-
-            return $found ? $position : false;
-        }
-
-        return strrpos($haystack, $needle, $offset);
+        return mb_strrpos($haystack, $needle, $offset);
     }
 
     /**
@@ -505,53 +241,7 @@ class Multibyte
      */
     public static function strstr($haystack, $needle, $part = false)
     {
-        $php = (PHP_VERSION < 5.3);
-
-        if (($php && $part) || Multibyte::checkMultibyte($haystack)) {
-            $check = Multibyte::utf8($haystack);
-            $found = false;
-
-            $haystack = Multibyte::utf8($haystack);
-            $haystackCount = count($haystack);
-
-            $needle = Multibyte::utf8($needle);
-            $needleCount = count($needle);
-
-            $parts = [];
-            $position = 0;
-
-            while (($found === false) && ($position < $haystackCount)) {
-                if (isset($needle[0]) && $needle[0] === $check[$position]) {
-                    for ($i = 1; $i < $needleCount; $i++) {
-                        if ($needle[$i] !== $check[$position + $i]) {
-                            break;
-                        }
-                    }
-                    if ($i === $needleCount) {
-                        $found = true;
-                    }
-                }
-                if (!$found) {
-                    $parts[] = $haystack[$position];
-                    unset($haystack[$position]);
-                }
-                $position++;
-            }
-
-            if ($found && $part && !empty($parts)) {
-                return Multibyte::ascii($parts);
-            } elseif ($found && !empty($haystack)) {
-                return Multibyte::ascii($haystack);
-            }
-
-            return false;
-        }
-
-        if (!$php) {
-            return strstr($haystack, $needle, $part);
-        }
-
-        return strstr($haystack, $needle);
+        return mb_strstr($haystack, $needle, $part);
     }
 
     /**
@@ -697,32 +387,7 @@ class Multibyte
      */
     public static function substrCount($haystack, $needle)
     {
-        $count = 0;
-        $haystack = Multibyte::utf8($haystack);
-        $haystackCount = count($haystack);
-        $matches = array_count_values($haystack);
-        $needle = Multibyte::utf8($needle);
-        $needleCount = count($needle);
-
-        if ($needleCount === 1 && isset($matches[$needle[0]])) {
-            return $matches[$needle[0]];
-        }
-
-        for ($i = 0; $i < $haystackCount; $i++) {
-            if (isset($needle[0]) && $needle[0] === $haystack[$i]) {
-                for ($ii = 1; $ii < $needleCount; $ii++) {
-                    if ($needle[$ii] === $haystack[$i + 1]) {
-                        if ((isset($needle[$ii + 1]) && $haystack[$i + 2]) && $needle[$ii + 1] !== $haystack[$i + 2]) {
-                            $count--;
-                        } else {
-                            $count++;
-                        }
-                    }
-                }
-            }
-        }
-
-        return $count;
+        return mb_substr_count($haystack, $needle);
     }
 
     /**
@@ -735,27 +400,7 @@ class Multibyte
      */
     public static function substr($string, $start, $length = null)
     {
-        if ($start === 0 && $length === null) {
-            return $string;
-        }
-
-        $string = Multibyte::utf8($string);
-
-        for ($i = 1; $i <= $start; $i++) {
-            unset($string[$i - 1]);
-        }
-
-        if ($length === null || count($string) < $length) {
-            return Multibyte::ascii($string);
-        }
-        $string = array_values($string);
-
-        $value = [];
-        for ($i = 0; $i < $length; $i++) {
-            $value[] = $string[$i];
-        }
-
-        return Multibyte::ascii($value);
+        return mb_substr($string, $start, $length);
     }
 
     /**

@@ -15,6 +15,15 @@
     - `Sqlite::limit()` - Suppress limit/offset sprintf warnings (maintains query generation)
   - Added return type hints to database `limit()` methods: `?string`
 
+### Dependencies
+
+- **Mbstring Extension**: Made mbstring extension optional with Symfony polyfill fallback
+  - Moved `ext-mbstring` from `require` to `suggest` in composer.json
+  - Added `symfony/polyfill-mbstring` as required dependency
+  - Replaced most `Multibyte` methods with direct `mb_*` function calls (stripos, stristr, strlen, strpos, strrchr, strrichr, strripos, strrpos, strstr, substrCount, substr)
+  - Kept original implementations for `strtolower` and `strtoupper` due to compatibility differences with `mb_*` functions
+  - Symfony polyfill provides automatic fallback when native mbstring extension is not available
+
 ### CI/CD Improvements
 
 - **Qlty Coverage Integration**: Added Qlty code coverage reporting to CI workflow

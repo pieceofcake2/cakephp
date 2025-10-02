@@ -9,15 +9,16 @@
         "php": "^8.0",
         "ext-dom": "*",
         "ext-libxml": "*",
-        "ext-mbstring": "*",
         "ext-simplexml": "*",
         "symfony/polyfill-intl-icu": "^1.29",
+        "symfony/polyfill-mbstring": "^1.29",
         "php81_bc/strftime": "^0.7.5"
     },
     "replace": {
         "cakephp/cakephp": "^2.0"
     },
     "suggest": {
+        "ext-mbstring": "For better performance with multibyte string operations, install the native mbstring extension instead of using the polyfill",
         "ext-openssl": "You need to install ext-openssl or ext-mcrypt to use AES-256 encryption",
         "ext-mcrypt": "You need to install ext-openssl or ext-mcrypt to use AES-256 encryption",
         "ext-intl": "Required to use IntlDateFormatter instead of strftime, if not Symfony polyfill will be used."
