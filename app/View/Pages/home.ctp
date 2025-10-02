@@ -13,7 +13,7 @@ App::uses('Debugger', 'Utility');
 ?>
 <h2><?php echo __d('cake_dev', 'Release Notes for CakePHP %s.', Configure::version()); ?></h2>
 <p>
-    <?php echo $this->Html->link(__d('cake_dev', 'Read the changelog'), 'https://cakephp.org/changelogs/' . Configure::version()); ?>
+    <?php echo $this->Html->link(__d('cake_dev', 'Read the changelog'), 'https://github.com/friendsofcake2/cakephp/releases/tag/v' . Configure::version()); ?>
 </p>
 <?php
 if (Configure::read('debug') > 0):
@@ -132,7 +132,7 @@ endif;
         echo '<span class="notice">';
             echo __d('cake_dev', 'DebugKit is not installed. It will help you inspect and debug different aspects of your application.');
             echo '<br/>';
-            echo __d('cake_dev', 'You can install it from %s', $this->Html->link('GitHub', 'https://github.com/cakephp/debug_kit/tree/2.2'));
+            echo __d('cake_dev', 'You can install it from %s', $this->Html->link('GitHub', 'https://github.com/friendsofcake2/debug_kit/tree/2.2'));
         echo '</span>';
     endif;
     ?>
@@ -172,11 +172,11 @@ You can also add some CSS styles for your pages at: %s.',
 <p>
 <ul>
     <li>
-        <?php echo $this->Html->link('DebugKit', 'https://github.com/cakephp/debug_kit/tree/2.2') ?>:
+        <?php echo $this->Html->link('DebugKit', 'https://github.com/friendsofcake2/debug_kit') ?>:
         <?php echo __d('cake_dev', 'provides a debugging toolbar and enhanced debugging tools for CakePHP applications.'); ?>
     </li>
     <li>
-        <?php echo $this->Html->link('Localized', 'https://github.com/cakephp/localized') ?>:
+        <?php echo $this->Html->link('Localized', 'https://github.com/friendsofcake2/localized') ?>:
         <?php echo __d('cake_dev', 'contains various localized validation classes and translations for specific countries'); ?>
     </li>
 </ul>
@@ -209,11 +209,11 @@ You can also add some CSS styles for your pages at: %s.',
     <ul><li><?php echo __d('cake_dev', 'CakePHP discussion forum'); ?></li></ul></li>
     <li><a href="irc://irc.freenode.net/cakephp">irc.freenode.net #cakephp</a>
     <ul><li><?php echo __d('cake_dev', 'Live chat about CakePHP'); ?></li></ul></li>
-    <li><a href="https://github.com/cakephp/"><?php echo __d('cake_dev', 'CakePHP Code'); ?> </a>
+    <li><a href="https://github.com/friendsofcake2/"><?php echo __d('cake_dev', 'CakePHP Code'); ?> </a>
     <ul><li><?php echo __d('cake_dev', 'Find the CakePHP code on GitHub and contribute to the framework'); ?></li></ul></li>
-    <li><a href="https://github.com/cakephp/cakephp/issues"><?php echo __d('cake_dev', 'CakePHP Issues'); ?> </a>
+    <li><a href="https://github.com/friendsofcake2/cakephp/issues"><?php echo __d('cake_dev', 'CakePHP Issues'); ?> </a>
     <ul><li><?php echo __d('cake_dev', 'CakePHP Issues'); ?></li></ul></li>
-    <li><a href="https://github.com/cakephp/cakephp/wiki#roadmaps"><?php echo __d('cake_dev', 'CakePHP Roadmaps'); ?> </a>
+    <li><a href="https://github.com/friendsofcake2/cakephp/wiki#roadmaps"><?php echo __d('cake_dev', 'CakePHP Roadmaps'); ?> </a>
     <ul><li><?php echo __d('cake_dev', 'CakePHP Roadmaps'); ?></li></ul></li>
     <li><a href="https://training.cakephp.org"><?php echo __d('cake_dev', 'Training'); ?> </a>
     <ul><li><?php echo __d('cake_dev', 'Join a live session and get skilled with the framework'); ?></li></ul></li>
