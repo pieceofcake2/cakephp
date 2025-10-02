@@ -11,6 +11,7 @@
     - `Security::cipher()` - Suppress cipherSeed cast warning (maintains encrypted data compatibility)
     - `PaginatorComponent::paginate()` - Suppress page number cast warning (maintains pagination behavior)
     - `DboSource::limit()` - Suppress limit/offset sprintf warnings (maintains query generation)
+    - `Postgres::limit()` - Suppress limit/offset sprintf warnings (maintains query generation)
     - `Sqlite::limit()` - Suppress limit/offset sprintf warnings (maintains query generation)
   - Added return type hints to database `limit()` methods: `?string`
 

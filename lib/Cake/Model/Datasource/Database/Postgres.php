@@ -721,10 +721,16 @@ class Postgres extends DboSource
     public function limit($limit, $offset = null)
     {
         if ($limit) {
+            // Suppress PHP 8.5+ warning for backward compatibility with existing limit/offset behavior
+            // The sprintf %u format behavior is undefined for values outside int range, but must remain
+            // consistent with previous PHP versions for query generation
+            set_error_handler(function () {
+            }, E_WARNING);
             $rt = sprintf(' LIMIT %u', $limit);
             if ($offset) {
                 $rt .= sprintf(' OFFSET %u', $offset);
             }
+            restore_error_handler();
 
             return $rt;
         }

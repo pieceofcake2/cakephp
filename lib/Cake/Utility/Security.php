@@ -238,7 +238,8 @@ class Security
         // Suppress PHP 8.5+ warning for backward compatibility with existing encrypted data
         // The cast behavior is undefined for values outside int range, but must remain
         // consistent with previous PHP versions for decryption to work
-        set_error_handler(function () {}, E_WARNING);
+        set_error_handler(function () {
+        }, E_WARNING);
         mt_srand((int)(float)Configure::read('Security.cipherSeed'));
         restore_error_handler();
         $out = '';

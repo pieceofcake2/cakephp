@@ -205,7 +205,8 @@ class PaginatorComponent extends Component
         // Suppress PHP 8.5+ warning for backward compatibility with existing pagination behavior
         // The cast behavior is undefined for values outside int range, but must remain
         // consistent with previous PHP versions for page number validation
-        set_error_handler(function () {}, E_WARNING);
+        set_error_handler(function () {
+        }, E_WARNING);
         if ((int)$page < 1) {
             $page = 1;
         }
