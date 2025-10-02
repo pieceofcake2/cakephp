@@ -78,7 +78,7 @@ class FileTest extends CakeTestCase
      */
     public function testBasic()
     {
-        $file = CAKE . DS . 'LICENSE.txt';
+        $file = CAKE . DS . 'VERSION.txt';
 
         $this->File = new File($file, false);
 
@@ -91,7 +91,7 @@ class FileTest extends CakeTestCase
             'dirname' => dirname($file),
             'basename' => basename($file),
             'extension' => 'txt',
-            'filename' => 'LICENSE',
+            'filename' => 'VERSION',
             'filesize' => filesize($file),
             'mime' => 'text/plain',
         ];
@@ -110,7 +110,7 @@ class FileTest extends CakeTestCase
         $this->assertEquals($expecting, $result);
 
         $result = $this->File->name();
-        $expecting = 'LICENSE';
+        $expecting = 'VERSION';
         $this->assertEquals($expecting, $result);
 
         $result = $this->File->md5();

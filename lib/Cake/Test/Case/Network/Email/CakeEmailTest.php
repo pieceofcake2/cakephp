@@ -905,12 +905,12 @@ class CakeEmailTest extends CakeTestCase
         ]);
         $this->CakeEmail->addAttachments(CAKE . 'bootstrap.php');
         $this->CakeEmail->addAttachments([CAKE . 'bootstrap.php']);
-        $this->CakeEmail->addAttachments(['other.txt' => CAKE . 'bootstrap.php', 'license' => CAKE . 'LICENSE.txt']);
+        $this->CakeEmail->addAttachments(['other.txt' => CAKE . 'bootstrap.php', 'version' => CAKE . 'VERSION.txt']);
         $expected = [
             'basics.php' => ['file' => CAKE . 'basics.php', 'mimetype' => 'text/plain'],
             'bootstrap.php' => ['file' => CAKE . 'bootstrap.php', 'mimetype' => 'text/x-php'],
             'other.txt' => ['file' => CAKE . 'bootstrap.php', 'mimetype' => 'text/x-php'],
-            'license' => ['file' => CAKE . 'LICENSE.txt', 'mimetype' => 'text/plain'],
+            'version' => ['file' => CAKE . 'VERSION.txt', 'mimetype' => 'text/plain'],
         ];
         $this->assertSame($expected, $this->CakeEmail->attachments());
 
