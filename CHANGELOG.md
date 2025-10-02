@@ -2,6 +2,61 @@
 
 ## Unreleased
 
+### PHPUnit Integration
+
+- **PHPUnit 9+ Migration**: Complete migration to PHPUnit 9+ ([PR #14](https://github.com/friendsofcake2/cakephp/pull/14))
+  - Refactored `CakeTestLoader` to implement `TestSuiteLoader` interface with composition pattern
+  - Fixed critical infinite recursion bug in `CakeTestLoader::reload()` method
+  - Updated `CakeBaseReporter` from extending `PHPUnit_TextUI_ResultPrinter` to implementing `ResultPrinter` interface
+  - Added missing interface methods: `write()`, `addWarning()`, `addRiskyTest()` to `CakeBaseReporter`
+  - Added type declarations throughout TestSuite classes for PHP 8.0+ compatibility
+  - Added `run()` method to `CakeTestSuiteCommand` with proper test file resolution
+  - Updated all PHPUnit class references from `PHPUnit_Framework_*` to `PHPUnit\Framework\*` namespace
+  - Removed legacy `CakeTestRunner` class (functionality moved to `CakeTestSuiteCommand`)
+  - Updated test assertions to use `withConsecutive()` and callback-based output verification
+  - Fixed `HtmlCoverageReportTest` to use `CakeHtmlReporter` instead of `CakeBaseReporter`
+  - All tests now pass with PHPUnit 9.6+
+
+### Code Modernization
+
+- **Legacy PHP Version Checks Removal**: Removed compatibility code for PHP < 8.0 ([PR #14](https://github.com/friendsofcake2/cakephp/pull/14))
+  - Removed PHP 5.3/5.4 version checks from `ErrorHandler`, `Debugger`, `CakeSocket`
+  - Removed PHP 5.4 fallback logic in `CakeNumber::_numberFormat()`
+  - Removed PHP version checks from `CakeTimeTest`
+  - Simplified SSL/TLS configuration in `CakeSocket` (removed PHP 5.3.2/5.6.0 checks)
+  - Removed obsolete Debugger workarounds for PHP < 5.3
+  - Updated `strpos()` to `str_ends_with()` in `CakeTestLoader`
+  - Changed `include` to `require_once` in bootstrap files for consistency
+  - Fixed indentation in `basics.php` to standardize whitespace
+
+### Performance Improvements
+
+- **JSON Output Optimization**: Improved JSON rendering performance ([PR #14](https://github.com/friendsofcake2/cakephp/pull/14))
+  - `JsonView` now only applies `JSON_PRETTY_PRINT` when debug mode is enabled
+  - Reduces JSON encoding overhead in production environments
+
+### Autoloading Improvements
+
+- **App::load() Enhancement**: Added class existence check ([PR #14](https://github.com/friendsofcake2/cakephp/pull/14))
+  - `App::load()` now returns early if class already exists
+  - Prevents unnecessary file loading and improves performance
+  - Replaced direct `ShellDispatcher` require with `App::load()` in test bootstrap
+  - Added `class_exists()` guard in test bootstrap to prevent double definition errors
+
+### Code Quality
+
+- **Coding Standards**: Applied phpcs fixes and removed deprecated exclusions ([PR #14](https://github.com/friendsofcake2/cakephp/pull/14))
+  - Removed `get_magic_quotes_gpc` exclusion from phpcs.xml (function removed in PHP 7.4)
+  - Added trailing commas to `trigger_error()` calls for consistency
+  - Added `CakeHtmlReporter` to unused variable exclusion list
+
+### Documentation
+
+- **GitHub URLs Update**: Updated all GitHub organization references ([PR #14](https://github.com/friendsofcake2/cakephp/pull/14))
+  - Changed GitHub URLs from `cakephp` to `friendsofcake2` in `home.ctp` templates
+  - Updated changelog, issues, wiki, and plugin repository links
+  - Removed upstream `CONTRIBUTING.md` (fork has different contribution guidelines)
+
 ### Dispatcher Improvements
 
 - **Simplified Dispatcher Entry Points**: Streamlined autoload handling in dispatcher files

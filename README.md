@@ -113,7 +113,7 @@ Before migrating to this fork, ensure:
 
 ### Breaking Changes
 
-#### 1. Composer-Only Installation Required
+#### 1. Composer-Only Installation Required ([PR #14](https://github.com/friendsofcake2/cakephp/pull/14))
 
 **Breaking Change:**
 - **Non-Composer installation is no longer supported**
@@ -121,6 +121,7 @@ Before migrating to this fork, ensure:
 - Removed manual `CAKE_CORE_INCLUDE_PATH` detection from dispatcher files
 - Removed `include_path` manipulation logic
 - Removed legacy `app/Vendor/cakephp/cakephp` path detection
+- Removed `app/Console/cake.bat` and `app/Console/cake.php` (Windows batch file and PHP wrapper no longer needed)
 
 **Migration:**
 1. Ensure you're using Composer for dependency management
@@ -130,7 +131,11 @@ Before migrating to this fork, ensure:
    cp vendors/friendsofcake2/cakephp/lib/Cake/Console/Templates/skel/webroot/test.php app/webroot/test.php
    cp vendors/friendsofcake2/cakephp/lib/Cake/Console/Templates/skel/Console/cake app/Console/cake
    ```
-3. Run `composer install` to ensure all dependencies are properly loaded
+3. Remove old dispatcher files if present:
+   ```bash
+   rm -f app/Console/cake.bat app/Console/cake.php
+   ```
+4. Run `composer install` to ensure all dependencies are properly loaded
 
 #### 2. Cache Engines Removed ([PR #4](https://github.com/friendsofcake2/cakephp/pull/4))
 
