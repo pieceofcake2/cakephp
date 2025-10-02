@@ -409,7 +409,7 @@ class Sqlite extends DboSource
      * @param int|null $offset Offset from which to start results
      * @return string|null SQL limit/offset statement
      */
-    public function limit($limit, $offset = null): ?string
+    public function limit($limit, $offset = null)
     {
         if ($limit) {
             // Suppress PHP 8.5+ warning for backward compatibility with existing limit/offset behavior

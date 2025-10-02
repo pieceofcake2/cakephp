@@ -474,7 +474,7 @@ class Sqlserver extends DboSource
      * @param int|null $offset Offset from which to start results
      * @return string SQL limit/offset statement
      */
-    public function limit($limit, $offset = null): ?string
+    public function limit($limit, $offset = null)
     {
         if ($limit) {
             $rt = '';

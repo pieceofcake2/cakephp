@@ -718,7 +718,7 @@ class Postgres extends DboSource
      * @param int|null $offset Offset from which to start results
      * @return string|null SQL limit/offset statement
      */
-    public function limit($limit, $offset = null): ?string
+    public function limit($limit, $offset = null)
     {
         if ($limit) {
             $rt = sprintf(' LIMIT %u', $limit);
