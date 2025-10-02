@@ -523,7 +523,6 @@ class SecurityTest extends CakeTestCase
     {
         $this->skipIf(!extension_loaded('mcrypt'), 'This test requires mcrypt to be installed');
         $this->skipIf(!extension_loaded('openssl'), 'This test requires openssl to be installed');
-        $this->skipIf(version_compare(PHP_VERSION, '5.3.3', '<'), 'This test requires PHP 5.3.3 or greater');
 
         $key = '12345678901234567890123456789012';
 

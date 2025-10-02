@@ -89,7 +89,7 @@ if (!is_file(VENDORS . 'autoload.php')) {
 
 require_once VENDORS . 'autoload.php';
 
-if (!include 'Cake' . DS . 'bootstrap.php') {
+if (!require_once 'Cake' . DS . 'bootstrap.php') {
     trigger_error(
         'CakePHP core could not be found. ' .
         'Please run "composer require friendsofcake2/cakephp" to install CakePHP core.',

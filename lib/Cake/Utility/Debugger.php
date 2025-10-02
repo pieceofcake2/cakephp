@@ -608,28 +608,26 @@ class Debugger
                 $props[] = "$key => " . $value;
             }
 
-            if (version_compare(PHP_VERSION, '5.3.0') >= 0) {
-                $ref = new ReflectionObject($var);
+            $ref = new ReflectionObject($var);
 
-                $filters = [
-                    ReflectionProperty::IS_PROTECTED => 'protected',
-                    ReflectionProperty::IS_PRIVATE => 'private',
-                ];
-                foreach ($filters as $filter => $visibility) {
-                    $reflectionProperties = $ref->getProperties($filter);
-                    foreach ($reflectionProperties as $reflectionProperty) {
-                        $reflectionProperty->setAccessible(true);
+            $filters = [
+                ReflectionProperty::IS_PROTECTED => 'protected',
+                ReflectionProperty::IS_PRIVATE => 'private',
+            ];
+            foreach ($filters as $filter => $visibility) {
+                $reflectionProperties = $ref->getProperties($filter);
+                foreach ($reflectionProperties as $reflectionProperty) {
+                    $reflectionProperty->setAccessible(true);
 
-                        if (!$reflectionProperty->isInitialized($var)) {
-                            continue;
-                        }
-
-                        $property = $reflectionProperty->getValue($var);
-
-                        $value = static::_export($property, $depth - 1, $indent);
-                        $key = $reflectionProperty->name;
-                        $props[] = sprintf('[%s] %s => %s', $visibility, $key, $value);
+                    if (!$reflectionProperty->isInitialized($var)) {
+                        continue;
                     }
+
+                    $property = $reflectionProperty->getValue($var);
+
+                    $value = static::_export($property, $depth - 1, $indent);
+                    $key = $reflectionProperty->name;
+                    $props[] = sprintf('[%s] %s => %s', $visibility, $key, $value);
                 }
             }
 

@@ -51,12 +51,12 @@ class TestsuiteShell extends TestShell
     /**
      * Parse the CLI options into an array CakeTestDispatcher can use.
      *
-     * @return array Array of params for CakeTestDispatcher
+     * @return array|null Array of params for CakeTestDispatcher
      */
-    protected function _parseArgs()
+    protected function _parseArgs(): ?array
     {
         if (empty($this->args)) {
-            return;
+            return null;
         }
         $params = [
             'core' => false,
@@ -95,7 +95,9 @@ class TestsuiteShell extends TestShell
         $args = $this->_parseArgs();
 
         if (empty($args['case'])) {
-            return $this->available();
+            $this->available();
+
+            return;
         }
 
         $this->_run($args, $this->_runnerOptions());

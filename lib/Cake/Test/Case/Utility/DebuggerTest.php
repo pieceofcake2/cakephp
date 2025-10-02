@@ -388,10 +388,6 @@ object(View) {
 	Form => object(FormHelper) {}
 	int => (int) 2
 	float => (float) 1.333
-
-TEXT;
-        if (version_compare(PHP_VERSION, '5.3.0') >= 0) {
-            $expected .= <<<TEXT
 	[protected] _passedVars => array(
 		(int) 0 => 'viewVars',
 		(int) 1 => 'autoLayout',
@@ -417,10 +413,6 @@ TEXT;
 	[protected] _stack => array()
 	[protected] _eventManager => object(CakeEventManager) {}
 	[protected] _eventManagerConfigured => false
-
-TEXT;
-        }
-        $expected .= <<<TEXT
 }
 TEXT;
 

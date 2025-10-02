@@ -32,6 +32,9 @@ class CakeTestLoader implements TestSuiteLoader
 {
     private StandardTestSuiteLoader $loader;
 
+    /**
+     * Constructor
+     */
     public function __construct()
     {
         $this->loader = new StandardTestSuiteLoader();
@@ -45,7 +48,7 @@ class CakeTestLoader implements TestSuiteLoader
      */
     public function load(string $suiteClassFile): ReflectionClass
     {
-        $file = $this->_resolveTestFile($suiteClassFile);
+        $file = $this->_resolveTestFile($suiteClassFile, []);
 
         return $this->loader->load($file);
     }
@@ -57,21 +60,21 @@ class CakeTestLoader implements TestSuiteLoader
      * @param array $params Additional parameters.
      * @return string Converted path fragments.
      */
-    protected function _resolveTestFile($filePath, $params = [])
+    protected function _resolveTestFile(string $filePath, array $params): string
     {
         $basePath = static::_basePath($params) . DS . $filePath;
         $ending = 'Test.php';
 
-        return strpos($basePath, $ending) === strlen($basePath) - strlen($ending) ? $basePath : $basePath . $ending;
+        return str_ends_with($basePath, $ending) ? $basePath : $basePath . $ending;
     }
 
     /**
      * Generates the base path to a set of tests based on the parameters.
      *
-     * @param array $params The path parameters.
-     * @return string The base path.
+     * @param array|null $params The path parameters.
+     * @return string|null The base path.
      */
-    protected static function _basePath($params)
+    protected static function _basePath(?array $params): ?string
     {
         $result = null;
         if (!empty($params['core'])) {
@@ -96,12 +99,16 @@ class CakeTestLoader implements TestSuiteLoader
     /**
      * Get the list of files for the test listing.
      *
-     * @param string $params Path parameters
+     * @param array|null $params Path parameters
      * @return array
      */
-    public static function generateTestList($params)
+    public static function generateTestList(?array $params): array
     {
         $directory = static::_basePath($params);
+        if (empty($directory)) {
+            return [];
+        }
+
         $fileList = static::_getRecursiveFileList($directory);
 
         $testCases = [];
@@ -122,7 +129,7 @@ class CakeTestLoader implements TestSuiteLoader
      * @param string $directory The directory to scan for files.
      * @return array
      */
-    protected static function _getRecursiveFileList($directory = '.')
+    protected static function _getRecursiveFileList(string $directory = '.'): array
     {
         $fileList = [];
         if (!is_dir($directory)) {
@@ -141,8 +148,14 @@ class CakeTestLoader implements TestSuiteLoader
         return $fileList;
     }
 
+    /**
+     * Reload
+     *
+     * @param ReflectionClass $aClass
+     * @return ReflectionClass
+     */
     public function reload(ReflectionClass $aClass): ReflectionClass
     {
-        return $this->reload($aClass);
+        return $this->loader->reload($aClass);
     }
 }

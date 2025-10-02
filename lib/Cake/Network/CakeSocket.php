@@ -287,19 +287,11 @@ class CakeSocket
             }
             unset($this->config[$key]);
         }
-        if (version_compare(PHP_VERSION, '5.3.2', '>=')) {
-            if (!isset($this->config['context']['ssl']['SNI_enabled'])) {
-                $this->config['context']['ssl']['SNI_enabled'] = true;
-            }
-            if (version_compare(PHP_VERSION, '5.6.0', '>=')) {
-                if (empty($this->config['context']['ssl']['peer_name'])) {
-                    $this->config['context']['ssl']['peer_name'] = $host;
-                }
-            } else {
-                if (empty($this->config['context']['ssl']['SNI_server_name'])) {
-                    $this->config['context']['ssl']['SNI_server_name'] = $host;
-                }
-            }
+        if (!isset($this->config['context']['ssl']['SNI_enabled'])) {
+            $this->config['context']['ssl']['SNI_enabled'] = true;
+        }
+        if (empty($this->config['context']['ssl']['peer_name'])) {
+            $this->config['context']['ssl']['peer_name'] = $host;
         }
         if (empty($this->config['context']['ssl']['cafile'])) {
             $this->config['context']['ssl']['cafile'] = CAKE . 'Config' . DS . 'cacert.pem';

@@ -1954,12 +1954,7 @@ TEXT;
 
     protected function _checkException($message)
     {
-        if (version_compare(PHP_VERSION, '7.4', '>=')) {
-            $this->expectException(Error::class);
-            $this->expectExceptionMessage($message);
-        } else {
-            $this->expectError();
-            $this->expectErrorMessage($message);
-        }
+        $this->expectException(Error::class);
+        $this->expectExceptionMessage($message);
     }
 }

@@ -1112,8 +1112,6 @@ EXPECTED;
      */
     public function testStripslashesDeep()
     {
-        $this->skipIf(ini_get('magic_quotes_sybase') === '1', 'magic_quotes_sybase is on.');
-
         $this->assertEquals(stripslashes_deep("tes\'t"), "tes't");
         $this->assertEquals(stripslashes_deep('tes\\' . chr(0) . 't'), 'tes' . chr(0) . 't');
         $this->assertEquals(stripslashes_deep('tes\"t'), 'tes"t');
@@ -1140,42 +1138,6 @@ EXPECTED;
                 ],
             'g' => 'test',
         ];
-        $this->assertEquals($expected, stripslashes_deep($nested));
-    }
-
-    /**
-     * test stripslashes_deep() with magic_quotes_sybase on
-     *
-     * @return void
-     */
-    public function testStripslashesDeepSybase()
-    {
-        if (!(ini_get('magic_quotes_sybase') === '1')) {
-            $this->markTestSkipped('magic_quotes_sybase is off');
-        }
-
-        $this->assertEquals(stripslashes_deep("tes\'t"), "tes\'t");
-
-        $nested = [
-            'a' => "tes't",
-            'b' => "tes''t",
-            'c' => [
-                'd' => "tes'''t",
-                'e' => "tes''''t",
-                ['f' => "tes''t"],
-                ],
-            'g' => "te'''''st",
-            ];
-        $expected = [
-            'a' => "tes't",
-            'b' => "tes't",
-            'c' => [
-                'd' => "tes''t",
-                'e' => "tes''t",
-                ['f' => "tes't"],
-                ],
-            'g' => "te'''st",
-            ];
         $this->assertEquals($expected, stripslashes_deep($nested));
     }
 

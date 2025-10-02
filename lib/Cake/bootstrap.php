@@ -128,9 +128,9 @@ if (!defined('JS_URL')) {
     define('JS_URL', 'js/');
 }
 
-require CAKE . 'basics.php';
-require CAKE . 'Core' . DS . 'App.php';
-require CAKE . 'Error' . DS . 'exceptions.php';
+require_once CAKE . 'basics.php';
+require_once CAKE . 'Core' . DS . 'App.php';
+require_once CAKE . 'Error' . DS . 'exceptions.php';
 
 spl_autoload_register(['App', 'load']);
 

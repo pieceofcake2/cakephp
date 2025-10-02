@@ -1332,9 +1332,6 @@ class HashTest extends CakeTestCase
      */
     public function testSortNatural()
     {
-        if (version_compare(PHP_VERSION, '5.4.0', '<')) {
-            $this->markTestSkipped('SORT_NATURAL is available since PHP 5.4.');
-        }
         $items = [
             ['Item' => ['image' => 'img1.jpg']],
             ['Item' => ['image' => 'img99.jpg']],
@@ -1370,9 +1367,6 @@ class HashTest extends CakeTestCase
      */
     public function testSortNaturalIgnoreCase()
     {
-        if (version_compare(PHP_VERSION, '5.4.0', '<')) {
-            $this->markTestSkipped('SORT_NATURAL is available since PHP 5.4.');
-        }
         $items = [
             ['Item' => ['image' => 'img1.jpg']],
             ['Item' => ['image' => 'img99.jpg']],
@@ -1408,10 +1402,6 @@ class HashTest extends CakeTestCase
      */
     public function testSortNaturalFallbackToRegular()
     {
-        if (version_compare(PHP_VERSION, '5.4.0', '>=')) {
-            $this->markTestSkipped('Skipping SORT_NATURAL fallback test on PHP >= 5.4');
-        }
-
         $a = [
             0 => ['Person' => ['name' => 'Jeff']],
             1 => ['Shirt' => ['color' => 'black']],

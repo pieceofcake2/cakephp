@@ -1301,10 +1301,6 @@ class CakeTimeTest extends CakeTestCase
      */
     public function testListTimezones()
     {
-        $this->skipIf(
-            version_compare(PHP_VERSION, '5.4.0', '<='),
-            'This test requires newer libicu which is in php5.4+',
-        );
         $return = CakeTime::listTimezones();
         $this->assertTrue(isset($return['Asia']['Asia/Bangkok']));
         $this->assertEquals('Bangkok', $return['Asia']['Asia/Bangkok']);
@@ -1335,15 +1331,13 @@ class CakeTimeTest extends CakeTestCase
         $this->assertTrue(isset($return['America/Argentina/Buenos_Aires']));
         $this->assertTrue(isset($return['Pacific/Tahiti']));
 
-        if (!$this->skipIf(version_compare(PHP_VERSION, '5.3.0', '<'))) {
-            $return = CakeTime::listTimezones(DateTimeZone::ASIA);
-            $this->assertTrue(isset($return['Asia']['Asia/Bangkok']));
-            $this->assertFalse(isset($return['Pacific']));
+        $return = CakeTime::listTimezones(DateTimeZone::ASIA);
+        $this->assertTrue(isset($return['Asia']['Asia/Bangkok']));
+        $this->assertFalse(isset($return['Pacific']));
 
-            $return = CakeTime::listTimezones(DateTimeZone::PER_COUNTRY, 'US', false);
-            $this->assertTrue(isset($return['Pacific/Honolulu']));
-            $this->assertFalse(isset($return['Asia/Bangkok']));
-        }
+        $return = CakeTime::listTimezones(DateTimeZone::PER_COUNTRY, 'US', false);
+        $this->assertTrue(isset($return['Pacific/Honolulu']));
+        $this->assertFalse(isset($return['Asia/Bangkok']));
     }
 
     /**

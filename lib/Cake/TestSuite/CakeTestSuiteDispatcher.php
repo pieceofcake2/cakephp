@@ -256,8 +256,8 @@ class CakeTestSuiteDispatcher
 
         try {
             static::time();
-            $command = new CakeTestSuiteCommand('CakeTestLoader', $commandArgs);
-            $command->run($options);
+            $command = new CakeTestSuiteCommand(CakeTestLoader::class, $commandArgs);
+            $command->run($options, false);
         } catch (MissingConnectionException $exception) {
             ob_end_clean();
             include CAKE . 'TestSuite' . DS . 'templates' . DS . 'missing_connection.php';

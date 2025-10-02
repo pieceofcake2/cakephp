@@ -86,13 +86,6 @@ class CakeNumber
     protected static $_defaultCurrency = 'USD';
 
     /**
-     * If native number_format() should be used. If >= PHP5.4
-     *
-     * @var bool
-     */
-    protected static $_numberFormatSupport = null;
-
-    /**
      * Formats a number with a level of precision.
      *
      * @param float $value A floating point number.
@@ -277,25 +270,7 @@ class CakeNumber
      */
     protected static function _numberFormat($value, $places = 0, $decimals = '.', $thousands = ',')
     {
-        if (!isset(static::$_numberFormatSupport)) {
-            static::$_numberFormatSupport = version_compare(PHP_VERSION, '5.4.0', '>=');
-        }
-        if (static::$_numberFormatSupport) {
-            return number_format($value, $places, $decimals, $thousands);
-        }
-        $value = number_format($value, $places, '.', '');
-        $after = '';
-        $foundDecimal = strpos($value, '.');
-        if ($foundDecimal !== false) {
-            $after = substr($value, $foundDecimal);
-            $value = substr($value, 0, $foundDecimal);
-        }
-        while (($foundThousand = preg_replace('/(\d+)(\d\d\d)/', '\1 \2', $value)) !== $value) {
-            $value = $foundThousand;
-        }
-        $value .= $after;
-
-        return strtr($value, [' ' => $thousands, '.' => $decimals]);
+        return number_format($value, $places, $decimals, $thousands);
     }
 
     /**

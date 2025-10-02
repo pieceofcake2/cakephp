@@ -23,7 +23,7 @@ if (isset($GLOBALS['_composer_autoload_path'])) {
     }
 }
 
-if (!include 'Cake' . DS . 'Console' . DS . 'ShellDispatcher.php') {
+if (!require_once 'Cake' . DS . 'Console' . DS . 'ShellDispatcher.php') {
     trigger_error('Could not locate CakePHP core files.', E_USER_ERROR);
 }
 

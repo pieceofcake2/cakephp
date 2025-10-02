@@ -76,6 +76,7 @@ class CakeHtmlReporter extends CakeBaseReporter
      */
     public function paintDocumentStart()
     {
+        $baseDir = $this->params['baseDir'];
         include CAKE . 'TestSuite' . DS . 'templates' . DS . 'header.php';
     }
 
@@ -89,6 +90,7 @@ class CakeHtmlReporter extends CakeBaseReporter
     {
         $plugins = App::objects('plugin', null, false);
         sort($plugins);
+        $cases = '?';
         include CAKE . 'TestSuite' . DS . 'templates' . DS . 'menu.php';
     }
 
@@ -155,7 +157,6 @@ class CakeHtmlReporter extends CakeBaseReporter
     public function paintFooter(TestResult $result)
     {
         echo $this->_buffer;
-        ob_end_flush();
 
         $colour = ($result->failureCount() + $result->errorCount() > 0 ? 'red' : 'green');
         echo "</ul>\n";
@@ -209,21 +210,7 @@ class CakeHtmlReporter extends CakeBaseReporter
      */
     protected function _paintLinks()
     {
-        $show = $query = [];
-        if (!empty($this->params['case'])) {
-            $show['show'] = 'cases';
-        }
-
-        if (!empty($this->params['core'])) {
-            $show['core'] = $query['core'] = 'true';
-        }
-        if (!empty($this->params['plugin'])) {
-            $show['plugin'] = $query['plugin'] = $this->params['plugin'];
-        }
-        if (!empty($this->params['case'])) {
-            $query['case'] = $this->params['case'];
-        }
-        [$show, $query] = str_split($this->_getQueryLink());
+        [$show, $query] = $this->_getQueryLink();
 
         echo "<p><a href='" . $this->baseUrl() . $show . "'>Run more tests</a> | <a href='" . $this->baseUrl() . $query . "&amp;show_passes=1'>Show Passes</a> | \n";
         echo "<a href='" . $this->baseUrl() . $query . "&amp;debug=1'>Enable Debug Output</a> | \n";
@@ -256,6 +243,7 @@ class CakeHtmlReporter extends CakeBaseReporter
      */
     public function paintDocumentEnd()
     {
+        $baseDir = $this->params['baseDir'];
         include CAKE . 'TestSuite' . DS . 'templates' . DS . 'footer.php';
         if (ob_get_length()) {
             ob_end_flush();
@@ -307,7 +295,7 @@ class CakeHtmlReporter extends CakeBaseReporter
         echo "</pre></div>\n";
         echo "<div class='msg'>" . __d('cake_dev', 'Test case: %s', $testName) . "</div>\n";
         if (!str_contains($className, 'PHPUnit_')) {
-            [, $query] = str_split($this->_getQueryLink());
+            [, $query] = $this->_getQueryLink();
             echo "<div class='msg'><a href='" . $this->baseUrl() . $query . '&amp;filter=' . $test->getName() . "'>" . __d('cake_dev', 'Rerun only this test: %s', $testName) . "</a></div>\n";
         }
         echo "<div class='msg'>" . __d('cake_dev', 'Stack trace:') . '<br />' . $trace . "</div>\n";
@@ -428,7 +416,7 @@ class CakeHtmlReporter extends CakeBaseReporter
      * @param TestSuite $suite The test suite to start.
      * @return void
      */
-    public function startTestSuite(TestSuite $suite)
+    public function startTestSuite(TestSuite $suite): void
     {
         if (!$this->_headerSent) {
             $this->paintHeader();
@@ -439,9 +427,9 @@ class CakeHtmlReporter extends CakeBaseReporter
     /**
      * Returns the query string formatted for ouput in links
      *
-     * @return string
+     * @return array{string, string}
      */
-    protected function _getQueryLink()
+    protected function _getQueryLink(): array
     {
         $show = $query = [];
         if (!empty($this->params['case'])) {
