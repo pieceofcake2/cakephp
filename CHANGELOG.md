@@ -1,5 +1,19 @@
 ## CHANGELOG
 
+## v2.10.24.6 (2025-10-03)
+
+### Bug Fixes
+
+- **Dispatcher**: Fixed `$_SERVER['PHP_SELF']` to be set for all SAPI modes (Apache, nginx, etc.)
+  - Previously only set when using PHP's built-in server
+  - Ensures correct routing and URL generation across all web server configurations
+
+- **Autoloader**: Prepended App autoloader to ensure priority over Composer autoloader
+  - Changed `spl_autoload_register(['App', 'load'])` to `spl_autoload_register(['App', 'load'], true, true)`
+  - Added throw flag (second parameter) to throw exception if registration fails
+  - Added prepend flag (third parameter) to place App::load() at the front of the autoloader queue
+  - Ensures CakePHP's class loading conventions (App::uses, etc.) work correctly
+
 ## v2.10.24.5 (2025-10-03)
 
 ### SSL/TLS Certificate Handling
