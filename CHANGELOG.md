@@ -1,6 +1,6 @@
 ## CHANGELOG
 
-## Unreleased
+## v2.10.24.5 (2025-10-03)
 
 ### SSL/TLS Certificate Handling
 
