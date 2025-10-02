@@ -81,6 +81,17 @@ chmod +x app/Console/cake
 
 ## Security
 
+### SSL/TLS Certificate Validation
+
+This fork uses [`composer/ca-bundle`](https://github.com/composer/ca-bundle) for SSL/TLS certificate validation ([PR #15](https://github.com/friendsofcake2/cakephp/pull/15)):
+
+- **System CA certificates**: Uses OpenSSL's default certificate bundle when available (`openssl.cafile` or `openssl.capath`)
+- **Fallback bundle**: Falls back to Mozilla's CA certificate bundle maintained by composer/ca-bundle
+- **Automatic updates**: CA certificates are kept up-to-date through Composer ecosystem
+- **No manual maintenance**: Removed the outdated static `lib/Cake/Config/cacert.pem` file (last updated in 2023)
+
+This approach ensures that HTTPS connections made by `CakeSocket` (e.g., for external API calls) properly validate SSL/TLS certificates using current, trusted root certificates.
+
 ### Known Vulnerabilities in Original CakePHP 2.10.24
 
 The following security vulnerabilities have been reported in the original CakePHP 2.10.24:

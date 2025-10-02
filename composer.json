@@ -10,9 +10,10 @@
         "ext-dom": "*",
         "ext-libxml": "*",
         "ext-simplexml": "*",
+        "composer/ca-bundle": "^1.5",
+        "php81_bc/strftime": "^0.7.5",
         "symfony/polyfill-intl-icu": "^1.29",
-        "symfony/polyfill-mbstring": "^1.29",
-        "php81_bc/strftime": "^0.7.5"
+        "symfony/polyfill-mbstring": "^1.29"
     },
     "replace": {
         "cakephp/cakephp": "^2.0"

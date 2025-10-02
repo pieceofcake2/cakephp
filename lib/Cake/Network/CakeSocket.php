@@ -16,6 +16,8 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+use Composer\CaBundle\CaBundle;
+
 App::uses('Validation', 'Utility');
 
 /**
@@ -293,8 +295,13 @@ class CakeSocket
         if (empty($this->config['context']['ssl']['peer_name'])) {
             $this->config['context']['ssl']['peer_name'] = $host;
         }
-        if (empty($this->config['context']['ssl']['cafile'])) {
-            $this->config['context']['ssl']['cafile'] = CAKE . 'Config' . DS . 'cacert.pem';
+        if (empty($this->config['context']['ssl']['capath']) && empty($this->config['context']['ssl']['cafile'])) {
+            $caPathOrFile = CaBundle::getSystemCaRootBundlePath();
+            if (is_dir($caPathOrFile)) {
+                $this->config['context']['ssl']['capath'] = $caPathOrFile;
+            } else {
+                $this->config['context']['ssl']['cafile'] = $caPathOrFile;
+            }
         }
         if (!empty($this->config['context']['ssl']['verify_host'])) {
             $this->config['context']['ssl']['CN_match'] = $host;
