@@ -33,7 +33,7 @@ The original CakePHP 2.x branch [reached End of Life in June 2021](https://baker
 
 ### Required PHP Extensions
 
-- `mbstring` - Multi-byte string support
+- `mbstring` - Multi-byte string support (optional, uses Symfony polyfill as fallback if not available)
 - `intl` - Internationalization support (optional, uses Symfony polyfill as fallback)
 - `openssl` - OpenSSL support (optional, required for SSL/TLS connections and encryption)
 - `mcrypt` - Mcrypt support (optional, deprecated in PHP 7.1+, only for legacy AES encryption)

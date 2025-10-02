@@ -4791,8 +4791,6 @@ class MultibyteTest extends CakeTestCase
      */
     public function testUsingMbStrrpos()
     {
-        $this->skipIf(extension_loaded('mbstring') && version_compare(PHP_VERSION, '5.2.0', '<'), 'PHP version does not support $offset parameter in mb_strrpos().');
-
         $string = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
         $find = 'F';
         $result = mb_strrpos($string, $find);
@@ -7664,7 +7662,7 @@ class MultibyteTest extends CakeTestCase
      */
     public function testUsingMbStrtoupperArmenian()
     {
-        if (extension_loaded('mbstring') && version_compare(PHP_VERSION, '7.3', '>=')) {
+        if (extension_loaded('mbstring')) {
             $this->markTestSkipped('PHP7.3+ built-in function mb_strtoupper() behaves slightly different from Multibyte::strtoupper()');
         }
 
@@ -7681,7 +7679,7 @@ class MultibyteTest extends CakeTestCase
      */
     public function testUsingMbStrtoupperDiacritic()
     {
-        if (extension_loaded('mbstring') && version_compare(PHP_VERSION, '7.3', '>=')) {
+        if (extension_loaded('mbstring')) {
             $this->markTestSkipped('PHP7.3+ built-in function mb_strtoupper() behaves slightly different from Multibyte::strtoupper()');
         }
 
@@ -7698,7 +7696,7 @@ class MultibyteTest extends CakeTestCase
      */
     public function testUsingMbStrtoupperLigatures()
     {
-        if (extension_loaded('mbstring') && version_compare(PHP_VERSION, '7.3', '>=')) {
+        if (extension_loaded('mbstring')) {
             $this->markTestSkipped('PHP7.3+ built-in function mb_strtoupper() behaves slightly different from Multibyte::strtoupper()');
         }
 
