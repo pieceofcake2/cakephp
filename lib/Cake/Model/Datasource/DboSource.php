@@ -3225,19 +3225,24 @@ class DboSource extends DataSource
      * Returns a limit statement in the correct format for the particular database.
      *
      * @param int $limit Limit of results returned
-     * @param int $offset Offset from which to start results
-     * @return string SQL limit/offset statement
+     * @param int|null $offset Offset from which to start results
+     * @return string|null SQL limit/offset statement
      */
-    public function limit($limit, $offset = null)
+    public function limit($limit, $offset = null): ?string
     {
         if ($limit) {
             $rt = ' LIMIT';
 
+            // Suppress PHP 8.5+ warning for backward compatibility with existing limit/offset behavior
+            // The sprintf %u format behavior is undefined for values outside int range, but must remain
+            // consistent with previous PHP versions for query generation
+            set_error_handler(function () {}, E_WARNING);
             if ($offset) {
                 $rt .= sprintf(' %u,', $offset);
             }
 
             $rt .= sprintf(' %u', $limit);
+            restore_error_handler();
 
             return $rt;
         }
