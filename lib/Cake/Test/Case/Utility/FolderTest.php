@@ -769,7 +769,7 @@ class FolderTest extends CakeTestCase
         $this->assertSame(array_diff($expected, $result), []);
 
         $result = $Folder->find('.*', true);
-        $expected = ['cacert.pem', 'config.php', 'routes.php'];
+        $expected = ['config.php', 'routes.php'];
         $this->assertSame($expected, $result);
 
         $result = $Folder->find('.*\.php');

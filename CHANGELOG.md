@@ -2,6 +2,18 @@
 
 ## Unreleased
 
+### SSL/TLS Certificate Handling
+
+- **CA Bundle Modernization**: Replaced bundled cacert.pem with composer/ca-bundle
+  - Added `composer/ca-bundle` ^1.5 as dependency
+  - Replaced hardcoded `CAKE/Config/cacert.pem` with `CaBundle::getSystemCaRootBundlePath()`
+  - Uses system CA certificate bundle when available (OpenSSL default cert dir/file)
+  - Falls back to Mozilla CA bundle provided by composer/ca-bundle
+  - Supports both `cafile` (single bundle file) and `capath` (certificate directory) configurations
+  - Automatically updated and maintained by Composer ecosystem
+  - Removed outdated `lib/Cake/Config/cacert.pem` file (last updated 2023)
+  - Updated `FolderTest` to reflect removed cacert.pem file
+
 ### PHPUnit Integration
 
 - **PHPUnit 9+ Migration**: Complete migration to PHPUnit 9+ ([PR #14](https://github.com/friendsofcake2/cakephp/pull/14))
