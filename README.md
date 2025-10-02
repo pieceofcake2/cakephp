@@ -83,7 +83,7 @@ chmod +x app/Console/cake
 
 ### SSL/TLS Certificate Validation
 
-This fork uses [`composer/ca-bundle`](https://github.com/composer/ca-bundle) for SSL/TLS certificate validation:
+This fork uses [`composer/ca-bundle`](https://github.com/composer/ca-bundle) for SSL/TLS certificate validation ([PR #15](https://github.com/friendsofcake2/cakephp/pull/15)):
 
 - **System CA certificates**: Uses OpenSSL's default certificate bundle when available (`openssl.cafile` or `openssl.capath`)
 - **Fallback bundle**: Falls back to Mozilla's CA certificate bundle maintained by composer/ca-bundle

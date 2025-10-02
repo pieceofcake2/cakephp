@@ -4,7 +4,7 @@
 
 ### SSL/TLS Certificate Handling
 
-- **CA Bundle Modernization**: Replaced bundled cacert.pem with composer/ca-bundle
+- **CA Bundle Modernization**: Replaced bundled cacert.pem with composer/ca-bundle ([PR #15](https://github.com/friendsofcake2/cakephp/pull/15))
   - Added `composer/ca-bundle` ^1.5 as dependency
   - Replaced hardcoded `CAKE/Config/cacert.pem` with `CaBundle::getSystemCaRootBundlePath()`
   - Uses system CA certificate bundle when available (OpenSSL default cert dir/file)
