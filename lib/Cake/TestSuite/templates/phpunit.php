@@ -22,7 +22,7 @@
     <p>You must install PHPUnit to use the CakePHP(tm) Test Suite.</p>
     <p>PHPUnit can be installed with Composer, or downloaded as a phar archive.</p>
     <p>Once PHPUnit is installed make sure its located on PHP's <code>include_path</code> by checking your php.ini</p>
-    <p>For full instructions on how to <a href="http://www.phpunit.de/manual/current/en/installation.html" target="_blank">install PHPUnit, see the PHPUnit installation guide</a>.</p>
+    <p>For full instructions on how to <a href="https://docs.phpunit.de/en/9.6/installation.html" target="_blank">install PHPUnit, see the PHPUnit installation guide</a>.</p>
     <p><a href="https://github.com/sebastianbergmann/phpunit" target="_blank">Download PHPUnit</a></p>
 </div>
 <?php

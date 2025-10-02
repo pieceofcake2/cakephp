@@ -629,13 +629,9 @@ class File
      * @param bool $all Clear all cache or not
      * @return void
      */
-    public function clearStatCache($all = false)
+    public function clearStatCache($all = false): void
     {
-        if ($all === false && version_compare(PHP_VERSION, '5.3.0') >= 0) {
-            return clearstatcache(true, $this->path);
-        }
-
-        return clearstatcache();
+        clearstatcache(true, $this->path);
     }
 
     /**

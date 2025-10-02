@@ -179,9 +179,6 @@ class CakeRequest implements ArrayAccess
                 $data = $this->_readInput();
                 parse_str($data, $this->data);
         }
-        if (ini_get('magic_quotes_gpc') === '1') {
-            $this->data = stripslashes_deep($this->data);
-        }
 
         $override = null;
         if (env('HTTP_X_HTTP_METHOD_OVERRIDE')) {
@@ -222,11 +219,7 @@ class CakeRequest implements ArrayAccess
      */
     protected function _processGet()
     {
-        if (ini_get('magic_quotes_gpc') === '1') {
-            $query = stripslashes_deep($_GET);
-        } else {
-            $query = $_GET;
-        }
+        $query = $_GET;
 
         $unsetUrl = '/' . str_replace(['.', ' '], '_', urldecode($this->url));
         unset($query[$unsetUrl]);

@@ -15,6 +15,8 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+use PHPUnit\Framework\TestCase;
+
 App::uses('TaskCollection', 'Console');
 App::uses('ConsoleOutput', 'Console');
 App::uses('ConsoleInput', 'Console');
@@ -874,13 +876,7 @@ class Shell extends CakeObject
      */
     protected function _checkUnitTest()
     {
-        if (class_exists('PHPUnit_Framework_TestCase')) {
-            return true;
-            //@codingStandardsIgnoreStart
-        } elseif (@include 'PHPUnit' . DS . 'Autoload.php') {
-            //@codingStandardsIgnoreEnd
-            return true;
-        } elseif (App::import('Vendor', 'phpunit', ['file' => 'PHPUnit' . DS . 'Autoload.php'])) {
+        if (class_exists(TestCase::class)) {
             return true;
         }
 

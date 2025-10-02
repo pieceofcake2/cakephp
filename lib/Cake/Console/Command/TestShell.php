@@ -187,7 +187,7 @@ class TestShell extends Shell
      *
      * @return array|null Array of params for CakeTestDispatcher or null.
      */
-    protected function _parseArgs()
+    protected function _parseArgs(): ?array
     {
         if (empty($this->args)) {
             return null;
@@ -268,7 +268,9 @@ class TestShell extends Shell
         $args = $this->_parseArgs();
 
         if (empty($args['case'])) {
-            return $this->available();
+            $this->available();
+
+            return;
         }
 
         $this->_run($args, $this->_runnerOptions());
@@ -286,8 +288,8 @@ class TestShell extends Shell
         restore_error_handler();
         restore_error_handler();
 
-        $testCli = new CakeTestSuiteCommand('CakeTestLoader', $runnerArgs);
-        $testCli->run($options);
+        $testCli = new CakeTestSuiteCommand(CakeTestLoader::class, $runnerArgs);
+        $testCli->run($options, false);
     }
 
     /**
@@ -314,8 +316,9 @@ class TestShell extends Shell
 
         if (empty($testCases)) {
             $this->out(__d('cake_console', "No test cases available \n\n"));
+            $this->out($this->OptionParser->help());
 
-            return $this->out($this->OptionParser->help());
+            return;
         }
 
         $this->out($title);

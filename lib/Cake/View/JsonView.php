@@ -161,7 +161,7 @@ class JsonView extends View
                 $jsonOptions = $this->viewVars['_jsonOptions'];
             }
         }
-        if (version_compare(PHP_VERSION, '5.4.0', '>=') && Configure::read('debug')) {
+        if (Configure::read('debug')) {
             $jsonOptions = $jsonOptions | JSON_PRETTY_PRINT;
         }
 

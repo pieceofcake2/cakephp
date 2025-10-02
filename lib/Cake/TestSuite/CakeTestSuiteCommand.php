@@ -19,7 +19,6 @@ use PHPUnit\TextUI\Command;
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('CakeTestRunner', 'TestSuite');
 App::uses('CakeTestLoader', 'TestSuite');
 App::uses('CakeTestSuite', 'TestSuite');
 App::uses('CakeTestCase', 'TestSuite');
@@ -36,11 +35,11 @@ class CakeTestSuiteCommand extends Command
     /**
      * Construct method
      *
-     * @param mixed $loader The loader instance to use.
+     * @param string $loader The loader instance to use.
      * @param array $params list of options to be used for this run
      * @throws MissingTestLoaderException When a loader class could not be found.
      */
-    public function __construct($loader, $params = [])
+    public function __construct(string $loader, array $params = [])
     {
         if ($loader && !class_exists($loader)) {
             throw new MissingTestLoaderException(['class' => $loader]);
@@ -55,76 +54,18 @@ class CakeTestSuiteCommand extends Command
     }
 
     /**
-     * Ugly hack to get around PHPUnit having a hard coded class name for the Runner. :(
+     * Run
      *
-     * @param array $argv The command arguments
-     * @param bool $exit The exit mode.
-     * @return void
+     * @param array $argv
+     * @param bool $exit
+     * @return int
+     * @throws Exception
      */
-    public function run(array $argv, $exit = true): int
+    public function run(array $argv, bool $exit = true): int
     {
-        $this->handleArguments($argv);
+        $argv[] = $this->_resolveTestFile($this->_params['case'], $this->_params);
 
-        $runner = $this->getRunner($this->arguments['loader']);
-
-        if (
-            is_object($this->arguments['test']) &&
-            $this->arguments['test'] instanceof PHPUnit_Framework_Test
-        ) {
-            $suite = $this->arguments['test'];
-        } else {
-            $suite = $runner->getTest(
-                $this->arguments['test'],
-                $this->arguments['testFile'],
-            );
-        }
-
-        if ($this->arguments['listGroups']) {
-            PHPUnit_TextUI_TestRunner::printVersionString();
-
-            print "Available test group(s):\n";
-
-            $groups = $suite->getGroups();
-            sort($groups);
-
-            foreach ($groups as $group) {
-                print " - $group\n";
-            }
-
-            exit(PHPUnit_TextUI_TestRunner::SUCCESS_EXIT);
-        }
-
-        unset($this->arguments['test']);
-        unset($this->arguments['testFile']);
-
-        try {
-            $result = $runner->doRun($suite, $this->arguments, false);
-        } catch (PHPUnit_Framework_Exception $e) {
-            print $e->getMessage() . "\n";
-        }
-
-        if ($exit) {
-            if (!isset($result) || $result->errorCount() > 0) {
-                exit(PHPUnit_TextUI_TestRunner::EXCEPTION_EXIT);
-            }
-            if ($result->failureCount() > 0) {
-                exit(PHPUnit_TextUI_TestRunner::FAILURE_EXIT);
-            }
-
-            // Default to success even if there are warnings to match phpunit's behavior
-            exit(PHPUnit_TextUI_TestRunner::SUCCESS_EXIT);
-        }
-    }
-
-    /**
-     * Create a runner for the command.
-     *
-     * @param mixed $loader The loader to be used for the test run.
-     * @return CakeTestRunner
-     */
-    public function getRunner($loader)
-    {
-        return new CakeTestRunner($loader, $this->_params);
+        return parent::run($argv, $exit);
     }
 
     /**
@@ -142,12 +83,10 @@ class CakeTestSuiteCommand extends Command
      * Handles output flag used to change printing on webrunner.
      *
      * @param string $reporter The reporter class to use.
-     * @return void
+     * @return CakeBaseReporter
      */
     public function handleReporter($reporter)
     {
-        $object = null;
-
         $reporter = ucwords($reporter);
         $coreClass = 'Cake' . $reporter . 'Reporter';
         App::uses($coreClass, 'TestSuite/Reporter');
@@ -162,5 +101,48 @@ class CakeTestSuiteCommand extends Command
         }
 
         return $this->arguments['printer'] = $object;
+    }
+
+    /**
+     * Convert path fragments used by CakePHP's test runner to absolute paths that can be fed to PHPUnit.
+     *
+     * @param string $filePath The file path to load.
+     * @param array $params Additional parameters.
+     * @return string Converted path fragments.
+     */
+    protected function _resolveTestFile(string $filePath, array $params): string
+    {
+        $basePath = static::_basePath($params) . DS . $filePath;
+        $ending = 'Test.php';
+
+        return str_ends_with($basePath, $ending) ? $basePath : $basePath . $ending;
+    }
+
+    /**
+     * Generates the base path to a set of tests based on the parameters.
+     *
+     * @param array|null $params The path parameters.
+     * @return string|null The base path.
+     */
+    protected static function _basePath(?array $params): ?string
+    {
+        $result = null;
+        if (!empty($params['core'])) {
+            $result = CORE_TEST_CASES;
+        } elseif (!empty($params['plugin'])) {
+            if (!CakePlugin::loaded($params['plugin'])) {
+                try {
+                    CakePlugin::load($params['plugin']);
+                    $result = CakePlugin::path($params['plugin']) . 'Test' . DS . 'Case';
+                } catch (MissingPluginException) {
+                }
+            } else {
+                $result = CakePlugin::path($params['plugin']) . 'Test' . DS . 'Case';
+            }
+        } elseif (!empty($params['app'])) {
+            $result = APP_TEST_CASES;
+        }
+
+        return $result;
     }
 }

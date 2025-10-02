@@ -18,6 +18,9 @@
  * @package Cake.TestSuite
  */
 
+use PHPUnit\Runner\StandardTestSuiteLoader;
+use PHPUnit\Runner\TestSuiteLoader;
+
 /**
  * TestLoader for CakePHP Test suite.
  *
@@ -25,44 +28,53 @@
  *
  * @package Cake.TestSuite
  */
-class CakeTestLoader extends PHPUnit_Runner_StandardTestSuiteLoader
+class CakeTestLoader implements TestSuiteLoader
 {
+    private StandardTestSuiteLoader $loader;
+
+    /**
+     * Constructor
+     */
+    public function __construct()
+    {
+        $this->loader = new StandardTestSuiteLoader();
+    }
+
     /**
      * Load a file and find the first test case / suite in that file.
      *
-     * @param string $filePath The file path to load
-     * @param string $params Additional parameters
+     * @param string $suiteClassFile The file path to load
      * @return ReflectionClass
      */
-    public function load($filePath, $params = '')
+    public function load(string $suiteClassFile): ReflectionClass
     {
-        $file = $this->_resolveTestFile($filePath, $params);
+        $file = $this->_resolveTestFile($suiteClassFile, []);
 
-        return parent::load('', $file);
+        return $this->loader->load($file);
     }
 
     /**
      * Convert path fragments used by CakePHP's test runner to absolute paths that can be fed to PHPUnit.
      *
      * @param string $filePath The file path to load.
-     * @param string $params Additional parameters.
+     * @param array $params Additional parameters.
      * @return string Converted path fragments.
      */
-    protected function _resolveTestFile($filePath, $params)
+    protected function _resolveTestFile(string $filePath, array $params): string
     {
         $basePath = static::_basePath($params) . DS . $filePath;
         $ending = 'Test.php';
 
-        return strpos($basePath, $ending) === strlen($basePath) - strlen($ending) ? $basePath : $basePath . $ending;
+        return str_ends_with($basePath, $ending) ? $basePath : $basePath . $ending;
     }
 
     /**
      * Generates the base path to a set of tests based on the parameters.
      *
-     * @param array $params The path parameters.
-     * @return string The base path.
+     * @param array|null $params The path parameters.
+     * @return string|null The base path.
      */
-    protected static function _basePath($params)
+    protected static function _basePath(?array $params): ?string
     {
         $result = null;
         if (!empty($params['core'])) {
@@ -87,12 +99,16 @@ class CakeTestLoader extends PHPUnit_Runner_StandardTestSuiteLoader
     /**
      * Get the list of files for the test listing.
      *
-     * @param string $params Path parameters
+     * @param array|null $params Path parameters
      * @return array
      */
-    public static function generateTestList($params)
+    public static function generateTestList(?array $params): array
     {
         $directory = static::_basePath($params);
+        if (empty($directory)) {
+            return [];
+        }
+
         $fileList = static::_getRecursiveFileList($directory);
 
         $testCases = [];
@@ -113,7 +129,7 @@ class CakeTestLoader extends PHPUnit_Runner_StandardTestSuiteLoader
      * @param string $directory The directory to scan for files.
      * @return array
      */
-    protected static function _getRecursiveFileList($directory = '.')
+    protected static function _getRecursiveFileList(string $directory = '.'): array
     {
         $fileList = [];
         if (!is_dir($directory)) {
@@ -130,5 +146,16 @@ class CakeTestLoader extends PHPUnit_Runner_StandardTestSuiteLoader
         }
 
         return $fileList;
+    }
+
+    /**
+     * Reload
+     *
+     * @param ReflectionClass $aClass
+     * @return ReflectionClass
+     */
+    public function reload(ReflectionClass $aClass): ReflectionClass
+    {
+        return $this->loader->reload($aClass);
     }
 }

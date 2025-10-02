@@ -949,10 +949,6 @@ class Hash
         }
         $type = strtolower($type);
 
-        if ($type === 'natural' && version_compare(PHP_VERSION, '5.4.0', '<')) {
-            $type = 'regular';
-        }
-
         if ($dir === 'asc') {
             $dir = SORT_ASC;
         } else {

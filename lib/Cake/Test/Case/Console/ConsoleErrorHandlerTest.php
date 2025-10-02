@@ -163,10 +163,6 @@ class ConsoleErrorHandlerTest extends CakeTestCase
      */
     public function testNonIntegerExceptionCode()
     {
-        if (PHP_VERSION_ID < 50300) {
-            $this->markTestSkipped('ReflectionProperty::setAccessible() is available since 5.3');
-        }
-
         $exception = new Exception('Non-integer exception code');
 
         $class = new ReflectionClass('Exception');

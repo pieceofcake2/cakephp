@@ -4,7 +4,6 @@
          xsi:noNamespaceSchemaLocation="vendors/squizlabs/php_codesniffer/phpcs.xsd">
     <config name="php_version" value="80000"/>
 
-    <file>index.php</file>
     <file>app/</file>
     <file>lib/Cake/</file>
 
@@ -59,8 +58,6 @@
     <rule ref="Generic.PHP.DeprecatedFunctions.Deprecated">
         <!-- Using the deprecated libxml_disable_entity_loader functions. -->
         <exclude-pattern>/lib/Cake/Utility/Xml.php</exclude-pattern>
-        <!-- Using the deprecated get_magic_quotes_gpc function. -->
-        <exclude-pattern>lib/Cake/View/Helper.php</exclude-pattern>
         <!-- Using the deprecated mcrypt_* functions. -->
         <exclude-pattern>lib/Cake/Utility/Security.php</exclude-pattern>
         <!-- Using the deprecated strftime functions. -->
@@ -154,5 +151,6 @@
         <exclude-pattern>lib/Cake/Test/test_app/Config/htmlhelper_tags.php</exclude-pattern>
         <exclude-pattern>lib/Cake/Test/test_app/Config/var_test.php</exclude-pattern>
         <exclude-pattern>lib/Cake/Test/test_app/Config/var_test2.php</exclude-pattern>
+        <exclude-pattern>lib/Cake/TestSuite/Reporter/CakeHtmlReporter.php</exclude-pattern>
     </rule>
 </ruleset>

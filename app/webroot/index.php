@@ -51,29 +51,10 @@ if (!defined('CONFIG')) {
 }
 
 /**
- * The absolute path to the "cake" directory, WITHOUT a trailing DS.
- *
- * Un-comment this line to specify a fixed path to CakePHP.
- * This should point at the directory containing `Cake`.
- *
- * For ease of development CakePHP uses PHP's include_path. If you
- * cannot modify your include_path set this value.
- *
- * Leaving this constant undefined will result in it being defined in Cake/bootstrap.php
- *
- * The following line differs from its sibling
- * /lib/Cake/Console/Templates/skel/webroot/index.php
+ * Path to the vendors directory.
  */
-//define('CAKE_CORE_INCLUDE_PATH', ROOT . DS . 'lib');
-
-/**
- * This auto-detects CakePHP as a composer installed library.
- * You may remove this if you are not planning to use composer (not recommended, though).
- */
-$vendorPath = ROOT . DS . APP_DIR . DS . 'Vendor' . DS . 'cakephp' . DS . 'cakephp' . DS . 'lib';
-$dispatcher = 'Cake' . DS . 'Console' . DS . 'ShellDispatcher.php';
-if (!defined('CAKE_CORE_INCLUDE_PATH') && file_exists($vendorPath . DS . $dispatcher)) {
-    define('CAKE_CORE_INCLUDE_PATH', $vendorPath);
+if (!defined('VENDORS')) {
+    define('VENDORS', ROOT . DS . 'vendors' . DS);
 }
 
 /**
@@ -95,18 +76,30 @@ if (PHP_SAPI === 'cli-server') {
     $_SERVER['PHP_SELF'] = '/' . basename(__FILE__);
 }
 
-if (!defined('CAKE_CORE_INCLUDE_PATH')) {
-    if (function_exists('ini_set')) {
-        ini_set('include_path', ROOT . DS . 'lib' . PATH_SEPARATOR . ini_get('include_path'));
-    }
-    if (!include 'Cake' . DS . 'bootstrap.php') {
-        $failed = true;
-    }
-} elseif (!include CAKE_CORE_INCLUDE_PATH . DS . 'Cake' . DS . 'bootstrap.php') {
-    $failed = true;
+if (!is_dir(VENDORS)) {
+    trigger_error(
+        'Composer vendors directory not found at "' . VENDORS . '". ' .
+        'Please run "composer install" in the project root directory to install dependencies.',
+        E_USER_ERROR,
+    );
 }
-if (!empty($failed)) {
-    trigger_error('CakePHP core could not be found. Check the value of CAKE_CORE_INCLUDE_PATH in APP/webroot/index.php. It should point to the directory containing your ' . DS . 'cake core directory and your ' . DS . 'vendors root directory.', E_USER_ERROR);
+
+if (!is_file(VENDORS . 'autoload.php')) {
+    trigger_error(
+        'Composer autoload file not found at "' . VENDORS . 'autoload.php". ' .
+        'Please run "composer install" to generate the autoload file.',
+        E_USER_ERROR,
+    );
+}
+
+require_once VENDORS . 'autoload.php';
+
+if (!require_once 'Cake' . DS . 'bootstrap.php') {
+    trigger_error(
+        'CakePHP core could not be found. ' .
+        'Please run "composer require friendsofcake2/cakephp" to install CakePHP core.',
+        E_USER_ERROR,
+    );
 }
 
 App::uses('Dispatcher', 'Routing');

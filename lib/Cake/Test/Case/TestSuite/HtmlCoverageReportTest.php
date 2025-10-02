@@ -1,7 +1,5 @@
 <?php
 
-use PHPUnit\Runner\Version;
-
 /**
  * Test case for HtmlCoverageReport
  *
@@ -22,7 +20,7 @@ use PHPUnit\Runner\Version;
  */
 
 App::uses('HtmlCoverageReport', 'TestSuite/Coverage');
-App::uses('CakeBaseReporter', 'TestSuite/Reporter');
+App::uses('CakeHtmlReporter', 'TestSuite/Reporter');
 
 /**
  * HtmlCoverageReportTest
@@ -42,13 +40,12 @@ class HtmlCoverageReportTest extends CakeTestCase
         // Because CakeBaseReporter depend on PHPUnit_TextUI_ResultPrinter.
         // If run the test with the phpunit command, Result Printer is also PHPUnit's to be used.
         // Therefore, CakeBaseReporter are unnecessary.
-        $this->skipIf(version_compare(Version::id(), '9.0.0', '>='), 'This test can not be run with PHPUnit 9+');
         parent::setUp();
         App::build([
             'Plugin' => [CAKE . 'Test' . DS . 'test_app' . DS . 'Plugin' . DS],
         ], App::RESET);
         CakePlugin::load(['TestPlugin']);
-        $reporter = new CakeBaseReporter();
+        $reporter = new CakeHtmlReporter();
         $reporter->params = ['app' => false, 'plugin' => false, 'group' => false];
         $coverage = [];
         $this->Coverage = new HtmlCoverageReport($coverage, $reporter);

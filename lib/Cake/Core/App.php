@@ -546,6 +546,9 @@ class App
      */
     public static function load($className)
     {
+        if (class_exists($className)) {
+            return true;
+        }
         if (!isset(static::$_classMap[$className])) {
             return false;
         }
@@ -906,7 +909,9 @@ class App
                 ],
                 'Vendor' => [
                     '%s' . 'Vendor' . DS,
+                    ROOT . DS . 'vendor' . DS,
                     ROOT . DS . 'vendors' . DS,
+                    dirname(CAKE, 2) . DS . 'vendor' . DS,
                     dirname(CAKE, 2) . DS . 'vendors' . DS,
                 ],
                 'Plugin' => [

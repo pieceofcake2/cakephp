@@ -1,7 +1,5 @@
 <?php
 
-use PHPUnit\Runner\Version;
-
 /**
  * TestSuiteShell test case
  *
@@ -58,7 +56,6 @@ class TestShellTest extends CakeTestCase
         // Because TestShell and CakeTestLoader depend on PHPUnit_Runner_StandardTestSuiteLoader.
         // If run the test with the phpunit command, TestSuite Loader is also PHPUnit's to be used.
         // Therefore, TestShell and CakeTestLoader are unnecessary.
-        $this->skipIf(version_compare(Version::id(), '9.0.0', '>='), 'This test can not be run with PHPUnit 9+');
         parent::setUp();
         $out = $this->getMock('ConsoleOutput', [], [], '', false);
         $in = $this->getMock('ConsoleInput', [], [], '', false);
@@ -323,9 +320,12 @@ class TestShellTest extends CakeTestCase
         $this->Shell->startup();
         $this->Shell->args = ['unexistant-category'];
 
-        $this->Shell->expects($this->once())
+        $this->Shell->expects($this->exactly(2))
             ->method('out')
-            ->with(__d('cake_console', "No test cases available \n\n"));
+            ->withConsecutive(
+                [__d('cake_console', "No test cases available \n\n")],
+                [$this->anything()],
+            );
 
         $this->Shell->OptionParser->expects($this->once())->method('help');
         $this->Shell->available();
@@ -341,13 +341,12 @@ class TestShellTest extends CakeTestCase
         $this->Shell->startup();
         $this->Shell->args = ['core'];
 
-        $this->Shell->expects($this->exactly(3))
+        $outputs = [];
+        $this->Shell->expects($this->atLeast(3))
             ->method('out')
-            ->withConsecutive(
-                ['Core Test Cases:'],
-                [$this->stringContains('[1]')],
-                [$this->stringContains('[2]')],
-            );
+            ->willReturnCallback(function ($value) use (&$outputs) {
+                $outputs[] = $value;
+            });
 
         $this->Shell->expects($this->once())
             ->method('in')
@@ -356,7 +355,11 @@ class TestShellTest extends CakeTestCase
 
         $this->Shell->expects($this->once())->method('_run');
         $this->Shell->available();
+
         $this->assertEquals(['core', 'AllBehaviors'], $this->Shell->args);
+        $this->assertEquals('Core Test Cases:', $outputs[0]);
+        $this->assertStringContainsString('[1]', $outputs[1]);
+        $this->assertStringContainsString('[2]', $outputs[2]);
     }
 
     /**
