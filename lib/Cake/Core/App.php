@@ -546,6 +546,9 @@ class App
      */
     public static function load($className)
     {
+        if (class_exists($className)) {
+            return true;
+        }
         if (!isset(static::$_classMap[$className])) {
             return false;
         }

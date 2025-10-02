@@ -161,7 +161,9 @@ class JsonView extends View
                 $jsonOptions = $this->viewVars['_jsonOptions'];
             }
         }
-        $jsonOptions = $jsonOptions | JSON_PRETTY_PRINT;
+        if (Configure::read('debug')) {
+            $jsonOptions = $jsonOptions | JSON_PRETTY_PRINT;
+        }
 
         $json = json_encode($data, $jsonOptions);
 

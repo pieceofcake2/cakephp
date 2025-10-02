@@ -17,7 +17,7 @@ require_once __DIR__ . DS . 'bootstrap' . DS . 'cake_dot_php.php';
  * so load it here.
  */
 App::uses('CakeTestSuiteDispatcher', 'TestSuite');
-require_once 'Cake' . DS . 'Console' . DS . 'ShellDispatcher.php';
+App::load('CakeTestSuiteDispatcher');
 
 /*
  * Classes that can be used without declaring App::uses()
