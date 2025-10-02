@@ -75,6 +75,7 @@ if (PHP_SAPI === 'cli-server') {
     }
     $_SERVER['PHP_SELF'] = '/' . basename(__FILE__);
 }
+$_SERVER['PHP_SELF'] = '/' . basename(__FILE__);
 
 if (!is_dir(VENDORS)) {
     trigger_error(
