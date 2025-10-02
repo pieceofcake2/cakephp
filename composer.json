@@ -33,11 +33,11 @@
     "config": {
         "vendor-dir": "vendors/",
         "process-timeout": 0,
-        "sort-packages": true,
-        "allow-plugins": {
-            "dealerdirect/phpcodesniffer-composer-installer": true
-        }
+        "sort-packages": true
     },
+    "include-path": [
+        "lib/"
+    ],
     "bin": [
         "lib/Cake/Console/cake"
     ],
@@ -46,7 +46,7 @@
             "@cs-check",
             "@test"
         ],
-        "cs-check": "./vendors/bin/phpcs -p --extensions=php --standard=CakePHP ./lib/Cake",
+        "cs-check": "./vendors/bin/phpcs",
         "test": "./lib/Cake/Console/cake test core AllTests --stderr --verbose"
     }
 }

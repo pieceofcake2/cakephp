@@ -1,37 +1,30 @@
 <?php
 /**
- * lib/Cake/Console/cake.php initialize
+ * lib/Cake/Console/cake initialize
  */
 
 if (!defined('DS')) {
     define('DS', DIRECTORY_SEPARATOR);
 }
 
-$dispatcher = 'Cake' . DS . 'Console' . DS . 'ShellDispatcher.php';
-$found = false;
-$paths = explode(PATH_SEPARATOR, ini_get('include_path'));
+$rootInstall = dirname(__DIR__, 4) . DS . 'vendors' . DS . 'autoload.php';
+$composerInstall = dirname(__DIR__, 6) . DS . 'autoload.php';
 
-foreach ($paths as $path) {
-    if (file_exists($path . DS . $dispatcher)) {
-        $found = $path;
-        break;
+if (isset($GLOBALS['_composer_autoload_path'])) {
+    require_once $GLOBALS['_composer_autoload_path'];
+} else {
+    if (file_exists($composerInstall)) {
+        require_once $composerInstall;
+    } elseif (file_exists($rootInstall)) {
+        require_once $rootInstall;
+    } else {
+        trigger_error('Composer autoload file not found. ' .
+            'Please run "composer install" to generate the autoload file.', E_USER_ERROR);
     }
 }
 
-if (!$found) {
-    $rootInstall = dirname(__DIR__, 3) . DS . $dispatcher;
-    $composerInstall = dirname(__DIR__, 2) . DS . $dispatcher;
-
-    if (file_exists($composerInstall)) {
-        include $composerInstall;
-    } elseif (file_exists($rootInstall)) {
-        include $rootInstall;
-    } else {
-        trigger_error('Could not locate CakePHP core files.', E_USER_ERROR);
-    }
-    unset($rootInstall, $composerInstall);
-} else {
-    include $found . DS . $dispatcher;
+if (!include 'Cake' . DS . 'Console' . DS . 'ShellDispatcher.php') {
+    trigger_error('Could not locate CakePHP core files.', E_USER_ERROR);
 }
 
 // In lib/Cake/Console/cake makes app root path.

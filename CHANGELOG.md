@@ -2,6 +2,20 @@
 
 ## Unreleased
 
+### Dispatcher Improvements
+
+- **Simplified Dispatcher Entry Points**: Streamlined autoload handling in dispatcher files
+  - Removed manual `CAKE_CORE_INCLUDE_PATH` detection from dispatcher files (set automatically in bootstrap.php)
+  - Removed `include_path` manipulation logic (Composer autoload handles this)
+  - Removed legacy `app/Vendor/cakephp/cakephp` path detection
+  - Added clear error messages when Composer vendors directory or autoload.php is missing
+  - Added clear error messages when CakePHP core is not installed via Composer
+  - **Breaking Change**: Projects must use Composer for installation (non-Composer installation no longer supported)
+  - **Migration**: If upgrading, copy updated dispatcher files from `vendors/friendsofcake2/cakephp/lib/Cake/Console/Templates/skel/` to your project:
+    - `skel/webroot/index.php` → `app/webroot/index.php`
+    - `skel/webroot/test.php` → `app/webroot/test.php`
+    - `skel/Console/cake` → `app/Console/cake`
+
 ### PHP Support
 
 - **PHP 8.5 Support**: Added PHP 8.5 to CI testing matrix ([PR #12](https://github.com/friendsofcake2/cakephp/pull/12))

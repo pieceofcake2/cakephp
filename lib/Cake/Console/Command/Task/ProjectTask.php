@@ -99,7 +99,7 @@ class ProjectTask extends AppShell
             }
 
             if ($this->consolePath($path) === true) {
-                $this->out(__d('cake_console', ' * app/Console/cake.php path set.'));
+                $this->out(__d('cake_console', ' * app/Console/cake path set.'));
             } else {
                 $this->err(__d('cake_console', 'Unable to set console path for app/Console.'));
                 $success = false;
@@ -236,14 +236,14 @@ class ProjectTask extends AppShell
 
     /**
      * Generates the correct path to the CakePHP libs that are generating the project
-     * and points app/console/cake.php to the right place
+     * and points app/console/cake to the right place
      *
      * @param string $path Project path.
      * @return bool success
      */
     public function consolePath($path)
     {
-        $File = new File($path . 'Console' . DS . 'cake.php');
+        $File = new File($path . 'Console' . DS . 'cake');
         $contents = $File->read();
         if (preg_match('/(__CAKE_PATH__)/', $contents, $match)) {
             $root = str_starts_with(CAKE_CORE_INCLUDE_PATH, '/') ? " DS . '" : "'";
@@ -363,9 +363,9 @@ class ProjectTask extends AppShell
         $root = str_starts_with(CAKE_CORE_INCLUDE_PATH, '/') ? " DS . '" : "'";
         $corePath = $root . str_replace(DS, "' . DS . '", trim(CAKE_CORE_INCLUDE_PATH, DS)) . "'";
 
-        $composer = ROOT . DS . APP_DIR . DS . 'Vendor' . DS . 'cakephp' . DS . 'cakephp' . DS . 'lib';
+        $composer = ROOT . DS . 'vendors' . DS . 'friendsofcake2' . DS . 'cakephp' . DS . 'lib';
         if (file_exists($composer)) {
-            $corePath = " ROOT . DS . APP_DIR . DS . 'Vendor' . DS . 'cakephp' . DS . 'cakephp' . DS . 'lib'";
+            $corePath = " ROOT . DS . 'vendors' . DS . 'friendsofcake2' . DS . 'cakephp' . DS . 'lib'";
         }
 
         $result = str_replace('__CAKE_PATH__', $corePath, $contents, $count);

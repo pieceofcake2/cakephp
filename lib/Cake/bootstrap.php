@@ -20,13 +20,6 @@
 
 define('TIME_START', microtime(true));
 
-if (!defined('E_DEPRECATED')) {
-    define('E_DEPRECATED', 8192);
-}
-
-if (!defined('E_USER_DEPRECATED')) {
-    define('E_USER_DEPRECATED', E_USER_NOTICE);
-}
 error_reporting(E_ALL & ~E_DEPRECATED);
 
 if (!defined('CAKE_CORE_INCLUDE_PATH')) {
@@ -41,10 +34,10 @@ if (!defined('WEBROOT_DIR')) {
     define('WEBROOT_DIR', 'webroot');
 }
 
-    /**
-     * Path to the cake directory.
-     */
-    define('CAKE', CORE_PATH . 'Cake' . DS);
+/**
+ * Path to the cake directory.
+ */
+define('CAKE', CORE_PATH . 'Cake' . DS);
 
 /**
  * Path to the application's directory.
@@ -60,10 +53,10 @@ if (!defined('CONFIG')) {
     define('CONFIG', ROOT . DS . APP_DIR . DS . 'Config' . DS);
 }
 
-    /**
-     * Path to the application's libs directory.
-     */
-    define('APPLIBS', APP . 'Lib' . DS);
+/**
+ * Path to the application's libs directory.
+ */
+define('APPLIBS', APP . 'Lib' . DS);
 
 /**
  * Path to the public CSS directory.

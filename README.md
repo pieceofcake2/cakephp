@@ -44,6 +44,9 @@ The original CakePHP 2.x branch [reached End of Life in June 2021](https://baker
 
 ## Installation
 
+> [!IMPORTANT]
+> This fork requires Composer for installation. Manual installation is not supported.
+
 Install via Composer:
 
 ```json
@@ -59,9 +62,22 @@ Then run:
 composer update
 ```
 
+After installation, copy dispatcher files from the package to your application:
+
+```bash
+# Copy web dispatcher files
+cp vendors/friendsofcake2/cakephp/lib/Cake/Console/Templates/skel/webroot/index.php app/webroot/index.php
+cp vendors/friendsofcake2/cakephp/lib/Cake/Console/Templates/skel/webroot/test.php app/webroot/test.php
+
+# Copy console dispatcher
+cp vendors/friendsofcake2/cakephp/lib/Cake/Console/Templates/skel/Console/cake app/Console/cake
+chmod +x app/Console/cake
+```
+
 > [!NOTE]
-> This package uses Composer's `replace` directive to replace `cakephp/cakephp`.
-> This ensures that all plugins and packages that depend on `cakephp/cakephp:^2.x` will continue to work correctly with this fork.
+> - This package uses Composer's `replace` directive to replace `cakephp/cakephp`.
+> - This ensures that all plugins and packages that depend on `cakephp/cakephp:^2.x` will continue to work correctly with this fork.
+> - Dispatcher files provide better error messages and simplified autoload handling.
 
 ## Security
 
@@ -97,7 +113,26 @@ Before migrating to this fork, ensure:
 
 ### Breaking Changes
 
-#### 1. Cache Engines Removed ([PR #4](https://github.com/friendsofcake2/cakephp/pull/4))
+#### 1. Composer-Only Installation Required
+
+**Breaking Change:**
+- **Non-Composer installation is no longer supported**
+- Dispatcher files (`app/webroot/index.php`, `app/webroot/test.php`, `app/Console/cake`) require Composer autoload
+- Removed manual `CAKE_CORE_INCLUDE_PATH` detection from dispatcher files
+- Removed `include_path` manipulation logic
+- Removed legacy `app/Vendor/cakephp/cakephp` path detection
+
+**Migration:**
+1. Ensure you're using Composer for dependency management
+2. Copy updated dispatcher files from `vendors/friendsofcake2/cakephp/lib/Cake/Console/Templates/skel/` to your application:
+   ```bash
+   cp vendors/friendsofcake2/cakephp/lib/Cake/Console/Templates/skel/webroot/index.php app/webroot/index.php
+   cp vendors/friendsofcake2/cakephp/lib/Cake/Console/Templates/skel/webroot/test.php app/webroot/test.php
+   cp vendors/friendsofcake2/cakephp/lib/Cake/Console/Templates/skel/Console/cake app/Console/cake
+   ```
+3. Run `composer install` to ensure all dependencies are properly loaded
+
+#### 2. Cache Engines Removed ([PR #4](https://github.com/friendsofcake2/cakephp/pull/4))
 
 **Breaking Change:**
 - **Xcache** support has been removed (not compatible with PHP 7.0+)
@@ -106,7 +141,7 @@ Before migrating to this fork, ensure:
 **Migration:**
 - If using these cache engines, migrate to Redis, Memcached, or APCu
 
-#### 2. Database Driver Methods Added ([PR #3](https://github.com/friendsofcake2/cakephp/pull/3))
+#### 3. Database Driver Methods Added ([PR #3](https://github.com/friendsofcake2/cakephp/pull/3))
 
 **Breaking Change:**
 - New methods added to database drivers (may cause issues if you have custom driver implementations)
@@ -123,7 +158,7 @@ Before migrating to this fork, ensure:
 **Migration:**
 - If you have custom database drivers extending these classes, implement these methods
 
-#### 3. Database Charset Configuration Changes ([PR #11](https://github.com/friendsofcake2/cakephp/pull/11))
+#### 4. Database Charset Configuration Changes ([PR #11](https://github.com/friendsofcake2/cakephp/pull/11))
 
 **Breaking Change:**
 - Character set configuration moved from `SET NAMES` to DSN connection options
@@ -136,11 +171,11 @@ Before migrating to this fork, ensure:
 - `setEncoding()` methods still work for runtime changes
 - More efficient connection setup with charset in DSN
 
-#### 4. SQL Server Driver Updates ([PR #9](https://github.com/friendsofcake2/cakephp/pull/9))
+#### 5. SQL Server Driver Updates ([PR #9](https://github.com/friendsofcake2/cakephp/pull/9))
 
 **Breaking Changes:**
 
-**4.1 Configuration Format**
+**5.1 Configuration Format**
 - **Schema-based configuration**: Use schema mapping instead of multiple databases
   ```php
   // Old approach (still works)
@@ -165,7 +200,7 @@ Before migrating to this fork, ensure:
 
 - **Port configuration**: Specify port separately (automatically appended to server)
 
-**4.2 Method Signature Changes**
+**5.2 Method Signature Changes**
 - `describe($model): array` - Now has explicit return type
 - `insertMulti()` - Now returns `bool` instead of `void`
 
@@ -174,7 +209,7 @@ Before migrating to this fork, ensure:
 - Move SSL/TLS options to `options` array if using inline DSN
 - If extending Sqlserver class, update method signatures to match
 
-#### 5. Mail Function Updates ([PR #10](https://github.com/friendsofcake2/cakephp/pull/10))
+#### 6. Mail Function Updates ([PR #10](https://github.com/friendsofcake2/cakephp/pull/10))
 
 **Breaking Change:**
 - `MailTransport::_mail()` method signature changed with strict types
@@ -185,7 +220,7 @@ Before migrating to this fork, ensure:
 - No action required unless you've extended `MailTransport` class
 - If extending, update method signature to match strict types
 
-#### 6. CSRF Token Security Enhancement ([PR #5](https://github.com/friendsofcake2/cakephp/pull/5))
+#### 7. CSRF Token Security Enhancement ([PR #5](https://github.com/friendsofcake2/cakephp/pull/5))
 
 **Breaking Change:**
 - New CSRF tokens use HMAC-SHA1 signatures (prevents CVE-2020-15400)
@@ -196,7 +231,7 @@ Before migrating to this fork, ensure:
 - Existing tokens continue to work
 - New tokens generated with enhanced security
 
-#### 7. strftime() Replacement
+#### 8. strftime() Replacement
 
 **Breaking Change:**
 - `strftime()` deprecated in PHP 8.1, removed in PHP 8.2
@@ -208,9 +243,9 @@ Before migrating to this fork, ensure:
 - Edge cases may produce slightly different output
 - Test date formatting in your application
 
-#### 8. Development Tools Updates
+#### 9. Development Tools Updates
 
-**8.1 PHP CodeSniffer ([PR #8](https://github.com/friendsofcake2/cakephp/pull/8))**
+**9.1 PHP CodeSniffer ([PR #8](https://github.com/friendsofcake2/cakephp/pull/8))**
 - Updated from 1.0.0 to 5.3
 - Applied automatic formatting fixes
 
@@ -218,14 +253,14 @@ Before migrating to this fork, ensure:
 - Development-time change only
 - Update `phpcs.xml` if you have custom coding standards
 
-**8.2 PHPUnit Compatibility**
+**9.2 PHPUnit Compatibility**
 - Framework tests migrated to PHPUnit 9.6
 - All deprecated PHPUnit features fixed
 
 **Migration:**
 - Update your tests if using deprecated PHPUnit features
 
-#### 9. PHP 8 Syntax Modernization ([PR #7](https://github.com/friendsofcake2/cakephp/pull/7))
+#### 10. PHP 8 Syntax Modernization ([PR #7](https://github.com/friendsofcake2/cakephp/pull/7))
 
 **Breaking Change:**
 - Codebase modernized to PHP 8 syntax
@@ -241,7 +276,7 @@ Before migrating to this fork, ensure:
 **Migration:**
 - **No action required** - syntax changes only, no functionality changes
 
-#### 10. CookieComponent 'cipher' Type - Insecure and Should Be Replaced
+#### 11. CookieComponent 'cipher' Type - Insecure and Should Be Replaced
 
 **Breaking Change:**
 - The default `CookieComponent` encryption type `'cipher'` is horribly insecure

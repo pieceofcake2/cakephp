@@ -409,7 +409,7 @@ class ProjectTaskTest extends CakeTestCase
         $result = $this->Task->consolePath($path);
         $this->assertTrue($result);
 
-        $File = new File($path . 'Console' . DS . 'cake.php');
+        $File = new File($path . 'Console' . DS . 'cake');
         $contents = $File->read();
         $this->assertDoesNotMatchRegularExpression('/__CAKE_PATH__/', $contents, 'Console path placeholder left behind.');
     }
