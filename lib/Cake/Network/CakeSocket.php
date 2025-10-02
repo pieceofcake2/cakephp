@@ -295,7 +295,7 @@ class CakeSocket
         if (empty($this->config['context']['ssl']['peer_name'])) {
             $this->config['context']['ssl']['peer_name'] = $host;
         }
-        if (empty($this->config['context']['ssl']['capath']) || empty($this->config['context']['ssl']['cafile'])) {
+        if (empty($this->config['context']['ssl']['capath']) && empty($this->config['context']['ssl']['cafile'])) {
             $caPathOrFile = CaBundle::getSystemCaRootBundlePath();
             if (is_dir($caPathOrFile)) {
                 $this->config['context']['ssl']['capath'] = $caPathOrFile;
