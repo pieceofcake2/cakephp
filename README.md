@@ -241,6 +241,40 @@ Before migrating to this fork, ensure:
 **Migration:**
 - **No action required** - syntax changes only, no functionality changes
 
+#### 10. CookieComponent 'cipher' Type - Insecure and Should Be Replaced
+
+**Breaking Change:**
+- The default `CookieComponent` encryption type `'cipher'` is horribly insecure
+
+> [!WARNING]
+> As stated in the CakePHP source code comments:
+> > "Cipher is horribly insecure and only the default because of backwards compatibility. In new applications you should always change this to 'aes' or 'rijndael'."
+
+**Why 'cipher' is insecure:**
+- Uses `Security::cipher()` with XOR encryption (cryptographically weak)
+- Uses `Security.cipherSeed` with undefined float-to-int casting behavior
+- The seed value: `mt_srand((int)(float)Configure::read('Security.cipherSeed'))` has no guaranteed consistency
+- Not suitable for protecting sensitive data
+
+**Migration:**
+```php
+// OLD (insecure - DO NOT USE)
+public $components = [
+    'Cookie' => [
+        'type' => 'cipher'  // Default, horribly insecure
+    ]
+];
+
+// NEW (recommended)
+public $components = [
+    'Cookie' => [
+        'type' => 'rijndael'  // or 'aes'
+    ]
+];
+```
+
+**Important:** Changing encryption type will invalidate existing cookies. Plan your migration strategy accordingly (e.g., support both types during transition period).
+
 ## Running Tests
 
 ### Using Docker (Recommended)
