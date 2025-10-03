@@ -229,7 +229,10 @@ class App
             $packageFormat = static::_packageFormat();
             if (!empty($packageFormat[$type])) {
                 foreach ($packageFormat[$type] as $f) {
-                    $path[] = sprintf($f, $pluginPath);
+                    $_path = sprintf($f, $pluginPath);
+                    if ($f !== $_path) {
+                        $path[] = $_path;
+                    }
                 }
             }
 
@@ -888,6 +891,7 @@ class App
                 ],
                 'View' => [
                     '%s' . 'View' . DS,
+                    ROOT . DS . 'templates' . DS,
                 ],
                 'View/Helper' => [
                     '%s' . 'View' . DS . 'Helper' . DS,
@@ -906,6 +910,7 @@ class App
                 ],
                 'Locale' => [
                     '%s' . 'Locale' . DS,
+                    ROOT . DS . 'resources' . DS . 'locales' . DS,
                 ],
                 'Vendor' => [
                     '%s' . 'Vendor' . DS,

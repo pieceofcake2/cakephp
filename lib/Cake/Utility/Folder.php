@@ -416,10 +416,12 @@ class Folder
      */
     public function inCakePath($path = '')
     {
-        $dir = substr(Folder::slashTerm(ROOT), 0, -1);
-        $newdir = $dir . $path;
+        $dir1 = substr(Folder::slashTerm(ROOT), 0, -1);
+        $newdir1 = $dir1 . $path;
+        $dir2 = dirname(CAKE_CORE_INCLUDE_PATH);
+        $newdir2 = $dir2 . $path;
 
-        return $this->inPath($newdir);
+        return $this->inPath($newdir1) || $this->inPath($newdir2);
     }
 
     /**

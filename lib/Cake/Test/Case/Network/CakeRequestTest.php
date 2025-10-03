@@ -1364,7 +1364,7 @@ class CakeRequestTest extends CakeTestCase
         Configure::write('App.baseUrl', false);
 
         $_SERVER['DOCUMENT_ROOT'] = '/cake/repo/branches';
-        $_SERVER['PHP_SELF'] = '/urlencode me/app/webroot/index.php';
+        $_SERVER['PHP_SELF'] = '/urlencode me/' . APP_DIR . '/' . WEBROOT_DIR . '/index.php';
         $_SERVER['PATH_INFO'] = '/posts/view/1';
 
         $request = new CakeRequest();
@@ -1373,7 +1373,7 @@ class CakeRequestTest extends CakeTestCase
         $this->assertEquals('posts/view/1', $request->url);
 
         $_SERVER['DOCUMENT_ROOT'] = '/cake/repo/branches';
-        $_SERVER['PHP_SELF'] = '/1.2.x.x/app/webroot/index.php';
+        $_SERVER['PHP_SELF'] = '/1.2.x.x/' . APP_DIR . '/' . WEBROOT_DIR . '/index.php';
         $_SERVER['PATH_INFO'] = '/posts/view/1';
 
         $request = new CakeRequest();
@@ -1381,7 +1381,7 @@ class CakeRequestTest extends CakeTestCase
         $this->assertEquals('/1.2.x.x/', $request->webroot);
         $this->assertEquals('posts/view/1', $request->url);
 
-        $_SERVER['DOCUMENT_ROOT'] = '/cake/repo/branches/1.2.x.x/app/webroot';
+        $_SERVER['DOCUMENT_ROOT'] = '/cake/repo/branches/1.2.x.x/' . APP_DIR . '/' . WEBROOT_DIR;
         $_SERVER['PHP_SELF'] = '/index.php';
         $_SERVER['PATH_INFO'] = '/posts/add';
         $request = new CakeRequest();
@@ -1391,14 +1391,14 @@ class CakeRequestTest extends CakeTestCase
         $this->assertEquals('posts/add', $request->url);
 
         $_SERVER['DOCUMENT_ROOT'] = '/cake/repo/branches/1.2.x.x/test/';
-        $_SERVER['PHP_SELF'] = '/webroot/index.php';
+        $_SERVER['PHP_SELF'] = '/' . WEBROOT_DIR . '/index.php';
         $request = new CakeRequest();
 
         $this->assertEquals('', $request->base);
         $this->assertEquals('/', $request->webroot);
 
         $_SERVER['DOCUMENT_ROOT'] = '/some/apps/where';
-        $_SERVER['PHP_SELF'] = '/app/webroot/index.php';
+        $_SERVER['PHP_SELF'] = '/' . APP_DIR . '/' . WEBROOT_DIR . '/index.php';
         $request = new CakeRequest();
 
         $this->assertEquals('', $request->base);
@@ -1407,7 +1407,7 @@ class CakeRequestTest extends CakeTestCase
         Configure::write('App.dir', 'auth');
 
         $_SERVER['DOCUMENT_ROOT'] = '/cake/repo/branches';
-        $_SERVER['PHP_SELF'] = '/demos/auth/webroot/index.php';
+        $_SERVER['PHP_SELF'] = '/demos/auth/' . WEBROOT_DIR . '/index.php';
 
         $request = new CakeRequest();
 
@@ -1417,7 +1417,7 @@ class CakeRequestTest extends CakeTestCase
         Configure::write('App.dir', 'code');
 
         $_SERVER['DOCUMENT_ROOT'] = '/Library/WebServer/Documents';
-        $_SERVER['PHP_SELF'] = '/clients/PewterReport/code/webroot/index.php';
+        $_SERVER['PHP_SELF'] = '/clients/PewterReport/code/' . WEBROOT_DIR . '/index.php';
         $request = new CakeRequest();
 
         $this->assertEquals('/clients/PewterReport/code', $request->base);
@@ -1467,8 +1467,8 @@ class CakeRequestTest extends CakeTestCase
      */
     public function testBaseUrlWithModRewriteAndIndexPhp()
     {
-        $_SERVER['REQUEST_URI'] = '/cakephp/app/webroot/index.php';
-        $_SERVER['PHP_SELF'] = '/cakephp/app/webroot/index.php';
+        $_SERVER['REQUEST_URI'] = '/cakephp/' . APP_DIR . '/' . WEBROOT_DIR . '/index.php';
+        $_SERVER['PHP_SELF'] = '/cakephp/' . APP_DIR . '/' . WEBROOT_DIR . '/index.php';
         unset($_SERVER['PATH_INFO']);
         $request = new CakeRequest();
 
@@ -1477,8 +1477,8 @@ class CakeRequestTest extends CakeTestCase
         $this->assertEquals('', $request->url);
         $this->assertEquals('/cakephp/', $request->here);
 
-        $_SERVER['REQUEST_URI'] = '/cakephp/app/webroot/index.php/';
-        $_SERVER['PHP_SELF'] = '/cakephp/app/webroot/index.php/';
+        $_SERVER['REQUEST_URI'] = '/cakephp/' . APP_DIR . '/' . WEBROOT_DIR . '/index.php/';
+        $_SERVER['PHP_SELF'] = '/cakephp/' . APP_DIR . '/' . WEBROOT_DIR . '/index.php/';
         $_SERVER['PATH_INFO'] = '/';
         $request = new CakeRequest();
 
@@ -1487,8 +1487,8 @@ class CakeRequestTest extends CakeTestCase
         $this->assertEquals('', $request->url);
         $this->assertEquals('/cakephp/', $request->here);
 
-        $_SERVER['REQUEST_URI'] = '/cakephp/app/webroot/index.php/apples';
-        $_SERVER['PHP_SELF'] = '/cakephp/app/webroot/index.php/apples';
+        $_SERVER['REQUEST_URI'] = '/cakephp/' . APP_DIR . '/' . WEBROOT_DIR . '/index.php/apples';
+        $_SERVER['PHP_SELF'] = '/cakephp/' . APP_DIR . '/' . WEBROOT_DIR . '/index.php/apples';
         $_SERVER['PATH_INFO'] = '/apples';
         $request = new CakeRequest();
 
@@ -1497,8 +1497,8 @@ class CakeRequestTest extends CakeTestCase
         $this->assertEquals('apples', $request->url);
         $this->assertEquals('/cakephp/apples', $request->here);
 
-        $_SERVER['REQUEST_URI'] = '/cakephp/app/webroot/index.php/melons/share/';
-        $_SERVER['PHP_SELF'] = '/cakephp/app/webroot/index.php/melons/share/';
+        $_SERVER['REQUEST_URI'] = '/cakephp/' . APP_DIR . '/' . WEBROOT_DIR . '/index.php/melons/share/';
+        $_SERVER['PHP_SELF'] = '/cakephp/' . APP_DIR . '/' . WEBROOT_DIR . '/index.php/melons/share/';
         $_SERVER['PATH_INFO'] = '/melons/share/';
         $request = new CakeRequest();
 
@@ -1507,8 +1507,8 @@ class CakeRequestTest extends CakeTestCase
         $this->assertEquals('melons/share/', $request->url);
         $this->assertEquals('/cakephp/melons/share/', $request->here);
 
-        $_SERVER['REQUEST_URI'] = '/cakephp/app/webroot/index.php/bananas/eat/tasty_banana';
-        $_SERVER['PHP_SELF'] = '/cakephp/app/webroot/index.php/bananas/eat/tasty_banana';
+        $_SERVER['REQUEST_URI'] = '/cakephp/' . APP_DIR . '/' . WEBROOT_DIR . '/index.php/bananas/eat/tasty_banana';
+        $_SERVER['PHP_SELF'] = '/cakephp/' . APP_DIR . '/' . WEBROOT_DIR . '/index.php/bananas/eat/tasty_banana';
         $_SERVER['PATH_INFO'] = '/bananas/eat/tasty_banana';
         $request = new CakeRequest();
 
@@ -1558,7 +1558,7 @@ class CakeRequestTest extends CakeTestCase
 
         $request = new CakeRequest();
         $this->assertEquals('/cake/index.php', $request->base);
-        $this->assertEquals('/cake/app/webroot/', $request->webroot);
+        $this->assertEquals('/cake/' . APP_DIR . '/' . WEBROOT_DIR . '/', $request->webroot);
         $this->assertEquals('posts/index', $request->url);
     }
 
@@ -1625,7 +1625,7 @@ class CakeRequestTest extends CakeTestCase
 
         $request = new CakeRequest();
         $this->assertEquals('/index.php', $request->base);
-        $this->assertEquals('/app/webroot/', $request->webroot);
+        $this->assertEquals('/' . APP_DIR . '/' . WEBROOT_DIR . '/', $request->webroot);
     }
 
     /**
@@ -1641,7 +1641,7 @@ class CakeRequestTest extends CakeTestCase
 
         $request = new CakeRequest();
         $this->assertEquals('/approval/index.php', $request->base);
-        $this->assertEquals('/approval/app/webroot/', $request->webroot);
+        $this->assertEquals('/approval/' . APP_DIR . '/' . WEBROOT_DIR . '/', $request->webroot);
 
         Configure::write('App.baseUrl', '/webrootable/index.php');
         $_SERVER['DOCUMENT_ROOT'] = '/Users/markstory/Sites/';
@@ -1649,7 +1649,7 @@ class CakeRequestTest extends CakeTestCase
 
         $request = new CakeRequest();
         $this->assertEquals('/webrootable/index.php', $request->base);
-        $this->assertEquals('/webrootable/app/webroot/', $request->webroot);
+        $this->assertEquals('/webrootable/' . APP_DIR . '/' . WEBROOT_DIR . '/', $request->webroot);
     }
 
     /**
@@ -1660,8 +1660,8 @@ class CakeRequestTest extends CakeTestCase
     public function testBaseUrlNoRewriteWebrootIndex()
     {
         Configure::write('App.baseUrl', '/index.php');
-        $_SERVER['DOCUMENT_ROOT'] = '/Users/markstory/Sites/cake_dev/app/webroot';
-        $_SERVER['SCRIPT_FILENAME'] = '/Users/markstory/Sites/cake_dev/app/webroot/index.php';
+        $_SERVER['DOCUMENT_ROOT'] = '/Users/markstory/Sites/cake_dev/' . APP_DIR . '/' . WEBROOT_DIR . '';
+        $_SERVER['SCRIPT_FILENAME'] = '/Users/markstory/Sites/cake_dev/' . APP_DIR . '/' . WEBROOT_DIR . '/index.php';
 
         $request = new CakeRequest();
         $this->assertEquals('/index.php', $request->base);
@@ -1678,7 +1678,7 @@ class CakeRequestTest extends CakeTestCase
     {
         $_GET = [];
         $_GET['/posts/index/add_add'] = '';
-        $_SERVER['PHP_SELF'] = '/app/webroot/index.php';
+        $_SERVER['PHP_SELF'] = '/' . APP_DIR . '/' . WEBROOT_DIR . '/index.php';
         $_SERVER['REQUEST_URI'] = '/posts/index/add.add';
         $request = new CakeRequest();
         $this->assertEquals('', $request->base);
@@ -1686,7 +1686,7 @@ class CakeRequestTest extends CakeTestCase
 
         $_GET = [];
         $_GET['/cake_dev/posts/index/add_add'] = '';
-        $_SERVER['PHP_SELF'] = '/cake_dev/app/webroot/index.php';
+        $_SERVER['PHP_SELF'] = '/cake_dev/' . APP_DIR . '/' . WEBROOT_DIR . '/index.php';
         $_SERVER['REQUEST_URI'] = '/cake_dev/posts/index/add.add';
         $request = new CakeRequest();
         $this->assertEquals('/cake_dev', $request->base);
@@ -1702,7 +1702,7 @@ class CakeRequestTest extends CakeTestCase
     {
         $_GET = [];
         $_GET['/posts/add/∂∂'] = '';
-        $_SERVER['PHP_SELF'] = '/app/webroot/index.php';
+        $_SERVER['PHP_SELF'] = '/' . APP_DIR . '/' . WEBROOT_DIR . '/index.php';
         $_SERVER['REQUEST_URI'] = '/posts/add/%E2%88%82%E2%88%82';
         $request = new CakeRequest();
         $this->assertEquals('', $request->base);
@@ -1710,7 +1710,7 @@ class CakeRequestTest extends CakeTestCase
 
         $_GET = [];
         $_GET['/cake_dev/posts/add/∂∂'] = '';
-        $_SERVER['PHP_SELF'] = '/cake_dev/app/webroot/index.php';
+        $_SERVER['PHP_SELF'] = '/cake_dev/' . APP_DIR . '/' . WEBROOT_DIR . '/index.php';
         $_SERVER['REQUEST_URI'] = '/cake_dev/posts/add/%E2%88%82%E2%88%82';
         $request = new CakeRequest();
         $this->assertEquals('/cake_dev', $request->base);
@@ -1731,26 +1731,26 @@ class CakeRequestTest extends CakeTestCase
                     'App' => [
                         'base' => false,
                         'baseUrl' => '/index.php',
-                        'dir' => 'app',
-                        'webroot' => 'webroot',
+                        'dir' => APP_DIR,
+                        'webroot' => WEBROOT_DIR,
                     ],
                     'SERVER' => [
                         'SCRIPT_NAME' => '/index.php',
-                        'PATH_TRANSLATED' => 'C:\\Inetpub\\wwwroot',
+                        'PATH_TRANSLATED' => 'C:\\Inetpub\\' . WEBROOT_DIR . '',
                         'QUERY_STRING' => '',
                         'REQUEST_URI' => '/index.php',
                         'URL' => '/index.php',
-                        'SCRIPT_FILENAME' => 'C:\\Inetpub\\wwwroot\\index.php',
+                        'SCRIPT_FILENAME' => 'C:\\Inetpub\\' . WEBROOT_DIR . '\\index.php',
                         'ORIG_PATH_INFO' => '/index.php',
                         'PATH_INFO' => '',
-                        'ORIG_PATH_TRANSLATED' => 'C:\\Inetpub\\wwwroot\\index.php',
-                        'DOCUMENT_ROOT' => 'C:\\Inetpub\\wwwroot',
+                        'ORIG_PATH_TRANSLATED' => 'C:\\Inetpub\\' . WEBROOT_DIR . '\\index.php',
+                        'DOCUMENT_ROOT' => 'C:\\Inetpub\\' . WEBROOT_DIR,
                         'PHP_SELF' => '/index.php',
                     ],
                 ],
                 [
                     'base' => '/index.php',
-                    'webroot' => '/app/webroot/',
+                    'webroot' => '/' . APP_DIR . '/' . WEBROOT_DIR . '/',
                     'url' => '',
                 ],
             ],
@@ -1760,8 +1760,8 @@ class CakeRequestTest extends CakeTestCase
                     'App' => [
                         'base' => false,
                         'baseUrl' => '/index.php?',
-                        'dir' => 'app',
-                        'webroot' => 'webroot',
+                        'dir' => APP_DIR,
+                        'webroot' => WEBROOT_DIR,
                     ],
                     'SERVER' => [
                         'QUERY_STRING' => '/posts/add',
@@ -1776,7 +1776,7 @@ class CakeRequestTest extends CakeTestCase
                 [
                     'url' => 'posts/add',
                     'base' => '/index.php?',
-                    'webroot' => '/app/webroot/',
+                    'webroot' => '/' . APP_DIR . '/' . WEBROOT_DIR . '/',
                 ],
             ],
             [
@@ -1785,8 +1785,8 @@ class CakeRequestTest extends CakeTestCase
                     'App' => [
                         'base' => false,
                         'baseUrl' => '/site/index.php',
-                        'dir' => 'app',
-                        'webroot' => 'webroot',
+                        'dir' => APP_DIR,
+                        'webroot' => WEBROOT_DIR,
                     ],
                     'SERVER' => [
                         'SCRIPT_NAME' => '/site/index.php',
@@ -1804,7 +1804,7 @@ class CakeRequestTest extends CakeTestCase
                 [
                     'url' => '',
                     'base' => '/site/index.php',
-                    'webroot' => '/site/app/webroot/',
+                    'webroot' => '/site/' . APP_DIR . '/' . WEBROOT_DIR . '/',
                 ],
             ],
             [
@@ -1813,8 +1813,8 @@ class CakeRequestTest extends CakeTestCase
                     'App' => [
                         'base' => false,
                         'baseUrl' => '/site/index.php',
-                        'dir' => 'app',
-                        'webroot' => 'webroot',
+                        'dir' => APP_DIR,
+                        'webroot' => WEBROOT_DIR,
                     ],
                     'GET' => ['/posts/add' => ''],
                     'SERVER' => [
@@ -1833,7 +1833,7 @@ class CakeRequestTest extends CakeTestCase
                 [
                     'url' => 'posts/add',
                     'base' => '/site/index.php',
-                    'webroot' => '/site/app/webroot/',
+                    'webroot' => '/site/' . APP_DIR . '/' . WEBROOT_DIR. '/',
                 ],
             ],
             [
@@ -1842,12 +1842,12 @@ class CakeRequestTest extends CakeTestCase
                     'App' => [
                         'base' => false,
                         'baseUrl' => '/index.php',
-                        'dir' => 'app',
-                        'webroot' => 'webroot',
+                        'dir' => APP_DIR,
+                        'webroot' => WEBROOT_DIR,
                     ],
                     'SERVER' => [
-                        'DOCUMENT_ROOT' => '/Library/WebServer/Documents/site/app/webroot',
-                        'SCRIPT_FILENAME' => '/Library/WebServer/Documents/site/app/webroot/index.php',
+                        'DOCUMENT_ROOT' => '/Library/WebServer/Documents/site/' . APP_DIR . '/' . WEBROOT_DIR . '',
+                        'SCRIPT_FILENAME' => '/Library/WebServer/Documents/site/' . APP_DIR . '/' . WEBROOT_DIR . '/index.php',
                         'QUERY_STRING' => '',
                         'REQUEST_URI' => '/index.php/posts/index',
                         'SCRIPT_NAME' => '/index.php',
@@ -1867,12 +1867,12 @@ class CakeRequestTest extends CakeTestCase
                     'App' => [
                         'base' => false,
                         'baseUrl' => '/index.php',
-                        'dir' => 'app',
-                        'webroot' => 'webroot',
+                        'dir' => APP_DIR,
+                        'webroot' => WEBROOT_DIR,
                     ],
                     'SERVER' => [
-                        'DOCUMENT_ROOT' => '/Library/WebServer/Documents/site/app/webroot',
-                        'SCRIPT_FILENAME' => '/Library/WebServer/Documents/site/app/webroot/index.php',
+                        'DOCUMENT_ROOT' => '/Library/WebServer/Documents/site/' . APP_DIR . '/' . WEBROOT_DIR . '',
+                        'SCRIPT_FILENAME' => '/Library/WebServer/Documents/site/' . APP_DIR . '/' . WEBROOT_DIR . '/index.php',
                         'QUERY_STRING' => '',
                         'REQUEST_URI' => '/index.php',
                         'SCRIPT_NAME' => '/index.php',
@@ -1892,8 +1892,8 @@ class CakeRequestTest extends CakeTestCase
                     'App' => [
                         'base' => false,
                         'baseUrl' => '/site/index.php',
-                        'dir' => 'app',
-                        'webroot' => 'webroot',
+                        'dir' => APP_DIR,
+                        'webroot' => WEBROOT_DIR,
                     ],
                     'SERVER' => [
                         'SERVER_NAME' => 'localhost',
@@ -1908,7 +1908,7 @@ class CakeRequestTest extends CakeTestCase
                 [
                     'url' => 'posts/index',
                     'base' => '/site/index.php',
-                    'webroot' => '/site/app/webroot/',
+                    'webroot' => '/site/' . APP_DIR . '/' . WEBROOT_DIR . '/',
                 ],
             ],
             [
@@ -1917,8 +1917,8 @@ class CakeRequestTest extends CakeTestCase
                     'App' => [
                         'base' => false,
                         'baseUrl' => '/site/index.php',
-                        'dir' => 'app',
-                        'webroot' => 'webroot',
+                        'dir' => APP_DIR,
+                        'webroot' => WEBROOT_DIR,
                     ],
                     'SERVER' => [
                         'SERVER_NAME' => 'localhost',
@@ -1932,7 +1932,7 @@ class CakeRequestTest extends CakeTestCase
                 [
                     'url' => '',
                     'base' => '/site/index.php',
-                    'webroot' => '/site/app/webroot/',
+                    'webroot' => '/site/' . APP_DIR . '/' . WEBROOT_DIR . '/',
                 ],
             ],
             [
@@ -1941,8 +1941,8 @@ class CakeRequestTest extends CakeTestCase
                     'App' => [
                         'base' => false,
                         'baseUrl' => '/site/index.php',
-                        'dir' => 'app',
-                        'webroot' => 'webroot',
+                        'dir' => APP_DIR,
+                        'webroot' => WEBROOT_DIR,
                     ],
                     'GET' => ['a' => 'b', 'c' => 'd'],
                     'SERVER' => [
@@ -1960,7 +1960,7 @@ class CakeRequestTest extends CakeTestCase
                     'urlParams' => ['a' => 'b', 'c' => 'd'],
                     'url' => 'posts/index',
                     'base' => '/site/index.php',
-                    'webroot' => '/site/app/webroot/',
+                    'webroot' => '/site/' . APP_DIR . '/' . WEBROOT_DIR . '/',
                 ],
             ],
             [
@@ -1969,16 +1969,16 @@ class CakeRequestTest extends CakeTestCase
                     'App' => [
                         'base' => false,
                         'baseUrl' => false,
-                        'dir' => 'app',
-                        'webroot' => 'webroot',
+                        'dir' => APP_DIR,
+                        'webroot' => WEBROOT_DIR,
                     ],
                     'SERVER' => [
                         'SERVER_NAME' => 'localhost',
                         'DOCUMENT_ROOT' => '/Library/WebServer/Documents',
                         'SCRIPT_FILENAME' => '/Library/WebServer/Documents/site/index.php',
                         'REQUEST_URI' => '/site/',
-                        'SCRIPT_NAME' => '/site/app/webroot/index.php',
-                        'PHP_SELF' => '/site/app/webroot/index.php',
+                        'SCRIPT_NAME' => '/site/' . APP_DIR . '/' . WEBROOT_DIR . '/index.php',
+                        'PHP_SELF' => '/site/' . APP_DIR . '/' . WEBROOT_DIR . '/index.php',
                     ],
                 ],
                 [
@@ -1993,15 +1993,15 @@ class CakeRequestTest extends CakeTestCase
                     'App' => [
                         'base' => false,
                         'baseUrl' => false,
-                        'dir' => 'app',
-                        'webroot' => 'webroot',
+                        'dir' => APP_DIR,
+                        'webroot' => WEBROOT_DIR,
                     ],
                     'SERVER' => [
                         'SERVER_NAME' => 'localhost',
                         'DOCUMENT_ROOT' => '/Library/WebServer/Documents',
                         'SCRIPT_FILENAME' => '/Library/WebServer/Documents/site/index.php',
-                        'SCRIPT_NAME' => '/site/app/webroot/index.php',
-                        'PHP_SELF' => '/site/app/webroot/index.php',
+                        'SCRIPT_NAME' => '/site/' . APP_DIR . '/' . WEBROOT_DIR . '/index.php',
+                        'PHP_SELF' => '/site/' . APP_DIR . '/' . WEBROOT_DIR . '/index.php',
                         'PATH_INFO' => null,
                         'REQUEST_URI' => null,
                     ],
@@ -2018,13 +2018,13 @@ class CakeRequestTest extends CakeTestCase
                     'App' => [
                         'base' => false,
                         'baseUrl' => false,
-                        'dir' => 'app',
-                        'webroot' => 'webroot',
+                        'dir' => APP_DIR,
+                        'webroot' => WEBROOT_DIR,
                     ],
                     'SERVER' => [
                         'SERVER_NAME' => 'localhost',
-                        'DOCUMENT_ROOT' => '/Library/WebServer/Documents/site/app/webroot',
-                        'SCRIPT_FILENAME' => '/Library/WebServer/Documents/site/app/webroot/index.php',
+                        'DOCUMENT_ROOT' => '/Library/WebServer/Documents/site/' . APP_DIR . '/' . WEBROOT_DIR . '',
+                        'SCRIPT_FILENAME' => '/Library/WebServer/Documents/site/' . APP_DIR . '/' . WEBROOT_DIR . '/index.php',
                         'SCRIPT_NAME' => '/index.php',
                         'PHP_SELF' => '/index.php',
                         'PATH_INFO' => null,
@@ -2043,16 +2043,16 @@ class CakeRequestTest extends CakeTestCase
                     'App' => [
                         'base' => false,
                         'baseUrl' => false,
-                        'dir' => 'app',
-                        'webroot' => 'webroot',
+                        'dir' => APP_DIR,
+                        'webroot' => WEBROOT_DIR,
                     ],
                     'SERVER' => [
                         'SERVER_NAME' => 'localhost',
                         'DOCUMENT_ROOT' => '/Library/WebServer/Documents',
                         'SCRIPT_FILENAME' => '/Library/WebServer/Documents/site/index.php',
                         'REQUEST_URI' => '/site/posts/index',
-                        'SCRIPT_NAME' => '/site/app/webroot/index.php',
-                        'PHP_SELF' => '/site/app/webroot/index.php',
+                        'SCRIPT_NAME' => '/site/' . APP_DIR . '/' . WEBROOT_DIR . '/index.php',
+                        'PHP_SELF' => '/site/' . APP_DIR . '/' . WEBROOT_DIR . '/index.php',
                     ],
                 ],
                 [
@@ -2067,14 +2067,14 @@ class CakeRequestTest extends CakeTestCase
                     'App' => [
                         'base' => false,
                         'baseUrl' => false,
-                        'dir' => 'app',
-                        'webroot' => 'webroot',
+                        'dir' => APP_DIR,
+                        'webroot' => WEBROOT_DIR,
                     ],
                     'GET' => ['/posts/add' => ''],
                     'SERVER' => [
                         'SERVER_NAME' => 'localhost',
-                        'DOCUMENT_ROOT' => '/Library/WebServer/Documents/site/app/webroot',
-                        'SCRIPT_FILENAME' => '/Library/WebServer/Documents/site/app/webroot/index.php',
+                        'DOCUMENT_ROOT' => '/Library/WebServer/Documents/site/' . APP_DIR . '/' . WEBROOT_DIR,
+                        'SCRIPT_FILENAME' => '/Library/WebServer/Documents/site/' . APP_DIR . '/' . WEBROOT_DIR . '/index.php',
                         'SCRIPT_NAME' => '/index.php',
                         'QUERY_STRING' => '/posts/add&',
                         'PHP_SELF' => '/index.php',
@@ -2095,17 +2095,17 @@ class CakeRequestTest extends CakeTestCase
                     'App' => [
                         'base' => false,
                         'baseUrl' => false,
-                        'dir' => 'app',
-                        'webroot' => 'webroot',
+                        'dir' => APP_DIR,
+                        'webroot' => WEBROOT_DIR,
                     ],
                     'GET' => ['/site/posts/add' => ''],
                     'SERVER' => [
                         'SERVER_NAME' => 'localhost',
                         'DOCUMENT_ROOT' => '/Library/WebServer/Documents',
-                        'SCRIPT_FILENAME' => '/Library/WebServer/Documents/site/app/webroot/index.php',
-                        'SCRIPT_NAME' => '/site/app/webroot/index.php',
+                        'SCRIPT_FILENAME' => '/Library/WebServer/Documents/site/' . APP_DIR . '/' . WEBROOT_DIR . '/index.php',
+                        'SCRIPT_NAME' => '/site/' . APP_DIR . '/' . WEBROOT_DIR . '/index.php',
                         'QUERY_STRING' => '/site/posts/add&',
-                        'PHP_SELF' => '/site/app/webroot/index.php',
+                        'PHP_SELF' => '/site/' . APP_DIR . '/' . WEBROOT_DIR . '/index.php',
                         'PATH_INFO' => null,
                         'REQUEST_URI' => '/site/posts/add',
                     ],

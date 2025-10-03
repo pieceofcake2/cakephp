@@ -319,14 +319,14 @@ class CakeRequest implements ArrayAccess
             // Clean up additional / which cause following code to fail..
             $base = preg_replace('#/+#', '/', $base);
 
-            $indexPos = strpos($base, '/webroot/index.php');
+            $indexPos = strpos($base, '/' . WEBROOT_DIR . '/index.php');
             if ($indexPos !== false) {
-                $base = substr($base, 0, $indexPos) . '/webroot';
+                $base = substr($base, 0, $indexPos) . '/' . WEBROOT_DIR;
             }
-            if ($webroot === 'webroot' && $webroot === basename($base)) {
+            if ($webroot === WEBROOT_DIR && $webroot === basename($base)) {
                 $base = dirname($base);
             }
-            if ($dir === 'app' && $dir === basename($base)) {
+            if ($dir === APP_DIR && $dir === basename($base)) {
                 $base = dirname($base);
             }
 

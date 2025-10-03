@@ -8,6 +8,34 @@ use PHPUnit\Util\ErrorHandler;
 if (!defined('DS')) {
     define('DS', DIRECTORY_SEPARATOR);
 }
+if (!defined('ROOT')) {
+    define('ROOT', dirname(__DIR__, 3) . DS . 'vendors' . DS . 'friendsofcake2' . DS . 'app');
+}
+if (!defined('APP_DIR')) {
+    define('APP_DIR', 'src');
+}
+if (!defined('APP')) {
+    define('APP', ROOT . DS . APP_DIR . DS);
+}
+if (!defined('CONFIG')) {
+    define('CONFIG', ROOT . DS . 'config' . DS);
+}
+if (!defined('TESTS')) {
+    define('TESTS', ROOT . DS . 'tests' . DS);
+}
+if (!defined('TMP')) {
+    define('TMP', ROOT . DS . 'tmp' . DS);
+}
+if (!defined('LOGS')) {
+    define('LOGS', ROOT . DS . 'logs' . DS);
+}
+if (!defined('WEBROOT_DIR')) {
+    define('WEBROOT_DIR', 'webroot');
+}
+if (!defined('WWW_ROOT')) {
+    define('WWW_ROOT', ROOT . DS . WEBROOT_DIR . DS);
+}
+
 require_once __DIR__ . DS . 'bootstrap' . DS . 'cake_dot_php.php';
 
 /*

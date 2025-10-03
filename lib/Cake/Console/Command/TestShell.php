@@ -373,13 +373,11 @@ class TestShell extends Shell
         }
 
         $testFile = $testCase = null;
-        $testCaseFolder = str_replace(APP, '', APP_TEST_CASES);
-        if (preg_match('@Test[\\\/]@', $file)) {
+        if (preg_match('@(Test|tests)[\\\/]@', $file)) {
             if (str_ends_with($file, 'Test.php')) {
                 $testCase = substr($file, 0, -8);
                 $testCase = str_replace(DS, '/', $testCase);
-                $testCaseFolderEscaped = str_replace('/', '\/', $testCaseFolder);
-                $testCase = preg_replace('@.*' . $testCaseFolderEscaped . '\/@', '', $testCase);
+                $testCase = preg_replace('@.*(?:Test|tests)\/Case\/@', '', $testCase);
                 if (!empty($testCase)) {
                     if ($category === 'core') {
                         $testCase = str_replace('lib/Cake', '', $testCase);
@@ -394,7 +392,7 @@ class TestShell extends Shell
         $file = substr($file, 0, -4);
         if ($category === 'core') {
             $testCase = str_replace(DS, '/', $file);
-            $testCase = preg_replace('@.*lib/Cake/@', '', $file);
+            $testCase = preg_replace('@.*lib/Cake/@', '', $testCase);
             $testCase[0] = strtoupper($testCase[0]);
             $testFile = CAKE . 'Test/Case/' . $testCase . 'Test.php';
 
@@ -406,11 +404,11 @@ class TestShell extends Shell
         }
 
         if ($category === 'app') {
-            $testFile = str_replace(APP, APP_TEST_CASES . '/', $file) . 'Test.php';
+            $testFile = str_replace([APP, ROOT . DS], APP_TEST_CASES . '/', $file) . 'Test.php';
         } else {
             $testFile = preg_replace(
                 "@((?:plugins|Plugin)[\\/]{$category}[\\/])(.*)$@",
-                '\1' . $testCaseFolder . '/\2Test.php',
+                '$1Test/Case/$2Test.php',
                 $file,
             );
         }
@@ -421,7 +419,7 @@ class TestShell extends Shell
 
         $testCase = substr($testFile, 0, -8);
         $testCase = str_replace(DS, '/', $testCase);
-        $testCase = preg_replace('@.*' . $testCaseFolder . '/@', '', $testCase);
+        $testCase = preg_replace('@.*(?:Test|tests)/Case/@', '', $testCase);
 
         return $testCase;
     }

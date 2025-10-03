@@ -161,6 +161,7 @@ class AppTest extends CakeTestCase
         $expected = [
             '/path/to/views/',
             APP . 'View' . DS,
+            ROOT . DS . 'templates' . DS,
         ];
         $result = App::path('views');
         $this->assertEquals($expected, $result);
@@ -199,6 +200,7 @@ class AppTest extends CakeTestCase
         $pluginPaths = [
             '/foo/bar',
             APP . 'Plugin' . DS,
+            ROOT .  DS . 'plugins' . DS,
             dirname(CAKE, 2) . DS . 'plugins' . DS,
         ];
         App::build([

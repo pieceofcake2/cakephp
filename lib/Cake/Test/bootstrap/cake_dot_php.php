@@ -28,7 +28,7 @@ if (!require_once 'Cake' . DS . 'Console' . DS . 'ShellDispatcher.php') {
 }
 
 // In lib/Cake/Console/cake makes app root path.
-$appPath = dirname(__DIR__, 4) . DS . 'app';
+$appPath = dirname(__DIR__, 4) . DS . 'vendors' . DS . 'friendsofcake2' . DS . 'app' . DS . 'src';
 
 new ShellDispatcher([$_SERVER['argv'][0], '-working', $appPath]);
 

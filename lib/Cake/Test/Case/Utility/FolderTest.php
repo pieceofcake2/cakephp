@@ -749,7 +749,7 @@ class FolderTest extends CakeTestCase
         $this->assertFalse($result);
 
         $path = DS . 'lib' . DS . 'Cake' . DS . 'Config';
-        $Folder->cd(ROOT . DS . 'lib' . DS . 'Cake' . DS . 'Config');
+        $Folder->cd(dirname(CAKE_CORE_INCLUDE_PATH) . DS . 'lib' . DS . 'Cake' . DS . 'Config');
         $result = $Folder->inCakePath($path);
         $this->assertTrue($result);
     }

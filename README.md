@@ -79,6 +79,20 @@ chmod +x app/Console/cake
 > - This ensures that all plugins and packages that depend on `cakephp/cakephp:^2.x` will continue to work correctly with this fork.
 > - Dispatcher files provide better error messages and simplified autoload handling.
 
+### Application Skeleton
+
+The application skeleton has been extracted to a separate package: [`friendsofcake2/app`](https://github.com/friendsofcake2/app)
+
+When you want to modernize your directory structure to CakePHP 5.x style, refer to the separate app package:
+
+**Key Features:**
+- **CakePHP 5-compatible folder structure**: Adopt modern directory organization while staying on CakePHP 2.x
+- **Gradual migration path**: Migrate to CakePHP 5.x structure incrementally without rewriting your entire application
+- **Focus on code**: Separate application structure concerns from business logic migration
+- **Dual structure support**: Works with both traditional CakePHP 2.x and modern CakePHP 5.x-style layouts
+
+This allows you to progressively modernize your application's folder structure during CakePHP 2.x maintenance, making the eventual upgrade to CakePHP 5.x significantly easier by isolating structural changes from code changes.
+
 ## Security
 
 ### SSL/TLS Certificate Validation

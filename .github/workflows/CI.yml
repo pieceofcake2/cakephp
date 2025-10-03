@@ -154,7 +154,7 @@ jobs:
         run: composer install --prefer-dist --no-interaction --no-progress
 
       - name: Copy database.php
-        run: cp ./lib/Cake/Test/Config/database.php ./app/Config/
+        run: cp ./lib/Cake/Test/Config/database.php ./vendors/friendsofcake2/app/config/
 
       - name: Setup problem matchers for PHPUnit
         run: echo "::add-matcher::${{ runner.tool_cache }}/phpunit.json"
