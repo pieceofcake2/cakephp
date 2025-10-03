@@ -1,14 +1,14 @@
 # User specific & automatically generated files #
 #################################################
-/app/Config/database.php
-/composer.lock
-/lib/Cake/Console/Templates/skel/tmp/
-/plugins
-/vendors
+/tmp/*/*
+!/tmp/*/empty
+/Plugin/*
+!/Plugin/empty
+/Vendor/*
+!/Vendor/empty
 *.mo
 .phpunit.result.cache
 /phpunit.xml
-/rector.php
 
 # IDE and editor specific files #
 #################################

@@ -1,37 +1,28 @@
 {
-	"name": "cakephp/app",
-	"description": "CakePHP Application skeleton",
-	"type": "library",
-	"keywords": ["application", "cakephp"],
-	"homepage": "https://cakephp.org",
-	"license": "MIT",
-	"authors": [
-		{
-			"name": "CakePHP Community",
-			"homepage": "https://github.com/cakephp/cakephp/graphs/contributors"
-		}
-	],
-	"support": {
-		"issues": "https://github.com/cakephp/cakephp/issues",
-		"forum": "https://stackoverflow.com/tags/cakephp",
-		"irc": "irc://irc.freenode.org/cakephp",
-		"source": "https://github.com/cakephp/cakephp"
-	},
-	"require": {
-		"php": ">=5.3.0",
-		"ext-mcrypt": "*",
-		"cakephp/cakephp": "~2.9"
-	},
-	"require-dev": {
-		"phpunit/phpunit": "3.7.*"
-	},
-	"suggest": {
-		"cakephp/cakephp-codesniffer": "Easily check code formatting against the CakePHP coding standards."
-	},
-	"bin": [
-		"lib/Cake/Console/cake"
-	],
-	"config": {
-		"vendor-dir": "Vendor/"
-	}
+    "name": "friendsofcake2/app",
+    "description": "CakePHP 2 Application skeleton",
+    "type": "project",
+    "keywords": ["cakephp", "skeleton"],
+    "license": "MIT",
+    "require": {
+        "php": "^8.0",
+        "friendsofcake2/cakephp": "^2.10"
+    },
+    "require-dev": {
+        "cakephp/cakephp-codesniffer": "^5.0",
+        "phpunit/phpunit": "^9.6"
+    },
+    "config": {
+        "vendor-dir": "Vendor/",
+        "sort-packages": true,
+        "allow-plugins": {
+            "composer/installers": true,
+            "dealerdirect/phpcodesniffer-composer-installer": true
+        }
+    },
+    "extra": {
+        "installer-paths": {
+            "Plugin/{$name}/": ["type:cakephp-plugin"]
+        }
+    }
 }
