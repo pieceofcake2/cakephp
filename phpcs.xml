@@ -1,6 +1,5 @@
 <?xml version="1.0"?>
 <ruleset xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
-         name="CakePHP Core"
          xsi:noNamespaceSchemaLocation="vendors/squizlabs/php_codesniffer/phpcs.xsd">
     <config name="php_version" value="80000"/>
 
@@ -9,6 +8,7 @@
 
     <arg value="ps"/>
     <arg name="colors"/>
+    <arg name="parallel" value="8"/>
 
     <rule ref="CakePHP">
         <!-- ===== Namespace and Class Rules ===== -->
@@ -57,7 +57,7 @@
 
     <rule ref="Generic.PHP.DeprecatedFunctions.Deprecated">
         <!-- Using the deprecated libxml_disable_entity_loader functions. -->
-        <exclude-pattern>/lib/Cake/Utility/Xml.php</exclude-pattern>
+        <exclude-pattern>lib/Cake/Utility/Xml.php</exclude-pattern>
         <!-- Using the deprecated mcrypt_* functions. -->
         <exclude-pattern>lib/Cake/Utility/Security.php</exclude-pattern>
         <!-- Using the deprecated strftime functions. -->
