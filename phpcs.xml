@@ -3,12 +3,12 @@
          xsi:noNamespaceSchemaLocation="vendors/squizlabs/php_codesniffer/phpcs.xsd">
     <config name="php_version" value="80000"/>
 
-    <file>app/</file>
-    <file>lib/Cake/</file>
-
     <arg value="ps"/>
     <arg name="colors"/>
-    <arg name="parallel" value="8"/>
+    <arg name="parallel" value="16"/>
+
+    <file>./app/</file>
+    <file>./lib/Cake/</file>
 
     <rule ref="CakePHP">
         <!-- ===== Namespace and Class Rules ===== -->
@@ -70,31 +70,31 @@
 
     <rule ref="CakePHP.Commenting.FunctionComment.Missing">
         <exclude-pattern>lib/Cake/Error/exceptions.php</exclude-pattern>
-        <exclude-pattern>lib/Cake/Test/Case/**</exclude-pattern>
-        <exclude-pattern>lib/Cake/Test/test_app/**</exclude-pattern>
+        <exclude-pattern>lib/Cake/Test/Case/*</exclude-pattern>
+        <exclude-pattern>lib/Cake/Test/test_app/*</exclude-pattern>
         <exclude-pattern>lib/Cake/TestSuite/Fixture/CakeFixtureInjector.php</exclude-pattern>
     </rule>
 
     <rule ref="Squiz.PHP.NonExecutableCode.Unreachable">
-        <exclude-pattern>**/acl.ini.php</exclude-pattern>
+        <exclude-pattern>*/acl.ini.php</exclude-pattern>
     </rule>
 
     <!-- Allow multiple classes in test files only (CakePHP2 test pattern) -->
     <rule ref="PSR1.Classes.ClassDeclaration.MultipleClasses">
         <exclude-pattern>lib/Cake/Controller/Component/Acl/PhpAcl.php</exclude-pattern>
         <exclude-pattern>lib/Cake/Error/exceptions.php</exclude-pattern>
-        <exclude-pattern>lib/Cake/Test/Case/**</exclude-pattern>
+        <exclude-pattern>lib/Cake/Test/Case/*</exclude-pattern>
         <exclude-pattern>lib/Cake/TestSuite/ControllerTestCase.ph</exclude-pattern>
     </rule>
 
     <!-- Allow non-camelCase method names in Controllers (CakePHP2 action naming convention) -->
     <rule ref="PSR1.Methods.CamelCapsMethodName.NotCamelCaps">
-        <exclude-pattern>app/Controller/**</exclude-pattern>
-        <exclude-pattern>app/Console/Command/**</exclude-pattern>
-        <exclude-pattern>lib/Cake/Controller/**</exclude-pattern>
-        <exclude-pattern>lib/Cake/Console/Command/**</exclude-pattern>
-        <exclude-pattern>lib/Cake/Console/Templates/skel/Controller/**</exclude-pattern>
-        <exclude-pattern>lib/Cake/Console/Templates/skel/Console/Command/**</exclude-pattern>
+        <exclude-pattern>app/Controller/*</exclude-pattern>
+        <exclude-pattern>app/Console/Command/*</exclude-pattern>
+        <exclude-pattern>lib/Cake/Controller/*</exclude-pattern>
+        <exclude-pattern>lib/Cake/Console/Command/*</exclude-pattern>
+        <exclude-pattern>lib/Cake/Console/Templates/skel/Controller/*</exclude-pattern>
+        <exclude-pattern>lib/Cake/Console/Templates/skel/Console/Command/*</exclude-pattern>
         <exclude-pattern>lib/Cake/Test/Case/Console/Command/Task/ViewTaskTest.php</exclude-pattern>
         <exclude-pattern>lib/Cake/Test/Case/Console/ShellTest.php</exclude-pattern>
         <exclude-pattern>lib/Cake/Test/Case/Controller/ControllerTest.php</exclude-pattern>
@@ -104,12 +104,12 @@
         <exclude-pattern>lib/Cake/Test/Case/View/ViewTest.php</exclude-pattern>
         <exclude-pattern>lib/Cake/Test/Case/View/Helper/CacheHelperTest.php</exclude-pattern>
         <exclude-pattern>lib/Cake/Test/Case/Routing/DispatcherTest.php</exclude-pattern>
-        <exclude-pattern>lib/Cake/Test/bake_compare/Controller/**</exclude-pattern>
-        <exclude-pattern>lib/Cake/Test/bake_compare/Console/Command/**</exclude-pattern>
-        <exclude-pattern>lib/Cake/Test/test_app/Controller/**</exclude-pattern>
-        <exclude-pattern>lib/Cake/Test/test_app/Console/Command/**</exclude-pattern>
-        <exclude-pattern>lib/Cake/Test/test_app/Plugin/*/Controller/**</exclude-pattern>
-        <exclude-pattern>lib/Cake/Test/test_app/Plugin/*/Console/Command/**</exclude-pattern>
+        <exclude-pattern>lib/Cake/Test/bake_compare/Controller/*</exclude-pattern>
+        <exclude-pattern>lib/Cake/Test/bake_compare/Console/Command/*</exclude-pattern>
+        <exclude-pattern>lib/Cake/Test/test_app/Controller/*</exclude-pattern>
+        <exclude-pattern>lib/Cake/Test/test_app/Console/Command/*</exclude-pattern>
+        <exclude-pattern>lib/Cake/Test/test_app/Plugin/*/Controller/*</exclude-pattern>
+        <exclude-pattern>lib/Cake/Test/test_app/Plugin/*/Console/Command/*</exclude-pattern>
     </rule>
 
     <!-- Allow @ error suppression in specific files where it's necessary -->
@@ -136,7 +136,7 @@
 
     <!-- Allow non-PascalCase class names in database.php files (CakePHP2 convention) -->
     <rule ref="Squiz.Classes.ValidClassName.NotPascalCase">
-        <exclude-pattern>**/database.php</exclude-pattern>
+        <exclude-pattern>*/database.php</exclude-pattern>
     </rule>
 
     <!-- Allow public methods with underscore in test files -->
