@@ -6,6 +6,7 @@
 
 - **App Skeleton Separation**: Extracted application skeleton to separate package ([friendsofcake2/app](https://github.com/friendsofcake2/app))
   - Removed `app/` directory from core repository
+  - Removed `plugins/` directory from core repository (not required for framework testing)
   - Allows independent versioning and modernization of application structure
   - Updated `.gitignore` to remove `/app/Config/database.php` entry
 
@@ -16,6 +17,13 @@
   - Improved flexibility of `APP_DIR` and `WEBROOT_DIR` constants for custom directory layouts
   - Supports both traditional CakePHP 2.x and modern CakePHP 5.x-style directory layouts
   - Enables gradual migration path: modernize folder structure while on CakePHP 2.x, then focus solely on code changes when upgrading to CakePHP 5.x
+
+### Documentation
+
+- **README Improvements**: Enhanced documentation for migration path clarity
+  - Added visual comparison of traditional vs gradual migration approaches
+  - Clarified 3-step migration process with benefits
+  - Updated Project Goals to include gradual migration support
 
 ## v2.10.24.6 (2025-10-03)
 

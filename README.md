@@ -83,15 +83,32 @@ chmod +x app/Console/cake
 
 The application skeleton has been extracted to a separate package: [`friendsofcake2/app`](https://github.com/friendsofcake2/app)
 
-When you want to modernize your directory structure to CakePHP 5.x style, refer to the separate app package:
+#### Planning to migrate to CakePHP 5.x?
 
-**Key Features:**
-- **CakePHP 5-compatible folder structure**: Adopt modern directory organization while staying on CakePHP 2.x
-- **Gradual migration path**: Migrate to CakePHP 5.x structure incrementally without rewriting your entire application
-- **Focus on code**: Separate application structure concerns from business logic migration
-- **Dual structure support**: Works with both traditional CakePHP 2.x and modern CakePHP 5.x-style layouts
+If you're planning to upgrade to CakePHP 5.x in the future, you can **prepare now** by adopting the modern directory structure while still on CakePHP 2.x:
 
-This allows you to progressively modernize your application's folder structure during CakePHP 2.x maintenance, making the eventual upgrade to CakePHP 5.x significantly easier by isolating structural changes from code changes.
+**Traditional migration approach (harder):**
+```
+CakePHP 2.x → CakePHP 5.x
+(change everything at once: code + folder structure + APIs)
+```
+
+**New gradual migration approach (easier):**
+```
+Step 1: CakePHP 2.x with traditional structure
+        ↓ (modernize folder structure only)
+Step 2: CakePHP 2.x with CakePHP 5.x-style structure ← You can stop here
+        ↓ (upgrade code only)
+Step 3: CakePHP 5.x with CakePHP 5.x-style structure
+```
+
+**Benefits:**
+- ✅ **Smaller, manageable changes**: Separate folder restructuring from code changes
+- ✅ **Test incrementally**: Verify each step works before moving to the next
+- ✅ **Reduced risk**: You can stay on Step 2 indefinitely if needed
+- ✅ **Team-friendly**: Easier for teams to understand and review smaller changes
+
+See [`friendsofcake2/app`](https://github.com/friendsofcake2/app) for the modern directory structure compatible with both CakePHP 2.x and 5.x.
 
 ## Security
 
@@ -398,7 +415,8 @@ This fork aims to:
 - ✅ Maintain PHP 8.x compatibility
 - ✅ Fix critical bugs and security issues
 - ✅ Keep tests passing on all supported platforms
-- ❌ Add new features (focus is on compatibility only)
+- ✅ Support gradual migration path to CakePHP 5.x
+- ❌ Add new features (focus is on compatibility and migration only)
 
 ## License
 
