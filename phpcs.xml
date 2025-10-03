@@ -7,7 +7,6 @@
     <arg name="colors"/>
     <arg name="parallel" value="16"/>
 
-    <file>./app/</file>
     <file>./lib/Cake/</file>
 
     <rule ref="CakePHP">
@@ -89,8 +88,6 @@
 
     <!-- Allow non-camelCase method names in Controllers (CakePHP2 action naming convention) -->
     <rule ref="PSR1.Methods.CamelCapsMethodName.NotCamelCaps">
-        <exclude-pattern>app/Controller/*</exclude-pattern>
-        <exclude-pattern>app/Console/Command/*</exclude-pattern>
         <exclude-pattern>lib/Cake/Controller/*</exclude-pattern>
         <exclude-pattern>lib/Cake/Console/Command/*</exclude-pattern>
         <exclude-pattern>lib/Cake/Console/Templates/skel/Controller/*</exclude-pattern>
