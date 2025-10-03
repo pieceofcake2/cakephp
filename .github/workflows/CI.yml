@@ -127,16 +127,15 @@ jobs:
             apc.enable_cli=1
           coverage: xdebug
 
-      - name: Enable Autoload
-        run: echo "require_once dirname(__DIR__, 2) . DS . 'vendors/autoload.php';" >> app/Config/bootstrap.php
-
       - name: locale-gen
         run: |
           sudo locale-gen de_DE;
           sudo locale-gen es_ES;
 
       - name: Make temporary directories writable
-        run: chmod -R 777 ./app/tmp
+        run: |
+          chmod -R 777 ./vendors/friendsofcake2/app/tmp
+          chmod -R 777 ./vendors/friendsofcake2/app/logs
 
       - name: Composer get cache directory
         id: composer-cache
