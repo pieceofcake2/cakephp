@@ -5,7 +5,7 @@
 
     <arg value="ps"/>
     <arg name="colors"/>
-    <arg name="parallel" value="16"/>
+    <arg name="parallel" value="200"/>
 
     <file>./lib/Cake/</file>
 

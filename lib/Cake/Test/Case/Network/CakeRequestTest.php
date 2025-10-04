@@ -1833,7 +1833,7 @@ class CakeRequestTest extends CakeTestCase
                 [
                     'url' => 'posts/add',
                     'base' => '/site/index.php',
-                    'webroot' => '/site/' . APP_DIR . '/' . WEBROOT_DIR. '/',
+                    'webroot' => '/site/' . APP_DIR . '/' . WEBROOT_DIR . '/',
                 ],
             ],
             [
