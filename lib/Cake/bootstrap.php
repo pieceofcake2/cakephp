@@ -101,13 +101,6 @@ if (!defined('CACHE')) {
 }
 
 /**
- * Path to the vendors directory.
- */
-if (!defined('VENDORS')) {
-    define('VENDORS', ROOT . DS . 'vendors' . DS);
-}
-
-/**
  * Web path to the public images directory.
  */
 if (!defined('IMAGES_URL')) {

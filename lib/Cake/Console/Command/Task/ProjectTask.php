@@ -363,9 +363,9 @@ class ProjectTask extends AppShell
         $root = str_starts_with(CAKE_CORE_INCLUDE_PATH, '/') ? " DS . '" : "'";
         $corePath = $root . str_replace(DS, "' . DS . '", trim(CAKE_CORE_INCLUDE_PATH, DS)) . "'";
 
-        $composer = ROOT . DS . 'vendors' . DS . 'friendsofcake2' . DS . 'cakephp' . DS . 'lib';
+        $composer = ROOT . DS . 'vendor' . DS . 'friendsofcake2' . DS . 'cakephp' . DS . 'lib';
         if (file_exists($composer)) {
-            $corePath = " ROOT . DS . 'vendors' . DS . 'friendsofcake2' . DS . 'cakephp' . DS . 'lib'";
+            $corePath = " ROOT . DS . 'vendor' . DS . 'friendsofcake2' . DS . 'cakephp' . DS . 'lib'";
         }
 
         $result = str_replace('__CAKE_PATH__', $corePath, $contents, $count);

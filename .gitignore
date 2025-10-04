@@ -2,8 +2,7 @@
 #################################################
 /composer.lock
 /lib/Cake/Console/Templates/skel/tmp/
-/plugins
-/vendors
+/vendor
 *.mo
 .phpunit.result.cache
 /phpunit.xml

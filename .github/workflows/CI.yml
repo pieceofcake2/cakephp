@@ -148,18 +148,18 @@ jobs:
         run: composer install --prefer-dist --no-interaction --no-progress
 
       - name: Copy database.php
-        run: cp ./lib/Cake/Test/Config/database.php ./vendors/friendsofcake2/app/config/
+        run: cp ./lib/Cake/Test/Config/database.php ./vendor/friendsofcake2/app/config/
 
       - name: Make temporary directories writable
         run: |
-          chmod -R 777 ./vendors/friendsofcake2/app/tmp
-          chmod -R 777 ./vendors/friendsofcake2/app/logs
+          chmod -R 777 ./vendor/friendsofcake2/app/tmp
+          chmod -R 777 ./vendor/friendsofcake2/app/logs
 
       - name: Setup problem matchers for PHPUnit
         run: echo "::add-matcher::${{ runner.tool_cache }}/phpunit.json"
 
       - name: Run Tests
-        run: ./vendors/bin/phpunit --coverage-clover coverage.xml --log-junit junit.xml --colors=always
+        run: ./vendor/bin/phpunit --coverage-clover coverage.xml --log-junit junit.xml --colors=always
 
       - name: Upload test results to Codecov
         if: ${{ !cancelled() }}
@@ -245,7 +245,7 @@ jobs:
 
       - name: Check PHP code style
         id: phpcs
-        run: ./vendors/bin/phpcs --report-full --report-checkstyle=./phpcs-report.xml
+        run: ./vendor/bin/phpcs --report-full --report-checkstyle=./phpcs-report.xml
 
       - name: Show PHPCS results in PR
         if: ${{ always() && steps.phpcs.outcome == 'failure' }}

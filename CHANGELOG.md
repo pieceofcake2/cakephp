@@ -18,6 +18,14 @@
   - Supports both traditional CakePHP 2.x and modern CakePHP 5.x-style directory layouts
   - Enables gradual migration path: modernize folder structure while on CakePHP 2.x, then focus solely on code changes when upgrading to CakePHP 5.x
 
+### Internal Improvements
+
+- **Vendor Directory Naming**: Standardized vendor directory name from `vendors/` to `vendor/`
+  - Changed default `VENDORS` constant to point to `vendor/` (standard Composer convention)
+  - Updated all references in test bootstrap files and CI configuration
+  - This change only affects CakePHP core testing infrastructure
+  - Does not impact user applications (breaking change is not required)
+
 ### Documentation
 
 - **README Improvements**: Enhanced documentation for migration path clarity
