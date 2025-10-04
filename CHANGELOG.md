@@ -20,11 +20,12 @@
 
 ### Internal Improvements
 
-- **Vendor Directory Naming**: Standardized vendor directory name from `vendors/` to `vendor/`
+- **Vendor Directory Naming**: Standardized vendor directory name from `vendors/` to `vendor/` ([PR #16](https://github.com/friendsofcake2/cakephp/pull/16))
   - Changed default `VENDORS` constant to point to `vendor/` (standard Composer convention)
   - Updated all references in test bootstrap files and CI configuration
+  - Updated `.gitignore`, `composer.json`, `phpcs.xml`, `phpstan.neon`, and `phpunit.xml.dist`
   - This change only affects CakePHP core testing infrastructure
-  - Does not impact user applications (breaking change is not required)
+  - Does not impact user applications
 
 ### Documentation
 
