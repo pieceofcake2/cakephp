@@ -33,8 +33,6 @@
         "ext-intl": "Required to use IntlDateFormatter instead of strftime, if not Symfony polyfill will be used."
     },
     "config": {
-        "vendor-dir": "vendors/",
-        "process-timeout": 0,
         "sort-packages": true,
         "allow-plugins": {
             "dealerdirect/phpcodesniffer-composer-installer": true
@@ -51,7 +49,7 @@
             "@cs-check",
             "@test"
         ],
-        "cs-check": "./vendors/bin/phpcs",
-        "test": "./lib/Cake/Console/cake test core AllTests --stderr --verbose"
+        "cs-check": "./vendor/bin/phpcs",
+        "test": "./vendor/bin/phpunit"
     }
 }

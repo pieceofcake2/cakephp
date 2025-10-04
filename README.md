@@ -66,11 +66,11 @@ After installation, copy dispatcher files from the package to your application:
 
 ```bash
 # Copy web dispatcher files
-cp vendors/friendsofcake2/cakephp/lib/Cake/Console/Templates/skel/webroot/index.php app/webroot/index.php
-cp vendors/friendsofcake2/cakephp/lib/Cake/Console/Templates/skel/webroot/test.php app/webroot/test.php
+cp vendor/friendsofcake2/cakephp/lib/Cake/Console/Templates/skel/webroot/index.php app/webroot/index.php
+cp vendor/friendsofcake2/cakephp/lib/Cake/Console/Templates/skel/webroot/test.php app/webroot/test.php
 
 # Copy console dispatcher
-cp vendors/friendsofcake2/cakephp/lib/Cake/Console/Templates/skel/Console/cake app/Console/cake
+cp vendor/friendsofcake2/cakephp/lib/Cake/Console/Templates/skel/Console/cake app/Console/cake
 chmod +x app/Console/cake
 ```
 
@@ -167,11 +167,11 @@ Before migrating to this fork, ensure:
 
 **Migration:**
 1. Ensure you're using Composer for dependency management
-2. Copy updated dispatcher files from `vendors/friendsofcake2/cakephp/lib/Cake/Console/Templates/skel/` to your application:
+2. Copy updated dispatcher files from `vendor/friendsofcake2/cakephp/lib/Cake/Console/Templates/skel/` to your application:
    ```bash
-   cp vendors/friendsofcake2/cakephp/lib/Cake/Console/Templates/skel/webroot/index.php app/webroot/index.php
-   cp vendors/friendsofcake2/cakephp/lib/Cake/Console/Templates/skel/webroot/test.php app/webroot/test.php
-   cp vendors/friendsofcake2/cakephp/lib/Cake/Console/Templates/skel/Console/cake app/Console/cake
+   cp vendor/friendsofcake2/cakephp/lib/Cake/Console/Templates/skel/webroot/index.php app/webroot/index.php
+   cp vendor/friendsofcake2/cakephp/lib/Cake/Console/Templates/skel/webroot/test.php app/webroot/test.php
+   cp vendor/friendsofcake2/cakephp/lib/Cake/Console/Templates/skel/Console/cake app/Console/cake
    ```
 3. Remove old dispatcher files if present:
    ```bash
@@ -372,11 +372,11 @@ docker-compose up -d
 docker-compose exec web composer install
 
 # Run tests with specific database
-DB=mysql docker-compose exec web ./vendors/bin/phpunit
-DB=mysql80 docker-compose exec web ./vendors/bin/phpunit
-DB=pgsql docker-compose exec web ./vendors/bin/phpunit
-DB=sqlite docker-compose exec web ./vendors/bin/phpunit
-DB=sqlsrv docker-compose exec web ./vendors/bin/phpunit
+DB=mysql docker-compose exec web ./vendor/bin/phpunit
+DB=mysql80 docker-compose exec web ./vendor/bin/phpunit
+DB=pgsql docker-compose exec web ./vendor/bin/phpunit
+DB=sqlite docker-compose exec web ./vendor/bin/phpunit
+DB=sqlsrv docker-compose exec web ./vendor/bin/phpunit
 ```
 
 ### Local Installation
@@ -390,7 +390,7 @@ cp app/Config/database.php.default app/Config/database.php
 # Edit database.php with your database credentials
 
 # Run tests
-./vendors/bin/phpunit
+./vendor/bin/phpunit
 ```
 
 ## Contributing

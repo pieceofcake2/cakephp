@@ -21,7 +21,7 @@ if (!defined('DS')) {
     define('DS', DIRECTORY_SEPARATOR);
 }
 
-$rootInstall = dirname(__DIR__, 3) . DS . 'vendors' . DS . 'autoload.php';
+$rootInstall = dirname(__DIR__, 3) . DS . 'vendor' . DS . 'autoload.php';
 $composerInstall = dirname(__DIR__, 5) . DS . 'autoload.php';
 
 if (isset($GLOBALS['_composer_autoload_path'])) {

@@ -7,7 +7,7 @@ if (!defined('DS')) {
     define('DS', DIRECTORY_SEPARATOR);
 }
 
-$rootInstall = dirname(__DIR__, 4) . DS . 'vendors' . DS . 'autoload.php';
+$rootInstall = dirname(__DIR__, 4) . DS . 'vendor' . DS . 'autoload.php';
 $composerInstall = dirname(__DIR__, 6) . DS . 'autoload.php';
 
 if (isset($GLOBALS['_composer_autoload_path'])) {
@@ -28,7 +28,7 @@ if (!require_once 'Cake' . DS . 'Console' . DS . 'ShellDispatcher.php') {
 }
 
 // In lib/Cake/Console/cake makes app root path.
-$appPath = dirname(__DIR__, 4) . DS . 'vendors' . DS . 'friendsofcake2' . DS . 'app' . DS . 'src';
+$appPath = dirname(__DIR__, 4) . DS . 'vendor' . DS . 'friendsofcake2' . DS . 'app' . DS . 'src';
 
 new ShellDispatcher([$_SERVER['argv'][0], '-working', $appPath]);
 

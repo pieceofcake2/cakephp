@@ -9,7 +9,7 @@ if (!defined('DS')) {
     define('DS', DIRECTORY_SEPARATOR);
 }
 if (!defined('ROOT')) {
-    define('ROOT', dirname(__DIR__, 3) . DS . 'vendors' . DS . 'friendsofcake2' . DS . 'app');
+    define('ROOT', dirname(__DIR__, 3) . DS . 'vendor' . DS . 'friendsofcake2' . DS . 'app');
 }
 if (!defined('APP_DIR')) {
     define('APP_DIR', 'src');
