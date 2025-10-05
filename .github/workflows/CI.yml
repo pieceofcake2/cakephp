@@ -149,12 +149,12 @@ jobs:
         run: composer install --prefer-dist --no-interaction --no-progress
 
       - name: Copy database.php
-        run: cp ./lib/Cake/Test/Config/database.php ./vendor/friendsofcake2/app/config/
+        run: cp ./lib/Cake/Test/Config/database.php ./vendor/pieceofcake2/app/config/
 
       - name: Make temporary directories writable
         run: |
-          chmod -R 777 ./vendor/friendsofcake2/app/tmp
-          chmod -R 777 ./vendor/friendsofcake2/app/logs
+          chmod -R 777 ./vendor/pieceofcake2/app/tmp
+          chmod -R 777 ./vendor/pieceofcake2/app/logs
 
       - name: Setup problem matchers for PHPUnit
         run: echo "::add-matcher::${{ runner.tool_cache }}/phpunit.json"

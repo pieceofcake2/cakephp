@@ -91,7 +91,7 @@ require_once VENDORS . 'autoload.php';
 if (!require_once 'Cake' . DS . 'bootstrap.php') {
     trigger_error(
         'CakePHP core could not be found. ' .
-        'Please run "composer require friendsofcake2/cakephp" to install CakePHP core.',
+        'Please run "composer require pieceofcake2/cakephp" to install CakePHP core.',
         E_USER_ERROR,
     );
 }

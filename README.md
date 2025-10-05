@@ -1,10 +1,10 @@
 # CakePHP 2.x - Community Maintained Fork
 
-[![GitHub License](https://img.shields.io/github/license/friendsofcake2/cakephp?label=License)](LICENSE)
-[![Packagist Version](https://img.shields.io/packagist/v/friendsofcake2/cakephp?label=Packagist)](https://packagist.org/packages/friendsofcake2/cakephp)
-[![PHP](https://img.shields.io/packagist/dependency-v/friendsofcake2/cakephp/php?logo=php&logoColor=%23FFFFFF&label=PHP&labelColor=%23777BB4&color=%23FFFFFF)](https://packagist.org/packages/friendsofcake2/cakephp)
-[![CI](https://img.shields.io/github/actions/workflow/status/friendsofcake2/cakephp/CI.yml?label=CI)](https://github.com/friendsofcake2/cakephp/actions/workflows/CI.yml)
-[![Codecov](https://img.shields.io/codecov/c/gh/friendsofcake2/cakephp?label=Coverage)](https://codecov.io/gh/friendsofcake2/cakephp)
+[![GitHub License](https://img.shields.io/github/license/pieceofcake2/cakephp?label=License)](LICENSE)
+[![Packagist Version](https://img.shields.io/packagist/v/pieceofcake2/cakephp?label=Packagist)](https://packagist.org/packages/pieceofcake2/cakephp)
+[![PHP](https://img.shields.io/packagist/dependency-v/pieceofcake2/cakephp/php?logo=php&logoColor=%23FFFFFF&label=PHP&labelColor=%23777BB4&color=%23FFFFFF)](https://packagist.org/packages/pieceofcake2/cakephp)
+[![CI](https://img.shields.io/github/actions/workflow/status/pieceofcake2/cakephp/CI.yml?label=CI)](https://github.com/pieceofcake2/cakephp/actions/workflows/CI.yml)
+[![Codecov](https://img.shields.io/codecov/c/gh/pieceofcake2/cakephp?label=Coverage)](https://codecov.io/gh/pieceofcake2/cakephp)
 
 This is a community-maintained fork of CakePHP 2.x that provides compatibility with PHP 8.0 and newer versions.
 The original CakePHP 2.x branch [reached End of Life in June 2021](https://bakery.cakephp.org/2021/10/02/cakephp_2_eol.html).
@@ -52,7 +52,7 @@ Install via Composer:
 ```json
 {
     "require": {
-        "friendsofcake2/cakephp": "^2.10"
+        "pieceofcake2/cakephp": "^2.10"
     }
 }
 ```
@@ -66,11 +66,11 @@ After installation, copy dispatcher files from the package to your application:
 
 ```bash
 # Copy web dispatcher files
-cp vendor/friendsofcake2/cakephp/lib/Cake/Console/Templates/skel/webroot/index.php app/webroot/index.php
-cp vendor/friendsofcake2/cakephp/lib/Cake/Console/Templates/skel/webroot/test.php app/webroot/test.php
+cp vendor/pieceofcake2/cakephp/lib/Cake/Console/Templates/skel/webroot/index.php app/webroot/index.php
+cp vendor/pieceofcake2/cakephp/lib/Cake/Console/Templates/skel/webroot/test.php app/webroot/test.php
 
 # Copy console dispatcher
-cp vendor/friendsofcake2/cakephp/lib/Cake/Console/Templates/skel/Console/cake app/Console/cake
+cp vendor/pieceofcake2/cakephp/lib/Cake/Console/Templates/skel/Console/cake app/Console/cake
 chmod +x app/Console/cake
 ```
 
@@ -81,7 +81,7 @@ chmod +x app/Console/cake
 
 ### Application Skeleton
 
-The application skeleton has been extracted to a separate package: [`friendsofcake2/app`](https://github.com/friendsofcake2/app)
+The application skeleton has been extracted to a separate package: [`pieceofcake2/app`](https://github.com/pieceofcake2/app)
 
 #### Planning to migrate to CakePHP 5.x?
 
@@ -108,13 +108,13 @@ Step 3: CakePHP 5.x with CakePHP 5.x-style structure
 - ✅ **Reduced risk**: You can stay on Step 2 indefinitely if needed
 - ✅ **Team-friendly**: Easier for teams to understand and review smaller changes
 
-See [`friendsofcake2/app`](https://github.com/friendsofcake2/app) for the modern directory structure compatible with both CakePHP 2.x and 5.x.
+See [`pieceofcake2/app`](https://github.com/pieceofcake2/app) for the modern directory structure compatible with both CakePHP 2.x and 5.x.
 
 ## Security
 
 ### SSL/TLS Certificate Validation
 
-This fork uses [`composer/ca-bundle`](https://github.com/composer/ca-bundle) for SSL/TLS certificate validation ([PR #15](https://github.com/friendsofcake2/cakephp/pull/15)):
+This fork uses [`composer/ca-bundle`](https://github.com/composer/ca-bundle) for SSL/TLS certificate validation ([PR #15](https://github.com/pieceofcake2/cakephp/pull/15)):
 
 - **System CA certificates**: Uses OpenSSL's default certificate bundle when available (`openssl.cafile` or `openssl.capath`)
 - **Fallback bundle**: Falls back to Mozilla's CA certificate bundle maintained by composer/ca-bundle
@@ -129,8 +129,8 @@ The following security vulnerabilities have been reported in the original CakePH
 
 | CVE | Description | Status in this Fork |
 |-----|-------------|-------------------|
-| [CVE-2015-8379](https://nvd.nist.gov/vuln/detail/CVE-2015-8379) | CSRF protection bypass via _method parameter | ✅ Fixed in [c0fb45e](https://github.com/friendsofcake2/cakephp/commit/c0fb45e79), tests in [PR #6](https://github.com/friendsofcake2/cakephp/pull/6) |
-| [CVE-2020-15400](https://nvd.nist.gov/vuln/detail/CVE-2020-15400) | CSRF token fixation (exploitable with XSS) | ✅ Fixed in [PR #5](https://github.com/friendsofcake2/cakephp/pull/5) |
+| [CVE-2015-8379](https://nvd.nist.gov/vuln/detail/CVE-2015-8379) | CSRF protection bypass via _method parameter | ✅ Fixed in [c0fb45e](https://github.com/pieceofcake2/cakephp/commit/c0fb45e79), tests in [PR #6](https://github.com/pieceofcake2/cakephp/pull/6) |
+| [CVE-2020-15400](https://nvd.nist.gov/vuln/detail/CVE-2020-15400) | CSRF token fixation (exploitable with XSS) | ✅ Fixed in [PR #5](https://github.com/pieceofcake2/cakephp/pull/5) |
 
 > [!NOTE]
 > - **CVE-2015-8379**: The fix has been fully applied with comprehensive test coverage for `_method` parameter handling and custom HTTP methods.
@@ -149,13 +149,13 @@ Before migrating to this fork, ensure:
 
 1. **Update to CakePHP 2.10.24 first**: If you're using an earlier version, update to `cakephp/cakephp:2.10.24` on PHP 7.4 first
 2. **Ensure PHP 7.4 Compatibility**: Your application must be fully working on PHP 7.4 before migrating to PHP 8.x
-3. **Update Composer**: Replace `cakephp/cakephp` with `friendsofcake2/cakephp` in your `composer.json`
+3. **Update Composer**: Replace `cakephp/cakephp` with `pieceofcake2/cakephp` in your `composer.json`
 4. **Upgrade PHP**: Update your PHP version to 8.0 or newer
 5. **Test Thoroughly**: Run your application's test suite to ensure compatibility
 
 ### Breaking Changes
 
-#### 1. Composer-Only Installation Required ([PR #14](https://github.com/friendsofcake2/cakephp/pull/14))
+#### 1. Composer-Only Installation Required ([PR #14](https://github.com/pieceofcake2/cakephp/pull/14))
 
 **Breaking Change:**
 - **Non-Composer installation is no longer supported**
@@ -167,11 +167,11 @@ Before migrating to this fork, ensure:
 
 **Migration:**
 1. Ensure you're using Composer for dependency management
-2. Copy updated dispatcher files from `vendor/friendsofcake2/cakephp/lib/Cake/Console/Templates/skel/` to your application:
+2. Copy updated dispatcher files from `vendor/pieceofcake2/cakephp/lib/Cake/Console/Templates/skel/` to your application:
    ```bash
-   cp vendor/friendsofcake2/cakephp/lib/Cake/Console/Templates/skel/webroot/index.php app/webroot/index.php
-   cp vendor/friendsofcake2/cakephp/lib/Cake/Console/Templates/skel/webroot/test.php app/webroot/test.php
-   cp vendor/friendsofcake2/cakephp/lib/Cake/Console/Templates/skel/Console/cake app/Console/cake
+   cp vendor/pieceofcake2/cakephp/lib/Cake/Console/Templates/skel/webroot/index.php app/webroot/index.php
+   cp vendor/pieceofcake2/cakephp/lib/Cake/Console/Templates/skel/webroot/test.php app/webroot/test.php
+   cp vendor/pieceofcake2/cakephp/lib/Cake/Console/Templates/skel/Console/cake app/Console/cake
    ```
 3. Remove old dispatcher files if present:
    ```bash
@@ -179,7 +179,7 @@ Before migrating to this fork, ensure:
    ```
 4. Run `composer install` to ensure all dependencies are properly loaded
 
-#### 2. Cache Engines Removed ([PR #4](https://github.com/friendsofcake2/cakephp/pull/4))
+#### 2. Cache Engines Removed ([PR #4](https://github.com/pieceofcake2/cakephp/pull/4))
 
 **Breaking Change:**
 - **Xcache** support has been removed (not compatible with PHP 7.0+)
@@ -188,7 +188,7 @@ Before migrating to this fork, ensure:
 **Migration:**
 - If using these cache engines, migrate to Redis, Memcached, or APCu
 
-#### 3. Database Driver Methods Added ([PR #3](https://github.com/friendsofcake2/cakephp/pull/3))
+#### 3. Database Driver Methods Added ([PR #3](https://github.com/pieceofcake2/cakephp/pull/3))
 
 **Breaking Change:**
 - New methods added to database drivers (may cause issues if you have custom driver implementations)
@@ -205,7 +205,7 @@ Before migrating to this fork, ensure:
 **Migration:**
 - If you have custom database drivers extending these classes, implement these methods
 
-#### 4. Database Charset Configuration Changes ([PR #11](https://github.com/friendsofcake2/cakephp/pull/11))
+#### 4. Database Charset Configuration Changes ([PR #11](https://github.com/pieceofcake2/cakephp/pull/11))
 
 **Breaking Change:**
 - Character set configuration moved from `SET NAMES` to DSN connection options
@@ -218,7 +218,7 @@ Before migrating to this fork, ensure:
 - `setEncoding()` methods still work for runtime changes
 - More efficient connection setup with charset in DSN
 
-#### 5. SQL Server Driver Updates ([PR #9](https://github.com/friendsofcake2/cakephp/pull/9))
+#### 5. SQL Server Driver Updates ([PR #9](https://github.com/pieceofcake2/cakephp/pull/9))
 
 **Breaking Changes:**
 
@@ -256,7 +256,7 @@ Before migrating to this fork, ensure:
 - Move SSL/TLS options to `options` array if using inline DSN
 - If extending Sqlserver class, update method signatures to match
 
-#### 6. Mail Function Updates ([PR #10](https://github.com/friendsofcake2/cakephp/pull/10))
+#### 6. Mail Function Updates ([PR #10](https://github.com/pieceofcake2/cakephp/pull/10))
 
 **Breaking Change:**
 - `MailTransport::_mail()` method signature changed with strict types
@@ -267,7 +267,7 @@ Before migrating to this fork, ensure:
 - No action required unless you've extended `MailTransport` class
 - If extending, update method signature to match strict types
 
-#### 7. CSRF Token Security Enhancement ([PR #5](https://github.com/friendsofcake2/cakephp/pull/5))
+#### 7. CSRF Token Security Enhancement ([PR #5](https://github.com/pieceofcake2/cakephp/pull/5))
 
 **Breaking Change:**
 - New CSRF tokens use HMAC-SHA1 signatures (prevents CVE-2020-15400)
@@ -292,7 +292,7 @@ Before migrating to this fork, ensure:
 
 #### 9. Development Tools Updates
 
-**9.1 PHP CodeSniffer ([PR #8](https://github.com/friendsofcake2/cakephp/pull/8))**
+**9.1 PHP CodeSniffer ([PR #8](https://github.com/pieceofcake2/cakephp/pull/8))**
 - Updated from 1.0.0 to 5.3
 - Applied automatic formatting fixes
 
@@ -307,7 +307,7 @@ Before migrating to this fork, ensure:
 **Migration:**
 - Update your tests if using deprecated PHPUnit features
 
-#### 10. PHP 8 Syntax Modernization ([PR #7](https://github.com/friendsofcake2/cakephp/pull/7))
+#### 10. PHP 8 Syntax Modernization ([PR #7](https://github.com/pieceofcake2/cakephp/pull/7))
 
 **Breaking Change:**
 - Codebase modernized to PHP 8 syntax
