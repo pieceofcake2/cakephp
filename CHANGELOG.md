@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## v2.10.24.7 (2025-10-06)
+
 ### Application Skeleton Extraction
 
 - **App Skeleton Separation**: Extracted application skeleton to separate package ([pieceofcake2/app](https://github.com/pieceofcake2/app))
@@ -19,6 +21,11 @@
   - Enables gradual migration path: modernize folder structure while on CakePHP 2.x, then focus solely on code changes when upgrading to CakePHP 5.x
 
 ### Internal Improvements
+
+- **Organization Rename**: Renamed GitHub organization from `friendsofcake2` to `pieceofcake2`
+  - Updated all repository references and URLs
+  - Updated composer package namespace
+  - Does not impact user applications
 
 - **Vendor Directory Naming**: Standardized vendor directory name from `vendors/` to `vendor/` ([PR #16](https://github.com/pieceofcake2/cakephp/pull/16))
   - Changed default `VENDORS` constant to point to `vendor/` (standard Composer convention)
