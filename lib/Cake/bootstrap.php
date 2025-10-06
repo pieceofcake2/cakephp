@@ -159,28 +159,6 @@ Configure::write('App.imageBaseUrl', IMAGES_URL);
 Configure::write('App.cssBaseUrl', CSS_URL);
 Configure::write('App.jsBaseUrl', JS_URL);
 
-if (!function_exists('mb_encode_mimeheader')) {
-    /**
-     * Encode string for MIME header
-     *
-     * @param string $str The string being encoded
-     * @param string $charset specifies the name of the character set in which str is represented in.
-     *    The default value is determined by the current NLS setting (mbstring.language).
-     * @param string $transferEncoding specifies the scheme of MIME encoding.
-     *    It should be either "B" (Base64) or "Q" (Quoted-Printable). Falls back to "B" if not given.
-     * @param string $linefeed specifies the EOL (end-of-line) marker with which
-     *    mb_encode_mimeheader() performs line-folding
-     *    (a » RFC term, the act of breaking a line longer than a certain length into multiple lines.
-     *    The length is currently hard-coded to 74 characters). Falls back to "\r\n" (CRLF) if not given.
-     * @param int $indent [definition unknown and appears to have no affect]
-     * @return string A converted version of the string represented in ASCII.
-     */
-    function mb_encode_mimeheader($str, $charset = 'UTF-8', $transferEncoding = 'B', $linefeed = "\r\n", $indent = 1)
-    {
-        return Multibyte::mimeEncode($str, $charset, $linefeed);
-    }
-}
-
 Configure::bootstrap($boot ?? true);
 
 if (function_exists('mb_internal_encoding')) {
