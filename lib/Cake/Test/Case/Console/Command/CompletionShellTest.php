@@ -131,7 +131,7 @@ class CompletionShellTest extends CakeTestCase
         $this->Shell->runCommand('commands', []);
         $output = $this->Shell->stdout->output;
 
-        $expected = "TestPlugin.example TestPlugin.test_plugin TestPluginTwo.example TestPluginTwo.welcome acl api bake command_list completion console i18n schema server test testsuite upgrade sample\n";
+        $expected = "TestPlugin.example TestPlugin.test_plugin TestPluginTwo.example TestPluginTwo.welcome acl api command_list completion console i18n schema server test testsuite upgrade sample\n";
         $this->assertEquals($expected, $output);
     }
 
@@ -170,10 +170,10 @@ class CompletionShellTest extends CakeTestCase
      */
     public function testOptions()
     {
-        $this->Shell->runCommand('options', ['options', 'bake']);
+        $this->Shell->runCommand('options', ['options', 'schema']);
         $output = $this->Shell->stdout->output;
 
-        $expected = "--help -h --verbose -v --quiet -q --connection -c --theme -t\n";
+        $expected = "--help -h --verbose -v --quiet -q\n";
         $this->assertEquals($expected, $output);
     }
 
@@ -184,10 +184,10 @@ class CompletionShellTest extends CakeTestCase
      */
     public function testSubCommandsCorePlugin()
     {
-        $this->Shell->runCommand('subCommands', ['subCommands', 'CORE.bake']);
+        $this->Shell->runCommand('subCommands', ['subCommands', 'CORE.schema']);
         $output = $this->Shell->stdout->output;
 
-        $expected = "controller db_config fixture model plugin project test view\n";
+        $expected = "create dump generate update view\n";
         $this->assertEquals($expected, $output);
     }
 
@@ -254,10 +254,10 @@ class CompletionShellTest extends CakeTestCase
      */
     public function testSubCommands()
     {
-        $this->Shell->runCommand('subCommands', ['subCommands', 'bake']);
+        $this->Shell->runCommand('subCommands', ['subCommands', 'schema']);
         $output = $this->Shell->stdout->output;
 
-        $expected = "controller db_config fixture model plugin project test view\n";
+        $expected = "create dump generate update view\n";
         $this->assertEquals($expected, $output);
     }
 

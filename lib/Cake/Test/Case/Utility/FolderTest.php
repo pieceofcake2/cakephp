@@ -296,7 +296,7 @@ class FolderTest extends CakeTestCase
      */
     public function testOperations()
     {
-        $path = CAKE . 'Console' . DS . 'Templates' . DS . 'skel';
+        $path = CAKE . 'Templates';
         $Folder = new Folder($path);
 
         $result = is_dir($Folder->pwd());

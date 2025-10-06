@@ -1,7 +1,6 @@
 # User specific & automatically generated files #
 #################################################
 /composer.lock
-/lib/Cake/Console/Templates/skel/tmp/
 /vendor
 *.mo
 .phpunit.result.cache
