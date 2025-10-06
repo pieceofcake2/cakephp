@@ -2,6 +2,20 @@
 
 ## Unreleased
 
+### Bake Plugin Extraction
+
+- **Bake Functionality Separation**: Extracted all Bake-related code to separate plugin (pieceofcake2/bake)
+  - Removed `BakeShell` and all Bake tasks: `BakeTask`, `ModelTask`, `ControllerTask`, `ViewTask`, `FixtureTask`, `TestTask`, `TemplateTask`, `ProjectTask`, `PluginTask`, `DbConfigTask`, `CommandTask`
+  - Removed Bake templates from `lib/Cake/Console/Templates/` directory
+  - Removed application skeleton templates from `lib/Cake/Console/Templates/skel/` directory
+  - Moved default view templates to `lib/Cake/Templates/` for core framework usage
+  - Removed `DbConfigTask` dependency from `AclShell` and `I18nShell` (now shows error message instead)
+  - Removed all Bake-related test files and fixtures
+  - Updated `.gitignore` and `codecov.yml` to remove Bake-specific entries
+  - Allows independent development and versioning of Bake functionality
+  - **Migration**: Install Bake plugin separately: `composer require pieceofcake2/bake:^2.0`
+  - **Note**: Dispatcher files (`index.php`, `test.php`, `cake`) now available in Bake plugin at `plugins/Bake/Console/Templates/skel/`
+
 ## v2.10.24.7 (2025-10-06)
 
 ### Application Skeleton Extraction
