@@ -1,6 +1,6 @@
 ## CHANGELOG
 
-## Unreleased
+## v2.10.24.8 (2025-10-06)
 
 ### Email Header Encoding Compatibility
 
