@@ -4,10 +4,11 @@
 
 ### Email Header Encoding Compatibility
 
-- **mbstring Extension Fallback**: Added automatic fallback for email header encoding when `mbstring` extension is not loaded
+- **mbstring Extension Fallback**: Added automatic fallback for email header encoding when `mbstring` extension is not loaded ([PR #18](https://github.com/pieceofcake2/cakephp/pull/18))
   - `CakeEmail::_encode()` now checks if `mbstring` extension is loaded using `extension_loaded('mbstring')`
   - Uses native `mb_encode_mimeheader()` when `mbstring` is available (recommended)
   - Automatically falls back to `Multibyte::mimeEncode()` when `mbstring` is not available
+  - Removed `mb_encode_mimeheader()` polyfill from `bootstrap.php`
   - Updated `MailTransportTest` to use same fallback logic for test compatibility
   - **Important**: `mb_encode_mimeheader()` is **not available** in Symfony's mbstring polyfill
   - **Strongly recommended**: Install the `mbstring` extension for better compatibility and performance
