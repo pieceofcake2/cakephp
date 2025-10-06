@@ -1423,7 +1423,11 @@ class CakeEmail
         if (empty($this->headerCharset)) {
             $this->headerCharset = $this->charset;
         }
-        $return = mb_encode_mimeheader($text, $this->headerCharset, 'B');
+        if (extension_loaded('mbstring')) {
+            $return = mb_encode_mimeheader($text, $this->headerCharset, 'B');
+        } else {
+            $return = Multibyte::mimeEncode($text, $this->headerCharset);
+        }
         if ($internalEncoding) {
             mb_internal_encoding($restore);
         }
