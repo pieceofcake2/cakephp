@@ -4,7 +4,7 @@
 
 ### Bake Plugin Extraction
 
-- **Bake Functionality Separation**: Extracted all Bake-related code to separate plugin (pieceofcake2/bake)
+- **Bake Functionality Separation**: Extracted all Bake-related code to separate plugin ([pieceofcake2/bake](https://github.com/pieceofcake2/bake)) ([PR #17](https://github.com/pieceofcake2/cakephp/pull/17))
   - Removed `BakeShell` and all Bake tasks: `BakeTask`, `ModelTask`, `ControllerTask`, `ViewTask`, `FixtureTask`, `TestTask`, `TemplateTask`, `ProjectTask`, `PluginTask`, `DbConfigTask`, `CommandTask`
   - Removed Bake templates from `lib/Cake/Console/Templates/` directory
   - Removed application skeleton templates from `lib/Cake/Console/Templates/skel/` directory
