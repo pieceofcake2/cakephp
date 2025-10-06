@@ -155,10 +155,10 @@ Before migrating to this fork, ensure:
 
 ### Breaking Changes
 
-#### 1. Bake Plugin Extraction
+#### 1. Bake Plugin Extraction ([PR #17](https://github.com/pieceofcake2/cakephp/pull/17))
 
 **Breaking Change:**
-- **Bake functionality has been extracted to a separate plugin**
+- **Bake functionality has been extracted to a separate plugin** ([pieceofcake2/bake](https://github.com/pieceofcake2/bake))
 - `BakeShell` and all Bake tasks removed from core (`BakeTask`, `ModelTask`, `ControllerTask`, `ViewTask`, `FixtureTask`, `TestTask`, `TemplateTask`, `ProjectTask`, `PluginTask`, `DbConfigTask`, `CommandTask`)
 - Application skeleton templates moved from `lib/Cake/Console/Templates/skel/` to Bake plugin
 - Dispatcher files (`index.php`, `test.php`, `cake`) now located in Bake plugin
