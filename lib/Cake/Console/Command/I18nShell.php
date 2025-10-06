@@ -36,7 +36,7 @@ class I18nShell extends AppShell
      *
      * @var array
      */
-    public $tasks = ['DbConfig', 'Extract'];
+    public $tasks = ['Extract'];
 
     /**
      * Override startup of the Shell
@@ -52,9 +52,11 @@ class I18nShell extends AppShell
 
         if ($this->command && !in_array($this->command, ['help'])) {
             if (!config('database')) {
-                $this->out(__d('cake_console', 'Your database configuration was not found. Take a moment to create one.'));
+                $this->err(__d('cake_console', 'Your database configuration was not found.'));
+                $this->err(__d('cake_console', 'Please create app/Config/database.php manually.'));
+                $this->err(__d('cake_console', 'You can use app/Config/database.php.default as a template.'));
 
-                return $this->DbConfig->execute();
+                return $this->_stop(1);
             }
         }
     }

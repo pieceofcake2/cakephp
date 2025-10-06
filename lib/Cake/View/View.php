@@ -1189,7 +1189,7 @@ class View extends CakeObject
         }
         $paths = [];
         $viewPaths = App::path('View');
-        $corePaths = array_merge(App::core('View'), App::core('Console/Templates/skel/View'));
+        $corePaths = array_merge(App::core('View'), App::core('Templates'));
 
         if (!empty($plugin)) {
             $count = count($viewPaths);

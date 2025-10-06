@@ -494,7 +494,7 @@ class ViewTest extends CakeTestCase
 
         $View = new TestView($this->Controller);
         $paths = $View->paths();
-        $expected = array_merge(App::path('View'), App::core('View'), App::core('Console/Templates/skel/View'));
+        $expected = array_merge(App::path('View'), App::core('View'), App::core('Templates'));
         $this->assertEquals($expected, $paths);
 
         $paths = $View->paths('TestPlugin');
@@ -504,7 +504,7 @@ class ViewTest extends CakeTestCase
             $pluginPath . 'View' . DS,
             CAKE . 'Test' . DS . 'test_app' . DS . 'View' . DS,
             CAKE . 'View' . DS,
-            CAKE . 'Console' . DS . 'Templates' . DS . 'skel' . DS . 'View' . DS,
+            CAKE . 'Templates' . DS,
         ];
         $this->assertEquals($expected, $paths);
     }

@@ -90,8 +90,6 @@
     <rule ref="PSR1.Methods.CamelCapsMethodName.NotCamelCaps">
         <exclude-pattern>lib/Cake/Controller/*</exclude-pattern>
         <exclude-pattern>lib/Cake/Console/Command/*</exclude-pattern>
-        <exclude-pattern>lib/Cake/Console/Templates/skel/Controller/*</exclude-pattern>
-        <exclude-pattern>lib/Cake/Console/Templates/skel/Console/Command/*</exclude-pattern>
         <exclude-pattern>lib/Cake/Test/Case/Console/Command/Task/ViewTaskTest.php</exclude-pattern>
         <exclude-pattern>lib/Cake/Test/Case/Console/ShellTest.php</exclude-pattern>
         <exclude-pattern>lib/Cake/Test/Case/Controller/ControllerTest.php</exclude-pattern>

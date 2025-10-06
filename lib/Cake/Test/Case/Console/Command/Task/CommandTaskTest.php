@@ -77,7 +77,6 @@ class CommandTaskTest extends CakeTestCase
             'CORE' => [
                 'acl',
                 'api',
-                'bake',
                 'command_list',
                 'completion',
                 'console',
@@ -119,7 +118,6 @@ class CommandTaskTest extends CakeTestCase
             'TestPluginTwo.welcome',
             'acl',
             'api',
-            'bake',
             'command_list',
             'completion',
             'console',
@@ -146,7 +144,6 @@ class CommandTaskTest extends CakeTestCase
         $expected = [
             'check',
             'create',
-            'db_config',
             'delete',
             'deny',
             'getPath',
@@ -203,8 +200,8 @@ class CommandTaskTest extends CakeTestCase
      */
     public function testGetShellCore()
     {
-        $result = $this->CommandTask->getShell('core.bake');
-        $this->assertInstanceOf('BakeShell', $result);
+        $result = $this->CommandTask->getShell('core.acl');
+        $this->assertInstanceOf('AclShell', $result);
     }
 
     /**
@@ -223,10 +220,6 @@ class CommandTaskTest extends CakeTestCase
             '-v',
             '--quiet',
             '-q',
-            '--connection',
-            '-c',
-            '--theme',
-            '-t',
         ];
         $this->assertEquals($expected, $result);
     }
