@@ -147,7 +147,11 @@ class ShellDispatcher
         }
 
         if (!defined('CONFIG')) {
-            define('CONFIG', ROOT . DS . APP_DIR . DS . 'Config' . DS);
+            if (file_exists(ROOT . DS . 'config' . DS)) {
+                define('CONFIG', ROOT . DS . 'config' . DS);
+            } else {
+                define('CONFIG', ROOT . DS . APP_DIR . DS . 'Config' . DS);
+            }
         }
         // $boot is used by Cake/bootstrap.php file
         require_once CORE_PATH . 'Cake' . DS . 'bootstrap.php';
