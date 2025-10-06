@@ -1175,7 +1175,7 @@ class CakeEmailTest extends CakeTestCase
         $this->CakeEmail->to('cake@cakephp.org');
         $this->CakeEmail->subject('My title');
         $this->CakeEmail->emailFormat('text');
-        $data = file_get_contents(CAKE . 'Console/Templates/skel/webroot/img/cake.icon.png');
+        $data = file_get_contents(CAKE . 'Test/test_app/webroot/img/cake.icon.png');
         $this->CakeEmail->attachments(['cake.icon.png' => [
                 'data' => $data,
                 'mimetype' => 'image/png',
@@ -1212,7 +1212,7 @@ class CakeEmailTest extends CakeTestCase
         $this->CakeEmail->to('cake@cakephp.org');
         $this->CakeEmail->subject('My title');
         $this->CakeEmail->emailFormat('text');
-        $data = file_get_contents(CAKE . 'Console/Templates/skel/webroot/img/cake.icon.png');
+        $data = file_get_contents(CAKE . 'Test/test_app/webroot/img/cake.icon.png');
         $this->CakeEmail->attachments(['cake.icon.png' => [
             'data' => $data,
         ]]);

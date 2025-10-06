@@ -52,13 +52,6 @@ class AclShell extends AppShell
     public $connection = 'default';
 
     /**
-     * Contains tasks to load and instantiate
-     *
-     * @var array
-     */
-    public $tasks = ['DbConfig'];
-
-    /**
      * Override startup of the Shell
      *
      * @return void
@@ -82,15 +75,16 @@ class AclShell extends AppShell
             $out .= "--------------------------------------------------\n";
             $this->err($out);
 
-            return $this->_stop();
+            return $this->_stop(1);
         }
 
         if ($this->command) {
             if (!config('database')) {
-                $this->out(__d('cake_console', 'Your database configuration was not found. Take a moment to create one.'));
-                $this->args = null;
+                $this->err(__d('cake_console', 'Your database configuration was not found.'));
+                $this->err(__d('cake_console', 'Please create app/Config/database.php manually.'));
+                $this->err(__d('cake_console', 'You can use app/Config/database.php.default as a template.'));
 
-                return $this->DbConfig->execute();
+                return $this->_stop(1);
             }
             require_once CONFIG . 'database.php';
 

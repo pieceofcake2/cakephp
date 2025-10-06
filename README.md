@@ -66,11 +66,11 @@ After installation, copy dispatcher files from the package to your application:
 
 ```bash
 # Copy web dispatcher files
-cp vendor/pieceofcake2/cakephp/lib/Cake/Console/Templates/skel/webroot/index.php app/webroot/index.php
-cp vendor/pieceofcake2/cakephp/lib/Cake/Console/Templates/skel/webroot/test.php app/webroot/test.php
+cp plugins/Bake/Console/Templates/skel/webroot/index.php app/webroot/index.php
+cp plugins/Bake/Console/Templates/skel/webroot/test.php app/webroot/test.php
 
 # Copy console dispatcher
-cp vendor/pieceofcake2/cakephp/lib/Cake/Console/Templates/skel/Console/cake app/Console/cake
+cp plugins/Bake/Console/Templates/skel/Console/cake app/Console/cake
 chmod +x app/Console/cake
 ```
 
@@ -167,11 +167,11 @@ Before migrating to this fork, ensure:
 
 **Migration:**
 1. Ensure you're using Composer for dependency management
-2. Copy updated dispatcher files from `vendor/pieceofcake2/cakephp/lib/Cake/Console/Templates/skel/` to your application:
+2. Copy updated dispatcher files from `plugins/Bake/Console/Templates/skel/` to your application:
    ```bash
-   cp vendor/pieceofcake2/cakephp/lib/Cake/Console/Templates/skel/webroot/index.php app/webroot/index.php
-   cp vendor/pieceofcake2/cakephp/lib/Cake/Console/Templates/skel/webroot/test.php app/webroot/test.php
-   cp vendor/pieceofcake2/cakephp/lib/Cake/Console/Templates/skel/Console/cake app/Console/cake
+   cp plugins/Bake/Console/Templates/skel/webroot/index.php app/webroot/index.php
+   cp plugins/Bake/Console/Templates/skel/webroot/test.php app/webroot/test.php
+   cp plugins/Bake/Console/Templates/skel/Console/cake app/Console/cake
    ```
 3. Remove old dispatcher files if present:
    ```bash
