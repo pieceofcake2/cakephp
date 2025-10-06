@@ -6,6 +6,8 @@ use PHPUnit\Framework\TestListener;
 use PHPUnit\Framework\TestSuite;
 use PHPUnit\Framework\Warning;
 
+App::uses('CakeFixtureManager', 'TestSuite/Fixture');
+
 /**
  * @property CakeFixtureManager $_fixtureManager
  * @property TestSuite $_first

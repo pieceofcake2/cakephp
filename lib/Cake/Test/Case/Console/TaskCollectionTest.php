@@ -22,7 +22,7 @@ App::uses('Shell', 'Console');
 /**
  * Extended Task
  */
-class DbConfigAliasedTask extends Shell
+class ExtractAliasedTask extends Shell
 {
 }
 
@@ -65,12 +65,12 @@ class TaskCollectionTest extends CakeTestCase
      */
     public function testLoad()
     {
-        $result = $this->Tasks->load('DbConfig');
-        $this->assertInstanceOf('DbConfigTask', $result);
-        $this->assertInstanceOf('DbConfigTask', $this->Tasks->DbConfig);
+        $result = $this->Tasks->load('Extract');
+        $this->assertInstanceOf('ExtractTask', $result);
+        $this->assertInstanceOf('ExtractTask', $this->Tasks->Extract);
 
         $result = $this->Tasks->loaded();
-        $this->assertEquals(['DbConfig'], $result, 'loaded() results are wrong.');
+        $this->assertEquals(['Extract'], $result, 'loaded() results are wrong.');
     }
 
     /**
@@ -80,11 +80,11 @@ class TaskCollectionTest extends CakeTestCase
      */
     public function testLoadWithEnableFalse()
     {
-        $result = $this->Tasks->load('DbConfig', ['enabled' => false]);
-        $this->assertInstanceOf('DbConfigTask', $result);
-        $this->assertInstanceOf('DbConfigTask', $this->Tasks->DbConfig);
+        $result = $this->Tasks->load('Extract', ['enabled' => false]);
+        $this->assertInstanceOf('ExtractTask', $result);
+        $this->assertInstanceOf('ExtractTask', $this->Tasks->Extract);
 
-        $this->assertFalse($this->Tasks->enabled('DbConfig'), 'DbConfigTask should be disabled');
+        $this->assertFalse($this->Tasks->enabled('Extract'), 'ExtractTask should be disabled');
     }
 
     /**
@@ -126,18 +126,25 @@ class TaskCollectionTest extends CakeTestCase
      */
     public function testUnload()
     {
+        App::build([
+            'Plugin' => [CAKE . 'Test' . DS . 'test_app' . DS . 'Plugin' . DS],
+        ]);
+        CakePlugin::load('TestPlugin');
+
         $this->Tasks->load('Extract');
-        $this->Tasks->load('DbConfig');
+        $this->Tasks->load('TestPlugin.OtherTask');
 
         $result = $this->Tasks->loaded();
-        $this->assertEquals(['Extract', 'DbConfig'], $result, 'loaded tasks is wrong');
+        $this->assertEquals(['Extract', 'OtherTask'], $result, 'loaded tasks is wrong');
 
-        $this->Tasks->unload('DbConfig');
-        $this->assertFalse(isset($this->Tasks->DbConfig));
+        $this->Tasks->unload('OtherTask');
+        $this->assertFalse(isset($this->Tasks->OtherTask));
         $this->assertTrue(isset($this->Tasks->Extract));
 
         $result = $this->Tasks->loaded();
         $this->assertEquals(['Extract'], $result, 'loaded tasks is wrong');
+
+        CakePlugin::unload();
     }
 
     /**
@@ -147,18 +154,25 @@ class TaskCollectionTest extends CakeTestCase
      */
     public function testLoadWithAlias()
     {
-        $result = $this->Tasks->load('DbConfig', ['className' => 'DbConfigAliased']);
-        $this->assertInstanceOf('DbConfigAliasedTask', $result);
-        $this->assertInstanceOf('DbConfigAliasedTask', $this->Tasks->DbConfig);
+        $result = $this->Tasks->load('Extract', ['className' => 'ExtractAliased']);
+        $this->assertInstanceOf('ExtractAliasedTask', $result);
+        $this->assertInstanceOf('ExtractAliasedTask', $this->Tasks->Extract);
 
         $result = $this->Tasks->loaded();
-        $this->assertEquals(['DbConfig'], $result, 'loaded() results are wrong.');
+        $this->assertEquals(['Extract'], $result, 'loaded() results are wrong.');
+
+        App::build([
+            'Plugin' => [CAKE . 'Test' . DS . 'test_app' . DS . 'Plugin' . DS],
+        ]);
+        CakePlugin::load('TestPlugin');
 
         $result = $this->Tasks->load('SomeTask', ['className' => 'TestPlugin.OtherTask']);
         $this->assertInstanceOf('OtherTaskTask', $result);
         $this->assertInstanceOf('OtherTaskTask', $this->Tasks->SomeTask);
 
         $result = $this->Tasks->loaded();
-        $this->assertEquals(['DbConfig', 'SomeTask'], $result, 'loaded() results are wrong.');
+        $this->assertEquals(['Extract', 'SomeTask'], $result, 'loaded() results are wrong.');
+
+        CakePlugin::unload();
     }
 }

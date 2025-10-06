@@ -221,7 +221,6 @@ class ShellTest extends CakeTestCase
         $this->assertTrue(isset($this->Shell->Comment));
         $this->assertInstanceOf('Comment', $this->Shell->Comment);
         $this->assertEquals('Comment', $this->Shell->modelClass);
-        $this->assertInstanceOf('DbConfigTask', $this->Shell->DbConfig);
 
         App::build();
     }
