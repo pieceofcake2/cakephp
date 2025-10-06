@@ -2,6 +2,17 @@
 
 ## Unreleased
 
+### Email Header Encoding Compatibility
+
+- **mbstring Extension Fallback**: Added automatic fallback for email header encoding when `mbstring` extension is not loaded
+  - `CakeEmail::_encode()` now checks if `mbstring` extension is loaded using `extension_loaded('mbstring')`
+  - Uses native `mb_encode_mimeheader()` when `mbstring` is available (recommended)
+  - Automatically falls back to `Multibyte::mimeEncode()` when `mbstring` is not available
+  - Updated `MailTransportTest` to use same fallback logic for test compatibility
+  - **Important**: `mb_encode_mimeheader()` is **not available** in Symfony's mbstring polyfill
+  - **Strongly recommended**: Install the `mbstring` extension for better compatibility and performance
+  - **Note**: While Symfony polyfill provides most mbstring functions, `mb_encode_mimeheader()` requires the native extension
+
 ### Bake Plugin Extraction
 
 - **Bake Functionality Separation**: Extracted all Bake-related code to separate plugin ([pieceofcake2/bake](https://github.com/pieceofcake2/bake)) ([PR #17](https://github.com/pieceofcake2/cakephp/pull/17))
