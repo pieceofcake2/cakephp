@@ -57,7 +57,9 @@ class MailTransportTest extends CakeTestCase
         $email->setHeaders([
             'X-Mailer' => 'CakePHP Email',
             'Date' => $date,
-            'X-add' => mb_encode_mimeheader($longNonAscii, 'utf8', 'B'),
+            'X-add' => extension_loaded('mbstring')
+                ? mb_encode_mimeheader($longNonAscii, 'utf8', 'B')
+                : Multibyte::mimeEncode($longNonAscii, 'utf8'),
         ]);
         $email->expects($this->any())->method('message')
             ->will($this->returnValue(['First Line', 'Second Line', '.Third Line', '']));
