@@ -107,7 +107,7 @@ class CommandListShellTest extends CakeTestCase
         $expected = "/\[.*TestPluginTwo.*\] example, welcome/";
         $this->assertMatchesRegularExpression($expected, $output);
 
-        $expected = "/\[.*CORE.*\] acl, api, command_list, completion, console, i18n, schema, server, test, testsuite, upgrade/";
+        $expected = "/\[.*CORE.*\] acl, api, command_list, completion, console, i18n, schema, server, test, testsuite/";
         $this->assertMatchesRegularExpression($expected, $output);
 
         $expected = "/\[.*app.*\] sample/";
