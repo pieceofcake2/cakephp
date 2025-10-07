@@ -753,10 +753,12 @@ class Controller extends CakeObject implements CakeEventListener
      * If the model is non existent, it will throw a missing database table error, as CakePHP generates
      * dynamic models for the time being.
      *
-     * @param string $modelClass Name of model class to load
-     * @param string|int $id Initial ID the instanced model class should have
+     * @template T of Model
+     * @param class-string<T>|null $modelClass Name of model class to load
+     * @param string|int|null $id Initial ID the instanced model class should have
      * @return bool True if the model was found
      * @throws MissingModelException if the model class cannot be found.
+     * @phpstan-assert T $this->{$modelClass}
      */
     public function loadModel($modelClass = null, $id = null)
     {
