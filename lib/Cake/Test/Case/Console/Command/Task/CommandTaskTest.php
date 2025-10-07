@@ -85,7 +85,6 @@ class CommandTaskTest extends CakeTestCase
                 'server',
                 'test',
                 'testsuite',
-                'upgrade',
             ],
             'TestPlugin' => [
                 'example',
@@ -126,7 +125,6 @@ class CommandTaskTest extends CakeTestCase
             'server',
             'test',
             'testsuite',
-            'upgrade',
             'sample',
         ];
         $this->assertEquals($expected, $result);

@@ -10,6 +10,15 @@
   - Improves type inference and autocompletion for model instantiation in modern IDEs and static analysis tools
   - Supports PHPStan and Psalm for better static analysis
 
+### Legacy Upgrade Plugin Extraction
+
+- **Legacy Upgrade Functionality Separation**: Extracted legacy upgrade functionality to separate plugin ([pieceofcake2/upgrade](https://github.com/pieceofcake2/upgrade))
+  - Removed `UpgradeShell` from core (located at `lib/Cake/Console/Command/UpgradeShell.php`)
+  - Updated test files to remove references to `upgrade` command from shell lists
+  - The Upgrade plugin is only relevant for upgrading legacy CakePHP 1.3 applications to 2.0, which is extremely rare in 2025
+  - **Migration**: Install Upgrade plugin separately if needed: `composer require --dev pieceofcake2/upgrade`
+  - **Note**: Most users will never need this plugin
+
 ## v2.10.24.8 (2025-10-06)
 
 ### Email Header Encoding Compatibility
