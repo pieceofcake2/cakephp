@@ -89,11 +89,30 @@ class ClassRegistry
      * );
      * ```
      *
-     * @param array|string $class as a string or a single key => value array instance will be created,
+     * @template T of object
+     * @param class-string<T>|array{
+     *     class: class-string<T>,
+     *     alias?: string,
+     *     id?: int|string,
+     *     table?: string|false,
+     *     ds?: string,
+     *     plugin?: string,
+     *     testing?: bool,
+     *     name?: string
+     * }|array<array{
+     *     class: class-string,
+     *     alias?: string,
+     *     id?: int|string,
+     *     table?: string|false,
+     *     ds?: string,
+     *     plugin?: string,
+     *     testing?: bool,
+     *     name?: string
+     * }> $class as a string or a single key => value array instance will be created,
      *  stored in the registry and returned.
      * @param bool $strict if set to true it will return false if the class was not found instead
      *  of trying to create an AppModel
-     * @return object|bool $class instance of ClassName.
+     * @return T|bool $class instance of ClassName.
      * @throws CakeException when you try to construct an interface or abstract class.
      */
     public static function init($class, $strict = false)
