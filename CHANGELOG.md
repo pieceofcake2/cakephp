@@ -1,5 +1,15 @@
 ## CHANGELOG
 
+## Unreleased
+
+### Developer Experience Improvements
+
+- **PHPDoc Generic Type Annotations**: Added generic type annotations for better IDE support
+  - Added `@template T` to `ClassRegistry::init()` with detailed array shape types for parameters
+  - Added `@template T` to `Controller::loadModel()` with PHPStan assertion for dynamic properties
+  - Improves type inference and autocompletion for model instantiation in modern IDEs and static analysis tools
+  - Supports PHPStan and Psalm for better static analysis
+
 ## v2.10.24.8 (2025-10-06)
 
 ### Email Header Encoding Compatibility
