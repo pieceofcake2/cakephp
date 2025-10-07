@@ -174,7 +174,7 @@ Before migrating to this fork, ensure:
 1. Install the Bake plugin separately: `composer require --dev pieceofcake2/bake`
 2. Load the plugin in your `app/Config/bootstrap.php`:
    ```php
-   CakePlugin::load('Bake', ['bootstrap' => true]);
+   CakePlugin::load('Bake');
    ```
 3. Copy dispatcher files from Bake plugin if needed (for new projects)
 
@@ -379,9 +379,12 @@ public $components = [
 // NEW (recommended)
 public $components = [
     'Cookie' => [
-        'type' => 'rijndael'  // or 'aes'
+        'type' => 'aes'  // or 'rijndael'
     ]
 ];
+
+// Or dynamically in your controller
+$this->Cookie->type('aes');
 ```
 
 **Important:** Changing encryption type will invalidate existing cookies. Plan your migration strategy accordingly (e.g., support both types during transition period).
