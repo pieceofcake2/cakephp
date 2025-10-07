@@ -183,7 +183,33 @@ Before migrating to this fork, ensure:
 - Reduces core framework size
 - Most production applications don't need Bake in production
 
-#### 2. Composer-Only Installation Required ([PR #14](https://github.com/pieceofcake2/cakephp/pull/14))
+#### 2. Legacy Upgrade Plugin Extraction ([PR #19](https://github.com/pieceofcake2/cakephp/pull/19))
+
+**Breaking Change:**
+- **Legacy Upgrade functionality has been extracted to a separate plugin** ([pieceofcake2/upgrade](https://github.com/pieceofcake2/upgrade))
+- `UpgradeShell` removed from core
+- Legacy upgrade commands (1.3 → 2.0) no longer available without installing the Upgrade plugin
+
+**Migration:**
+> [!NOTE]
+> The Upgrade plugin is only relevant for upgrading legacy CakePHP 1.3 applications to 2.0, which is extremely rare in 2025. Most users will never need this plugin.
+
+If you need to upgrade a CakePHP 1.3 application to 2.0, install the Upgrade plugin separately:
+```bash
+composer require --dev pieceofcake2/upgrade
+```
+
+Then load the plugin in your `app/Config/bootstrap.php`:
+```php
+CakePlugin::load('Upgrade');
+```
+
+**Why this change:**
+- Reduces core framework size
+- The Upgrade plugin is only useful for upgrading from CakePHP 1.3 to 2.0
+- Almost no one needs this functionality in 2025
+
+#### 3. Composer-Only Installation Required ([PR #14](https://github.com/pieceofcake2/cakephp/pull/14))
 
 **Breaking Change:**
 - **Non-Composer installation is no longer supported**
@@ -208,7 +234,7 @@ Before migrating to this fork, ensure:
    ```
 5. Run `composer install` to ensure all dependencies are properly loaded
 
-#### 3. Cache Engines Removed ([PR #4](https://github.com/pieceofcake2/cakephp/pull/4))
+#### 4. Cache Engines Removed ([PR #4](https://github.com/pieceofcake2/cakephp/pull/4))
 
 **Breaking Change:**
 - **Xcache** support has been removed (not compatible with PHP 7.0+)
@@ -217,7 +243,7 @@ Before migrating to this fork, ensure:
 **Migration:**
 - If using these cache engines, migrate to Redis, Memcached, or APCu
 
-#### 4. Database Driver Methods Added ([PR #3](https://github.com/pieceofcake2/cakephp/pull/3))
+#### 5. Database Driver Methods Added ([PR #3](https://github.com/pieceofcake2/cakephp/pull/3))
 
 **Breaking Change:**
 - New methods added to database drivers (may cause issues if you have custom driver implementations)
@@ -234,7 +260,7 @@ Before migrating to this fork, ensure:
 **Migration:**
 - If you have custom database drivers extending these classes, implement these methods
 
-#### 5. Database Charset Configuration Changes ([PR #11](https://github.com/pieceofcake2/cakephp/pull/11))
+#### 6. Database Charset Configuration Changes ([PR #11](https://github.com/pieceofcake2/cakephp/pull/11))
 
 **Breaking Change:**
 - Character set configuration moved from `SET NAMES` to DSN connection options
@@ -247,11 +273,11 @@ Before migrating to this fork, ensure:
 - `setEncoding()` methods still work for runtime changes
 - More efficient connection setup with charset in DSN
 
-#### 6. SQL Server Driver Updates ([PR #9](https://github.com/pieceofcake2/cakephp/pull/9))
+#### 7. SQL Server Driver Updates ([PR #9](https://github.com/pieceofcake2/cakephp/pull/9))
 
 **Breaking Changes:**
 
-**6.1 Configuration Format**
+**7.1 Configuration Format**
 - **Schema-based configuration**: Use schema mapping instead of multiple databases
   ```php
   // Old approach (still works)
@@ -276,7 +302,7 @@ Before migrating to this fork, ensure:
 
 - **Port configuration**: Specify port separately (automatically appended to server)
 
-**6.2 Method Signature Changes**
+**7.2 Method Signature Changes**
 - `describe($model): array` - Now has explicit return type
 - `insertMulti()` - Now returns `bool` instead of `void`
 
@@ -285,7 +311,7 @@ Before migrating to this fork, ensure:
 - Move SSL/TLS options to `options` array if using inline DSN
 - If extending Sqlserver class, update method signatures to match
 
-#### 7. Mail Function Updates ([PR #10](https://github.com/pieceofcake2/cakephp/pull/10))
+#### 8. Mail Function Updates ([PR #10](https://github.com/pieceofcake2/cakephp/pull/10))
 
 **Breaking Change:**
 - `MailTransport::_mail()` method signature changed with strict types
@@ -296,7 +322,7 @@ Before migrating to this fork, ensure:
 - No action required unless you've extended `MailTransport` class
 - If extending, update method signature to match strict types
 
-#### 8. CSRF Token Security Enhancement ([PR #5](https://github.com/pieceofcake2/cakephp/pull/5))
+#### 9. CSRF Token Security Enhancement ([PR #5](https://github.com/pieceofcake2/cakephp/pull/5))
 
 **Breaking Change:**
 - New CSRF tokens use HMAC-SHA1 signatures (prevents CVE-2020-15400)
@@ -307,7 +333,7 @@ Before migrating to this fork, ensure:
 - Existing tokens continue to work
 - New tokens generated with enhanced security
 
-#### 9. strftime() Replacement
+#### 10. strftime() Replacement
 
 **Breaking Change:**
 - `strftime()` deprecated in PHP 8.1, removed in PHP 8.2
@@ -319,9 +345,9 @@ Before migrating to this fork, ensure:
 - Edge cases may produce slightly different output
 - Test date formatting in your application
 
-#### 10. Development Tools Updates
+#### 11. Development Tools Updates
 
-**10.1 PHP CodeSniffer ([PR #8](https://github.com/pieceofcake2/cakephp/pull/8))**
+**11.1 PHP CodeSniffer ([PR #8](https://github.com/pieceofcake2/cakephp/pull/8))**
 - Updated from 1.0.0 to 5.3
 - Applied automatic formatting fixes
 
@@ -329,14 +355,14 @@ Before migrating to this fork, ensure:
 - Development-time change only
 - Update `phpcs.xml` if you have custom coding standards
 
-**10.2 PHPUnit Compatibility**
+**11.2 PHPUnit Compatibility**
 - Framework tests migrated to PHPUnit 9.6
 - All deprecated PHPUnit features fixed
 
 **Migration:**
 - Update your tests if using deprecated PHPUnit features
 
-#### 11. PHP 8 Syntax Modernization ([PR #7](https://github.com/pieceofcake2/cakephp/pull/7))
+#### 12. PHP 8 Syntax Modernization ([PR #7](https://github.com/pieceofcake2/cakephp/pull/7))
 
 **Breaking Change:**
 - Codebase modernized to PHP 8 syntax
@@ -352,7 +378,7 @@ Before migrating to this fork, ensure:
 **Migration:**
 - **No action required** - syntax changes only, no functionality changes
 
-#### 12. CookieComponent 'cipher' Type - Insecure and Should Be Replaced
+#### 13. CookieComponent 'cipher' Type - Insecure and Should Be Replaced
 
 **Breaking Change:**
 - The default `CookieComponent` encryption type `'cipher'` is horribly insecure
