@@ -10,7 +10,7 @@
   - Improves type inference and autocompletion for model instantiation in modern IDEs and static analysis tools
   - Supports PHPStan and Psalm for better static analysis
 
-### Legacy Upgrade Plugin Extraction
+### Legacy Upgrade Plugin Extraction ([PR #19](https://github.com/pieceofcake2/cakephp/pull/19))
 
 - **Legacy Upgrade Functionality Separation**: Extracted legacy upgrade functionality to separate plugin ([pieceofcake2/upgrade](https://github.com/pieceofcake2/upgrade))
   - Removed `UpgradeShell` from core (located at `lib/Cake/Console/Command/UpgradeShell.php`)

@@ -183,7 +183,7 @@ Before migrating to this fork, ensure:
 - Reduces core framework size
 - Most production applications don't need Bake in production
 
-#### 2. Legacy Upgrade Plugin Extraction
+#### 2. Legacy Upgrade Plugin Extraction ([PR #19](https://github.com/pieceofcake2/cakephp/pull/19))
 
 **Breaking Change:**
 - **Legacy Upgrade functionality has been extracted to a separate plugin** ([pieceofcake2/upgrade](https://github.com/pieceofcake2/upgrade))
