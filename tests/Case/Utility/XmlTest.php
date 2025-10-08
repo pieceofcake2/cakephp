@@ -1283,7 +1283,7 @@ XML;
      */
     public function testNoEntityLoading()
     {
-        $file = CAKE . 'VERSION.txt';
+        $file = CORE_ROOT . DS . 'VERSION.txt';
         $xml = <<<XML
 <!DOCTYPE cakephp [
   <!ENTITY payload SYSTEM "file://$file" >]>

@@ -198,7 +198,7 @@ class AssetDispatcherTest extends CakeTestCase
             'View' => [CORE_TESTS . DS . 'test_app' . DS . 'View' . DS],
         ], App::RESET);
         $response = $this->getMock('CakeResponse', ['_sendHeader']);
-        $request = new CakeRequest('theme/test_theme/../../../../../../VERSION.txt');
+        $request = new CakeRequest('theme/test_theme/../../../../../../../../VERSION.txt');
         $event = new CakeEvent('Dispatcher.beforeRequest', $this, compact('request', 'response'));
         $filter = new AssetDispatcher();
         $this->assertNull($filter->beforeDispatch($event));
@@ -219,7 +219,7 @@ class AssetDispatcherTest extends CakeTestCase
         ], App::RESET);
 
         $response = $this->getMock('CakeResponse', ['_sendHeader', 'send']);
-        $request = new CakeRequest('theme/test_theme/%2e./%2e./%2e./%2e./%2e./%2e./VERSION.txt');
+        $request = new CakeRequest('theme/test_theme/%2e./%2e./%2e./%2e./%2e./%2e./%2e./%2e./VERSION.txt');
         $event = new CakeEvent('Dispatcher.beforeRequest', $this, compact('request', 'response'));
 
         $response->expects($this->never())->method('send');

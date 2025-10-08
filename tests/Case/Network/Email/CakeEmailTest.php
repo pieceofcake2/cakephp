@@ -905,12 +905,12 @@ class CakeEmailTest extends CakeTestCase
         ]);
         $this->CakeEmail->addAttachments(CAKE . 'bootstrap.php');
         $this->CakeEmail->addAttachments([CAKE . 'bootstrap.php']);
-        $this->CakeEmail->addAttachments(['other.txt' => CAKE . 'bootstrap.php', 'version' => CAKE . 'VERSION.txt']);
+        $this->CakeEmail->addAttachments(['other.txt' => CAKE . 'bootstrap.php', 'version' => CORE_ROOT . DS . 'VERSION.txt']);
         $expected = [
             'basics.php' => ['file' => CAKE . 'basics.php', 'mimetype' => 'text/plain'],
             'bootstrap.php' => ['file' => CAKE . 'bootstrap.php', 'mimetype' => 'text/x-php'],
             'other.txt' => ['file' => CAKE . 'bootstrap.php', 'mimetype' => 'text/x-php'],
-            'version' => ['file' => CAKE . 'VERSION.txt', 'mimetype' => 'text/plain'],
+            'version' => ['file' => CORE_ROOT . DS . 'VERSION.txt', 'mimetype' => 'text/plain'],
         ];
         $this->assertSame($expected, $this->CakeEmail->attachments());
 
@@ -1248,7 +1248,7 @@ class CakeEmailTest extends CakeTestCase
         $this->CakeEmail->to('cake@cakephp.org');
         $this->CakeEmail->subject('My title');
         $this->CakeEmail->emailFormat('both');
-        $this->CakeEmail->attachments([CAKE . 'VERSION.txt']);
+        $this->CakeEmail->attachments([CORE_ROOT . DS . 'VERSION.txt']);
         $result = $this->CakeEmail->send('Hello');
 
         $boundary = $this->CakeEmail->getBoundary();
@@ -1295,7 +1295,7 @@ class CakeEmailTest extends CakeTestCase
         $this->CakeEmail->emailFormat('both');
         $this->CakeEmail->attachments([
             'cake.png' => [
-                'file' => CAKE . 'VERSION.txt',
+                'file' => CORE_ROOT . DS . 'VERSION.txt',
                 'contentId' => 'abc123',
             ],
         ]);
@@ -1351,7 +1351,7 @@ class CakeEmailTest extends CakeTestCase
         $this->CakeEmail->emailFormat('html');
         $this->CakeEmail->attachments([
             'cake.png' => [
-                'file' => CAKE . 'VERSION.txt',
+                'file' => CORE_ROOT . DS . 'VERSION.txt',
                 'contentId' => 'abc123',
             ],
         ]);
@@ -1394,7 +1394,7 @@ class CakeEmailTest extends CakeTestCase
         $this->CakeEmail->emailFormat('text');
         $this->CakeEmail->attachments([
             'cake.png' => [
-                'file' => CAKE . 'VERSION.txt',
+                'file' => CORE_ROOT . DS . 'VERSION.txt',
                 'contentDisposition' => false,
             ],
         ]);

@@ -258,7 +258,6 @@ class ShellDispatcherTest extends CakeTestCase
         $dispatcher = new TestShellDispatcher();
         $defaults = $dispatcher->getDefaults();
 
-        //
         $params = [
             './console/cake.php',
             'bake',
@@ -277,7 +276,6 @@ class ShellDispatcherTest extends CakeTestCase
         $dispatcher->parseParams($params);
         $this->assertEquals($expected, $dispatcher->params);
 
-        //
         $params = [
             './console/cake.php',
             'bake',
@@ -297,7 +295,6 @@ class ShellDispatcherTest extends CakeTestCase
         $dispatcher->parseParams($params);
         $this->assertEquals($expected, $dispatcher->params);
 
-        //
         $params = [
             './console/cake.php',
             '-working',
@@ -320,13 +317,11 @@ class ShellDispatcherTest extends CakeTestCase
         $dispatcher->parseParams($params);
         $this->assertEquals($expected, $dispatcher->params);
 
-        //
         $expected = [
             './console/cake.php', 'schema', 'run', 'create', '-dry', '-f', '-name', 'DbAcl',
         ];
         $this->assertEquals($expected, $dispatcher->args);
 
-        //
         $params = [
             '/cake/1.2.x.x/cake/console/cake.php',
             '-working',
@@ -348,7 +343,6 @@ class ShellDispatcherTest extends CakeTestCase
         $dispatcher->parseParams($params);
         $this->assertEquals($expected, $dispatcher->params);
 
-        //
         $params = [
             'cake.php',
             '-working',
@@ -367,7 +361,6 @@ class ShellDispatcherTest extends CakeTestCase
         $dispatcher->parseParams($params);
         $this->assertEquals($expected, $dispatcher->params);
 
-        //
         $params = [
             'cake.php',
             '-working',
@@ -386,7 +379,6 @@ class ShellDispatcherTest extends CakeTestCase
         $dispatcher->parseParams($params);
         $this->assertEquals($expected, $dispatcher->params);
 
-        //
         $params = [
             'cake.php',
             '-working',
@@ -407,7 +399,6 @@ class ShellDispatcherTest extends CakeTestCase
         $dispatcher->parseParams($params);
         $this->assertEquals($expected, $dispatcher->params);
 
-        //
         $params = [
             '/home/amelo/dev/cake-common/cake/console/cake.php',
             '-root',
@@ -427,7 +418,6 @@ class ShellDispatcherTest extends CakeTestCase
         $dispatcher->parseParams($params);
         $this->assertEquals($expected, $dispatcher->params);
 
-        //
         $params = [
             '/cake/1.2.x.x/cake/console/cake.php',
             'bake',
@@ -447,7 +437,6 @@ class ShellDispatcherTest extends CakeTestCase
         $dispatcher->parseParams($params);
         $this->assertEquals($expected, $dispatcher->params);
 
-        //
         if (DS === '\\') {
             $params = [
                 'cake.php',

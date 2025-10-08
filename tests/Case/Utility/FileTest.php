@@ -78,7 +78,7 @@ class FileTest extends CakeTestCase
      */
     public function testBasic()
     {
-        $file = CAKE . 'VERSION.txt';
+        $file = CORE_ROOT . DS . 'VERSION.txt';
 
         $this->File = new File($file, false);
 
