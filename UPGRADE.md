@@ -319,4 +319,5 @@ public $components = [
 $this->Cookie->type('aes');
 ```
 
-**Important:** Changing encryption type will invalidate existing cookies. Plan your migration strategy accordingly (e.g., support both types during transition period).
+> [!IMPORTANT]
+> Changing encryption type will invalidate existing cookies. Plan your migration strategy accordingly (e.g., support both types during transition period).
