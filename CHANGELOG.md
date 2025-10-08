@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-### Directory Structure Modernization
+### Directory Structure Modernization ([PR #20](https://github.com/pieceofcake2/cakephp/pull/20))
 
 - **Modern Directory Layout**: Restructured directory layout to modern standards
   - Moved `lib/Cake/` → `src/Cake/` (framework source code)

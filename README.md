@@ -161,7 +161,7 @@ Before migrating to this fork, ensure:
 
 ### Breaking Changes
 
-#### 1. Directory Structure Modernization
+#### 1. Directory Structure Modernization ([PR #20](https://github.com/pieceofcake2/cakephp/pull/20))
 
 **Breaking Change:**
 - **Directory layout has been restructured to modern standards**
