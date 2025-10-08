@@ -133,14 +133,30 @@ class CakeTestSuiteCommand extends Command
             if (!CakePlugin::loaded($params['plugin'])) {
                 try {
                     CakePlugin::load($params['plugin']);
-                    $result = CakePlugin::path($params['plugin']) . 'Test' . DS . 'Case';
+                    $pluginPath = CakePlugin::path($params['plugin']);
+
+                    if (is_dir($pluginPath . 'tests' . DS . 'TestCase')) {
+                        $result = $pluginPath . 'tests' . DS . 'TestCase';
+                    } else {
+                        $result = $pluginPath . 'Test' . DS . 'Case';
+                    }
                 } catch (MissingPluginException) {
                 }
             } else {
-                $result = CakePlugin::path($params['plugin']) . 'Test' . DS . 'Case';
+                $pluginPath = CakePlugin::path($params['plugin']);
+
+                if (is_dir($pluginPath . 'tests' . DS . 'TestCase')) {
+                    $result = $pluginPath . 'tests' . DS . 'TestCase';
+                } else {
+                    $result = $pluginPath . 'Test' . DS . 'Case';
+                }
             }
         } elseif (!empty($params['app'])) {
-            $result = TESTS . 'Case';
+            if (is_dir(TESTS . 'TestCase')) {
+                $result = TESTS . 'TestCase';
+            } else {
+                $result = TESTS . 'Case';
+            }
         }
 
         return $result;

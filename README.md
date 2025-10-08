@@ -174,10 +174,18 @@ Before migrating to this fork, ensure:
 - All configuration files and paths updated accordingly
 - Added `CORE_ROOT` constant to reference framework root directory
 
+**Modern Test Directory Support:**
+- Applications and plugins can now use modern `tests/TestCase/` and `tests/Fixture/` directory structure
+- Test suite automatically detects both `Test/Case/` (traditional) and `tests/TestCase/` (modern) directories
+- Fixture loader supports both `Test/Fixture/` and `tests/Fixture/` locations
+- Enables gradual migration to modern directory structure for application tests
+- No breaking changes - both directory structures work simultaneously
+
 **Migration:**
 - No action required for applications using this framework as a dependency
 - `bin/cake` (or `vendor/bin/cake` when installed via Composer) now intelligently detects your project structure
 - Automatically works with both modern `src/` and traditional `app/` directory layouts
+- Optionally migrate your application tests from `app/Test/Case/` to `app/tests/TestCase/` at your own pace
 
 **Enhanced Console Executable:**
 - `bin/cake` now automatically detects project root from Composer's autoloader

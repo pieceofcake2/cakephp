@@ -47,7 +47,11 @@ if (!defined('APPLIBS')) {
 }
 
 if (!defined('TESTS')) {
-    define('TESTS', APP . 'Test' . DS);
+    if (is_dir(ROOT . DS . 'tests' . DS)) {
+        define('TESTS', ROOT . DS . 'tests' . DS);
+    } else {
+        define('TESTS', APP . 'Test' . DS);
+    }
 }
 
 if (!defined('CSS')) {

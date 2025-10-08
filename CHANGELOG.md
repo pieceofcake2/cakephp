@@ -12,6 +12,10 @@
   - Moved `lib/Cake/Config/` → `config/` (framework configuration files at root level)
   - Moved `lib/Cake/VERSION.txt` → `VERSION.txt` (framework version file at root level)
   - Moved template files from `lib/Cake/View/` and `lib/Cake/Templates/` → `templates/` (framework default templates at root level)
+  - **Modern Test Directory Support**: Applications and plugins can now use `tests/TestCase/` directory structure
+    - Test suite automatically detects both `Test/Case/` (traditional) and `tests/TestCase/` (modern) directories
+    - Fixture loader supports both `Test/Fixture/` and `tests/Fixture/` locations
+    - Enables gradual migration to modern directory structure for application tests
   - Updated all path references in configuration files (phpcs.xml, phpstan.neon, phpunit.xml.dist, composer.json)
   - Updated all test suite and fixture loader paths to use new directory structure
   - Updated CI workflow and documentation paths
