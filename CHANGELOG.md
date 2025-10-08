@@ -1,6 +1,6 @@
 ## CHANGELOG
 
-## Unreleased
+## ｖ2.11.0 (2025-10-09)
 
 ### Directory Structure Modernization ([PR #21](https://github.com/pieceofcake2/cakephp/pull/21))
 
