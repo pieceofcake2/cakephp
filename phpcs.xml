@@ -99,8 +99,6 @@
         <exclude-pattern>lib/Cake/Test/Case/View/ViewTest.php</exclude-pattern>
         <exclude-pattern>lib/Cake/Test/Case/View/Helper/CacheHelperTest.php</exclude-pattern>
         <exclude-pattern>lib/Cake/Test/Case/Routing/DispatcherTest.php</exclude-pattern>
-        <exclude-pattern>lib/Cake/Test/bake_compare/Controller/*</exclude-pattern>
-        <exclude-pattern>lib/Cake/Test/bake_compare/Console/Command/*</exclude-pattern>
         <exclude-pattern>lib/Cake/Test/test_app/Controller/*</exclude-pattern>
         <exclude-pattern>lib/Cake/Test/test_app/Console/Command/*</exclude-pattern>
         <exclude-pattern>lib/Cake/Test/test_app/Plugin/*/Controller/*</exclude-pattern>
