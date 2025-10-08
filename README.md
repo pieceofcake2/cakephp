@@ -144,22 +144,7 @@ The following security vulnerabilities have been reported in the original CakePH
 
 ## Migration Guide
 
-### Prerequisites
-
-Before migrating to this fork, ensure:
-- Your application is running on PHP 7.4
-- You're using CakePHP 2.10.24 (earlier versions are not supported)
-- Your application uses Composer for dependency management
-
-### From Original CakePHP 2.x
-
-1. **Update to CakePHP 2.10.24 first**: If you're using an earlier version, update to `cakephp/cakephp:2.10.24` on PHP 7.4 first
-2. **Ensure PHP 7.4 Compatibility**: Your application must be fully working on PHP 7.4 before migrating to PHP 8.x
-3. **Update Composer**: Replace `cakephp/cakephp` with `pieceofcake2/cakephp` in your `composer.json`
-4. **Upgrade PHP**: Update your PHP version to 8.0 or newer
-5. **Test Thoroughly**: Run your application's test suite to ensure compatibility
-
-For detailed information about breaking changes and migration steps, see [UPGRADE.md](UPGRADE.md).
+For detailed information about prerequisites, migration steps, and breaking changes, see [UPGRADE.md](UPGRADE.md).
 
 ## Running Tests
 

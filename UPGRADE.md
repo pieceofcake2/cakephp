@@ -17,6 +17,35 @@ Before migrating to this fork, ensure:
 
 ## Breaking Changes
 
+### Post-Installation Steps
+
+#### For Legacy Directory Structure (`app/` directory)
+
+After installation, install the Bake plugin and copy dispatcher files:
+
+```bash
+# Install Bake plugin
+composer require --dev pieceofcake2/bake
+
+# Copy web dispatcher files
+cp plugins/Bake/Console/Templates/skel/webroot/index.php app/webroot/index.php
+cp plugins/Bake/Console/Templates/skel/webroot/test.php app/webroot/test.php
+
+# Copy console dispatcher
+cp plugins/Bake/Console/Templates/skel/Console/cake app/Console/cake
+chmod +x app/Console/cake
+```
+
+#### For Modern Directory Structure (`src/` directory)
+
+The following files need to be updated:
+- `config/define.php`
+- `bin/cake`
+- `webroot/index.php`
+- `webroot/test.php`
+
+See [`pieceofcake2/app`](https://github.com/pieceofcake2/app) for the modern application skeleton compatible with both CakePHP 2.x and 5.x.
+
 ### Directory Structure Modernization ([PR #21](https://github.com/pieceofcake2/cakephp/pull/21))
 
 - **Directory layout has been restructured to modern standards**
