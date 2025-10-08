@@ -10,6 +10,7 @@
   - Moved `lib/Cake/Console/cake` → `bin/cake` (console executable)
   - Moved `lib/Cake/Config/` → `config/` (framework configuration files at root level)
   - Moved `lib/Cake/VERSION.txt` → `VERSION.txt` (framework version file at root level)
+  - Moved template files from `lib/Cake/View/` and `lib/Cake/Templates/` → `templates/` (framework default templates at root level)
   - Updated all path references in configuration files (phpcs.xml, phpstan.neon, phpunit.xml.dist, composer.json)
   - Updated all test suite and fixture loader paths to use new directory structure
   - Updated CI workflow and documentation paths

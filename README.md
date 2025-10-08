@@ -169,6 +169,7 @@ Before migrating to this fork, ensure:
 - `lib/Cake/Test/` → `tests/` (framework tests)
 - `lib/Cake/Console/cake` → `bin/cake` (console executable)
 - `lib/Cake/Config/` → `config/` (framework configuration files at root level)
+- `lib/Cake/View/` and `lib/Cake/Templates/` → `templates/` (framework default templates at root level)
 - All configuration files and paths updated accordingly
 - Added `CORE_ROOT` constant to reference framework root directory
 
