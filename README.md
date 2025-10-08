@@ -161,7 +161,26 @@ Before migrating to this fork, ensure:
 
 ### Breaking Changes
 
-#### 1. Bake Plugin Extraction ([PR #17](https://github.com/pieceofcake2/cakephp/pull/17))
+#### 1. Directory Structure Modernization
+
+**Breaking Change:**
+- **Directory layout has been restructured to modern standards**
+- `lib/Cake/` → `src/Cake/` (framework source code)
+- `lib/Cake/Test/` → `tests/` (framework tests)
+- `lib/Cake/Console/cake` → `bin/cake` (console executable)
+- All configuration files and paths updated accordingly
+
+**Migration:**
+- No action required for applications using this framework as a dependency
+- `bin/cake` (or `vendor/bin/cake` when installed via Composer) now intelligently detects your project structure
+- Automatically works with both modern `src/` and traditional `app/` directory layouts
+
+**Enhanced Console Executable:**
+- `bin/cake` now automatically detects project root from Composer's autoloader
+- No manual configuration needed - works out of the box with any project structure
+- Supports modern (`src/`) and traditional (`app/`) application directories
+
+#### 2. Bake Plugin Extraction ([PR #17](https://github.com/pieceofcake2/cakephp/pull/17))
 
 **Breaking Change:**
 - **Bake functionality has been extracted to a separate plugin** ([pieceofcake2/bake](https://github.com/pieceofcake2/bake))
@@ -183,7 +202,7 @@ Before migrating to this fork, ensure:
 - Reduces core framework size
 - Most production applications don't need Bake in production
 
-#### 2. Legacy Upgrade Plugin Extraction ([PR #19](https://github.com/pieceofcake2/cakephp/pull/19))
+#### 3. Legacy Upgrade Plugin Extraction ([PR #19](https://github.com/pieceofcake2/cakephp/pull/19))
 
 **Breaking Change:**
 - **Legacy Upgrade functionality has been extracted to a separate plugin** ([pieceofcake2/upgrade](https://github.com/pieceofcake2/upgrade))
@@ -209,7 +228,7 @@ CakePlugin::load('Upgrade');
 - The Upgrade plugin is only useful for upgrading from CakePHP 1.3 to 2.0
 - Almost no one needs this functionality in 2025
 
-#### 3. Composer-Only Installation Required ([PR #14](https://github.com/pieceofcake2/cakephp/pull/14))
+#### 4. Composer-Only Installation Required ([PR #14](https://github.com/pieceofcake2/cakephp/pull/14))
 
 **Breaking Change:**
 - **Non-Composer installation is no longer supported**
@@ -234,7 +253,7 @@ CakePlugin::load('Upgrade');
    ```
 5. Run `composer install` to ensure all dependencies are properly loaded
 
-#### 4. Cache Engines Removed ([PR #4](https://github.com/pieceofcake2/cakephp/pull/4))
+#### 5. Cache Engines Removed ([PR #4](https://github.com/pieceofcake2/cakephp/pull/4))
 
 **Breaking Change:**
 - **Xcache** support has been removed (not compatible with PHP 7.0+)
@@ -243,7 +262,7 @@ CakePlugin::load('Upgrade');
 **Migration:**
 - If using these cache engines, migrate to Redis, Memcached, or APCu
 
-#### 5. Database Driver Methods Added ([PR #3](https://github.com/pieceofcake2/cakephp/pull/3))
+#### 6. Database Driver Methods Added ([PR #3](https://github.com/pieceofcake2/cakephp/pull/3))
 
 **Breaking Change:**
 - New methods added to database drivers (may cause issues if you have custom driver implementations)
@@ -260,7 +279,7 @@ CakePlugin::load('Upgrade');
 **Migration:**
 - If you have custom database drivers extending these classes, implement these methods
 
-#### 6. Database Charset Configuration Changes ([PR #11](https://github.com/pieceofcake2/cakephp/pull/11))
+#### 7. Database Charset Configuration Changes ([PR #11](https://github.com/pieceofcake2/cakephp/pull/11))
 
 **Breaking Change:**
 - Character set configuration moved from `SET NAMES` to DSN connection options
@@ -273,11 +292,11 @@ CakePlugin::load('Upgrade');
 - `setEncoding()` methods still work for runtime changes
 - More efficient connection setup with charset in DSN
 
-#### 7. SQL Server Driver Updates ([PR #9](https://github.com/pieceofcake2/cakephp/pull/9))
+#### 8. SQL Server Driver Updates ([PR #9](https://github.com/pieceofcake2/cakephp/pull/9))
 
 **Breaking Changes:**
 
-**7.1 Configuration Format**
+**8.1 Configuration Format**
 - **Schema-based configuration**: Use schema mapping instead of multiple databases
   ```php
   // Old approach (still works)
@@ -302,7 +321,7 @@ CakePlugin::load('Upgrade');
 
 - **Port configuration**: Specify port separately (automatically appended to server)
 
-**7.2 Method Signature Changes**
+**8.2 Method Signature Changes**
 - `describe($model): array` - Now has explicit return type
 - `insertMulti()` - Now returns `bool` instead of `void`
 
@@ -311,7 +330,7 @@ CakePlugin::load('Upgrade');
 - Move SSL/TLS options to `options` array if using inline DSN
 - If extending Sqlserver class, update method signatures to match
 
-#### 8. Mail Function Updates ([PR #10](https://github.com/pieceofcake2/cakephp/pull/10))
+#### 9. Mail Function Updates ([PR #10](https://github.com/pieceofcake2/cakephp/pull/10))
 
 **Breaking Change:**
 - `MailTransport::_mail()` method signature changed with strict types
@@ -322,7 +341,7 @@ CakePlugin::load('Upgrade');
 - No action required unless you've extended `MailTransport` class
 - If extending, update method signature to match strict types
 
-#### 9. CSRF Token Security Enhancement ([PR #5](https://github.com/pieceofcake2/cakephp/pull/5))
+#### 10. CSRF Token Security Enhancement ([PR #5](https://github.com/pieceofcake2/cakephp/pull/5))
 
 **Breaking Change:**
 - New CSRF tokens use HMAC-SHA1 signatures (prevents CVE-2020-15400)
@@ -333,7 +352,7 @@ CakePlugin::load('Upgrade');
 - Existing tokens continue to work
 - New tokens generated with enhanced security
 
-#### 10. strftime() Replacement
+#### 11. strftime() Replacement
 
 **Breaking Change:**
 - `strftime()` deprecated in PHP 8.1, removed in PHP 8.2
@@ -345,9 +364,9 @@ CakePlugin::load('Upgrade');
 - Edge cases may produce slightly different output
 - Test date formatting in your application
 
-#### 11. Development Tools Updates
+#### 12. Development Tools Updates
 
-**11.1 PHP CodeSniffer ([PR #8](https://github.com/pieceofcake2/cakephp/pull/8))**
+**12.1 PHP CodeSniffer ([PR #8](https://github.com/pieceofcake2/cakephp/pull/8))**
 - Updated from 1.0.0 to 5.3
 - Applied automatic formatting fixes
 
@@ -355,14 +374,14 @@ CakePlugin::load('Upgrade');
 - Development-time change only
 - Update `phpcs.xml` if you have custom coding standards
 
-**11.2 PHPUnit Compatibility**
+**12.2 PHPUnit Compatibility**
 - Framework tests migrated to PHPUnit 9.6
 - All deprecated PHPUnit features fixed
 
 **Migration:**
 - Update your tests if using deprecated PHPUnit features
 
-#### 12. PHP 8 Syntax Modernization ([PR #7](https://github.com/pieceofcake2/cakephp/pull/7))
+#### 13. PHP 8 Syntax Modernization ([PR #7](https://github.com/pieceofcake2/cakephp/pull/7))
 
 **Breaking Change:**
 - Codebase modernized to PHP 8 syntax
@@ -378,7 +397,7 @@ CakePlugin::load('Upgrade');
 **Migration:**
 - **No action required** - syntax changes only, no functionality changes
 
-#### 13. CookieComponent 'cipher' Type - Insecure and Should Be Replaced
+#### 14. CookieComponent 'cipher' Type - Insecure and Should Be Replaced
 
 **Breaking Change:**
 - The default `CookieComponent` encryption type `'cipher'` is horribly insecure

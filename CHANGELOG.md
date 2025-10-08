@@ -2,6 +2,26 @@
 
 ## Unreleased
 
+### Directory Structure Modernization
+
+- **Modern Directory Layout**: Restructured directory layout to modern standards
+  - Moved `lib/Cake/` → `src/Cake/` (framework source code)
+  - Moved `lib/Cake/Test/` → `tests/` (framework tests)
+  - Moved `lib/Cake/Console/cake` → `bin/cake` (console executable)
+  - Updated all path references in configuration files (phpcs.xml, phpstan.neon, phpunit.xml.dist, composer.json)
+  - Updated all test suite and fixture loader paths to use new directory structure
+  - Updated CI workflow and documentation paths
+  - Removed obsolete composer scripts (cs-check, test)
+
+- **Smart Console Executable**: Enhanced `bin/cake` with intelligent path detection
+  - Automatically detects project root by locating `composer.json` from Composer's autoloader
+  - When installed as dependency (`vendor/bin/cake`), intelligently determines the application directory:
+    - Auto-detects modern `src/` or traditional `app/` directory structure
+    - Falls back to `vendor/pieceofcake2/app` for plugin testing scenarios
+  - No manual configuration needed
+  - Backward compatible with existing installations
+  - Simplifies console command execution across different project structures
+
 ### Developer Experience Improvements
 
 - **PHPDoc Generic Type Annotations**: Added generic type annotations for better IDE support
