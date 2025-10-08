@@ -862,7 +862,7 @@ class DispatcherTest extends CakeTestCase
 
         unset($Dispatcher);
 
-        require CAKE . 'Config' . DS . 'routes.php';
+        require CORE_ROOT . DS . 'config' . DS . 'routes.php';
         $Dispatcher = new TestDispatcher();
         Configure::write('App.baseUrl', '/timesheets/index.php');
 
@@ -1065,7 +1065,7 @@ class DispatcherTest extends CakeTestCase
         $this->assertEquals(['param' => 'value', 'param2' => 'value2'], $Dispatcher->controller->params['named']);
 
         Router::reload();
-        require CAKE . 'Config' . DS . 'routes.php';
+        require CORE_ROOT . DS . 'config' . DS . 'routes.php';
         $Dispatcher = new TestDispatcher();
         $Dispatcher->base = false;
 
@@ -1087,7 +1087,7 @@ class DispatcherTest extends CakeTestCase
         Configure::write('Routing.prefixes', ['admin']);
 
         Router::reload();
-        require CAKE . 'Config' . DS . 'routes.php';
+        require CORE_ROOT . DS . 'config' . DS . 'routes.php';
         $Dispatcher = new TestDispatcher();
 
         $url = new CakeRequest('admin/my_plugin/my_plugin/add/5/param:value/param2:value2');
@@ -1110,7 +1110,7 @@ class DispatcherTest extends CakeTestCase
         Configure::write('Routing.prefixes', ['admin']);
         CakePlugin::load('ArticlesTest', ['path' => '/fake/path']);
         Router::reload();
-        require CAKE . 'Config' . DS . 'routes.php';
+        require CORE_ROOT . DS . 'config' . DS . 'routes.php';
 
         $Dispatcher = new TestDispatcher();
 

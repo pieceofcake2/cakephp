@@ -26,6 +26,10 @@ if (!defined('CAKE_CORE_INCLUDE_PATH')) {
     define('CAKE_CORE_INCLUDE_PATH', dirname(__DIR__));
 }
 
+if (!defined('CORE_ROOT')) {
+    define('CORE_ROOT', dirname(CAKE_CORE_INCLUDE_PATH));
+}
+
 if (!defined('CORE_PATH')) {
     define('CORE_PATH', CAKE_CORE_INCLUDE_PATH . DS);
 }

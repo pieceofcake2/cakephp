@@ -29,7 +29,9 @@ if (!defined('TESTS')) {
 /**
  * Path to the tests directory of CakePHP.
  */
-define('CORE_TESTS', dirname(CAKE, 2) . DS . 'tests');
+if (!defined('CORE_TESTS')) {
+    define('CORE_TESTS', dirname(CAKE, 2) . DS . 'tests');
+}
 
 App::uses('CakeTestSuiteCommand', 'TestSuite');
 

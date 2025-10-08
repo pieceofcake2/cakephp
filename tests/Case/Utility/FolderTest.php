@@ -529,41 +529,41 @@ class FolderTest extends CakeTestCase
         $Folder = new Folder();
         $expected = [
             [
-                CAKE . 'Config',
-                CAKE . 'Config' . DS . 'unicode',
-                CAKE . 'Config' . DS . 'unicode' . DS . 'casefolding',
+                CORE_ROOT . DS . 'config',
+                CORE_ROOT . DS . 'config' . DS . 'unicode',
+                CORE_ROOT . DS . 'config' . DS . 'unicode' . DS . 'casefolding',
             ],
             [
-                CAKE . 'Config' . DS . 'config.php',
-                CAKE . 'Config' . DS . 'unicode' . DS . 'casefolding' . DS . '0080_00ff.php',
-                CAKE . 'Config' . DS . 'unicode' . DS . 'casefolding' . DS . '0100_017f.php',
-                CAKE . 'Config' . DS . 'unicode' . DS . 'casefolding' . DS . '0180_024F.php',
-                CAKE . 'Config' . DS . 'unicode' . DS . 'casefolding' . DS . '0250_02af.php',
-                CAKE . 'Config' . DS . 'unicode' . DS . 'casefolding' . DS . '0370_03ff.php',
-                CAKE . 'Config' . DS . 'unicode' . DS . 'casefolding' . DS . '0400_04ff.php',
-                CAKE . 'Config' . DS . 'unicode' . DS . 'casefolding' . DS . '0500_052f.php',
-                CAKE . 'Config' . DS . 'unicode' . DS . 'casefolding' . DS . '0530_058f.php',
-                CAKE . 'Config' . DS . 'unicode' . DS . 'casefolding' . DS . '1e00_1eff.php',
-                CAKE . 'Config' . DS . 'unicode' . DS . 'casefolding' . DS . '1f00_1fff.php',
-                CAKE . 'Config' . DS . 'unicode' . DS . 'casefolding' . DS . '2100_214f.php',
-                CAKE . 'Config' . DS . 'unicode' . DS . 'casefolding' . DS . '2150_218f.php',
-                CAKE . 'Config' . DS . 'unicode' . DS . 'casefolding' . DS . '2460_24ff.php',
-                CAKE . 'Config' . DS . 'unicode' . DS . 'casefolding' . DS . '2c00_2c5f.php',
-                CAKE . 'Config' . DS . 'unicode' . DS . 'casefolding' . DS . '2c60_2c7f.php',
-                CAKE . 'Config' . DS . 'unicode' . DS . 'casefolding' . DS . '2c80_2cff.php',
-                CAKE . 'Config' . DS . 'unicode' . DS . 'casefolding' . DS . 'ff00_ffef.php',
+                CORE_ROOT . DS . 'config' . DS . 'config.php',
+                CORE_ROOT . DS . 'config' . DS . 'unicode' . DS . 'casefolding' . DS . '0080_00ff.php',
+                CORE_ROOT . DS . 'config' . DS . 'unicode' . DS . 'casefolding' . DS . '0100_017f.php',
+                CORE_ROOT . DS . 'config' . DS . 'unicode' . DS . 'casefolding' . DS . '0180_024F.php',
+                CORE_ROOT . DS . 'config' . DS . 'unicode' . DS . 'casefolding' . DS . '0250_02af.php',
+                CORE_ROOT . DS . 'config' . DS . 'unicode' . DS . 'casefolding' . DS . '0370_03ff.php',
+                CORE_ROOT . DS . 'config' . DS . 'unicode' . DS . 'casefolding' . DS . '0400_04ff.php',
+                CORE_ROOT . DS . 'config' . DS . 'unicode' . DS . 'casefolding' . DS . '0500_052f.php',
+                CORE_ROOT . DS . 'config' . DS . 'unicode' . DS . 'casefolding' . DS . '0530_058f.php',
+                CORE_ROOT . DS . 'config' . DS . 'unicode' . DS . 'casefolding' . DS . '1e00_1eff.php',
+                CORE_ROOT . DS . 'config' . DS . 'unicode' . DS . 'casefolding' . DS . '1f00_1fff.php',
+                CORE_ROOT . DS . 'config' . DS . 'unicode' . DS . 'casefolding' . DS . '2100_214f.php',
+                CORE_ROOT . DS . 'config' . DS . 'unicode' . DS . 'casefolding' . DS . '2150_218f.php',
+                CORE_ROOT . DS . 'config' . DS . 'unicode' . DS . 'casefolding' . DS . '2460_24ff.php',
+                CORE_ROOT . DS . 'config' . DS . 'unicode' . DS . 'casefolding' . DS . '2c00_2c5f.php',
+                CORE_ROOT . DS . 'config' . DS . 'unicode' . DS . 'casefolding' . DS . '2c60_2c7f.php',
+                CORE_ROOT . DS . 'config' . DS . 'unicode' . DS . 'casefolding' . DS . '2c80_2cff.php',
+                CORE_ROOT . DS . 'config' . DS . 'unicode' . DS . 'casefolding' . DS . 'ff00_ffef.php',
             ],
         ];
 
-        $result = $Folder->tree(CAKE . 'Config', false);
+        $result = $Folder->tree(CORE_ROOT . DS . 'config', false);
         $this->assertSame([], array_diff($expected[0], $result[0]));
         $this->assertSame([], array_diff($result[0], $expected[0]));
 
-        $result = $Folder->tree(CAKE . 'Config', false, 'dir');
+        $result = $Folder->tree(CORE_ROOT . DS . 'config', false, 'dir');
         $this->assertSame([], array_diff($expected[0], $result));
         $this->assertSame([], array_diff($expected[0], $result));
 
-        $result = $Folder->tree(CAKE . 'Config', false, 'files');
+        $result = $Folder->tree(CORE_ROOT . DS . 'config', false, 'files');
         $this->assertSame([], array_diff($expected[1], $result));
         $this->assertSame([], array_diff($expected[1], $result));
     }
@@ -748,8 +748,8 @@ class FolderTest extends CakeTestCase
         $result = $Folder->inCakePath($path);
         $this->assertFalse($result);
 
-        $path = DS . 'src' . DS . 'Cake' . DS . 'Config';
-        $Folder->cd(dirname(CAKE_CORE_INCLUDE_PATH) . DS . 'src' . DS . 'Cake' . DS . 'Config');
+        $path = DS . 'config';
+        $Folder->cd(dirname(CAKE_CORE_INCLUDE_PATH) . DS . 'config');
         $result = $Folder->inCakePath($path);
         $this->assertTrue($result);
     }
@@ -762,7 +762,7 @@ class FolderTest extends CakeTestCase
     public function testFind()
     {
         $Folder = new Folder();
-        $Folder->cd(CAKE . 'Config');
+        $Folder->cd(CORE_ROOT . DS . 'config');
         $result = $Folder->find();
         $expected = ['config.php'];
         $this->assertSame(array_diff($expected, $result), []);
@@ -815,17 +815,17 @@ class FolderTest extends CakeTestCase
     public function testFindRecursive()
     {
         $Folder = new Folder();
-        $Folder->cd(CAKE);
+        $Folder->cd(CORE_ROOT . DS . 'config' . DS);
         $result = $Folder->findRecursive('(config|paths)\.php');
         $expected = [
-            CAKE . 'Config' . DS . 'config.php',
+            CORE_ROOT . DS . 'config' . DS . 'config.php',
         ];
         $this->assertSame(array_diff($expected, $result), []);
         $this->assertSame(array_diff($expected, $result), []);
 
         $result = $Folder->findRecursive('(config|paths)\.php', true);
         $expected = [
-            CAKE . 'Config' . DS . 'config.php',
+            CORE_ROOT . DS . 'config' . DS . 'config.php',
         ];
         $this->assertSame($expected, $result);
 
@@ -859,7 +859,7 @@ class FolderTest extends CakeTestCase
         ];
         $this->assertSame($expected, $result);
 
-        $Folder->cd(CAKE . 'Config');
+        $Folder->cd(CORE_ROOT . DS . 'config');
         $Folder->cd(TMP);
         $Folder->delete($Folder->pwd() . DS . 'testme');
         $File->delete();

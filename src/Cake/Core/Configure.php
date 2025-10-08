@@ -439,7 +439,7 @@ class Configure
     public static function version()
     {
         if (!isset(static::$_values['Cake']['version'])) {
-            $config = require CAKE . 'Config' . DS . 'config.php';
+            $config = require CORE_ROOT . DS . 'config' . DS . 'config.php';
             static::write($config);
         }
 

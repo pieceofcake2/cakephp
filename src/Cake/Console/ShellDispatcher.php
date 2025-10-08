@@ -87,6 +87,9 @@ class ShellDispatcher
             if (!defined('DS')) {
                 define('DS', DIRECTORY_SEPARATOR);
             }
+            if (!defined('CORE_ROOT')) {
+                define('CORE_ROOT', dirname(CAKE_CORE_INCLUDE_PATH));
+            }
             if (!defined('CORE_PATH')) {
                 define('CORE_PATH', CAKE_CORE_INCLUDE_PATH . DS);
             }

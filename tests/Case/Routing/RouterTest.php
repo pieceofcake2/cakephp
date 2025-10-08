@@ -1080,7 +1080,7 @@ class RouterTest extends CakeTestCase
         $this->assertEquals($expected, $result);
 
         Router::reload();
-        require CAKE . 'Config' . DS . 'routes.php';
+        require CORE_ROOT . DS . 'config' . DS . 'routes.php';
         $result = Router::parse('/pages/display/home');
         $expected = ['plugin' => null, 'pass' => ['home'], 'controller' => 'pages', 'action' => 'display', 'named' => []];
         $this->assertEquals($expected, $result);
@@ -1356,7 +1356,7 @@ class RouterTest extends CakeTestCase
         CakePlugin::load(['TestPlugin']);
 
         Router::reload();
-        require CAKE . 'Config' . DS . 'routes.php';
+        require CORE_ROOT . DS . 'config' . DS . 'routes.php';
         $request = new CakeRequest();
         Router::setRequestInfo(
             $request->addParams([
@@ -1375,7 +1375,7 @@ class RouterTest extends CakeTestCase
         $this->assertEquals($expected, $result);
 
         Router::reload();
-        require CAKE . 'Config' . DS . 'routes.php';
+        require CORE_ROOT . DS . 'config' . DS . 'routes.php';
         $request = new CakeRequest();
         Router::setRequestInfo(
             $request->addParams([
@@ -1428,7 +1428,7 @@ class RouterTest extends CakeTestCase
         Router::setExtensions(['rss']);
         $this->assertEquals(['rss'], Router::extensions());
 
-        require CAKE . 'Config' . DS . 'routes.php';
+        require CORE_ROOT . DS . 'config' . DS . 'routes.php';
         $result = Router::parse('/posts.rss');
         $this->assertFalse(isset($result['ext']));
 
@@ -1458,7 +1458,7 @@ class RouterTest extends CakeTestCase
     public function testExtensionParsing()
     {
         Router::parseExtensions();
-        require CAKE . 'Config' . DS . 'routes.php';
+        require CORE_ROOT . DS . 'config' . DS . 'routes.php';
 
         $result = Router::parse('/posts.rss');
         $expected = ['plugin' => null, 'controller' => 'posts', 'action' => 'index', 'ext' => 'rss', 'pass' => [], 'named' => []];
@@ -1478,7 +1478,7 @@ class RouterTest extends CakeTestCase
         $this->assertEquals($expected, $result);
 
         Router::reload();
-        require CAKE . 'Config' . DS . 'routes.php';
+        require CORE_ROOT . DS . 'config' . DS . 'routes.php';
 
         Router::parseExtensions('rss', 'xml');
 
@@ -1636,13 +1636,13 @@ class RouterTest extends CakeTestCase
     public function testNamedArgsUrlParsing()
     {
         Router::reload();
-        require CAKE . 'Config' . DS . 'routes.php';
+        require CORE_ROOT . DS . 'config' . DS . 'routes.php';
         $result = Router::parse('/controller/action/param1:value1:1/param2:value2:3/param:value');
         $expected = ['pass' => [], 'named' => ['param1' => 'value1:1', 'param2' => 'value2:3', 'param' => 'value'], 'controller' => 'controller', 'action' => 'action', 'plugin' => null];
         $this->assertEquals($expected, $result);
 
         Router::reload();
-        require CAKE . 'Config' . DS . 'routes.php';
+        require CORE_ROOT . DS . 'config' . DS . 'routes.php';
         $result = Router::connectNamed(false);
         $this->assertEquals([], array_keys($result['rules']));
         $this->assertFalse($result['greedyNamed']);
@@ -1651,14 +1651,14 @@ class RouterTest extends CakeTestCase
         $this->assertEquals($expected, $result);
 
         Router::reload();
-        require CAKE . 'Config' . DS . 'routes.php';
+        require CORE_ROOT . DS . 'config' . DS . 'routes.php';
         $result = Router::connectNamed(true);
         $named = Router::namedConfig();
         $this->assertEquals($named['default'], array_keys($result['rules']));
         $this->assertTrue($result['greedyNamed']);
 
         Router::reload();
-        require CAKE . 'Config' . DS . 'routes.php';
+        require CORE_ROOT . DS . 'config' . DS . 'routes.php';
         Router::connectNamed(['param1' => 'not-matching']);
         $result = Router::parse('/controller/action/param1:value1:1/param2:value2:3/param:value');
         $expected = ['pass' => ['param1:value1:1'], 'named' => ['param2' => 'value2:3', 'param' => 'value'], 'controller' => 'controller', 'action' => 'action', 'plugin' => null];
@@ -1669,21 +1669,21 @@ class RouterTest extends CakeTestCase
         $this->assertEquals($expected, $result);
 
         Router::reload();
-        require CAKE . 'Config' . DS . 'routes.php';
+        require CORE_ROOT . DS . 'config' . DS . 'routes.php';
         Router::connectNamed(['param1' => '[\d]', 'param2' => '[a-z]', 'param3' => '[\d]']);
         $result = Router::parse('/controller/action/param1:1/param2:2/param3:3');
         $expected = ['pass' => ['param2:2'], 'named' => ['param1' => '1', 'param3' => '3'], 'controller' => 'controller', 'action' => 'action', 'plugin' => null];
         $this->assertEquals($expected, $result);
 
         Router::reload();
-        require CAKE . 'Config' . DS . 'routes.php';
+        require CORE_ROOT . DS . 'config' . DS . 'routes.php';
         Router::connectNamed(['param1' => '[\d]', 'param2' => true, 'param3' => '[\d]']);
         $result = Router::parse('/controller/action/param1:1/param2:2/param3:3');
         $expected = ['pass' => [], 'named' => ['param1' => '1', 'param2' => '2', 'param3' => '3'], 'controller' => 'controller', 'action' => 'action', 'plugin' => null];
         $this->assertEquals($expected, $result);
 
         Router::reload();
-        require CAKE . 'Config' . DS . 'routes.php';
+        require CORE_ROOT . DS . 'config' . DS . 'routes.php';
         Router::connectNamed(['param1' => 'value[\d]+:[\d]+'], ['greedy' => false]);
         $result = Router::parse('/controller/action/param1:value1:1/param2:value2:3/param3:value');
         $expected = ['pass' => ['param2:value2:3', 'param3:value'], 'named' => ['param1' => 'value1:1'], 'controller' => 'controller', 'action' => 'action', 'plugin' => null];
@@ -1986,7 +1986,7 @@ class RouterTest extends CakeTestCase
         $this->assertEquals($expected, $result);
 
         Router::reload();
-        require CAKE . 'Config' . DS . 'routes.php';
+        require CORE_ROOT . DS . 'config' . DS . 'routes.php';
         Router::connect('/', ['controller' => 'pages', 'action' => 'display', 'home']);
 
         $result = Router::parse('/');
@@ -2446,7 +2446,7 @@ class RouterTest extends CakeTestCase
         ], App::RESET);
         CakePlugin::load(['TestPlugin', 'PluginJs']);
         Router::reload();
-        require CAKE . 'Config' . DS . 'routes.php';
+        require CORE_ROOT . DS . 'config' . DS . 'routes.php';
 
         $result = Router::url(['plugin' => 'plugin_js', 'controller' => 'js_file', 'action' => 'index']);
         $this->assertEquals('/plugin_js/js_file', $result);

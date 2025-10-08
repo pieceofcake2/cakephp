@@ -1266,7 +1266,7 @@ class AuthComponentTest extends CakeTestCase
         $pref = Configure::read('Routing.prefixes');
         Configure::write('Routing.prefixes', ['admin']);
         Router::reload();
-        require CAKE . 'Config' . DS . 'routes.php';
+        require CORE_ROOT . DS . 'config' . DS . 'routes.php';
 
         $url = '/admin/auth_test/add';
         $this->Auth->request->addParams(Router::parse($url));
@@ -1406,7 +1406,7 @@ class AuthComponentTest extends CakeTestCase
         $admin = Configure::read('Routing.prefixes');
         Configure::write('Routing.prefixes', ['admin']);
         Router::reload();
-        require CAKE . 'Config' . DS . 'routes.php';
+        require CORE_ROOT . DS . 'config' . DS . 'routes.php';
 
         $url = '/admin/auth_test/login';
         $this->Auth->request->addParams(Router::parse($url));

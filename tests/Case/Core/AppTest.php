@@ -615,10 +615,10 @@ class AppTest extends CakeTestCase
      */
     public function testFileLoading()
     {
-        $file = App::import('File', 'RealFile', false, [], CAKE . 'Config' . DS . 'config.php');
+        $file = App::import('File', 'RealFile', false, [], CORE_ROOT . DS . 'config' . DS . 'config.php');
         $this->assertTrue($file);
 
-        $file = App::import('File', 'NoFile', false, [], CAKE . 'Config' . DS . 'cake' . DS . 'config.php');
+        $file = App::import('File', 'NoFile', false, [], CORE_ROOT . DS . 'config' . DS . 'cake' . DS . 'config.php');
         $this->assertFalse($file);
     }
 
@@ -633,7 +633,7 @@ class AppTest extends CakeTestCase
             'type' => 'File',
             'name' => 'SomeName',
             'parent' => false,
-            'file' => CAKE . DS . 'Config' . DS . 'config.php',
+            'file' => CORE_ROOT . DS . 'Config' . DS . 'config.php',
         ];
         $file = App::import($type);
         $this->assertTrue($file);
@@ -642,7 +642,7 @@ class AppTest extends CakeTestCase
             'type' => 'File',
             'name' => 'NoFile',
             'parent' => false,
-            'file' => CAKE . 'Config' . DS . 'cake' . DS . 'config.php',
+            'file' => CORE_ROOT . DS . 'config' . DS . 'cake' . DS . 'config.php',
         ];
         $file = App::import($type);
         $this->assertFalse($file);
@@ -655,7 +655,7 @@ class AppTest extends CakeTestCase
      */
     public function testFileLoadingReturnValue()
     {
-        $file = App::import('File', 'Name', false, [], CAKE . 'Config' . DS . 'config.php', true);
+        $file = App::import('File', 'Name', false, [], CORE_ROOT . DS . 'config' . DS . 'config.php', true);
         $this->assertTrue(!empty($file));
 
         $this->assertTrue(isset($file['Cake.version']));
@@ -664,7 +664,7 @@ class AppTest extends CakeTestCase
             'type' => 'File',
             'name' => 'OtherName',
             'parent' => false,
-            'file' => CAKE . 'Config' . DS . 'config.php', 'return' => true,
+            'file' => CORE_ROOT . DS . 'config' . DS . 'config.php', 'return' => true,
         ];
         $file = App::import($type);
         $this->assertTrue(!empty($file));
@@ -679,7 +679,7 @@ class AppTest extends CakeTestCase
      */
     public function testLoadingWithSearch()
     {
-        $file = App::import('File', 'NewName', false, [CAKE . 'Config' . DS], 'config.php');
+        $file = App::import('File', 'NewName', false, [CORE_ROOT . DS . 'config' . DS], 'config.php');
         $this->assertTrue($file);
 
         $file = App::import('File', 'AnotherNewName', false, [CAKE], 'config.php');
@@ -698,7 +698,7 @@ class AppTest extends CakeTestCase
             'name' => 'RandomName',
             'parent' => false,
             'file' => 'config.php',
-            'search' => [CAKE . 'Config' . DS],
+            'search' => [CORE_ROOT . DS . 'config' . DS],
         ];
         $file = App::import($type);
         $this->assertTrue($file);
