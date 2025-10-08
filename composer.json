@@ -6,7 +6,7 @@
     "homepage": "https://cakephp.org",
     "license": "MIT",
     "require": {
-        "php": "^8.0",
+        "php": ">=8.0",
         "ext-dom": "*",
         "ext-libxml": "*",
         "ext-simplexml": "*",
@@ -19,7 +19,7 @@
         "cakephp/cakephp-codesniffer": "^5.0",
         "phpstan/phpstan": "^2.1",
         "phpunit/phpunit": "^9.6",
-        "pieceofcake2/app": "^2.1",
+        "pieceofcake2/app": "^2.2",
         "pieceofcake2/phpstan-cakephp2": "^0.2.1",
         "rector/rector": "^2.1"
     },
