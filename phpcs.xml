@@ -7,7 +7,10 @@
     <arg name="colors"/>
     <arg name="parallel" value="200"/>
 
-    <file>./lib/Cake/</file>
+    <file>./bin/</file>
+    <file>./config/</file>
+    <file>./src/</file>
+    <file>./tests/</file>
 
     <rule ref="CakePHP">
         <!-- ===== Namespace and Class Rules ===== -->
@@ -56,22 +59,22 @@
 
     <rule ref="Generic.PHP.DeprecatedFunctions.Deprecated">
         <!-- Using the deprecated libxml_disable_entity_loader functions. -->
-        <exclude-pattern>lib/Cake/Utility/Xml.php</exclude-pattern>
+        <exclude-pattern>src/Cake/Utility/Xml.php</exclude-pattern>
         <!-- Using the deprecated mcrypt_* functions. -->
-        <exclude-pattern>lib/Cake/Utility/Security.php</exclude-pattern>
+        <exclude-pattern>src/Cake/Utility/Security.php</exclude-pattern>
         <!-- Using the deprecated strftime functions. -->
-        <exclude-pattern>lib/Cake/View/Helper/FormHelper.php</exclude-pattern>
-        <exclude-pattern>lib/Cake/Utility/CakeTime.php</exclude-pattern>
-        <exclude-pattern>lib/Cake/Test/Case/Utility/CakeTimeTest.php</exclude-pattern>
+        <exclude-pattern>src/Cake/View/Helper/FormHelper.php</exclude-pattern>
+        <exclude-pattern>src/Cake/Utility/CakeTime.php</exclude-pattern>
+        <exclude-pattern>tests/TestCase/Utility/CakeTimeTest.php</exclude-pattern>
         <!-- Using the deprecated utf8_decode functions. -->
-        <exclude-pattern>lib/Cake/Test/Case/Utility/ValidationTest.php</exclude-pattern>
+        <exclude-pattern>tests/TestCase/Utility/ValidationTest.php</exclude-pattern>
     </rule>
 
     <rule ref="CakePHP.Commenting.FunctionComment.Missing">
-        <exclude-pattern>lib/Cake/Error/exceptions.php</exclude-pattern>
-        <exclude-pattern>lib/Cake/Test/Case/*</exclude-pattern>
-        <exclude-pattern>lib/Cake/Test/test_app/*</exclude-pattern>
-        <exclude-pattern>lib/Cake/TestSuite/Fixture/CakeFixtureInjector.php</exclude-pattern>
+        <exclude-pattern>src/Cake/Error/exceptions.php</exclude-pattern>
+        <exclude-pattern>src/Cake/TestSuite/Fixture/CakeFixtureInjector.php</exclude-pattern>
+        <exclude-pattern>tests/TestCase/*</exclude-pattern>
+        <exclude-pattern>tests/test_app/*</exclude-pattern>
     </rule>
 
     <rule ref="Squiz.PHP.NonExecutableCode.Unreachable">
@@ -80,51 +83,52 @@
 
     <!-- Allow multiple classes in test files only (CakePHP2 test pattern) -->
     <rule ref="PSR1.Classes.ClassDeclaration.MultipleClasses">
-        <exclude-pattern>lib/Cake/Controller/Component/Acl/PhpAcl.php</exclude-pattern>
-        <exclude-pattern>lib/Cake/Error/exceptions.php</exclude-pattern>
-        <exclude-pattern>lib/Cake/Test/Case/*</exclude-pattern>
-        <exclude-pattern>lib/Cake/TestSuite/ControllerTestCase.ph</exclude-pattern>
+        <exclude-pattern>src/Cake/Controller/Component/Acl/PhpAcl.php</exclude-pattern>
+        <exclude-pattern>src/Cake/Error/exceptions.php</exclude-pattern>
+        <exclude-pattern>src/Cake/TestSuite/ControllerTestCase.ph</exclude-pattern>
+        <exclude-pattern>tests/TestCase/*</exclude-pattern>
     </rule>
 
     <!-- Allow non-camelCase method names in Controllers (CakePHP2 action naming convention) -->
     <rule ref="PSR1.Methods.CamelCapsMethodName.NotCamelCaps">
-        <exclude-pattern>lib/Cake/Controller/*</exclude-pattern>
-        <exclude-pattern>lib/Cake/Console/Command/*</exclude-pattern>
-        <exclude-pattern>lib/Cake/Test/Case/Console/Command/Task/ViewTaskTest.php</exclude-pattern>
-        <exclude-pattern>lib/Cake/Test/Case/Console/ShellTest.php</exclude-pattern>
-        <exclude-pattern>lib/Cake/Test/Case/Controller/ControllerTest.php</exclude-pattern>
-        <exclude-pattern>lib/Cake/Test/Case/Controller/Component/AuthComponentTest.php</exclude-pattern>
-        <exclude-pattern>lib/Cake/Test/Case/Controller/Component/RequestHandlerComponentTest.php</exclude-pattern>
-        <exclude-pattern>lib/Cake/Test/Case/Core/CakeObjectTest.php</exclude-pattern>
-        <exclude-pattern>lib/Cake/Test/Case/View/ViewTest.php</exclude-pattern>
-        <exclude-pattern>lib/Cake/Test/Case/View/Helper/CacheHelperTest.php</exclude-pattern>
-        <exclude-pattern>lib/Cake/Test/Case/Routing/DispatcherTest.php</exclude-pattern>
-        <exclude-pattern>lib/Cake/Test/test_app/Controller/*</exclude-pattern>
-        <exclude-pattern>lib/Cake/Test/test_app/Console/Command/*</exclude-pattern>
-        <exclude-pattern>lib/Cake/Test/test_app/Plugin/*/Controller/*</exclude-pattern>
-        <exclude-pattern>lib/Cake/Test/test_app/Plugin/*/Console/Command/*</exclude-pattern>
+        <exclude-pattern>src/Cake/Controller/*</exclude-pattern>
+        <exclude-pattern>src/Cake/Console/Command/*</exclude-pattern>
+        <exclude-pattern>tests/TestCase/Console/Command/Task/ViewTaskTest.php</exclude-pattern>
+        <exclude-pattern>tests/TestCase/Console/ShellTest.php</exclude-pattern>
+        <exclude-pattern>tests/TestCase/Controller/ControllerTest.php</exclude-pattern>
+        <exclude-pattern>tests/TestCase/Controller/Component/AuthComponentTest.php</exclude-pattern>
+        <exclude-pattern>tests/TestCase/Controller/Component/RequestHandlerComponentTest.php</exclude-pattern>
+        <exclude-pattern>tests/TestCase/Core/CakeObjectTest.php</exclude-pattern>
+        <exclude-pattern>tests/TestCase/View/ViewTest.php</exclude-pattern>
+        <exclude-pattern>tests/TestCase/View/Helper/CacheHelperTest.php</exclude-pattern>
+        <exclude-pattern>tests/TestCase/Routing/DispatcherTest.php</exclude-pattern>
+        <exclude-pattern>tests/test_app/Controller/*</exclude-pattern>
+        <exclude-pattern>tests/test_app/Console/Command/*</exclude-pattern>
+        <exclude-pattern>tests/test_app/Plugin/*/Controller/*</exclude-pattern>
+        <exclude-pattern>tests/test_app/Plugin/*/Console/Command/*</exclude-pattern>
     </rule>
 
     <!-- Allow @ error suppression in specific files where it's necessary -->
     <rule ref="Generic.PHP.NoSilencedErrors.Discouraged">
-        <exclude-pattern>lib/Cake/basics.php</exclude-pattern>
-        <exclude-pattern>lib/Cake/Cache/Engine/FileEngine.php</exclude-pattern>
-        <exclude-pattern>lib/Cake/Console/Command/ConsoleShell.php</exclude-pattern>
-        <exclude-pattern>lib/Cake/Console/Shell.php</exclude-pattern>
-        <exclude-pattern>lib/Cake/Network/CakeResponse.php</exclude-pattern>
-        <exclude-pattern>lib/Cake/Test/Case/Cache/CacheTest.php</exclude-pattern>
-        <exclude-pattern>lib/Cake/Test/Case/Cache/Engine/MemcacheEngineTest.php</exclude-pattern>
-        <exclude-pattern>lib/Cake/Test/Case/Cache/Engine/MemcachedEngineTest.php</exclude-pattern>
-        <exclude-pattern>lib/Cake/Test/Case/Cache/Engine/RedisEngineTest.php</exclude-pattern>
-        <exclude-pattern>lib/Cake/Test/Case/Error/ErrorHandlerTest.php</exclude-pattern>
-        <exclude-pattern>lib/Cake/Utility/Folder.php</exclude-pattern>
-        <exclude-pattern>lib/Cake/View/Helper.php</exclude-pattern>
-        <exclude-pattern>lib/Cake/View/View.php</exclude-pattern>
+        <exclude-pattern>src/Cake/basics.php</exclude-pattern>
+        <exclude-pattern>src/Cake/functions.php</exclude-pattern>
+        <exclude-pattern>src/Cake/Cache/Engine/FileEngine.php</exclude-pattern>
+        <exclude-pattern>src/Cake/Console/Command/ConsoleShell.php</exclude-pattern>
+        <exclude-pattern>src/Cake/Console/Shell.php</exclude-pattern>
+        <exclude-pattern>src/Cake/Network/CakeResponse.php</exclude-pattern>
+        <exclude-pattern>src/Cake/Utility/Folder.php</exclude-pattern>
+        <exclude-pattern>src/Cake/View/Helper.php</exclude-pattern>
+        <exclude-pattern>src/Cake/View/View.php</exclude-pattern>
+        <exclude-pattern>tests/TestCase/Cache/CacheTest.php</exclude-pattern>
+        <exclude-pattern>tests/TestCase/Cache/Engine/MemcacheEngineTest.php</exclude-pattern>
+        <exclude-pattern>tests/TestCase/Cache/Engine/MemcachedEngineTest.php</exclude-pattern>
+        <exclude-pattern>tests/TestCase/Cache/Engine/RedisEngineTest.php</exclude-pattern>
+        <exclude-pattern>tests/TestCase/Error/ErrorHandlerTest.php</exclude-pattern>
     </rule>
 
     <!-- Allow eval() in ConsoleShell for interactive console functionality -->
     <rule ref="Squiz.PHP.Eval.Discouraged">
-        <exclude-pattern>lib/Cake/Console/Command/ConsoleShell.php</exclude-pattern>
+        <exclude-pattern>src/Cake/Console/Command/ConsoleShell.php</exclude-pattern>
     </rule>
 
     <!-- Allow non-PascalCase class names in database.php files (CakePHP2 convention) -->
@@ -134,16 +138,16 @@
 
     <!-- Allow public methods with underscore in test files -->
     <rule ref="CakePHP.NamingConventions.ValidFunctionName.PublicWithUnderscore">
-        <exclude-pattern>lib/Cake/Test/Case/Controller/ControllerTest.php</exclude-pattern>
+        <exclude-pattern>tests/TestCase/Controller/ControllerTest.php</exclude-pattern>
     </rule>
 
     <!-- Allow unused variables in test files for testing purposes -->
     <rule ref="SlevomatCodingStandard.Variables.UnusedVariable.UnusedVariable">
-        <exclude-pattern>lib/Cake/Test/Case/Error/ErrorHandlerTest.php</exclude-pattern>
-        <exclude-pattern>lib/Cake/Test/Case/Utility/DebuggerTest.php</exclude-pattern>
-        <exclude-pattern>lib/Cake/Test/test_app/Config/htmlhelper_tags.php</exclude-pattern>
-        <exclude-pattern>lib/Cake/Test/test_app/Config/var_test.php</exclude-pattern>
-        <exclude-pattern>lib/Cake/Test/test_app/Config/var_test2.php</exclude-pattern>
-        <exclude-pattern>lib/Cake/TestSuite/Reporter/CakeHtmlReporter.php</exclude-pattern>
+        <exclude-pattern>src/Cake/TestSuite/Reporter/CakeHtmlReporter.php</exclude-pattern>
+        <exclude-pattern>tests/TestCase/Error/ErrorHandlerTest.php</exclude-pattern>
+        <exclude-pattern>tests/TestCase/Utility/DebuggerTest.php</exclude-pattern>
+        <exclude-pattern>tests/test_app/Config/htmlhelper_tags.php</exclude-pattern>
+        <exclude-pattern>tests/test_app/Config/var_test.php</exclude-pattern>
+        <exclude-pattern>tests/test_app/Config/var_test2.php</exclude-pattern>
     </rule>
 </ruleset>

@@ -2,6 +2,40 @@
 
 ## Unreleased
 
+### Directory Structure Modernization ([PR #21](https://github.com/pieceofcake2/cakephp/pull/21))
+
+- **Modern Directory Layout**: Restructured directory layout to modern standards
+  - Moved `lib/Cake/` → `src/Cake/` (framework source code)
+  - Moved `lib/Cake/Test/Case/` → `tests/TestCase/` (framework tests)
+  - Moved `lib/Cake/Test/Fixture/` → `tests/Fixture/` (test fixtures)
+  - Moved `lib/Cake/Console/cake` → `bin/cake` (console executable)
+  - Moved `lib/Cake/Config/` → `config/` (framework configuration files at root level)
+  - Moved `lib/Cake/VERSION.txt` → `VERSION.txt` (framework version file at root level)
+  - Moved template files from `lib/Cake/View/` and `lib/Cake/Templates/` → `templates/` (framework default templates at root level)
+  - **Modern Test Directory Support**: Applications and plugins can now use `tests/TestCase/` directory structure
+    - Test suite automatically detects both `Test/Case/` (traditional) and `tests/TestCase/` (modern) directories
+    - Fixture loader supports both `Test/Fixture/` and `tests/Fixture/` locations
+    - Enables gradual migration to modern directory structure for application tests
+  - Updated all path references in configuration files (phpcs.xml, phpstan.neon, phpunit.xml.dist, composer.json)
+  - Updated all test suite and fixture loader paths to use new directory structure
+  - Updated CI workflow and documentation paths
+  - Removed obsolete composer scripts (cs-check, test)
+
+- **Framework Configuration Separation**: Separated framework-level configuration from application code
+  - Added `CORE_ROOT` constant to reference framework root directory
+  - Updated all config file path references from `CAKE . 'Config'` to `CORE_ROOT . DS . 'config'`
+  - Moved framework config files (config.php, routes.php, unicode casefolding tables) to root-level `config/` directory
+  - Follows modern PHP project structure conventions where `config/` exists at project root level
+
+- **Smart Console Executable**: Enhanced `bin/cake` with intelligent path detection
+  - Automatically detects project root by locating `composer.json` from Composer's autoloader
+  - When installed as dependency (`vendor/bin/cake`), intelligently determines the application directory:
+    - Auto-detects modern `src/` or traditional `app/` directory structure
+    - Falls back to `vendor/pieceofcake2/app` for plugin testing scenarios
+  - No manual configuration needed
+  - Backward compatible with existing installations
+  - Simplifies console command execution across different project structures
+
 ### Developer Experience Improvements
 
 - **PHPDoc Generic Type Annotations**: Added generic type annotations for better IDE support

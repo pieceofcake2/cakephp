@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:noNamespaceSchemaLocation="./vendor/phpunit/phpunit/phpunit.xsd"
-         bootstrap="./lib/Cake/Test/bootstrap.php"
+         bootstrap="./tests/bootstrap.php"
          backupGlobals="true"
          stderr="true"
          colors="true">
@@ -9,19 +9,16 @@
         <ini name="memory_limit" value="-1"/>
     </php>
     <listeners>
-        <listener class="CakeFixtureInjector" file="./lib/Cake/TestSuite/Fixture/CakeFixtureInjector.php"/>
+        <listener class="CakeFixtureInjector" file="./src/Cake/TestSuite/Fixture/CakeFixtureInjector.php"/>
     </listeners>
     <testsuites>
         <testsuite name="All Tests">
-            <file>./lib/Cake/Test/Case/AllTestsTest.php</file>
+            <file>./tests/TestCase/AllTestsTest.php</file>
         </testsuite>
     </testsuites>
     <coverage>
         <include>
-            <directory suffix=".php">./lib</directory>
+            <directory suffix=".php">./src/</directory>
         </include>
-        <exclude>
-            <directory>./lib/Cake/Test</directory>
-        </exclude>
     </coverage>
 </phpunit>
