@@ -37,9 +37,6 @@ The original CakePHP 2.x branch [reached End of Life in June 2021](https://baker
   - **Important**: The `mb_encode_mimeheader()` function is **not available** in the Symfony polyfill
   - If `mbstring` extension is not loaded, CakePHP will automatically use `Multibyte::mimeEncode()` as a fallback for email header encoding
   - However, **we strongly recommend installing the `mbstring` extension** for better compatibility and performance
-  - To install on Debian/Ubuntu: `sudo apt-get install php-mbstring`
-  - To install on macOS (Homebrew): Already included in PHP installations
-  - To install on Windows: Uncomment `;extension=mbstring` in `php.ini`
 - `intl` - Internationalization support (optional, uses Symfony polyfill as fallback)
 - `openssl` - OpenSSL support (optional, required for SSL/TLS connections and encryption)
 - `mcrypt` - Mcrypt support (optional, deprecated in PHP 7.1+, only for legacy AES encryption)
