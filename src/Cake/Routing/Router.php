@@ -477,7 +477,7 @@ class Router
      * - `reset` Set to true to clear existing rules and start fresh.
      * - `separator` Change the string used to separate the key & value in a named parameter. Defaults to `:`
      *
-     * @param array $named A list of named parameters. Key value pairs are accepted where values are
+     * @param array|bool $named A list of named parameters. Key value pairs are accepted where values are
      *    either regex strings to match, or arrays as seen above.
      * @param array $options Allows to control all settings: separator, greedy, reset, default
      * @return array
