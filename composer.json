@@ -39,17 +39,9 @@
         }
     },
     "include-path": [
-        "lib/"
+        "src/"
     ],
     "bin": [
-        "lib/Cake/Console/cake"
-    ],
-    "scripts": {
-        "check": [
-            "@cs-check",
-            "@test"
-        ],
-        "cs-check": "./vendor/bin/phpcs",
-        "test": "./vendor/bin/phpunit"
-    }
+        "bin/cake"
+    ]
 }

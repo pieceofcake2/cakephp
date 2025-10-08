@@ -1,0 +1,41 @@
+#!/usr/bin/env php
+<?php
+/**
+ * Command-line code generation utility to automate programmer chores.
+ *
+ * CakePHP(tm) : Rapid Development Framework (https://cakephp.org)
+ * Copyright (c) Cake Software Foundation, Inc. (https://cakefoundation.org)
+ *
+ * Licensed under The MIT License
+ * For full copyright and license information, please see the LICENSE.txt
+ * Redistributions of files must retain the above copyright notice.
+ *
+ * @copyright     Copyright (c) Cake Software Foundation, Inc. (https://cakefoundation.org)
+ * @link          https://cakephp.org CakePHP(tm) Project
+ * @package       Cake.Console
+ * @since         CakePHP(tm) v 1.2.0.5012
+ * @license       https://opensource.org/licenses/mit-license.php MIT License
+ */
+
+if (!defined('DS')) {
+    define('DS', DIRECTORY_SEPARATOR);
+}
+
+if (isset($GLOBALS['_composer_autoload_path'])) {
+    require_once $GLOBALS['_composer_autoload_path'];
+} else {
+    $rootInstall = dirname(__DIR__, 1) . DS . 'vendor' . DS . 'autoload.php';
+    $composerInstall = dirname(__DIR__, 3) . DS . 'autoload.php';
+
+    if (file_exists($composerInstall)) {
+        require_once $composerInstall;
+    } elseif (file_exists($rootInstall)) {
+        require_once $rootInstall;
+    } else {
+        trigger_error('Composer autoload file not found. ' .
+            'Please run "composer install" to generate the autoload file.', E_USER_ERROR);
+    }
+}
+
+require_once 'Cake' . DS . 'Console' . DS . 'ShellDispatcher.php';
+ShellDispatcher::run($argv);

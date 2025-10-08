@@ -421,7 +421,7 @@ $this->Cookie->type('aes');
 
 ```bash
 # Copy test database configuration
-cp lib/Cake/Test/Config/database.php app/Config/database.php
+cp tests/Config/database.php app/Config/database.php
 
 # Start services
 docker-compose up -d

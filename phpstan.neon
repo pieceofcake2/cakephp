@@ -5,14 +5,14 @@ parameters:
     level: 0
     phpVersion: 80000
     paths:
-        - lib/Cake
+        - src/Cake
     excludePaths:
-        - lib/Cake/Test
-        - lib/Cake/Console/Templates
-        - lib/Cake/View/Scaffolds
-        - lib/Cake/TestSuite
+        - tests/
+        - src/Cake/Console/Templates/
+        - src/Cake/View/Scaffolds/
+        - src/Cake/TestSuite/
     bootstrapFiles:
-        - lib/Cake/Test/bootstrap.php
+        - tests/bootstrap.php
     treatPhpDocTypesAsCertain: false
     ignoreErrors:
         # Ignore dynamic property creation for now
