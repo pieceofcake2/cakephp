@@ -149,6 +149,7 @@ class CakeFixtureManager
                 $fixtureParsedPath = $this->_parseFixturePath($explodedFixture[2]);
                 $fixture = $fixtureParsedPath['fixture'];
                 $fixturePaths = [
+                    CakePlugin::path(Inflector::camelize($pluginName)) . 'tests' . DS . 'Fixture' . $fixtureParsedPath['additionalPath'],
                     CakePlugin::path(Inflector::camelize($pluginName)) . 'Test' . DS . 'Fixture' . $fixtureParsedPath['additionalPath'],
                     TESTS . 'Fixture' . $fixtureParsedPath['additionalPath'],
                 ];
