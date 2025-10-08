@@ -22,26 +22,11 @@ define('TIME_START', microtime(true));
 
 error_reporting(E_ALL & ~E_DEPRECATED);
 
-if (!defined('CAKE_CORE_INCLUDE_PATH')) {
-    define('CAKE_CORE_INCLUDE_PATH', dirname(__DIR__));
-}
-
-if (!defined('CORE_ROOT')) {
-    define('CORE_ROOT', dirname(CAKE_CORE_INCLUDE_PATH));
-}
-
-if (!defined('CORE_PATH')) {
-    define('CORE_PATH', CAKE_CORE_INCLUDE_PATH . DS);
-}
+require_once dirname(__DIR__, 2) . '/config/init.php';
 
 if (!defined('WEBROOT_DIR')) {
     define('WEBROOT_DIR', 'webroot');
 }
-
-/**
- * Path to the cake directory.
- */
-define('CAKE', CORE_PATH . 'Cake' . DS);
 
 /**
  * Path to the application's directory.
@@ -50,17 +35,7 @@ if (!defined('APP')) {
     define('APP', ROOT . DS . APP_DIR . DS);
 }
 
-/**
- * Config Directory
- */
-if (!defined('CONFIG')) {
-    define('CONFIG', ROOT . DS . APP_DIR . DS . 'Config' . DS);
-}
-
-/**
- * Path to the application's libs directory.
- */
-define('APPLIBS', APP . 'Lib' . DS);
+require_once dirname(__DIR__, 2) . '/config/define.php';
 
 /**
  * Path to the public CSS directory.

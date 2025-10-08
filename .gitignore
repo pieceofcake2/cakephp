@@ -25,3 +25,17 @@
 Icon?
 ehthumbs.db
 Thumbs.db
+
+#
+/tmp/cache/models/*
+!/tmp/cache/models/emoty
+/tmp/cache/persistent/*
+!/tmp/cache/persistent/emoty
+/tmp/cache/views/*
+!/tmp/cache/views/emoty
+/tmp/sessions/*
+!/tmp/sessions/emoty
+/tmp/tests/*
+!/tmp/tests/emoty
+/logs/*
+!/logs/emoty

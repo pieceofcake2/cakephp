@@ -769,7 +769,7 @@ class FolderTest extends CakeTestCase
         $this->assertSame(array_diff($expected, $result), []);
 
         $result = $Folder->find('.*', true);
-        $expected = ['config.php', 'routes.php'];
+        $expected = ['config.php', 'core.php', 'define.php', 'init.php', 'routes.php'];
         $this->assertSame($expected, $result);
 
         $result = $Folder->find('.*\.php');
@@ -778,7 +778,7 @@ class FolderTest extends CakeTestCase
         $this->assertSame(array_diff($expected, $result), []);
 
         $result = $Folder->find('.*\.php', true);
-        $expected = ['config.php', 'routes.php'];
+        $expected = ['config.php', 'core.php', 'define.php', 'init.php', 'routes.php'];
         $this->assertSame($expected, $result);
 
         $result = $Folder->find('.*ig\.php');

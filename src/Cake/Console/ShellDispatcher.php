@@ -81,19 +81,11 @@ class ShellDispatcher
             ini_set('max_execution_time', 0);
         }
 
-        if (!defined('CAKE_CORE_INCLUDE_PATH')) {
-            define('CAKE_CORE_INCLUDE_PATH', dirname(__DIR__, 2));
+        if (!defined('CAKEPHP_SHELL')) {
             define('CAKEPHP_SHELL', true);
-            if (!defined('DS')) {
-                define('DS', DIRECTORY_SEPARATOR);
-            }
-            if (!defined('CORE_ROOT')) {
-                define('CORE_ROOT', dirname(CAKE_CORE_INCLUDE_PATH));
-            }
-            if (!defined('CORE_PATH')) {
-                define('CORE_PATH', CAKE_CORE_INCLUDE_PATH . DS);
-            }
         }
+
+        require_once dirname(__DIR__, 3) . '/config/init.php';
     }
 
     /**
@@ -105,7 +97,7 @@ class ShellDispatcher
     protected function _initEnvironment()
     {
         if (!$this->_bootstrap()) {
-            $message = "Unable to load CakePHP core.\nMake sure " . DS . 'lib' . DS . 'Cake exists in ' . CAKE_CORE_INCLUDE_PATH;
+            $message = "Unable to load CakePHP core.\nMake sure " . DS . 'src' . DS . 'Cake exists in ' . CAKE_CORE_INCLUDE_PATH;
             throw new CakeException($message);
         }
 
@@ -144,22 +136,14 @@ class ShellDispatcher
             }
             define('WWW_ROOT', $webroot . DS);
         }
-        if (!defined('TMP') && !is_dir(APP . 'tmp')) {
-            define('TMP', CAKE_CORE_INCLUDE_PATH . DS . 'Cake' . DS . 'Console' . DS . 'Templates' . DS . 'skel' . DS . 'tmp' . DS);
-        }
 
-        if (!defined('CONFIG')) {
-            if (file_exists(ROOT . DS . 'config' . DS)) {
-                define('CONFIG', ROOT . DS . 'config' . DS);
-            } else {
-                define('CONFIG', ROOT . DS . APP_DIR . DS . 'Config' . DS);
-            }
-        }
+        require_once dirname(__DIR__, 3) . '/config/define.php';
+
         // $boot is used by Cake/bootstrap.php file
         require_once CORE_PATH . 'Cake' . DS . 'bootstrap.php';
 
         if (!file_exists(CONFIG . 'core.php')) {
-            include_once CAKE_CORE_INCLUDE_PATH . DS . 'Cake' . DS . 'Console' . DS . 'Templates' . DS . 'skel' . DS . 'Config' . DS . 'core.php';
+            include_once CORE_ROOT . DS . 'config' . DS . 'core.php';
             App::build();
         }
 
