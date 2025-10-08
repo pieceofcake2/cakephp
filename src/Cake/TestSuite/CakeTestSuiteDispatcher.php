@@ -22,17 +22,6 @@
 
 use PHPUnit\Framework\TestCase;
 
-if (!defined('TESTS')) {
-    define('TESTS', APP . 'Test' . DS);
-}
-
-/**
- * Path to the tests directory of CakePHP.
- */
-if (!defined('CORE_TESTS')) {
-    define('CORE_TESTS', dirname(CAKE, 2) . DS . 'tests');
-}
-
 App::uses('CakeTestSuiteCommand', 'TestSuite');
 
 /**

@@ -121,9 +121,6 @@ class Configure
                 class_exists('Debugger');
                 class_exists('CakeText');
             }
-            if (!defined('TESTS')) {
-                define('TESTS', APP . 'Test' . DS);
-            }
         }
     }
 

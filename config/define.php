@@ -35,3 +35,7 @@ if (!defined('CONFIG')) {
 if (!defined('APPLIBS')) {
     define('APPLIBS', APP . 'Lib' . DS);
 }
+
+if (!defined('TESTS')) {
+    define('TESTS', APP . 'Test' . DS);
+}

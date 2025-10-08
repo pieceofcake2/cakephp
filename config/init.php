@@ -19,3 +19,7 @@ if (!defined('CORE_PATH')) {
 if (!defined('CAKE')) {
     define('CAKE', CORE_PATH . 'Cake' . DS);
 }
+
+if (!defined('CORE_TESTS')) {
+    define('CORE_TESTS', CORE_ROOT . DS . 'tests');
+}
