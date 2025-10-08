@@ -168,7 +168,9 @@ Before migrating to this fork, ensure:
 - `lib/Cake/` → `src/Cake/` (framework source code)
 - `lib/Cake/Test/` → `tests/` (framework tests)
 - `lib/Cake/Console/cake` → `bin/cake` (console executable)
+- `lib/Cake/Config/` → `config/` (framework configuration files at root level)
 - All configuration files and paths updated accordingly
+- Added `CORE_ROOT` constant to reference framework root directory
 
 **Migration:**
 - No action required for applications using this framework as a dependency

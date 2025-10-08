@@ -8,10 +8,17 @@
   - Moved `lib/Cake/` → `src/Cake/` (framework source code)
   - Moved `lib/Cake/Test/` → `tests/` (framework tests)
   - Moved `lib/Cake/Console/cake` → `bin/cake` (console executable)
+  - Moved `lib/Cake/Config/` → `config/` (framework configuration files at root level)
   - Updated all path references in configuration files (phpcs.xml, phpstan.neon, phpunit.xml.dist, composer.json)
   - Updated all test suite and fixture loader paths to use new directory structure
   - Updated CI workflow and documentation paths
   - Removed obsolete composer scripts (cs-check, test)
+
+- **Framework Configuration Separation**: Separated framework-level configuration from application code
+  - Added `CORE_ROOT` constant to reference framework root directory
+  - Updated all config file path references from `CAKE . 'Config'` to `CORE_ROOT . DS . 'config'`
+  - Moved framework config files (config.php, routes.php, unicode casefolding tables) to root-level `config/` directory
+  - Follows modern PHP project structure conventions where `config/` exists at project root level
 
 - **Smart Console Executable**: Enhanced `bin/cake` with intelligent path detection
   - Automatically detects project root by locating `composer.json` from Composer's autoloader
