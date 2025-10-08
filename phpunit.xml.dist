@@ -13,7 +13,7 @@
     </listeners>
     <testsuites>
         <testsuite name="All Tests">
-            <file>./tests/Case/AllTestsTest.php</file>
+            <file>./tests/TestCase/AllTestsTest.php</file>
         </testsuite>
     </testsuites>
     <coverage>

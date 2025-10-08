@@ -128,7 +128,7 @@ class CakeTestSuiteCommand extends Command
     {
         $result = null;
         if (!empty($params['core'])) {
-            $result = CORE_TESTS . DS . 'Case';
+            $result = CORE_TESTS . DS . 'TestCase';
         } elseif (!empty($params['plugin'])) {
             if (!CakePlugin::loaded($params['plugin'])) {
                 try {

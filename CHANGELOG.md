@@ -6,7 +6,8 @@
 
 - **Modern Directory Layout**: Restructured directory layout to modern standards
   - Moved `lib/Cake/` → `src/Cake/` (framework source code)
-  - Moved `lib/Cake/Test/` → `tests/` (framework tests)
+  - Moved `lib/Cake/Test/Case/` → `tests/TestCase/` (framework tests)
+  - Moved `lib/Cake/Test/Fixture/` → `tests/Fixture/` (test fixtures)
   - Moved `lib/Cake/Console/cake` → `bin/cake` (console executable)
   - Moved `lib/Cake/Config/` → `config/` (framework configuration files at root level)
   - Moved `lib/Cake/VERSION.txt` → `VERSION.txt` (framework version file at root level)

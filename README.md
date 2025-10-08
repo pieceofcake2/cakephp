@@ -166,7 +166,8 @@ Before migrating to this fork, ensure:
 **Breaking Change:**
 - **Directory layout has been restructured to modern standards**
 - `lib/Cake/` → `src/Cake/` (framework source code)
-- `lib/Cake/Test/` → `tests/` (framework tests)
+- `lib/Cake/Test/Case/` → `tests/TestCase/` (framework tests)
+- `lib/Cake/Test/Fixture/` → `tests/Fixture/` (test fixtures)
 - `lib/Cake/Console/cake` → `bin/cake` (console executable)
 - `lib/Cake/Config/` → `config/` (framework configuration files at root level)
 - `lib/Cake/View/` and `lib/Cake/Templates/` → `templates/` (framework default templates at root level)
