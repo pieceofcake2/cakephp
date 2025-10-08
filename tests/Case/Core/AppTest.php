@@ -633,7 +633,7 @@ class AppTest extends CakeTestCase
             'type' => 'File',
             'name' => 'SomeName',
             'parent' => false,
-            'file' => CORE_ROOT . DS . 'Config' . DS . 'config.php',
+            'file' => CORE_ROOT . DS . 'config' . DS . 'config.php',
         ];
         $file = App::import($type);
         $this->assertTrue($file);
