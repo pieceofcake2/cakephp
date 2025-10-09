@@ -38,9 +38,9 @@
             "dealerdirect/phpcodesniffer-composer-installer": true
         }
     },
-    "include-path": [
-        "src/"
-    ],
+    "autoload": {
+        "classmap": ["src/"]
+    },
     "bin": [
         "bin/cake"
     ]
