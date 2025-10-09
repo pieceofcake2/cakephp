@@ -10,7 +10,7 @@ if (!defined('DS')) {
     define('DS', DIRECTORY_SEPARATOR);
 }
 if (!defined('ROOT')) {
-    define('ROOT', require_once InstalledVersions::getInstallPath('pieceofcake2/app'));
+    define('ROOT', InstalledVersions::getInstallPath('pieceofcake2/app'));
 }
 if (!defined('APP_DIR')) {
     define('APP_DIR', 'src');
