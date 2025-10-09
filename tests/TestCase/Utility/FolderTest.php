@@ -903,9 +903,9 @@ class FolderTest extends CakeTestCase
     public function testReset()
     {
         $path = TMP . 'folder_delete_test';
-        mkdir($path);
+        @mkdir($path); // phpcs:ignore Generic.PHP.NoSilencedErrors.Discouraged
         $folder = $path . DS . 'sub';
-        mkdir($folder);
+        @mkdir($folder); // phpcs:ignore Generic.PHP.NoSilencedErrors.Discouraged
         $file = $folder . DS . 'file';
         touch($file);
 
@@ -953,7 +953,7 @@ class FolderTest extends CakeTestCase
     public function testDelete()
     {
         $path = TMP . 'folder_delete_test';
-        mkdir($path);
+        @mkdir($path); // phpcs:ignore Generic.PHP.NoSilencedErrors.Discouraged
         touch($path . DS . 'file_1');
         mkdir($path . DS . 'level_1_1');
         touch($path . DS . 'level_1_1' . DS . 'file_1_1');
