@@ -333,7 +333,7 @@ class RequestHandlerComponentTest extends CakeTestCase
         $this->RequestHandler->initialize($this->Controller);
         $this->assertNull($this->RequestHandler->ext);
 
-        call_user_func_array(['Router', 'parseExtensions'], $extensions);
+        call_user_func_array([Router::class, 'parseExtensions'], $extensions);
     }
 
     /**

@@ -3,13 +3,14 @@
  * Bootstrap for phpunit command
  */
 
+use Composer\InstalledVersions;
 use PHPUnit\Util\ErrorHandler;
 
 if (!defined('DS')) {
     define('DS', DIRECTORY_SEPARATOR);
 }
 if (!defined('ROOT')) {
-    define('ROOT', dirname(__DIR__, 1) . DS . 'vendor' . DS . 'pieceofcake2' . DS . 'app');
+    define('ROOT', require_once InstalledVersions::getInstallPath('pieceofcake2/app'));
 }
 if (!defined('APP_DIR')) {
     define('APP_DIR', 'src');

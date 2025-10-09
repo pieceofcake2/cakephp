@@ -286,8 +286,8 @@ class CakeValidationRule
             $this->_ruleParams[] = array_merge($validator, $this->_passedOptions);
             $this->_ruleParams[0] = [$field => $this->_ruleParams[0]];
             $this->_valid = call_user_func_array($methods[$rule], $this->_ruleParams);
-        } elseif (class_exists(Validation::class) && method_exists('Validation', $this->_rule)) {
-            $this->_valid = call_user_func_array(['Validation', $this->_rule], $this->_ruleParams);
+        } elseif (class_exists(Validation::class) && method_exists(Validation::class, $this->_rule)) {
+            $this->_valid = call_user_func_array([Validation::class, $this->_rule], $this->_ruleParams);
         } elseif (is_string($validator['rule'])) {
             $this->_valid = preg_match($this->_rule, $data[$field]);
         } else {
