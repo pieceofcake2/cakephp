@@ -136,6 +136,33 @@ If you need to override autoloading behavior for specific classes, register your
    - First `true`: Throw exception if autoloader registration fails
    - Second `true`: Prepend to autoloader queue (gives priority over Composer's autoloader)
 
+**Duplicate Class Name Warnings:**
+
+When Composer encounters duplicate class names in the classmap, it will issue a warning during `composer install` or `composer dump-autoload`:
+
+```
+Warning: Ambiguous class resolution, "AppController" was found in both "/path/to/vendor/pieceofcake2/app/src/Controller/AppController.php" and "/path/to/your-app/src/Controller/AppController.php", the first will be used.
+```
+
+To prevent these warnings and ensure the correct class is loaded, use `exclude-from-classmap` in your `composer.json`:
+
+```json
+{
+  "autoload": {
+    "classmap": ["src/"],
+    "exclude-from-classmap": [
+      "vendor/pieceofcake2/app/src/Controller/AppController.php",
+      "vendor/pieceofcake2/app/src/Model/AppModel.php"
+    ]
+  },
+  "autoload-dev": {
+    ...
+  }
+}
+```
+
+This tells Composer to ignore specific files when building the classmap, preventing conflicts with your application's base classes.
+
 ### Bake Plugin Extraction ([PR #17](https://github.com/pieceofcake2/cakephp/pull/17))
 
 - **Bake functionality has been extracted to a separate plugin** ([pieceofcake2/bake](https://github.com/pieceofcake2/bake))
