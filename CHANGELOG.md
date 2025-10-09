@@ -1,6 +1,6 @@
 ## CHANGELOG
 
-## Unreleased
+## v2.12.0 (2025-10-09)
 
 ### Composer Autoloading Migration ([PR #22](https://github.com/pieceofcake2/cakephp/pull/22))
 
