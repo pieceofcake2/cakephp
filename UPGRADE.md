@@ -76,7 +76,7 @@ See [`pieceofcake2/app`](https://github.com/pieceofcake2/app) for the modern app
 - No manual configuration needed - works out of the box with any project structure
 - Supports modern (`src/`) and traditional (`app/`) application directories
 
-### Composer Autoloading Migration
+### Composer Autoloading Migration ([PR #22](https://github.com/pieceofcake2/cakephp/pull/22))
 
 The framework has migrated from include-path to Composer classmap autoloading. This change simplifies class loading and improves compatibility with modern PHP tooling.
 

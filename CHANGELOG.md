@@ -1,8 +1,8 @@
 ## CHANGELOG
 
-## ｖ2.11.0 (2025-10-09)
+## Unreleased
 
-### Composer Autoloading Migration
+### Composer Autoloading Migration ([PR #22](https://github.com/pieceofcake2/cakephp/pull/22))
 
 - **Composer Classmap Autoloading**: Migrated from include-path to Composer classmap autoloading for core and application classes
   - Removed all top-level `App::uses()` declarations from framework core (798 occurrences removed)
@@ -16,6 +16,8 @@
   - **Plugin Classes**: Plugins must continue using `App::uses()` for their classes
     - Example: `App::uses('MyPluginHelper', 'MyPlugin.View/Helper')`
   - **Custom Autoloader Override**: If you need to override autoloading behavior, register your custom autoloader with prepend flag (see UPGRADE.md for details)
+
+## ｖ2.11.0 (2025-10-09)
 
 ### Directory Structure Modernization ([PR #21](https://github.com/pieceofcake2/cakephp/pull/21))
 
