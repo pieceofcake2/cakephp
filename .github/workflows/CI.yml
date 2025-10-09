@@ -45,7 +45,7 @@ jobs:
 
     env:
       DB: ${{ matrix.db-type }}
-      COMPOSER_ROOT_VERSION: 2.11.x-dev
+      COMPOSER_ROOT_VERSION: 2.12.x-dev
 
     steps:
       - name: Checkout
@@ -220,7 +220,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      COMPOSER_ROOT_VERSION: 2.11.x-dev
+      COMPOSER_ROOT_VERSION: 2.12.x-dev
 
     steps:
       - uses: actions/checkout@v5
