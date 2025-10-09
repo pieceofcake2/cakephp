@@ -910,7 +910,7 @@ class BasicsTest extends CakeTestCase
 ###########################
 
 EXPECTED;
-        $expected = sprintf($expectedText, str_replace(CAKE_CORE_INCLUDE_PATH, '', __FILE__), __LINE__ - 9);
+        $expected = sprintf($expectedText, str_replace([CORE_ROOT, ROOT], '', __FILE__), __LINE__ - 9);
 
         $this->assertEquals($expected, $result);
 
@@ -925,7 +925,7 @@ EXPECTED;
 </pre>
 </div>
 EXPECTED;
-        $expected = sprintf($expectedHtml, str_replace(CAKE_CORE_INCLUDE_PATH, '', __FILE__), __LINE__ - 10);
+        $expected = sprintf($expectedHtml, str_replace([CORE_ROOT, ROOT], '', __FILE__), __LINE__ - 10);
         $this->assertEquals($expected, $result);
 
         ob_start();
@@ -939,7 +939,7 @@ EXPECTED;
 </pre>
 </div>
 EXPECTED;
-        $expected = sprintf($expected, str_replace(CAKE_CORE_INCLUDE_PATH, '', __FILE__), __LINE__ - 10);
+        $expected = sprintf($expected, str_replace([CORE_ROOT, ROOT], '', __FILE__), __LINE__ - 10);
         $this->assertEquals($expected, $result);
 
         ob_start();
@@ -953,7 +953,7 @@ EXPECTED;
 </pre>
 </div>
 EXPECTED;
-        $expected = sprintf($expected, str_replace(CAKE_CORE_INCLUDE_PATH, '', __FILE__), __LINE__ - 10);
+        $expected = sprintf($expected, str_replace([CORE_ROOT, ROOT], '', __FILE__), __LINE__ - 10);
         $this->assertEquals($expected, $result);
 
         ob_start();
@@ -975,9 +975,9 @@ EXPECTED;
 
 EXPECTED;
         if (PHP_SAPI === 'cli') {
-            $expected = sprintf($expectedText, str_replace(CAKE_CORE_INCLUDE_PATH, '', __FILE__), __LINE__ - 18);
+            $expected = sprintf($expectedText, str_replace([CORE_ROOT, ROOT], '', __FILE__), __LINE__ - 18);
         } else {
-            $expected = sprintf($expectedHtml, str_replace(CAKE_CORE_INCLUDE_PATH, '', __FILE__), __LINE__ - 20);
+            $expected = sprintf($expectedHtml, str_replace([CORE_ROOT, ROOT], '', __FILE__), __LINE__ - 20);
         }
         $this->assertEquals($expected, $result);
 
@@ -1000,9 +1000,9 @@ EXPECTED;
 
 EXPECTED;
         if (PHP_SAPI === 'cli') {
-            $expected = sprintf($expectedText, str_replace(CAKE_CORE_INCLUDE_PATH, '', __FILE__), __LINE__ - 18);
+            $expected = sprintf($expectedText, str_replace([CORE_ROOT, ROOT], '', __FILE__), __LINE__ - 18);
         } else {
-            $expected = sprintf($expectedHtml, str_replace(CAKE_CORE_INCLUDE_PATH, '', __FILE__), __LINE__ - 19);
+            $expected = sprintf($expectedHtml, str_replace([CORE_ROOT, ROOT], '', __FILE__), __LINE__ - 19);
         }
         $this->assertEquals($expected, $result);
 
@@ -1016,7 +1016,7 @@ EXPECTED;
 ###########################
 
 EXPECTED;
-        $expected = sprintf($expected, str_replace(CAKE_CORE_INCLUDE_PATH, '', __FILE__), __LINE__ - 9);
+        $expected = sprintf($expected, str_replace([CORE_ROOT, ROOT], '', __FILE__), __LINE__ - 9);
         $this->assertEquals($expected, $result);
 
         ob_start();
@@ -1029,7 +1029,7 @@ EXPECTED;
 ###########################
 
 EXPECTED;
-        $expected = sprintf($expected, str_replace(CAKE_CORE_INCLUDE_PATH, '', __FILE__), __LINE__ - 9);
+        $expected = sprintf($expected, str_replace([CORE_ROOT, ROOT], '', __FILE__), __LINE__ - 9);
         $this->assertEquals($expected, $result);
 
         ob_start();
@@ -1042,7 +1042,7 @@ EXPECTED;
 ###########################
 
 EXPECTED;
-        $expected = sprintf($expected, str_replace(CAKE_CORE_INCLUDE_PATH, '', __FILE__), __LINE__ - 9);
+        $expected = sprintf($expected, str_replace([CORE_ROOT, ROOT], '', __FILE__), __LINE__ - 9);
         $this->assertEquals($expected, $result);
 
         ob_start();
@@ -1055,7 +1055,7 @@ false
 ###########################
 
 EXPECTED;
-        $expected = sprintf($expected, str_replace(CAKE_CORE_INCLUDE_PATH, '', __FILE__), __LINE__ - 9);
+        $expected = sprintf($expected, str_replace([CORE_ROOT, ROOT], '', __FILE__), __LINE__ - 9);
         $this->assertEquals($expected, $result);
     }
 

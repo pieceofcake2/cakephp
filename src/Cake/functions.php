@@ -69,7 +69,7 @@ if (!function_exists('debug')) {
         $lineInfo = '';
         if ($showFrom) {
             $trace = Debugger::trace(['start' => 1, 'depth' => 2, 'format' => 'array']);
-            $file = str_replace([CAKE_CORE_INCLUDE_PATH, ROOT], '', $trace[0]['file']);
+            $file = str_replace([CORE_ROOT, ROOT], '', $trace[0]['file']);
             $line = $trace[0]['line'];
         }
         $html = <<<HTML
