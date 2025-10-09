@@ -1,9 +1,8 @@
 {
     "name": "pieceofcake2/cakephp",
-    "description": "The CakePHP framework",
+    "description": "The CakePHP 2 framework",
     "type": "library",
-    "keywords": ["framework"],
-    "homepage": "https://cakephp.org",
+    "keywords": ["cakephp", "cakephp2", "framework"],
     "license": "MIT",
     "require": {
         "php": ">=8.0",
@@ -42,7 +41,13 @@
         }
     },
     "autoload-dev": {
-        "classmap": ["tests/test_app/"]
+        "classmap": ["tests/test_app/"],
+        "exclude-from-classmap": [
+            "vendor/pieceofcake2/app/src/Controller/AppController.php",
+            "vendor/pieceofcake2/app/src/Controller/PagesController.php",
+            "vendor/pieceofcake2/app/src/Console/Command/AppShell.php",
+            "vendor/pieceofcake2/app/src/Model/AppModel.php"
+        ]
     },
     "bin": [
         "bin/cake"
