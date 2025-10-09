@@ -13,8 +13,6 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('Hash', 'Utility');
-
 /**
  * A single Route used by the Router to connect requests to
  * parameter maps.

@@ -16,8 +16,6 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('IniAcl', 'Controller/Component/Acl');
-
 /**
  * Test case for the IniAcl implementation
  *

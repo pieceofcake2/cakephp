@@ -79,7 +79,7 @@ class MemcachedEngine extends CacheEngine
      */
     public function init($settings = [])
     {
-        if (!class_exists('Memcached')) {
+        if (!class_exists(Memcached::class)) {
             return false;
         }
         if (!isset($settings['prefix'])) {

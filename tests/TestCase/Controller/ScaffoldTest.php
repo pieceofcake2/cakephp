@@ -16,11 +16,6 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('Router', 'Routing');
-App::uses('CakeSession', 'Model/Datasource');
-App::uses('Controller', 'Controller');
-App::uses('Scaffold', 'Controller');
-App::uses('ScaffoldView', 'View');
 App::uses('AppModel', 'Model');
 
 require_once dirname(__DIR__) . DS . 'Model' . DS . 'models.php';

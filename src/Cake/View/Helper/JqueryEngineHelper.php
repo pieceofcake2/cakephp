@@ -23,7 +23,6 @@
  */
 
 App::uses('AppHelper', 'View/Helper');
-App::uses('JsBaseEngineHelper', 'View/Helper');
 
 /**
  * jQuery Engine Helper for JsHelper

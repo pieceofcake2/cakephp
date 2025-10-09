@@ -16,12 +16,6 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('ExceptionRenderer', 'Error');
-App::uses('Controller', 'Controller');
-App::uses('Component', 'Controller');
-App::uses('Router', 'Routing');
-App::uses('CakeEventManager', 'Event');
-
 /**
  * Short description for class.
  *
@@ -305,7 +299,6 @@ class ExceptionRendererTest extends CakeTestCase
             ],
         ], App::RESET);
 
-        App::uses('TestAppsExceptionRenderer', 'Error');
         $exception = new SocketException('socket exception');
         $renderer = new TestAppsExceptionRenderer($exception);
 

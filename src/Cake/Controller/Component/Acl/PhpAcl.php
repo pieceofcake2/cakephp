@@ -86,7 +86,6 @@ class PhpAcl extends CakeObject implements AclInterface
             $this->options = $Component->settings['adapter'] + $this->options;
         }
 
-        App::uses('PhpReader', 'Configure');
         $Reader = new PhpReader(dirname($this->options['config']) . DS);
         $config = $Reader->read(basename($this->options['config']));
         $this->build($config);

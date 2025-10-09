@@ -16,10 +16,6 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('CakeSocket', 'Network');
-App::uses('Router', 'Routing');
-App::uses('Hash', 'Utility');
-
 /**
  * CakePHP network socket connection class.
  *

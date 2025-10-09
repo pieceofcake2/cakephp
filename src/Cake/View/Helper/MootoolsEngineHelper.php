@@ -14,8 +14,6 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('JsBaseEngineHelper', 'View/Helper');
-
 /**
  * MooTools Engine Helper for JsHelper
  *

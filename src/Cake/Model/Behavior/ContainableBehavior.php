@@ -18,8 +18,6 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('ModelBehavior', 'Model');
-
 /**
  * Behavior to allow for dynamic and atomic manipulation of a Model's associations
  * used for a find call. Most useful for limiting the amount of associations and

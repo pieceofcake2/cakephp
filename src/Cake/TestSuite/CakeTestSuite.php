@@ -19,8 +19,6 @@ use PHPUnit\Framework\TestSuite;
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('Folder', 'Utility');
-
 /**
  * A class to contain test cases and run them with shared fixtures
  *

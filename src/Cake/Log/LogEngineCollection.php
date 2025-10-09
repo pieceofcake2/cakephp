@@ -16,8 +16,6 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('ObjectCollection', 'Utility');
-
 /**
  * Registry of loaded log engines
  *

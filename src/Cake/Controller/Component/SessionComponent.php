@@ -16,9 +16,6 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('Component', 'Controller');
-App::uses('CakeSession', 'Model/Datasource');
-
 /**
  * The CakePHP SessionComponent provides a way to persist client data between
  * page requests. It acts as a wrapper for the `$_SESSION` as well as providing

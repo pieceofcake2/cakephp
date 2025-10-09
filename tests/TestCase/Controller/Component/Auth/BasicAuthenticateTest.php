@@ -15,10 +15,8 @@
  * @since         CakePHP(tm) v 2.0
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
-App::uses('BasicAuthenticate', 'Controller/Component/Auth');
+
 App::uses('AppModel', 'Model');
-App::uses('CakeRequest', 'Network');
-App::uses('CakeResponse', 'Network');
 
 require_once CORE_TESTS . DS . 'TestCase' . DS . 'Model' . DS . 'models.php';
 

@@ -19,12 +19,6 @@ use PHPUnit\TextUI\Command;
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('CakeTestLoader', 'TestSuite');
-App::uses('CakeTestSuite', 'TestSuite');
-App::uses('CakeTestCase', 'TestSuite');
-App::uses('ControllerTestCase', 'TestSuite');
-App::uses('CakeTestModel', 'TestSuite/Fixture');
-
 /**
  * Class to customize loading of test suites from CLI
  *

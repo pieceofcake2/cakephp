@@ -80,7 +80,6 @@ class ConsoleShell extends AppShell
      */
     public function startup()
     {
-        App::uses('Dispatcher', 'Routing');
         $this->Dispatcher = new Dispatcher();
         $this->models = App::objects('Model');
 

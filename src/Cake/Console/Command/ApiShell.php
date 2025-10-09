@@ -18,7 +18,6 @@
  */
 
 App::uses('AppShell', 'Console/Command');
-App::uses('File', 'Utility');
 
 /**
  * API shell to show method signatures of CakePHP core classes.
@@ -212,10 +211,8 @@ class ApiShell extends AppShell
     {
         $parsed = [];
 
-        if (!class_exists($class)) {
-            if (!include_once $path) {
-                $this->err(__d('cake_console', '%s could not be found', $path));
-            }
+        if (!class_exists($class) && !include_once $path) {
+            $this->err(__d('cake_console', '%s could not be found', $path));
         }
 
         $reflection = new ReflectionClass($class);

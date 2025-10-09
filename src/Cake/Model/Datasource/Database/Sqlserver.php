@@ -16,8 +16,6 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('DboSource', 'Model/Datasource');
-
 /**
  * Dbo layer for Microsoft's official SQLServer driver
  *

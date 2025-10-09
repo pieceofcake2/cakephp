@@ -16,9 +16,6 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('Hash', 'Utility');
-App::uses('CakePlugin', 'Core');
-
 /**
  * Ini file configuration engine.
  *

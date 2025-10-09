@@ -15,7 +15,6 @@
  */
 
 App::uses('AppShell', 'Console/Command');
-App::uses('Inflector', 'Utility');
 
 /**
  * Shows a list of commands available from the console.

@@ -16,9 +16,6 @@
  */
 
 App::uses('AppShell', 'Console/Command');
-App::uses('File', 'Utility');
-App::uses('Folder', 'Utility');
-App::uses('Hash', 'Utility');
 
 /**
  * Language string extractor

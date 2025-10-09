@@ -12,8 +12,6 @@
  * @since         2.8
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
-App::uses('ProgressShellHelper', 'Console/Helper');
-App::uses('ConsoleOutputStub', 'TestSuite/Stub');
 
 /**
  * ProgressHelper test.

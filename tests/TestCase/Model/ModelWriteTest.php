@@ -16,11 +16,6 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('MockTransactionDboSource', 'Model/Datasource');
-App::uses('MockTransactionAssociatedDboSource', 'Model/Datasource');
-App::uses('MockManyTransactionDboSource', 'Model/Datasource');
-App::uses('MockAssociatedTransactionDboSource', 'Model/Datasource');
-
 require_once __DIR__ . DS . 'ModelTestBase.php';
 
 /**
@@ -1621,8 +1616,6 @@ class ModelWriteTest extends BaseModelTest
     {
         $this->markTestSkipped('This feature needs to be fixed or dropped');
         $this->loadFixtures('Article');
-        App::uses('Xml', 'Utility');
-
         $Article = new Article();
         $result = $Article->save(Xml::build('<article title="test xml" user_id="5" />'));
         $this->assertFalse(empty($result));

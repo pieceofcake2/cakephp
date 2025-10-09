@@ -16,9 +16,6 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('DboSource', 'Model/Datasource');
-App::uses('CakeText', 'Utility');
-
 /**
  * DBO implementation for the SQLite3 DBMS.
  *

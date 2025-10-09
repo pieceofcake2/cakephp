@@ -17,7 +17,6 @@
  */
 
 App::uses('AppHelper', 'View/Helper');
-App::uses('CakeSession', 'Model/Datasource');
 
 /**
  * FlashHelper class to render flash messages.

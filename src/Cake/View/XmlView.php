@@ -12,10 +12,6 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('View', 'View');
-App::uses('Xml', 'Utility');
-App::uses('Hash', 'Utility');
-
 /**
  * A view class that is used for creating XML responses.
  *

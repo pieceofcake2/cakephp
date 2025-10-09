@@ -16,11 +16,6 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('CakeResponse', 'Network');
-App::uses('CookieComponent', 'Controller/Component');
-App::uses('SecurityComponent', 'Controller/Component');
-App::uses('ComponentCollection', 'Controller');
-
 /**
  * Extended CookieComponent
  */

@@ -15,15 +15,6 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('TaskCollection', 'Console');
-App::uses('ConsoleOutput', 'Console');
-App::uses('ConsoleInput', 'Console');
-App::uses('ConsoleInputSubcommand', 'Console');
-App::uses('ConsoleInputOption', 'Console');
-App::uses('ConsoleInputArgument', 'Console');
-App::uses('ConsoleOptionParser', 'Console');
-App::uses('HelpFormatter', 'Console');
-
 /**
  * Handles parsing the ARGV in the command line and provides support
  * for GetOpt compatible option definition. Provides a builder pattern implementation

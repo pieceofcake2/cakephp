@@ -14,13 +14,6 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('Controller', 'Controller');
-App::uses('Router', 'Routing');
-App::uses('CakeRequest', 'Network');
-App::uses('CakeResponse', 'Network');
-App::uses('SecurityComponent', 'Controller/Component');
-App::uses('CookieComponent', 'Controller/Component');
-
 /**
  * AppController class
  *
@@ -477,8 +470,6 @@ class ControllerTest extends CakeTestCase
             'Model' => [CORE_TESTS . DS . 'test_app' . DS . 'Model' . DS],
         ]);
         CakePlugin::load('TestPlugin');
-        App::uses('TestPluginAppController', 'TestPlugin.Controller');
-        App::uses('TestPluginController', 'TestPlugin.Controller');
 
         $Controller = new TestPluginController();
         $Controller->plugin = 'TestPlugin';

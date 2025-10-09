@@ -17,10 +17,6 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('ObjectCollection', 'Utility');
-App::uses('Component', 'Controller');
-App::uses('CakeEventListener', 'Event');
-
 /**
  * Components collection is used as a registry for loaded components and handles loading
  * and constructing component class objects.

@@ -18,9 +18,6 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('ObjectCollection', 'Utility');
-App::uses('CakeEventListener', 'Event');
-
 /**
  * Model behavior collection class.
  *

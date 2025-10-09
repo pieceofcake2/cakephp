@@ -16,8 +16,6 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('File', 'Utility');
-
 /**
  * CakeResponse is responsible for managing the response text, status and headers of a HTTP response.
  *

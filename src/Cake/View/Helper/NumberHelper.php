@@ -18,9 +18,7 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('CakeNumber', 'Utility');
 App::uses('AppHelper', 'View/Helper');
-App::uses('Hash', 'Utility');
 
 /**
  * Number helper library.

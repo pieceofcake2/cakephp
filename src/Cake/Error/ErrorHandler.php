@@ -18,11 +18,6 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('Debugger', 'Utility');
-App::uses('CakeLog', 'Log');
-App::uses('ExceptionRenderer', 'Error');
-App::uses('Router', 'Routing');
-
 /**
  * Error Handler provides basic error and exception handling for your application. It captures and
  * handles all unhandled exceptions and errors. Displays helpful framework errors when debug > 1.

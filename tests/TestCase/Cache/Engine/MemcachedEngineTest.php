@@ -18,9 +18,6 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('Cache', 'Cache');
-App::uses('MemcachedEngine', 'Cache/Engine');
-
 /**
  * TestMemcachedEngine
  *

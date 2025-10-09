@@ -16,11 +16,6 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('Component', 'Controller');
-App::uses('CakeText', 'Utility');
-App::uses('Hash', 'Utility');
-App::uses('Security', 'Utility');
-
 /**
  * The Security Component creates an easy way to integrate tighter security in
  * your application. It provides methods for various tasks like:

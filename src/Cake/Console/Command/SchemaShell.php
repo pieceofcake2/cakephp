@@ -14,9 +14,6 @@
  */
 
 App::uses('AppShell', 'Console/Command');
-App::uses('File', 'Utility');
-App::uses('Folder', 'Utility');
-App::uses('CakeSchema', 'Model');
 
 /**
  * Schema is a command-line database management utility for automating programmer chores.

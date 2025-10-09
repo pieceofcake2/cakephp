@@ -16,12 +16,6 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('CommandListShell', 'Console/Command');
-App::uses('ConsoleOutput', 'Console');
-App::uses('ConsoleInput', 'Console');
-App::uses('Shell', 'Console');
-App::uses('CommandTask', 'Console/Command/Task');
-
 /**
  * TestStringOutput
  *

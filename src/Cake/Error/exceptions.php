@@ -54,7 +54,7 @@ class CakeBaseException extends RuntimeException
     }
 }
 
-if (!class_exists('HttpException', false)) {
+if (!class_exists(HttpException::class, false)) {
     /**
      * Parent class for all of the HTTP related exceptions in CakePHP.
      *

@@ -16,9 +16,6 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('HttpSocket', 'Network/Http');
-App::uses('DigestAuthentication', 'Network/Http');
-
 /**
  * DigestHttpSocket
  *

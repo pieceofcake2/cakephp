@@ -18,8 +18,6 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('CakeValidationRule', 'Model/Validator');
-
 /**
  * CakeValidationSet object. Holds all validation rules for a field and exposes
  * methods to dynamically add or remove validation rules

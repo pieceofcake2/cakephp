@@ -22,8 +22,6 @@
 
 use PHPUnit\Framework\TestCase;
 
-App::uses('CakeTestSuiteCommand', 'TestSuite');
-
 /**
  * CakeTestSuiteDispatcher handles web requests to the test suite and runs the correct action.
  *

@@ -18,8 +18,6 @@
 
 use Composer\CaBundle\CaBundle;
 
-App::uses('Validation', 'Utility');
-
 /**
  * CakePHP network socket connection class.
  *

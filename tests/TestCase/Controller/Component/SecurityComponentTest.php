@@ -16,10 +16,6 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('SecurityComponent', 'Controller/Component');
-App::uses('Controller', 'Controller');
-App::uses('CakeRequest', 'Network');
-
 /**
  * TestSecurityComponent
  *

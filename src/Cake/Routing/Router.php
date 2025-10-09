@@ -16,9 +16,6 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('CakeRequest', 'Network');
-App::uses('CakeRoute', 'Routing/Route');
-
 /**
  * Parses the request URL into controller, action, and parameters. Uses the connected routes
  * to match the incoming URL string to parameters that will allow the request to be dispatched. Also
@@ -421,7 +418,6 @@ class Router
      */
     public static function redirect($route, $url, $options = [])
     {
-        App::uses('RedirectRoute', 'Routing/Route');
         $options['routeClass'] = 'RedirectRoute';
         if (is_string($url)) {
             $url = ['redirect' => $url];

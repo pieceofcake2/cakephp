@@ -21,10 +21,6 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('Hash', 'Utility');
-App::uses('Security', 'Utility');
-App::uses('SessionHandlerAdapter', 'Model/Datasource');
-
 /**
  * Session class for CakePHP.
  *

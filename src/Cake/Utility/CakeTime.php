@@ -19,8 +19,6 @@ use function PHP81_BC\strftime;
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('Multibyte', 'I18n');
-
 /**
  * Time Helper class for easy use of time data.
  *

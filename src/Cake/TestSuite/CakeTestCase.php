@@ -19,9 +19,6 @@ use PHPUnit\Framework\TestCase;
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('CakeFixtureManager', 'TestSuite/Fixture');
-App::uses('CakeTestFixture', 'TestSuite/Fixture');
-
 /**
  * CakeTestCase class
  *
@@ -123,7 +120,7 @@ abstract class CakeTestCase extends TestCase
         if (empty($this->_pathRestore)) {
             $this->_pathRestore = App::paths();
         }
-        if (class_exists('Router', false)) {
+        if (class_exists(Router::class, false)) {
             Router::reload();
         }
     }
@@ -137,7 +134,7 @@ abstract class CakeTestCase extends TestCase
     {
         parent::tearDown();
         App::build($this->_pathRestore, App::RESET);
-        if (class_exists('ClassRegistry', false)) {
+        if (class_exists(ClassRegistry::class, false)) {
             ClassRegistry::flush();
         }
         if (!empty($this->_configure)) {

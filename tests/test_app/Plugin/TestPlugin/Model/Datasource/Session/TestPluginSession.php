@@ -3,8 +3,6 @@
  * Test suite plugin session handler
  */
 
-App::uses('CakeSessionHandlerInterface', 'Model/Datasource/Session');
-
 class TestPluginSession implements CakeSessionHandlerInterface
 {
     public function open()

@@ -14,10 +14,6 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('ModelBehavior', 'Model');
-App::uses('I18n', 'I18n');
-App::uses('I18nModel', 'Model');
-
 /**
  * Translate behavior
  *

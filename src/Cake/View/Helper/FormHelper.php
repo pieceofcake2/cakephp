@@ -17,10 +17,7 @@ use function PHP81_BC\strftime;
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('ClassRegistry', 'Utility');
 App::uses('AppHelper', 'View/Helper');
-App::uses('Hash', 'Utility');
-App::uses('Inflector', 'Utility');
 
 /**
  * Form helper library.

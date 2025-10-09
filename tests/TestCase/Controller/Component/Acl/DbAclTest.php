@@ -16,11 +16,6 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('ComponentCollection', 'Controller');
-App::uses('AclComponent', 'Controller/Component');
-App::uses('DbAcl', 'Controller/Component/Acl');
-App::uses('AclNode', 'Model');
-App::uses('Permission', 'Model');
 require_once dirname(__DIR__, 3) . DS . 'Model' . DS . 'models.php';
 
 /**

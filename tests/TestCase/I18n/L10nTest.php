@@ -16,8 +16,6 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('L10n', 'I18n');
-
 /**
  * L10nTest class
  *

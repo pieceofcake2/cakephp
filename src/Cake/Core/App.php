@@ -16,9 +16,6 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('Inflector', 'Utility');
-App::uses('CakePlugin', 'Core');
-
 /**
  * App is responsible for path management, class location and class loading.
  *

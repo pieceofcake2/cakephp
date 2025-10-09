@@ -16,10 +16,6 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('AclComponent', 'Controller/Component');
-App::uses('PhpAcl', 'Controller/Component/Acl');
-class_exists('AclComponent');
-
 /**
  * Test case for the PhpAcl implementation
  *

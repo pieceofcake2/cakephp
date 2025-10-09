@@ -14,9 +14,6 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('Inflector', 'Utility');
-App::uses('CacheEngine', 'Cache');
-
 /**
  * Cache provides a consistent interface to Caching in your application. It allows you
  * to use several different Cache engines, without coupling your application to a specific
@@ -175,7 +172,6 @@ class Cache
         if (!class_exists($cacheClass)) {
             throw new CacheException(__d('cake_dev', 'Cache engine %s is not available.', $name));
         }
-        $cacheClass = $class . 'Engine';
         if (!is_subclass_of($cacheClass, 'CacheEngine')) {
             throw new CacheException(__d('cake_dev', 'Cache engines must use %s as a base class.', 'CacheEngine'));
         }

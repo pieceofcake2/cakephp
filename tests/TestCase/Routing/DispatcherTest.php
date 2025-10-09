@@ -16,9 +16,6 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('Dispatcher', 'Routing');
-App::uses('DispatcherFilter', 'Routing');
-
 if (!class_exists('AppController', false)) {
     require_once CORE_TESTS . DS . 'test_app' . DS . 'Controller' . DS . 'AppController.php';
 } elseif (!defined('APP_CONTROLLER_EXISTS')) {

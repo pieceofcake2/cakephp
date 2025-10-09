@@ -12,8 +12,6 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('BasicAuthenticate', 'Controller/Component/Auth');
-
 /**
  * Digest Authentication adapter for AuthComponent.
  *

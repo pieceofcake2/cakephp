@@ -16,15 +16,6 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('View', 'View');
-App::uses('Helper', 'View');
-App::uses('Controller', 'Controller');
-App::uses('CacheHelper', 'View/Helper');
-App::uses('HtmlHelper', 'View/Helper');
-App::uses('ErrorHandler', 'Error');
-App::uses('CakeEventManager', 'Event');
-App::uses('CakeEventListener', 'Event');
-
 /**
  * ViewPostsController class
  *

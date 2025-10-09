@@ -22,8 +22,6 @@ use SebastianBergmann\Diff\Differ;
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('CakeBaseReporter', 'TestSuite/Reporter');
-
 /**
  * CakeHtmlReporter Reports Results of TestSuites and Test Cases
  * in an HTML format / context.
@@ -197,8 +195,6 @@ class CakeHtmlReporter extends CakeBaseReporter
      */
     public function paintCoverage(array $coverage)
     {
-        App::uses('HtmlCoverageReport', 'TestSuite/Coverage');
-
         $reporter = new HtmlCoverageReport($coverage, $this);
         echo $reporter->report();
     }
@@ -282,9 +278,7 @@ class CakeHtmlReporter extends CakeBaseReporter
 
         if ((is_string($actualMsg) && is_string($expectedMsg)) || (is_array($actualMsg) && is_array($expectedMsg))) {
             $diffs = '';
-            if (class_exists('PHPUnit_Util_Diff')) {
-                $diffs = PHPUnit_Util_Diff::diff($expectedMsg, $actualMsg);
-            } elseif (class_exists(Differ::class)) {
+            if (class_exists(Differ::class)) {
                 $differ = new Differ();
                 $diffs = $differ->diff($expectedMsg, $actualMsg);
             }

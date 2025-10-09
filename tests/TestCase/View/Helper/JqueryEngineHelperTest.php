@@ -15,11 +15,6 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('HtmlHelper', 'View/Helper');
-App::uses('JsHelper', 'View/Helper');
-App::uses('JqueryEngineHelper', 'View/Helper');
-App::uses('View', 'View');
-
 /**
  * JqueryEngineHelperTest
  *

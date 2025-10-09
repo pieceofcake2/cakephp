@@ -14,14 +14,6 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('Hash', 'Utility');
-App::uses('ConfigReaderInterface', 'Configure');
-
-/**
- * Compatibility with 2.1, which expects Configure to load Set.
- */
-App::uses('Set', 'Utility');
-
 /**
  * Configuration class. Used for managing runtime configuration information.
  *
@@ -92,7 +84,6 @@ class Configure
                 'level' => E_ALL & ~E_DEPRECATED,
             ];
             if (PHP_SAPI === 'cli') {
-                App::uses('ConsoleErrorHandler', 'Console');
                 $console = new ConsoleErrorHandler();
                 $exception['handler'] = [$console, 'handleException'];
                 $error['handler'] = [$console, 'handleError'];
@@ -118,8 +109,8 @@ class Configure
 
             // Preload Debugger + CakeText in case of E_STRICT errors when loading files.
             if (static::$_values['debug'] > 0) {
-                class_exists('Debugger');
-                class_exists('CakeText');
+                class_exists(Debugger::class);
+                class_exists(CakeText::class);
             }
         }
     }
@@ -419,7 +410,6 @@ class Configure
             if ($config !== 'default') {
                 return false;
             }
-            App::uses('PhpReader', 'Configure');
             static::config($config, new PhpReader());
         }
 

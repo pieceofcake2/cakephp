@@ -16,10 +16,6 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('BaseLog', 'Log/Engine');
-App::uses('Hash', 'Utility');
-App::uses('CakeNumber', 'Utility');
-
 /**
  * File Storage stream for Logging. Writes logs to different files
  * based on the type of log it is.

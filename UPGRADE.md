@@ -76,6 +76,66 @@ See [`pieceofcake2/app`](https://github.com/pieceofcake2/app) for the modern app
 - No manual configuration needed - works out of the box with any project structure
 - Supports modern (`src/`) and traditional (`app/`) application directories
 
+### Composer Autoloading Migration ([PR #22](https://github.com/pieceofcake2/cakephp/pull/22))
+
+The framework has migrated from include-path to Composer classmap autoloading. This change simplifies class loading and improves compatibility with modern PHP tooling.
+
+**What changed:**
+- Removed `App::uses()` declarations from CakePHP framework classes (798 occurrences removed)
+- CakePHP framework classes are now automatically loaded via Composer's classmap autoloader
+- Application classes can be automatically loaded by configuring Composer classmap autoloading (see Migration section below)
+- CakePHP framework classes that extend application classes use `App::uses()`:
+  - `App::uses('AppController', 'Controller')` - for CakeErrorController
+  - `App::uses('AppModel', 'Model')` - for I18nModel, AcoAction, Permission
+  - `App::uses('AppShell', 'Console/Command')` - for all core shell commands
+  - `App::uses('AppHelper', 'View/Helper')` - for all core helpers
+
+**Migration:**
+
+**For new projects or modern directory structure (`src/`):**
+- Recommended: Update your `composer.json` to include classmap autoloading (similar to [pieceofcake2/app](https://github.com/pieceofcake2/app)):
+  ```json
+  {
+    "autoload": {
+      "classmap": ["src/"]
+    }
+  }
+  ```
+
+**For legacy projects (`app/` directory):**
+- No action required - existing applications continue to work without changes
+- The framework's `App::uses()` calls for application classes ensure backward compatibility
+
+**Plugin classes:**
+- Plugins that don't support Composer autoloading require `App::uses()` to load their classes (same as before):
+  ```php
+  App::uses('MyPluginHelper', 'MyPlugin.View/Helper');
+  ```
+- If a plugin's documentation indicates autoloading support, `App::uses()` may not be needed
+
+**Custom Autoloader Override (optional):**
+If you need to override autoloading behavior for specific classes, register your custom autoloader with the prepend flag to give it priority over Composer's autoloader:
+
+   ```php
+   // Example: Custom classmap-based autoloader
+   $customClassMap = [
+       'MyCustomClass' => '/path/to/MyCustomClass.php',
+       'AnotherClass' => '/path/to/AnotherClass.php',
+   ];
+
+   spl_autoload_register(function($class) use ($customClassMap) {
+       if (isset($customClassMap[$class])) {
+           require $customClassMap[$class];
+           return true;
+       }
+       return false;
+   }, true, true); // throw=true, prepend=true (priority over Composer)
+   ```
+
+   **Parameters explained:**
+   - First `true`: Throw exception if autoloader registration fails
+   - Second `true`: Prepend to autoloader queue (gives priority over Composer's autoloader)
+
 ### Bake Plugin Extraction ([PR #17](https://github.com/pieceofcake2/cakephp/pull/17))
 
 - **Bake functionality has been extracted to a separate plugin** ([pieceofcake2/bake](https://github.com/pieceofcake2/bake))

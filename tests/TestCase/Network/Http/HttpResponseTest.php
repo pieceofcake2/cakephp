@@ -15,8 +15,6 @@
  * @since         CakePHP(tm) v 1.2.0.4206
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
-App::uses('HttpResponse', 'Network/Http');
-
 /**
  * TestHttpResponse class
  *

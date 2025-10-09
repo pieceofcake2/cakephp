@@ -14,8 +14,6 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('CakeEventListener', 'Event');
-
 /**
  * This abstract class represents a filter to be applied to a dispatcher cycle. It acts as as
  * event listener with the ability to alter the request or response as needed before it is handled

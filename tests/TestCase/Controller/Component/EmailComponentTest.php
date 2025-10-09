@@ -18,10 +18,6 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('Controller', 'Controller');
-App::uses('EmailComponent', 'Controller/Component');
-App::uses('AbstractTransport', 'Network/Email');
-
 /**
  * EmailTestComponent class
  *

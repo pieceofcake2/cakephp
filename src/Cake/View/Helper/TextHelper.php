@@ -19,7 +19,6 @@
  */
 
 App::uses('AppHelper', 'View/Helper');
-App::uses('Hash', 'Utility');
 
 /**
  * Text helper library.

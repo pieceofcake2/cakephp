@@ -14,8 +14,6 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('DispatcherFilter', 'Routing');
-
 /**
  * Filters a request and tests whether it is a file in the webroot folder or not and
  * serves the file to the client if appropriate.

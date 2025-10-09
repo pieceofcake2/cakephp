@@ -18,10 +18,6 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('ModelBehavior', 'Model');
-App::uses('AclNode', 'Model');
-App::uses('Hash', 'Utility');
-
 /**
  * ACL behavior
  *

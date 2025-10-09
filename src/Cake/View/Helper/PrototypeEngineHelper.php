@@ -19,8 +19,6 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('JsBaseEngineHelper', 'View/Helper');
-
 /**
  * Prototype Engine Helper for JsHelper
  *

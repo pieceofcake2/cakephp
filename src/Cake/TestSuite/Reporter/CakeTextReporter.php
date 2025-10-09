@@ -17,9 +17,6 @@
 
 use PHPUnit\Framework\TestResult;
 
-App::uses('CakeBaseReporter', 'TestSuite/Reporter');
-App::uses('TextCoverageReport', 'TestSuite/Coverage');
-
 /**
  * CakeTextReporter contains reporting features used for plain text based output
  *

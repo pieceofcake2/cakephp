@@ -17,10 +17,6 @@
  * @since         CakePHP v 1.2.0.4487
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
-App::uses('CakePlugin', 'Core');
-App::uses('Controller', 'Controller');
-App::uses('Model', 'Model');
-
 /**
  * Secondary Post stub class.
  */

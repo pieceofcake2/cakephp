@@ -16,9 +16,6 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('DbAcl', 'Controller/Component/Acl');
-App::uses('AclNode', 'Model');
-
 /**
  * DB ACL wrapper test class
  *

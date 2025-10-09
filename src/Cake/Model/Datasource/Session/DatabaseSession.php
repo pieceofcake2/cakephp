@@ -16,9 +16,6 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('CakeSessionHandlerInterface', 'Model/Datasource/Session');
-App::uses('ClassRegistry', 'Utility');
-
 /**
  * DatabaseSession provides methods to be used with CakeSession.
  *

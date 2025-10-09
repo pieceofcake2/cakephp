@@ -18,11 +18,6 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('Controller', 'Controller');
-App::uses('PaginatorComponent', 'Controller/Component');
-App::uses('CakeRequest', 'Network');
-App::uses('CakeResponse', 'Network');
-
 require_once dirname(__DIR__, 2) . DS . 'Model' . DS . 'models.php';
 
 /**

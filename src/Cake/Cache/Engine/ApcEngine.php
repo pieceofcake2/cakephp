@@ -156,7 +156,7 @@ class ApcEngine extends CacheEngine
             return true;
         }
         $func = $this->_apcExtension . '_delete';
-        if (class_exists('APCIterator', false)) {
+        if (class_exists(APCIterator::class, false)) {
             $iterator = new APCIterator(
                 'user',
                 '/^' . preg_quote($this->settings['prefix'], '/') . '/',

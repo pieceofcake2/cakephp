@@ -16,7 +16,7 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-if (!class_exists('ConnectionManager') || Configure::read('debug') < 2) {
+if (Configure::read('debug') < 2) {
 	return false;
 }
 $noLogs = !isset($sqlLogs);

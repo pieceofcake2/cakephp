@@ -16,7 +16,6 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('Model', 'Model');
 App::uses('AppModel', 'Model');
 
 require_once __DIR__ . DS . 'models.php';

@@ -16,9 +16,6 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('PluginShortRoute', 'Routing/Route');
-App::uses('Router', 'Routing');
-
 /**
  * test case for PluginShortRoute
  *

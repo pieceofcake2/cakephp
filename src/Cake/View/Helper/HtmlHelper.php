@@ -19,8 +19,6 @@
  */
 
 App::uses('AppHelper', 'View/Helper');
-App::uses('CakeResponse', 'Network');
-App::uses('File', 'Utility');
 
 /**
  * Html Helper class for easy use of HTML widgets.

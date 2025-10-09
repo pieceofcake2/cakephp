@@ -18,9 +18,6 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('CakeValidationSet', 'Model/Validator');
-App::uses('Hash', 'Utility');
-
 /**
  * ModelValidator object encapsulates all methods related to data validations for a model
  * It also provides an API to dynamically change validation rules for each model field.

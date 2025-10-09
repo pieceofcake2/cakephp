@@ -19,14 +19,6 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('Sanitize', 'Utility');
-App::uses('Dispatcher', 'Routing');
-App::uses('Router', 'Routing');
-App::uses('Controller', 'Controller');
-App::uses('CakeRequest', 'Network');
-App::uses('CakeResponse', 'Network');
-App::uses('CakeEvent', 'Event');
-
 /**
  * Exception Renderer.
  *
@@ -145,7 +137,6 @@ class ExceptionRenderer
     protected function _getController($exception)
     {
         App::uses('AppController', 'Controller');
-        App::uses('CakeErrorController', 'Controller');
         if (!$request = Router::getRequest(true)) {
             $request = new CakeRequest();
         }
@@ -155,7 +146,7 @@ class ExceptionRenderer
             $response->header($exception->responseHeader());
         }
 
-        if (class_exists('AppController')) {
+        if (class_exists(AppController::class)) {
             try {
                 $controller = new CakeErrorController($request, $response);
                 $controller->startupProcess();
