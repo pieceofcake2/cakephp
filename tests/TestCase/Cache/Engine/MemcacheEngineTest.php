@@ -360,6 +360,7 @@ class MemcacheEngineTest extends CakeTestCase
         $this->assertTrue(Cache::write('duration_test', 'yay', 'long_memcache'));
         $this->assertTrue(Cache::write('short_duration_test', 'boo', 'short_memcache'));
 
+        usleep(500);
         $this->assertEquals('yay', Cache::read('duration_test', 'long_memcache'), 'Value was not read %s');
         $this->assertEquals('boo', Cache::read('short_duration_test', 'short_memcache'), 'Value was not read %s');
 
