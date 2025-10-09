@@ -16,9 +16,6 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('AclComponent', 'Controller/Component');
-class_exists('AclComponent');
-
 /**
  * Test Case for AclComponent
  *

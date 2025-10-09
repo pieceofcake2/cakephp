@@ -16,10 +16,6 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('DboSource', 'Model/Datasource');
-App::uses('CakeFixtureManager', 'TestSuite/Fixture');
-App::uses('UuidFixture', 'Test/Fixture');
-
 /**
  * Test Case for CakeFixtureManager class
  *

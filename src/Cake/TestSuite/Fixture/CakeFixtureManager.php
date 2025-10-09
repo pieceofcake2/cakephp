@@ -16,9 +16,6 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('ConnectionManager', 'Model');
-App::uses('ClassRegistry', 'Utility');
-
 /**
  * A factory class to manage the life cycle of test fixtures
  *

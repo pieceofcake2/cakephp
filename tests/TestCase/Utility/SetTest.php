@@ -16,9 +16,6 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('Set', 'Utility');
-App::uses('Model', 'Model');
-
 /**
  * SetTest class
  *
@@ -2850,8 +2847,6 @@ class SetTest extends CakeTestCase
      */
     public function testXmlSetReverse()
     {
-        App::uses('Xml', 'Utility');
-
         $string = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 		<rss version="2.0">
 			<channel>

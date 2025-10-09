@@ -14,12 +14,6 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('Multibyte', 'I18n');
-App::uses('AbstractTransport', 'Network/Email');
-App::uses('File', 'Utility');
-App::uses('CakeText', 'Utility');
-App::uses('View', 'View');
-
 /**
  * CakePHP email class.
  *

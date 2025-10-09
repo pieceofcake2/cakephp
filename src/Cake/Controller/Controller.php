@@ -14,14 +14,6 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('CakeResponse', 'Network');
-App::uses('ClassRegistry', 'Utility');
-App::uses('ComponentCollection', 'Controller');
-App::uses('View', 'View');
-App::uses('CakeEvent', 'Event');
-App::uses('CakeEventListener', 'Event');
-App::uses('CakeEventManager', 'Event');
-
 /**
  * Application controller class for organization of business logic.
  * Provides basic functionality, such as rendering views inside layouts,

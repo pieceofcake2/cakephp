@@ -14,8 +14,6 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('CakeText', 'Utility');
-
 /**
  * Library of array functions for manipulating and extracting data
  * from arrays or 'sets' of data.

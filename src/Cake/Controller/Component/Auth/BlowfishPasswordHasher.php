@@ -13,9 +13,6 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('AbstractPasswordHasher', 'Controller/Component/Auth');
-App::uses('Security', 'Utility');
-
 /**
  * Blowfish password hashing class.
  *

@@ -16,9 +16,6 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('View', 'View');
-App::uses('TextHelper', 'View/Helper');
-
 /**
  * TextHelperTestObject
  *

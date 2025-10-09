@@ -16,11 +16,6 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('DataSource', 'Model/Datasource');
-App::uses('PDOExceptionWithQueryString', 'Model/Datasource');
-App::uses('CakeText', 'Utility');
-App::uses('View', 'View');
-
 /**
  * DboSource
  *

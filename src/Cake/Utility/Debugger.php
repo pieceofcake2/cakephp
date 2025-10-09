@@ -18,9 +18,6 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('CakeLog', 'Log');
-App::uses('CakeText', 'Utility');
-
 /**
  * Provide custom logging and error handling.
  *
@@ -596,7 +593,7 @@ class Debugger
         $out = '';
         $props = [];
 
-        $className = $var::class;
+        $className = get_class($var);
         $out .= 'object(' . $className . ') {';
 
         if ($depth > 0) {
@@ -753,7 +750,7 @@ class Debugger
     /**
      * Takes a processed array of data from an error and displays it in the chosen format.
      *
-     * @param string $data Data to output.
+     * @param array $data Data to output.
      * @return void
      */
     public function outputError($data)

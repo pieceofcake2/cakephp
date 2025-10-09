@@ -16,13 +16,7 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('HelperCollection', 'View');
 App::uses('AppHelper', 'View/Helper');
-App::uses('Router', 'Routing');
-App::uses('ViewBlock', 'View');
-App::uses('CakeEvent', 'Event');
-App::uses('CakeEventManager', 'Event');
-App::uses('CakeResponse', 'Network');
 
 /**
  * View, the V in the MVC triad. View interacts with Helpers and view variables passed

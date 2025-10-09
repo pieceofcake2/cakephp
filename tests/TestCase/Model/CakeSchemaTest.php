@@ -16,9 +16,6 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('CakeSchema', 'Model');
-App::uses('CakeTestFixture', 'TestSuite/Fixture');
-
 /**
  * Test for Schema database management
  *

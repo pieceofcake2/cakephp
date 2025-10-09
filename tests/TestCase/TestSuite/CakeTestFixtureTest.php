@@ -16,10 +16,6 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('DboSource', 'Model/Datasource');
-App::uses('Model', 'Model');
-App::uses('CakeTestFixture', 'TestSuite/Fixture');
-
 /**
  * CakeTestFixtureTestFixture class
  *

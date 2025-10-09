@@ -16,13 +16,7 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('Model', 'Model');
 App::uses('AppModel', 'Model');
-App::uses('DataSource', 'Model/Datasource');
-App::uses('DboSource', 'Model/Datasource');
-App::uses('DboTestSource', 'Model/Datasource');
-App::uses('DboSecondTestSource', 'Model/Datasource');
-App::uses('MockDataSource', 'Model/Datasource');
 
 require_once dirname(__DIR__) . DS . 'models.php';
 

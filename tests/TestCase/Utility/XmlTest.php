@@ -16,9 +16,6 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('Xml', 'Utility');
-App::uses('CakeTestModel', 'TestSuite/Fixture');
-
 /**
  * Article class
  *

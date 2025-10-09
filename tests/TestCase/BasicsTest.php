@@ -18,10 +18,6 @@
 
 require_once CAKE . 'basics.php';
 
-App::uses('Folder', 'Utility');
-App::uses('CakeResponse', 'Network');
-App::uses('Debugger', 'Utility');
-
 /**
  * BasicsTest class
  *

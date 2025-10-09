@@ -12,9 +12,6 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('BaseAuthorize', 'Controller/Component/Auth');
-App::uses('Router', 'Routing');
-
 /**
  * An authorization adapter for AuthComponent. Provides the ability to authorize using CRUD mappings.
  * CRUD mappings allow you to translate controller actions into *C*reate *R*ead *U*pdate *D*elete actions.

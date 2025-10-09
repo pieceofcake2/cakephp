@@ -15,9 +15,7 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('HttpSocketResponse', 'Network/Http');
-
-if (class_exists('HttpResponse')) {
+if (class_exists(HttpResponse::class)) {
     trigger_error(__d(
         'cake_dev',
         'HttpResponse is deprecated due to naming conflicts. Use HttpSocketResponse instead.',

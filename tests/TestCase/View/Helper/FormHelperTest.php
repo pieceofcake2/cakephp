@@ -16,16 +16,6 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('ClassRegistry', 'Utility');
-App::uses('Controller', 'Controller');
-App::uses('View', 'View');
-App::uses('Model', 'Model');
-App::uses('Security', 'Utility');
-App::uses('CakeRequest', 'Network');
-App::uses('HtmlHelper', 'View/Helper');
-App::uses('FormHelper', 'View/Helper');
-App::uses('Router', 'Routing');
-
 /**
  * ContactTestController class
  *

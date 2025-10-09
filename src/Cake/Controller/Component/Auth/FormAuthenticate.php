@@ -12,8 +12,6 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('BaseAuthenticate', 'Controller/Component/Auth');
-
 /**
  * An authentication adapter for AuthComponent. Provides the ability to authenticate using POST
  * data. Can be used by configuring AuthComponent to use it via the AuthComponent::$authenticate setting.

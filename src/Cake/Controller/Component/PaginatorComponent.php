@@ -16,9 +16,6 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('Component', 'Controller');
-App::uses('Hash', 'Utility');
-
 /**
  * This component is used to handle automatic model data pagination. The primary way to use this
  * component is to call the paginate() method. There is a convenience wrapper on Controller as well.

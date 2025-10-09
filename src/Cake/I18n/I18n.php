@@ -16,11 +16,6 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('CakePlugin', 'Core');
-App::uses('L10n', 'I18n');
-App::uses('Multibyte', 'I18n');
-App::uses('CakeSession', 'Model/Datasource');
-
 /**
  * I18n handles translation of Text and time format strings.
  *

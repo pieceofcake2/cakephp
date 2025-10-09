@@ -16,12 +16,6 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('CakeObject', 'Core');
-App::uses('Object', 'Core');
-App::uses('Router', 'Routing');
-App::uses('Controller', 'Controller');
-App::uses('Model', 'Model');
-
 /**
  * RequestActionPost class
  *

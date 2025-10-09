@@ -14,10 +14,6 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('CakeEvent', 'Event');
-App::uses('CakeEventManager', 'Event');
-App::uses('CakeEventListener', 'Event');
-
 /**
  * Mock class used to test event dispatching
  *

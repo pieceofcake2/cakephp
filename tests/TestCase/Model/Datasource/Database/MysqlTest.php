@@ -19,10 +19,7 @@ use PHPUnit\Framework\Error;
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('Model', 'Model');
 App::uses('AppModel', 'Model');
-App::uses('Mysql', 'Model/Datasource/Database');
-App::uses('CakeSchema', 'Model');
 
 require_once dirname(__DIR__, 2) . DS . 'models.php';
 

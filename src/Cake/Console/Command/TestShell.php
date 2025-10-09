@@ -17,11 +17,6 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('Shell', 'Console');
-App::uses('CakeTestSuiteDispatcher', 'TestSuite');
-App::uses('CakeTestSuiteCommand', 'TestSuite');
-App::uses('CakeTestLoader', 'TestSuite');
-
 /**
  * Provides a CakePHP wrapper around PHPUnit.
  * Adds in CakePHP's fixtures and gives access to plugin, app and core test cases

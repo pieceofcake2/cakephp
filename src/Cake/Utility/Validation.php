@@ -13,15 +13,6 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('Multibyte', 'I18n');
-App::uses('File', 'Utility');
-App::uses('CakeNumber', 'Utility');
-
-// Load multibyte if the extension is missing.
-if (!function_exists('mb_strlen')) {
-    class_exists('Multibyte');
-}
-
 /**
  * Validation Class. Used for validation of model data
  *

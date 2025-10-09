@@ -16,8 +16,6 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('CakeText', 'Utility');
-
 /**
  * Security Library contains utility methods related to security
  *

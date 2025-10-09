@@ -18,12 +18,6 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('AclBehavior', 'Model/Behavior');
-App::uses('Aco', 'Model');
-App::uses('Aro', 'Model');
-App::uses('AclNode', 'Model');
-App::uses('DbAcl', 'Model');
-
 /**
  * Test Person class - self joined model
  *

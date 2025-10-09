@@ -14,8 +14,6 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('Model', 'Model');
-
 /**
  * A model to extend from to help you during testing.
  *

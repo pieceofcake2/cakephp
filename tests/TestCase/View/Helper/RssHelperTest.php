@@ -16,11 +16,6 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('View', 'View');
-App::uses('RssHelper', 'View/Helper');
-App::uses('TimeHelper', 'View/Helper');
-App::uses('File', 'Utility');
-
 /**
  * RssHelperTest class
  *

@@ -18,8 +18,6 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('DataSource', 'Model/Datasource');
-
 /**
  * Manages loaded instances of DataSource objects
  *
@@ -65,8 +63,11 @@ class ConnectionManager
      */
     protected static function _init()
     {
-        include_once CONFIG . 'database.php';
-        if (class_exists('DATABASE_CONFIG')) {
+        try {
+            require_once CONFIG . 'database.php';
+        } catch (Throwable $e) {
+        }
+        if (class_exists(DATABASE_CONFIG::class)) {
             static::$config = new DATABASE_CONFIG();
         }
         static::$_init = true;
@@ -97,7 +98,7 @@ class ConnectionManager
         $conn = static::$_connectionsEnum[$name];
         $class = $conn['classname'];
 
-        if (!str_contains(App::location($class), 'Datasource')) {
+        if (!class_exists($class) && !str_contains(App::location($class), 'Datasource')) {
             throw new MissingDatasourceException([
                 'class' => $class,
                 'plugin' => null,

@@ -18,19 +18,6 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('ClassRegistry', 'Utility');
-App::uses('Validation', 'Utility');
-App::uses('CakeText', 'Utility');
-App::uses('Hash', 'Utility');
-App::uses('BehaviorCollection', 'Model');
-App::uses('ModelBehavior', 'Model');
-App::uses('ModelValidator', 'Model');
-App::uses('ConnectionManager', 'Model');
-App::uses('Xml', 'Utility');
-App::uses('CakeEvent', 'Event');
-App::uses('CakeEventListener', 'Event');
-App::uses('CakeEventManager', 'Event');
-
 /**
  * Object-relational mapper.
  *

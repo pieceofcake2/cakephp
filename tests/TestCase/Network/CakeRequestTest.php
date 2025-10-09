@@ -16,10 +16,6 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('Dispatcher', 'Routing');
-App::uses('Xml', 'Utility');
-App::uses('CakeRequest', 'Network');
-
 /**
  * TestCakeRequest
  *

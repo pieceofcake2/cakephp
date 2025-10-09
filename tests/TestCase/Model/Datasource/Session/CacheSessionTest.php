@@ -16,10 +16,6 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('CakeSession', 'Model/Datasource');
-App::uses('CacheSession', 'Model/Datasource/Session');
-class_exists('CakeSession');
-
 /**
  * CacheSessionTest
  *

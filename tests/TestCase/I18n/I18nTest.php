@@ -16,9 +16,6 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('I18n', 'I18n');
-App::uses('CakeSession', 'Model/Datasource');
-
 /**
  * I18nTest class
  *

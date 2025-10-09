@@ -16,14 +16,6 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('Controller', 'Controller');
-App::uses('AuthComponent', 'Controller/Component');
-App::uses('AclComponent', 'Controller/Component');
-App::uses('BaseAuthenticate', 'Controller/Component/Auth');
-App::uses('FormAuthenticate', 'Controller/Component/Auth');
-App::uses('CakeEvent', 'Event');
-App::uses('CakeRequest', 'Network');
-
 /**
  * TestFormAuthenticate class
  *
@@ -1297,9 +1289,6 @@ class AuthComponentTest extends CakeTestCase
             'View' => [CORE_TESTS . DS . 'test_app' . DS . 'View' . DS],
         ]);
         $_SERVER['HTTP_X_REQUESTED_WITH'] = 'XMLHttpRequest';
-
-        App::uses('Dispatcher', 'Routing');
-
         $Response = new CakeResponse();
         ob_start();
         $Dispatcher = new Dispatcher();

@@ -473,30 +473,30 @@ class AppTest extends CakeTestCase
     {
         $file = App::import('Model', 'Model', false);
         $this->assertTrue($file);
-        $this->assertTrue(class_exists('Model'));
+        $this->assertTrue(class_exists(Model::class));
 
         $file = App::import('Controller', 'Controller', false);
         $this->assertTrue($file);
-        $this->assertTrue(class_exists('Controller'));
+        $this->assertTrue(class_exists(Controller::class));
 
         $file = App::import('Component', 'Auth', false);
         $this->assertTrue($file);
-        $this->assertTrue(class_exists('AuthComponent'));
+        $this->assertTrue(class_exists(AuthComponent::class));
 
         $file = App::import('Shell', 'Shell', false);
         $this->assertTrue($file);
-        $this->assertTrue(class_exists('Shell'));
+        $this->assertTrue(class_exists(Shell::class));
 
         $file = App::import('Configure', 'PhpReader');
         $this->assertTrue($file);
-        $this->assertTrue(class_exists('PhpReader'));
+        $this->assertTrue(class_exists(PhpReader::class));
 
         $file = App::import('Model', 'SomeRandomModelThatDoesNotExist', false);
         $this->assertFalse($file);
 
         $file = App::import('Model', 'AppModel', false);
         $this->assertTrue($file);
-        $this->assertTrue(class_exists('AppModel'));
+        $this->assertTrue(class_exists(AppModel::class));
 
         $file = App::import('WrongType', null, true, [], '');
         $this->assertFalse($file);
@@ -507,7 +507,7 @@ class AppTest extends CakeTestCase
         $file = App::import('Model', ['NonExistingPlugin.NonExistingModel'], false);
         $this->assertFalse($file);
 
-        if (!class_exists('AppController', false)) {
+        if (!class_exists(AppController::class, false)) {
             $classes = array_flip(get_declared_classes());
 
             $this->assertFalse(isset($classes['PagesController']));
@@ -515,7 +515,7 @@ class AppTest extends CakeTestCase
 
             $file = App::import('Controller', 'Pages');
             $this->assertTrue($file);
-            $this->assertTrue(class_exists('PagesController'));
+            $this->assertTrue(class_exists(PagesController::class));
 
             $classes = array_flip(get_declared_classes());
 
@@ -524,22 +524,22 @@ class AppTest extends CakeTestCase
 
             $file = App::import('Behavior', 'Containable');
             $this->assertTrue($file);
-            $this->assertTrue(class_exists('ContainableBehavior'));
+            $this->assertTrue(class_exists(ContainableBehavior::class));
 
             $file = App::import('Component', 'RequestHandler');
             $this->assertTrue($file);
-            $this->assertTrue(class_exists('RequestHandlerComponent'));
+            $this->assertTrue(class_exists(RequestHandlerComponent::class));
 
             $file = App::import('Helper', 'Form');
             $this->assertTrue($file);
-            $this->assertTrue(class_exists('FormHelper'));
+            $this->assertTrue(class_exists(FormHelper::class));
 
             $file = App::import('Model', 'NonExistingModel');
             $this->assertFalse($file);
 
             $file = App::import('Datasource', 'DboSource');
             $this->assertTrue($file);
-            $this->assertTrue(class_exists('DboSource'));
+            $this->assertTrue(class_exists(DboSource::class));
         }
         App::build();
     }
@@ -559,31 +559,30 @@ class AppTest extends CakeTestCase
 
         $result = App::import('Controller', 'TestPlugin.Tests');
         $this->assertTrue($result);
-        $this->assertTrue(class_exists('TestPluginAppController'));
-        $this->assertTrue(class_exists('TestsController'));
+        $this->assertTrue(class_exists(TestPluginAppController::class));
+        $this->assertTrue(class_exists(TestsController::class));
 
         $result = App::import('Lib', 'TestPlugin.TestPluginLibrary');
         $this->assertTrue($result);
-        $this->assertTrue(class_exists('TestPluginLibrary'));
+        $this->assertTrue(class_exists(TestPluginLibrary::class));
 
         $result = App::import('Lib', 'Library');
         $this->assertTrue($result);
-        $this->assertTrue(class_exists('Library'));
+        $this->assertTrue(class_exists(Library::class));
 
         $result = App::import('Helper', 'TestPlugin.OtherHelper');
         $this->assertTrue($result);
-        $this->assertTrue(class_exists('OtherHelperHelper'));
+        $this->assertTrue(class_exists(OtherHelperHelper::class));
 
         $result = App::import('Helper', 'TestPlugin.TestPluginApp');
         $this->assertTrue($result);
-        $this->assertTrue(class_exists('TestPluginAppHelper'));
+        $this->assertTrue(class_exists(TestPluginAppHelper::class));
 
         $result = App::import('Datasource', 'TestPlugin.TestSource');
         $this->assertTrue($result);
-        $this->assertTrue(class_exists('TestSource'));
+        $this->assertTrue(class_exists(TestSource::class));
 
-        App::uses('ExampleExample', 'TestPlugin.Vendor/Example');
-        $this->assertTrue(class_exists('ExampleExample'));
+        $this->assertTrue(class_exists(ExampleExample::class));
 
         App::build();
     }
@@ -595,15 +594,15 @@ class AppTest extends CakeTestCase
      */
     public function testImportingHelpersFromAlternatePaths()
     {
-        $this->assertFalse(class_exists('BananaHelper', false), 'BananaHelper exists, cannot test importing it.');
+        $this->assertFalse(class_exists(BananaHelper::class, false), 'BananaHelper exists, cannot test importing it.');
         App::build([
             'View/Helper' => [
                 CORE_TESTS . DS . 'test_app' . DS . 'View' . DS . 'Helper' . DS,
             ],
         ]);
-        $this->assertFalse(class_exists('BananaHelper', false), 'BananaHelper exists, cannot test importing it.');
+        $this->assertFalse(class_exists(BananaHelper::class, false), 'BananaHelper exists, cannot test importing it.');
         App::import('Helper', 'Banana');
-        $this->assertTrue(class_exists('BananaHelper', false), 'BananaHelper was not loaded.');
+        $this->assertTrue(class_exists(BananaHelper::class, false), 'BananaHelper was not loaded.');
 
         App::build();
     }
@@ -721,7 +720,7 @@ class AppTest extends CakeTestCase
      */
     public function testMultipleLoading()
     {
-        if (class_exists('PersisterOne', false) || class_exists('PersisterTwo', false)) {
+        if (class_exists(PersisterOne::class, false) || class_exists(PersisterTwo::class, false)) {
             $this->markTestSkipped('Cannot test loading of classes that exist.');
         }
         App::build([
@@ -756,11 +755,11 @@ class AppTest extends CakeTestCase
 
         $result = App::import('Vendor', 'TestPlugin.sample/SamplePlugin');
         $this->assertTrue($result);
-        $this->assertTrue(class_exists('SamplePluginClassTestName'));
+        $this->assertTrue(class_exists(SamplePluginClassTestName::class));
 
         $result = App::import('Vendor', 'sample/ConfigureTestVendorSample');
         $this->assertTrue($result);
-        $this->assertTrue(class_exists('ConfigureTestVendorSample'));
+        $this->assertTrue(class_exists(ConfigureTestVendorSample::class));
 
         ob_start();
         $result = App::import('Vendor', 'SomeNameInSubfolder', ['file' => 'somename/some.name.php']);
@@ -807,13 +806,11 @@ class AppTest extends CakeTestCase
         ], App::RESET);
         CakePlugin::load(['TestPlugin', 'TestPluginTwo']);
 
-        $this->assertFalse(class_exists('CustomLibClass', false));
-        App::uses('CustomLibClass', 'TestPlugin.Custom/Package');
-        $this->assertTrue(class_exists('CustomLibClass'));
+        $this->assertFalse(class_exists(CustomLibClass::class, false));
+        $this->assertTrue(class_exists(CustomLibClass::class));
 
-        $this->assertFalse(class_exists('TestUtilityClass', false));
-        App::uses('TestUtilityClass', 'Utility');
-        $this->assertTrue(class_exists('TestUtilityClass'));
+        $this->assertFalse(class_exists(TestUtilityClass::class, false));
+        $this->assertTrue(class_exists(TestUtilityClass::class));
     }
 
     /**
@@ -853,7 +850,6 @@ class AppTest extends CakeTestCase
         ], App::RESET);
         CakePlugin::load(['TestPlugin', 'TestPluginTwo']);
         $this->assertFalse(class_exists('TestPluginOtherLibrary', false));
-        App::uses('TestPluginOtherLibrary', 'TestPlugin.Lib');
         $this->assertTrue(class_exists('TestPluginOtherLibrary'));
     }
 

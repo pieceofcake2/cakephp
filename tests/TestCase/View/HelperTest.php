@@ -16,11 +16,6 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('View', 'View');
-App::uses('Helper', 'View');
-App::uses('Model', 'Model');
-App::uses('Router', 'Routing');
-
 /**
  * HelperTestPost class
  *

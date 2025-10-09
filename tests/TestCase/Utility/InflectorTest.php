@@ -21,8 +21,6 @@
 /**
  * Included libraries.
  */
-App::uses('Inflector', 'Utility');
-
 /**
  * Short description for class.
  *

@@ -14,10 +14,6 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('AssetDispatcher', 'Routing/Filter');
-App::uses('CakeEvent', 'Event');
-App::uses('CakeResponse', 'Network');
-
 /**
  * AssetDispatcherTest
  *

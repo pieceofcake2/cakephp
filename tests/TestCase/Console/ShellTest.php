@@ -18,11 +18,6 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('ShellDispatcher', 'Console');
-App::uses('Shell', 'Console');
-App::uses('Folder', 'Utility');
-App::uses('ProgressHelper', 'Console/Helper');
-
 /**
  * ShellTestShell class
  *

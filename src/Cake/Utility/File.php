@@ -16,8 +16,6 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('Folder', 'Utility');
-
 /**
  * Convenience class for reading, writing and appending to files.
  *

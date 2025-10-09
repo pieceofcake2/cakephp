@@ -12,8 +12,6 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('BaseAuthenticate', 'Controller/Component/Auth');
-
 /**
  * Basic Authentication adapter for AuthComponent.
  *

@@ -12,10 +12,6 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('Security', 'Utility');
-App::uses('Hash', 'Utility');
-App::uses('CakeEventListener', 'Event');
-
 /**
  * Base Authentication class with common methods and properties.
  *

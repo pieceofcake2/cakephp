@@ -15,8 +15,6 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('CakePlugin', 'Core');
-
 /**
  * PHP Reader allows Configure to load configuration values from
  * files containing simple PHP arrays.

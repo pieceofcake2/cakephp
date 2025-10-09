@@ -16,10 +16,6 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('RedirectRoute', 'Routing/Route');
-App::uses('CakeResponse', 'Network');
-App::uses('Router', 'Routing');
-
 /**
  * test case for RedirectRoute
  *

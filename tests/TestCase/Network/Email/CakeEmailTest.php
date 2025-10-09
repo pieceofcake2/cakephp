@@ -16,9 +16,6 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('CakeEmail', 'Network/Email');
-App::uses('File', 'Utility');
-
 /**
  * Help to test CakeEmail
  */
@@ -1438,7 +1435,6 @@ class CakeEmailTest extends CakeTestCase
         $this->CakeEmail->config(['log' => 'cake_test_emails']);
         $result = $this->CakeEmail->send('Logging This');
 
-        App::uses('File', 'Utility');
         $File = new File(TMP . 'cake_test_emails.log');
         $log = $File->read();
         $this->assertTrue(str_contains($log, $result['headers']));
@@ -1468,7 +1464,6 @@ class CakeEmailTest extends CakeTestCase
         $this->CakeEmail->config(['log' => ['level' => 'cake_test_emails', 'scope' => 'email']]);
         $result = $this->CakeEmail->send('Logging This');
 
-        App::uses('File', 'Utility');
         $File = new File(TMP . 'cake_test_emails.log');
         $log = $File->read();
         $this->assertTrue(str_contains($log, $result['headers']));

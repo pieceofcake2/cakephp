@@ -16,9 +16,6 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('View', 'View');
-App::uses('CakeRequest', 'Network');
-
 /**
  * Media View provides a custom view implementation for sending files to visitors. Its great
  * for making the response of a controller action be a file that is saved somewhere on the filesystem.

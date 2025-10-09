@@ -16,9 +16,6 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('TaskCollection', 'Console');
-App::uses('Shell', 'Console');
-
 /**
  * Extended Task
  */

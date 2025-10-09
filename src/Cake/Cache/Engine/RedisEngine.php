@@ -55,7 +55,7 @@ class RedisEngine extends CacheEngine
      */
     public function init($settings = [])
     {
-        if (!class_exists('Redis')) {
+        if (!class_exists(Redis::class)) {
             return false;
         }
         parent::init(array_merge([

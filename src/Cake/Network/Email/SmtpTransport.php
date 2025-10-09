@@ -15,8 +15,6 @@
  * @since         CakePHP(tm) v 2.0.0
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
-App::uses('AbstractTransport', 'Network/Email');
-App::uses('CakeSocket', 'Network');
 
 /**
  * Send mail using SMTP protocol

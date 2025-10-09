@@ -16,10 +16,6 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('Controller', 'Controller');
-App::uses('View', 'View');
-App::uses('SessionHelper', 'View/Helper');
-
 /**
  * SessionHelperTest class
  *

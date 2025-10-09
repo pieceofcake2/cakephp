@@ -18,13 +18,6 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('HtmlHelper', 'View/Helper');
-App::uses('JsHelper', 'View/Helper');
-App::uses('JsBaseEngineHelper', 'View/Helper');
-App::uses('FormHelper', 'View/Helper');
-App::uses('View', 'View');
-App::uses('ClassRegistry', 'Utility');
-
 /**
  * JsEncodingObject
  *

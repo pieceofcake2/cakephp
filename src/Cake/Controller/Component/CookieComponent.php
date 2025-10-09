@@ -16,10 +16,6 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('Component', 'Controller');
-App::uses('Security', 'Utility');
-App::uses('Hash', 'Utility');
-
 /**
  * Cookie Component.
  *

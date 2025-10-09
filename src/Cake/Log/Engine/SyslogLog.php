@@ -16,8 +16,6 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('BaseLog', 'Log/Engine');
-
 /**
  * Syslog stream for Logging. Writes logs to the system logger
  *

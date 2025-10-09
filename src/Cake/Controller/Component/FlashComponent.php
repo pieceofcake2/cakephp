@@ -16,10 +16,6 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('Component', 'Controller');
-App::uses('Inflector', 'Utility');
-App::uses('CakeSession', 'Model/Datasource');
-
 /**
  * The CakePHP FlashComponent provides a way for you to write a flash variable
  * to the session from your controllers, to be rendered in a view with the

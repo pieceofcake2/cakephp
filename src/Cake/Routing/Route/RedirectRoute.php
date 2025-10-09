@@ -14,9 +14,6 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('CakeResponse', 'Network');
-App::uses('CakeRoute', 'Routing/Route');
-
 /**
  * Redirect route will perform an immediate redirect. Redirect routes
  * are useful when you want to have Routing layer redirects occur in your

@@ -12,8 +12,6 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('View', 'View');
-
 /**
  * A view class that is used for JSON responses.
  *

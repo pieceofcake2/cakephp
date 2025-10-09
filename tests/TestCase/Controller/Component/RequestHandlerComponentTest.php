@@ -16,13 +16,6 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('Controller', 'Controller');
-App::uses('RequestHandlerComponent', 'Controller/Component');
-App::uses('CakeRequest', 'Network');
-App::uses('CakeResponse', 'Network');
-App::uses('Router', 'Routing');
-App::uses('JsonView', 'View');
-
 /**
  * RequestHandlerTestController class
  *

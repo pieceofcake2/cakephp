@@ -13,8 +13,6 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('Debugger', 'Utility');
-
 /**
  * DebuggerTestCaseDebugger class
  *
@@ -348,7 +346,6 @@ class DebuggerTest extends CakeTestCase
      */
     public function testExportVar()
     {
-        App::uses('Controller', 'Controller');
         $Controller = new Controller();
         $Controller->helpers = ['Html', 'Form'];
         $View = new View($Controller);

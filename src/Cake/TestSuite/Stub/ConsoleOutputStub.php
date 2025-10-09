@@ -12,7 +12,6 @@
  * @since         2.8
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
-App::uses('ConsoleOutput', 'Console');
 
 /**
  * StubOutput makes testing shell commands/shell helpers easier.

@@ -18,10 +18,6 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('FlashHelper', 'View/Helper');
-App::uses('View', 'View');
-App::uses('CakePlugin', 'Core');
-
 /**
  * FlashHelperTest class
  *

@@ -14,8 +14,6 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('ComponentCollection', 'Controller');
-
 /**
  * Base class for an individual Component. Components provide reusable bits of
  * controller logic that can be composed into a controller. Components also

@@ -18,8 +18,6 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('View', 'View');
-
 /**
  * ScaffoldView provides specific view file loading features for scaffolded views.
  *

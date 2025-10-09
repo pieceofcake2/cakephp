@@ -41,6 +41,9 @@
     "autoload": {
         "classmap": ["src/"]
     },
+    "autoload-dev": {
+        "classmap": ["tests/test_app/"]
+    },
     "bin": [
         "bin/cake"
     ]

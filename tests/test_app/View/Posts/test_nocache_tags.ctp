@@ -60,7 +60,6 @@
 </p>
 <?php
 if (!empty($filePresent)):
-	App::uses('ConnectionManager', 'Model');
 	$connected = ConnectionManager::getDataSource('test');
 ?>
 <p>

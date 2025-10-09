@@ -16,9 +16,6 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('Router', 'Routing');
-App::uses('CakeResponse', 'Network');
-
 if (!defined('FULL_BASE_URL')) {
     define('FULL_BASE_URL', 'https://cakephp.org');
 }
@@ -210,7 +207,6 @@ class RouterTest extends CakeTestCase
             ],
         ]);
         CakePlugin::load('TestPlugin');
-        App::uses('TestRoute', 'TestPlugin.Routing/Route');
         Router::mapResources('Posts', [
             'connectOptions' => [
                 'routeClass' => 'TestPlugin.TestRoute',
@@ -2505,7 +2501,6 @@ class RouterTest extends CakeTestCase
             ],
         ]);
         CakePlugin::load('TestPlugin');
-        App::uses('TestRoute', 'TestPlugin.Routing/Route');
         $routes = Router::connect(
             '/:slug',
             ['controller' => 'posts', 'action' => 'view'],

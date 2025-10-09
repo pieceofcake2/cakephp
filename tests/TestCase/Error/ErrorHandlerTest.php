@@ -16,11 +16,6 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('ErrorHandler', 'Error');
-App::uses('Controller', 'Controller');
-App::uses('Router', 'Routing');
-App::uses('Debugger', 'Utility');
-
 /**
  * A faulty ExceptionRenderer to test nesting.
  */

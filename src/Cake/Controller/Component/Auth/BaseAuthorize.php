@@ -12,8 +12,6 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('Hash', 'Utility');
-
 /**
  * Abstract base authorization adapter for AuthComponent.
  *

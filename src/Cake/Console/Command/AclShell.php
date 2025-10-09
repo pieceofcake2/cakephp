@@ -16,11 +16,6 @@
  */
 
 App::uses('AppShell', 'Console/Command');
-App::uses('Controller', 'Controller');
-App::uses('ComponentCollection', 'Controller');
-App::uses('AclComponent', 'Controller/Component');
-App::uses('DbAcl', 'Model');
-App::uses('Hash', 'Utility');
 
 /**
  * Shell for ACL management. This console is known to have issues with zend.ze1_compatibility_mode

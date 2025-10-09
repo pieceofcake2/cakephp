@@ -16,8 +16,6 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('ObjectCollection', 'Utility');
-
 /**
  * Collection object for Tasks. Provides features
  * for lazily loading tasks, and firing callbacks on loaded tasks.

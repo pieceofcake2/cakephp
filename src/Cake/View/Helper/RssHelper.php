@@ -19,7 +19,6 @@
  */
 
 App::uses('AppHelper', 'View/Helper');
-App::uses('Xml', 'Utility');
 
 /**
  * RSS Helper class for easy output RSS structures.

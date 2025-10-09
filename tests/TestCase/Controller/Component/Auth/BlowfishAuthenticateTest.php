@@ -16,12 +16,7 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('AuthComponent', 'Controller/Component');
-App::uses('BlowfishAuthenticate', 'Controller/Component/Auth');
 App::uses('AppModel', 'Model');
-App::uses('CakeRequest', 'Network');
-App::uses('CakeResponse', 'Network');
-App::uses('Security', 'Utility');
 
 require_once CORE_TESTS . DS . 'TestCase' . DS . 'Model' . DS . 'models.php';
 

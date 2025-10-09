@@ -16,9 +16,6 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('LogEngineCollection', 'Log');
-App::uses('FileLog', 'Log/Engine');
-
 /**
  * LoggerEngineLog class
  */

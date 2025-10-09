@@ -18,13 +18,6 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('Folder', 'Utility');
-App::uses('ConsoleOutput', 'Console');
-App::uses('ConsoleInput', 'Console');
-App::uses('ShellDispatcher', 'Console');
-App::uses('Shell', 'Console');
-App::uses('ExtractTask', 'Console/Command/Task');
-
 /**
  * ExtractTaskTest class
  *
@@ -151,7 +144,7 @@ class ExtractTaskTest extends CakeTestCase
         $this->assertMatchesRegularExpression($pattern, $result);
 
         $pattern = '/\#: extract\.ctp:14\n';
-        $pattern .= '\#: home\.ctp:68\n';
+        $pattern .= '\#: home\.ctp:67\n';
         $pattern .= 'msgid "Editing this Page"\nmsgstr ""/';
         $this->assertMatchesRegularExpression($pattern, $result);
 

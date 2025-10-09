@@ -21,8 +21,6 @@ use PHPUnit\Framework\Error;
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('PhpReader', 'Configure');
-
 /**
  * ConfigureTest
  *

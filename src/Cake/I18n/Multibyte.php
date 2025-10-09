@@ -519,7 +519,6 @@ class Multibyte
                 return [];
             }
             if (!Configure::configured('_cake_core_')) {
-                App::uses('PhpReader', 'Configure');
                 Configure::config('_cake_core_', new PhpReader(CORE_ROOT . DS . 'config' . DS));
             }
             Configure::load('unicode' . DS . 'casefolding' . DS . $range, '_cake_core_');

@@ -18,8 +18,6 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('Validation', 'Utility');
-
 /**
  * CakeValidationRule object. Represents a validation method, error message and
  * rules for applying such method to a field.
@@ -288,7 +286,7 @@ class CakeValidationRule
             $this->_ruleParams[] = array_merge($validator, $this->_passedOptions);
             $this->_ruleParams[0] = [$field => $this->_ruleParams[0]];
             $this->_valid = call_user_func_array($methods[$rule], $this->_ruleParams);
-        } elseif (class_exists('Validation') && method_exists('Validation', $this->_rule)) {
+        } elseif (class_exists(Validation::class) && method_exists('Validation', $this->_rule)) {
             $this->_valid = call_user_func_array(['Validation', $this->_rule], $this->_ruleParams);
         } elseif (is_string($validator['rule'])) {
             $this->_valid = preg_match($this->_rule, $data[$field]);

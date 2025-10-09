@@ -18,8 +18,6 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('BaseCoverageReport', 'TestSuite/Coverage');
-
 /**
  * Generates code coverage reports in Simple plain text from data obtained from PHPUnit
  *

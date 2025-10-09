@@ -15,9 +15,7 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('Model', 'Model');
 App::uses('AppModel', 'Model');
-App::uses('Postgres', 'Model/Datasource/Database');
 
 require_once dirname(__DIR__, 2) . DS . 'models.php';
 

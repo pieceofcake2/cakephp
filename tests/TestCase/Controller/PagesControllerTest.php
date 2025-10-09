@@ -16,9 +16,6 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('PagesController', 'Controller');
-App::uses('CakeRequest', 'Network');
-
 /**
  * PagesControllerTest class
  *
@@ -89,6 +86,7 @@ class PagesControllerTest extends CakeTestCase
     {
         $this->expectException(ForbiddenException::class);
         $this->expectExceptionCode(403);
+
         App::build([
             'View' => [
                 CORE_TESTS . DS . 'test_app' . DS . 'View' . DS,

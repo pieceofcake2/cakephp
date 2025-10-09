@@ -15,10 +15,6 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('ErrorHandler', 'Error');
-App::uses('ConsoleOutput', 'Console');
-App::uses('CakeLog', 'Log');
-
 /**
  * Error Handler for Cake console. Does simple printing of the
  * exception that occurred and the stack trace of the error.

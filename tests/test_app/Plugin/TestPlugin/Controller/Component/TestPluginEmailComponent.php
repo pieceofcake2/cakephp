@@ -1,6 +1,4 @@
 <?php
-App::uses('EmailComponent', 'Controller/Component');
-
 /**
  * TestPluginEmailComponent
  *

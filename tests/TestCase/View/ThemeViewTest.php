@@ -16,10 +16,6 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('View', 'View');
-App::uses('ThemeView', 'View');
-App::uses('Controller', 'Controller');
-
 /**
  * ThemePosts2Controller class
  *

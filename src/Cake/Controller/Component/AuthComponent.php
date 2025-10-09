@@ -18,16 +18,6 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('Component', 'Controller');
-App::uses('Router', 'Routing');
-App::uses('Security', 'Utility');
-App::uses('Debugger', 'Utility');
-App::uses('Hash', 'Utility');
-App::uses('CakeSession', 'Model/Datasource');
-App::uses('BaseAuthorize', 'Controller/Component/Auth');
-App::uses('BaseAuthenticate', 'Controller/Component/Auth');
-App::uses('CakeEvent', 'Event');
-
 /**
  * Authentication control component class
  *

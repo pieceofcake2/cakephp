@@ -14,10 +14,6 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('Router', 'Routing');
-App::uses('Hash', 'Utility');
-App::uses('Inflector', 'Utility');
-
 /**
  * Abstract base class for all other Helpers in CakePHP.
  * Provides common methods and features.

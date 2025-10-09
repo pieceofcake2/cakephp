@@ -17,9 +17,6 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('ObjectCollection', 'Utility');
-App::uses('CakeEventListener', 'Event');
-
 /**
  * Helpers collection is used as a registry for loaded helpers and handles loading
  * and constructing helper class objects.

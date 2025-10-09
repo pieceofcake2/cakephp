@@ -14,11 +14,6 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('CakeLog', 'Log');
-App::uses('Dispatcher', 'Routing');
-App::uses('Router', 'Routing');
-App::uses('Set', 'Utility');
-
 /**
  * CakeObject class provides a few generic methods used in several subclasses.
  *

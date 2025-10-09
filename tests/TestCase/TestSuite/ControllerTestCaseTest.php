@@ -18,10 +18,7 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('Controller', 'Controller');
-App::uses('Model', 'Model');
 App::uses('AppModel', 'Model');
-App::uses('CakeHtmlReporter', 'TestSuite/Reporter');
 
 require_once dirname(__DIR__) . DS . 'Model' . DS . 'models.php';
 

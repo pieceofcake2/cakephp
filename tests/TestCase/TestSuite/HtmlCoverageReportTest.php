@@ -19,9 +19,6 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('HtmlCoverageReport', 'TestSuite/Coverage');
-App::uses('CakeHtmlReporter', 'TestSuite/Reporter');
-
 /**
  * HtmlCoverageReportTest
  *
