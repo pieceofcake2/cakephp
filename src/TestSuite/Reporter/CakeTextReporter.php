@@ -19,6 +19,7 @@ namespace Cake\TestSuite\Reporter;
 
 use Cake\TestSuite\Coverage\TextCoverageReport;
 use Cake\Utility\Inflector;
+use PHPUnit\Framework\AssertionFailedError;
 use PHPUnit\Framework\TestResult;
 
 /**
@@ -98,7 +99,7 @@ class CakeTextReporter extends CakeBaseReporter
 
         if (isset($this->params['codeCoverage']) && $this->params['codeCoverage']) {
             $coverage = $result->getCodeCoverage()->getSummary();
-            echo $this->paintCoverage($coverage);
+            $this->paintCoverage($coverage);
         }
     }
 
@@ -190,7 +191,7 @@ class CakeTextReporter extends CakeBaseReporter
      * @param array $coverage Array of coverage data.
      * @return void
      */
-    public function paintCoverage($coverage)
+    public function paintCoverage($coverage): void
     {
         $reporter = new TextCoverageReport($coverage, $this);
         echo $reporter->report();

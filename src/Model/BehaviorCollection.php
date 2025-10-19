@@ -196,7 +196,7 @@ class BehaviorCollection extends ObjectCollection implements CakeEventListener
      * @param string $name CamelCased name of the behavior to unload
      * @return void
      */
-    public function unload($name)
+    public function unload($name): void
     {
         [, $name] = pluginSplit($name);
         if (isset($this->_loaded[$name])) {
@@ -217,9 +217,9 @@ class BehaviorCollection extends ObjectCollection implements CakeEventListener
      * @return void
      * @deprecated 3.0.0 Will be removed in 3.0. Use unload instead.
      */
-    public function detach($name)
+    public function detach($name): void
     {
-        return $this->unload($name);
+        $this->unload($name);
     }
 
     /**

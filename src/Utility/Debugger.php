@@ -219,11 +219,10 @@ class Debugger
      * @param string $description Error description
      * @param string $file File on which error occurred
      * @param int $line Line that triggered the error
-     * @param array $context Context
-     * @return bool|null True if error was handled, otherwise null.
+     * @return never|bool|null True if error was handled, otherwise null.
      * @deprecated 3.0.0 Will be removed in 3.0. This function is superseded by Debugger::outputError().
      */
-    public static function showError($code, $description, $file = null, $line = null, $context = null)
+    public static function showError(int $code, string $description, string $file, int $line)
     {
         $self = Debugger::getInstance();
 
@@ -278,7 +277,6 @@ class Debugger
             'description',
             'file',
             'line',
-            'context',
         );
         echo $self->outputError($data);
 
@@ -767,10 +765,18 @@ class Debugger
     /**
      * Takes a processed array of data from an error and displays it in the chosen format.
      *
-     * @param array $data Data to output.
-     * @return void
+     * @param array{
+     *     level?: int,
+     *     error?: int,
+     *     code?: int,
+     *     description?: string,
+     *     file?: string,
+     *     line?: int,
+     *     start?: int
+     * } $data Data to output.
+     * @return mixed|void
      */
-    public function outputError($data)
+    public function outputError(array $data)
     {
         $defaults = [
             'level' => 0,
@@ -779,7 +785,6 @@ class Debugger
             'description' => '',
             'file' => '',
             'line' => 0,
-            'context' => [],
             'start' => 2,
         ];
         $data += $defaults;
@@ -797,21 +802,16 @@ class Debugger
         }
         $trace = static::trace(['start' => $data['start'], 'depth' => '20']);
         $insertOpts = ['before' => '{:', 'after' => '}'];
-        $context = [];
         $links = [];
         $info = '';
 
-        foreach ((array)$data['context'] as $var => $value) {
-            $context[] = "\${$var} = " . static::exportVar($value, 3);
-        }
-
         switch ($this->_outputFormat) {
             case false:
-                $this->_data[] = compact('context', 'trace') + $data;
+                $this->_data[] = compact('trace') + $data;
 
                 return;
             case 'log':
-                static::log(compact('context', 'trace') + $data);
+                static::log(compact('trace') + $data);
 
                 return;
         }
@@ -827,11 +827,10 @@ class Debugger
         }
 
         if (!empty($tpl['escapeContext'])) {
-            $context = h($context);
             $data['description'] = h($data['description']);
         }
 
-        $infoData = compact('code', 'context', 'trace');
+        $infoData = compact('code', 'trace');
         foreach ($infoData as $key => $value) {
             if (empty($value) || !isset($tpl[$key])) {
                 continue;
@@ -856,7 +855,7 @@ class Debugger
      * @param mixed $var The variable to get the type of
      * @return string The type of variable.
      */
-    public static function getType($var)
+    public static function getType(mixed $var): string
     {
         if (is_object($var)) {
             return $var::class;

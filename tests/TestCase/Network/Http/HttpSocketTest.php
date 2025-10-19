@@ -88,9 +88,9 @@ class TestHttpSocket extends HttpSocket
      * Convenience method for testing protected method
      *
      * @param array|string $uri URI (see {@link _parseUri()})
-     * @return array Current configuration settings
+     * @return bool Current configuration settings
      */
-    public function configUri($uri = null)
+    public function configUri($uri = null): bool
     {
         return parent::_configUri($uri);
     }

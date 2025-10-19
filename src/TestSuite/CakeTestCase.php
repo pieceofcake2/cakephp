@@ -739,7 +739,8 @@ abstract class CakeTestCase extends TestCase
     /**
      * Returns a mock object for the specified class.
      *
-     * @param string $originalClassName The class name of the object to be mocked.
+     * @template T
+     * @param class-string<T> $originalClassName The class name of the object to be mocked.
      * @param array $methods By default, all methods of the given class are replaced
      *   with a test double that just returns NULL unless a return value is configured
      *   using will($this->returnValue()), for instance.
@@ -758,7 +759,7 @@ abstract class CakeTestCase extends TestCase
      *   to disable the call to the original class' clone constructor.
      * @param bool $callAutoload The seventh (optional) parameter can be used to
      *   disable __autoload() during the generation of the test double class.
-     * @return object
+     * @return T&MockObject
      * @deprecated Use `getMockBuilder()` or `createMock()` in new unit tests.
      * @see https://phpunit.de/manual/current/en/test-doubles.html
      */
@@ -797,7 +798,7 @@ abstract class CakeTestCase extends TestCase
     /**
      * Returns a mock object for the specified class.
      *
-     * @template T of object
+     * @template T
      * @param class-string<T> $originalClassName The class name of the object to be mocked.
      * @param array $methods By default, all methods of the given class are replaced
      *   with a test double that just returns NULL unless a return value is configured
@@ -820,7 +821,7 @@ abstract class CakeTestCase extends TestCase
      * @param bool $cloneArguments Not supported.
      * @param bool $callOriginalMethods Not supported.
      * @param string $proxyTarget Not supported.
-     * @return T|MockObject
+     * @return T&MockObject
      * @throws InvalidArgumentException When not supported parameters are set.
      * @deprecated Use `getMockBuilder()` or `createMock()` in new unit tests.
      * @see https://phpunit.de/manual/current/en/test-doubles.html

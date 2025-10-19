@@ -136,11 +136,13 @@ class CakeSchema extends CakeObject
         if (file_exists($this->path . DS . $file) && is_file($this->path . DS . $file)) {
             $this->file = $file;
         } elseif (!empty($this->plugin)) {
-            if (file_exists(CakePlugin::path($this->plugin) . 'config' . DS . 'Schema')) {
-                $this->path = CakePlugin::path($this->plugin) . 'config' . DS . 'Schema';
+            if (is_dir(CakePlugin::path($this->plugin) . 'config')) {
+                $configPath = CakePlugin::path($this->plugin) . 'config' . DS;
             } else {
-                $this->path = CakePlugin::path($this->plugin) . 'Config' . DS . 'Schema';
+                $configPath = CakePlugin::path($this->plugin) . 'Config' . DS;
             }
+
+            $this->path = $configPath . 'Schema';
         }
     }
 

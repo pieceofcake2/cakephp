@@ -95,7 +95,7 @@ class ClassRegistry
      * );
      * ```
      *
-     * @template T of object
+     * @template T
      * @param class-string<T>|array{
      *     class: class-string<T>,
      *     alias?: string,
@@ -269,7 +269,7 @@ class ClassRegistry
     /**
      * Remove object which corresponds to given key.
      *
-     * @template T of object
+     * @template T
      * @param class-string<T> $key Key of object to remove from registry
      * @return void
      */
@@ -285,7 +285,7 @@ class ClassRegistry
     /**
      * Returns true if given key is present in the ClassRegistry.
      *
-     * @template T of object
+     * @template T
      * @param class-string<T>|null $key Key to look for
      * @return bool true if key exists in registry, false otherwise
      */
@@ -310,7 +310,7 @@ class ClassRegistry
     /**
      * Return object which corresponds to given key.
      *
-     * @template T of object
+     * @template T
      * @param class-string<T> $key Key of object to look for
      * @return T|false Object stored in registry or boolean false if the object does not exist.
      */

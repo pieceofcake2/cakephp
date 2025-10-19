@@ -22,6 +22,7 @@ use ArrayIterator;
 use Cake\Core\App;
 use Cake\Model\ConnectionManager;
 use Cake\Model\Datasource\Database\Sqlserver;
+use Cake\Model\Datasource\DboSource;
 use Cake\Model\Model;
 use Cake\TestSuite\CakeTestCase;
 use Cake\TestSuite\Fixture\CakeTestModel;
@@ -126,6 +127,7 @@ class SqlserverTestDb extends Sqlserver
         return empty($this->describe) ? parent::describe($model) : $this->describe;
     }
 }
+class_alias(SqlserverTestDb::class, 'App\\Model\\Datasource\\Database\\SqlserverTestDb');
 
 /**
  * SqlserverTestModel class
@@ -192,6 +194,7 @@ class SqlserverTestModel extends CakeTestModel
         return $conditions;
     }
 }
+class_alias(SqlserverTestModel::class, 'App\\Model\\SqlserverTestModel');
 
 /**
  * SqlserverClientTestModel class
@@ -220,6 +223,7 @@ class SqlserverClientTestModel extends CakeTestModel
         'updated' => ['type' => 'datetime', 'null' => '1', 'default' => '', 'length' => null],
     ];
 }
+class_alias(SqlserverClientTestModel::class, 'App\\Model\\SqlserverClientTestModel');
 
 /**
  * SqlserverTestResultIterator class

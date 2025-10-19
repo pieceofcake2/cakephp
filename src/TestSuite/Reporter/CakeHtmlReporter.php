@@ -178,17 +178,17 @@ class CakeHtmlReporter extends CakeBaseReporter
         echo '<div style="padding:0 0 5px;">';
         echo '<p><strong>Time:</strong> ' . $result->time() . ' seconds</p>';
         echo '<p><strong>Peak memory:</strong> ' . number_format(memory_get_peak_usage()) . ' bytes</p>';
-        echo $this->_paintLinks();
+        $this->_paintLinks();
         echo '</div>';
         if (isset($this->params['codeCoverage']) && $this->params['codeCoverage']) {
             $coverage = $result->getCodeCoverage();
             if (method_exists($coverage, 'getSummary')) {
                 $report = $coverage->getSummary();
-                echo $this->paintCoverage($report);
+                $this->paintCoverage($report);
             }
             if (method_exists($coverage, 'getData')) {
                 $report = $coverage->getData();
-                echo $this->paintCoverage($report);
+                $this->paintCoverage($report);
             }
         }
         $this->paintDocumentEnd();

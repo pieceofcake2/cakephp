@@ -172,10 +172,12 @@ class CakeEventManager
      * @param string $eventKey The event unique identifier name with which the callback has been associated
      * @return void
      */
-    public function detach($callable, $eventKey = null)
+    public function detach($callable, $eventKey = null): void
     {
         if ($callable instanceof CakeEventListener) {
-            return $this->_detachSubscriber($callable, $eventKey);
+            $this->_detachSubscriber($callable, $eventKey);
+
+            return;
         }
         if (empty($eventKey)) {
             foreach (array_keys($this->_listeners) as $eventKey) {
@@ -204,7 +206,7 @@ class CakeEventManager
      * @param string $eventKey optional event key name to unsubscribe the listener from
      * @return void
      */
-    protected function _detachSubscriber(CakeEventListener $subscriber, $eventKey = null)
+    protected function _detachSubscriber(CakeEventListener $subscriber, $eventKey = null): void
     {
         $events = (array)$subscriber->implementedEvents();
         if (!empty($eventKey) && empty($events[$eventKey])) {

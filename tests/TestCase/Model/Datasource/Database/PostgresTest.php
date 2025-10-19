@@ -23,6 +23,7 @@ use Cake\Core\Configure;
 use Cake\Model\CakeSchema;
 use Cake\Model\ConnectionManager;
 use Cake\Model\Datasource\Database\Postgres;
+use Cake\Model\Datasource\DboSource;
 use Cake\Model\Model;
 use Cake\Test\TestCase\Model\Article;
 use Cake\TestSuite\CakeTestCase;
@@ -73,6 +74,7 @@ class DboPostgresTestDb extends Postgres
         return $this->simulated[count($this->simulated) - 1];
     }
 }
+class_alias(DboPostgresTestDb::class, 'App\\Model\\Datasource\\Database\\DboPostgresTestDb');
 
 /**
  * PostgresTestModel class
@@ -157,6 +159,7 @@ class PostgresTestModel extends Model
         ];
     }
 }
+class_alias(PostgresTestModel::class, 'App\\Model\\PostgresTestModel');
 
 /**
  * PostgresClientTestModel class
@@ -188,6 +191,7 @@ class PostgresClientTestModel extends Model
         ];
     }
 }
+class_alias(PostgresClientTestModel::class, 'App\\Model\\PostgresClientTestModel');
 
 /**
  * PostgresTest class

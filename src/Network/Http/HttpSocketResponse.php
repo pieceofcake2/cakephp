@@ -275,8 +275,8 @@ class HttpSocketResponse implements ArrayAccess
     /**
      * Parses an array based header.
      *
-     * @param array $header Header as an indexed array (field => value)
-     * @return array|bool Parsed header
+     * @param array|string $header Header as an indexed array (field => value)
+     * @return array|false Parsed header
      */
     protected function _parseHeader($header)
     {
@@ -290,6 +290,7 @@ class HttpSocketResponse implements ArrayAccess
         $lines = explode("\r\n", $header);
 
         $header = [];
+        $value = '';
         foreach ($lines as $line) {
             if (strlen($line) === 0) {
                 continue;

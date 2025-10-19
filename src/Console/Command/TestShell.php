@@ -380,11 +380,11 @@ class TestShell extends Shell
         $testFile = $testCase = null;
 
         // File path
-        if (preg_match('@(Test|tests)[\\\/]@', $file)) {
+        if (preg_match('@(Test|tests|tests_legacy)[\\\/]@', $file)) {
             if (str_ends_with($file, 'Test.php')) {
                 $testCase = substr($file, 0, -8);
                 $testCase = str_replace(DS, '/', $testCase);
-                $testCase = preg_replace('@.*(?:Test\/Case|tests\/TestCase)\/@', '', $testCase);
+                $testCase = preg_replace('@.*(?:Test\/Case|tests\/TestCase|tests_legacy\/TestCase)\/@', '', $testCase);
                 if (!empty($testCase)) {
                     return $testCase;
                 }

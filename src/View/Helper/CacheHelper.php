@@ -324,7 +324,7 @@ class CacheHelper extends AppHelper
             return null;
         }
         $cache = $cache . '.php';
-        $file = '<!--cachetime:' . $cacheTime . '--><?php';
+        $file = '<!--cachetime:' . $cacheTime . '--><?php' . "\n";
 
         // Use the fully qualified controller class name if available
         $controllerClass = $this->_View->controllerClass ?: $this->_View->name . 'Controller';

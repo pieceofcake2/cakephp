@@ -77,7 +77,7 @@ class ViewBlock
      * @throws CakeException When starting a block twice
      * @return void
      */
-    public function start($name)
+    public function start($name): void
     {
         if (in_array($name, $this->_active)) {
             throw new CakeException(__d('cake', "A view block with the name '%s' is already/still open.", $name));
@@ -98,10 +98,12 @@ class ViewBlock
      * @param string $name The name of the block to capture for.
      * @return void
      */
-    public function startIfEmpty($name)
+    public function startIfEmpty($name): void
     {
         if (empty($this->_blocks[$name])) {
-            return $this->start($name);
+            $this->start($name);
+
+            return;
         }
         $this->_discardActiveBufferOnEnd = true;
         ob_start();

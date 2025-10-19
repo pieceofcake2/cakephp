@@ -93,21 +93,19 @@ class CakeTestSuiteDispatcher
      *
      * @return void
      */
-    public function dispatch()
+    public function dispatch(): void
     {
         $this->_checkPHPUnit();
         $this->_parseParams();
 
         if ($this->params['case']) {
-            $value = $this->_runTestCase();
+            $this->_runTestCase();
         } else {
-            $value = $this->_testCaseList();
+            $this->_testCaseList();
         }
 
         $output = ob_get_clean();
         echo $output;
-
-        return $value;
     }
 
     /**
@@ -164,7 +162,7 @@ class CakeTestSuiteDispatcher
      *
      * @return void
      */
-    protected function _testCaseList()
+    protected function _testCaseList(): void
     {
         $command = new CakeTestSuiteCommand('', $this->params);
         $Reporter = $command->handleReporter($this->params['output']);
@@ -219,7 +217,7 @@ class CakeTestSuiteDispatcher
      *
      * @return void
      */
-    protected function _runTestCase()
+    protected function _runTestCase(): void
     {
         $commandArgs = [
             'case' => $this->params['case'],

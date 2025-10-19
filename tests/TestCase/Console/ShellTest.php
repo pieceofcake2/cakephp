@@ -98,7 +98,7 @@ class ShellTestShell extends Shell
     //@codingStandardsIgnoreEnd
 
     /**
-     * @template T of object
+     * @template T
      * @param array $properties
      * @param class-string<T> $class
      * @param bool $normalize

@@ -126,7 +126,7 @@ abstract class BaseCoverageReport
      * @param string $path Path to filter files by.
      * @return array Array of coverage data for files that match the given path.
      */
-    public function filterCoverageDataByPath($path)
+    public function filterCoverageDataByPath(string $path): array
     {
         $files = [];
         foreach ($this->_rawCoverage as $fileName => $fileCoverage) {

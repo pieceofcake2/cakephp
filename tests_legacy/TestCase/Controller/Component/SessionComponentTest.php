@@ -1,0 +1,297 @@
+<?php
+/**
+ * SessionComponentTest file
+ *
+ * CakePHP(tm) Tests <https://book.cakephp.org/2.0/en/development/testing.html>
+ * Copyright (c) Cake Software Foundation, Inc. (https://cakefoundation.org)
+ *
+ * Licensed under The MIT License
+ * For full copyright and license information, please see the LICENSE.txt
+ * Redistributions of files must retain the above copyright notice
+ *
+ * @copyright     Copyright (c) Cake Software Foundation, Inc. (https://cakefoundation.org)
+ * @link          https://book.cakephp.org/2.0/en/development/testing.html CakePHP(tm) Tests
+ * @package       Cake.Test.Case.Controller.Component
+ * @since         CakePHP(tm) v 1.2.0.5436
+ * @license       https://opensource.org/licenses/mit-license.php MIT License
+ */
+
+/**
+ * SessionTestController class
+ *
+ * @package       Cake.Test.Case.Controller.Component
+ */
+class SessionTestController extends Controller
+{
+    /**
+     * uses property
+     *
+     * @var array
+     */
+    public $uses = [];
+
+    /**
+     * sessionId method
+     *
+     * @return string
+     */
+    public function sessionId()
+    {
+        return $this->Session->id();
+    }
+}
+
+/**
+ * OrangeSessionTestController class
+ *
+ * @package       Cake.Test.Case.Controller.Component
+ */
+class OrangeSessionTestController extends Controller
+{
+    /**
+     * uses property
+     *
+     * @var array
+     */
+    public $uses = [];
+
+    /**
+     * sessionId method
+     *
+     * @return string
+     */
+    public function sessionId()
+    {
+        return $this->Session->id();
+    }
+}
+
+/**
+ * SessionComponentTest class
+ *
+ * @package       Cake.Test.Case.Controller.Component
+ */
+class SessionComponentTest extends CakeTestCase
+{
+    protected static $_sessionBackup;
+
+    /**
+     * fixtures
+     *
+     * @var string
+     */
+    public $fixtures = ['core.session'];
+
+    /**
+     * test case startup
+     *
+     * @return void
+     */
+    public static function setupBeforeClass(): void
+    {
+        static::$_sessionBackup = Configure::read('Session');
+        Configure::write('Session', [
+            'defaults' => 'php',
+            'timeout' => 100,
+            'cookie' => 'test',
+        ]);
+    }
+
+    /**
+     * cleanup after test case.
+     *
+     * @return void
+     */
+    public static function teardownAfterClass(): void
+    {
+        Configure::write('Session', static::$_sessionBackup);
+    }
+
+    /**
+     * setUp method
+     *
+     * @return void
+     */
+    public function setUp(): void
+    {
+        parent::setUp();
+        $_SESSION = null;
+        $this->ComponentCollection = new ComponentCollection();
+    }
+
+    /**
+     * tearDown method
+     *
+     * @return void
+     */
+    public function tearDown(): void
+    {
+        CakeSession::destroy();
+
+        parent::tearDown();
+    }
+
+    /**
+     * ensure that session ids don't change when request action is called.
+     *
+     * @return void
+     */
+    public function testSessionIdConsistentAcrossRequestAction()
+    {
+        $Object = new CakeObject();
+        $Session = new SessionComponent($this->ComponentCollection);
+        $expected = $Session->id();
+
+        $result = $Object->requestAction('/session_test/sessionId');
+        $this->assertEquals($expected, $result);
+
+        $result = $Object->requestAction('/orange_session_test/sessionId');
+        $this->assertEquals($expected, $result);
+    }
+
+    /**
+     * testSessionValid method
+     *
+     * @return void
+     */
+    public function testSessionValid()
+    {
+        $Session = new SessionComponent($this->ComponentCollection);
+
+        $this->assertTrue($Session->valid());
+
+        Configure::write('Session.checkAgent', true);
+        $Session->userAgent('rweerw');
+        $this->assertFalse($Session->valid());
+
+        $Session = new SessionComponent($this->ComponentCollection);
+        $Session->time = $Session->read('Config.time') + 1;
+        $this->assertFalse($Session->valid());
+    }
+
+    /**
+     * testSessionError method
+     *
+     * @return void
+     */
+    public function testSessionError()
+    {
+        CakeSession::$lastError = null;
+        $Session = new SessionComponent($this->ComponentCollection);
+        $this->assertFalse($Session->error());
+    }
+
+    /**
+     * testSessionReadWrite method
+     *
+     * @return void
+     */
+    public function testSessionReadWrite()
+    {
+        $Session = new SessionComponent($this->ComponentCollection);
+
+        $this->assertNull($Session->read('Test'));
+
+        $this->assertTrue($Session->write('Test', 'some value'));
+        $this->assertEquals('some value', $Session->read('Test'));
+        $Session->delete('Test');
+
+        $this->assertTrue($Session->write('Test.key.path', 'some value'));
+        $this->assertEquals('some value', $Session->read('Test.key.path'));
+        $this->assertEquals(['path' => 'some value'], $Session->read('Test.key'));
+        $this->assertTrue($Session->write('Test.key.path2', 'another value'));
+        $this->assertEquals(['path' => 'some value', 'path2' => 'another value'], $Session->read('Test.key'));
+        $Session->delete('Test');
+
+        $array = ['key1' => 'val1', 'key2' => 'val2', 'key3' => 'val3'];
+        $this->assertTrue($Session->write('Test', $array));
+        $this->assertEquals($Session->read('Test'), $array);
+        $Session->delete('Test');
+
+        $this->assertTrue($Session->write(['Test' => 'some value']));
+        $this->assertEquals('some value', $Session->read('Test'));
+        $Session->delete('Test');
+    }
+
+    /**
+     * testSessionDelete method
+     *
+     * @return void
+     */
+    public function testSessionDelete()
+    {
+        $Session = new SessionComponent($this->ComponentCollection);
+
+        $this->assertFalse($Session->delete('Test'));
+
+        $Session->write('Test', 'some value');
+        $this->assertTrue($Session->delete('Test'));
+    }
+
+    /**
+     * testSessionCheck method
+     *
+     * @return void
+     */
+    public function testSessionCheck()
+    {
+        $Session = new SessionComponent($this->ComponentCollection);
+
+        $this->assertFalse($Session->check('Test'));
+
+        $Session->write('Test', 'some value');
+        $this->assertTrue($Session->check('Test'));
+        $Session->delete('Test');
+    }
+
+    /**
+     * testSessionFlash method
+     *
+     * @return void
+     */
+    public function testSessionFlash()
+    {
+        $Session = new SessionComponent($this->ComponentCollection);
+
+        $this->assertNull($Session->read('Message.flash'));
+
+        $Session->setFlash('This is a test message');
+        $this->assertEquals(['message' => 'This is a test message', 'element' => 'default', 'params' => []], $Session->read('Message.flash.0'));
+
+        $Session->setFlash('This is a test message', 'test', ['name' => 'Joel Moss']);
+        $this->assertEquals(['message' => 'This is a test message', 'element' => 'test', 'params' => ['name' => 'Joel Moss']], $Session->read('Message.flash.1'));
+
+        $Session->setFlash('This is a test message', 'default', [], 'myFlash');
+        $this->assertEquals(['message' => 'This is a test message', 'element' => 'default', 'params' => []], $Session->read('Message.myFlash.0'));
+
+        $Session->delete('Message');
+    }
+
+    /**
+     * testSessionId method
+     *
+     * @return void
+     */
+    public function testSessionId()
+    {
+        unset($_SESSION);
+        $Session = new SessionComponent($this->ComponentCollection);
+        CakeSession::start();
+        $this->assertEquals(session_id(), $Session->id());
+    }
+
+    /**
+     * testSessionDestroy method
+     *
+     * @return void
+     */
+    public function testSessionDestroy()
+    {
+        $Session = new SessionComponent($this->ComponentCollection);
+
+        $Session->write('Test', 'some value');
+        $this->assertEquals('some value', $Session->read('Test'));
+        $Session->destroy();
+        $this->assertNull($Session->read('Test'));
+    }
+}

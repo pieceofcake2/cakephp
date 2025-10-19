@@ -19,6 +19,7 @@ namespace Cake\Model\Datasource\Database;
 use Cake\Error\MissingConnectionException;
 use Cake\Model\Datasource\DboSource;
 use Cake\Model\Model;
+use Cake\Utility\Hash;
 use PDO;
 use PDOException;
 

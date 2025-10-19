@@ -99,9 +99,9 @@ class XmlView extends View
      * XML responses very easy. You can omit the '_serialize' parameter,
      * and use a normal view + layout as well.
      *
-     * @param string $view The view being rendered.
-     * @param string $layout The layout being rendered.
-     * @return string The rendered view.
+     * @param string|bool|null $view The view being rendered.
+     * @param string|null $layout The layout being rendered.
+     * @return string|null The rendered view.
      */
     public function render($view = null, $layout = null)
     {
@@ -111,6 +111,8 @@ class XmlView extends View
         if ($view !== false && $this->_getViewFileName($view)) {
             return parent::render($view, false);
         }
+
+        return null;
     }
 
     /**

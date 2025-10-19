@@ -273,7 +273,7 @@ class ErrorHandlerTest extends CakeTestCase
         $this->assertMatchesRegularExpression('/Kaboom!/', $result, 'message missing.');
 
         $log = file(LOGS . 'error.log');
-        $this->assertStringContainsString('[Cake\Error\NotFoundException] Kaboom!', $log[0], 'message missing.');
+        $this->assertStringContainsString('[NotFoundException] Kaboom!', $log[0], 'message missing.');
         $this->assertStringContainsString('ErrorHandlerTest->testHandleExceptionLog', $log[2], 'Stack trace missing.');
     }
 
@@ -303,8 +303,8 @@ class ErrorHandlerTest extends CakeTestCase
         $this->assertMatchesRegularExpression('/Fooled you!/', $result, 'message missing.');
 
         $log = file(LOGS . 'error.log');
-        $this->assertStringNotContainsString('[Cake\Error\NotFoundException] Kaboom!', $log[0], 'message should not be logged.');
-        $this->assertStringContainsString('[Cake\Error\ForbiddenException] Fooled you!', $log[0], 'message missing.');
+        $this->assertStringNotContainsString('[NotFoundException] Kaboom!', $log[0], 'message should not be logged.');
+        $this->assertStringContainsString('[ForbiddenException] Fooled you!', $log[0], 'message missing.');
     }
 
     /**
@@ -392,7 +392,7 @@ class ErrorHandlerTest extends CakeTestCase
 
         $log = file(LOGS . 'error.log');
         $this->assertStringContainsString(__FILE__, $log[0], 'missing filename');
-        $this->assertStringContainsString('[Cake\Error\FatalErrorException] Something wrong', $log[1], 'message missing.');
+        $this->assertStringContainsString('[FatalErrorException] Something wrong', $log[1], 'message missing.');
     }
 
     /**

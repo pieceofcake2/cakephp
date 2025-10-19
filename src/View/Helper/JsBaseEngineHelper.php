@@ -207,7 +207,7 @@ abstract class JsBaseEngineHelper extends AppHelper
      * Encode a string into JSON. Converts and escapes necessary characters.
      *
      * @param string $string The string that needs to be utf8->hex encoded
-     * @return void
+     * @return string
      */
     protected function _utf8ToHex($string)
     {

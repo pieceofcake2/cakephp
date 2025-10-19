@@ -26,6 +26,8 @@ use Cake\Log\CakeLog;
 use Cake\Routing\Router;
 use Cake\Utility\Debugger;
 use Exception;
+use ParseError;
+use ReflectionClass;
 
 /**
  * Error Handler provides basic error and exception handling for your application. It captures and
@@ -117,9 +119,9 @@ class ErrorHandler
      * @return void
      * @see http://php.net/manual/en/function.set-exception-handler.php
      */
-    public static function handleException($exception)
+    public static function handleException(Exception|ParseError $exception): void
     {
-        $config = Configure::read('Exception');
+        $config = Configure::read('Exception') ?? [];
         static::_log($exception, $config);
 
         $renderer = $config['renderer'] ?? 'ExceptionRenderer';
@@ -163,7 +165,7 @@ class ErrorHandler
     {
         $message = sprintf(
             '[%s] %s',
-            $exception::class,
+            (new ReflectionClass($exception))->getShortName(),
             $exception->getMessage(),
         );
         if (method_exists($exception, 'getAttributes')) {
@@ -190,7 +192,7 @@ class ErrorHandler
      * @param array $config An array of configuration for logging.
      * @return bool
      */
-    protected static function _log($exception, $config)
+    protected static function _log(Exception|ParseError $exception, array $config): bool
     {
         if (empty($config['log'])) {
             return false;
@@ -219,10 +221,9 @@ class ErrorHandler
      * @param string $description Error description
      * @param string $file File on which error occurred
      * @param int $line Line that triggered the error
-     * @param array $context Context
-     * @return bool true if error was handled
+     * @return mixed|bool|void true if error was handled
      */
-    public static function handleError($code, $description, $file = null, $line = null, $context = null)
+    public static function handleError(int $code, string $description, string $file, int $line)
     {
         //PHP8 migration guide: https://www.php.net/manual/en/migration80.incompatible.php
         //See: @ operator
@@ -243,7 +244,6 @@ class ErrorHandler
                 'description' => $description,
                 'file' => $file,
                 'line' => $line,
-                'context' => $context,
                 'start' => 2,
                 'path' => Debugger::trimPath($file),
             ];
@@ -266,7 +266,7 @@ class ErrorHandler
      * @throws FatalErrorException If the Exception renderer threw an exception during rendering, and debug > 0.
      * @throws InternalErrorException If the Exception renderer threw an exception during rendering, and debug is 0.
      */
-    public static function handleFatalError($code, $description, $file, $line)
+    public static function handleFatalError(int $code, string $description, string $file, int $line): bool
     {
         $logMessage = 'Fatal Error (' . $code . '): ' . $description . ' in [' . $file . ', line ' . $line . ']';
         CakeLog::write(LOG_ERR, $logMessage);
@@ -300,9 +300,9 @@ class ErrorHandler
      * Map an error code into an Error word, and log location.
      *
      * @param int $code Error code to map
-     * @return array Array of error word, and log location.
+     * @return list{string|null, int|null} Array of error word, and log location.
      */
-    public static function mapErrorCode($code)
+    public static function mapErrorCode(int $code): array
     {
         $error = $log = null;
         switch ($code) {
@@ -342,11 +342,11 @@ class ErrorHandler
      * @param string $error The error type (e.g. "Warning")
      * @param int $code Code of error
      * @param string $description Error description
-     * @param string $file File on which error occurred
-     * @param int $line Line that triggered the error
+     * @param string|null $file File on which error occurred
+     * @param int|null $line Line that triggered the error
      * @return string
      */
-    protected static function _getErrorMessage($error, $code, $description, $file, $line)
+    protected static function _getErrorMessage(string $error, int $code, string $description, string $file, int $line): string
     {
         $errorConfig = Configure::read('Error');
         $message = $error . ' (' . $code . '): ' . $description . ' in [' . $file . ', line ' . $line . ']';

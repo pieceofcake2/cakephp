@@ -32,7 +32,7 @@ class TextCoverageReport extends BaseCoverageReport
      *
      * @return string compiled plain text report.
      */
-    public function report()
+    public function report(): string
     {
         $pathFilter = $this->getPathFilter();
         $coverageData = $this->filterCoverageDataByPath($pathFilter);
@@ -40,9 +40,9 @@ class TextCoverageReport extends BaseCoverageReport
             return 'No files to generate coverage for';
         }
         $output = "\nCoverage Report:\n\n";
-        foreach ($coverageData as $file => $coverageData) {
+        foreach ($coverageData as $file => $_coverageData) {
             $fileData = file($file);
-            $output .= $this->generateDiff($file, $fileData, $coverageData);
+            $output .= $this->generateDiff($file, $fileData, $_coverageData);
         }
 
         return $output;
@@ -57,7 +57,7 @@ class TextCoverageReport extends BaseCoverageReport
      * @param array $coverageData Array of coverage data to use to generate HTML diffs with
      * @return string
      */
-    public function generateDiff($filename, $fileLines, $coverageData)
+    public function generateDiff($filename, $fileLines, $coverageData): string
     {
         [$covered, $total] = $this->_calculateCoveredLines($fileLines, $coverageData);
         $percentCovered = round(100 * $covered / $total, 2, PHP_ROUND_HALF_UP);

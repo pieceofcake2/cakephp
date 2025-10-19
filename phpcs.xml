@@ -118,7 +118,6 @@
         <exclude-pattern>src/basics.php</exclude-pattern>
         <exclude-pattern>src/functions.php</exclude-pattern>
         <exclude-pattern>src/Cache/Engine/FileEngine.php</exclude-pattern>
-        <exclude-pattern>src/Console/Command/ConsoleShell.php</exclude-pattern>
         <exclude-pattern>src/Console/Shell.php</exclude-pattern>
         <exclude-pattern>src/Network/CakeResponse.php</exclude-pattern>
         <exclude-pattern>src/Utility/Folder.php</exclude-pattern>
@@ -129,11 +128,6 @@
         <exclude-pattern>tests/TestCase/Cache/Engine/MemcachedEngineTest.php</exclude-pattern>
         <exclude-pattern>tests/TestCase/Cache/Engine/RedisEngineTest.php</exclude-pattern>
         <exclude-pattern>tests/TestCase/Error/ErrorHandlerTest.php</exclude-pattern>
-    </rule>
-
-    <!-- Allow eval() in ConsoleShell for interactive console functionality -->
-    <rule ref="Squiz.PHP.Eval.Discouraged">
-        <exclude-pattern>src/Console/Command/ConsoleShell.php</exclude-pattern>
     </rule>
 
     <!-- Allow non-PascalCase class names in database.php files (CakePHP2 convention) -->

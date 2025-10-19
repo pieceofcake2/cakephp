@@ -116,7 +116,13 @@ class PhpReader implements ConfigReaderInterface
         $key .= '.php';
 
         if ($plugin) {
-            $file = CakePlugin::path($plugin) . 'Config' . DS . $key;
+            if (is_dir(CakePlugin::path($plugin) . 'config')) {
+                $configPath = CakePlugin::path($plugin) . 'config' . DS;
+            } else {
+                $configPath = CakePlugin::path($plugin) . 'Config' . DS;
+            }
+
+            $file = $configPath . $key;
         } else {
             $file = $this->_path . $key;
         }

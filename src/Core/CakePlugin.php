@@ -193,6 +193,21 @@ class CakePlugin
     }
 
     /**
+     * Returns the filesystem path for plugin's folder containing class files.
+     *
+     * In CakePHP 2.x, this is the same as the plugin path since classes are located
+     * in the plugin root directory structure (Controller/, Model/, etc.).
+     *
+     * @param string $plugin name of the plugin in CamelCase format
+     * @return string path to the plugin folder containing class files
+     * @throws MissingPluginException if the folder for plugin was not found or plugin has not been loaded
+     */
+    public static function classPath($plugin)
+    {
+        return static::path($plugin);
+    }
+
+    /**
      * Loads the bootstrapping files for a plugin, or calls the initialization setup in the configuration
      *
      * @param string $plugin name of the plugin
@@ -210,7 +225,7 @@ class CakePlugin
         }
 
         $path = static::path($plugin);
-        if (is_dir($path . 'config' . DS)) {
+        if (is_dir($path . 'config')) {
             $configPath = $path . 'config' . DS;
         } else {
             $configPath = $path . 'Config' . DS;
@@ -254,8 +269,14 @@ class CakePlugin
             return false;
         }
 
+        if (is_dir(static::path($plugin) . 'config')) {
+            $configPath = static::path($plugin) . 'config' . DS;
+        } else {
+            $configPath = static::path($plugin) . 'Config' . DS;
+        }
+
         return (bool)static::_includeFile(
-            static::path($plugin) . 'Config' . DS . 'routes.php',
+            $configPath . 'routes.php',
             $config['ignoreMissing'],
         );
     }

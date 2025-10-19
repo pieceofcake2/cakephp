@@ -135,7 +135,7 @@ class CakeObject
      * testing easier.
      *
      * @param string|int $status see http://php.net/exit for values
-     * @return void
+     * @return never
      */
     protected function _stop($status = 0)
     {
@@ -187,7 +187,7 @@ class CakeObject
      * This provides some of the DRY magic CakePHP provides. If you want to shut it off, redefine
      * this method as an empty function.
      *
-     * @template T of object
+     * @template T
      * @param array $properties The name of the properties to merge.
      * @param class-string<T> $class The class to merge the property with.
      * @param bool $normalize Set to true to run the properties through Hash::normalize() before merging.

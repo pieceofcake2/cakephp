@@ -240,7 +240,7 @@ class Scaffold
      *
      * @param CakeRequest $request Request Object for scaffolding
      * @param string $action add or edit
-     * @return mixed Success on save/update, add/edit form if data is empty or error if save or update fails
+     * @return mixed|void Success on save/update, add/edit form if data is empty or error if save or update fails
      * @throws NotFoundException
      */
     protected function _scaffoldSave(CakeRequest $request, $action = 'edit')
@@ -305,7 +305,7 @@ class Scaffold
                 $this->controller->set($varName, $this->ScaffoldModel->{$assocName}->find('list'));
             }
 
-            return $this->_scaffoldForm($formAction);
+            $this->_scaffoldForm($formAction);
         } elseif ($this->controller->scaffoldError($action) === false) {
             return $this->_scaffoldError();
         }

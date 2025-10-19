@@ -736,7 +736,7 @@ class HttpSocket extends CakeSocket
      * @param array|string $uri URI, See HttpSocket::_parseUri()
      * @return bool If uri has merged in config
      */
-    protected function _configUri($uri = null)
+    protected function _configUri($uri = null): bool
     {
         if (empty($uri)) {
             return false;
