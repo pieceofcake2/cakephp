@@ -16,12 +16,23 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\Console;
+
+use Cake\Console\Shell;
+use Cake\Console\ShellDispatcher;
+use Cake\Console\TaskCollection;
+use Cake\Core\App;
+use Cake\Core\CakePlugin;
+use Cake\Error\MissingTaskException;
+use Cake\TestSuite\CakeTestCase;
+
 /**
  * Extended Task
  */
 class ExtractAliasedTask extends Shell
 {
 }
+class_alias(ExtractAliasedTask::class, 'App\\Console\\Command\\Task\\ExtractAliasedTask');
 
 /**
  * TaskCollectionTest
@@ -38,8 +49,8 @@ class TaskCollectionTest extends CakeTestCase
     public function setUp(): void
     {
         parent::setUp();
-        $shell = $this->getMock('Shell', [], [], '', false);
-        $dispatcher = $this->getMock('ShellDispatcher', [], [], '', false);
+        $shell = $this->getMock(Shell::class, [], [], '', false);
+        $dispatcher = $this->getMock(ShellDispatcher::class, [], [], '', false);
         $this->Tasks = new TaskCollection($shell, $dispatcher);
     }
 
@@ -102,8 +113,8 @@ class TaskCollectionTest extends CakeTestCase
      */
     public function testLoadPluginTask()
     {
-        $dispatcher = $this->getMock('ShellDispatcher', [], [], '', false);
-        $shell = $this->getMock('Shell', [], [], '', false);
+        $dispatcher = $this->getMock(ShellDispatcher::class, [], [], '', false);
+        $shell = $this->getMock(Shell::class, [], [], '', false);
         App::build([
             'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS],
         ]);
@@ -152,8 +163,8 @@ class TaskCollectionTest extends CakeTestCase
     public function testLoadWithAlias()
     {
         $result = $this->Tasks->load('Extract', ['className' => 'ExtractAliased']);
-        $this->assertInstanceOf('ExtractAliasedTask', $result);
-        $this->assertInstanceOf('ExtractAliasedTask', $this->Tasks->Extract);
+        $this->assertInstanceOf(ExtractAliasedTask::class, $result);
+        $this->assertInstanceOf(ExtractAliasedTask::class, $this->Tasks->Extract);
 
         $result = $this->Tasks->loaded();
         $this->assertEquals(['Extract'], $result, 'loaded() results are wrong.');

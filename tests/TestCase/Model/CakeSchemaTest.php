@@ -16,6 +16,21 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\Model;
+
+use Cake\Core\App;
+use Cake\Core\CakePlugin;
+use Cake\Error\MissingTableException;
+use Cake\Model\CakeSchema;
+use Cake\Model\ConnectionManager;
+use Cake\Model\Datasource\Database\Sqlite;
+use Cake\TestSuite\CakeTestCase;
+use Cake\TestSuite\Fixture\CakeTestFixture;
+use Cake\TestSuite\Fixture\CakeTestModel;
+use Cake\Utility\ClassRegistry;
+use Exception;
+use MyOtherAppSchema;
+
 /**
  * Test for Schema database management
  *
@@ -93,6 +108,7 @@ class MyAppSchema extends CakeSchema
         return $this->$var;
     }
 }
+class_alias(MyAppSchema::class, 'MyAppSchema');
 
 /**
  * TestAppSchema class
@@ -206,6 +222,7 @@ class TestAppSchema extends CakeSchema
     {
     }
 }
+class_alias(TestAppSchema::class, 'TestAppSchema');
 
 /**
  * SchemaPost class
@@ -235,6 +252,7 @@ class SchemaPost extends CakeTestModel
      */
     public $hasAndBelongsToMany = ['SchemaTag'];
 }
+class_alias(SchemaPost::class, 'App\\Model\\SchemaPost');
 
 /**
  * SchemaComment class
@@ -257,6 +275,7 @@ class SchemaComment extends CakeTestModel
      */
     public $belongsTo = ['SchemaPost'];
 }
+class_alias(SchemaComment::class, 'App\\Model\\SchemaComment');
 
 /**
  * SchemaTag class
@@ -279,6 +298,7 @@ class SchemaTag extends CakeTestModel
      */
     public $hasAndBelongsToMany = ['SchemaPost'];
 }
+class_alias(SchemaTag::class, 'App\\Model\\SchemaTag');
 
 /**
  * SchemaDatatype class
@@ -294,6 +314,7 @@ class SchemaDatatype extends CakeTestModel
      */
     public $useTable = 'datatypes';
 }
+class_alias(SchemaDatatype::class, 'App\\Model\\SchemaDatatype');
 
 /**
  * Testdescribe class
@@ -308,6 +329,7 @@ class SchemaDatatype extends CakeTestModel
 class Testdescribe extends CakeTestModel
 {
 }
+class_alias(Testdescribe::class, 'App\\Model\\Testdescribe');
 
 /**
  * SchemaCrossDatabase class
@@ -330,6 +352,7 @@ class SchemaCrossDatabase extends CakeTestModel
      */
     public $useDbConfig = 'test2';
 }
+class_alias(SchemaCrossDatabase::class, 'App\\Model\\SchemaCrossDatabase');
 
 /**
  * SchemaCrossDatabaseFixture class
@@ -427,6 +450,7 @@ class SchemaPrefixAuthUser extends CakeTestModel
      */
     public $useTable = 'users';
 }
+class_alias(SchemaPrefixAuthUser::class, 'App\\Model\\SchemaPrefixAuthUser');
 
 /**
  * CakeSchemaTest

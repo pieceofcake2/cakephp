@@ -16,6 +16,11 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\View;
+
+use Cake\TestSuite\CakeTestCase;
+use Cake\View\MediaView;
+
 /**
  * MediaViewTest class
  *
@@ -32,7 +37,7 @@ class MediaViewTest extends CakeTestCase
     {
         parent::setUp();
         $this->MediaView = new MediaView();
-        $this->MediaView->response = $this->getMock('CakeResponse', [
+        $this->MediaView->response = $this->getMock(CakeResponse::class, [
             'cache',
             'type',
             'disableCache',

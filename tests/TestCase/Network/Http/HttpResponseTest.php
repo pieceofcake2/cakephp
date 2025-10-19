@@ -15,6 +15,13 @@
  * @since         CakePHP(tm) v 1.2.0.4206
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
+
+namespace Cake\Test\TestCase\Network\Http;
+
+use Cake\Error\SocketException;
+use Cake\Network\Http\HttpResponse;
+use Cake\TestSuite\CakeTestCase;
+
 /**
  * TestHttpResponse class
  *

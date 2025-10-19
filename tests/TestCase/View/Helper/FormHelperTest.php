@@ -16,6 +16,25 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\View\Helper;
+
+use Cake\Controller\Controller;
+use Cake\Core\App;
+use Cake\Core\CakePlugin;
+use Cake\Core\Configure;
+use Cake\Error\CakeException;
+use Cake\Model\Model;
+use Cake\Network\CakeRequest;
+use Cake\Routing\Router;
+use Cake\TestSuite\CakeTestCase;
+use Cake\TestSuite\Fixture\CakeTestModel;
+use Cake\Utility\ClassRegistry;
+use Cake\Utility\Security;
+use Cake\View\Helper\FormHelper;
+use Cake\View\Helper\HtmlHelper;
+use Cake\View\View;
+use ReflectionProperty;
+
 /**
  * ContactTestController class
  *
@@ -30,6 +49,7 @@ class ContactTestController extends Controller
      */
     public $uses = null;
 }
+class_alias(ContactTestController::class, 'App\\Controller\\ContactTestController');
 
 /**
  * Contact class
@@ -124,6 +144,7 @@ class Contact extends CakeTestModel
      */
     public $belongsTo = ['User' => ['className' => 'UserForm']];
 }
+class_alias(Contact::class, 'App\\Model\\Contact');
 
 /**
  * ContactTagsContact class
@@ -161,6 +182,7 @@ class ContactTagsContact extends CakeTestModel
         $this->_schema = $schema;
     }
 }
+class_alias(ContactTagsContact::class, 'App\\Model\\ContactTagsContact');
 
 /**
  * ContactNonStandardPk class
@@ -190,6 +212,7 @@ class ContactNonStandardPk extends Contact
         return $this->_schema;
     }
 }
+class_alias(ContactNonStandardPk::class, 'App\\Model\\ContactNonStandardPk');
 
 /**
  * ContactTag class
@@ -217,6 +240,7 @@ class ContactTag extends Model
         'modified' => ['type' => 'datetime', 'null' => true, 'default' => '', 'length' => null],
     ];
 }
+class_alias(ContactTag::class, 'App\\Model\\ContactTag');
 
 /**
  * UserForm class
@@ -238,8 +262,10 @@ class UserForm extends CakeTestModel
      * @var array
      */
     public $hasMany = [
-        'OpenidUrl' => ['className' => 'OpenidUrl', 'foreignKey' => 'user_form_id',
-        ]];
+        'OpenidUrl' => [
+            'className' => 'OpenidUrl', 'foreignKey' => 'user_form_id',
+        ],
+    ];
 
     /**
      * schema definition
@@ -257,6 +283,7 @@ class UserForm extends CakeTestModel
         'updated' => ['type' => 'datetime', 'null' => '1', 'default' => '', 'length' => null],
     ];
 }
+class_alias(UserForm::class, 'App\\Model\\UserForm');
 
 /**
  * OpenidUrl class
@@ -313,6 +340,7 @@ class OpenidUrl extends CakeTestModel
         return true;
     }
 }
+class_alias(OpenidUrl::class, 'App\\Model\\OpenidUrl');
 
 /**
  * ValidateUser class
@@ -367,6 +395,7 @@ class ValidateUser extends CakeTestModel
         return false;
     }
 }
+class_alias(ValidateUser::class, 'App\\Model\\ValidateUser');
 
 /**
  * ValidateProfile class
@@ -427,6 +456,7 @@ class ValidateProfile extends CakeTestModel
         return false;
     }
 }
+class_alias(ValidateProfile::class, 'App\\Model\\ValidateProfile');
 
 /**
  * ValidateItem class
@@ -477,6 +507,7 @@ class ValidateItem extends CakeTestModel
         return false;
     }
 }
+class_alias(ValidateItem::class, 'App\\Model\\ValidateItem');
 
 /**
  * TestMail class
@@ -492,6 +523,7 @@ class TestMail extends CakeTestModel
      */
     public $useTable = false;
 }
+class_alias(TestMail::class, 'App\\Model\\TestMail');
 
 /**
  * FormHelperTest class
@@ -9931,7 +9963,7 @@ class FormHelperTest extends CakeTestCase
     public function testCreateNoErrorsWithMockModel()
     {
         $encoding = strtolower(Configure::read('App.encoding'));
-        $ContactMock = $this->getMockBuilder('Contact')
+        $ContactMock = $this->getMockBuilder(Contact::class)
             ->disableOriginalConstructor()
             ->getMock();
         ClassRegistry::removeObject('Contact');

@@ -16,6 +16,17 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\View\Helper;
+
+use Cake\Controller\Controller;
+use Cake\Core\App;
+use Cake\Core\Configure;
+use Cake\Network\CakeRequest;
+use Cake\Routing\Router;
+use Cake\TestSuite\CakeTestCase;
+use Cake\View\Helper\CacheHelper;
+use Cake\View\View;
+
 /**
  * CacheTestController class
  *
@@ -601,7 +612,7 @@ class CacheHelperTest extends CakeTestCase
         $View->cacheAction = '+1 day';
         $View->output = 'test';
 
-        $Cache = $this->getMock('CacheHelper', ['_parseContent'], [$View]);
+        $Cache = $this->getMock(CacheHelper::class, ['_parseContent'], [$View]);
         $Cache->expects($this->once())
             ->method('_parseContent')
             ->with('posts/index', 'content')
@@ -629,7 +640,7 @@ class CacheHelperTest extends CakeTestCase
         $View->cacheAction = '+1 day';
         $View->output = 'test';
 
-        $Cache = $this->getMock('CacheHelper', ['cache'], [$View]);
+        $Cache = $this->getMock(CacheHelper::class, ['cache'], [$View]);
         $Cache->expects($this->once())
             ->method('cache')
             ->with('posts/index', $View->output)

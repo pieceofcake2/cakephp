@@ -1,5 +1,13 @@
 <?php
 
+namespace Cake\Test\TestCase\Controller;
+
+use AppController;
+use Cake\Core\App;
+use Cake\Core\Configure;
+use Cake\Model\Datasource\CakeSession;
+use Cake\TestSuite\ControllerTestCase;
+
 App::uses('AppController', 'Controller');
 
 /**
@@ -51,6 +59,7 @@ class TransSessionIdController extends AppController
         ]);
     }
 }
+class_alias(TransSessionIdController::class, 'App\\Controller\\TransSessionIdController');
 
 /**
  * ApplicationControllerTest class for testing controllers by using ControllerTestCase.

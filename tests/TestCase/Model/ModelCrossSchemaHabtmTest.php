@@ -18,6 +18,13 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\Model;
+
+use Cake\Model\ConnectionManager;
+use Cake\Model\Datasource\Database\Sqlite;
+use Cake\Utility\ClassRegistry;
+use Cake\Utility\Hash;
+
 require_once __DIR__ . DS . 'ModelTestBase.php';
 
 /**

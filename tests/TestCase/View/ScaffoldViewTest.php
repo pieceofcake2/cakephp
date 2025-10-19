@@ -16,6 +16,19 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\View;
+
+use Cake\Controller\Controller;
+use Cake\Controller\Scaffold;
+use Cake\Core\App;
+use Cake\Core\CakePlugin;
+use Cake\Core\Configure;
+use Cake\Network\CakeRequest;
+use Cake\Network\CakeResponse;
+use Cake\Routing\Router;
+use Cake\TestSuite\CakeTestCase;
+use Cake\View\ScaffoldView;
+
 App::uses('AppModel', 'Model');
 
 require_once dirname(__DIR__) . DS . 'Model' . DS . 'models.php';
@@ -38,6 +51,7 @@ class TestScaffoldView extends ScaffoldView
         return $this->_getViewFileName($action);
     }
 }
+class_alias(TestScaffoldView::class, 'App\\View\\TestScaffoldView');
 
 /**
  * ScaffoldViewMockController class
@@ -60,6 +74,7 @@ class ScaffoldViewMockController extends Controller
      */
     public $scaffold;
 }
+class_alias(ScaffoldViewMockController::class, 'App\\Controller\\ScaffoldViewMockController');
 
 /**
  * ScaffoldViewTest class
@@ -85,7 +100,7 @@ class ScaffoldViewTest extends CakeTestCase
         parent::setUp();
         $this->request = new CakeRequest(null, false);
         $this->Controller = new ScaffoldViewMockController($this->request);
-        $this->Controller->response = $this->getMock('CakeResponse', ['_sendHeader']);
+        $this->Controller->response = $this->getMock(CakeResponse::class, ['_sendHeader']);
 
         App::build([
             'View' => [CORE_TESTS . DS . 'test_app' . DS . 'View' . DS],

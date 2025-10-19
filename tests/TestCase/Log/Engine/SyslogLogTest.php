@@ -14,6 +14,11 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\Log\Engine;
+
+use Cake\Log\Engine\SyslogLog;
+use Cake\TestSuite\CakeTestCase;
+
 /**
  * SyslogLogTest class
  *
@@ -28,11 +33,11 @@ class SyslogLogTest extends CakeTestCase
      */
     public function testOpenLog()
     {
-        $log = $this->getMock('SyslogLog', ['_open', '_write']);
+        $log = $this->getMock(SyslogLog::class, ['_open', '_write']);
         $log->expects($this->once())->method('_open')->with('', LOG_ODELAY, LOG_USER);
         $log->write('debug', 'message');
 
-        $log = $this->getMock('SyslogLog', ['_open', '_write']);
+        $log = $this->getMock(SyslogLog::class, ['_open', '_write']);
         $log->config([
             'prefix' => 'thing',
             'flag' => LOG_NDELAY,
@@ -52,7 +57,7 @@ class SyslogLogTest extends CakeTestCase
      */
     public function testWriteOneLine($type, $expected)
     {
-        $log = $this->getMock('SyslogLog', ['_open', '_write']);
+        $log = $this->getMock(SyslogLog::class, ['_open', '_write']);
         $log->expects($this->once())->method('_write')->with($expected, $type . ': Foo');
         $log->write($type, 'Foo');
     }
@@ -64,7 +69,7 @@ class SyslogLogTest extends CakeTestCase
      */
     public function testWriteMultiLine()
     {
-        $log = $this->getMock('SyslogLog', ['_open', '_write']);
+        $log = $this->getMock(SyslogLog::class, ['_open', '_write']);
 
         $log->expects($this->exactly(2))
             ->method('_write')

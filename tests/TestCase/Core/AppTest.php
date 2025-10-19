@@ -16,6 +16,37 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\Core;
+
+use AppController;
+use AppModel;
+use BananaHelper;
+use Cake\Configure\PhpReader;
+use Cake\Console\Shell;
+use Cake\Controller\Component\AuthComponent;
+use Cake\Controller\Component\RequestHandlerComponent;
+use Cake\Controller\Controller;
+use Cake\Core\App;
+use Cake\Core\CakePlugin;
+use Cake\Model\Behavior\ContainableBehavior;
+use Cake\Model\Datasource\DboSource;
+use Cake\Model\Model;
+use Cake\TestSuite\CakeTestCase;
+use Cake\View\Helper\FormHelper;
+use ConfigureTestVendorSample;
+use CustomLibClass;
+use ExampleExample;
+use Library;
+use OtherHelperHelper;
+use PagesController;
+use SamplePluginClassTestName;
+use TestPluginAppController;
+use TestPluginAppHelper;
+use TestPluginLibrary;
+use TestsController;
+use TestSource;
+use TestUtilityClass;
+
 /**
  * AppTest class
  *

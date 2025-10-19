@@ -1,7 +1,4 @@
 <?php
-
-use function PHP81_BC\strftime;
-
 /**
  * CakeTimeTest file
  *
@@ -18,6 +15,18 @@ use function PHP81_BC\strftime;
  * @since         CakePHP(tm) v 1.2.0.4206
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
+
+namespace Cake\Test\TestCase\Utility;
+
+use Cake\Core\App;
+use Cake\Core\CakeObject;
+use Cake\Core\Configure;
+use Cake\TestSuite\CakeTestCase;
+use Cake\Utility\CakeTime;
+use DateTime;
+use DateTimeZone;
+use Locale;
+use function PHP81_BC\strftime;
 
 /**
  * CakeTimeTest class

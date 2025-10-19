@@ -16,6 +16,22 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\View\Helper;
+
+use Cake\Controller\Controller;
+use Cake\Core\App;
+use Cake\Core\CakePlugin;
+use Cake\Core\Configure;
+use Cake\Error\ConfigureException;
+use Cake\Network\CakeRequest;
+use Cake\Routing\Router;
+use Cake\TestSuite\CakeTestCase;
+use Cake\Utility\File;
+use Cake\Utility\Folder;
+use Cake\View\Helper\HtmlHelper;
+use Cake\View\View;
+use InvalidArgumentException;
+
 App::uses('AppHelper', 'View/Helper');
 
 if (!defined('FULL_BASE_URL')) {
@@ -141,7 +157,7 @@ class HtmlHelperTest extends CakeTestCase
     public function setUp(): void
     {
         parent::setUp();
-        $this->View = $this->getMock('View', ['append'], [new TheHtmlTestController()]);
+        $this->View = $this->getMock(View::class, ['append'], [new TheHtmlTestController()]);
         $this->Html = new TestHtmlHelper($this->View);
         $this->Html->request = new CakeRequest(null, false);
         $this->Html->request->webroot = '';
@@ -2358,7 +2374,6 @@ class HtmlHelperTest extends CakeTestCase
      *
      * @return void
      */
-
     public function testLoadConfig()
     {
         $path = CORE_TESTS . DS . 'test_app' . DS . 'Config' . DS;

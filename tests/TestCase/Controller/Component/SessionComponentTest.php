@@ -16,6 +16,16 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\Controller\Component;
+
+use Cake\Controller\Component\SessionComponent;
+use Cake\Controller\ComponentCollection;
+use Cake\Controller\Controller;
+use Cake\Core\CakeObject;
+use Cake\Core\Configure;
+use Cake\Model\Datasource\CakeSession;
+use Cake\TestSuite\CakeTestCase;
+
 /**
  * SessionTestController class
  *
@@ -40,6 +50,7 @@ class SessionTestController extends Controller
         return $this->Session->id();
     }
 }
+class_alias(SessionTestController::class, 'App\\Controller\\SessionTestController');
 
 /**
  * OrangeSessionTestController class
@@ -65,6 +76,7 @@ class OrangeSessionTestController extends Controller
         return $this->Session->id();
     }
 }
+class_alias(OrangeSessionTestController::class, 'App\\Controller\\OrangeSessionTestController');
 
 /**
  * SessionComponentTest class
@@ -138,14 +150,14 @@ class SessionComponentTest extends CakeTestCase
      */
     public function testSessionIdConsistentAcrossRequestAction()
     {
-        $Object = new CakeObject();
-        $Session = new SessionComponent($this->ComponentCollection);
-        $expected = $Session->id();
+        $object = new CakeObject();
+        $session = new SessionComponent($this->ComponentCollection);
+        $expected = $session->id();
 
-        $result = $Object->requestAction('/session_test/sessionId');
+        $result = $object->requestAction('/session_test/sessionId');
         $this->assertEquals($expected, $result);
 
-        $result = $Object->requestAction('/orange_session_test/sessionId');
+        $result = $object->requestAction('/orange_session_test/sessionId');
         $this->assertEquals($expected, $result);
     }
 

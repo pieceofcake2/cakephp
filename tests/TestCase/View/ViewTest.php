@@ -16,6 +16,26 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\View;
+
+use Cake\Cache\Cache;
+use Cake\Controller\Controller;
+use Cake\Core\App;
+use Cake\Core\CakePlugin;
+use Cake\Core\Configure;
+use Cake\Error\CakeException;
+use Cake\Error\MissingLayoutException;
+use Cake\Error\MissingViewException;
+use Cake\Event\CakeEventListener;
+use Cake\Network\CakeRequest;
+use Cake\TestSuite\CakeTestCase;
+use Cake\Utility\ClassRegistry;
+use Cake\View\Helper;
+use Cake\View\HelperCollection;
+use Cake\View\View;
+use Error;
+use LogicException;
+
 /**
  * ViewPostsController class
  *
@@ -200,7 +220,7 @@ class TestBeforeAfterHelper extends Helper
      * @param string $viewFile
      * @return void
      */
-    public function beforeLayout($viewFile)
+    public function beforeLayout($viewFile): void
     {
         $this->property = 'Valuation';
     }
@@ -216,6 +236,7 @@ class TestBeforeAfterHelper extends Helper
         $this->_View->output .= 'modified in the afterlife';
     }
 }
+class_alias(TestBeforeAfterHelper::class, 'App\\View\\Helper\\TestBeforeAfterHelper');
 
 /**
  * TestObjectWithToString
@@ -319,7 +340,7 @@ class ViewTest extends CakeTestCase
     {
         parent::setUp();
 
-        $request = $this->getMock('CakeRequest');
+        $request = $this->getMock(CakeRequest::class);
         $this->Controller = new Controller($request);
         $this->PostsController = new ViewPostsController($request);
         $this->PostsController->viewPath = 'Posts';
@@ -795,14 +816,10 @@ class ViewTest extends CakeTestCase
         $noticeTriggered = false;
         $noticeMessage = '';
         set_error_handler(function ($errno, $errstr) use (&$noticeTriggered, &$noticeMessage) {
-            if ($errno === E_NOTICE || $errno === E_USER_NOTICE) {
-                $noticeTriggered = true;
-                $noticeMessage = $errstr;
+            $noticeTriggered = true;
+            $noticeMessage = $errstr;
 
-                return true;
-            }
-
-            return false;
+            return true;
         }, E_NOTICE | E_USER_NOTICE);
 
         try {
@@ -825,14 +842,10 @@ class ViewTest extends CakeTestCase
         $noticeTriggered = false;
         $noticeMessage = '';
         set_error_handler(function ($errno, $errstr) use (&$noticeTriggered, &$noticeMessage) {
-            if ($errno === E_NOTICE || $errno === E_USER_NOTICE) {
-                $noticeTriggered = true;
-                $noticeMessage = $errstr;
+            $noticeTriggered = true;
+            $noticeMessage = $errstr;
 
-                return true;
-            }
-
-            return false;
+            return true;
         }, E_NOTICE | E_USER_NOTICE);
 
         try {
@@ -855,14 +868,10 @@ class ViewTest extends CakeTestCase
         $noticeTriggered = false;
         $noticeMessage = '';
         set_error_handler(function ($errno, $errstr) use (&$noticeTriggered, &$noticeMessage) {
-            if ($errno === E_NOTICE || $errno === E_USER_NOTICE) {
-                $noticeTriggered = true;
-                $noticeMessage = $errstr;
+            $noticeTriggered = true;
+            $noticeMessage = $errstr;
 
-                return true;
-            }
-
-            return false;
+            return true;
         }, E_NOTICE | E_USER_NOTICE);
 
         try {
@@ -882,7 +891,7 @@ class ViewTest extends CakeTestCase
      */
     public function testElementCallbacks()
     {
-        $Helper = $this->getMock('Helper', [], [$this->View], 'ElementCallbackMockHtmlHelper');
+        $Helper = $this->getMock(Helper::class, [], [$this->View], 'ElementCallbackMockHtmlHelper');
         $this->View->helpers = ['ElementCallbackMockHtml'];
         $this->View->loadHelpers();
 
@@ -1088,7 +1097,7 @@ class ViewTest extends CakeTestCase
     {
         $View = new View($this->PostsController);
         $View->helpers = [];
-        $View->Helpers = $this->getMock('HelperCollection', ['trigger'], [$View]);
+        $View->Helpers = $this->getMock(HelperCollection::class, ['trigger'], [$View]);
 
         $triggerCalls = [];
         $View->Helpers->expects($this->exactly(8))
@@ -1579,7 +1588,7 @@ class ViewTest extends CakeTestCase
     public function testBlockSetObjectWithoutToString()
     {
         $this->_checkException(
-            'Object of class TestObjectWithoutToString could not be converted to string',
+            sprintf('Object of class %s could not be converted to string', TestObjectWithoutToString::class),
         );
 
         $objectWithToString = new TestObjectWithoutToString();
@@ -1635,7 +1644,7 @@ class ViewTest extends CakeTestCase
     public function testBlockAppendObjectWithoutToString()
     {
         $this->_checkException(
-            'Object of class TestObjectWithoutToString could not be converted to string',
+            sprintf('Object of class %s could not be converted to string', TestObjectWithoutToString::class),
         );
 
         $object = new TestObjectWithoutToString();
@@ -1666,7 +1675,7 @@ class ViewTest extends CakeTestCase
     public function testBlockPrependObjectWithoutToString()
     {
         $this->_checkException(
-            'Object of class TestObjectWithoutToString could not be converted to string',
+            sprintf('Object of class %s could not be converted to string', TestObjectWithoutToString::class),
         );
 
         $object = new TestObjectWithoutToString();

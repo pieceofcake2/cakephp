@@ -16,6 +16,13 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\Network\Email;
+
+use Cake\I18n\Multibyte;
+use Cake\Network\Email\CakeEmail;
+use Cake\Network\Email\MailTransport;
+use Cake\TestSuite\CakeTestCase;
+
 /**
  * Test case
  */
@@ -29,7 +36,7 @@ class MailTransportTest extends CakeTestCase
     public function setUp(): void
     {
         parent::setUp();
-        $this->MailTransport = $this->getMock('MailTransport', ['_mail']);
+        $this->MailTransport = $this->getMock(MailTransport::class, ['_mail']);
         $this->MailTransport->config(['additionalParameters' => '-f']);
     }
 
@@ -40,7 +47,7 @@ class MailTransportTest extends CakeTestCase
      */
     public function testSendData()
     {
-        $email = $this->getMock('CakeEmail', ['message'], []);
+        $email = $this->getMock(CakeEmail::class, ['message'], []);
         $email->from('noreply@cakephp.org', 'CakePHP Test');
         $email->returnPath('pleasereply@cakephp.org', 'CakePHP Return');
         $email->to('cake@cakephp.org', 'CakePHP');

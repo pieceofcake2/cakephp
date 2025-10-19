@@ -1,6 +1,19 @@
 <?php
 
+namespace Cake\Test\TestCase\Core;
+
+use Cake\Cache\Cache;
+use Cake\Configure\PhpReader;
+use Cake\Core\App;
+use Cake\Core\CakePlugin;
+use Cake\Core\Configure;
+use Cake\Error\ConfigureException;
+use Cake\TestSuite\CakeTestCase;
+use Exception;
 use PHPUnit\Framework\Error;
+use RuntimeException;
+use stdClass;
+use TypeError;
 
 /**
  * ConfigureTest file
@@ -486,7 +499,7 @@ class ConfigureTest extends CakeTestCase
     public function testReaderExceptionOnIncorrectClass()
     {
         $this->expectException(Error::class);
-        $reader = new StdClass();
+        $reader = new stdClass();
 
         try {
             Configure::config('test', $reader);

@@ -16,6 +16,24 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\Error;
+
+use Cake\Core\App;
+use Cake\Core\CakePlugin;
+use Cake\Core\Configure;
+use Cake\Error\ErrorHandler;
+use Cake\Error\ExceptionRenderer;
+use Cake\Error\FatalErrorException;
+use Cake\Error\ForbiddenException;
+use Cake\Error\InternalErrorException;
+use Cake\Error\NotFoundException;
+use Cake\Log\CakeLog;
+use Cake\Network\CakeRequest;
+use Cake\Routing\Router;
+use Cake\TestSuite\CakeTestCase;
+use Cake\Utility\Debugger;
+use Exception;
+
 /**
  * A faulty ExceptionRenderer to test nesting.
  */
@@ -115,7 +133,7 @@ class ErrorHandlerTest extends CakeTestCase
     /**
      * provides errors for mapping tests.
      *
-     * @return void
+     * @return array
      */
     public static function errorProvider()
     {
@@ -216,7 +234,7 @@ class ErrorHandlerTest extends CakeTestCase
             $result[0],
         );
         $this->assertMatchesRegularExpression('/^Trace:/', $result[1]);
-        $this->assertMatchesRegularExpression('/^ErrorHandlerTest\:\:testHandleErrorLoggingTrace\(\)/', $result[3]);
+        $this->assertMatchesRegularExpression('/^Cake\\\\Test\\\\TestCase\\\\Error\\\\ErrorHandlerTest\:\:testHandleErrorLoggingTrace\(\)/', $result[3]);
         if (file_exists(LOGS . 'debug.log')) {
             unlink(LOGS . 'debug.log');
         }
@@ -255,7 +273,7 @@ class ErrorHandlerTest extends CakeTestCase
         $this->assertMatchesRegularExpression('/Kaboom!/', $result, 'message missing.');
 
         $log = file(LOGS . 'error.log');
-        $this->assertStringContainsString('[NotFoundException] Kaboom!', $log[0], 'message missing.');
+        $this->assertStringContainsString('[Cake\Error\NotFoundException] Kaboom!', $log[0], 'message missing.');
         $this->assertStringContainsString('ErrorHandlerTest->testHandleExceptionLog', $log[2], 'Stack trace missing.');
     }
 
@@ -270,7 +288,7 @@ class ErrorHandlerTest extends CakeTestCase
             unlink(LOGS . 'error.log');
         }
         Configure::write('Exception.log', true);
-        Configure::write('Exception.skipLog', ['NotFoundException']);
+        Configure::write('Exception.skipLog', [NotFoundException::class]);
         $notFound = new NotFoundException('Kaboom!');
         $forbidden = new ForbiddenException('Fooled you!');
 
@@ -285,8 +303,8 @@ class ErrorHandlerTest extends CakeTestCase
         $this->assertMatchesRegularExpression('/Fooled you!/', $result, 'message missing.');
 
         $log = file(LOGS . 'error.log');
-        $this->assertStringNotContainsString('[NotFoundException] Kaboom!', $log[0], 'message should not be logged.');
-        $this->assertStringContainsString('[ForbiddenException] Fooled you!', $log[0], 'message missing.');
+        $this->assertStringNotContainsString('[Cake\Error\NotFoundException] Kaboom!', $log[0], 'message should not be logged.');
+        $this->assertStringContainsString('[Cake\Error\ForbiddenException] Fooled you!', $log[0], 'message missing.');
     }
 
     /**
@@ -374,7 +392,7 @@ class ErrorHandlerTest extends CakeTestCase
 
         $log = file(LOGS . 'error.log');
         $this->assertStringContainsString(__FILE__, $log[0], 'missing filename');
-        $this->assertStringContainsString('[FatalErrorException] Something wrong', $log[1], 'message missing.');
+        $this->assertStringContainsString('[Cake\Error\FatalErrorException] Something wrong', $log[1], 'message missing.');
     }
 
     /**
@@ -385,7 +403,7 @@ class ErrorHandlerTest extends CakeTestCase
     public function testExceptionRendererNestingDebug()
     {
         Configure::write('debug', 2);
-        Configure::write('Exception.renderer', 'FaultyExceptionRenderer');
+        Configure::write('Exception.renderer', FaultyExceptionRenderer::class);
 
         $result = false;
         try {
@@ -408,7 +426,7 @@ class ErrorHandlerTest extends CakeTestCase
     public function testExceptionRendererNestingProduction()
     {
         Configure::write('debug', 0);
-        Configure::write('Exception.renderer', 'FaultyExceptionRenderer');
+        Configure::write('Exception.renderer', FaultyExceptionRenderer::class);
 
         $result = false;
         try {

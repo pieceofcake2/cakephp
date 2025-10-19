@@ -16,6 +16,21 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\Console\Command;
+
+use Cake\Console\Command\SchemaShell;
+use Cake\Console\ConsoleInput;
+use Cake\Console\ConsoleOutput;
+use Cake\Core\App;
+use Cake\Core\CakePlugin;
+use Cake\Core\Configure;
+use Cake\Model\CakeSchema;
+use Cake\Model\ConnectionManager;
+use Cake\TestSuite\CakeTestCase;
+use Cake\Utility\File;
+use I18nSchema;
+use TestPluginAppSchema;
+
 /**
  * Test for Schema database management
  *
@@ -72,6 +87,7 @@ class SchemaShellTestSchema extends CakeSchema
         'indexes' => ['PRIMARY' => ['column' => 'id', 'unique' => true]],
     ];
 }
+class_alias(SchemaShellTestSchema::class, 'SchemaShellTestSchema');
 
 /**
  * SchemaShellTest class
@@ -99,10 +115,10 @@ class SchemaShellTest extends CakeTestCase
     {
         parent::setUp();
 
-        $out = $this->getMock('ConsoleOutput', [], [], '', false);
-        $in = $this->getMock('ConsoleInput', [], [], '', false);
+        $out = $this->getMock(ConsoleOutput::class, [], [], '', false);
+        $in = $this->getMock(ConsoleInput::class, [], [], '', false);
         $this->Shell = $this->getMock(
-            'SchemaShell',
+            SchemaShell::class,
             ['in', 'out', 'hr', 'createFile', 'error', 'err', '_stop'],
             [$out, $out, $in],
         );
@@ -132,7 +148,7 @@ class SchemaShellTest extends CakeTestCase
     {
         $this->Shell->startup();
         $this->assertTrue(isset($this->Shell->Schema));
-        $this->assertInstanceOf('CakeSchema', $this->Shell->Schema);
+        $this->assertInstanceOf(CakeSchema::class, $this->Shell->Schema);
         $this->assertEquals('App', $this->Shell->Schema->name);
         $this->assertEquals('schema.php', $this->Shell->Schema->file);
 
@@ -271,7 +287,7 @@ class SchemaShellTest extends CakeTestCase
         $this->Shell->params['file'] = 'schema.php';
         $this->Shell->params['force'] = false;
         $this->Shell->args = ['snapshot'];
-        $this->Shell->Schema = $this->getMock('CakeSchema');
+        $this->Shell->Schema = $this->getMock(CakeSchema::class);
 
         $this->Shell->Schema->expects($this->once())
             ->method('read')
@@ -298,7 +314,7 @@ class SchemaShellTest extends CakeTestCase
         $this->Shell->args = [];
 
         $this->Shell->expects($this->once())->method('in')->will($this->returnValue('q'));
-        $this->Shell->Schema = $this->getMock('CakeSchema');
+        $this->Shell->Schema = $this->getMock(CakeSchema::class);
         $this->Shell->Schema->path = TMP;
         $this->Shell->Schema->expects($this->never())->method('read');
 
@@ -327,7 +343,7 @@ class SchemaShellTest extends CakeTestCase
                 $outCalls[] = $message;
             });
 
-        $this->Shell->Schema = $this->getMock('CakeSchema');
+        $this->Shell->Schema = $this->getMock(CakeSchema::class);
         $this->Shell->Schema->path = TMP;
 
         $this->Shell->Schema->expects($this->once())
@@ -491,7 +507,7 @@ class SchemaShellTest extends CakeTestCase
         $sources = $db->listSources();
         $this->assertTrue(in_array($db->config['prefix'] . 'i18n', $sources));
 
-        $schema = new i18nSchema();
+        $schema = new I18nSchema();
         $db->execute($db->dropSchema($schema));
     }
 
@@ -534,7 +550,7 @@ class SchemaShellTest extends CakeTestCase
     public function testUpdateWithTable()
     {
         $this->Shell = $this->getMock(
-            'SchemaShell',
+            SchemaShell::class,
             ['in', 'out', 'hr', 'createFile', 'error', 'err', '_stop', '_run'],
             [&$this->Dispatcher],
         );
@@ -550,7 +566,7 @@ class SchemaShellTest extends CakeTestCase
             ->will($this->returnValue('y'));
         $this->Shell->expects($this->once())
             ->method('_run')
-            ->with($this->arrayHasKey('articles'), 'update', $this->isInstanceOf('CakeSchema'));
+            ->with($this->arrayHasKey('articles'), 'update', $this->isInstanceOf(CakeSchema::class));
 
         $this->Shell->update();
     }
@@ -564,7 +580,7 @@ class SchemaShellTest extends CakeTestCase
     public function testUpdateWithTableCreate()
     {
         $this->Shell = $this->getMock(
-            'SchemaShell',
+            SchemaShell::class,
             ['in', 'out', 'hr', 'createFile', 'error', 'err', '_stop', '_run'],
             [&$this->Dispatcher],
         );
@@ -580,7 +596,7 @@ class SchemaShellTest extends CakeTestCase
             ->will($this->returnValue('y'));
         $this->Shell->expects($this->once())
             ->method('_run')
-            ->with($this->arrayHasKey('newone'), 'update', $this->isInstanceOf('CakeSchema'));
+            ->with($this->arrayHasKey('newone'), 'update', $this->isInstanceOf(CakeSchema::class));
 
         $this->Shell->update();
     }
@@ -593,7 +609,7 @@ class SchemaShellTest extends CakeTestCase
     public function testUpdateWithOptionYes()
     {
         $this->Shell = $this->getMock(
-            'SchemaShell',
+            SchemaShell::class,
             ['in', 'out', 'hr', 'createFile', 'error', 'err', '_stop', '_run'],
             [&$this->Dispatcher],
         );
@@ -608,7 +624,7 @@ class SchemaShellTest extends CakeTestCase
         $this->Shell->expects($this->never())->method('in');
         $this->Shell->expects($this->once())
             ->method('_run')
-            ->with($this->arrayHasKey('articles'), 'update', $this->isInstanceOf('CakeSchema'));
+            ->with($this->arrayHasKey('articles'), 'update', $this->isInstanceOf(CakeSchema::class));
 
         $this->Shell->update();
     }
@@ -629,7 +645,7 @@ class SchemaShellTest extends CakeTestCase
             'connection' => 'test',
         ];
         $this->Shell->startup();
-        $expected = CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS . 'TestPlugin' . DS . 'Config' . DS . 'Schema';
+        $expected = CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS . 'TestPlugin' . DS . 'config' . DS . 'Schema';
         $this->assertEquals($expected, $this->Shell->Schema->path);
         CakePlugin::unload();
     }

@@ -16,6 +16,17 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\Model\Behavior;
+
+use Cake\Core\App;
+use Cake\Model\ConnectionManager;
+use Cake\Model\Model;
+use Cake\TestSuite\CakeTestCase;
+use Cake\Utility\ClassRegistry;
+use Cake\Utility\Hash;
+use Cake\Utility\Set;
+use DATABASE_CONFIG;
+
 App::uses('AppModel', 'Model');
 
 require_once dirname(__DIR__) . DS . 'models.php';
@@ -160,14 +171,10 @@ class ContainableBehaviorTest extends CakeTestCase
         $warningTriggered = false;
         $warningMessage = '';
         set_error_handler(function ($errno, $errstr) use (&$warningTriggered, &$warningMessage) {
-            if ($errno === E_WARNING || $errno === E_USER_WARNING) {
-                $warningTriggered = true;
-                $warningMessage = $errstr;
+            $warningTriggered = true;
+            $warningMessage = $errstr;
 
-                return true;
-            }
-
-            return false;
+            return true;
         }, E_WARNING | E_USER_WARNING);
 
         try {
@@ -191,13 +198,9 @@ class ContainableBehaviorTest extends CakeTestCase
 
         $warningTriggered = false;
         set_error_handler(function ($errno, $errstr) use (&$warningTriggered) {
-            if ($errno === E_WARNING || $errno === E_USER_WARNING) {
-                $warningTriggered = true;
+            $warningTriggered = true;
 
-                return true;
-            }
-
-            return false;
+            return true;
         }, E_WARNING | E_USER_WARNING);
 
         try {
@@ -291,14 +294,10 @@ class ContainableBehaviorTest extends CakeTestCase
         $warningTriggered = false;
         $warningMessage = '';
         set_error_handler(function ($errno, $errstr) use (&$warningTriggered, &$warningMessage) {
-            if ($errno === E_WARNING || $errno === E_USER_WARNING) {
-                $warningTriggered = true;
-                $warningMessage = $errstr;
+            $warningTriggered = true;
+            $warningMessage = $errstr;
 
-                return true;
-            }
-
-            return false;
+            return true;
         }, E_WARNING | E_USER_WARNING);
 
         try {
@@ -3820,11 +3819,11 @@ class ContainableBehaviorTest extends CakeTestCase
     /**
      * _containments method
      *
-     * @param Model $Model
+     * @param Model|array $Model
      * @param array $contain
-     * @return void
+     * @return array|Model
      */
-    protected function _containments($Model, $contain = [])
+    protected function _containments(Model|array $Model, array $contain = [])
     {
         if (!is_array($Model)) {
             $result = $Model->containments($contain);
@@ -3842,11 +3841,11 @@ class ContainableBehaviorTest extends CakeTestCase
     /**
      * _assertBindings method
      *
-     * @param Model $Model
+     * @param Model $model
      * @param array $expected
      * @return void
      */
-    protected function _assertBindings(Model $Model, $expected = [])
+    protected function _assertBindings(Model $model, $expected = [])
     {
         $expected = array_merge([
             'belongsTo' => [],
@@ -3855,7 +3854,7 @@ class ContainableBehaviorTest extends CakeTestCase
             'hasAndBelongsToMany' => [],
         ], $expected);
         foreach ($expected as $binding => $expect) {
-            $this->assertEquals($expect, array_keys($Model->$binding));
+            $this->assertEquals($expect, array_keys($model->$binding));
         }
     }
 }

@@ -16,6 +16,17 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\Model\Datasource;
+
+use Cake\Cache\Cache;
+use Cake\Core\App;
+use Cake\Core\CakePlugin;
+use Cake\Core\Configure;
+use Cake\Model\Datasource\CakeSession;
+use Cake\Model\Datasource\Session\CacheSession;
+use Cake\Model\Datasource\Session\DatabaseSession;
+use Cake\TestSuite\CakeTestCase;
+
 /**
  * TestCakeSession
  *
@@ -33,6 +44,7 @@ class TestCakeSession extends CakeSession
         static::_setHost($host);
     }
 }
+class_alias(TestCakeSession::class, 'App\\Model\\Datasource\\Session\\TestCakeSession');
 
 /**
  * TestCacheSession
@@ -46,6 +58,7 @@ class TestCacheSession extends CacheSession
         return true;
     }
 }
+class_alias(TestCacheSession::class, 'App\\Model\\Datasource\\Session\\TestCacheSession');
 
 /**
  * TestDatabaseSession
@@ -59,6 +72,7 @@ class TestDatabaseSession extends DatabaseSession
         return true;
     }
 }
+class_alias(TestDatabaseSession::class, 'App\\Model\\Datasource\\Session\\TestDatabaseSession');
 
 /**
  * CakeSessionTest class

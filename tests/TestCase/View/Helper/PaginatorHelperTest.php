@@ -16,6 +16,17 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\View\Helper;
+
+use Cake\Core\Configure;
+use Cake\Error\CakeException;
+use Cake\Network\CakeRequest;
+use Cake\Routing\Router;
+use Cake\TestSuite\CakeTestCase;
+use Cake\View\Helper\HtmlHelper;
+use Cake\View\Helper\PaginatorHelper;
+use Cake\View\View;
+
 if (!defined('FULL_BASE_URL')) {
     define('FULL_BASE_URL', 'https://cakephp.org');
 }
@@ -39,7 +50,7 @@ class PaginatorHelperTest extends CakeTestCase
         $controller = null;
         $this->View = new View($controller);
         $this->Paginator = new PaginatorHelper($this->View);
-        $this->Paginator->Js = $this->getMock('PaginatorHelper', [], [$this->View]);
+        $this->Paginator->Js = $this->getMock(PaginatorHelper::class, [], [$this->View]);
         $this->Paginator->request = new CakeRequest(null, false);
         $this->Paginator->request->addParams([
             'paging' => [
@@ -2859,7 +2870,7 @@ class PaginatorHelperTest extends CakeTestCase
     public function testMockAjaxProviderClassInjection()
     {
         $this->expectException(CakeException::class);
-        $mock = $this->getMock('PaginatorHelper', [], [$this->View], 'PaginatorMockJsHelper');
+        $mock = $this->getMock(PaginatorHelper::class, [], [$this->View], 'PaginatorMockJsHelper');
         $Paginator = new PaginatorHelper($this->View, ['ajax' => 'PaginatorMockJs']);
         $Paginator->request->params['paging'] = [
             'Article' => [

@@ -4,6 +4,12 @@
  *
  * @package       Cake.Test.Fixture
  */
+
+namespace Cake\Test\Fixture;
+
+use Cake\TestSuite\CakeTestCase;
+use Cake\TestSuite\Fixture\CakeFixtureManager;
+
 class FixturizedTestCase extends CakeTestCase
 {
     /**
@@ -20,7 +26,7 @@ class FixturizedTestCase extends CakeTestCase
      */
     public function testFixturePresent()
     {
-        $this->assertInstanceOf('CakeFixtureManager', $this->fixtureManager);
+        $this->assertInstanceOf(CakeFixtureManager::class, $this->fixtureManager);
     }
 
     /**

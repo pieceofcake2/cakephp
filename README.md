@@ -126,6 +126,16 @@ This fork uses [`composer/ca-bundle`](https://github.com/composer/ca-bundle) for
 
 This approach ensures that HTTPS connections made by `CakeSocket` (e.g., for external API calls) properly validate SSL/TLS certificates using current, trusted root certificates.
 
+### XML External Entity (XXE) Protection
+
+This fork has **removed** the `loadEntities` option from `Xml::build()` for enhanced security:
+
+- **External entity loading is now permanently disabled** to prevent XXE (XML External Entity) attacks
+- Uses `libxml_set_external_entity_loader(null)` on PHP 8.0+ (deprecated `libxml_disable_entity_loader()` removed)
+- No configuration option to re-enable external entities - this is a security hardening measure
+
+**Breaking Change**: If your application previously used `Xml::build($input, ['loadEntities' => true])`, this option is now ignored and external entities will not be loaded. This is intentional for security reasons.
+
 ### Known Vulnerabilities in Original CakePHP 2.10.24
 
 The following security vulnerabilities have been reported in the original CakePHP 2.10.24:

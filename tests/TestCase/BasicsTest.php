@@ -16,6 +16,17 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase;
+
+use Cake\Core\App;
+use Cake\Core\Configure;
+use Cake\Log\CakeLog;
+use Cake\Network\CakeResponse;
+use Cake\TestSuite\CakeTestCase;
+use Cake\Utility\Debugger;
+use Cake\Utility\Folder;
+use stdClass;
+
 require_once CAKE . 'basics.php';
 
 /**

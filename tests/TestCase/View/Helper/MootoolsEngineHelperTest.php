@@ -15,6 +15,12 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\View\Helper;
+
+use Cake\TestSuite\CakeTestCase;
+use Cake\View\Helper\MootoolsEngineHelper;
+use Cake\View\View;
+
 /**
  * MootoolsEngineHelperTest
  *
@@ -31,7 +37,7 @@ class MootoolsEngineHelperTest extends CakeTestCase
     {
         parent::setUp();
         $controller = null;
-        $this->View = $this->getMock('View', ['addScript'], [&$controller]);
+        $this->View = $this->getMock(View::class, ['addScript'], [&$controller]);
         $this->Moo = new MootoolsEngineHelper($this->View);
     }
 
@@ -287,14 +293,10 @@ class MootoolsEngineHelperTest extends CakeTestCase
         $warningTriggered = false;
         $warningMessage = '';
         set_error_handler(function ($errno, $errstr) use (&$warningTriggered, &$warningMessage) {
-            if ($errno === E_WARNING || $errno === E_USER_WARNING) {
-                $warningTriggered = true;
-                $warningMessage = $errstr;
+            $warningTriggered = true;
+            $warningMessage = $errstr;
 
-                return true;
-            }
-
-            return false;
+            return true;
         }, E_WARNING | E_USER_WARNING);
 
         try {

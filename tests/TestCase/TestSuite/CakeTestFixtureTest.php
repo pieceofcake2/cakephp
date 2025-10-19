@@ -16,6 +16,17 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\TestSuite;
+
+use Cake\Error\CakeException;
+use Cake\Model\ConnectionManager;
+use Cake\Model\Datasource\Database\Sqlite;
+use Cake\Model\Datasource\DboSource;
+use Cake\Model\Model;
+use Cake\TestSuite\CakeTestCase;
+use Cake\TestSuite\Fixture\CakeTestFixture;
+use Cake\Utility\ClassRegistry;
+
 /**
  * CakeTestFixtureTestFixture class
  *
@@ -199,6 +210,7 @@ class FixtureImportTestModel extends Model
 
     public $useDbConfig = 'test';
 }
+class_alias(FixtureImportTestModel::class, 'App\\Model\\FixtureImportTestModel');
 
 class FixturePrefixTest extends Model
 {
@@ -210,6 +222,7 @@ class FixturePrefixTest extends Model
 
     public $useDbConfig = 'test';
 }
+class_alias(FixturePrefixTest::class, 'App\\Model\\FixturePrefixTest');
 
 /**
  * Test case for CakeTestFixture
@@ -228,7 +241,7 @@ class CakeTestFixtureTest extends CakeTestCase
         parent::setUp();
         $methods = array_diff(get_class_methods('DboSource'), ['enabled']);
 
-        $this->criticDb = $this->getMock('DboSource', $methods);
+        $this->criticDb = $this->getMock(DboSource::class, $methods);
         $this->criticDb->fullDebug = true;
         $this->db = ConnectionManager::getDataSource('test');
         $this->_backupConfig = $this->db->config;
@@ -281,31 +294,31 @@ class CakeTestFixtureTest extends CakeTestCase
         $Source->create($db);
         $Source->insert($db);
 
-        $Fixture = new CakeTestFixtureTestFixture();
+        $fixture = new CakeTestFixtureTestFixture();
         $expected = ['id', 'name', 'created'];
-        $this->assertEquals($expected, array_keys($Fixture->fields));
+        $this->assertEquals($expected, array_keys($fixture->fields));
 
         $config = $db->config;
         $config['prefix'] = 'fixture_test_suite_';
         ConnectionManager::create('fixture_test_suite', $config);
 
-        $Fixture->fields = $Fixture->records = null;
-        $Fixture->import = ['table' => 'fixture_tests', 'connection' => 'test', 'records' => true];
-        $Fixture->init();
-        $this->assertEquals(count($Fixture->records), count($Source->records));
-        $Fixture->create(ConnectionManager::getDataSource('fixture_test_suite'));
+        $fixture->fields = $fixture->records = null;
+        $fixture->import = ['table' => 'fixture_tests', 'connection' => 'test', 'records' => true];
+        $fixture->init();
+        $this->assertEquals(count($fixture->records), count($Source->records));
+        $fixture->create(ConnectionManager::getDataSource('fixture_test_suite'));
 
-        $Fixture = new CakeTestFixtureImportFixture();
-        $Fixture->fields = $Fixture->records = $Fixture->table = null;
-        $Fixture->import = ['model' => 'FixtureImportTestModel', 'connection' => 'test'];
-        $Fixture->init();
-        $this->assertEquals(['id', 'name', 'created'], array_keys($Fixture->fields));
-        $this->assertEquals('fixture_tests', $Fixture->table);
+        $fixture = new CakeTestFixtureImportFixture();
+        $fixture->fields = $fixture->records = $fixture->table = null;
+        $fixture->import = ['model' => 'FixtureImportTestModel', 'connection' => 'test'];
+        $fixture->init();
+        $this->assertEquals(['id', 'name', 'created'], array_keys($fixture->fields));
+        $this->assertEquals('fixture_tests', $fixture->table);
 
         $keys = array_flip(ClassRegistry::keys());
         $this->assertFalse(array_key_exists('fixtureimporttestmodel', $keys));
 
-        $Fixture->drop(ConnectionManager::getDataSource('fixture_test_suite'));
+        $fixture->drop(ConnectionManager::getDataSource('fixture_test_suite'));
         $Source->drop($db);
     }
 
@@ -324,9 +337,9 @@ class CakeTestFixtureTest extends CakeTestCase
         $newDb = ConnectionManager::getDataSource('fixture_test_suite');
         $newDb->config['prefix'] = 'cake_fixture_test_';
 
-        $Source = new CakeTestFixtureTestFixture();
-        $Source->create($db);
-        $Source->insert($db);
+        $source = new CakeTestFixtureTestFixture();
+        $source->create($db);
+        $source->insert($db);
 
         $Fixture = new CakeTestFixtureImportFixture();
         $Fixture->fields = $Fixture->records = $Fixture->table = null;
@@ -336,7 +349,7 @@ class CakeTestFixtureTest extends CakeTestCase
         $this->assertEquals(['id', 'name', 'created'], array_keys($Fixture->fields));
         $this->assertEquals('fixture_tests', $Fixture->table);
 
-        $Source->drop($db);
+        $source->drop($db);
         $db->config['prefix'] = $backPrefix;
     }
 
@@ -553,21 +566,24 @@ class CakeTestFixtureTest extends CakeTestCase
      */
     public function testDrop()
     {
-        $Fixture = new CakeTestFixtureTestFixture();
-        $this->criticDb->expects($this->exactly(2))
+        $fixture = new CakeTestFixtureTestFixture();
+        $this->criticDb
+            ->expects($this->exactly(2))
             ->method('execute')
             ->willReturnOnConsecutiveCalls(true, false);
-        $this->criticDb->expects($this->exactly(2))->method('dropSchema');
+        $this->criticDb
+            ->expects($this->exactly(2))
+            ->method('dropSchema');
 
-        $return = $Fixture->drop($this->criticDb);
+        $return = $fixture->drop($this->criticDb);
         $this->assertTrue($this->criticDb->fullDebug);
         $this->assertTrue($return);
 
-        $return = $Fixture->drop($this->criticDb);
+        $return = $fixture->drop($this->criticDb);
         $this->assertTrue($return);
 
-        unset($Fixture->fields);
-        $return = $Fixture->drop($this->criticDb);
+        unset($fixture->fields);
+        $return = $fixture->drop($this->criticDb);
         $this->assertFalse($return);
     }
 

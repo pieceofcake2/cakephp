@@ -15,6 +15,12 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\View\Helper;
+
+use Cake\TestSuite\CakeTestCase;
+use Cake\View\Helper\PrototypeEngineHelper;
+use Cake\View\View;
+
 /**
  * PrototypeEngineHelperTest
  *
@@ -31,7 +37,7 @@ class PrototypeEngineHelperTest extends CakeTestCase
     {
         parent::setUp();
         $controller = null;
-        $this->View = $this->getMock('View', ['addScript'], [&$controller]);
+        $this->View = $this->getMock(View::class, ['addScript'], [&$controller]);
         $this->Proto = new PrototypeEngineHelper($this->View);
     }
 

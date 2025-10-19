@@ -1,7 +1,4 @@
 <?php
-
-use PHPUnit\Framework\Error;
-
 /**
  * ControllerAuthorizeTest file
  *
@@ -19,6 +16,18 @@ use PHPUnit\Framework\Error;
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\Controller\Component\Auth;
+
+use Cake\Controller\Component\Auth\ControllerAuthorize;
+use Cake\Controller\ComponentCollection;
+use Cake\Controller\Controller;
+use Cake\Error\CakeException;
+use Cake\Network\CakeRequest;
+use Cake\TestSuite\CakeTestCase;
+use PHPUnit\Framework\Error;
+use stdClass;
+use TypeError;
+
 /**
  * ControllerAuthorizeTest
  *
@@ -34,8 +43,8 @@ class ControllerAuthorizeTest extends CakeTestCase
     public function setUp(): void
     {
         parent::setUp();
-        $this->controller = $this->getMock('Controller', ['isAuthorized'], [], '', false);
-        $this->components = $this->getMock('ComponentCollection');
+        $this->controller = $this->getMock(Controller::class, ['isAuthorized'], [], '', false);
+        $this->components = $this->getMock(ComponentCollection::class);
         $this->components->expects($this->any())
             ->method('getController')
             ->will($this->returnValue($this->controller));
@@ -53,7 +62,7 @@ class ControllerAuthorizeTest extends CakeTestCase
     {
         $this->expectException(Error::class);
         try {
-            $this->auth->controller(new StdClass());
+            $this->auth->controller(new stdClass());
             $this->fail('No exception thrown');
         } catch (TypeError) {
             throw new Error('Raised an error', 100);

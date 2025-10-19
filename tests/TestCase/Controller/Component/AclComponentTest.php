@@ -16,6 +16,16 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\Controller\Component;
+
+use Cake\Controller\Component\Acl\AclInterface;
+use Cake\Controller\Component\AclComponent;
+use Cake\Controller\ComponentCollection;
+use Cake\Core\Configure;
+use Cake\Error\CakeException;
+use Cake\TestSuite\CakeTestCase;
+use stdClass;
+
 /**
  * Test Case for AclComponent
  *
@@ -32,7 +42,7 @@ class AclComponentTest extends CakeTestCase
     {
         parent::setUp();
         if (!class_exists('MockAclImplementation', false)) {
-            $this->getMock('AclInterface', [], [], 'MockAclImplementation');
+            $this->getMock(AclInterface::class, [], [], 'MockAclImplementation');
         }
         Configure::write('Acl.classname', 'MockAclImplementation');
         $Collection = new ComponentCollection();
@@ -71,7 +81,7 @@ class AclComponentTest extends CakeTestCase
      */
     public function testAdapter()
     {
-        $Adapter = $this->getMock('AclInterface');
+        $Adapter = $this->getMock(AclInterface::class);
         $Adapter->expects($this->once())->method('initialize')->with($this->Acl);
 
         $this->assertNull($this->Acl->adapter($Adapter));
@@ -86,7 +96,7 @@ class AclComponentTest extends CakeTestCase
     public function testAdapterException()
     {
         $this->expectException(CakeException::class);
-        $thing = new StdClass();
+        $thing = new stdClass();
         $this->Acl->adapter($thing);
     }
 }

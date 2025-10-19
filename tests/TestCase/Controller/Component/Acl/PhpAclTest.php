@@ -16,6 +16,15 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\Controller\Component\Acl;
+
+use Cake\Controller\Component\Acl\PhpAcl;
+use Cake\Controller\Component\Acl\PhpAro;
+use Cake\Controller\Component\AclComponent;
+use Cake\Controller\ComponentCollection;
+use Cake\Core\Configure;
+use Cake\TestSuite\CakeTestCase;
+
 /**
  * Test case for the PhpAcl implementation
  *
@@ -354,14 +363,10 @@ class PhpAclTest extends CakeTestCase
         $noticeTriggered = false;
         $noticeMessage = '';
         set_error_handler(function ($errno, $errstr) use (&$noticeTriggered, &$noticeMessage) {
-            if ($errno === E_NOTICE || $errno === E_USER_NOTICE) {
-                $noticeTriggered = true;
-                $noticeMessage = $errstr;
+            $noticeTriggered = true;
+            $noticeMessage = $errstr;
 
-                return true;
-            }
-
-            return false;
+            return true;
         }, E_NOTICE | E_USER_NOTICE);
 
         try {

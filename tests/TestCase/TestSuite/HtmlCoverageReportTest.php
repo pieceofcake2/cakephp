@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Test case for HtmlCoverageReport
  *
@@ -18,6 +17,14 @@
  * @since         CakePHP(tm) v 2.0
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
+
+namespace Cake\Test\TestCase\TestSuite;
+
+use Cake\Core\App;
+use Cake\Core\CakePlugin;
+use Cake\TestSuite\CakeTestCase;
+use Cake\TestSuite\Coverage\HtmlCoverageReport;
+use Cake\TestSuite\Reporter\CakeHtmlReporter;
 
 /**
  * HtmlCoverageReportTest
@@ -46,6 +53,19 @@ class HtmlCoverageReportTest extends CakeTestCase
         $reporter->params = ['app' => false, 'plugin' => false, 'group' => false];
         $coverage = [];
         $this->Coverage = new HtmlCoverageReport($coverage, $reporter);
+    }
+
+    /**
+     * tearDown
+     *
+     * @return void
+     */
+    public function tearDown(): void
+    {
+        CakePlugin::unload();
+        unset($this->Coverage);
+
+        parent::tearDown();
     }
 
     /**
@@ -231,17 +251,5 @@ class HtmlCoverageReportTest extends CakeTestCase
             'Coverage report is wrong for line 5',
         );
     }
-
-    /**
-     * tearDown
-     *
-     * @return void
-     */
-    public function tearDown(): void
-    {
-        CakePlugin::unload();
-        unset($this->Coverage);
-
-        parent::tearDown();
-    }
 }
+class_alias(HtmlCoverageReportTest::class, 'HtmlCoverageReportTest');

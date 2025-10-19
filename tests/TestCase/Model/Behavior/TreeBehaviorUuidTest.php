@@ -18,6 +18,13 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\Model\Behavior;
+
+use App\Model\UuidTree;
+use Cake\Core\App;
+use Cake\TestSuite\CakeTestCase;
+use Cake\Utility\CakeText;
+
 App::uses('AppModel', 'Model');
 
 require_once dirname(__DIR__) . DS . 'models.php';
@@ -41,7 +48,7 @@ class TreeBehaviorUuidTest extends CakeTestCase
      *
      * @var array
      */
-    public $settings = [
+    public array $settings = [
         'modelClass' => 'UuidTree',
         'leftField' => 'lft',
         'rightField' => 'rght',
@@ -53,7 +60,7 @@ class TreeBehaviorUuidTest extends CakeTestCase
      *
      * @var array
      */
-    public $fixtures = ['core.uuid_tree'];
+    public array $fixtures = ['core.uuid_tree'];
 
     /**
      * testAddWithPreSpecifiedId method
@@ -63,7 +70,7 @@ class TreeBehaviorUuidTest extends CakeTestCase
     public function testAddWithPreSpecifiedId()
     {
         extract($this->settings);
-        $this->Tree = new $modelClass();
+        $this->Tree = new UuidTree();
         $this->Tree->order = null;
         $this->Tree->initialize(2, 2);
 
@@ -96,7 +103,7 @@ class TreeBehaviorUuidTest extends CakeTestCase
     public function testMovePromote()
     {
         extract($this->settings);
-        $this->Tree = new $modelClass();
+        $this->Tree = new UuidTree();
         $this->Tree->order = null;
         $this->Tree->initialize(2, 2);
         $this->Tree->id = null;
@@ -124,7 +131,7 @@ class TreeBehaviorUuidTest extends CakeTestCase
     public function testMoveWithWhitelist()
     {
         extract($this->settings);
-        $this->Tree = new $modelClass();
+        $this->Tree = new UuidTree();
         $this->Tree->order = null;
         $this->Tree->initialize(2, 2);
         $this->Tree->id = null;
@@ -153,7 +160,7 @@ class TreeBehaviorUuidTest extends CakeTestCase
     public function testRemoveNoChildren()
     {
         extract($this->settings);
-        $this->Tree = new $modelClass();
+        $this->Tree = new UuidTree();
         $this->Tree->order = null;
         $this->Tree->initialize(2, 2);
         $initialCount = $this->Tree->find('count');
@@ -189,7 +196,7 @@ class TreeBehaviorUuidTest extends CakeTestCase
     public function testRemoveAndDeleteNoChildren()
     {
         extract($this->settings);
-        $this->Tree = new $modelClass();
+        $this->Tree = new UuidTree();
         $this->Tree->order = null;
         $this->Tree->initialize(2, 2);
         $initialCount = $this->Tree->find('count');
@@ -223,7 +230,7 @@ class TreeBehaviorUuidTest extends CakeTestCase
     public function testChildren()
     {
         extract($this->settings);
-        $this->Tree = new $modelClass();
+        $this->Tree = new UuidTree();
         $this->Tree->order = null;
         $this->Tree->initialize(2, 2);
 
@@ -253,7 +260,7 @@ class TreeBehaviorUuidTest extends CakeTestCase
     public function testNoAmbiguousColumn()
     {
         extract($this->settings);
-        $this->Tree = new $modelClass();
+        $this->Tree = new UuidTree();
         $this->Tree->order = null;
         $this->Tree->initialize(2, 2);
 
@@ -291,7 +298,7 @@ class TreeBehaviorUuidTest extends CakeTestCase
     public function testGenerateTreeListWithSelfJoin()
     {
         extract($this->settings);
-        $this->Tree = new $modelClass();
+        $this->Tree = new UuidTree();
         $this->Tree->order = null;
         $this->Tree->bindModel(['belongsTo' => ['Dummy' =>
             ['className' => $modelClass, 'foreignKey' => $parentField, 'conditions' => ['Dummy.id' => null]]]], false);

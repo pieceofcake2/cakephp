@@ -16,6 +16,18 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\Controller;
+
+use Cake\Core\App;
+use Cake\Core\Configure;
+use Cake\Error\ForbiddenException;
+use Cake\Error\MissingViewException;
+use Cake\Error\NotFoundException;
+use Cake\Network\CakeRequest;
+use Cake\Network\CakeResponse;
+use Cake\TestSuite\CakeTestCase;
+use PagesController;
+
 /**
  * PagesControllerTest class
  *
@@ -59,8 +71,8 @@ class PagesControllerTest extends CakeTestCase
         $this->expectException(NotFoundException::class);
         $this->expectExceptionCode(404);
         Configure::write('debug', 0);
-        $Pages = new PagesController(new CakeRequest(null, false), new CakeResponse());
-        $Pages->display('non_existing_page');
+        $pages = new PagesController(new CakeRequest(null, false), new CakeResponse());
+        $pages->display('non_existing_page');
     }
 
     /**

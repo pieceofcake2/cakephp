@@ -16,6 +16,14 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\Utility;
+
+use Cake\Core\Configure;
+use Cake\Error\CakeException;
+use Cake\TestSuite\CakeTestCase;
+use Cake\Utility\File;
+use Cake\Utility\Validation;
+
 /**
  * CustomValidator class
  *
@@ -65,6 +73,7 @@ class TestNlValidation
         return true;
     }
 }
+class_alias(TestNlValidation::class, 'App\\Utility\\TestNlValidation');
 
 /**
  * TestDeValidation class
@@ -86,6 +95,7 @@ class TestDeValidation
         return true;
     }
 }
+class_alias(TestDeValidation::class, 'App\\Utility\\TestDeValidation');
 
 /**
  * ValidationStub
@@ -2379,14 +2389,10 @@ class ValidationTest extends CakeTestCase
         $warningTriggered = false;
         $warningMessage = '';
         set_error_handler(function ($errno, $errstr) use (&$warningTriggered, &$warningMessage) {
-            if ($errno === E_WARNING || $errno === E_USER_WARNING) {
-                $warningTriggered = true;
-                $warningMessage = $errstr;
+            $warningTriggered = true;
+            $warningMessage = $errstr;
 
-                return true;
-            }
-
-            return false;
+            return true;
         }, E_WARNING | E_USER_WARNING);
 
         try {
@@ -2409,14 +2415,10 @@ class ValidationTest extends CakeTestCase
         $warningTriggered = false;
         $warningMessage = '';
         set_error_handler(function ($errno, $errstr) use (&$warningTriggered, &$warningMessage) {
-            if ($errno === E_WARNING || $errno === E_USER_WARNING) {
-                $warningTriggered = true;
-                $warningMessage = $errstr;
+            $warningTriggered = true;
+            $warningMessage = $errstr;
 
-                return true;
-            }
-
-            return false;
+            return true;
         }, E_WARNING | E_USER_WARNING);
 
         try {

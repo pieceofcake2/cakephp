@@ -16,6 +16,17 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\View;
+
+use Cake\Controller\Controller;
+use Cake\Core\App;
+use Cake\Core\CakePlugin;
+use Cake\Error\MissingLayoutException;
+use Cake\Error\MissingViewException;
+use Cake\Network\CakeRequest;
+use Cake\TestSuite\CakeTestCase;
+use Cake\View\ThemeView;
+
 /**
  * ThemePosts2Controller class
  *

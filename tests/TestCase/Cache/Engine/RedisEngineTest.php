@@ -16,6 +16,13 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\Cache\Engine;
+
+use Cake\Cache\Cache;
+use Cake\Cache\Engine\RedisEngine;
+use Cake\Core\Configure;
+use Cake\TestSuite\CakeTestCase;
+
 /**
  * RedisEngineTest class
  *

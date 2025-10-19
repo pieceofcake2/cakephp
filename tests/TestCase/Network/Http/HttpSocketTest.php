@@ -16,6 +16,13 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\Network\Http;
+
+use Cake\Error\SocketException;
+use Cake\Network\Http\HttpSocket;
+use Cake\TestSuite\CakeTestCase;
+use Cake\Utility\Hash;
+
 /**
  * TestAuthentication class
  *
@@ -47,6 +54,7 @@ class TestAuthentication
         $http->request['header']['Proxy-Authorization'] = 'Test ' . $proxyInfo['user'] . '.' . $proxyInfo['pass'];
     }
 }
+class_alias(TestAuthentication::class, 'App\\Network\\Http\\TestAuthentication');
 
 /**
  * CustomResponse
@@ -177,14 +185,14 @@ class HttpSocketTest extends CakeTestCase
     /**
      * Socket property
      *
-     * @var mixed
+     * @var HttpSocket|null
      */
     public $Socket = null;
 
     /**
      * RequestSocket property
      *
-     * @var mixed
+     * @var HttpSocket|null
      */
     public $RequestSocket = null;
 
@@ -196,8 +204,8 @@ class HttpSocketTest extends CakeTestCase
     public function setUp(): void
     {
         parent::setUp();
-        $this->Socket = $this->getMock('TestHttpSocket', ['read', 'write', 'connect']);
-        $this->RequestSocket = $this->getMock('TestHttpSocket', ['read', 'write', 'connect', 'request']);
+        $this->Socket = $this->getMock(TestHttpSocket::class, ['read', 'write', 'connect']);
+        $this->RequestSocket = $this->getMock(TestHttpSocket::class, ['read', 'write', 'connect', 'request']);
     }
 
     /**
@@ -207,7 +215,8 @@ class HttpSocketTest extends CakeTestCase
      */
     public function tearDown(): void
     {
-        unset($this->Socket, $this->RequestSocket);
+        $this->Socket = null;
+        $this->RequestSocket = null;
 
         parent::tearDown();
     }
@@ -716,7 +725,7 @@ class HttpSocketTest extends CakeTestCase
                 ],
             ],
         ];
-        $http = $this->getMock('TestHttpSocket', ['read', 'write', 'connect', 'request'], [$request]);
+        $http = $this->getMock(TestHttpSocket::class, ['read', 'write', 'connect', 'request'], [$request]);
 
         $http->expects($this->exactly(2))
             ->method('request')
@@ -824,9 +833,9 @@ class HttpSocketTest extends CakeTestCase
             ->method('read')
             ->will($this->onConsecutiveCalls($serverResponse, false));
 
-        $this->Socket->responseClass = 'CustomResponse';
+        $this->Socket->responseClass = CustomResponse::class;
         $response = $this->Socket->request('http://www.cakephp.org/');
-        $this->assertInstanceOf('CustomResponse', $response);
+        $this->assertInstanceOf(CustomResponse::class, $response);
         $this->assertEquals('HTTP/1.x 2', $response->first10);
     }
 
@@ -1801,7 +1810,7 @@ class HttpSocketTest extends CakeTestCase
     {
         $this->Socket->reset();
 
-        $initialState = get_class_vars('HttpSocket');
+        $initialState = get_class_vars(HttpSocket::class);
         foreach ($initialState as $property => $value) {
             $this->Socket->{$property} = 'Overwritten';
         }

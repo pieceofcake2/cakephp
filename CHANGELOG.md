@@ -1,5 +1,15 @@
 ## CHANGELOG
 
+## Unreleased
+
+### Security Improvements
+
+- **XML External Entity (XXE) Protection**: Removed `loadEntities` option from `Xml::build()` for enhanced security
+  - **External entity loading is now permanently disabled** to prevent XXE (XML External Entity) attacks
+  - Uses `libxml_set_external_entity_loader(null)` on PHP 8.0+ (deprecated `libxml_disable_entity_loader()` removed)
+  - No configuration option to re-enable external entities - this is a security hardening measure
+  - **Breaking Change**: If your application previously used `Xml::build($input, ['loadEntities' => true])`, this option is now ignored and external entities will not be loaded. This is intentional for security reasons.
+
 ## v2.12.0 (2025-10-09)
 
 ### Composer Autoloading Migration ([PR #22](https://github.com/pieceofcake2/cakephp/pull/22))

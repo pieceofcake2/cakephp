@@ -16,6 +16,15 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\Cache;
+
+use Cake\Cache\Cache;
+use Cake\Core\App;
+use Cake\Core\CakePlugin;
+use Cake\Core\Configure;
+use Cake\Error\CacheException;
+use Cake\TestSuite\CakeTestCase;
+
 /**
  * CacheTest class
  *
@@ -155,14 +164,10 @@ class CacheTest extends CakeTestCase
         $warningTriggered = false;
         $warningMessage = '';
         set_error_handler(function ($errno, $errstr) use (&$warningTriggered, &$warningMessage) {
-            if ($errno === E_WARNING || $errno === E_USER_WARNING) {
-                $warningTriggered = true;
-                $warningMessage = $errstr;
+            $warningTriggered = true;
+            $warningMessage = $errstr;
 
-                return true;
-            }
-
-            return false;
+            return true;
         }, E_WARNING | E_USER_WARNING);
 
         try {
@@ -206,7 +211,7 @@ class CacheTest extends CakeTestCase
     public function testAttemptingToConfigureANonCacheEngineClass()
     {
         $this->expectException(CacheException::class);
-        $this->getMock('StdClass', [], [], 'RubbishEngine');
+        $this->getMock(stdClass::class, [], [], 'RubbishEngine');
         Cache::config('Garbage', [
             'engine' => 'Rubbish',
         ]);

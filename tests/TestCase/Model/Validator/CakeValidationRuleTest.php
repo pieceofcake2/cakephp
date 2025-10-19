@@ -16,6 +16,11 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\Model\Validator;
+
+use Cake\Model\Validator\CakeValidationRule;
+use Cake\TestSuite\CakeTestCase;
+
 /**
  * CakeValidationRuleTest
  *
@@ -111,14 +116,10 @@ class CakeValidationRuleTest extends CakeTestCase
         $warningTriggered = false;
         $warningMessage = '';
         set_error_handler(function ($errno, $errstr) use (&$warningTriggered, &$warningMessage) {
-            if ($errno === E_WARNING || $errno === E_USER_WARNING) {
-                $warningTriggered = true;
-                $warningMessage = $errstr;
+            $warningTriggered = true;
+            $warningMessage = $errstr;
 
-                return true;
-            }
-
-            return false;
+            return true;
         }, E_WARNING | E_USER_WARNING);
 
         try {
@@ -202,7 +203,7 @@ class CakeValidationRuleTest extends CakeTestCase
      */
     public function testCheckRequiredWhenRequiredAndAllowEmpty()
     {
-        $Rule = $this->getMock('CakeValidationRule', ['isRequired']);
+        $Rule = $this->getMock(CakeValidationRule::class, ['isRequired']);
         $Rule->expects($this->any())
             ->method('isRequired')
             ->will($this->returnValue(true));

@@ -16,6 +16,14 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\Utility;
+
+use Cake\Core\CakeObject;
+use Cake\Error\CakeException;
+use Cake\Event\CakeEvent;
+use Cake\TestSuite\CakeTestCase;
+use Cake\Utility\ObjectCollection;
+
 /**
  * A generic object class
  */
@@ -33,6 +41,7 @@ class GenericObject
         $this->settings = $settings;
     }
 }
+class_alias(GenericObject::class, 'GenericObject');
 
 /**
  * First Extension of Generic CakeObject
@@ -48,6 +57,7 @@ class FirstGenericObject extends GenericObject
     {
     }
 }
+class_alias(FirstGenericObject::class, 'FirstGenericObject');
 
 /**
  * Second Extension of Generic CakeObject
@@ -61,6 +71,7 @@ class SecondGenericObject extends GenericObject
     {
     }
 }
+class_alias(SecondGenericObject::class, 'SecondGenericObject');
 
 /**
  * Third Extension of Generic CakeObject
@@ -74,6 +85,7 @@ class ThirdGenericObject extends GenericObject
     {
     }
 }
+class_alias(ThirdGenericObject::class, 'ThirdGenericObject');
 
 /**
  * A collection of Generic objects
@@ -160,8 +172,8 @@ class ObjectCollectionTest extends CakeTestCase
     public function testLoad()
     {
         $result = $this->Objects->load('First');
-        $this->assertInstanceOf('FirstGenericObject', $result);
-        $this->assertInstanceOf('FirstGenericObject', $this->Objects->First);
+        $this->assertInstanceOf(FirstGenericObject::class, $result);
+        $this->assertInstanceOf(FirstGenericObject::class, $this->Objects->First);
 
         $result = $this->Objects->loaded();
         $this->assertEquals(['First'], $result, 'loaded() results are wrong.');
@@ -209,10 +221,10 @@ class ObjectCollectionTest extends CakeTestCase
         $this->assertEquals(['First'], $result, 'loaded objects are wrong');
 
         $result = $this->Objects->set('First', new SecondGenericObject($this->Objects));
-        $this->assertInstanceOf('SecondGenericObject', $result['First'], 'set failed');
+        $this->assertInstanceOf(SecondGenericObject::class, $result['First'], 'set failed');
 
         $result = $this->Objects->set('Second', new SecondGenericObject($this->Objects));
-        $this->assertInstanceOf('SecondGenericObject', $result['Second'], 'set failed');
+        $this->assertInstanceOf(SecondGenericObject::class, $result['Second'], 'set failed');
 
         $this->assertEquals(2, count($result));
     }
@@ -224,9 +236,9 @@ class ObjectCollectionTest extends CakeTestCase
      */
     protected function _makeMockClasses()
     {
-        $this->FirstGenericObject = $this->getMock('FirstGenericObject', [], [], '', false);
-        $this->SecondGenericObject = $this->getMock('SecondGenericObject', [], [], '', false);
-        $this->ThirdGenericObject = $this->getMock('ThirdGenericObject', [], [], '', false);
+        $this->FirstGenericObject = $this->getMock(FirstGenericObject::class, [], [], '', false);
+        $this->SecondGenericObject = $this->getMock(SecondGenericObject::class, [], [], '', false);
+        $this->ThirdGenericObject = $this->getMock(ThirdGenericObject::class, [], [], '', false);
     }
 
     /**

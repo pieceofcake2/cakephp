@@ -16,6 +16,13 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\Network\Email;
+
+use Cake\Network\Email\CakeEmail;
+use Cake\Network\Email\DebugTransport;
+use Cake\TestSuite\CakeTestCase;
+use DebugCakeEmail;
+
 /**
  * Test case
  */
@@ -39,7 +46,7 @@ class DebugTransportTest extends CakeTestCase
      */
     public function testSend()
     {
-        $email = $this->getMock('CakeEmail', ['message'], [], 'DebugCakeEmail');
+        $email = $this->getMock(CakeEmail::class, ['message'], [], 'DebugCakeEmail');
         $email->from('noreply@cakephp.org', 'CakePHP Test');
         $email->to('cake@cakephp.org', 'CakePHP');
         $email->cc(['mark@cakephp.org' => 'Mark Story', 'juan@cakephp.org' => 'Juan Basso']);

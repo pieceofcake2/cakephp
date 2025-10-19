@@ -14,6 +14,14 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\Utility;
+
+use Cake\Error\CakeException;
+use Cake\TestSuite\CakeTestCase;
+use Cake\Utility\Hash;
+use InvalidArgumentException;
+use stdClass;
+
 /**
  * HashTest
  *
@@ -255,7 +263,7 @@ class HashTest extends CakeTestCase
     public function testGetInvalidPath()
     {
         $this->expectException(InvalidArgumentException::class);
-        Hash::get(['one' => 'two'], new StdClass());
+        Hash::get(['one' => 'two'], new stdClass());
     }
 
     /**

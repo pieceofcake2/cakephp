@@ -16,6 +16,17 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\Model\Datasource\Database;
+
+use ArrayIterator;
+use Cake\Core\App;
+use Cake\Model\ConnectionManager;
+use Cake\Model\Datasource\Database\Sqlserver;
+use Cake\Model\Model;
+use Cake\TestSuite\CakeTestCase;
+use Cake\TestSuite\Fixture\CakeTestModel;
+use Cake\Utility\ClassRegistry;
+
 App::uses('AppModel', 'Model');
 
 require_once dirname(__DIR__, 2) . DS . 'models.php';
@@ -107,10 +118,10 @@ class SqlserverTestDb extends Sqlserver
     /**
      * describe method
      *
-     * @param Model|string $model
+     * @param string|Model $model
      * @return array
      */
-    public function describe($model): array
+    public function describe(string|Model $model): array
     {
         return empty($this->describe) ? parent::describe($model) : $this->describe;
     }
@@ -761,7 +772,7 @@ SQL;
      */
     public function testBuildStatementWithHaving()
     {
-        $db = $this->getMock('SqlserverTestDb', ['getVersion'], [$this->Dbo->config]);
+        $db = $this->getMock(SqlserverTestDb::class, ['getVersion'], [$this->Dbo->config]);
 
         $db->expects($this->any())
             ->method('getVersion')
@@ -793,7 +804,7 @@ SQL;
      */
     public function testBuildStatementWithLockingHint()
     {
-        $db = $this->getMock('SqlserverTestDb', ['getVersion'], [$this->Dbo->config]);
+        $db = $this->getMock(SqlserverTestDb::class, ['getVersion'], [$this->Dbo->config]);
 
         $db->expects($this->any())
             ->method('getVersion')
@@ -824,7 +835,7 @@ SQL;
      */
     public function testBuildStatementWithHavingForLegacyVersion()
     {
-        $db = $this->getMock('SqlserverTestDb', ['getVersion'], [$this->Dbo->config]);
+        $db = $this->getMock(SqlserverTestDb::class, ['getVersion'], [$this->Dbo->config]);
 
         $db->expects($this->any())
             ->method('getVersion')
@@ -863,7 +874,7 @@ SQL;
      */
     public function testBuildStatementWithLockingHintForLegacyVersion()
     {
-        $db = $this->getMock('SqlserverTestDb', ['getVersion'], [$this->Dbo->config]);
+        $db = $this->getMock(SqlserverTestDb::class, ['getVersion'], [$this->Dbo->config]);
 
         $db->expects($this->any())
             ->method('getVersion')

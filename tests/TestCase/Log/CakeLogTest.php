@@ -16,6 +16,14 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\Log;
+
+use Cake\Core\App;
+use Cake\Core\CakePlugin;
+use Cake\Error\CakeLogException;
+use Cake\Log\CakeLog;
+use Cake\TestSuite\CakeTestCase;
+
 /**
  * CakeLogTest class
  *
@@ -54,13 +62,13 @@ class CakeLogTest extends CakeTestCase
             'engine' => 'TestAppLog',
         ]);
         $this->assertTrue($result);
-        $this->assertEquals(CakeLog::configured(), ['libtest']);
+        $this->assertEquals(['libtest'], CakeLog::configured());
 
         $result = CakeLog::config('plugintest', [
             'engine' => 'TestPlugin.TestPluginLog',
         ]);
         $this->assertTrue($result);
-        $this->assertEquals(CakeLog::configured(), ['libtest', 'plugintest']);
+        $this->assertEquals(['libtest', 'plugintest'], CakeLog::configured());
 
         CakeLog::write(LOG_INFO, 'TestPluginLog is not a BaseLog descendant');
 
@@ -325,7 +333,7 @@ class CakeLogTest extends CakeTestCase
      *
      * @return void
      */
-    protected function _resetLogConfig()
+    protected function _resetLogConfig(): void
     {
         CakeLog::config('debug', [
             'engine' => 'File',
@@ -344,7 +352,7 @@ class CakeLogTest extends CakeTestCase
      *
      * @return void
      */
-    protected function _deleteLogs()
+    protected function _deleteLogs(): void
     {
         if (file_exists(LOGS . 'shops.log')) {
             unlink(LOGS . 'shops.log');

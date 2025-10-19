@@ -18,6 +18,13 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\Console\Command\Task;
+
+use Cake\Core\App;
+use Cake\Core\CakePlugin;
+use Cake\TestSuite\CakeTestCase;
+use Cake\Utility\Folder;
+
 /**
  * ExtractTaskTest class
  *
@@ -33,8 +40,8 @@ class ExtractTaskTest extends CakeTestCase
     public function setUp(): void
     {
         parent::setUp();
-        $out = $this->getMock('ConsoleOutput', [], [], '', false);
-        $in = $this->getMock('ConsoleInput', [], [], '', false);
+        $out = $this->getMock(ConsoleOutput::class, [], [], '', false);
+        $in = $this->getMock(ConsoleInput::class, [], [], '', false);
 
         $this->Task = $this->getMock(
             'ExtractTask',
@@ -311,8 +318,8 @@ class ExtractTaskTest extends CakeTestCase
         App::build([
             'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS],
         ]);
-        $this->out = $this->getMock('ConsoleOutput', [], [], '', false);
-        $this->in = $this->getMock('ConsoleInput', [], [], '', false);
+        $this->out = $this->getMock(ConsoleOutput::class, [], [], '', false);
+        $this->in = $this->getMock(ConsoleInput::class, [], [], '', false);
         $this->Task = $this->getMock(
             'ExtractTask',
             ['_isExtractingApp', '_extractValidationMessages', 'in', 'out', 'err', 'clear', '_stop'],
@@ -340,8 +347,8 @@ class ExtractTaskTest extends CakeTestCase
             'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS],
         ]);
 
-        $this->out = $this->getMock('ConsoleOutput', [], [], '', false);
-        $this->in = $this->getMock('ConsoleInput', [], [], '', false);
+        $this->out = $this->getMock(ConsoleOutput::class, [], [], '', false);
+        $this->in = $this->getMock(ConsoleInput::class, [], [], '', false);
         $this->Task = $this->getMock(
             'ExtractTask',
             ['_isExtractingApp', 'in', 'out', 'err', 'clear', '_stop'],
@@ -370,8 +377,8 @@ class ExtractTaskTest extends CakeTestCase
             'Model' => [CORE_TESTS . DS . 'test_app' . DS . 'Model' . DS],
             'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS],
         ], App::RESET);
-        $this->out = $this->getMock('ConsoleOutput', [], [], '', false);
-        $this->in = $this->getMock('ConsoleInput', [], [], '', false);
+        $this->out = $this->getMock(ConsoleOutput::class, [], [], '', false);
+        $this->in = $this->getMock(ConsoleInput::class, [], [], '', false);
         $this->Task = $this->getMock(
             'ExtractTask',
             ['_isExtractingApp', 'in', 'out', 'err', 'clear', '_stop'],
@@ -408,8 +415,8 @@ class ExtractTaskTest extends CakeTestCase
         App::build([
             'Model' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS . 'TestPlugin' . DS . 'Model' . DS],
         ]);
-        $this->out = $this->getMock('ConsoleOutput', [], [], '', false);
-        $this->in = $this->getMock('ConsoleInput', [], [], '', false);
+        $this->out = $this->getMock(ConsoleOutput::class, [], [], '', false);
+        $this->in = $this->getMock(ConsoleInput::class, [], [], '', false);
         $this->Task = $this->getMock(
             'ExtractTask',
             ['_isExtractingApp', 'in', 'out', 'err', 'clear', '_stop'],
@@ -442,8 +449,8 @@ class ExtractTaskTest extends CakeTestCase
         App::build([
             'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS],
         ]);
-        $this->out = $this->getMock('ConsoleOutput', [], [], '', false);
-        $this->in = $this->getMock('ConsoleInput', [], [], '', false);
+        $this->out = $this->getMock(ConsoleOutput::class, [], [], '', false);
+        $this->in = $this->getMock(ConsoleInput::class, [], [], '', false);
         $this->Task = $this->getMock(
             'ExtractTask',
             ['_isExtractingApp', 'in', 'out', 'err', 'clear', '_stop'],

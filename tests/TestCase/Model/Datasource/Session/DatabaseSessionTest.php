@@ -16,6 +16,15 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\Model\Datasource\Session;
+
+use Cake\Core\Configure;
+use Cake\Model\Datasource\Database\Sqlite;
+use Cake\Model\Datasource\Session\DatabaseSession;
+use Cake\Model\Model;
+use Cake\TestSuite\CakeTestCase;
+use Cake\Utility\ClassRegistry;
+
 /**
  * SessionTestModel
  *
@@ -25,6 +34,7 @@ class SessionTestModel extends Model
 {
     public $useTable = 'sessions';
 }
+class_alias(SessionTestModel::class, 'App\\Model\\SessionTestModel');
 
 /**
  * Database session test.
@@ -101,7 +111,7 @@ class DatabaseSessionTest extends CakeTestCase
         new DatabaseSession();
 
         $session = ClassRegistry::getObject('session');
-        $this->assertInstanceOf('SessionTestModel', $session);
+        $this->assertInstanceOf(SessionTestModel::class, $session);
         $this->assertEquals('Session', $session->alias);
         $this->assertEquals('test', $session->useDbConfig);
         $this->assertEquals('sessions', $session->useTable);
@@ -199,13 +209,14 @@ class DatabaseSessionTest extends CakeTestCase
         ClassRegistry::removeObject('Session');
 
         $mockedModel = $this->getMockForModel(
-            'SessionTestModel',
+            SessionTestModel::class,
             ['exists'],
             ['alias' => 'MockedSessionTestModel', 'table' => 'sessions'],
         );
         Configure::write('Session.handler.model', 'MockedSessionTestModel');
 
-        $mockedModel->expects($this->exactly(4))
+        $mockedModel
+            ->expects($this->exactly(4))
             ->method('exists')
             ->willReturnOnConsecutiveCalls(
                 false, // First save

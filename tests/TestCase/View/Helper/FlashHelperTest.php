@@ -18,6 +18,16 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\View\Helper;
+
+use Cake\Core\App;
+use Cake\Core\CakePlugin;
+use Cake\Model\Datasource\CakeSession;
+use Cake\TestSuite\CakeTestCase;
+use Cake\View\Helper\FlashHelper;
+use Cake\View\View;
+use UnexpectedValueException;
+
 /**
  * FlashHelperTest class
  *

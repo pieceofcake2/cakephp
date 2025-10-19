@@ -18,6 +18,18 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\Controller\Component;
+
+use Cake\Controller\Component\EmailComponent;
+use Cake\Controller\Controller;
+use Cake\Core\App;
+use Cake\Core\Configure;
+use Cake\Error\SocketException;
+use Cake\Network\Email\AbstractTransport;
+use Cake\Network\Email\CakeEmail;
+use Cake\TestSuite\CakeTestCase;
+use Cake\Utility\ClassRegistry;
+
 /**
  * EmailTestComponent class
  *
@@ -35,6 +47,7 @@ class EmailTestComponent extends EmailComponent
         return parent::_strip($content, $message);
     }
 }
+class_alias(EmailTestComponent::class, 'App\\Controller\\Component\\EmailTestComponent');
 
 /**
  * DebugCompTransport class
@@ -53,7 +66,7 @@ class DebugCompTransport extends AbstractTransport
     /**
      * Send mail
      *
-     * @params object $email CakeEmail
+     * @params CakeEmail $email CakeEmail
      * @return bool
      */
     public function send(CakeEmail $email)
@@ -79,6 +92,7 @@ class DebugCompTransport extends AbstractTransport
         return true;
     }
 }
+class_alias(DebugCompTransport::class, 'App\\Network\\Email\\DebugCompTransport');
 
 /**
  * EmailTestController class
@@ -101,6 +115,7 @@ class EmailTestController extends Controller
      */
     public $components = ['Session', 'EmailTest'];
 }
+class_alias(EmailTestController::class, 'App\\Controller\\EmailTestController');
 
 /**
  * EmailTest class

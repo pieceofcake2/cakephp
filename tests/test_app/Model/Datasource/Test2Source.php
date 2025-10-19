@@ -1,7 +1,11 @@
 <?php
+
+use Cake\Model\Datasource\DataSource;
+use Cake\Model\Model;
+
 class Test2Source extends DataSource
 {
-    public function describe($model)
+    public function describe(string|Model $model)
     {
         return compact('model');
     }

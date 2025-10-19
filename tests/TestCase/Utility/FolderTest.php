@@ -16,6 +16,15 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\Utility;
+
+use Cake\TestSuite\CakeTestCase;
+use Cake\Utility\File;
+use Cake\Utility\Folder;
+use InvalidArgumentException;
+use RecursiveDirectoryIterator;
+use RecursiveIteratorIterator;
+
 /**
  * FolderTest class
  *
@@ -190,7 +199,7 @@ class FolderTest extends CakeTestCase
      */
     public function testInPathInvalidPathArgument($path)
     {
-        $this->expectException(\InvalidArgumentException::class);
+        $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('The $path argument is expected to be an absolute path.');
         $Folder = new Folder();
         $Folder->inPath($path);
@@ -270,6 +279,8 @@ class FolderTest extends CakeTestCase
         set_error_handler(function ($errno, $errstr) use (&$warningTriggered, &$warningMessage) {
             $warningTriggered = true;
             $warningMessage = $errstr;
+
+            return true;
         }, E_WARNING | E_USER_WARNING);
 
         try {

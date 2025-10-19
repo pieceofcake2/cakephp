@@ -17,7 +17,7 @@ if (!defined('CORE_PATH')) {
 }
 
 if (!defined('CAKE')) {
-    define('CAKE', CORE_PATH . 'Cake' . DS);
+    define('CAKE', CORE_PATH);
 }
 
 if (!defined('CORE_TESTS')) {

@@ -16,6 +16,13 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\Model\Datasource;
+
+use Cake\Model\ConnectionManager;
+use Cake\Model\Datasource\DataSource;
+use Cake\Model\Model;
+use Cake\TestSuite\CakeTestCase;
+
 /**
  * TestSource
  *
@@ -26,7 +33,7 @@ class TestSource extends DataSource
     /**
      * _schema
      *
-     * @var type
+     * @var array
      */
     protected $_schema = [
         'id' => [
@@ -65,10 +72,10 @@ class TestSource extends DataSource
     /**
      * Returns the schema for the datasource to enable create/update
      *
-     * @param Model $Model
+     * @param Model|string $model
      * @return array
      */
-    public function describe(Model $Model)
+    public function describe(Model|string $model)
     {
         return $this->_schema;
     }
@@ -77,12 +84,12 @@ class TestSource extends DataSource
      * Just return $func to pass to read() to figure out the COUNT
      * Required for delete/update to work
      *
-     * @param Model $Model
-     * @param type $func
-     * @param type $params
+     * @param Model $model
+     * @param string $func
+     * @param array $params
      * @return array
      */
-    public function calculate(Model $Model, $func, $params = [])
+    public function calculate(Model $model, $func, $params = [])
     {
         return $func;
     }

@@ -18,6 +18,11 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\Event;
+
+use Cake\Event\CakeEvent;
+use Cake\TestSuite\CakeTestCase;
+
 /**
  * Tests the CakeEvent class functionality
  */
