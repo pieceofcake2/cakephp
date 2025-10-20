@@ -2,13 +2,68 @@
 
 ## Unreleased
 
-### Security Improvements
+### Security Improvements ([PR #23](https://github.com/pieceofcake2/cakephp/pull/23))
 
 - **XML External Entity (XXE) Protection**: Removed `loadEntities` option from `Xml::build()` for enhanced security
   - **External entity loading is now permanently disabled** to prevent XXE (XML External Entity) attacks
   - Uses `libxml_set_external_entity_loader(null)` on PHP 8.0+ (deprecated `libxml_disable_entity_loader()` removed)
   - No configuration option to re-enable external entities - this is a security hardening measure
   - **Breaking Change**: If your application previously used `Xml::build($input, ['loadEntities' => true])`, this option is now ignored and external entities will not be loaded. This is intentional for security reasons.
+
+### Namespace Migration ([PR #23](https://github.com/pieceofcake2/cakephp/pull/23))
+
+CakePHP 2.x now supports modern PHP namespaces while maintaining full backward compatibility with non-namespaced code. This brings the framework closer to CakePHP 5.x architecture and enables gradual migration.
+
+- **Framework Namespace (`Cake\`)**: All framework classes now use PSR-4 namespaces
+  - Migrated 400+ core classes to use `Cake\` namespace
+  - PSR-4 autoloading configuration: `"Cake\\": "src/"` in composer.json
+  - Examples: `Cake\Controller\Controller`, `Cake\Model\Model`, `Cake\Core\App`
+
+- **Application Namespace Support**: Framework respects application-defined namespaces via Configure
+  - Default namespace: `'App'` (set in src/bootstrap.php:60-63)
+  - Customizable via `Configure::write('App.namespace', 'YourNamespace')` in application's config/core.php or config/bootstrap.php
+  - Used by `App::className()` for dynamic class name resolution
+  - Enables applications to define their own namespace structure
+
+- **Application Base Classes**: Applications should create namespaced base classes
+  - `App\Controller\AppController` extending `Cake\Controller\Controller`
+  - `App\Model\AppModel` extending `Cake\Model\Model`
+  - `App\View\Helper\AppHelper` extending `Cake\View\Helper\Helper`
+  - See [pieceofcake2/app](https://github.com/pieceofcake2/app) for complete application skeleton example
+
+- **PSR-4 Autoloading for Applications**: Enable PSR-4 autoloading in your application's composer.json
+  ```json
+  {
+    "autoload": {
+      "psr-4": {
+        "App\\": "src/"
+      }
+    }
+  }
+  ```
+  - Run `composer dump-autoload` after updating composer.json
+  - Custom namespace example: `"YourCompany\\": "src/"` with `Configure::write('App.namespace', 'YourCompany')`
+
+- **Exception Architecture Modernization**: Split monolithic exceptions.php into 44 individual exception files
+  - Before: Single 715-line `src/Error/exceptions.php` file
+  - After: Individual files like `CakeException.php`, `NotFoundException.php`, `BadRequestException.php`
+  - Improves code organization and follows modern PHP practices
+  - Each exception now has its own dedicated file with proper namespace declaration
+
+- **Backward Compatibility**: Full support for non-namespaced code via LegacyClassLoader
+  - Automatically maps 400+ non-namespaced class names to their namespaced equivalents
+  - Examples: `'Controller' => 'Cake\Controller\Controller'`, `'Model' => 'Cake\Model\Model'`
+  - Loaded automatically via composer.json `"files": ["src/LegacyClassLoader.php"]`
+  - No breaking changes - existing non-namespaced applications continue to work without modification
+  - Enables gradual migration at your own pace
+
+- **Migration Reference**: Non-namespaced test suite preserved as `tests_legacy/`
+  - Provides reference implementation for comparing namespaced vs non-namespaced code
+  - Useful for understanding migration patterns and verifying compatibility
+
+- **See Also**:
+  - [pieceofcake2/app](https://github.com/pieceofcake2/app) - Application skeleton with namespace support
+  - UPGRADE.md - Detailed migration guide with step-by-step instructions
 
 ## v2.12.0 (2025-10-09)
 

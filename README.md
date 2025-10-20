@@ -98,18 +98,21 @@ CakePHP 2.x → CakePHP 5.x
 
 **New gradual migration approach (easier):**
 ```
-Step 1: CakePHP 2.x with traditional structure
+Step 1: CakePHP 2.x with traditional structure (non-namespaced)
         ↓ (modernize folder structure only)
-Step 2: CakePHP 2.x with CakePHP 5.x-style structure ← You can stop here
-        ↓ (upgrade code only)
-Step 3: CakePHP 5.x with CakePHP 5.x-style structure
+Step 2: CakePHP 2.x with CakePHP 5.x-style structure (non-namespaced) ← You can stop here
+        ↓ (adopt namespaces only)
+Step 3: CakePHP 2.x with CakePHP 5.x-style structure (namespaced) ← Or here
+        ↓ (upgrade framework only)
+Step 4: CakePHP 5.x with CakePHP 5.x-style structure (namespaced)
 ```
 
 **Benefits:**
-- ✅ **Smaller, manageable changes**: Separate folder restructuring from code changes
+- ✅ **Smaller, manageable changes**: Separate folder restructuring, namespace adoption, and framework upgrade
 - ✅ **Test incrementally**: Verify each step works before moving to the next
-- ✅ **Reduced risk**: You can stay on Step 2 indefinitely if needed
+- ✅ **Reduced risk**: You can stop at Step 2 (modern structure) or Step 3 (with namespaces) indefinitely
 - ✅ **Team-friendly**: Easier for teams to understand and review smaller changes
+- ✅ **Namespace preparation**: Adopt CakePHP 5.x-compatible namespaces while still on 2.x
 
 See [`pieceofcake2/app`](https://github.com/pieceofcake2/app) for the modern directory structure compatible with both CakePHP 2.x and 5.x.
 

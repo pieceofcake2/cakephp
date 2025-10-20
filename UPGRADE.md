@@ -46,6 +46,220 @@ The following files need to be updated:
 
 See [`pieceofcake2/app`](https://github.com/pieceofcake2/app) for the modern application skeleton compatible with both CakePHP 2.x and 5.x.
 
+### Namespace Migration ([PR #23](https://github.com/pieceofcake2/cakephp/pull/23))
+
+CakePHP 2.x now supports modern PHP namespaces while maintaining full backward compatibility with non-namespaced code. This brings the framework closer to CakePHP 5.x architecture and enables gradual migration.
+
+#### What Changed
+
+**Framework Namespace (`Cake\`):**
+- All CakePHP framework classes now use the `Cake\` namespace with PSR-4 autoloading
+- 400+ core classes migrated to namespaced structure
+- PSR-4 configuration: `"Cake\\": "src/"` in composer.json
+- Examples: `Cake\Controller\Controller`, `Cake\Model\Model`, `Cake\Core\App`, `Cake\Error\CakeException`
+
+**Application Namespace Support:**
+- Framework respects application-defined namespace via `Configure::read('App.namespace')`
+- Default: `'App'` (set in src/bootstrap.php:60-63)
+- Customizable in application's config/core.php or config/bootstrap.php
+- Used by `App::className()` for dynamic class name resolution
+
+**Exception Architecture:**
+- Split monolithic src/Error/exceptions.php (715 lines) into 44 individual exception files
+- Each exception now has its own file: `CakeException.php`, `NotFoundException.php`, `BadRequestException.php`, etc.
+- Improves code organization and follows modern PHP practices
+
+**Backward Compatibility:**
+- LegacyClassLoader automatically maps 400+ non-namespaced class names to namespaced equivalents
+- Examples: `'Controller' => 'Cake\Controller\Controller'`, `'Model' => 'Cake\Model\Model'`
+- Loaded automatically via composer.json `"files": ["src/LegacyClassLoader.php"]`
+- No breaking changes - existing non-namespaced applications continue to work
+
+#### Migration Steps
+
+**This migration is completely optional.** Your application can continue to use non-namespaced classes indefinitely. However, adopting namespaces prepares your application for eventual CakePHP 5.x migration.
+
+**Step 1: Configure Application Namespace (Optional)**
+
+The default namespace is `'App'`. To use a custom namespace, add to your application's config/core.php or config/bootstrap.php:
+
+```php
+// Use custom namespace
+Configure::write('App.namespace', 'YourNamespace');
+```
+
+> [!NOTE]
+> The default `'App'` namespace is already configured in src/bootstrap.php (lines 60-63). You only need to set this if you want a different namespace.
+
+**Step 2: Enable PSR-4 Autoloading**
+
+Update your application's composer.json:
+
+```json
+{
+  "autoload": {
+    "psr-4": {
+      "App\\": "src/"
+    }
+  }
+}
+```
+
+For custom namespace:
+```json
+{
+  "autoload": {
+    "psr-4": {
+      "YourCompany\\": "src/"
+    }
+  }
+}
+```
+
+Run composer dump-autoload:
+```bash
+composer dump-autoload
+```
+
+**Step 3: Create Namespaced Base Classes**
+
+Create namespaced versions of your base classes:
+
+**AppController** (src/Controller/AppController.php):
+```php
+<?php
+namespace App\Controller;
+
+use Cake\Controller\Controller;
+
+/**
+ * Application Controller
+ *
+ * Add your application-wide methods in the class below, your controllers
+ * will inherit them.
+ */
+class AppController extends Controller
+{
+    // Your application-wide controller methods
+}
+```
+
+**AppModel** (src/Model/AppModel.php):
+```php
+<?php
+namespace App\Model;
+
+use Cake\Model\Model;
+
+/**
+ * Application model for Cake.
+ *
+ * Add your application-wide methods in the class below, your models
+ * will inherit them.
+ */
+class AppModel extends Model
+{
+    // Your application-wide model methods
+}
+```
+
+**AppHelper** (src/View/Helper/AppHelper.php):
+```php
+<?php
+namespace App\View\Helper;
+
+use Cake\View\Helper\Helper;
+
+/**
+ * Application helper
+ *
+ * Add your application-wide methods in the class below, your helpers
+ * will inherit them.
+ */
+class AppHelper extends Helper
+{
+    // Your application-wide helper methods
+}
+```
+
+> [!TIP]
+> See [pieceofcake2/app](https://github.com/pieceofcake2/app) for complete working examples of namespaced base classes.
+
+**Step 4: Migrate Application Classes Gradually**
+
+Migrate your controllers, models, and other classes to use namespaces:
+
+**Before (non-namespaced):**
+```php
+<?php
+// app/Controller/UsersController.php
+App::uses('AppController', 'Controller');
+
+class UsersController extends AppController
+{
+    public $uses = ['User'];
+}
+```
+
+**After (namespaced):**
+```php
+<?php
+// src/Controller/UsersController.php
+namespace App\Controller;
+
+use App\Model\User;
+
+class UsersController extends AppController
+{
+    public $uses = ['User'];
+}
+```
+
+**Before (non-namespaced):**
+```php
+<?php
+// app/Model/User.php
+App::uses('AppModel', 'Model');
+
+class User extends AppModel
+{
+}
+```
+
+**After (namespaced):**
+```php
+<?php
+// src/Model/User.php
+namespace App\Model;
+
+class User extends AppModel
+{
+}
+```
+
+#### Important Notes
+
+**Gradual Migration:**
+- You can migrate classes one at a time
+- Namespaced and non-namespaced classes can coexist
+- No need to migrate everything at once
+
+**Framework Compatibility:**
+- The framework's `App::className()` automatically resolves both namespaced and non-namespaced class names
+- Works seamlessly with both `App\Controller\UsersController` and `UsersController`
+
+**Plugin Classes:**
+- Plugins should define their own namespace (e.g., `DebugKit\`, `Bake\`)
+- Follow the same migration steps for plugin classes
+
+**Testing:**
+- Test classes should also use namespaces when migrating
+- Example: `App\Test\TestCase\Controller\UsersControllerTest`
+
+#### No Migration Required
+
+**Your existing non-namespaced application will continue to work without any changes** thanks to the LegacyClassLoader. This migration is completely optional and can be done at your own pace.
+
 ### Directory Structure Modernization ([PR #21](https://github.com/pieceofcake2/cakephp/pull/21))
 
 - **Directory layout has been restructured to modern standards**
