@@ -16,6 +16,11 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\Log\Engine;
+
+use Cake\Log\Engine\FileLog;
+use Cake\TestSuite\CakeTestCase;
+
 /**
  * CakeLogTest class
  *

@@ -16,6 +16,11 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\Console;
+
+use Cake\Console\ConsoleOutput;
+use Cake\TestSuite\CakeTestCase;
+
 /**
  * ConsoleOutputTest
  *
@@ -31,7 +36,7 @@ class ConsoleOutputTest extends CakeTestCase
     public function setUp(): void
     {
         parent::setUp();
-        $this->output = $this->getMock('ConsoleOutput', ['_write']);
+        $this->output = $this->getMock(ConsoleOutput::class, ['_write']);
         $this->output->outputAs(ConsoleOutput::COLOR);
     }
 
@@ -283,7 +288,7 @@ class ConsoleOutputTest extends CakeTestCase
      */
     public function testOutputAsPlainWhenOutputStream()
     {
-        $output = $this->getMock('ConsoleOutput', ['_write'], ['php://output']);
+        $output = $this->getMock(ConsoleOutput::class, ['_write'], ['php://output']);
         $this->assertEquals(ConsoleOutput::PLAIN, $output->outputAs());
     }
 

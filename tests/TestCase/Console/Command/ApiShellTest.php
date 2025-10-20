@@ -16,6 +16,13 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\Console\Command;
+
+use Cake\Console\Command\ApiShell;
+use Cake\Console\ConsoleInput;
+use Cake\Console\ConsoleOutput;
+use Cake\TestSuite\CakeTestCase;
+
 /**
  * ApiShellTest class
  *
@@ -31,11 +38,11 @@ class ApiShellTest extends CakeTestCase
     public function setUp(): void
     {
         parent::setUp();
-        $out = $this->getMock('ConsoleOutput', [], [], '', false);
-        $in = $this->getMock('ConsoleInput', [], [], '', false);
+        $out = $this->getMock(ConsoleOutput::class, [], [], '', false);
+        $in = $this->getMock(ConsoleInput::class, [], [], '', false);
 
         $this->Shell = $this->getMock(
-            'ApiShell',
+            ApiShell::class,
             ['in', 'out', 'createFile', 'hr', '_stop'],
             [$out, $out, $in],
         );

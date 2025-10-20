@@ -18,6 +18,13 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\Console\Command;
+
+use Cake\Console\ConsoleOutput;
+use Cake\Core\App;
+use Cake\Core\CakePlugin;
+use Cake\TestSuite\CakeTestCase;
+
 /**
  * TestCompletionStringOutput
  *
@@ -59,7 +66,7 @@ class CompletionShellTest extends CakeTestCase
         CakePlugin::load(['TestPlugin', 'TestPluginTwo']);
 
         $out = new TestCompletionStringOutput();
-        $in = $this->getMock('ConsoleInput', [], [], '', false);
+        $in = $this->getMock(ConsoleInput::class, [], [], '', false);
 
         $this->Shell = $this->getMock(
             'CompletionShell',

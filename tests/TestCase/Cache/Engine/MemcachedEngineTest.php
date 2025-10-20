@@ -18,6 +18,13 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\Cache\Engine;
+
+use Cake\Cache\Cache;
+use Cake\Cache\Engine\MemcachedEngine;
+use Cake\TestSuite\CakeTestCase;
+use Memcached;
+
 /**
  * TestMemcachedEngine
  *
@@ -370,14 +377,10 @@ class MemcachedEngineTest extends CakeTestCase
         $warningTriggered = false;
         $warningMessage = '';
         set_error_handler(function ($errno, $errstr) use (&$warningTriggered, &$warningMessage) {
-            if ($errno === E_WARNING || $errno === E_USER_WARNING) {
-                $warningTriggered = true;
-                $warningMessage = $errstr;
+            $warningTriggered = true;
+            $warningMessage = $errstr;
 
-                return true;
-            }
-
-            return false;
+            return true;
         }, E_WARNING | E_USER_WARNING);
 
         try {
@@ -772,7 +775,7 @@ class MemcachedEngineTest extends CakeTestCase
         $memcached = new TestMemcachedEngine();
         $memcached->settings['compress'] = false;
 
-        $mock = $this->getMock('Memcached');
+        $mock = $this->getMock(Memcached::class);
         $memcached->setMemcached($mock);
         $mock->expects($this->once())
             ->method('set')

@@ -16,12 +16,24 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\View;
+
+use Cake\Core\App;
+use Cake\Core\CakePlugin;
+use Cake\Error\MissingHelperException;
+use Cake\TestSuite\CakeTestCase;
+use Cake\View\Helper\HtmlHelper;
+use Cake\View\HelperCollection;
+use Cake\View\View;
+use OtherHelperHelper;
+
 /**
  * Extended HtmlHelper
  */
 class HtmlAliasHelper extends HtmlHelper
 {
 }
+class_alias(HtmlAliasHelper::class, 'App\\View\\Helper\\HtmlAliasHelper');
 
 /**
  * HelperCollectionTest
@@ -38,7 +50,7 @@ class HelperCollectionTest extends CakeTestCase
     public function setUp(): void
     {
         parent::setUp();
-        $this->View = $this->getMock('View', [], [null]);
+        $this->View = $this->getMock(View::class, [], [null]);
         $this->Helpers = new HelperCollection($this->View);
     }
 
@@ -111,8 +123,8 @@ class HelperCollectionTest extends CakeTestCase
     public function testLoadWithAlias()
     {
         $result = $this->Helpers->load('Html', ['className' => 'HtmlAlias']);
-        $this->assertInstanceOf('HtmlAliasHelper', $result);
-        $this->assertInstanceOf('HtmlAliasHelper', $this->Helpers->Html);
+        $this->assertInstanceOf(HtmlAliasHelper::class, $result);
+        $this->assertInstanceOf(HtmlAliasHelper::class, $this->Helpers->Html);
 
         $result = $this->Helpers->loaded();
         $this->assertEquals(['Html'], $result, 'loaded() results are wrong.');
@@ -120,13 +132,13 @@ class HelperCollectionTest extends CakeTestCase
         $this->assertTrue($this->Helpers->enabled('Html'));
 
         $result = $this->Helpers->load('Html');
-        $this->assertInstanceOf('HtmlAliasHelper', $result);
+        $this->assertInstanceOf(HtmlAliasHelper::class, $result);
 
         App::build(['Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS]]);
         CakePlugin::load(['TestPlugin']);
         $result = $this->Helpers->load('SomeOther', ['className' => 'TestPlugin.OtherHelper']);
-        $this->assertInstanceOf('OtherHelperHelper', $result);
-        $this->assertInstanceOf('OtherHelperHelper', $this->Helpers->SomeOther);
+        $this->assertInstanceOf(OtherHelperHelper::class, $result);
+        $this->assertInstanceOf(OtherHelperHelper::class, $this->Helpers->SomeOther);
 
         $result = $this->Helpers->loaded();
         $this->assertEquals(['Html', 'SomeOther'], $result, 'loaded() results are wrong.');

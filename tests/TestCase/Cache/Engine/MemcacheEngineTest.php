@@ -16,6 +16,14 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\Cache\Engine;
+
+use Cake\Cache\Cache;
+use Cake\Cache\Engine\MemcacheEngine;
+use Cake\Core\Configure;
+use Cake\TestSuite\CakeTestCase;
+use Memcache;
+
 /**
  * TestMemcacheEngine
  *
@@ -431,7 +439,7 @@ class MemcacheEngineTest extends CakeTestCase
         $memcache = new TestMemcacheEngine();
         $memcache->settings['compress'] = false;
 
-        $mock = $this->getMock('Memcache');
+        $mock = $this->getMock(Memcache::class);
         $memcache->setMemcache($mock);
         $mock->expects($this->once())
             ->method('set')

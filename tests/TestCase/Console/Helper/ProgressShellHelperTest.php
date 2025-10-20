@@ -13,6 +13,13 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\Console\Helper;
+
+use Cake\Console\Helper\ProgressShellHelper;
+use Cake\TestSuite\CakeTestCase;
+use Cake\TestSuite\Stub\ConsoleOutputStub;
+use RuntimeException;
+
 /**
  * ProgressHelper test.
  *
@@ -41,7 +48,7 @@ class ProgressShellHelperTest extends CakeTestCase
      */
     public function testOutputFailure()
     {
-        $this->expectException(\RuntimeException::class);
+        $this->expectException(RuntimeException::class);
         $this->helper->output(['not a callback']);
     }
 

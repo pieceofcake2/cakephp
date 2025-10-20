@@ -15,6 +15,16 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\Model;
+
+use Cake\Core\App;
+use Cake\Core\CakePlugin;
+use Cake\Error\MissingDatasourceConfigException;
+use Cake\Error\MissingDatasourceException;
+use Cake\Model\ConnectionManager;
+use Cake\TestSuite\CakeTestCase;
+use stdClass;
+
 /**
  * ConnectionManagerTest
  *
@@ -204,7 +214,7 @@ class ConnectionManagerTest extends CakeTestCase
 
         $this->assertEquals('test', $result);
 
-        $source = new StdClass();
+        $source = new stdClass();
         $result = ConnectionManager::getSourceName($source);
         $this->assertNull($result);
     }

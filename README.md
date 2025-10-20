@@ -98,18 +98,21 @@ CakePHP 2.x → CakePHP 5.x
 
 **New gradual migration approach (easier):**
 ```
-Step 1: CakePHP 2.x with traditional structure
+Step 1: CakePHP 2.x with traditional structure (non-namespaced)
         ↓ (modernize folder structure only)
-Step 2: CakePHP 2.x with CakePHP 5.x-style structure ← You can stop here
-        ↓ (upgrade code only)
-Step 3: CakePHP 5.x with CakePHP 5.x-style structure
+Step 2: CakePHP 2.x with CakePHP 5.x-style structure (non-namespaced) ← You can stop here
+        ↓ (adopt namespaces only)
+Step 3: CakePHP 2.x with CakePHP 5.x-style structure (namespaced) ← Or here
+        ↓ (upgrade framework only)
+Step 4: CakePHP 5.x with CakePHP 5.x-style structure (namespaced)
 ```
 
 **Benefits:**
-- ✅ **Smaller, manageable changes**: Separate folder restructuring from code changes
+- ✅ **Smaller, manageable changes**: Separate folder restructuring, namespace adoption, and framework upgrade
 - ✅ **Test incrementally**: Verify each step works before moving to the next
-- ✅ **Reduced risk**: You can stay on Step 2 indefinitely if needed
+- ✅ **Reduced risk**: You can stop at Step 2 (modern structure) or Step 3 (with namespaces) indefinitely
 - ✅ **Team-friendly**: Easier for teams to understand and review smaller changes
+- ✅ **Namespace preparation**: Adopt CakePHP 5.x-compatible namespaces while still on 2.x
 
 See [`pieceofcake2/app`](https://github.com/pieceofcake2/app) for the modern directory structure compatible with both CakePHP 2.x and 5.x.
 
@@ -125,6 +128,16 @@ This fork uses [`composer/ca-bundle`](https://github.com/composer/ca-bundle) for
 - **No manual maintenance**: Removed the outdated static `lib/Cake/Config/cacert.pem` file (last updated in 2016)
 
 This approach ensures that HTTPS connections made by `CakeSocket` (e.g., for external API calls) properly validate SSL/TLS certificates using current, trusted root certificates.
+
+### XML External Entity (XXE) Protection
+
+This fork has **removed** the `loadEntities` option from `Xml::build()` for enhanced security:
+
+- **External entity loading is now permanently disabled** to prevent XXE (XML External Entity) attacks
+- Uses `libxml_set_external_entity_loader(null)` on PHP 8.0+ (deprecated `libxml_disable_entity_loader()` removed)
+- No configuration option to re-enable external entities - this is a security hardening measure
+
+**Breaking Change**: If your application previously used `Xml::build($input, ['loadEntities' => true])`, this option is now ignored and external entities will not be loaded. This is intentional for security reasons.
 
 ### Known Vulnerabilities in Original CakePHP 2.10.24
 

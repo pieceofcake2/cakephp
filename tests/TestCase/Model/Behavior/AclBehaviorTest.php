@@ -18,6 +18,14 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\Model\Behavior;
+
+use Cake\Core\Configure;
+use Cake\Model\Aco;
+use Cake\Model\Aro;
+use Cake\TestSuite\CakeTestCase;
+use Cake\TestSuite\Fixture\CakeTestModel;
+
 /**
  * Test Person class - self joined model
  *
@@ -66,18 +74,14 @@ class AclPerson extends CakeTestModel
     /**
      * parentNode method
      *
-     * @return void
+     * @return array[]|null
      */
-    public function parentNode()
+    public function parentNode(): ?array
     {
         if (!$this->id && empty($this->data)) {
             return null;
         }
-        if (isset($this->data['AclPerson']['mother_id'])) {
-            $motherId = $this->data['AclPerson']['mother_id'];
-        } else {
-            $motherId = $this->field('mother_id');
-        }
+        $motherId = $this->data['AclPerson']['mother_id'] ?? $this->field('mother_id');
         if (!$motherId) {
             return null;
         }
@@ -85,6 +89,7 @@ class AclPerson extends CakeTestModel
         return ['AclPerson' => ['id' => $motherId]];
     }
 }
+class_alias(AclPerson::class, 'App\\Model\\AclPerson');
 
 /**
  * AclUser class
@@ -124,6 +129,7 @@ class AclUser extends CakeTestModel
         return null;
     }
 }
+class_alias(AclUser::class, 'App\\Model\\AclUser');
 
 /**
  * AclPost class
@@ -163,6 +169,7 @@ class AclPost extends CakeTestModel
         return null;
     }
 }
+class_alias(AclPost::class, 'App\\Model\\AclPost');
 
 /**
  * AclBehaviorTest class
@@ -176,21 +183,21 @@ class AclBehaviorTest extends CakeTestCase
      *
      * @var Aco
      */
-    public $Aco;
+    public Aco $Aco;
 
     /**
      * Aro property
      *
      * @var Aro
      */
-    public $Aro;
+    public Aro $Aro;
 
     /**
      * fixtures property
      *
      * @var array
      */
-    public $fixtures = ['core.person', 'core.user', 'core.post', 'core.aco', 'core.aro', 'core.aros_aco'];
+    public array $fixtures = ['core.person', 'core.user', 'core.post', 'core.aco', 'core.aro', 'core.aros_aco'];
 
     /**
      * Set up the test

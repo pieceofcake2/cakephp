@@ -18,6 +18,18 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\View\Helper;
+
+use Cake\Core\Configure;
+use Cake\Network\CakeRequest;
+use Cake\TestSuite\CakeTestCase;
+use Cake\View\Helper\FormHelper;
+use Cake\View\Helper\HtmlHelper;
+use Cake\View\Helper\JsBaseEngineHelper;
+use Cake\View\Helper\JsHelper;
+use Cake\View\View;
+use stdClass;
+
 /**
  * JsEncodingObject
  *
@@ -148,7 +160,7 @@ class JsHelperTest extends CakeTestCase
         Configure::write('Asset.timestamp', false);
 
         $controller = null;
-        $this->View = $this->getMock('View', ['append'], [&$controller]);
+        $this->View = $this->getMock(View::class, ['append'], [&$controller]);
         $this->Js = new JsHelper($this->View, 'Option');
         $request = new CakeRequest(null, false);
         $this->Js->request = $request;
@@ -183,7 +195,7 @@ class JsHelperTest extends CakeTestCase
         $request = new CakeRequest(null, false);
 
         $this->Js = new JsHelper($this->View, ['TestJs']);
-        $this->Js->TestJsEngine = $this->getMock('JsBaseEngineHelper', [], [$this->View]);
+        $this->Js->TestJsEngine = $this->getMock(JsBaseEngineHelper::class, [], [$this->View]);
         $this->Js->request = $request;
         $this->Js->Html = new HtmlHelper($this->View);
         $this->Js->Html->request = $request;
@@ -222,14 +234,10 @@ class JsHelperTest extends CakeTestCase
         $warningTriggered = false;
         $warningMessage = '';
         set_error_handler(function ($errno, $errstr) use (&$warningTriggered, &$warningMessage) {
-            if ($errno === E_WARNING || $errno === E_USER_WARNING) {
-                $warningTriggered = true;
-                $warningMessage = $errstr;
+            $warningTriggered = true;
+            $warningMessage = $errstr;
 
-                return true;
-            }
-
-            return false;
+            return true;
         }, E_WARNING | E_USER_WARNING);
 
         try {
@@ -242,7 +250,7 @@ class JsHelperTest extends CakeTestCase
 
             $this->Js->event('click', 'callback');
 
-            $this->Js->TestJsEngine = new StdClass();
+            $this->Js->TestJsEngine = new stdClass();
             $this->Js->someMethodThatSurelyDoesntExist();
         } finally {
             restore_error_handler();
@@ -399,7 +407,7 @@ class JsHelperTest extends CakeTestCase
 
         Configure::write('Cache.disable', false);
         $this->Js->request->webroot = '/';
-        $this->Js->JsBaseEngine = $this->getMock('JsBaseEngineHelper', [], [$this->View]);
+        $this->Js->JsBaseEngine = $this->getMock(JsBaseEngineHelper::class, [], [$this->View]);
         $this->Js->buffer('one = 1;');
         $this->Js->buffer('two = 2;');
         $result = $this->Js->writeBuffer(['onDomReady' => false, 'cache' => true]);
@@ -918,7 +926,7 @@ class JsBaseEngineTest extends CakeTestCase
     {
         parent::setUp();
         $controller = null;
-        $this->View = $this->getMock('View', ['append'], [&$controller]);
+        $this->View = $this->getMock(View::class, ['append'], [&$controller]);
         $this->JsEngine = new OptionEngineHelper($this->View);
     }
 

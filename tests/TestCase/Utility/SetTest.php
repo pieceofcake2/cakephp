@@ -16,6 +16,14 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\Utility;
+
+use ArrayObject;
+use Cake\TestSuite\CakeTestCase;
+use Cake\Utility\Set;
+use Cake\Utility\Xml;
+use stdClass;
+
 /**
  * SetTest class
  *
@@ -2819,7 +2827,7 @@ class SetTest extends CakeTestCase
         $expected = ['MOVIE 3', 'MOVIE 1', 'MOVIE 2'];
         $this->assertEquals($expected, $result);
 
-        $result = Set::apply('/Movie/rating', $data, ['SetTest', 'method'], ['type' => 'reduce']);
+        $result = Set::apply('/Movie/rating', $data, [SetTest::class, 'method'], ['type' => 'reduce']);
         $expected = 9;
         $this->assertEquals($expected, $result);
 

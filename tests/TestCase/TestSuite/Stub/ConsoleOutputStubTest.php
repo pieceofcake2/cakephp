@@ -12,6 +12,12 @@
  * @since         2.8
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
+
+namespace Cake\Test\TestCase\TestSuite\Stub;
+
+use Cake\TestSuite\CakeTestCase;
+use Cake\TestSuite\Stub\ConsoleOutputStub;
+
 /*
  * ConsoleOutputStub test
  */

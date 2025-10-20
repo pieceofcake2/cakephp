@@ -16,6 +16,13 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\Model\Datasource\Session;
+
+use Cake\Cache\Cache;
+use Cake\Core\Configure;
+use Cake\Model\Datasource\Session\CacheSession;
+use Cake\TestSuite\CakeTestCase;
+
 /**
  * CacheSessionTest
  *

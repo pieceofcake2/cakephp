@@ -13,6 +13,25 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\Model\Behavior;
+
+use App\Model\Tag;
+use App\Model\TranslatedArticle;
+use App\Model\TranslatedItem;
+use App\Model\TranslatedItem2;
+use App\Model\TranslatedItemLeftJoin;
+use App\Model\TranslatedItemWithTable;
+use App\Model\TranslateTestModel;
+use App\Model\User;
+use Cake\Core\App;
+use Cake\Core\Configure;
+use Cake\Error\CakeException;
+use Cake\Model\Behavior\TranslateBehavior;
+use Cake\Model\Datasource\Database\Mysql;
+use Cake\TestSuite\CakeTestCase;
+use Cake\Utility\ClassRegistry;
+use Cake\Utility\Hash;
+
 App::uses('AppModel', 'Model');
 
 require_once dirname(__DIR__) . DS . 'models.php';
@@ -766,7 +785,7 @@ class TranslateBehaviorTest extends CakeTestCase
             ],
             'translated_article_id' => 1,
         ];
-        $Mock = $this->getMockForModel('TranslateTestModel', ['save']);
+        $Mock = $this->getMockForModel(TranslateTestModel::class, ['save']);
         $TestModel->Behaviors->Translate->runtime[$TestModel->alias]['model'] = $Mock;
 
         $contentWith = [
@@ -1561,8 +1580,8 @@ class TranslateBehaviorTest extends CakeTestCase
             'callbacks' => true,
             'recursive' => 0,
         ];
-        $TranslateBehavior = ClassRegistry::getObject('TranslateBehavior');
-        $result = $TranslateBehavior->beforeFind($TestModel, $query);
+        $translateBehavior = ClassRegistry::getObject(TranslateBehavior::class);
+        $result = $translateBehavior->beforeFind($TestModel, $query);
         $this->assertEquals($expected, $result);
     }
 
@@ -1645,8 +1664,8 @@ class TranslateBehaviorTest extends CakeTestCase
             'callbacks' => true,
             'recursive' => 0,
         ];
-        $TranslateBehavior = ClassRegistry::getObject('TranslateBehavior');
-        $result = $TranslateBehavior->beforeFind($TestModel, $query);
+        $translateBehavior = ClassRegistry::getObject(TranslateBehavior::class);
+        $result = $translateBehavior->beforeFind($TestModel, $query);
         $this->assertEquals($expected, $result);
     }
 }

@@ -5,12 +5,10 @@ parameters:
     level: 0
     phpVersion: 80000
     paths:
-        - src/Cake
+        - src
     excludePaths:
-        - tests/
-        - src/Cake/Console/Templates/
-        - src/Cake/View/Scaffolds/
-        - src/Cake/TestSuite/
+        - src/Console/Templates/*
+        - src/View/Scaffolds/*
     bootstrapFiles:
         - tests/bootstrap.php
     treatPhpDocTypesAsCertain: false

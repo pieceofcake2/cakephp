@@ -16,6 +16,16 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\Controller\Component\Auth;
+
+use Cake\Controller\Component\AclComponent;
+use Cake\Controller\Component\Auth\CrudAuthorize;
+use Cake\Controller\ComponentCollection;
+use Cake\Core\Configure;
+use Cake\Network\CakeRequest;
+use Cake\Routing\Router;
+use Cake\TestSuite\CakeTestCase;
+
 /**
  * CrudAuthorizeTest
  *
@@ -34,8 +44,8 @@ class CrudAuthorizeTest extends CakeTestCase
         Configure::write('Routing.prefixes', []);
         Router::reload();
 
-        $this->Acl = $this->getMock('AclComponent', [], [], '', false);
-        $this->Components = $this->getMock('ComponentCollection');
+        $this->Acl = $this->getMock(AclComponent::class, [], [], '', false);
+        $this->Components = $this->getMock(ComponentCollection::class);
 
         $this->auth = new CrudAuthorize($this->Components);
     }
@@ -70,14 +80,10 @@ class CrudAuthorizeTest extends CakeTestCase
         $warningTriggered = false;
         $warningMessage = '';
         set_error_handler(function ($errno, $errstr) use (&$warningTriggered, &$warningMessage) {
-            if ($errno === E_WARNING || $errno === E_USER_WARNING) {
-                $warningTriggered = true;
-                $warningMessage = $errstr;
+            $warningTriggered = true;
+            $warningMessage = $errstr;
 
-                return true;
-            }
-
-            return false;
+            return true;
         }, E_WARNING | E_USER_WARNING);
 
         try {

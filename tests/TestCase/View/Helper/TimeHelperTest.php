@@ -16,6 +16,14 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\View\Helper;
+
+use Cake\Core\App;
+use Cake\Core\CakePlugin;
+use Cake\TestSuite\CakeTestCase;
+use Cake\View\Helper\TimeHelper;
+use Cake\View\View;
+
 /**
  * TimeHelperTestObject class
  *
@@ -42,6 +50,7 @@ class TimeHelperTestObject extends TimeHelper
 class CakeTimeMock
 {
 }
+class_alias(CakeTimeMock::class, 'App\\Utility\\CakeTimeMock');
 
 /**
  * TimeHelperTest class
@@ -92,7 +101,7 @@ class TimeHelperTest extends CakeTestCase
             'wasWithinLast', 'gmt', 'format', 'i18nFormat',
         ];
 
-        $CakeTime = $this->getMock('CakeTimeMock', $methods);
+        $CakeTime = $this->getMock(CakeTimeMock::class, $methods);
         $Time = new TimeHelperTestObject($this->View, ['engine' => 'CakeTimeMock']);
         $Time->attach($CakeTime);
 
@@ -113,7 +122,7 @@ class TimeHelperTest extends CakeTestCase
 
         $this->assertEquals($methods, $calledMethods);
 
-        $CakeTime = $this->getMock('CakeTimeMock', ['timeAgoInWords']);
+        $CakeTime = $this->getMock(CakeTimeMock::class, ['timeAgoInWords']);
         $Time = new TimeHelperTestObject($this->View, ['engine' => 'CakeTimeMock']);
         $Time->attach($CakeTime);
 

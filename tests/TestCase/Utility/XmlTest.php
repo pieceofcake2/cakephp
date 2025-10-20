@@ -16,6 +16,18 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\Utility;
+
+use Cake\Core\Configure;
+use Cake\Error\XmlException;
+use Cake\TestSuite\CakeTestCase;
+use Cake\TestSuite\Fixture\CakeTestModel;
+use Cake\Utility\Xml;
+use DateTime;
+use DOMDocument;
+use Exception;
+use SimpleXMLElement;
+
 /**
  * Article class
  *
@@ -42,6 +54,7 @@ class XmlArticle extends CakeTestModel
         ],
     ];
 }
+class_alias(XmlArticle::class, 'App\\Model\\XmlArticle');
 
 /**
  * User class
@@ -68,6 +81,7 @@ class XmlUser extends CakeTestModel
         ],
     ];
 }
+class_alias(XmlUser::class, 'App\\Model\\XmlUser');
 
 /**
  * XmlTest class

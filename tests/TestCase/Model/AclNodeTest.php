@@ -16,6 +16,18 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\Model;
+
+use Cake\Controller\Component\Acl\DbAcl;
+use Cake\Core\App;
+use Cake\Core\CakePlugin;
+use Cake\Core\Configure;
+use Cake\Model\AclNode;
+use Cake\TestSuite\CakeTestCase;
+use Cake\TestSuite\Fixture\CakeTestModel;
+use Cake\Utility\ClassRegistry;
+use Cake\Utility\Hash;
+
 /**
  * DB ACL wrapper test class
  *
@@ -59,6 +71,7 @@ class DbAroTest extends DbAclNodeTestBase
      */
     public $hasAndBelongsToMany = ['DbAcoTest' => ['with' => 'DbPermissionTest']];
 }
+class_alias(DbAroTest::class, 'App\\Model\\DbAroTest');
 
 /**
  * Aco Test Wrapper
@@ -81,6 +94,7 @@ class DbAcoTest extends DbAclNodeTestBase
      */
     public $hasAndBelongsToMany = ['DbAroTest' => ['with' => 'DbPermissionTest']];
 }
+class_alias(DbAcoTest::class, 'App\\Model\\DbAcoTest');
 
 /**
  * Permission Test Wrapper
@@ -110,6 +124,7 @@ class DbPermissionTest extends CakeTestModel
      */
     public $belongsTo = ['DbAroTest' => ['foreignKey' => 'aro_id'], 'DbAcoTest' => ['foreignKey' => 'aco_id']];
 }
+class_alias(DbPermissionTest::class, 'App\\Model\\DbPermissionTest');
 
 /**
  * DboActionTest class
@@ -132,6 +147,7 @@ class DbAcoActionTest extends CakeTestModel
      */
     public $belongsTo = ['DbAcoTest' => ['foreignKey' => 'aco_id']];
 }
+class_alias(DbAcoActionTest::class, 'App\\Model\\DbAcoActionTest');
 
 /**
  * DbAroUserTest class
@@ -169,6 +185,7 @@ class DbAroUserTest extends CakeTestModel
         }
     }
 }
+class_alias(DbAroUserTest::class, 'App\\Model\\DbAroUserTest');
 
 /**
  * TestDbAcl class
@@ -185,7 +202,7 @@ class TestDbAcl extends DbAcl
         $this->Aro = new DbAroTest();
         $this->Aro->Permission = new DbPermissionTest();
         $this->Aco = new DbAcoTest();
-        $this->Aro->Permission = new DbPermissionTest();
+        $this->Aco->Permission = new DbPermissionTest();
     }
 }
 

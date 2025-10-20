@@ -16,6 +16,17 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\Core;
+
+use Cake\Controller\Controller;
+use Cake\Core\App;
+use Cake\Core\CakeObject;
+use Cake\Core\CakePlugin;
+use Cake\Core\Configure;
+use Cake\Routing\Router;
+use Cake\TestSuite\CakeTestCase;
+use Cake\TestSuite\Fixture\CakeTestModel;
+
 /**
  * RequestActionPost class
  *
@@ -30,6 +41,7 @@ class RequestActionPost extends CakeTestModel
      */
     public $useTable = 'posts';
 }
+class_alias(RequestActionPost::class, 'App\\Model\\RequestActionPost');
 
 /**
  * RequestActionController class
@@ -48,7 +60,7 @@ class RequestActionController extends Controller
     /**
      * test_request_action method
      *
-     * @return void
+     * @return string
      */
     public function test_request_action()
     {
@@ -58,9 +70,9 @@ class RequestActionController extends Controller
     /**
      * another_ra_test method
      *
-     * @param mixed $id
-     * @param mixed $other
-     * @return void
+     * @param string|int $id
+     * @param string|int $other
+     * @return string|int
      */
     public function another_ra_test($id, $other)
     {
@@ -112,7 +124,7 @@ class RequestActionController extends Controller
     /**
      * test param passing and parsing.
      *
-     * @return array
+     * @return CakeRequest
      */
     public function params_pass()
     {
@@ -129,6 +141,7 @@ class RequestActionController extends Controller
         $this->response->body($content);
     }
 }
+class_alias(RequestActionController::class, 'App\\Controller\\RequestActionController');
 
 /**
  * TestCakeObject class
@@ -262,14 +275,29 @@ class TestCakeObject extends CakeObject
     }
 
     /**
-     * Set properties.
+     * set method - public wrapper for _set()
      *
-     * @param array $properties The $properties.
+     * @param array|string|null $properties Properties to set
      * @return void
      */
-    public function set($properties = [])
+    public function set(array|string|null $properties = [])
     {
-        return parent::_set($properties);
+        $this->_set($properties);
+    }
+
+    /**
+     * toString method - override to return just class name without namespace
+     *
+     * @return string
+     */
+    public function toString()
+    {
+        $class = static::class;
+        if (str_contains($class, '\\')) {
+            $class = substr($class, strrpos($class, '\\') + 1);
+        }
+
+        return $class;
     }
 }
 
@@ -282,13 +310,14 @@ class ObjectTestModel extends CakeTestModel
 {
     public $useTable = false;
 }
+class_alias(ObjectTestModel::class, 'App\\Model\\ObjectTestModel');
 
 /**
  * CakeObject Test class
  *
  * @package       Cake.Test.Case.Core
  */
-class ObjectTest extends CakeTestCase
+class CakeObjectTest extends CakeTestCase
 {
     /**
      * fixtures

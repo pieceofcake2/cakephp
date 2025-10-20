@@ -16,6 +16,14 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\Network;
+
+use Cake\Core\Configure;
+use Cake\Error\CakeException;
+use Cake\Error\MethodNotAllowedException;
+use Cake\Network\CakeRequest;
+use Cake\TestSuite\CakeTestCase;
+
 /**
  * TestCakeRequest
  *
@@ -340,7 +348,7 @@ class CakeRequestTest extends CakeTestCase
             'Article' => ['title'],
         ]];
 
-        $request = $this->getMock('TestCakeRequest', ['_readInput']);
+        $request = $this->getMock(TestCakeRequest::class, ['_readInput']);
         $request->expects($this->once())
             ->method('_readInput')
             ->will($this->returnValue('data[Article][]=title'));
@@ -348,14 +356,14 @@ class CakeRequestTest extends CakeTestCase
         $this->assertEquals($data['data'], $request->data);
 
         $data = ['one' => 1, 'two' => 'three'];
-        $request = $this->getMock('TestCakeRequest', ['_readInput']);
+        $request = $this->getMock(TestCakeRequest::class, ['_readInput']);
         $request->expects($this->once())
             ->method('_readInput')
             ->will($this->returnValue('one=1&two=three'));
         $request->reConstruct();
         $this->assertEquals($data, $request->data);
 
-        $request = $this->getMock('TestCakeRequest', ['_readInput']);
+        $request = $this->getMock(TestCakeRequest::class, ['_readInput']);
         $request->expects($this->once())
             ->method('_readInput')
             ->will($this->returnValue('data[Article][title]=Testing&action=update'));
@@ -371,7 +379,7 @@ class CakeRequestTest extends CakeTestCase
             'Article' => ['title'],
             'Tag' => ['Tag' => [1, 2]],
         ]];
-        $request = $this->getMock('TestCakeRequest', ['_readInput']);
+        $request = $this->getMock(TestCakeRequest::class, ['_readInput']);
         $request->expects($this->once())
             ->method('_readInput')
             ->will($this->returnValue('data[Article][]=title&Tag[Tag][]=1&Tag[Tag][]=2'));
@@ -382,7 +390,7 @@ class CakeRequestTest extends CakeTestCase
             'Article' => ['title' => 'some title'],
             'Tag' => ['Tag' => [1, 2]],
         ]];
-        $request = $this->getMock('TestCakeRequest', ['_readInput']);
+        $request = $this->getMock(TestCakeRequest::class, ['_readInput']);
         $request->expects($this->once())
             ->method('_readInput')
             ->will($this->returnValue('data[Article][title]=some%20title&Tag[Tag][]=1&Tag[Tag][]=2'));
@@ -393,7 +401,7 @@ class CakeRequestTest extends CakeTestCase
             'a' => [1, 2],
             'b' => [1, 2],
         ];
-        $request = $this->getMock('TestCakeRequest', ['_readInput']);
+        $request = $this->getMock(TestCakeRequest::class, ['_readInput']);
         $request->expects($this->once())
             ->method('_readInput')
             ->will($this->returnValue('a[]=1&a[]=2&b[]=1&b[]=2'));
@@ -411,7 +419,7 @@ class CakeRequestTest extends CakeTestCase
         $_SERVER['REQUEST_METHOD'] = 'PUT';
         $_SERVER['CONTENT_TYPE'] = 'application/json';
 
-        $request = $this->getMock('TestCakeRequest', ['_readInput']);
+        $request = $this->getMock(TestCakeRequest::class, ['_readInput']);
         $request->expects($this->once())
             ->method('_readInput')
             ->will($this->returnValue('{"Article":["title"]}'));
@@ -2450,7 +2458,7 @@ class CakeRequestTest extends CakeTestCase
      */
     public function testInput()
     {
-        $request = $this->getMock('CakeRequest', ['_readInput']);
+        $request = $this->getMock(CakeRequest::class, ['_readInput']);
         $request->expects($this->once())->method('_readInput')
             ->will($this->returnValue('I came from stdin'));
 
@@ -2465,7 +2473,7 @@ class CakeRequestTest extends CakeTestCase
      */
     public function testInputDecode()
     {
-        $request = $this->getMock('CakeRequest', ['_readInput']);
+        $request = $this->getMock(CakeRequest::class, ['_readInput']);
         $request->expects($this->once())->method('_readInput')
             ->will($this->returnValue('{"name":"value"}'));
 
@@ -2487,7 +2495,7 @@ class CakeRequestTest extends CakeTestCase
 </post>
 XML;
 
-        $request = $this->getMock('CakeRequest', ['_readInput']);
+        $request = $this->getMock(CakeRequest::class, ['_readInput']);
         $request->expects($this->once())->method('_readInput')
             ->will($this->returnValue($xml));
 

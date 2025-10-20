@@ -1,7 +1,4 @@
 <?php
-
-use PHPUnit\Framework\TestSuite;
-
 /**
  * AllDatabaseTest file
  *
@@ -18,6 +15,11 @@ use PHPUnit\Framework\TestSuite;
  * @since         CakePHP(tm) v 2.0
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
+
+namespace Cake\Test\TestCase;
+
+use PHPUnit\Framework\TestSuite;
+
 /**
  * AllDatabaseTest class
  *
@@ -30,9 +32,9 @@ class AllDatabaseTest extends TestSuite
     /**
      * suite method, defines tests for this suite.
      *
-     * @return void
+     * @return TestSuite
      */
-    public static function suite()
+    public static function suite(): TestSuite
     {
         $suite = new TestSuite('Datasources, Schema and DbAcl tests');
 

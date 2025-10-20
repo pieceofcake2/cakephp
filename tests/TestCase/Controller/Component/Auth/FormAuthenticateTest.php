@@ -14,6 +14,20 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\Controller\Component\Auth;
+
+use Cake\Cache\Cache;
+use Cake\Controller\Component\Auth\FormAuthenticate;
+use Cake\Controller\ComponentCollection;
+use Cake\Core\App;
+use Cake\Core\CakePlugin;
+use Cake\Core\Configure;
+use Cake\Network\CakeRequest;
+use Cake\Network\CakeResponse;
+use Cake\TestSuite\CakeTestCase;
+use Cake\Utility\ClassRegistry;
+use Cake\Utility\Security;
+
 App::uses('AppModel', 'Model');
 
 require_once CORE_TESTS . DS . 'TestCase' . DS . 'Model' . DS . 'models.php';
@@ -40,7 +54,7 @@ class FormAuthenticateTest extends CakeTestCase
     public function setUp(): void
     {
         parent::setUp();
-        $this->Collection = $this->getMock('ComponentCollection');
+        $this->Collection = $this->getMock(ComponentCollection::class);
         $this->auth = new FormAuthenticate($this->Collection, [
             'fields' => ['username' => 'user', 'password' => 'password'],
             'userModel' => 'User',
@@ -48,7 +62,7 @@ class FormAuthenticateTest extends CakeTestCase
         $password = Security::hash('password', null, true);
         $User = ClassRegistry::init('User');
         $User->updateAll(['password' => $User->getDataSource()->value($password)]);
-        $this->response = $this->getMock('CakeResponse');
+        $this->response = $this->getMock(CakeResponse::class);
     }
 
     /**

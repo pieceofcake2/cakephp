@@ -16,6 +16,15 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\Network\Email;
+
+use Cake\Error\SocketException;
+use Cake\Network\CakeSocket;
+use Cake\Network\Email\CakeEmail;
+use Cake\Network\Email\SmtpTransport;
+use Cake\TestSuite\CakeTestCase;
+use SmtpCakeEmail;
+
 /**
  * Help to test SmtpTransport
  */
@@ -69,7 +78,7 @@ class SmtpTransportTest extends CakeTestCase
     public function setUp(): void
     {
         parent::setUp();
-        $this->socket = $this->getMock('CakeSocket', ['read', 'write', 'connect', 'enableCrypto']);
+        $this->socket = $this->getMock(CakeSocket::class, ['read', 'write', 'connect', 'enableCrypto']);
 
         $this->SmtpTransport = new SmtpTestTransport();
         $this->SmtpTransport->setSocket($this->socket);
@@ -496,7 +505,7 @@ class SmtpTransportTest extends CakeTestCase
      */
     public function testSendData()
     {
-        $email = $this->getMock('CakeEmail', ['message'], [], 'SmtpCakeEmail');
+        $email = $this->getMock(CakeEmail::class, ['message'], [], 'SmtpCakeEmail');
         $email->from('noreply@cakephp.org', 'CakePHP Test');
         $email->returnPath('pleasereply@cakephp.org', 'CakePHP Return');
         $email->to('cake@cakephp.org', 'CakePHP');
@@ -625,7 +634,7 @@ class SmtpTransportTest extends CakeTestCase
         $email->from('noreply@cakephp.org', 'CakePHP Test');
         $email->to('cake@cakephp.org', 'CakePHP');
 
-        $this->socket = $this->getMock('CakeSocket');
+        $this->socket = $this->getMock(CakeSocket::class);
         $this->SmtpTransport->setSocket($this->socket);
 
         $this->socket->expects($this->exactly(2))

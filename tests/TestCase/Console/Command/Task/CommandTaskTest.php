@@ -14,6 +14,12 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\Console\Command\Task;
+
+use Cake\Core\App;
+use Cake\Core\CakePlugin;
+use Cake\TestSuite\CakeTestCase;
+
 /**
  * CommandTaskTest class
  *
@@ -39,8 +45,8 @@ class CommandTaskTest extends CakeTestCase
         ], App::RESET);
         CakePlugin::load(['TestPlugin', 'TestPluginTwo']);
 
-        $out = $this->getMock('ConsoleOutput', [], [], '', false);
-        $in = $this->getMock('ConsoleInput', [], [], '', false);
+        $out = $this->getMock(ConsoleOutput::class, [], [], '', false);
+        $in = $this->getMock(ConsoleInput::class, [], [], '', false);
 
         $this->CommandTask = $this->getMock(
             'CommandTask',

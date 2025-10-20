@@ -3,6 +3,7 @@
  * Bootstrap for phpunit command
  */
 
+use Cake\Console\ShellDispatcher;
 use Composer\InstalledVersions;
 use PHPUnit\Util\ErrorHandler;
 

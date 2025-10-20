@@ -16,6 +16,18 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\Network\Email;
+
+use Cake\Core\App;
+use Cake\Core\CakePlugin;
+use Cake\Core\Configure;
+use Cake\Error\SocketException;
+use Cake\Log\CakeLog;
+use Cake\Network\Email\CakeEmail;
+use Cake\Network\Email\DebugTransport;
+use Cake\TestSuite\CakeTestCase;
+use Cake\Utility\File;
+
 /**
  * Help to test CakeEmail
  */
@@ -28,7 +40,7 @@ class TestCakeEmail extends CakeEmail
      *
      * @var string
      */
-    protected $_configClass = 'TestEmailConfig';
+    protected $_configClass = TestEmailConfig::class;
 
     /**
      * Config
@@ -1164,7 +1176,6 @@ class CakeEmailTest extends CakeTestCase
      *
      * @return void
      */
-
     public function testSendNoTemplateWithDataStringAttachment()
     {
         $this->CakeEmail->transport('debug');

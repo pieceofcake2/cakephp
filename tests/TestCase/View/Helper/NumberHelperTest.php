@@ -16,6 +16,14 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\View\Helper;
+
+use Cake\Core\App;
+use Cake\Core\CakePlugin;
+use Cake\TestSuite\CakeTestCase;
+use Cake\View\Helper\NumberHelper;
+use Cake\View\View;
+
 /**
  * NumberHelperTestObject class
  */
@@ -38,6 +46,7 @@ class NumberHelperTestObject extends NumberHelper
 class CakeNumberMock
 {
 }
+class_alias(CakeNumberMock::class, 'App\\Utility\\CakeNumberMock');
 
 /**
  * NumberHelperTest class
@@ -81,7 +90,7 @@ class NumberHelperTest extends CakeTestCase
             'currency', 'addFormat',
         ];
 
-        $CakeNumber = $this->getMock('CakeNumberMock', $methods);
+        $CakeNumber = $this->getMock(CakeNumberMock::class, $methods);
         $Number = new NumberHelperTestObject($this->View, ['engine' => 'CakeNumberMock']);
         $Number->attach($CakeNumber);
 

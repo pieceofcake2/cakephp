@@ -16,6 +16,14 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\TestSuite\Fixture;
+
+use Cake\Model\Datasource\DboSource;
+use Cake\Test\Fixture\UuidFixture;
+use Cake\TestSuite\CakeTestCase;
+use Cake\TestSuite\Fixture\CakeFixtureManager;
+use ReflectionClass;
+
 /**
  * Test Case for CakeFixtureManager class
  *
@@ -53,7 +61,7 @@ class CakeFixtureManagerTest extends CakeTestCase
      */
     public function testLoadTruncatesTable()
     {
-        $MockFixture = $this->getMock('UuidFixture', ['truncate']);
+        $MockFixture = $this->getMock(UuidFixture::class, ['truncate']);
         $MockFixture
             ->expects($this->once())
             ->method('truncate')
@@ -66,7 +74,7 @@ class CakeFixtureManagerTest extends CakeTestCase
         $loadedProperty->setAccessible(true);
         $loadedProperty->setValue($fixtureManager, ['core.uuid' => $MockFixture]);
 
-        $TestCase = $this->getMock('CakeTestCase');
+        $TestCase = $this->getMock(CakeTestCase::class);
         $TestCase->fixtures = ['core.uuid'];
         $TestCase->autoFixtures = true;
         $TestCase->dropTables = false;
@@ -81,7 +89,7 @@ class CakeFixtureManagerTest extends CakeTestCase
      */
     public function testLoadSingleTruncatesTable()
     {
-        $MockFixture = $this->getMock('UuidFixture', ['truncate']);
+        $MockFixture = $this->getMock(UuidFixture::class, ['truncate']);
         $MockFixture
             ->expects($this->once())
             ->method('truncate')
@@ -96,7 +104,7 @@ class CakeFixtureManagerTest extends CakeTestCase
 
         $dboMethods = array_diff(get_class_methods('DboSource'), ['enabled']);
         $dboMethods[] = 'connect';
-        $db = $this->getMock('DboSource', $dboMethods);
+        $db = $this->getMock(DboSource::class, $dboMethods);
         $db->config['prefix'] = '';
 
         $fixtureManager->loadSingle('Uuid', $db, false);

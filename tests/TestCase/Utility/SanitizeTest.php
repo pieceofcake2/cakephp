@@ -16,6 +16,12 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\Utility;
+
+use Cake\TestSuite\CakeTestCase;
+use Cake\TestSuite\Fixture\CakeTestModel;
+use Cake\Utility\Sanitize;
+
 /**
  * DataTest class
  *
@@ -30,6 +36,7 @@ class SanitizeDataTest extends CakeTestModel
      */
     public $useTable = 'data_tests';
 }
+class_alias(SanitizeDataTest::class, 'App\\Model\\SanitizeDataTest');
 
 /**
  * Article class
@@ -45,6 +52,7 @@ class SanitizeArticle extends CakeTestModel
      */
     public $useTable = 'articles';
 }
+class_alias(SanitizeArticle::class, 'App\\Model\\SanitizeArticle');
 
 /**
  * SanitizeTest class

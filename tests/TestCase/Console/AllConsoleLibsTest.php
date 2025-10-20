@@ -1,7 +1,4 @@
 <?php
-
-use PHPUnit\Framework\TestSuite;
-
 /**
  * AllConsoleLibsTest file
  *
@@ -18,6 +15,13 @@ use PHPUnit\Framework\TestSuite;
  * @since         CakePHP(tm) v 2.0
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
+
+namespace Cake\Test\TestCase\Console;
+
+use Cake\TestSuite\CakeTestSuite;
+use DirectoryIterator;
+use PHPUnit\Framework\TestSuite;
+
 /**
  * AllConsoleLibsTest class
  *
@@ -30,9 +34,9 @@ class AllConsoleLibsTest extends TestSuite
     /**
      * suite method, defines tests for this suite.
      *
-     * @return void
+     * @return TestSuite
      */
-    public static function suite()
+    public static function suite(): TestSuite
     {
         $suite = new CakeTestSuite('All console lib classes');
 

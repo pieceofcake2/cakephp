@@ -1,7 +1,4 @@
 <?php
-
-use PHPUnit\Framework\TestSuite;
-
 /**
  * AllErrorTest file
  *
@@ -18,6 +15,12 @@ use PHPUnit\Framework\TestSuite;
  * @since         CakePHP(tm) v 2.0
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
+
+namespace Cake\Test\TestCase;
+
+use Cake\TestSuite\CakeTestSuite;
+use PHPUnit\Framework\TestSuite;
+
 /**
  * AllErrorTest class
  *
@@ -30,9 +33,9 @@ class AllErrorTest extends TestSuite
     /**
      * suite method, defines tests for this suite.
      *
-     * @return void
+     * @return TestSuite
      */
-    public static function suite()
+    public static function suite(): TestSuite
     {
         $suite = new CakeTestSuite('All Error handling tests');
 

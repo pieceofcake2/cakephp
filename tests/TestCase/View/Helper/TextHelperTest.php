@@ -16,6 +16,14 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\View\Helper;
+
+use Cake\Core\App;
+use Cake\Core\CakePlugin;
+use Cake\TestSuite\CakeTestCase;
+use Cake\View\Helper\TextHelper;
+use Cake\View\View;
+
 /**
  * TextHelperTestObject
  *
@@ -42,6 +50,7 @@ class TextHelperTestObject extends TextHelper
 class CakeTextMock
 {
 }
+class_alias(CakeTextMock::class, 'App\\Utility\\CakeTextMock');
 
 /**
  * TextHelperTest class
@@ -85,7 +94,7 @@ class TextHelperTest extends CakeTestCase
             'highlight', 'stripLinks', 'truncate', 'tail', 'excerpt', 'toList',
         ];
 
-        $CakeText = $this->getMock('CakeTextMock', $methods);
+        $CakeText = $this->getMock(CakeTextMock::class, $methods);
         $Text = new TextHelperTestObject($this->View, ['engine' => 'CakeTextMock']);
         $Text->attach($CakeText);
 

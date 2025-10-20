@@ -16,6 +16,12 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\Console;
+
+use Cake\Console\ConsoleOptionParser;
+use Cake\Console\HelpFormatter;
+use Cake\TestSuite\CakeTestCase;
+
 /**
  * HelpFormatterTest
  *

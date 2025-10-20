@@ -16,6 +16,14 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\Configure;
+
+use Cake\Configure\IniReader;
+use Cake\Core\App;
+use Cake\Core\CakePlugin;
+use Cake\Error\ConfigureException;
+use Cake\TestSuite\CakeTestCase;
+
 /**
  * IniReaderTest
  *
