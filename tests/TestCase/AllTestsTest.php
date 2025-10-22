@@ -41,6 +41,7 @@ class AllTestsTest extends TestSuite
         $path = CORE_TESTS . DS . 'TestCase' . DS;
 
         $suite->addTestFile($path . 'BasicsTest.php');
+        $suite->addTestFile($path . 'LegacyClassLoaderTest.php');
         $suite->addTestFile($path . 'AllConsoleTest.php');
         $suite->addTestFile($path . 'AllBehaviorsTest.php');
         $suite->addTestFile($path . 'AllCacheTest.php');
