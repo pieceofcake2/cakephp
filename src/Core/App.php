@@ -232,10 +232,16 @@ class App
         if (!empty($plugin)) {
             $path = [];
             $pluginPath = CakePlugin::path($plugin);
+
+            $srcPath = $pluginPath;
+            if (is_dir($pluginPath . 'src')) {
+                $srcPath = $pluginPath . 'src' . DS;
+            }
+
             $packageFormat = static::_packageFormat();
             if (!empty($packageFormat[$type])) {
                 foreach ($packageFormat[$type] as $f) {
-                    $_path = sprintf($f, $pluginPath);
+                    $_path = sprintf($f, $srcPath);
                     if ($f !== $_path) {
                         $path[] = $_path;
                     }
@@ -290,7 +296,7 @@ class App
      */
     public static function build($paths = [], $mode = App::PREPEND)
     {
-        //Provides Backwards compatibility for old-style package names
+        // Provides Backwards compatibility for old-style package names
         $legacyPaths = [];
         foreach ($paths as $type => $path) {
             if (!empty(static::$legacy[$type])) {
