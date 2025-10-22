@@ -163,7 +163,7 @@ class HtmlHelperTest extends CakeTestCase
         $this->Html->request->webroot = '';
 
         App::build([
-            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS],
+            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
         ]);
 
         Configure::write('Asset.timestamp', false);
@@ -541,7 +541,7 @@ class HtmlHelperTest extends CakeTestCase
         new File($testfile, true);
 
         App::build([
-            'View' => [CORE_TESTS . DS . 'test_app' . DS . 'View' . DS],
+            'View' => [CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'View' . DS],
         ]);
         Configure::write('Asset.timestamp', true);
         Configure::write('debug', 1);
@@ -616,7 +616,7 @@ class HtmlHelperTest extends CakeTestCase
     public function testThemeAssetsInMainWebrootPath()
     {
         App::build([
-            'View' => [CORE_TESTS . DS . 'test_app' . DS . 'View' . DS],
+            'View' => [CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'View' . DS],
         ]);
         $webRoot = Configure::read('App.www_root');
         Configure::write('App.www_root', CORE_TESTS . DS . 'test_app' . DS . 'webroot' . DS);
@@ -1306,7 +1306,7 @@ class HtmlHelperTest extends CakeTestCase
         new File($testfile, true);
 
         App::build([
-            'View' => [CORE_TESTS . DS . 'test_app' . DS . 'View' . DS],
+            'View' => [CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'View' . DS],
         ]);
 
         $this->Html->webroot = '/';
@@ -2376,7 +2376,7 @@ class HtmlHelperTest extends CakeTestCase
      */
     public function testLoadConfig()
     {
-        $path = CORE_TESTS . DS . 'test_app' . DS . 'Config' . DS;
+        $path = CORE_TESTS . DS . 'test_app' . DS . 'config' . DS;
 
         $result = $this->Html->loadConfig('htmlhelper_tags', $path);
         $expected = [
@@ -2419,7 +2419,7 @@ class HtmlHelperTest extends CakeTestCase
     public function testLoadConfigWrongReader()
     {
         $this->expectException(ConfigureException::class);
-        $path = CORE_TESTS . DS . 'test_app' . DS . 'Config' . DS;
+        $path = CORE_TESTS . DS . 'test_app' . DS . 'config' . DS;
         $this->Html->loadConfig(['htmlhelper_tags', 'wrong_reader'], $path);
     }
 

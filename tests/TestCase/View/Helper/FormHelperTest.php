@@ -4161,7 +4161,7 @@ class FormHelperTest extends CakeTestCase
     {
         $this->loadFixtures('Post');
         App::build([
-            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS],
+            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
         ]);
         CakePlugin::load('TestPlugin');
         $this->Form->request['models'] = [
@@ -11233,7 +11233,7 @@ class FormHelperTest extends CakeTestCase
     {
         $this->loadFixtures('Post');
         App::build([
-            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS],
+            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
         ]);
         CakePlugin::load('TestPlugin');
         $this->Form->request['models'] = ['TestPluginPost' => ['plugin' => 'TestPlugin', 'className' => 'TestPluginPost']];

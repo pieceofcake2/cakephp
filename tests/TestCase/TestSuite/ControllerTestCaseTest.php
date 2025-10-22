@@ -131,10 +131,10 @@ class ControllerTestCaseTest extends CakeTestCase
     {
         parent::setUp();
         App::build([
-            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS],
-            'Controller' => [CORE_TESTS . DS . 'test_app' . DS . 'Controller' . DS],
-            'Model' => [CORE_TESTS . DS . 'test_app' . DS . 'Model' . DS],
-            'View' => [CORE_TESTS . DS . 'test_app' . DS . 'View' . DS],
+            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
+            'Controller' => [CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'Controller' . DS],
+            'Model' => [CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'Model' . DS],
+            'View' => [CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'View' . DS],
         ], App::RESET);
         CakePlugin::load(['TestPlugin', 'TestPluginTwo']);
         $this->Case = $this->getMockForAbstractClass(ControllerTestCase::class);
@@ -397,7 +397,7 @@ class ControllerTestCaseTest extends CakeTestCase
     public function testUseRoutes()
     {
         Router::connect('/:controller/:action/*');
-        include CORE_TESTS . DS . 'test_app' . DS . 'Config' . DS . 'routes.php';
+        include CORE_TESTS . DS . 'test_app' . DS . 'config' . DS . 'routes.php';
 
         $controller = $this->Case->generate('TestsApps');
         $controller->Components->load('RequestHandler');
@@ -406,7 +406,7 @@ class ControllerTestCaseTest extends CakeTestCase
         $expected = ['cakephp' => 'cool'];
         $this->assertEquals($expected, $result);
 
-        include CORE_TESTS . DS . 'test_app' . DS . 'Config' . DS . 'routes.php';
+        include CORE_TESTS . DS . 'test_app' . DS . 'config' . DS . 'routes.php';
         $result = $this->Case->testAction('/some_alias');
         $this->assertEquals(5, $result);
     }
@@ -420,7 +420,7 @@ class ControllerTestCaseTest extends CakeTestCase
     {
         $this->expectException(MissingActionException::class);
         Router::connect('/:controller/:action/*');
-        include CORE_TESTS . DS . 'test_app' . DS . 'Config' . DS . 'routes.php';
+        include CORE_TESTS . DS . 'test_app' . DS . 'config' . DS . 'routes.php';
 
         $this->Case->loadRoutes = false;
         $this->Case->testAction('/tests_apps/missing_action.json', ['return' => 'view']);

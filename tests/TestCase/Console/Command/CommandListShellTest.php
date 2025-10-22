@@ -55,7 +55,7 @@ class CommandListShellTest extends CakeTestCase
         parent::setUp();
         App::build([
             'Plugin' => [
-                CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS,
+                CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS,
             ],
             'Console/Command' => [
                 CORE_TESTS . DS . 'test_app' . DS . 'Console' . DS . 'Command' . DS,

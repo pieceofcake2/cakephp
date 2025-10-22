@@ -924,7 +924,7 @@ class ModelValidationTest extends BaseModelTest
         $lang = Configure::read('Config.language');
         Configure::write('Config.language', 'en');
         App::build([
-            'Locale' => [CORE_TESTS . DS . 'test_app' . DS . 'Locale' . DS],
+            'Locale' => [CORE_TESTS . DS . 'test_app' . DS . 'resources' . DS . 'locales' . DS],
         ], App::RESET);
 
         $TestModel = new ValidationTest1();

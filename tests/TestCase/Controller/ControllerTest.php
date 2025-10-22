@@ -500,9 +500,9 @@ class ControllerTest extends CakeTestCase
     public function testLoadModelInPlugins()
     {
         App::build([
-            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS],
-            'Controller' => [CORE_TESTS . DS . 'test_app' . DS . 'Controller' . DS],
-            'Model' => [CORE_TESTS . DS . 'test_app' . DS . 'Model' . DS],
+            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
+            'Controller' => [CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'Controller' . DS],
+            'Model' => [CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'Model' . DS],
         ]);
         CakePlugin::load('TestPlugin');
 
@@ -540,7 +540,7 @@ class ControllerTest extends CakeTestCase
 
         unset($controller);
 
-        App::build(['Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS]]);
+        App::build(['Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS]]);
         CakePlugin::load('TestPlugin');
 
         $controller = new Controller($request);
@@ -621,7 +621,7 @@ class ControllerTest extends CakeTestCase
         $this->assertEquals($expected, $result);
 
         App::build([
-            'View' => [CORE_TESTS . DS . 'test_app' . DS . 'View' . DS],
+            'View' => [CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'View' . DS],
         ]);
         $Controller = new Controller($request);
         $Controller->response = $this->getMock(CakeResponse::class, ['_sendHeader']);
@@ -681,7 +681,7 @@ class ControllerTest extends CakeTestCase
     public function testRender()
     {
         App::build([
-            'View' => [CORE_TESTS . DS . 'test_app' . DS . 'View' . DS],
+            'View' => [CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'View' . DS],
         ], App::RESET);
         ClassRegistry::flush();
         $request = new CakeRequest('controller_posts/index');
@@ -734,7 +734,7 @@ class ControllerTest extends CakeTestCase
     {
         App::build([
             'View' => [
-                CORE_TESTS . DS . 'test_app' . DS . 'View' . DS,
+                CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'View' . DS,
             ],
         ], true);
         $Controller = new Controller($this->getMock(CakeRequest::class), new CakeResponse());

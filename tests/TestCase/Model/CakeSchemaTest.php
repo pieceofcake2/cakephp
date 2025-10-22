@@ -671,7 +671,7 @@ class CakeSchemaTest extends CakeTestCase
     {
         App::objects('model', null, false);
         App::build([
-            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS],
+            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
         ]);
         CakePlugin::load('TestPlugin');
 
@@ -1177,7 +1177,7 @@ class CakeSchemaTest extends CakeTestCase
     public function testSchemaLoadingFromPlugin()
     {
         App::build([
-            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS],
+            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
         ]);
         CakePlugin::load('TestPlugin');
         $Other = $this->Schema->load(['name' => 'TestPluginApp', 'plugin' => 'TestPlugin']);

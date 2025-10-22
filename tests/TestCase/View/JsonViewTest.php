@@ -296,7 +296,7 @@ class JsonViewTest extends CakeTestCase
     public function testRenderWithView()
     {
         App::build([
-            'View' => [CORE_TESTS . DS . 'test_app' . DS . 'View' . DS],
+            'View' => [CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'View' . DS],
         ]);
         $Request = new CakeRequest();
         $Response = new CakeResponse();
@@ -329,7 +329,7 @@ class JsonViewTest extends CakeTestCase
     public function testRenderWithViewAndNamed()
     {
         App::build([
-            'View' => [CORE_TESTS . DS . 'test_app' . DS . 'View' . DS],
+            'View' => [CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'View' . DS],
         ]);
         $Request = new CakeRequest(null, false);
         $Request->params['named'] = ['page' => 2];

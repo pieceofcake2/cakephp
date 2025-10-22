@@ -97,7 +97,7 @@ class HelperCollectionTest extends CakeTestCase
         $result = $this->Helpers->Form;
         $this->assertInstanceOf('FormHelper', $result);
 
-        App::build(['Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS]]);
+        App::build(['Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS]]);
         $this->View->plugin = 'TestPlugin';
         CakePlugin::load(['TestPlugin']);
         $result = $this->Helpers->OtherHelper;
@@ -134,7 +134,7 @@ class HelperCollectionTest extends CakeTestCase
         $result = $this->Helpers->load('Html');
         $this->assertInstanceOf(HtmlAliasHelper::class, $result);
 
-        App::build(['Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS]]);
+        App::build(['Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS]]);
         CakePlugin::load(['TestPlugin']);
         $result = $this->Helpers->load('SomeOther', ['className' => 'TestPlugin.OtherHelper']);
         $this->assertInstanceOf(OtherHelperHelper::class, $result);
@@ -178,7 +178,7 @@ class HelperCollectionTest extends CakeTestCase
     public function testLoadPluginHelper()
     {
         App::build([
-            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS],
+            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
         ]);
         CakePlugin::load(['TestPlugin']);
         $result = $this->Helpers->load('TestPlugin.OtherHelper');

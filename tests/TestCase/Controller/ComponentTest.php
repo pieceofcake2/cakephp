@@ -225,7 +225,7 @@ class ComponentTest extends CakeTestCase
         parent::setUp();
         $this->_pluginPaths = App::path('plugins');
         App::build([
-            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS],
+            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
         ]);
     }
 

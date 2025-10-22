@@ -230,7 +230,7 @@ class HelperTest extends CakeTestCase
         ClassRegistry::addObject('HelperTestTag', new HelperTestTag());
 
         App::build([
-            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS],
+            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
         ]);
     }
 
@@ -755,7 +755,7 @@ class HelperTest extends CakeTestCase
     {
         Configure::write('Asset.timestamp', 'force');
         App::build([
-            'View' => [CORE_TESTS . DS . 'test_app' . DS . 'View' . DS],
+            'View' => [CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'View' . DS],
         ]);
         CakePlugin::load(['TestPlugin']);
 
@@ -970,7 +970,7 @@ class HelperTest extends CakeTestCase
         $this->Helper->theme = 'test_theme';
 
         App::build([
-            'View' => [CORE_TESTS . DS . 'test_app' . DS . 'View' . DS],
+            'View' => [CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'View' . DS],
         ]);
 
         $result = $this->Helper->webroot('/img/cake.power.gif');
@@ -1011,7 +1011,7 @@ class HelperTest extends CakeTestCase
     public function testLazyLoadingHelpers()
     {
         App::build([
-            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS],
+            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
         ]);
         CakePlugin::load(['TestPlugin']);
         $Helper = new TestHelper($this->View);

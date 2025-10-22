@@ -428,7 +428,7 @@ class CakeTestCaseTest extends CakeTestCase
     {
         App::build([
             'Model' => [
-                CORE_TESTS . DS . 'test_app' . DS . 'Model' . DS,
+                CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'Model' . DS,
             ],
         ], App::RESET);
         $Post = $this->getMockForModel('Post');
@@ -452,9 +452,9 @@ class CakeTestCaseTest extends CakeTestCase
     public function testGetMockForModelSecondaryDatasource()
     {
         App::build([
-            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS],
+            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
             'Model/Datasource/Database' => [
-                CORE_TESTS . DS . 'test_app' . DS . 'Model' . DS . 'Datasource' . DS . 'Database' . DS,
+                CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'Model' . DS . 'Datasource' . DS . 'Database' . DS,
             ],
         ], App::RESET);
         CakePlugin::load('TestPlugin');
@@ -487,7 +487,7 @@ class CakeTestCaseTest extends CakeTestCase
     {
         App::build([
             'Plugin' => [
-                CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS,
+                CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS,
             ],
         ], App::RESET);
         CakePlugin::load('TestPlugin');

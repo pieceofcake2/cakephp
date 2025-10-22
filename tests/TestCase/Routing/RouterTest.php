@@ -176,7 +176,7 @@ class RouterTest extends CakeTestCase
     {
         App::build([
             'Plugin' => [
-                CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS,
+                CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS,
             ],
         ]);
         $resources = Router::mapResources('TestPlugin.TestPlugin');
@@ -215,7 +215,7 @@ class RouterTest extends CakeTestCase
     {
         App::build([
             'Plugin' => [
-                CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS,
+                CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS,
             ],
         ]);
         CakePlugin::load('TestPlugin');
@@ -239,7 +239,7 @@ class RouterTest extends CakeTestCase
     {
         App::build([
             'Plugin' => [
-                CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS,
+                CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS,
             ],
         ]);
         $resources = Router::mapResources('TestPlugin.TestPlugin', ['prefix' => '/api/']);
@@ -1358,7 +1358,7 @@ class RouterTest extends CakeTestCase
         $paths = App::path('plugins');
         App::build([
             'plugins' => [
-                CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS,
+                CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS,
             ],
         ], App::RESET);
         CakePlugin::load(['TestPlugin']);
@@ -2449,7 +2449,7 @@ class RouterTest extends CakeTestCase
     {
         App::build([
             'plugins' => [
-                CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS,
+                CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS,
             ],
         ], App::RESET);
         CakePlugin::load(['TestPlugin', 'PluginJs']);
@@ -2509,7 +2509,7 @@ class RouterTest extends CakeTestCase
     {
         App::build([
             'Plugin' => [
-                CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS,
+                CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS,
             ],
         ]);
         CakePlugin::load('TestPlugin');

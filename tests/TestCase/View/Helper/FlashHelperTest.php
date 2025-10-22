@@ -43,7 +43,7 @@ class FlashHelperTest extends CakeTestCase
     public static function setupBeforeClass(): void
     {
         App::build([
-            'View' => [CORE_TESTS . DS . 'test_app' . DS . 'View' . DS],
+            'View' => [CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'View' . DS],
         ]);
     }
 
@@ -179,7 +179,7 @@ class FlashHelperTest extends CakeTestCase
     public function testFlashWithPluginElement()
     {
         App::build([
-            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS],
+            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
         ]);
         CakePlugin::load('TestPlugin');
 

@@ -41,9 +41,11 @@
         "psr-4": {
             "Cake\\Test\\Fixture\\": "tests/Fixture/",
             "Cake\\Test\\TestCase\\": "tests/TestCase/",
-            "TestApp\\": "tests/test_app/src/"
+            "TestApp\\": "tests/test_app/src/",
+            "TestPlugin\\": "tests/test_app/plugins/TestPlugin/src/",
+            "TestPluginTwo\\": "tests/test_app/plugins/TestPluginTwo/src/",
+            "PluginJs\\": "tests/test_app/plugins/PluginJs/src/"
         },
-        "classmap": ["tests/test_app/"],
         "exclude-from-classmap": [
             "vendor/pieceofcake2/app/src/Controller/AppController.php",
             "vendor/pieceofcake2/app/src/Controller/PagesController.php",

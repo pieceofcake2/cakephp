@@ -36,7 +36,7 @@ use Cake\TestSuite\CakeTestCase;
 use Cake\Utility\Inflector;
 
 if (!class_exists('AppController', false)) {
-    require_once CORE_TESTS . DS . 'test_app' . DS . 'Controller' . DS . 'AppController.php';
+    require_once CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'Controller' . DS . 'AppController.php';
 } elseif (!defined('APP_CONTROLLER_EXISTS')) {
     define('APP_CONTROLLER_EXISTS', true);
 }
@@ -238,7 +238,7 @@ class SomePagesController extends AppController
      */
     public function sendfile()
     {
-        $this->response->file(CORE_TESTS . DS . 'test_app' . DS . 'Vendor' . DS . 'css' . DS . 'test_asset.css');
+        $this->response->file(CORE_TESTS . DS . 'test_app' . DS . 'vendor' . DS . 'css' . DS . 'test_asset.css');
 
         return $this->response;
     }
@@ -866,7 +866,7 @@ class DispatcherTest extends CakeTestCase
     public function testDispatchBasic()
     {
         App::build([
-            'View' => [CORE_TESTS . DS . 'test_app' . DS . 'View' . DS],
+            'View' => [CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'View' . DS],
         ]);
         $Dispatcher = new TestDispatcher();
         Configure::write('App.baseUrl', '/index.php');
@@ -1206,7 +1206,7 @@ class DispatcherTest extends CakeTestCase
 
         Router::reload();
         App::build([
-            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS],
+            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
         ], App::RESET);
         CakePlugin::load(['TestPlugin', 'TestPluginTwo']);
 
@@ -1284,7 +1284,7 @@ class DispatcherTest extends CakeTestCase
     {
         $Dispatcher = new TestDispatcher();
         App::build([
-            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS],
+            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
         ], App::RESET);
         CakePlugin::load(['TestPlugin', 'TestPluginTwo']);
         Router::reload();
@@ -1312,8 +1312,8 @@ class DispatcherTest extends CakeTestCase
     public function testDispatcherFilterSubscriber()
     {
         App::build([
-            'View' => [CORE_TESTS . DS . 'test_app' . DS . 'View' . DS],
-            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS],
+            'View' => [CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'View' . DS],
+            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
         ], App::RESET);
 
         CakePlugin::load('TestPlugin');
@@ -1371,7 +1371,7 @@ class DispatcherTest extends CakeTestCase
     {
         $this->expectException(MissingDispatcherFilterException::class);
         App::build([
-            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS],
+            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
         ], App::RESET);
 
         CakePlugin::load('TestPlugin');
@@ -1392,7 +1392,7 @@ class DispatcherTest extends CakeTestCase
     public function testDispatcherFilterCallable()
     {
         App::build([
-            'View' => [CORE_TESTS . DS . 'test_app' . DS . 'View' . DS],
+            'View' => [CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'View' . DS],
         ], App::RESET);
 
         $dispatcher = new TestDispatcher();
@@ -1499,9 +1499,9 @@ class DispatcherTest extends CakeTestCase
         Router::reload();
 
         App::build([
-            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS],
-            'Vendor' => [CORE_TESTS . DS . 'test_app' . DS . 'Vendor' . DS],
-            'View' => [CORE_TESTS . DS . 'test_app' . DS . 'View' . DS],
+            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
+            'Vendor' => [CORE_TESTS . DS . 'test_app' . DS . 'vendor' . DS],
+            'View' => [CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'View' . DS],
         ]);
         CakePlugin::load(['TestPlugin', 'TestPluginTwo']);
         Configure::write('Dispatcher.filters', ['AssetDispatcher']);
@@ -1620,9 +1620,9 @@ class DispatcherTest extends CakeTestCase
         Router::reload();
 
         App::build([
-            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS],
-            'Vendor' => [CORE_TESTS . DS . 'test_app' . DS . 'Vendor' . DS],
-            'View' => [CORE_TESTS . DS . 'test_app' . DS . 'View' . DS],
+            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
+            'Vendor' => [CORE_TESTS . DS . 'test_app' . DS . 'vendor' . DS],
+            'View' => [CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'View' . DS],
         ]);
         CakePlugin::load(['TestPlugin', 'PluginJs']);
         Configure::write('Dispatcher.filters', ['AssetDispatcher']);
@@ -1705,7 +1705,7 @@ class DispatcherTest extends CakeTestCase
         Router::connect('/:controller/:action/*');
 
         App::build([
-            'View' => [CORE_TESTS . DS . 'test_app' . DS . 'View' . DS],
+            'View' => [CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'View' . DS],
         ], App::RESET);
 
         $dispatcher = new TestDispatcher();

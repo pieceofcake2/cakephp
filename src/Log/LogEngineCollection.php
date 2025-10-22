@@ -20,6 +20,7 @@ namespace Cake\Log;
 
 use Cake\Core\App;
 use Cake\Error\CakeLogException;
+use Cake\Log\Engine\BaseLog;
 use Cake\Utility\ObjectCollection;
 
 /**
@@ -34,7 +35,7 @@ class LogEngineCollection extends ObjectCollection
      *
      * @param string $name instance identifier
      * @param array $options Setting for the Log Engine
-     * @return BaseLog BaseLog engine instance
+     * @return CakeLogInterface BaseLog engine instance
      * @throws CakeLogException when logger class does not implement a write method
      */
     public function load($name, $options = [])
@@ -69,9 +70,12 @@ class LogEngineCollection extends ObjectCollection
     {
         [$plugin, $name] = pluginSplit($loggerName, true);
         $originalLoggerName = $loggerName;
+        if (!str_ends_with($loggerName, 'Log')) {
+            $loggerName .= 'Log';
+        }
 
         // Try to resolve class name using App::className()
-        $className = App::className($loggerName, 'Log/Engine', 'Log');
+        $className = App::className($loggerName, 'Log/Engine');
 
         // Fall back to legacy loading for backward compatibility
         if (!$className) {

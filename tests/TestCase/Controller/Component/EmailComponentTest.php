@@ -163,7 +163,7 @@ class EmailComponentTest extends CakeTestCase
         static::$sentDate = date(DATE_RFC2822);
 
         App::build([
-            'View' => [CORE_TESTS . DS . 'test_app' . DS . 'View' . DS],
+            'View' => [CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'View' . DS],
         ]);
     }
 
@@ -451,7 +451,7 @@ HTMLBLOC;
     public function testMessageRetrievalWithoutTemplate()
     {
         App::build([
-            'View' => [CORE_TESTS . DS . 'test_app' . DS . 'View' . DS],
+            'View' => [CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'View' . DS],
         ]);
 
         $this->Controller->EmailTest->to = 'postmaster@example.com';
@@ -489,7 +489,7 @@ HTMLBLOC;
     public function testMessageRetrievalWithTemplate()
     {
         App::build([
-            'View' => [CORE_TESTS . DS . 'test_app' . DS . 'View' . DS],
+            'View' => [CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'View' . DS],
         ]);
 
         $this->Controller->set('value', 22091985);
@@ -550,7 +550,7 @@ HTMLBLOC;
     public function testMessageRetrievalWithHelper()
     {
         App::build([
-            'View' => [CORE_TESTS . DS . 'test_app' . DS . 'View' . DS],
+            'View' => [CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'View' . DS],
         ]);
 
         $timestamp = time();
@@ -853,8 +853,8 @@ HTMLBLOC;
     public function testPluginCustomViewClass()
     {
         App::build([
-            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS],
-            'View' => [CORE_TESTS . DS . 'test_app' . DS . 'View' . DS],
+            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
+            'View' => [CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'View' . DS],
         ]);
 
         $this->Controller->view = 'TestPlugin.Email';

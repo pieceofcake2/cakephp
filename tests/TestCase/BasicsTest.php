@@ -45,7 +45,7 @@ class BasicsTest extends CakeTestCase
     {
         parent::setUp();
         App::build([
-            'Locale' => [CORE_TESTS . DS . 'test_app' . DS . 'Locale' . DS],
+            'Locale' => [CORE_TESTS . DS . 'test_app' . DS . 'resources' . DS . 'locales' . DS],
         ]);
     }
 

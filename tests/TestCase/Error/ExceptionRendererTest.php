@@ -189,7 +189,7 @@ class ExceptionRendererTest extends CakeTestCase
         Configure::write('Config.language', 'eng');
         App::build([
             'View' => [
-                CORE_TESTS . DS . 'test_app' . DS . 'View' . DS,
+                CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'View' . DS,
             ],
         ], App::RESET);
         Router::reload();
@@ -879,7 +879,7 @@ class ExceptionRendererTest extends CakeTestCase
     public function testMissingPluginRenderSafeWithPlugin()
     {
         App::build([
-            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS],
+            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
         ], App::RESET);
         CakePlugin::load('TestPlugin');
         $exception = new NotFoundException();
