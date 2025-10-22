@@ -68,21 +68,12 @@ class AclComponent extends Component
         parent::__construct($collection, $settings);
         $name = Configure::read('Acl.classname');
         if (!class_exists($name)) {
-            [$plugin, $className] = pluginSplit($name, true);
-
-            // Try to resolve class name using App::className()
             $resolvedClass = App::className($name, 'Controller/Component/Acl');
-
-            // Fall back to legacy loading for backward compatibility
             if (!$resolvedClass) {
-                App::uses($className, $plugin . 'Controller/Component/Acl');
-                if (!class_exists($className)) {
-                    throw new CakeException(__d('cake_dev', 'Could not find %s.', $className));
-                }
-                $name = $className;
-            } else {
-                $name = $resolvedClass;
+                [, $className] = pluginSplit($name, true);
+                throw new CakeException(__d('cake_dev', 'Could not find %s.', $className));
             }
+            $name = $resolvedClass;
         }
         $this->adapter($name);
     }

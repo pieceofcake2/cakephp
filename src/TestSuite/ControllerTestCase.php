@@ -20,6 +20,8 @@
 namespace Cake\TestSuite;
 
 use BadMethodCallException;
+use Cake\Controller\Component;
+use Cake\Controller\Controller;
 use Cake\Core\App;
 use Cake\Error\MissingComponentException;
 use Cake\Error\MissingControllerException;
@@ -32,6 +34,7 @@ use Cake\Routing\Router;
 use Cake\Utility\ClassRegistry;
 use Cake\Utility\Inflector;
 use Cake\View\Helper;
+use PHPUnit\Framework\MockObject\MockObject;
 
 /**
  * ControllerTestDispatcher class
@@ -363,32 +366,17 @@ abstract class ControllerTestCase extends CakeTestCase
     {
         [$plugin, $controller] = pluginSplit($controller);
         if ($plugin) {
-            // Try to resolve AppController using App::className()
-            $appControllerClass = App::className($plugin . '.' . $plugin . 'AppController', 'Controller');
-
-            // Fall back to legacy loading for AppController
-            if (!$appControllerClass) {
-                $appControllerClass = $plugin . 'AppController';
-                App::uses($appControllerClass, $plugin . '.Controller');
-            }
-
+            App::className($plugin . '.' . $plugin . 'AppController', 'Controller');
             $plugin .= '.';
         }
 
-        // Try to resolve controller class using App::className()
         $fullControllerName = $plugin . $controller;
         $controllerClass = App::className($fullControllerName, 'Controller', 'Controller');
-
-        // Fall back to legacy loading for Controller
         if (!$controllerClass) {
-            $controllerClass = $controller . 'Controller';
-            App::uses($controllerClass, $plugin . 'Controller');
-            if (!class_exists($controllerClass)) {
-                throw new MissingControllerException([
-                    'class' => $controllerClass,
-                    'plugin' => substr($plugin, 0, -1),
-                ]);
-            }
+            throw new MissingControllerException([
+                'class' => $controller . 'Controller',
+                'plugin' => substr($plugin, 0, -1),
+            ]);
         }
         ClassRegistry::flush();
 
@@ -434,23 +422,16 @@ abstract class ControllerTestCase extends CakeTestCase
                 $alias = $component;
                 $component = $config['className'];
             }
-            [$plugin, $name] = pluginSplit($component, true);
+            [, $name] = pluginSplit($component, true);
             if (!isset($alias)) {
                 $alias = $name;
             }
 
-            // Try to resolve class name using App::className()
             $componentClass = App::className($component, 'Controller/Component', 'Component');
-
-            // Fall back to legacy loading for backward compatibility
             if (!$componentClass) {
-                $componentClass = $name . 'Component';
-                App::uses($name . 'Component', $plugin . 'Controller/Component');
-                if (!class_exists($name . 'Component')) {
-                    throw new MissingComponentException([
-                        'class' => $name . 'Component',
-                    ]);
-                }
+                throw new MissingComponentException([
+                    'class' => $name . 'Component',
+                ]);
             }
             /** @var Component|MockObject $componentObj */
             $componentObj = $this->getMock($componentClass, $methods, [$controllerObj->Components, $config]);

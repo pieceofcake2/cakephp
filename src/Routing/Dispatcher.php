@@ -114,19 +114,12 @@ class Dispatcher implements CakeEventListener
                 $filter = ['callable' => $filter];
             }
             if (is_string($filter['callable'] ?? null)) {
-                [$plugin, $name] = pluginSplit($filter['callable'], true);
-
-                // Try to resolve class name using App::className()
                 $callable = App::className($filter['callable'], 'Routing/Filter');
 
-                // Fall back to legacy loading for backward compatibility
                 if (!$callable) {
-                    $callable = $name;
-                    App::uses($callable, $plugin . 'Routing/Filter');
-                    if (!class_exists($callable)) {
-                        throw new MissingDispatcherFilterException($filter['callable']);
-                    }
+                    throw new MissingDispatcherFilterException($filter['callable']);
                 }
+
                 $manager->attach(new $callable($settings));
             } else {
                 $on = strtolower($filter['on'] ?? '');
@@ -283,22 +276,9 @@ class Dispatcher implements CakeEventListener
             $controller = Inflector::camelize($request->params['controller']);
         }
         if ($pluginPath . $controller) {
-            // Try to resolve class name using App::className()
             $fullClassName = ($pluginName ? $pluginName . '.' : '') . $controller;
-            $class = App::className($fullClassName, 'Controller', 'Controller');
 
-            // Fall back to legacy loading for backward compatibility (no namespace)
-            if (!$class) {
-                $class = $controller . 'Controller';
-                App::uses('AppController', 'Controller');
-                App::uses($pluginName . 'AppController', $pluginPath . 'Controller');
-                App::uses($class, $pluginPath . 'Controller');
-                if (!class_exists($class)) {
-                    return false;
-                }
-            }
-
-            return $class;
+            return App::className($fullClassName, 'Controller', 'Controller') ?: false;
         }
 
         return false;

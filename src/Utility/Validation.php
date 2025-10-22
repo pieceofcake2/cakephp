@@ -926,17 +926,13 @@ class Validation
     {
         $baseClassName = ucwords($classPrefix) . 'Validation';
 
-        // Try to resolve class name using App::className()
+        // Resolve class name using App::className()
         $className = App::className(ucwords($classPrefix), 'Utility', 'Validation');
 
-        // Fall back to legacy loading for backward compatibility
         if (!$className) {
-            $className = $baseClassName;
-            if (!class_exists($className)) {
-                trigger_error(__d('cake_dev', 'Could not find %s class, unable to complete validation.', $baseClassName), E_USER_WARNING);
+            trigger_error(__d('cake_dev', 'Could not find %s class, unable to complete validation.', $baseClassName), E_USER_WARNING);
 
-                return false;
-            }
+            return false;
         }
 
         if (!method_exists($className, $method)) {

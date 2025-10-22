@@ -16,6 +16,15 @@
 
 namespace Cake\Controller;
 
+use Cake\Controller\Component\AclComponent;
+use Cake\Controller\Component\AuthComponent;
+use Cake\Controller\Component\CookieComponent;
+use Cake\Controller\Component\EmailComponent;
+use Cake\Controller\Component\FlashComponent;
+use Cake\Controller\Component\PaginatorComponent;
+use Cake\Controller\Component\RequestHandlerComponent;
+use Cake\Controller\Component\SecurityComponent;
+use Cake\Controller\Component\SessionComponent;
 use Cake\Core\App;
 use Cake\Core\CakeObject;
 use Cake\Error\MissingActionException;
@@ -1376,19 +1385,8 @@ class Controller extends CakeObject implements CakeEventListener
     {
         $viewClass = $this->viewClass;
         if ($this->viewClass !== 'View') {
-            [$plugin, $name] = pluginSplit($viewClass, true);
-
-            // Try to resolve class name using App::className()
-            $resolvedClass = App::className($viewClass, 'View', 'View');
-
-            // Fall back to legacy loading for backward compatibility
-            if (!$resolvedClass) {
-                $className = $name . 'View';
-                App::uses($className, $plugin . 'View');
-                $viewClass = $className;
-            } else {
-                $viewClass = $resolvedClass;
-            }
+            [, $name] = pluginSplit($viewClass, true);
+            $viewClass = App::className($viewClass, 'View', 'View') ?: $name . 'View';
         }
 
         return new $viewClass($this);

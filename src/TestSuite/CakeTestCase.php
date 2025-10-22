@@ -874,24 +874,16 @@ abstract class CakeTestCase extends TestCase
         $defaults = ClassRegistry::config('Model');
         unset($defaults['ds']);
 
-        [$plugin, $name] = pluginSplit($model, true);
+        [, $name] = pluginSplit($model, true);
 
-        // For namespaced classes, extract the short class name for registry key
         if (str_contains($name, '\\')) {
             $parts = explode('\\', $name);
             $name = array_pop($parts);
         }
 
-        // Try to resolve class name using App::className()
         $className = App::className($model, 'Model');
-
-        // Fall back to legacy loading for backward compatibility
         if (!$className) {
-            $className = $name;
-            App::uses($name, $plugin . 'Model');
-            if (!class_exists($className)) {
-                throw new MissingModelException([$model]);
-            }
+            throw new MissingModelException([$model]);
         }
 
         $config = array_merge($defaults, (array)$config, ['name' => $name]);

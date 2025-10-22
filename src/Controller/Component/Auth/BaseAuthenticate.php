@@ -179,18 +179,10 @@ abstract class BaseAuthenticate implements CakeEventListener
             $config = $this->settings['passwordHasher'];
             unset($config['className']);
         }
-        [$plugin, $name] = pluginSplit($class, true);
 
-        // Try to resolve class name using App::className()
         $className = App::className($class, 'Controller/Component/Auth', 'PasswordHasher');
-
-        // Fall back to legacy loading for backward compatibility
         if (!$className) {
-            $className = $name . 'PasswordHasher';
-            App::uses($className, $plugin . 'Controller/Component/Auth');
-            if (!class_exists($className)) {
-                throw new CakeException(__d('cake_dev', 'Password hasher class "%s" was not found.', $class));
-            }
+            throw new CakeException(__d('cake_dev', 'Password hasher class "%s" was not found.', $class));
         }
         if (!is_subclass_of($className, AbstractPasswordHasher::class)) {
             throw new CakeException(__d('cake_dev', 'Password hasher must extend AbstractPasswordHasher class.'));

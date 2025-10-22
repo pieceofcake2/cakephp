@@ -172,17 +172,10 @@ class Cache
     {
         $config = static::$_config[$name];
 
-        // Try to resolve class name using App::className()
         $cacheClass = App::className($config['engine'], 'Cache/Engine', 'Engine');
 
-        // Fall back to legacy loading for backward compatibility
         if (!$cacheClass) {
-            [$plugin, $class] = pluginSplit($config['engine'], true);
-            $cacheClass = $class . 'Engine';
-            App::uses($cacheClass, $plugin . 'Cache/Engine');
-            if (!class_exists($cacheClass)) {
-                throw new CacheException(__d('cake_dev', 'Cache engine %s is not available.', $name));
-            }
+            throw new CacheException(__d('cake_dev', 'Cache engine %s is not available.', $name));
         }
 
         if (!is_subclass_of($cacheClass, CacheEngine::class)) {

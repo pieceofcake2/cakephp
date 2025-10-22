@@ -109,14 +109,7 @@ HTML;
                     $class = is_array($test) && isset($test['id']) ? $test['id'] : $test;
                     $className = current(explode('::', $class));
 
-                    // Try to resolve class name using App::className()
-                    $resolvedClass = App::className($className, 'TestSuite/Coverage');
-
-                    // Fall back to the original class name for backward compatibility
-                    if (!$resolvedClass) {
-                        $resolvedClass = $className;
-                    }
-
+                    $resolvedClass = App::className($className, 'TestSuite/Coverage') ?: $className;
                     $testReflection = new ReflectionClass($resolvedClass);
                     $this->_testNames[] = $this->_guessSubjectName($testReflection);
                     $coveringTests[] = $class;

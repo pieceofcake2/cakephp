@@ -30,6 +30,7 @@ use Cake\Core\Configure;
 use Cake\Error\CakeException;
 use Cake\Error\XmlException;
 use Cake\Network\CakeRequest;
+use Cake\Network\CakeResponse;
 use Cake\Routing\Router;
 use Cake\Utility\Inflector;
 use Cake\Utility\Xml;
@@ -681,15 +682,8 @@ class RequestHandlerComponent extends Component
         $viewName = $viewClass . 'View';
         $fullClassName = $pluginDot . $viewClass;
 
-        // Try to resolve class name using App::className()
-        $resolvedClass = App::className($fullClassName, 'View', 'View');
-        if ($resolvedClass) {
-            $viewName = $resolvedClass;
-        }
+        $viewName = App::className($fullClassName, 'View', 'View') ?: $viewName;
 
-        if (!class_exists($viewName)) {
-            App::uses($viewName, $pluginDot . 'View');
-        }
         if (class_exists($viewName)) {
             $controller->viewClass = $viewClass;
         } elseif (empty($this->_renderType)) {
@@ -711,16 +705,7 @@ class RequestHandlerComponent extends Component
         $helper = ucfirst($type);
 
         if (!in_array($helper, $controller->helpers) && empty($controller->helpers[$helper])) {
-            // Try to resolve class name using App::className()
-            $helperClass = App::className($helper, 'View/Helper', 'Helper');
-
-            // Fall back to legacy loading for backward compatibility
-            if (!$helperClass) {
-                $helperClass = $helper . 'Helper';
-                App::uses('AppHelper', 'View/Helper');
-                App::uses($helperClass, 'View/Helper');
-            }
-
+            $helperClass = App::className($helper, 'View/Helper', 'Helper') ?: $helper . 'Helper';
             if (class_exists($helperClass)) {
                 $controller->helpers[] = $helper;
             }
@@ -804,7 +789,7 @@ class RequestHandlerComponent extends Component
      * Maps a content type alias back to its mime-type(s)
      *
      * @param array|string $alias String alias to convert back into a content type. Or an array of aliases to map.
-     * @return string|null Null on an undefined alias. String value of the mapped alias type. If an
+     * @return array|string|null Null on an undefined alias. String value of the mapped alias type. If an
      *   alias maps to more than one content type, the first one will be returned.
      */
     public function mapAlias($alias)
