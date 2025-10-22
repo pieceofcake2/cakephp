@@ -40,18 +40,19 @@ class LegacyClassLoaderTest extends CakeTestCase
     {
         // Create a temporary namespaced AppController class
         if (!class_exists('App\Controller\AppController', false)) {
+            // phpcs:ignore Squiz.PHP.Eval.Discouraged
             eval('namespace App\Controller; class AppController extends \Cake\Controller\Controller {}');
         }
 
         // Test that 'AppController' gets aliased to App\Controller\AppController
         $this->assertTrue(
             LegacyClassLoader::autoload('AppController'),
-            'AppController should be resolved from App namespace'
+            'AppController should be resolved from App namespace',
         );
 
         $this->assertTrue(
             class_exists('AppController', false),
-            'AppController alias should exist after autoload'
+            'AppController alias should exist after autoload',
         );
     }
 
@@ -68,18 +69,19 @@ class LegacyClassLoaderTest extends CakeTestCase
 
         // Create a temporary namespaced AppModel class in custom namespace
         if (!class_exists('MyApp\Model\AppModel', false)) {
+            // phpcs:ignore Squiz.PHP.Eval.Discouraged
             eval('namespace MyApp\Model; class AppModel extends \Cake\Model\Model {}');
         }
 
         // Test that 'AppModel' gets aliased to MyApp\Model\AppModel
         $this->assertTrue(
             LegacyClassLoader::autoload('AppModel'),
-            'AppModel should be resolved from custom namespace'
+            'AppModel should be resolved from custom namespace',
         );
 
         $this->assertTrue(
             class_exists('AppModel', false),
-            'AppModel alias should exist after autoload'
+            'AppModel alias should exist after autoload',
         );
 
         // Restore original namespace
@@ -115,7 +117,7 @@ class LegacyClassLoaderTest extends CakeTestCase
         $this->assertArrayNotHasKey(
             'AppShell',
             $classMap,
-            'AppShell should not be in LegacyClassLoader map - it should be dynamically resolved'
+            'AppShell should not be in LegacyClassLoader map - it should be dynamically resolved',
         );
     }
 
@@ -134,7 +136,7 @@ class LegacyClassLoaderTest extends CakeTestCase
         // 'Application' should not match App* pattern (lowercase after 'App')
         $this->assertFalse(
             LegacyClassLoader::autoload('Application'),
-            'Application should not be treated as App* class'
+            'Application should not be treated as App* class',
         );
     }
 }
