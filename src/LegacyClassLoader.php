@@ -11,6 +11,8 @@
 
 namespace Cake;
 
+use Cake\Core\Configure;
+
 /**
  * Legacy class loader
  */
@@ -35,7 +37,6 @@ class LegacyClassLoader
         'ApcEngine' => 'Cake\Cache\Engine\ApcEngine',
         'ApiShell' => 'Cake\Console\Command\ApiShell',
         'App' => 'Cake\Core\App',
-        'AppShell' => 'Cake\Console\Command\AppShell',
         'Aro' => 'Cake\Model\Aro',
         'AssetDispatcher' => 'Cake\Routing\Filter\AssetDispatcher',
         'AuthComponent' => 'Cake\Controller\Component\AuthComponent',
@@ -244,6 +245,17 @@ class LegacyClassLoader
             return false;
         }
 
+        // Handle App* base classes (AppController, AppModel, AppHelper, AppShell)
+        // These should be resolved from the application's namespace
+        if (str_starts_with($class, 'App') && strlen($class) > 3 && ctype_upper($class[3])) {
+            $namespacedClass = self::_resolveAppClass($class);
+            if ($namespacedClass && class_exists($namespacedClass)) {
+                class_alias($namespacedClass, $class);
+
+                return true;
+            }
+        }
+
         // Check if we have a mapping for this legacy class name
         if (isset(self::$classMap[$class])) {
             class_alias(self::$classMap[$class], $class);
@@ -252,6 +264,44 @@ class LegacyClassLoader
         }
 
         return false;
+    }
+
+    /**
+     * Resolve App* base class to its namespaced equivalent
+     *
+     * Application base classes (AppController, AppModel, etc.) belong to the
+     * application's namespace, not the framework's Cake namespace. This method
+     * resolves them using the configured application namespace.
+     *
+     * @param string $class The class name (e.g., AppController, AppModel)
+     * @return string|null The fully qualified namespaced class name, or null if not resolvable
+     */
+    protected static function _resolveAppClass(string $class): ?string
+    {
+        // Map application base class names to their namespace paths
+        $appClassMap = [
+            'AppController' => 'Controller\AppController',
+            'AppModel' => 'Model\AppModel',
+            'AppHelper' => 'View\Helper\AppHelper',
+            'AppShell' => 'Console\Command\AppShell',
+        ];
+
+        if (!isset($appClassMap[$class])) {
+            return null;
+        }
+
+        // Ensure Configure class is available before attempting to read configuration
+        if (!class_exists('Cake\Core\Configure', false)) {
+            return null;
+        }
+
+        // Get the application namespace from configuration (defaults to 'App')
+        $appNamespace = Configure::read('App.namespace');
+        if (!$appNamespace) {
+            $appNamespace = 'App';
+        }
+
+        return $appNamespace . '\\' . $appClassMap[$class];
     }
 }
 
@@ -319,7 +369,7 @@ if (false) {
     class_alias('Cake\Cache\Engine\ApcEngine', 'ApcEngine');
     class_alias('Cake\Console\Command\ApiShell', 'ApiShell');
     class_alias('Cake\Core\App', 'App');
-    class_alias('Cake\Console\Command\AppShell', 'AppShell');
+    // Note: AppShell is an application base class, not part of Cake framework
     class_alias('Cake\Model\Aro', 'Aro');
     class_alias('Cake\Routing\Filter\AssetDispatcher', 'AssetDispatcher');
     class_alias('Cake\Controller\Component\AuthComponent', 'AuthComponent');

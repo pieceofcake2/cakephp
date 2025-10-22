@@ -19,6 +19,7 @@
 
 namespace Cake\Console\Command;
 
+use Cake\Console\ConsoleOptionParser;
 use Cake\Core\App;
 
 App::uses('AppShell', 'Console/Command');
