@@ -521,16 +521,9 @@ class AuthComponent extends Component
             [$plugin, $class] = pluginSplit($class, true);
             $fullClassName = ($plugin ?: '') . $class;
 
-            // Try to resolve class name using App::className()
             $className = App::className($fullClassName, 'Controller/Component/Auth', 'Authorize');
-
-            // Fall back to legacy loading for backward compatibility
             if (!$className) {
-                $className = $class . 'Authorize';
-                App::uses($className, $plugin . 'Controller/Component/Auth');
-                if (!class_exists($className)) {
-                    throw new CakeException(__d('cake_dev', 'Authorization adapter "%s" was not found.', $class));
-                }
+                throw new CakeException(__d('cake_dev', 'Authorization adapter "%s" was not found.', $class));
             }
 
             if (!method_exists($className, 'authorize')) {
@@ -858,16 +851,9 @@ class AuthComponent extends Component
             [$plugin, $class] = pluginSplit($class, true);
             $fullClassName = ($plugin ?: '') . $class;
 
-            // Try to resolve class name using App::className()
             $className = App::className($fullClassName, 'Controller/Component/Auth', 'Authenticate');
-
-            // Fall back to legacy loading for backward compatibility
             if (!$className) {
-                $className = $class . 'Authenticate';
-                App::uses($className, $plugin . 'Controller/Component/Auth');
-                if (!class_exists($className)) {
-                    throw new CakeException(__d('cake_dev', 'Authentication adapter "%s" was not found.', $class));
-                }
+                throw new CakeException(__d('cake_dev', 'Authentication adapter "%s" was not found.', $class));
             }
 
             if (!method_exists($className, 'authenticate')) {

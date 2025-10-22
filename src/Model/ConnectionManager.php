@@ -190,23 +190,18 @@ class ConnectionManager
             $package = '/' . $conn['package'];
         }
 
-        // Try to resolve class name using App::className()
         $fullClassName = $plugin . $conn['classname'];
         $className = App::className($fullClassName, 'Model/Datasource' . $package);
 
-        if (!is_array($connName) && $className) {
-            static::$_connectionsEnum[$connName]['classname'] = $className;
+        if (!$className) {
+            throw new MissingDatasourceException([
+                'class' => $conn['classname'],
+                'plugin' => substr($plugin, 0, -1),
+            ]);
         }
 
-        // Fall back to legacy loading for backward compatibility
-        if (!$className) {
-            App::uses($conn['classname'], $plugin . 'Model/Datasource' . $package);
-            if (!class_exists($conn['classname'])) {
-                throw new MissingDatasourceException([
-                    'class' => $conn['classname'],
-                    'plugin' => substr($plugin, 0, -1),
-                ]);
-            }
+        if (!is_array($connName)) {
+            static::$_connectionsEnum[$connName]['classname'] = $className;
         }
 
         return true;

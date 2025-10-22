@@ -873,16 +873,10 @@ class Shell extends CakeObject
         [$plugin, $helperClassName] = pluginSplit($name, true);
         $fullClassName = ($plugin ?: '') . Inflector::camelize($helperClassName);
 
-        // Try to resolve class name using App::className()
         $helperClassNameShellHelper = App::className($fullClassName, 'Console/Helper', 'ShellHelper');
 
-        // Fall back to legacy loading for backward compatibility
         if (!$helperClassNameShellHelper) {
-            $helperClassNameShellHelper = Inflector::camelize($helperClassName) . 'ShellHelper';
-            App::uses($helperClassNameShellHelper, $plugin . 'Console/Helper');
-            if (!class_exists($helperClassNameShellHelper)) {
-                throw new RuntimeException('Class ' . $helperClassName . ' not found');
-            }
+            throw new RuntimeException('Class ' . $helperClassName . ' not found');
         }
         $helper = new $helperClassNameShellHelper($this->stdout);
         $this->_helpers[$name] = $helper;

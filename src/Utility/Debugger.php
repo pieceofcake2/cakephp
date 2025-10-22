@@ -161,13 +161,7 @@ class Debugger
     {
         static $instance = [];
         if (!empty($class)) {
-            // Try to resolve class name using App::className()
-            $resolvedClass = App::className($class, 'Utility');
-
-            // Fall back to the provided class name for backward compatibility
-            if (!$resolvedClass) {
-                $resolvedClass = $class;
-            }
+            $resolvedClass = App::className($class, 'Utility') ?: $class;
 
             if (!$instance || strtolower($resolvedClass) != strtolower($instance[0]::class)) {
                 $instance[0] = new $resolvedClass();

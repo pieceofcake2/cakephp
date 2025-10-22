@@ -419,18 +419,9 @@ class HttpSocket extends CakeSocket
             $this->disconnect();
         }
 
-        [$plugin, $className] = pluginSplit($this->responseClass, true);
-
-        // Try to resolve class name using App::className()
         $responseClass = App::className($this->responseClass, 'Network/Http');
-
-        // Fall back to legacy loading for backward compatibility
         if (!$responseClass) {
-            $responseClass = $className;
-            App::uses($responseClass, $plugin . 'Network/Http');
-            if (!class_exists($responseClass)) {
-                throw new SocketException(__d('cake_dev', 'Class %s not found.', $this->responseClass));
-            }
+            throw new SocketException(__d('cake_dev', 'Class %s not found.', $this->responseClass));
         }
         $this->response = new $responseClass($response);
 
@@ -665,18 +656,11 @@ class HttpSocket extends CakeSocket
         $authClass = Inflector::camelize($className) . 'Authentication';
         $fullName = ($plugin ?: '') . $authClass;
 
-        // Try to resolve class name using App::className()
         $resolvedClass = App::className($fullName, 'Network/Http');
-
-        // Fall back to legacy loading for backward compatibility
         if (!$resolvedClass) {
-            App::uses($authClass, $plugin . 'Network/Http');
-            if (!class_exists($authClass)) {
-                throw new SocketException(__d('cake_dev', 'Unknown authentication method.'));
-            }
-        } else {
-            $authClass = $resolvedClass;
+            throw new SocketException(__d('cake_dev', 'Unknown authentication method.'));
         }
+        $authClass = $resolvedClass;
         if (!method_exists($authClass, 'authentication')) {
             throw new SocketException(__d('cake_dev', 'The %s does not support authentication.', $authClass));
         }
@@ -705,17 +689,9 @@ class HttpSocket extends CakeSocket
         $authClass = Inflector::camelize($className) . 'Authentication';
         $fullName = ($plugin ?: '') . $authClass;
 
-        // Try to resolve class name using App::className()
-        $resolvedClass = App::className($fullName, 'Network/Http');
-
-        // Fall back to legacy loading for backward compatibility
-        if (!$resolvedClass) {
-            App::uses($authClass, $plugin . 'Network/Http');
-            if (!class_exists($authClass)) {
-                throw new SocketException(__d('cake_dev', 'Unknown authentication method for proxy.'));
-            }
-        } else {
-            $authClass = $resolvedClass;
+        $authClass = App::className($fullName, 'Network/Http');
+        if (!$authClass) {
+            throw new SocketException(__d('cake_dev', 'Unknown authentication method for proxy.'));
         }
         if (!method_exists($authClass, 'proxyAuthentication')) {
             throw new SocketException(__d('cake_dev', 'The %s does not support proxy authentication.', $authClass));

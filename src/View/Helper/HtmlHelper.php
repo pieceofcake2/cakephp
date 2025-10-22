@@ -1328,16 +1328,9 @@ class HtmlHelper extends AppHelper
             throw new ConfigureException(__d('cake_dev', 'Cannot load the configuration file. Wrong "configFile" configuration.'));
         }
 
-        // Try to resolve class name using App::className()
         $readerClass = App::className(Inflector::camelize($reader), 'Configure', 'Reader');
-
-        // Fall back to legacy loading for backward compatibility
         if (!$readerClass) {
-            $readerClass = Inflector::camelize($reader) . 'Reader';
-            App::uses($readerClass, 'Configure');
-            if (!class_exists($readerClass)) {
-                throw new ConfigureException(__d('cake_dev', 'Cannot load the configuration file. Unknown reader.'));
-            }
+            throw new ConfigureException(__d('cake_dev', 'Cannot load the configuration file. Unknown reader.'));
         }
 
         $readerObj = new $readerClass($path);

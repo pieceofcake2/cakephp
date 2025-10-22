@@ -257,16 +257,9 @@ class CakeSchema extends CakeObject
                     $plugin = $this->plugin . '.';
                 }
 
-                // Try to resolve class name using App::className()
                 $importModel = App::className($plugin . $importModel, 'Model');
-
-                // Fall back to legacy loading for backward compatibility
                 if (!$importModel) {
-                    $importModel = $model;
-                    App::uses($importModel, $plugin . 'Model');
-                    if (!class_exists($importModel)) {
-                        continue;
-                    }
+                    continue;
                 }
 
                 $vars = get_class_vars($importModel);

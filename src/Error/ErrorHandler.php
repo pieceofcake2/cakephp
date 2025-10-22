@@ -125,20 +125,12 @@ class ErrorHandler
         static::_log($exception, $config);
 
         $renderer = $config['renderer'] ?? 'ExceptionRenderer';
-
-        // Try to resolve class name using App::className()
         $className = App::className($renderer, 'Error');
-
-        // Fall back to legacy loading for backward compatibility
         if (!$className) {
-            [$plugin, $class] = pluginSplit($renderer, true);
-            $className = $class;
-            App::uses($className, $plugin . 'Error');
+            [, $className] = pluginSplit($renderer, true);
         }
-
-        $renderer = $className;
         try {
-            $error = new $renderer($exception);
+            $error = new $className($exception);
             $error->render();
         } catch (Exception $e) {
             set_error_handler(Configure::read('Error.handler')); // Should be using configured ErrorHandler

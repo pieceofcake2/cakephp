@@ -163,7 +163,6 @@ class ClassRegistry
                 }
                 $alias = $settings['alias'];
 
-                // Try to resolve class name using App::className()
                 $fullClassName = ($plugin ? $plugin . '.' : '') . $class;
                 $actualClass = App::className($fullClassName, 'Model');
 
@@ -174,7 +173,6 @@ class ClassRegistry
                     return $model;
                 }
 
-                // Fall back to legacy loading for backward compatibility (no namespace)
                 if (!$actualClass) {
                     $actualClass = $class;
                     App::uses($plugin . 'AppModel', $pluginPath . 'Model');
@@ -221,12 +219,9 @@ class ClassRegistry
                         return false;
                     } elseif ($plugin) {
                         $pluginAppModel = App::className($plugin . '.' . $plugin . 'AppModel', 'Model');
-
-                        // Fall back to legacy loading for backward compatibility
                         if (!$pluginAppModel && class_exists($plugin . 'AppModel')) {
                             $pluginAppModel = $plugin . 'AppModel';
                         }
-
                         if ($pluginAppModel) {
                             $appModel = $pluginAppModel;
                         }

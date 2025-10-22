@@ -678,17 +678,9 @@ class CakeSession
      */
     protected static function _getHandler($handler)
     {
-        // Try to resolve class name using App::className()
         $className = App::className($handler, 'Model/Datasource/Session');
-
-        // Fall back to legacy loading for backward compatibility
         if (!$className) {
-            [$plugin, $class] = pluginSplit($handler, true);
-            $className = $class;
-            App::uses($className, $plugin . 'Model/Datasource/Session');
-            if (!class_exists($className)) {
-                throw new CakeSessionException(__d('cake_dev', 'Could not load %s to handle the session.', $handler));
-            }
+            throw new CakeSessionException(__d('cake_dev', 'Could not load %s to handle the session.', $handler));
         }
 
         $handler = new $className();

@@ -272,25 +272,11 @@ class ShellDispatcher
         $shellName = Inflector::camelize($shell);
         $fullClassName = ($plugin ?: '') . $shellName;
 
-        // Try to resolve class name using App::className()
         $class = App::className($fullClassName, 'Console/Command', 'Shell');
-
-        // Fall back to legacy loading for backward compatibility
         if (!$class) {
-            $class = $shellName . 'Shell';
-            App::uses('AppShell', 'Console/Command');
-            App::uses($class, $plugin . 'Console/Command');
-
-            if (!class_exists($class)) {
-                $plugin = Inflector::camelize($shell) . '.';
-                App::uses($class, $plugin . 'Console/Command');
-            }
-
-            if (!class_exists($class)) {
-                throw new MissingShellException([
-                    'class' => $class,
-                ]);
-            }
+            throw new MissingShellException([
+                'class' => $shellName . 'Shell',
+            ]);
         }
 
         $Shell = new $class();

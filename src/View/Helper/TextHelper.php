@@ -78,18 +78,11 @@ class TextHelper extends AppHelper
     {
         $settings = Hash::merge(['engine' => 'CakeText'], $settings);
         parent::__construct($View, $settings);
-        [$plugin, $engineClass] = pluginSplit($settings['engine'], true);
 
-        // Try to resolve class name using App::className()
         $className = App::className($settings['engine'], 'Utility');
-
-        // Fall back to legacy loading for backward compatibility
         if (!$className) {
-            $className = $engineClass;
-            App::uses($engineClass, $plugin . 'Utility');
-            if (!class_exists($engineClass)) {
-                throw new CakeException(__d('cake_dev', '%s could not be found', $engineClass));
-            }
+            [, $engineClass] = pluginSplit($settings['engine'], true);
+            throw new CakeException(__d('cake_dev', '%s could not be found', $engineClass));
         }
 
         $this->_engine = new $className($settings);

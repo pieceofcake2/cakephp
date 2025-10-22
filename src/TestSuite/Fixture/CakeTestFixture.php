@@ -155,20 +155,11 @@ class CakeTestFixture
 
             $this->Schema->connection = $import['connection'];
             if (isset($import['model'])) {
-                [$plugin, $modelClass] = pluginSplit($import['model'], true);
-
-                // Try to resolve class name using App::className()
-                $className = App::className($import['model'], 'Model');
-
-                // Fall back to legacy loading for backward compatibility
-                if (!$className) {
-                    $className = $modelClass;
-                    App::uses($modelClass, $plugin . 'Model');
-                    if (!class_exists($modelClass)) {
-                        throw new MissingModelException(['class' => $modelClass]);
-                    }
+                $modelClass = App::className($import['model'], 'Model');
+                if (!$modelClass) {
+                    [, $name] = pluginSplit($import['model'], true);
+                    throw new MissingModelException(['class' => $name]);
                 }
-                $modelClass = $className;
                 $model = new $modelClass(null, null, $import['connection']);
                 $db = $model->getDataSource();
                 if (empty($model->tablePrefix)) {

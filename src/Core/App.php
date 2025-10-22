@@ -630,6 +630,9 @@ class App
      * Return the class name namespaced. This method checks if the class is defined on the
      * application/plugin, otherwise try to load from the CakePHP core
      *
+     * If the namespaced class is not found, this method will attempt to load the class
+     * using App::uses() for backward compatibility with non-namespaced classes.
+     *
      * @param string $class Class name
      * @param string $type Type of class
      * @param string $suffix Class name suffix
@@ -654,6 +657,20 @@ class App
         }
 
         if ($plugin || !static::_classExistsInBase($fullname, 'Cake')) {
+            // Namespaced class not found, try legacy loading with App::uses()
+            $legacyClass = $name . $suffix;
+            $legacyType = $plugin . $type;
+
+            // Load parent class if defined in App::$types (e.g., AppShell, AppController)
+            static::_loadParentForSuffix($suffix, $type, $plugin);
+
+            static::uses($legacyClass, $legacyType);
+
+            // Trigger autoload and check if the class exists
+            if (class_exists($legacyClass)) {
+                return $legacyClass;
+            }
+
             return null;
         }
 
@@ -736,6 +753,52 @@ class App
         }
 
         return [APP . $type . DS];
+    }
+
+    /**
+     * Load parent class for a given suffix (e.g., AppShell for 'Shell')
+     *
+     * @param string $suffix Class suffix (e.g., 'Shell', 'Controller')
+     * @param string $type Type path (e.g., 'Console/Command', 'Controller')
+     * @param string|null $plugin Plugin name if loading plugin class
+     * @return void
+     */
+    protected static function _loadParentForSuffix(string $suffix, string $type, ?string $plugin = null): void
+    {
+        if (!$suffix) {
+            return;
+        }
+
+        // Find the type configuration that matches this suffix
+        foreach (static::$types as $typeKey => $config) {
+            if (isset($config['suffix']) && $config['suffix'] === $suffix) {
+                // Check if this type has a parent class to load
+                if (isset($config['extends']) && $config['extends']) {
+                    $extends = $config['extends'];
+
+                    // Only load App* classes (AppShell, AppController, AppModel, AppHelper)
+                    // Don't load framework classes like Model/ModelBehavior
+                    if (str_starts_with($extends, 'App')) {
+                        $extendType = $type;
+                        if (str_contains($extends, '/')) {
+                            $parts = explode('/', $extends);
+                            $extends = array_pop($parts);
+                            $extendType = implode('/', $parts);
+                        }
+
+                        // Load global App* class (AppController, AppModel, etc.)
+                        static::uses($extends, $extendType);
+
+                        // For plugins: also load plugin-specific AppController/AppModel
+                        // Only for 'controller' and 'model' types
+                        if ($plugin && in_array($typeKey, ['controller', 'model'])) {
+                            static::uses($plugin . $extends, $plugin . '.' . $type);
+                        }
+                    }
+                }
+                break;
+            }
+        }
     }
 
     /**

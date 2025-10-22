@@ -39,6 +39,7 @@ use ExampleExample;
 use Library;
 use OtherHelperHelper;
 use PagesController;
+use ReflectionClass;
 use SamplePluginClassTestName;
 use TestPluginAppController;
 use TestPluginAppHelper;
@@ -916,5 +917,105 @@ class AppTest extends CakeTestCase
             ['1G', 1, '1048577K'],
             ['-1', 100000, '-1'],
         ];
+    }
+
+    /**
+     * Test that App::className() automatically calls App::uses() for legacy classes
+     *
+     * @return void
+     */
+    public function testClassNameWithLegacyLoading()
+    {
+        $reflection = new ReflectionClass(App::class);
+        $classMapProperty = $reflection->getProperty('_classMap');
+        $classMapProperty->setAccessible(true);
+
+        // Clear class map
+        $classMapProperty->setValue(null, []);
+
+        // Try to load a non-existent class - it won't exist, but should be registered via App::uses()
+        App::className('NonExistentTestClass', 'Model', '');
+
+        // Check that the class was registered in the class map via App::uses()
+        $classMap = $classMapProperty->getValue();
+        $this->assertArrayHasKey('NonExistentTestClass', $classMap);
+        $this->assertEquals('Model', $classMap['NonExistentTestClass']);
+    }
+
+    /**
+     * Test that App::className() loads parent classes for shells
+     *
+     * @return void
+     */
+    public function testClassNameLoadsParentForShells()
+    {
+        $reflection = new ReflectionClass(App::class);
+        $classMapProperty = $reflection->getProperty('_classMap');
+        $classMapProperty->setAccessible(true);
+
+        // Clear class map
+        $classMapProperty->setValue(null, []);
+
+        // Try to load a shell class (will fail, but should register AppShell)
+        App::className('NonExistentShell', 'Console/Command', 'Shell');
+
+        // Check that AppShell was registered via App::uses()
+        $classMap = $classMapProperty->getValue();
+        $this->assertArrayHasKey('AppShell', $classMap);
+        $this->assertEquals('Console/Command', $classMap['AppShell']);
+    }
+
+    /**
+     * Test that App::className() loads plugin-specific AppController for controllers
+     *
+     * @return void
+     */
+    public function testClassNameLoadsPluginAppController()
+    {
+        $reflection = new ReflectionClass(App::class);
+        $classMapProperty = $reflection->getProperty('_classMap');
+        $classMapProperty->setAccessible(true);
+
+        // Clear class map
+        $classMapProperty->setValue(null, []);
+
+        // Try to load a plugin controller (will fail, but should register both AppController and PluginAppController)
+        App::className('TestPlugin.TestController', 'Controller', 'Controller');
+
+        // Check that both AppController and TestPluginAppController were registered
+        $classMap = $classMapProperty->getValue();
+
+        $this->assertArrayHasKey('AppController', $classMap);
+        $this->assertEquals('Controller', $classMap['AppController']);
+
+        $this->assertArrayHasKey('TestPluginAppController', $classMap);
+        $this->assertEquals('TestPlugin.Controller', $classMap['TestPluginAppController']);
+    }
+
+    /**
+     * Test that App::className() does NOT load plugin-specific AppHelper for helpers
+     *
+     * @return void
+     */
+    public function testClassNameDoesNotLoadPluginAppHelperForHelpers()
+    {
+        $reflection = new ReflectionClass(App::class);
+        $classMapProperty = $reflection->getProperty('_classMap');
+        $classMapProperty->setAccessible(true);
+
+        // Clear class map
+        $classMapProperty->setValue(null, []);
+
+        // Try to load a plugin helper (will fail, but should only register AppHelper, not PluginAppHelper)
+        App::className('TestPlugin.TestHelper', 'View/Helper', 'Helper');
+
+        // Check that AppHelper was registered but NOT TestPluginAppHelper
+        $classMap = $classMapProperty->getValue();
+
+        $this->assertArrayHasKey('AppHelper', $classMap);
+        $this->assertEquals('View/Helper', $classMap['AppHelper']);
+
+        // Helpers should NOT get plugin-specific parent class
+        $this->assertArrayNotHasKey('TestPluginAppHelper', $classMap);
     }
 }

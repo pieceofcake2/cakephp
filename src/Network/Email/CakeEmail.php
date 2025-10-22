@@ -1033,17 +1033,10 @@ class CakeEmail
             return $this->_transportClass;
         }
 
-        // Try to resolve class name using App::className()
         $transportClassname = App::className($this->_transportName, 'Network/Email', 'Transport');
 
-        // Fall back to legacy loading for backward compatibility
         if (!$transportClassname) {
-            [$plugin, $transportName] = pluginSplit($this->_transportName, true);
-            $transportClassname = $transportName . 'Transport';
-            App::uses($transportClassname, $plugin . 'Network/Email');
-            if (!class_exists($transportClassname)) {
-                throw new SocketException(__d('cake_dev', 'Class "%s" not found.', $transportClassname));
-            }
+            throw new SocketException(__d('cake_dev', 'Class for transport "%s" not found.', $this->_transportName));
         }
 
         if (!method_exists($transportClassname, 'send')) {

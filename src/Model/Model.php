@@ -762,7 +762,6 @@ class Model extends CakeObject implements CakeEventListener
             $this->useDbConfig = $ds;
         }
 
-        // Try to resolve AppModel using App::className()
         $appModelClass = App::className('AppModel', 'Model');
         if (!$appModelClass) {
             $appModelClass = AppModel::class;

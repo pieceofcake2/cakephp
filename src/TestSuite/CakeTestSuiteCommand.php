@@ -91,19 +91,13 @@ class CakeTestSuiteCommand extends Command
         $className = $reporter . 'Reporter';
         $coreClassName = 'Cake' . $reporter . 'Reporter';
 
-        // Try to resolve class name using App::className() - try with 'Cake' prefix first
         $resolvedClass = App::className($coreClassName, 'TestSuite/Reporter');
 
-        // If not found, try without 'Cake' prefix
         if (!$resolvedClass) {
             $resolvedClass = App::className($className, 'TestSuite/Reporter');
         }
 
-        // Fall back to legacy loading for backward compatibility
         if (!$resolvedClass) {
-            App::uses($coreClassName, 'TestSuite/Reporter');
-            App::uses($className, 'TestSuite/Reporter');
-
             if (!class_exists($className)) {
                 $className = $coreClassName;
             }

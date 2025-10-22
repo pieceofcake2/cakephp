@@ -87,19 +87,13 @@ class TaskCollection extends ObjectCollection
             return $this->_loaded[$alias];
         }
 
-        // Try to resolve class name using App::className()
         $taskClass = App::className($task, 'Console/Command/Task', 'Task');
 
-        // Fall back to legacy loading for backward compatibility (no namespace)
         if (!$taskClass) {
-            $taskClass = $name . 'Task';
-            App::uses($taskClass, $plugin . 'Console/Command/Task');
-            if (!class_exists($taskClass)) {
-                throw new MissingTaskException([
-                    'class' => $taskClass,
-                    'plugin' => $plugin ? substr($plugin, 0, -1) : null,
-                ]);
-            }
+            throw new MissingTaskException([
+                'class' => $name . 'Task',
+                'plugin' => $plugin ? substr($plugin, 0, -1) : null,
+            ]);
         }
 
         $this->_loaded[$alias] = new $taskClass(
