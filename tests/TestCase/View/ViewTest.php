@@ -517,8 +517,8 @@ class ViewTest extends CakeTestCase
         $expected = [
             CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'View' . DS . 'Plugin' . DS . 'TestPlugin' . DS,
             CORE_TESTS . DS . 'test_app' . DS . 'templates' . DS . 'Plugin' . DS . 'TestPlugin' . DS,
-            $pluginPath . 'src' . DS . 'View' . DS,
             $pluginPath . 'templates' . DS,
+            $pluginPath . 'src' . DS . 'View' . DS,
             CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'View' . DS,
             CORE_TESTS . DS . 'test_app' . DS . 'templates' . DS,
             CORE_ROOT . DS . 'templates' . DS,

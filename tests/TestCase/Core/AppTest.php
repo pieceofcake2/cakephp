@@ -27,6 +27,7 @@ use Cake\Controller\Component\RequestHandlerComponent;
 use Cake\Controller\Controller;
 use Cake\Core\App;
 use Cake\Core\CakePlugin;
+use Cake\Core\Configure;
 use Cake\Model\Behavior\ContainableBehavior;
 use Cake\Model\Datasource\DboSource;
 use Cake\Model\Model;
@@ -58,6 +59,19 @@ use TestPlugin\View\Helper\TestPluginAppHelper;
  */
 class AppTest extends CakeTestCase
 {
+    protected $_appNamespace = null;
+
+    /**
+     * @return void
+     */
+    public function setUp(): void
+    {
+        parent::setUp();
+
+        $this->_appNamespace = Configure::read('App.namespace');
+        Configure::write('App.namespace', 'TestApp');
+    }
+
     /**
      * tearDown method
      *
@@ -66,6 +80,7 @@ class AppTest extends CakeTestCase
     public function tearDown(): void
     {
         CakePlugin::unload();
+        Configure::write('App.namespace', $this->_appNamespace);
 
         parent::tearDown();
     }
@@ -396,7 +411,7 @@ class AppTest extends CakeTestCase
 
         App::build([
             'plugins' => [
-                CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'Lib' . DS,
+                CORE_TESTS . DS . 'test_app' . DS . 'src' . DS,
             ],
         ]);
         $result = App::objects('plugin', null, false);
@@ -620,6 +635,7 @@ class AppTest extends CakeTestCase
         $this->assertTrue($result);
         $this->assertTrue(class_exists(TestSource::class));
 
+        App::uses('ExampleExample', 'TestPlugin.Vendor/Example');
         $this->assertTrue(class_exists(ExampleExample::class));
 
         App::build();

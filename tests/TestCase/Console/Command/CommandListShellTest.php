@@ -18,9 +18,11 @@
 
 namespace Cake\Test\TestCase\Console\Command;
 
+use Cake\Console\ConsoleInput;
 use Cake\Console\ConsoleOutput;
 use Cake\Core\App;
 use Cake\Core\CakePlugin;
+use Cake\Core\Configure;
 use Cake\TestSuite\CakeTestCase;
 
 /**
@@ -45,6 +47,8 @@ class TestStringOutput extends ConsoleOutput
  */
 class CommandListShellTest extends CakeTestCase
 {
+    protected $_appNamespace = null;
+
     /**
      * setUp method
      *
@@ -53,6 +57,10 @@ class CommandListShellTest extends CakeTestCase
     public function setUp(): void
     {
         parent::setUp();
+
+        $this->_appNamespace = Configure::read('App.namespace');
+        Configure::write('App.namespace', 'TestApp');
+
         App::build([
             'Plugin' => [
                 CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS,
@@ -88,6 +96,8 @@ class CommandListShellTest extends CakeTestCase
     {
         unset($this->Shell);
         CakePlugin::unload();
+
+        Configure::write('App.namespace', $this->_appNamespace);
 
         parent::tearDown();
     }
