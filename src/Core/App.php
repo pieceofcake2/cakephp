@@ -244,6 +244,8 @@ class App
                     $path[] = $pluginPath . 'vendor' . DS;
                 } elseif ($type === 'View' && is_dir($pluginPath . 'templates')) {
                     $path[] = $pluginPath . 'templates' . DS;
+                } elseif ($type === 'Locale' && is_dir($pluginPath . 'resources' . DS . 'locales')) {
+                    $path[] = $pluginPath . 'resources' . DS . 'locales' . DS;
                 }
 
                 foreach ($packageFormat[$type] as $f) {
