@@ -27,7 +27,9 @@ use Cake\Routing\Router;
 use Cake\TestSuite\CakeTestCase;
 use Cake\Utility\ClassRegistry;
 use Cake\View\Helper;
+use Cake\View\Helper\HtmlHelper;
 use Cake\View\View;
+use TestPlugin\View\Helper\OtherHelperHelper;
 
 /**
  * HelperTestPost class
@@ -209,6 +211,8 @@ class TestHelper extends Helper
  */
 class HelperTest extends CakeTestCase
 {
+    protected $_appNamespace = null;
+
     /**
      * setUp method
      *
@@ -217,6 +221,9 @@ class HelperTest extends CakeTestCase
     public function setUp(): void
     {
         parent::setUp();
+
+        $this->_appNamespace = Configure::read('App.namespace');
+        Configure::write('App.namespace', 'TestApp');
 
         ClassRegistry::flush();
         Router::reload();
@@ -245,6 +252,8 @@ class HelperTest extends CakeTestCase
 
         CakePlugin::unload();
         unset($this->Helper, $this->View);
+
+        Configure::write('App.namespace', $this->_appNamespace);
 
         parent::tearDown();
     }
@@ -1021,8 +1030,8 @@ class HelperTest extends CakeTestCase
         ]);
         CakePlugin::load(['TestPlugin']);
         $Helper = new TestHelper($this->View);
-        $this->assertInstanceOf('OtherHelperHelper', $Helper->OtherHelper);
-        $this->assertInstanceOf('HtmlHelper', $Helper->Html);
+        $this->assertInstanceOf(OtherHelperHelper::class, $Helper->OtherHelper);
+        $this->assertInstanceOf(HtmlHelper::class, $Helper->Html);
         App::build();
     }
 

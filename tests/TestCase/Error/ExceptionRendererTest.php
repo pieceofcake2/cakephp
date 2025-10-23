@@ -54,7 +54,7 @@ use Exception;
 use OutOfBoundsException;
 use PDOException;
 use RuntimeException;
-use TestAppsExceptionRenderer;
+use TestApp\Error\TestAppsExceptionRenderer;
 
 /**
  * Short description for class.
@@ -176,6 +176,8 @@ class MissingWidgetThingException extends NotFoundException
  */
 class ExceptionRendererTest extends CakeTestCase
 {
+    protected $_appNamespace = null;
+
     protected $_restoreError = false;
 
     /**
@@ -186,6 +188,10 @@ class ExceptionRendererTest extends CakeTestCase
     public function setUp(): void
     {
         parent::setUp();
+
+        $this->_appNamespace = Configure::read('App.namespace');
+        Configure::write('App.namespace', 'TestApp');
+
         Configure::write('Config.language', 'eng');
         App::build([
             'View' => [
@@ -211,6 +217,8 @@ class ExceptionRendererTest extends CakeTestCase
         if ($this->_restoreError) {
             restore_error_handler();
         }
+
+        Configure::write('App.namespace', $this->_appNamespace);
 
         parent::tearDown();
     }

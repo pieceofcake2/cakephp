@@ -2,13 +2,13 @@
 
 namespace TestApp\Error;
 
-use Cake\Error\ExceptionRenderer;
-use Cake\Network\Request as CakeRequest;
-use Cake\Network\Response as CakeResponse;
-use Cake\Routing\Router;
 use Cake\Controller\Controller;
-use TestApp\Controller\TestAppsErrorController;
+use Cake\Error\ExceptionRenderer;
+use Cake\Network\CakeRequest;
+use Cake\Network\CakeResponse;
+use Cake\Routing\Router;
 use Exception;
+use TestApp\Controller\TestAppsErrorController;
 
 class TestAppsExceptionRenderer extends ExceptionRenderer
 {

@@ -34,6 +34,7 @@ use Cake\View\Helper\FormHelper;
 use Cake\View\Helper\HtmlHelper;
 use Cake\View\View;
 use ReflectionProperty;
+use TestPlugin\Model\TestPluginPost;
 
 /**
  * ContactTestController class
@@ -11241,7 +11242,7 @@ class FormHelperTest extends CakeTestCase
         $this->assertFalse(ClassRegistry::isKeySet('TestPluginPost'));
         $this->Form->create('TestPluginPost');
         $this->assertTrue(ClassRegistry::isKeySet('TestPluginPost'));
-        $this->assertInstanceOf('TestPluginPost', ClassRegistry::getObject('TestPluginPost'));
+        $this->assertInstanceOf(TestPluginPost::class, ClassRegistry::getObject('TestPluginPost'));
 
         CakePlugin::unload();
         App::build();

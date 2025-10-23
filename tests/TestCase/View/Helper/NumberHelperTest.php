@@ -20,9 +20,12 @@ namespace Cake\Test\TestCase\View\Helper;
 
 use Cake\Core\App;
 use Cake\Core\CakePlugin;
+use Cake\Core\Configure;
 use Cake\TestSuite\CakeTestCase;
 use Cake\View\Helper\NumberHelper;
 use Cake\View\View;
+use TestApp\Utility\TestAppEngine;
+use TestPlugin\Utility\TestPluginEngine;
 
 /**
  * NumberHelperTestObject class
@@ -46,7 +49,7 @@ class NumberHelperTestObject extends NumberHelper
 class CakeNumberMock
 {
 }
-class_alias(CakeNumberMock::class, 'App\\Utility\\CakeNumberMock');
+class_alias(CakeNumberMock::class, 'TestApp\\Utility\\CakeNumberMock');
 
 /**
  * NumberHelperTest class
@@ -55,6 +58,8 @@ class_alias(CakeNumberMock::class, 'App\\Utility\\CakeNumberMock');
  */
 class NumberHelperTest extends CakeTestCase
 {
+    protected $_appNamespace = null;
+
     /**
      * setUp method
      *
@@ -63,6 +68,10 @@ class NumberHelperTest extends CakeTestCase
     public function setUp(): void
     {
         parent::setUp();
+
+        $this->_appNamespace = Configure::read('App.namespace');
+        Configure::write('App.namespace', 'TestApp');
+
         $this->View = new View(null);
     }
 
@@ -74,6 +83,8 @@ class NumberHelperTest extends CakeTestCase
     public function tearDown(): void
     {
         unset($this->View);
+
+        Configure::write('App.namespace', $this->_appNamespace);
 
         parent::tearDown();
     }
@@ -123,14 +134,14 @@ class NumberHelperTest extends CakeTestCase
             'Utility' => [CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'Utility' . DS],
         ], App::REGISTER);
         $Number = new NumberHelperTestObject($this->View, ['engine' => 'TestAppEngine']);
-        $this->assertInstanceOf('TestAppEngine', $Number->engine());
+        $this->assertInstanceOf(TestAppEngine::class, $Number->engine());
 
         App::build([
             'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
         ]);
         CakePlugin::load('TestPlugin');
         $Number = new NumberHelperTestObject($this->View, ['engine' => 'TestPlugin.TestPluginEngine']);
-        $this->assertInstanceOf('TestPluginEngine', $Number->engine());
+        $this->assertInstanceOf(TestPluginEngine::class, $Number->engine());
         CakePlugin::unload('TestPlugin');
     }
 }

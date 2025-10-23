@@ -20,12 +20,13 @@ namespace Cake\Test\TestCase\View;
 
 use Cake\Core\App;
 use Cake\Core\CakePlugin;
+use Cake\Core\Configure;
 use Cake\Error\MissingHelperException;
 use Cake\TestSuite\CakeTestCase;
 use Cake\View\Helper\HtmlHelper;
 use Cake\View\HelperCollection;
 use Cake\View\View;
-use OtherHelperHelper;
+use TestPlugin\View\Helper\OtherHelperHelper;
 
 /**
  * Extended HtmlHelper
@@ -33,7 +34,7 @@ use OtherHelperHelper;
 class HtmlAliasHelper extends HtmlHelper
 {
 }
-class_alias(HtmlAliasHelper::class, 'App\\View\\Helper\\HtmlAliasHelper');
+class_alias(HtmlAliasHelper::class, 'TestApp\\View\\Helper\\HtmlAliasHelper');
 
 /**
  * HelperCollectionTest
@@ -42,6 +43,8 @@ class_alias(HtmlAliasHelper::class, 'App\\View\\Helper\\HtmlAliasHelper');
  */
 class HelperCollectionTest extends CakeTestCase
 {
+    protected $_appNamespace = null;
+
     /**
      * setUp
      *
@@ -50,6 +53,10 @@ class HelperCollectionTest extends CakeTestCase
     public function setUp(): void
     {
         parent::setUp();
+
+        $this->_appNamespace = Configure::read('App.namespace');
+        Configure::write('App.namespace', 'TestApp');
+
         $this->View = $this->getMock(View::class, [], [null]);
         $this->Helpers = new HelperCollection($this->View);
     }
@@ -63,6 +70,8 @@ class HelperCollectionTest extends CakeTestCase
     {
         CakePlugin::unload();
         unset($this->Helpers, $this->View);
+
+        Configure::write('App.namespace', $this->_appNamespace);
 
         parent::tearDown();
     }
@@ -101,7 +110,7 @@ class HelperCollectionTest extends CakeTestCase
         $this->View->plugin = 'TestPlugin';
         CakePlugin::load(['TestPlugin']);
         $result = $this->Helpers->OtherHelper;
-        $this->assertInstanceOf('OtherHelperHelper', $result);
+        $this->assertInstanceOf(OtherHelperHelper::class, $result);
     }
 
     /**
@@ -182,8 +191,8 @@ class HelperCollectionTest extends CakeTestCase
         ]);
         CakePlugin::load(['TestPlugin']);
         $result = $this->Helpers->load('TestPlugin.OtherHelper');
-        $this->assertInstanceOf('OtherHelperHelper', $result, 'Helper class is wrong.');
-        $this->assertInstanceOf('OtherHelperHelper', $this->Helpers->OtherHelper, 'Class is wrong');
+        $this->assertInstanceOf(OtherHelperHelper::class, $result, 'Helper class is wrong.');
+        $this->assertInstanceOf(OtherHelperHelper::class, $this->Helpers->OtherHelper, 'Class is wrong');
 
         App::build();
     }
