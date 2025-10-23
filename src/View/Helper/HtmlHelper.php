@@ -263,7 +263,7 @@ class HtmlHelper extends AppHelper
      * @return string A completed `<link />` element.
      * @link https://book.cakephp.org/2.0/en/core-libraries/helpers/html.html#HtmlHelper::meta
      */
-    public function meta($type, $url = null, $options = [])
+    public function meta($type, $url = null, array $options = []): ?string
     {
         $options += ['inline' => true, 'block' => null];
         if (!$options['inline'] && empty($options['block'])) {
@@ -318,6 +318,8 @@ class HtmlHelper extends AppHelper
             return $out;
         }
         $this->_View->append($options['block'], $out);
+
+        return null;
     }
 
     /**
@@ -444,10 +446,10 @@ class HtmlHelper extends AppHelper
      *   of your application. Otherwise, the path will be relative to your CSS path, usually webroot/css.
      * @param array|string $options Array of options and HTML arguments, or a string for the rel attribute.
      * @param array $extraOptions Additional options when $options is a string (for backwards compatibility).
-     * @return string CSS `<link />` or `<style />` tag, depending on the type of link.
+     * @return string|null CSS `<link />` or `<style />` tag, depending on the type of link.
      * @link https://book.cakephp.org/2.0/en/core-libraries/helpers/html.html#HtmlHelper::css
      */
-    public function css($path, $options = [], $extraOptions = [])
+    public function css($path, $options = [], $extraOptions = []): ?string
     {
         if (!is_array($options)) {
             $rel = $options;
@@ -519,6 +521,8 @@ class HtmlHelper extends AppHelper
             return $out;
         }
         $this->_View->append($options['block'], $out);
+
+        return null;
     }
 
     /**
@@ -558,11 +562,11 @@ class HtmlHelper extends AppHelper
      *
      * @param array|string $url String or array of javascript files to include
      * @param array|bool $options Array of options, and html attributes see above. If boolean sets $options['inline'] = value
-     * @return mixed String of `<script />` tags or null if $inline is false or if $once is true and the file has been
+     * @return string|null String of `<script />` tags or null if $inline is false or if $once is true and the file has been
      *   included before.
      * @link https://book.cakephp.org/2.0/en/core-libraries/helpers/html.html#HtmlHelper::script
      */
-    public function script($url, $options = [])
+    public function script($url, $options = []): ?string
     {
         if (is_bool($options)) {
             [$inline, $options] = [$options, []];
@@ -605,6 +609,8 @@ class HtmlHelper extends AppHelper
             return $out;
         }
         $this->_View->append($options['block'], $out);
+
+        return null;
     }
 
     /**
@@ -621,10 +627,10 @@ class HtmlHelper extends AppHelper
      * @param string $script The script to wrap
      * @param array $options The options to use. Options not listed above will be
      *    treated as HTML attributes.
-     * @return mixed string or null depending on the value of `$options['block']`
+     * @return string|null string or null depending on the value of `$options['block']`
      * @link https://book.cakephp.org/2.0/en/core-libraries/helpers/html.html#HtmlHelper::scriptBlock
      */
-    public function scriptBlock($script, $options = [])
+    public function scriptBlock($script, $options = []): ?string
     {
         $options += ['type' => 'text/javascript', 'safe' => true, 'inline' => true];
         if ($options['safe']) {
@@ -642,6 +648,8 @@ class HtmlHelper extends AppHelper
             return $out;
         }
         $this->_View->append($options['block'], $out);
+
+        return null;
     }
 
     /**
@@ -658,7 +666,7 @@ class HtmlHelper extends AppHelper
      * @return void
      * @link https://book.cakephp.org/2.0/en/core-libraries/helpers/html.html#HtmlHelper::scriptStart
      */
-    public function scriptStart($options = [])
+    public function scriptStart($options = []): void
     {
         $options += ['safe' => true, 'inline' => true];
         $this->_scriptBlockOptions = $options;
@@ -670,10 +678,10 @@ class HtmlHelper extends AppHelper
      * Generates a script tag inline or in `$scripts_for_layout` depending on the settings
      * used when the scriptBlock was started
      *
-     * @return mixed depending on the settings of scriptStart() either a script tag or null
+     * @return string|null depending on the settings of scriptStart() either a script tag or null
      * @link https://book.cakephp.org/2.0/en/core-libraries/helpers/html.html#HtmlHelper::scriptEnd
      */
-    public function scriptEnd()
+    public function scriptEnd(): ?string
     {
         $buffer = ob_get_clean();
         $options = $this->_scriptBlockOptions;

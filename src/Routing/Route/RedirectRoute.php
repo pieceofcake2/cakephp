@@ -69,7 +69,7 @@ class RedirectRoute extends CakeRoute
      * @param string $url The URL to parse
      * @return bool False on failure
      */
-    public function parse($url)
+    public function parse(string $url): bool
     {
         $params = parent::parse($url);
         if (!$params) {
@@ -101,6 +101,8 @@ class RedirectRoute extends CakeRoute
         $this->response->statusCode($status);
         $this->response->send();
         $this->_stop();
+
+        return true;
     }
 
     /**
@@ -121,7 +123,7 @@ class RedirectRoute extends CakeRoute
      * @param string|int $code See http://php.net/exit for values
      * @return void
      */
-    protected function _stop($code = 0)
+    protected function _stop($code = 0): void
     {
         if ($this->stop) {
             exit($code);

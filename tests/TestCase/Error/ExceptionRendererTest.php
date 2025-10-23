@@ -124,7 +124,7 @@ class TestErrorController extends Controller
      *
      * @return void
      */
-    public function beforeRender()
+    public function beforeRender(): void
     {
         echo $this->Blueberry->testName;
     }

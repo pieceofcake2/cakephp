@@ -179,7 +179,7 @@ abstract class CakeBaseReporter implements ResultPrinter
     /**
      * A failure occurred.
      *
-     * @param \PHPUnit\Framework\Test $test The test that failed
+     * @param Test $test The test that failed
      * @param AssertionFailedError $e The assertion that failed.
      * @param float $time The current time.
      * @return void
@@ -192,7 +192,7 @@ abstract class CakeBaseReporter implements ResultPrinter
     /**
      * Incomplete test.
      *
-     * @param \PHPUnit\Framework\Test $test The test that was incomplete.
+     * @param Test $test The test that was incomplete.
      * @param Exception|Throwable $e The incomplete exception
      * @param float $time The current time.
      * @return void
@@ -205,7 +205,7 @@ abstract class CakeBaseReporter implements ResultPrinter
     /**
      * Skipped test.
      *
-     * @param \PHPUnit\Framework\Test $test The test that failed.
+     * @param Test $test The test that failed.
      * @param Exception|Throwable $e The skip object.
      * @param float $time The current time.
      * @return void
@@ -224,8 +224,9 @@ abstract class CakeBaseReporter implements ResultPrinter
     public function startTestSuite(TestSuite $suite): void
     {
         if (!$this->_headerSent) {
-            echo $this->paintHeader();
+            $this->paintHeader();
         }
+
         echo __d('cake_dev', 'Running  %s', $suite->getName()) . "\n";
     }
 
@@ -294,4 +295,43 @@ abstract class CakeBaseReporter implements ResultPrinter
     public function addRiskyTest(Test $test, Throwable $t, float $time): void
     {
     }
+
+    /**
+     * @return void
+     */
+    abstract public function paintHeader(): void;
+
+    /**
+     * @param TestResult $result
+     * @return void
+     */
+    abstract public function paintFooter(TestResult $result): void;
+
+    /**
+     * @param Test $test
+     * @param float|null $time
+     * @return void
+     */
+    abstract public function paintPass(Test $test, $time = null): void;
+
+    /**
+     * @param Exception|Throwable $message
+     * @param Test $test
+     * @return void
+     */
+    abstract public function paintSkip(Exception|Throwable $message, Test $test): void;
+
+    /**
+     * @param Exception $exception
+     * @param Test $test
+     * @return void
+     */
+    abstract public function paintException(Exception $exception, Test $test): void;
+
+    /**
+     * @param mixed $message
+     * @param Test $test
+     * @return void
+     */
+    abstract public function paintFail($message, Test $test): void;
 }

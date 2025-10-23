@@ -654,7 +654,7 @@ class ModelDeleteTest extends BaseModelTest
      *
      * @return void
      */
-    public function testDeleteLinksWithPLuginJoinModel()
+    public function testDeleteLinksWithPLuginJoinModel(): void
     {
         $this->loadFixtures('Article', 'ArticlesTag', 'Tag', 'Comment', 'Attachment');
         $article = new Article();

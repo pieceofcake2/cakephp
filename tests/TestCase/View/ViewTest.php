@@ -26,6 +26,7 @@ use Cake\Core\Configure;
 use Cake\Error\CakeException;
 use Cake\Error\MissingLayoutException;
 use Cake\Error\MissingViewException;
+use Cake\Event\CakeEvent;
 use Cake\Event\CakeEventListener;
 use Cake\Network\CakeRequest;
 use Cake\TestSuite\CakeTestCase;
@@ -300,7 +301,7 @@ class TestViewEventListener implements CakeEventListener
      * @param CakeEvent $event the event being sent
      * @return void
      */
-    public function beforeRender($event)
+    public function beforeRender(CakeEvent $event): void
     {
         $this->beforeRenderViewType = $event->subject()->getCurrentType();
     }

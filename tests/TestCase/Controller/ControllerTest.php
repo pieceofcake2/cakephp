@@ -365,13 +365,15 @@ class TestComponent extends CakeObject
     /**
      * beforeRender callback
      *
-     * @return void
+     * @return bool|null
      */
-    public function beforeRender(Controller $controller)
+    public function beforeRender(Controller $controller): ?bool
     {
         if ($this->viewclass) {
             $controller->viewClass = $this->viewclass;
         }
+
+        return null;
     }
 }
 class_alias(TestComponent::class, 'App\\Controller\\Component\\TestComponent');
@@ -386,7 +388,7 @@ class Test2Component extends TestComponent
         $this->model = $this->controller->modelClass;
     }
 
-    public function beforeRender(Controller $controller)
+    public function beforeRender(Controller $controller): ?bool
     {
         return false;
     }

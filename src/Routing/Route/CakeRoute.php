@@ -195,9 +195,9 @@ class CakeRoute
      * false will be returned. String URLs are parsed if they match a routes regular expression.
      *
      * @param string $url The URL to attempt to parse.
-     * @return mixed Boolean false on failure, otherwise an array or parameters
+     * @return array|bool Boolean false on failure, otherwise an array or parameters
      */
-    public function parse($url)
+    public function parse(string $url): array|bool
     {
         if (!$this->compiled()) {
             $this->compile();

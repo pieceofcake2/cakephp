@@ -19,6 +19,7 @@ namespace Cake\Routing\Filter;
 use Cake\Core\App;
 use Cake\Core\CakePlugin;
 use Cake\Core\Configure;
+use Cake\Error\NotFoundException;
 use Cake\Event\CakeEvent;
 use Cake\Network\CakeResponse;
 use Cake\Routing\DispatcherFilter;
@@ -44,10 +45,10 @@ class AssetDispatcher extends DispatcherFilter
      * Checks if a requested asset exists and sends it to the browser
      *
      * @param CakeEvent $event containing the request and response object
-     * @return mixed The resulting response.
+     * @return CakeResponse|false|null The resulting response.
      * @throws NotFoundException When asset not found
      */
-    public function beforeDispatch(CakeEvent $event)
+    public function beforeDispatch(CakeEvent $event): CakeResponse|false|null
     {
         $url = urldecode($event->data['request']->url);
         if (str_contains($url, '..') || !str_contains($url, '.')) {
@@ -85,9 +86,9 @@ class AssetDispatcher extends DispatcherFilter
      * filter if any is configured
      *
      * @param CakeEvent $event containing the request and response object
-     * @return CakeResponse if the client is requesting a recognized asset, null otherwise
+     * @return CakeResponse|null if the client is requesting a recognized asset, null otherwise
      */
-    protected function _filterAsset(CakeEvent $event)
+    protected function _filterAsset(CakeEvent $event): ?CakeResponse
     {
         $url = $event->data['request']->url;
         $response = $event->data['response'];
@@ -118,15 +119,17 @@ class AssetDispatcher extends DispatcherFilter
 
             return $response;
         }
+
+        return null;
     }
 
     /**
      * Builds asset file path based off url
      *
      * @param string $url URL
-     * @return string Absolute path for asset file
+     * @return string|null Absolute path for asset file
      */
-    protected function _getAssetFile($url)
+    protected function _getAssetFile(string $url): ?string
     {
         $parts = explode('/', $url);
         if ($parts[0] === 'theme') {
@@ -146,6 +149,8 @@ class AssetDispatcher extends DispatcherFilter
 
             return $pluginWebroot . $fileFragment;
         }
+
+        return null;
     }
 
     /**

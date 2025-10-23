@@ -122,7 +122,7 @@ class PaginatorHelper extends AppHelper
      * @param string $viewFile View file name.
      * @return void
      */
-    public function beforeRender($viewFile)
+    public function beforeRender($viewFile): void
     {
         $this->options['url'] = array_merge($this->request->params['pass'], $this->request->params['named']);
         if (!empty($this->request->query)) {
@@ -545,8 +545,13 @@ class PaginatorHelper extends AppHelper
     {
         $check = 'has' . $which;
         $_defaults = [
-            'url' => [], 'step' => 1, 'escape' => true, 'model' => null,
-            'tag' => 'span', 'class' => strtolower($which), 'disabledTag' => null,
+            'url' => [],
+            'step' => 1,
+            'escape' => true,
+            'model' => null,
+            'tag' => 'span',
+            'class' => strtolower($which),
+            'disabledTag' => null,
         ];
         $options = (array)$options + $_defaults;
         $paging = $this->params($options['model']);
@@ -563,10 +568,14 @@ class PaginatorHelper extends AppHelper
             return '';
         }
 
-        foreach (array_keys($_defaults) as $key) {
-            ${$key} = $options[$key];
-            unset($options[$key]);
-        }
+        $url = $options['url'];
+        $step = $options['step'];
+        $escape = $options['escape'];
+        $model = $options['model'];
+        $tag = $options['tag'];
+        $class = $options['class'];
+        $disabledTag = $options['disabledTag'];
+        unset($options['url'], $options['step'], $options['escape'], $options['model'], $options['tag'], $options['class'], $options['disabledTag']);
 
         if ($this->{$check}($model)) {
             $url = array_merge(
@@ -792,14 +801,26 @@ class PaginatorHelper extends AppHelper
     {
         if ($options === true) {
             $options = [
-                'before' => ' | ', 'after' => ' | ', 'first' => 'first', 'last' => 'last',
+                'before' => ' | ',
+                'after' => ' | ',
+                'first' => 'first',
+                'last' => 'last',
             ];
         }
 
         $defaults = [
-            'tag' => 'span', 'before' => null, 'after' => null, 'model' => $this->defaultModel(), 'class' => null,
-            'modulus' => '8', 'separator' => ' | ', 'first' => null, 'last' => null, 'ellipsis' => '...',
-            'currentClass' => 'current', 'currentTag' => null,
+            'tag' => 'span',
+            'before' => null,
+            'after' => null,
+            'model' => $this->defaultModel(),
+            'class' => null,
+            'modulus' => '8',
+            'separator' => ' | ',
+            'first' => null,
+            'last' => null,
+            'ellipsis' => '...',
+            'currentClass' => 'current',
+            'currentTag' => null,
         ];
         $options += $defaults;
 
@@ -815,7 +836,6 @@ class PaginatorHelper extends AppHelper
             $options['tag'],
             $options['before'],
             $options['after'],
-            $options['model'],
             $options['modulus'],
             $options['separator'],
             $options['first'],
@@ -960,7 +980,7 @@ class PaginatorHelper extends AppHelper
             return '';
         }
         extract($options);
-        unset($options['tag'], $options['after'], $options['model'], $options['separator'], $options['ellipsis'], $options['class']);
+        unset($options['tag'], $options['after'], $options['separator'], $options['ellipsis'], $options['class']);
 
         $out = '';
 
@@ -1026,7 +1046,7 @@ class PaginatorHelper extends AppHelper
         }
 
         extract($options);
-        unset($options['tag'], $options['before'], $options['model'], $options['separator'], $options['ellipsis'], $options['class']);
+        unset($options['tag'], $options['before'], $options['separator'], $options['ellipsis'], $options['class']);
 
         $out = '';
         $lower = $params['pageCount'] - (int)$last + 1;
@@ -1074,7 +1094,7 @@ class PaginatorHelper extends AppHelper
      * @param array $options Array of options.
      * @return string|null Meta links.
      */
-    public function meta($options = [])
+    public function meta(array $options = []): ?string
     {
         $model = $options['model'] ?? null;
         $params = $this->params($model);
@@ -1100,5 +1120,7 @@ class PaginatorHelper extends AppHelper
             $options['block'] = __FUNCTION__;
         }
         $this->_View->append($options['block'], $out);
+
+        return null;
     }
 }

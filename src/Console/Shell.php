@@ -297,18 +297,23 @@ class Shell extends CakeObject
      * Lazy loads models using the loadModel() method if declared in $uses
      *
      * @param string $name The name of the model to look for.
-     * @return void
+     * @return bool
      */
-    public function __isset($name)
+    public function __isset($name): bool
     {
         if (is_array($this->uses)) {
             foreach ($this->uses as $modelClass) {
                 [, $class] = pluginSplit($modelClass);
                 if ($name === $class) {
-                    return $this->loadModel($modelClass);
+                    try {
+                        return $this->loadModel($modelClass);
+                    } catch (MissingModelException $e) {
+                    }
                 }
             }
         }
+
+        return false;
     }
 
     /**
@@ -316,10 +321,10 @@ class Shell extends CakeObject
      *
      * @param string $modelClass Name of model class to load
      * @param mixed $id Initial ID the instanced model class should have
-     * @return mixed true when single model found and instance created, error returned if model not found.
+     * @return bool true when single model found and instance created, error returned if model not found.
      * @throws MissingModelException if the model class cannot be found.
      */
-    public function loadModel($modelClass = null, $id = null)
+    public function loadModel($modelClass = null, $id = null): bool
     {
         if ($modelClass === null) {
             $modelClass = $this->modelClass;
@@ -493,11 +498,23 @@ class Shell extends CakeObject
             return $this->{$command}();
         }
         if ($isMain) {
-            return $this->main();
+            $this->main();
+
+            return true;
         }
+
         $this->out($this->OptionParser->help($command));
 
         return false;
+    }
+
+    /**
+     * Override main() for help message hook
+     *
+     * @return void
+     */
+    public function main(): void
+    {
     }
 
     /**
@@ -527,7 +544,7 @@ class Shell extends CakeObject
      * @return ConsoleOptionParser
      * @link https://book.cakephp.org/2.0/en/console-and-shells.html#Shell::getOptionParser
      */
-    public function getOptionParser()
+    public function getOptionParser(): ConsoleOptionParser
     {
         $name = ($this->plugin ? $this->plugin . '.' : '') . $this->name;
         $parser = new ConsoleOptionParser($name);
@@ -682,10 +699,10 @@ class Shell extends CakeObject
      * @param array|string $message A string or an array of strings to output
      * @param int $newlines Number of newlines to append
      * @param int $level The message's output level, see above.
-     * @return int|bool Returns the number of bytes returned from writing to stdout.
+     * @return int|bool|null Returns the number of bytes returned from writing to stdout.
      * @link https://book.cakephp.org/2.0/en/console-and-shells.html#Shell::out
      */
-    public function out($message = null, $newlines = 1, $level = Shell::NORMAL)
+    public function out($message = null, $newlines = 1, $level = Shell::NORMAL): int|bool|null
     {
         $currentLevel = Shell::NORMAL;
         if (!empty($this->params['verbose'])) {
@@ -731,8 +748,10 @@ class Shell extends CakeObject
             $this->out(str_repeat(' ', $fill), 0);
         }
         if ($newlines) {
-            $this->out($this->nl($newlines), 0);
+            return $this->out($this->nl($newlines), 0);
         }
+
+        return $newBytes;
     }
 
     /**
@@ -833,8 +852,6 @@ class Shell extends CakeObject
             if (strtolower($key) === 'q') {
                 $this->out(__d('cake_console', '<error>Quitting</error>.'), 2);
                 $this->_stop();
-
-                return true;
             } elseif (strtolower($key) !== 'y') {
                 $this->out(__d('cake_console', 'Skip `%s`', $path), 2);
 
@@ -1065,7 +1082,7 @@ class Shell extends CakeObject
      *
      * @return void
      */
-    protected function _configureStdOutLogger()
+    protected function _configureStdOutLogger(): void
     {
         CakeLog::config('stdout', [
             'engine' => 'Console',
@@ -1079,7 +1096,7 @@ class Shell extends CakeObject
      *
      * @return void
      */
-    protected function _configureStdErrLogger()
+    protected function _configureStdErrLogger(): void
     {
         CakeLog::config('stderr', [
             'engine' => 'Console',
@@ -1094,7 +1111,7 @@ class Shell extends CakeObject
      * @param string $logger The name of the logger to check
      * @return bool
      */
-    protected function _loggerIsConfigured($logger)
+    protected function _loggerIsConfigured($logger): bool
     {
         $configured = CakeLog::configured();
 

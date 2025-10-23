@@ -1465,10 +1465,10 @@ class DboSource extends DataSource
      * @param array &$resultSet Existing results.
      * @param int $recursive Number of levels of association.
      * @param array $stack A list with joined models.
-     * @return mixed
+     * @return void
      * @throws CakeException when results cannot be created.
      */
-    public function queryAssociation(Model $model, Model $LinkModel, $type, $association, $assocData, &$queryData, $external, &$resultSet, $recursive, $stack)
+    public function queryAssociation(Model $model, Model $LinkModel, $type, $association, $assocData, &$queryData, $external, &$resultSet, $recursive, $stack): void
     {
         if (isset($stack['_joined'])) {
             $joined = $stack['_joined'];
@@ -1477,7 +1477,7 @@ class DboSource extends DataSource
 
         $queryTemplate = $this->generateAssociationQuery($model, $LinkModel, $type, $association, $assocData, $queryData, $external);
         if (empty($queryTemplate)) {
-            return null;
+            return;
         }
 
         if (!is_array($resultSet)) {
@@ -1520,7 +1520,9 @@ class DboSource extends DataSource
             }
 
             // Merge
-            return $this->_mergeHasMany($resultSet, $assocResultSet, $association, $model);
+            $this->_mergeHasMany($resultSet, $assocResultSet, $association, $model);
+
+            return;
         } elseif ($type === 'hasAndBelongsToMany') {
             // 'hasAndBelongsToMany' associations.
 
@@ -1703,7 +1705,7 @@ class DboSource extends DataSource
      * @param Model $model Model being merged onto.
      * @return void
      */
-    protected function _mergeHasMany(&$resultSet, $assocResultSet, $association, Model $model)
+    protected function _mergeHasMany(&$resultSet, $assocResultSet, $association, Model $model): void
     {
         $modelAlias = $model->alias;
         $primaryKey = $model->primaryKey;
@@ -2492,7 +2494,7 @@ class DboSource extends DataSource
      * @param array $params Function parameters (any values must be quoted manually)
      * @return string An SQL calculation function
      */
-    public function calculate(Model $model, $func, $params = [])
+    public function calculate(Model $model, $func, $params = []): string
     {
         $params = (array)$params;
 
@@ -2524,6 +2526,8 @@ class DboSource extends DataSource
 
                 return strtoupper($func) . '(' . $arg . ') AS ' . $this->name($params[1]);
         }
+
+        return '';
     }
 
     /**
@@ -3570,8 +3574,9 @@ class DboSource extends DataSource
      * @param string $column The column to use when resetting the sequence value.
      * @return bool Success.
      */
-    public function resetSequence($table, $column)
+    public function resetSequence(string $table, string $column): bool
     {
+        return true;
     }
 
     /**
@@ -3692,10 +3697,10 @@ class DboSource extends DataSource
     /**
      * Generate a "drop table" statement for a single table
      *
-     * @param string $table Name of the table to drop
+     * @param Model|string $table Name of the table to drop
      * @return string Drop table SQL statement
      */
-    protected function _dropTable($table)
+    protected function _dropTable($table): string
     {
         return 'DROP TABLE ' . $this->fullTableName($table) . ';';
     }

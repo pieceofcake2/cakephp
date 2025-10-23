@@ -25,6 +25,7 @@ use AppModel;
 use Cake\Core\App;
 use Cake\Core\CakeObject;
 use Cake\Core\Configure;
+use Cake\Error\CakeException;
 use Cake\Error\MissingTableException;
 use Cake\Event\CakeEvent;
 use Cake\Event\CakeEventListener;
@@ -1727,6 +1728,8 @@ class Model extends CakeObject implements CakeEventListener
         if (isset($data[0]) && count($data[0]) > 0) {
             return array_shift($data[0]);
         }
+
+        return false;
     }
 
     /**
@@ -3091,7 +3094,7 @@ class Model extends CakeObject implements CakeEventListener
      * @return array|int|null Array of records, int if the type is count, or Null on failure.
      * @link https://book.cakephp.org/2.0/en/models/retrieving-your-data.html
      */
-    public function find($type = 'first', $query = [])
+    public function find(string $type = 'first', array $query = [])
     {
         $this->findQueryType = $type;
         $this->id = $this->getID();
@@ -3126,9 +3129,9 @@ class Model extends CakeObject implements CakeEventListener
      *
      * @param string $type Type of find operation (all / first / count / neighbors / list / threaded)
      * @param array $query Option fields (conditions / fields / joins / limit / offset / order / page / group / callbacks)
-     * @return array
+     * @return array|int
      */
-    protected function _readDataSource($type, $query)
+    protected function _readDataSource(string $type, array $query): array|int
     {
         $results = $this->getDataSource()->read($this, $query);
         $this->resetAssociations();
@@ -3139,9 +3142,17 @@ class Model extends CakeObject implements CakeEventListener
 
         $this->findQueryType = null;
 
-        if ($this->findMethods[$type] === true) {
+        if (array_key_exists($type, $this->findMethods) && $this->findMethods[$type] === true) {
             return $this->{'_find' . ucfirst($type)}('after', $query, $results);
         }
+
+        throw new CakeException(__d(
+            'cake_dev',
+            'Invalid find type "%s" in %s. Valid find types are: %s',
+            $type,
+            $this->alias,
+            implode(', ', array_keys(array_filter($this->findMethods))),
+        ));
     }
 
     /**
@@ -3153,7 +3164,7 @@ class Model extends CakeObject implements CakeEventListener
      * @triggers Model.beforeFind $this, array($query)
      * @see Model::find()
      */
-    public function buildQuery($type = 'first', $query = [])
+    public function buildQuery(string $type = 'first', array $query = []): ?array
     {
         $query = array_merge(
             [
@@ -3865,7 +3876,7 @@ class Model extends CakeObject implements CakeEventListener
      * @param array $keys Any join keys which must be merged with the keys queried
      * @return array
      */
-    public function joinModel($assoc, $keys = [])
+    public function joinModel(array|string $assoc, array $keys = []): array
     {
         if (is_string($assoc)) {
             [, $assoc] = pluginSplit($assoc);
@@ -3883,6 +3894,8 @@ class Model extends CakeObject implements CakeEventListener
             __d('cake_dev', 'Invalid join model settings in %s. The association parameter has the wrong type, expecting a string or array, but was passed type: %s', $this->alias, gettype($assoc)),
             E_USER_WARNING,
         );
+
+        return [];
     }
 
     /**
@@ -3936,7 +3949,7 @@ class Model extends CakeObject implements CakeEventListener
      * @link https://book.cakephp.org/2.0/en/models/callback-methods.html#aftersave
      * @see Model::save()
      */
-    public function afterSave($created, $options = [])
+    public function afterSave(bool $created, array $options = []): void
     {
     }
 

@@ -18,6 +18,7 @@
 namespace Cake\Console\Command;
 
 use AppShell;
+use Cake\Console\ConsoleOptionParser;
 use Cake\Core\App;
 
 App::uses('AppShell', 'Console/Command');
@@ -71,7 +72,7 @@ class I18nShell extends AppShell
      *
      * @return void
      */
-    public function main()
+    public function main(): void
     {
         $this->out(__d('cake_console', '<info>I18n Shell</info>'));
         $this->hr();
@@ -92,7 +93,9 @@ class I18nShell extends AppShell
                 $this->out($this->OptionParser->help());
                 break;
             case 'q':
-                return $this->_stop();
+                $this->_stop();
+
+                return;
             default:
                 $this->out(__d('cake_console', 'You have made an invalid selection. Please choose a command to execute by entering E, I, H, or Q.'));
         }
@@ -115,7 +118,7 @@ class I18nShell extends AppShell
      *
      * @return ConsoleOptionParser
      */
-    public function getOptionParser()
+    public function getOptionParser(): ConsoleOptionParser
     {
         $parser = parent::getOptionParser();
 

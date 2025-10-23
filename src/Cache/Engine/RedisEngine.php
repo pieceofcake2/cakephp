@@ -238,7 +238,7 @@ class RedisEngine extends CacheEngine
      * @param string $group The group name to clear.
      * @return bool success
      */
-    public function clearGroup($group)
+    public function clearGroup(string $group): bool
     {
         return (bool)$this->_Redis->incr($this->settings['prefix'] . $group);
     }

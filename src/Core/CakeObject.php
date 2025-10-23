@@ -135,7 +135,7 @@ class CakeObject
      * testing easier.
      *
      * @param string|int $status see http://php.net/exit for values
-     * @return never
+     * @return never|int
      */
     protected function _stop($status = 0)
     {

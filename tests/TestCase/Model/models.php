@@ -2926,7 +2926,7 @@ class AfterTree extends NumberTree
      * @param array $options
      * @return void
      */
-    public function afterSave($created, $options = [])
+    public function afterSave(bool $created, array $options = []): void
     {
         if ($created && isset($this->data['AfterTree'])) {
             $this->data['AfterTree']['name'] = 'Six and One Half Changed in AfterTree::afterSave() but not in database';
@@ -3778,7 +3778,7 @@ class TransactionTestModel extends CakeTestModel
 
     public $useTable = 'samples';
 
-    public function afterSave($created, $options = [])
+    public function afterSave(bool $created, array $options = []): void
     {
         $data = [
             ['apple_id' => 1, 'name' => 'sample6'],
@@ -3794,7 +3794,7 @@ class TransactionManyTestModel extends CakeTestModel
 
     public $useTable = 'samples';
 
-    public function afterSave($created, $options = [])
+    public function afterSave(bool $created, array $options = []): void
     {
         $data = [
             ['apple_id' => 1, 'name' => 'sample6'],

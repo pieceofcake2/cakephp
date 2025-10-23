@@ -165,7 +165,7 @@ class ConsoleOptionParser
      * @param bool $defaultOptions Whether you want the verbose and quiet options set.
      * @return ConsoleOptionParser
      */
-    public static function create($command, $defaultOptions = true)
+    public static function create($command, $defaultOptions = true): ConsoleOptionParser
     {
         return new ConsoleOptionParser($command, $defaultOptions);
     }
@@ -192,7 +192,7 @@ class ConsoleOptionParser
      * @param array $spec The spec to build the OptionParser with.
      * @return ConsoleOptionParser
      */
-    public static function buildFromArray($spec)
+    public static function buildFromArray($spec): ConsoleOptionParser
     {
         $parser = new ConsoleOptionParser($spec['command']);
         if (!empty($spec['arguments'])) {
@@ -542,15 +542,16 @@ class ConsoleOptionParser
      * Generates help text based on the description, options, arguments, subcommands and epilog
      * in the parser.
      *
-     * @param string $subcommand If present and a valid subcommand that has a linked parser.
+     * @param string|null $subcommand If present and a valid subcommand that has a linked parser.
      *    That subcommands help will be shown instead.
-     * @param string $format Define the output format, can be text or xml
+     * @param string|bool $format Define the output format, can be text or xml
      * @param int $width The width to format user content to. Defaults to 72
      * @return string Generated help.
      */
-    public function help($subcommand = null, $format = 'text', $width = 72)
+    public function help($subcommand = null, string|bool $format = 'text', int $width = 72): string
     {
         if (
+            $subcommand &&
             isset($this->_subcommands[$subcommand]) &&
             $this->_subcommands[$subcommand]->parser() instanceof self
         ) {
@@ -559,12 +560,15 @@ class ConsoleOptionParser
 
             return $subparser->help(null, $format, $width);
         }
+
         $formatter = new HelpFormatter($this);
         if ($format === 'text' || $format === true) {
             return $formatter->text($width);
         } elseif ($format === 'xml') {
             return $formatter->xml();
         }
+
+        return '';
     }
 
     /**
@@ -675,13 +679,14 @@ class ConsoleOptionParser
      * @return array Args
      * @throws ConsoleException
      */
-    protected function _parseArg($argument, $args)
+    protected function _parseArg(string $argument, array $args): array
     {
         if (empty($this->_args)) {
             $args[] = $argument;
 
             return $args;
         }
+
         $next = count($args);
         if (!isset($this->_args[$next])) {
             throw new ConsoleException(__d('cake_console', 'Too many arguments.'));
@@ -689,9 +694,9 @@ class ConsoleOptionParser
 
         if ($this->_args[$next]->validChoice($argument)) {
             $args[] = $argument;
-
-            return $args;
         }
+
+        return $args;
     }
 
     /**

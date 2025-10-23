@@ -150,14 +150,17 @@ class TestBehavior extends ModelBehavior
      * @param Model $model
      * @param bool $created
      * @param array $options Options passed from Model::save().
-     * @return bool|void
+     * @return void
      */
-    public function afterSave(Model $model, $created, $options = [])
+    public function afterSave(Model $model, bool $created, array $options = []): void
     {
         $settings = $this->settings[$model->alias];
         if (!isset($settings['afterSave']) || $settings['afterSave'] === 'off') {
-            return parent::afterSave($model, $created, $options);
+            parent::afterSave($model, $created, $options);
+
+            return;
         }
+
         $string = 'modified after';
         if ($created) {
             $string .= ' on create';
@@ -170,7 +173,7 @@ class TestBehavior extends ModelBehavior
                 unset($model->data[$model->alias]['name']);
                 break;
             case 'test2':
-                return false;
+                return;
             case 'modify':
                 $model->data[$model->alias]['name'] .= ' ' . $string;
                 break;

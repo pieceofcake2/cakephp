@@ -129,11 +129,12 @@ class Component extends CakeObject
      * the view class is loaded, and before Controller::render()
      *
      * @param Controller $controller Controller with components to beforeRender
-     * @return void
+     * @return bool|null
      * @link https://book.cakephp.org/2.0/en/controllers/components.html#Component::beforeRender
      */
-    public function beforeRender(Controller $controller)
+    public function beforeRender(Controller $controller): ?bool
     {
+        return null;
     }
 
     /**

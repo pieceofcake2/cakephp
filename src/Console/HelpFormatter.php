@@ -63,7 +63,7 @@ class HelpFormatter
      * @param int $width The width of the help output.
      * @return string
      */
-    public function text($width = 72)
+    public function text(int $width = 72): string
     {
         $parser = $this->_parser;
         $out = [];
@@ -186,7 +186,7 @@ class HelpFormatter
      * @param bool $string Return the SimpleXml object or a string. Defaults to true.
      * @return SimpleXmlElement|string See $string
      */
-    public function xml($string = true)
+    public function xml(bool $string = true): SimpleXmlElement|string
     {
         $parser = $this->_parser;
         $xml = new SimpleXmlElement('<shell></shell>');

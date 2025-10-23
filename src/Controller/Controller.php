@@ -1256,7 +1256,7 @@ class Controller extends CakeObject implements CakeEventListener
      * @return void
      * @link https://book.cakephp.org/2.0/en/controllers.html#request-life-cycle-callbacks
      */
-    public function beforeRender()
+    public function beforeRender(): void
     {
     }
 

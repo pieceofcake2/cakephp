@@ -41,7 +41,7 @@ class CompletionShell extends AppShell
      *
      * @return void
      */
-    public function startup()
+    public function startup(): void
     {
     }
 
@@ -50,15 +50,15 @@ class CompletionShell extends AppShell
      *
      * @return void
      */
-    public function main()
+    public function main(): void
     {
-        return $this->out($this->getOptionParser()->help());
+        $this->out($this->getOptionParser()->help());
     }
 
     /**
      * list commands
      *
-     * @return void
+     * @return int|bool|void
      */
     public function commands()
     {
@@ -70,7 +70,7 @@ class CompletionShell extends AppShell
     /**
      * list options for the named command
      *
-     * @return void
+     * @return int|bool|void
      */
     public function options()
     {
@@ -86,7 +86,7 @@ class CompletionShell extends AppShell
     /**
      * list subcommands for the named command
      *
-     * @return void
+     * @return int|bool|void
      */
     public function subCommands()
     {
@@ -102,7 +102,7 @@ class CompletionShell extends AppShell
     /**
      * Guess autocomplete from the whole argument string
      *
-     * @return void
+     * @return int|bool|void
      */
     public function fuzzy()
     {
@@ -114,7 +114,7 @@ class CompletionShell extends AppShell
      *
      * @return ConsoleOptionParser
      */
-    public function getOptionParser()
+    public function getOptionParser(): ConsoleOptionParser
     {
         $parser = parent::getOptionParser();
 
@@ -160,7 +160,7 @@ class CompletionShell extends AppShell
      * Emit results as a string, space delimited
      *
      * @param array $options The options to output
-     * @return void
+     * @return int|bool|void
      */
     protected function _output($options = [])
     {

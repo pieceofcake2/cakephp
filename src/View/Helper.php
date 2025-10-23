@@ -907,7 +907,7 @@ class Helper extends CakeObject
      * @param string $viewFile The view file that is going to be rendered
      * @return void
      */
-    public function beforeRender($viewFile)
+    public function beforeRender($viewFile): void
     {
     }
 

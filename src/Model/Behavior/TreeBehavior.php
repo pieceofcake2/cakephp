@@ -93,22 +93,21 @@ class TreeBehavior extends ModelBehavior
      * @param Model $model Model using this behavior.
      * @param bool $created indicates whether the node just saved was created or updated
      * @param array $options Options passed from Model::save().
-     * @return bool true on success, false on failure
+     * @return void true on success, false on failure
      */
-    public function afterSave(Model $model, $created, $options = [])
+    public function afterSave(Model $model, bool $created, array $options = []): void
     {
         extract($this->settings[$model->alias]);
         if ($created) {
             if (isset($model->data[$model->alias][$parent]) && $model->data[$model->alias][$parent]) {
-                return $this->_setParent($model, $model->data[$model->alias][$parent], $created);
+                $this->_setParent($model, $model->data[$model->alias][$parent], $created);
             }
         } elseif ($this->settings[$model->alias]['__parentChange']) {
             $this->settings[$model->alias]['__parentChange'] = false;
             if ($level) {
                 $this->_setChildrenLevel($model, $model->id);
             }
-
-            return $this->_setParent($model, $model->data[$model->alias][$parent]);
+            $this->_setParent($model, $model->data[$model->alias][$parent]);
         }
     }
 

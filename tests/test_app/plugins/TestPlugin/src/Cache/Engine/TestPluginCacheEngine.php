@@ -51,7 +51,7 @@ class TestPluginCacheEngine extends CacheEngine
     {
     }
 
-    public function clearGroup($group)
+    public function clearGroup(string $group): bool
     {
     }
 

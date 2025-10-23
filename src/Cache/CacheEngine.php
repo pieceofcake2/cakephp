@@ -96,9 +96,7 @@ abstract class CacheEngine
      * @param int $duration How long to cache for.
      * @return bool True if the data was successfully cached, false on failure
      */
-    public function add($key, $value, $duration)
-    {
-    }
+    abstract public function add($key, $value, $duration);
 
     /**
      * Read a key from the cache
@@ -150,10 +148,7 @@ abstract class CacheEngine
      * @param string $group name of the group to be cleared
      * @return bool
      */
-    public function clearGroup($group)
-    {
-        return false;
-    }
+    abstract public function clearGroup(string $group): bool;
 
     /**
      * Does whatever initialization for each group is required

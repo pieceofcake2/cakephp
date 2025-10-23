@@ -33,6 +33,16 @@ use Cake\Network\CakeRequest;
 use Cake\Network\CakeResponse;
 use Cake\Routing\Router;
 use Cake\Utility\Inflector;
+use Cake\View\Helper\CacheHelper;
+use Cake\View\Helper\FormHelper;
+use Cake\View\Helper\HtmlHelper;
+use Cake\View\Helper\JsHelper;
+use Cake\View\Helper\NumberHelper;
+use Cake\View\Helper\PaginatorHelper;
+use Cake\View\Helper\RssHelper;
+use Cake\View\Helper\SessionHelper;
+use Cake\View\Helper\TextHelper;
+use Cake\View\Helper\TimeHelper;
 use LogicException;
 
 App::uses('AppHelper', 'View/Helper');
@@ -418,7 +428,7 @@ class View extends CakeObject
      * - `ignoreMissing` - Used to allow missing elements. Set to true to not trigger notices.
      * @return string Rendered Element
      */
-    public function element($name, $data = [], $options = [])
+    public function element(string $name, array $data = [], array $options = []): string
     {
         $file = $plugin = null;
 
@@ -446,8 +456,11 @@ class View extends CakeObject
             [$plugin, $name] = pluginSplit($name, true);
             $name = str_replace('/', DS, $name);
             $file = $plugin . 'Elements' . DS . $name . $this->ext;
+
             trigger_error(__d('cake_dev', 'Element Not Found: %s', $file), E_USER_NOTICE);
         }
+
+        return '';
     }
 
     /**
@@ -584,9 +597,9 @@ class View extends CakeObject
      *
      * @param string $filename the cache file to include
      * @param string $timeStart the page render start time
-     * @return bool Success of rendering the cached file.
+     * @return string|false Success of rendering the cached file.
      */
-    public function renderCache($filename, $timeStart)
+    public function renderCache(string $filename, $timeStart): string|bool
     {
         $response = $this->response;
         ob_start();
@@ -600,9 +613,7 @@ class View extends CakeObject
 
         if (preg_match('/^<!--cachetime:(\\d+)-->/', $out, $match)) {
             if (time() >= $match['1']) {
-                //@codingStandardsIgnoreStart
-                @unlink($filename);
-                //@codingStandardsIgnoreEnd
+                @unlink($filename); // phpcs:ignore
                 unset($out);
 
                 return false;
@@ -610,6 +621,8 @@ class View extends CakeObject
 
             return substr($out, strlen($match[0]));
         }
+
+        return $out;
     }
 
     /**
@@ -837,7 +850,7 @@ class View extends CakeObject
      * @param string $url The object's target URL
      * @return string
      */
-    public function uuid($object, $url)
+    public function uuid($object, $url): string
     {
         $c = 1;
         $url = Router::url($url);
@@ -860,7 +873,7 @@ class View extends CakeObject
      *    Unused if $one is an associative array, otherwise serves as the values to $one's keys.
      * @return void
      */
-    public function set($one, $two = null)
+    public function set($one, $two = null): void
     {
         $data = null;
         if (is_array($one)) {
@@ -873,7 +886,7 @@ class View extends CakeObject
             $data = [$one => $two];
         }
         if (!$data) {
-            return false;
+            return;
         }
         $this->viewVars = $data + $this->viewVars;
     }
@@ -883,7 +896,7 @@ class View extends CakeObject
      *
      * @return string
      */
-    public function getCurrentType()
+    public function getCurrentType(): string
     {
         return $this->_currentType;
     }
@@ -925,7 +938,7 @@ class View extends CakeObject
      * @param mixed $value Value of the attribute to set.
      * @return mixed
      */
-    public function __set($name, $value)
+    public function __set(string $name, $value)
     {
         switch ($name) {
             case 'output':
@@ -1247,11 +1260,11 @@ class View extends CakeObject
      * Checks if an element is cached and returns the cached data if present
      *
      * @param string $name Element name
-     * @param string $data Data
+     * @param array $data Data
      * @param array $options Element options
-     * @return string|null
+     * @return string|false
      */
-    protected function _elementCache($name, $data, $options)
+    protected function _elementCache(string $name, array $data, array $options): string|false
     {
         $plugin = null;
         [$plugin, $name] = $this->pluginSplit($name);
@@ -1288,7 +1301,7 @@ class View extends CakeObject
      * @triggers View.beforeRender $this, array($file)
      * @triggers View.afterRender $this, array($file, $element)
      */
-    protected function _renderElement($file, $data, $options)
+    protected function _renderElement(string $file, array $data, array $options): string
     {
         $current = $this->_current;
         $restore = $this->_currentType;

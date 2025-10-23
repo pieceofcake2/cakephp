@@ -370,7 +370,7 @@ class Postgres extends DboSource
      *   the sequence name will be fetched using Postgres::getSequence();
      * @return bool success.
      */
-    public function resetSequence($table, $column)
+    public function resetSequence(string $table, string $column): bool
     {
         $tableName = $this->fullTableName($table, false, false);
         $fullTable = $this->fullTableName($table);

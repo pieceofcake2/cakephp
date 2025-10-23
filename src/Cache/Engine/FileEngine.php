@@ -452,7 +452,7 @@ class FileEngine extends CacheEngine
      * @param string $group The group to clear.
      * @return bool success
      */
-    public function clearGroup($group)
+    public function clearGroup(string $group): bool
     {
         $this->_File = null;
         $directoryIterator = new RecursiveDirectoryIterator($this->settings['path']);

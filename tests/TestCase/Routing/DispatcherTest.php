@@ -567,9 +567,9 @@ class TestFilterDispatcher extends DispatcherFilter
      * TestFilterDispatcher::beforeDispatch()
      *
      * @param mixed $event
-     * @return CakeResponse|bool
+     * @return CakeResponse|false|null
      */
-    public function beforeDispatch(CakeEvent $event)
+    public function beforeDispatch(CakeEvent $event): CakeResponse|false|null
     {
         $event->stopPropagation();
         $response = $event->data['request'];

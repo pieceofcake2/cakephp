@@ -464,14 +464,15 @@ class TranslateBehavior extends ModelBehavior
      * is disabled.
      *
      * @param Model $model Model using this behavior.
-     * @return bool true.
+     * @return void
      */
-    protected function _setRuntimeData(Model $model)
+    protected function _setRuntimeData(Model $model): void
     {
         $locale = $this->_getLocale($model);
         if (empty($locale)) {
-            return true;
+            return;
         }
+
         $fields = array_merge($this->settings[$model->alias], $this->runtime[$model->alias]['fields']);
         $tempData = [];
 
@@ -516,12 +517,12 @@ class TranslateBehavior extends ModelBehavior
      * @param Model $model Model the callback is called on
      * @param bool $created Whether or not the save created a record.
      * @param array $options Options passed from Model::save().
-     * @return bool true.
+     * @return void
      */
-    public function afterSave(Model $model, $created, $options = [])
+    public function afterSave(Model $model, bool $created, array $options = []): void
     {
         if (!isset($this->runtime[$model->alias]['beforeValidate']) && !isset($this->runtime[$model->alias]['beforeSave'])) {
-            return true;
+            return;
         }
         if (isset($this->runtime[$model->alias]['beforeValidate'])) {
             $tempData = $this->runtime[$model->alias]['beforeValidate'];

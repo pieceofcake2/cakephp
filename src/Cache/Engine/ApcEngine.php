@@ -226,8 +226,9 @@ class ApcEngine extends CacheEngine
      * @param string $group The group to clear.
      * @return bool success
      */
-    public function clearGroup($group)
+    public function clearGroup(string $group): bool
     {
+        $success = false;
         $func = $this->_apcExtension . '_inc';
         $func($this->settings['prefix'] . $group, 1, $success);
 

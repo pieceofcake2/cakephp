@@ -930,11 +930,7 @@ class Sqlserver extends DboSource
 
             return true;
         } catch (PDOException $e) {
-            if (isset($query->queryString)) {
-                $e->queryString = $query->queryString;
-            } else {
-                $e->queryString = $sql;
-            }
+            $e->queryString = $sql;
             throw $e;
         }
     }
@@ -942,10 +938,10 @@ class Sqlserver extends DboSource
     /**
      * Generate a "drop table" statement for the given table
      *
-     * @param type $table Name of the table to drop
+     * @param Model|string $table Name of the table to drop
      * @return string Drop table SQL statement
      */
-    protected function _dropTable($table)
+    protected function _dropTable($table): string
     {
         return "IF OBJECT_ID('" . $this->fullTableName($table, false) . "', 'U') IS NOT NULL DROP TABLE " . $this->fullTableName($table) . ';';
     }

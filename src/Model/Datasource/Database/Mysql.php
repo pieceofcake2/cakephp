@@ -680,10 +680,10 @@ class Mysql extends DboSource
     /**
      * Generate a "drop table" statement for the given table
      *
-     * @param type $table Name of the table to drop
+     * @param Model|string $table Name of the table to drop
      * @return string Drop table SQL statement
      */
-    protected function _dropTable($table)
+    protected function _dropTable($table): string
     {
         return 'DROP TABLE IF EXISTS ' . $this->fullTableName($table) . ';';
     }

@@ -16,6 +16,7 @@
 namespace Cake\Console\Command;
 
 use AppShell;
+use Cake\Console\ConsoleOptionParser;
 use Cake\Core\App;
 use Cake\Core\CakePlugin;
 use Cake\Routing\Dispatcher;
@@ -118,7 +119,7 @@ class ConsoleShell extends AppShell
      *
      * @return ConsoleOptionParser
      */
-    public function getOptionParser()
+    public function getOptionParser(): ConsoleOptionParser
     {
         $parser = parent::getOptionParser();
 
@@ -205,10 +206,10 @@ class ConsoleShell extends AppShell
     /**
      * Override main() to handle action
      *
-     * @param string $command The command to run.
+     * @param string|null $command The command to run.
      * @return void
      */
-    public function main($command = null)
+    public function main(?string $command = null): void
     {
         $this->_finished = false;
         while (!$this->_finished) {
@@ -231,13 +232,13 @@ class ConsoleShell extends AppShell
     /**
      * Determine the method to process the current command
      *
-     * @param string $command The command to run.
-     * @return string or false
+     * @param string|null $command The command to run.
+     * @return string|false
      */
-    protected function _method($command)
+    protected function _method(?string $command)
     {
         foreach ($this->_methodPatterns as $method => $pattern) {
-            if (preg_match($pattern, $command)) {
+            if (preg_match($pattern, $command ?? '')) {
                 return $method;
             }
         }
@@ -250,7 +251,7 @@ class ConsoleShell extends AppShell
      *
      * @return void
      */
-    protected function _exit()
+    protected function _exit(): void
     {
         $this->_finished = true;
     }
@@ -260,7 +261,7 @@ class ConsoleShell extends AppShell
      *
      * @return void
      */
-    protected function _models()
+    protected function _models(): void
     {
         $this->out(__d('cake_console', 'Model classes:'));
         $this->hr();
@@ -275,7 +276,7 @@ class ConsoleShell extends AppShell
      * @param mixed $command The command to run.
      * @return void
      */
-    protected function _bind($command)
+    protected function _bind($command): void
     {
         preg_match($this->_methodPatterns[__FUNCTION__], $command, $tmp);
 
@@ -308,7 +309,7 @@ class ConsoleShell extends AppShell
      * @param mixed $command The command to run.
      * @return void
      */
-    protected function _unbind($command)
+    protected function _unbind($command): void
     {
         preg_match($this->_methodPatterns[__FUNCTION__], $command, $tmp);
 
@@ -351,7 +352,7 @@ class ConsoleShell extends AppShell
      * @param mixed $command The command to run.
      * @return void
      */
-    protected function _find($command)
+    protected function _find($command): void
     {
         $command = strip_tags($command);
         $command = str_replace($this->badCommandChars, '', $command);
@@ -360,6 +361,7 @@ class ConsoleShell extends AppShell
         [$modelToCheck] = explode('->', $command);
 
         if ($this->_isValidModel($modelToCheck)) {
+            $data = null;
             $findCommand = "\$data = \$this->$command;";
             // phpcs:ignore
             @eval($findCommand);
@@ -445,6 +447,7 @@ class ConsoleShell extends AppShell
 
         if ($this->_isValidModel($modelToCheck)) {
             // Get the column info for this model
+            $data = null;
             $fieldsCommand = "\$data = \$this->{$modelToCheck}->getColumnTypes();";
             // phpcs:ignore
             @eval($fieldsCommand);
@@ -464,11 +467,14 @@ class ConsoleShell extends AppShell
      *
      * @return void
      */
-    protected function _routesReload()
+    protected function _routesReload(): void
     {
         if (!$this->_loadRoutes()) {
-            return $this->err(__d('cake_console', 'There was an error loading the routes config. Please check that the file exists and is free of parse errors.'));
+            $this->err(__d('cake_console', 'There was an error loading the routes config. Please check that the file exists and is free of parse errors.'));
+
+            return;
         }
+
         $this->out(__d('cake_console', 'Routes configuration reloaded, %d routes connected', count(Router::$routes)));
     }
 
@@ -477,7 +483,7 @@ class ConsoleShell extends AppShell
      *
      * @return void
      */
-    protected function _routesShow()
+    protected function _routesShow(): void
     {
         $this->out(print_r(Hash::combine(Router::$routes, '{n}.template', '{n}.defaults'), true));
     }
@@ -488,7 +494,7 @@ class ConsoleShell extends AppShell
      * @param mixed $command The command to run.
      * @return void
      */
-    protected function _routeToString($command)
+    protected function _routeToString($command): void
     {
         preg_match($this->_methodPatterns[__FUNCTION__], $command, $tmp);
 
@@ -504,7 +510,7 @@ class ConsoleShell extends AppShell
      * @param mixed $command The command to run.
      * @return void
      */
-    protected function _routeToArray($command)
+    protected function _routeToArray($command): void
     {
         preg_match($this->_methodPatterns[__FUNCTION__], $command, $tmp);
 
@@ -517,7 +523,7 @@ class ConsoleShell extends AppShell
      * @param string $modelToCheck The model to check.
      * @return bool true if is an available model, false otherwise
      */
-    protected function _isValidModel($modelToCheck)
+    protected function _isValidModel($modelToCheck): bool
     {
         return in_array($modelToCheck, $this->models);
     }
@@ -528,17 +534,15 @@ class ConsoleShell extends AppShell
      *
      * @return bool True if config reload was a success, otherwise false
      */
-    protected function _loadRoutes()
+    protected function _loadRoutes(): bool
     {
         Router::reload();
         extract(Router::getNamedExpressions());
-
         // phpcs:ignore Generic.PHP.NoSilencedErrors.Discouraged
         if (!@include CONFIG . 'routes.php') {
             return false;
         }
         CakePlugin::routes();
-
         Router::parse('/');
 
         return true;

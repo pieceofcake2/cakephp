@@ -55,7 +55,9 @@ class ApiShellTest extends CakeTestCase
      */
     public function testMethodNameDetection()
     {
-        $this->Shell->expects($this->any())->method('in')->will($this->returnValue('q'));
+        $this->Shell->expects($this->any())
+            ->method('in')
+            ->will($this->returnValue('q'));
         $outCalls = [];
         $this->Shell->expects($this->any())
             ->method('out')

@@ -18,6 +18,7 @@
 namespace Cake\Console\Command;
 
 use AppShell;
+use Cake\Console\ConsoleOptionParser;
 use Cake\Controller\Component\Acl\DbAcl;
 use Cake\Controller\Component\AclComponent;
 use Cake\Controller\ComponentCollection;
@@ -108,7 +109,7 @@ class AclShell extends AppShell
      *
      * @return void
      */
-    public function main()
+    public function main(): void
     {
         $this->out($this->OptionParser->help());
     }
@@ -382,7 +383,7 @@ class AclShell extends AppShell
      *
      * @return ConsoleOptionParser
      */
-    public function getOptionParser()
+    public function getOptionParser(): ConsoleOptionParser
     {
         $parser = parent::getOptionParser();
 

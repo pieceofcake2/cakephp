@@ -299,7 +299,7 @@ class CakeTestFixture
      * @return bool on success or if there are no records to insert, or false on failure
      * @throws CakeException if counts of values and fields do not match.
      */
-    public function insert($db)
+    public function insert($db): bool
     {
         if (!isset($this->_insert)) {
             $values = [];
@@ -342,6 +342,8 @@ class CakeTestFixture
 
             return true;
         }
+
+        return false;
     }
 
     /**

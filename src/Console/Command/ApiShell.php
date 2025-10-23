@@ -67,10 +67,12 @@ class ApiShell extends AppShell
      *
      * @return void
      */
-    public function main()
+    public function main(): void
     {
         if (empty($this->args)) {
-            return $this->out($this->OptionParser->help());
+            $this->out($this->OptionParser->help());
+
+            return;
         }
 
         $type = strtolower($this->args[0]);
@@ -107,7 +109,9 @@ class ApiShell extends AppShell
                 if (!isset($parsed[$this->params['method']])) {
                     $this->err(__d('cake_console', '%s::%s() could not be found', $class, $this->params['method']));
 
-                    return $this->_stop();
+                    $this->_stop();
+
+                    return;
                 }
                 $method = $parsed[$this->params['method']];
                 $this->out($class . '::' . $method['method'] . $method['parameters']);
@@ -127,7 +131,9 @@ class ApiShell extends AppShell
                     if ($number === 'q') {
                         $this->out(__d('cake_console', 'Done'));
 
-                        return $this->_stop();
+                        $this->_stop();
+
+                        return;
                     }
 
                     if ($number === 'l') {
@@ -151,7 +157,7 @@ class ApiShell extends AppShell
      *
      * @return ConsoleOptionParser
      */
-    public function getOptionParser()
+    public function getOptionParser(): ConsoleOptionParser
     {
         $parser = parent::getOptionParser();
 

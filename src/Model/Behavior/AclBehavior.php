@@ -105,7 +105,7 @@ class AclBehavior extends ModelBehavior
      * @param array $options Options passed from Model::save().
      * @return void
      */
-    public function afterSave(Model $model, $created, $options = [])
+    public function afterSave(Model $model, bool $created, array $options = []): void
     {
         $types = $this->_typeMaps[$this->settings[$model->name]['type']];
         if (!is_array($types)) {

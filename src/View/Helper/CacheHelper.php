@@ -79,13 +79,15 @@ class CacheHelper extends AppHelper
      *
      * @param string $viewFile View file name.
      * @param string $output The output for the file.
-     * @return string Updated content.
+     * @return string|void Updated content.
      */
     public function afterRenderFile($viewFile, $output)
     {
         if ($this->_enabled()) {
             return $this->_parseContent($viewFile, $output);
         }
+
+        return $output;
     }
 
     /**
