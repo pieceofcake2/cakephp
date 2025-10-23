@@ -66,7 +66,7 @@ class CommandListShellTest extends CakeTestCase
                 CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS,
             ],
             'Console/Command' => [
-                CORE_TESTS . DS . 'test_app' . DS . 'Console' . DS . 'Command' . DS,
+                CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'Console' . DS . 'Command' . DS,
             ],
         ], App::RESET);
         CakePlugin::load(['TestPlugin', 'TestPluginTwo']);
