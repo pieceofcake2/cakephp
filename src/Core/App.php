@@ -934,7 +934,14 @@ class App
         $name = Inflector::camelize($name);
         App::uses($name, $plugin . $type);
 
-        return class_exists($name);
+        // Try to get the fully qualified class name for namespace support
+        $className = static::className($plugin . $name, $type);
+        if ($className && class_exists($className)) {
+            return true;
+        }
+
+        // Fallback for non-namespaced classes
+        return class_exists($name, false);
     }
 
     /**
