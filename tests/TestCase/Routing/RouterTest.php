@@ -27,6 +27,7 @@ use Cake\Network\CakeResponse;
 use Cake\Routing\Route\CakeRoute;
 use Cake\Routing\Router;
 use Cake\TestSuite\CakeTestCase;
+use TestPlugin\Routing\Route\TestRoute;
 
 if (!defined('FULL_BASE_URL')) {
     define('FULL_BASE_URL', 'https://cakephp.org');
@@ -234,7 +235,7 @@ class RouterTest extends CakeTestCase
             ],
         ]);
         $route = end(Router::$routes);
-        $this->assertInstanceOf('TestRoute', $route);
+        $this->assertInstanceOf(TestRoute::class, $route);
         $this->assertEquals('^(bar)$', $route->options['foo']);
     }
 
@@ -2526,7 +2527,7 @@ class RouterTest extends CakeTestCase
             ['controller' => 'posts', 'action' => 'view'],
             ['routeClass' => 'TestPlugin.TestRoute', 'slug' => '[a-z_-]+'],
         );
-        $this->assertInstanceOf('TestRoute', $routes[0]);
+        $this->assertInstanceOf(TestRoute::class, $routes[0]);
         CakePlugin::unload('TestPlugin');
     }
 
