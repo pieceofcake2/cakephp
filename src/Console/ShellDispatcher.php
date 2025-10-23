@@ -269,11 +269,21 @@ class ShellDispatcher
     {
         [$plugin, $shell] = pluginSplit($shell, true);
 
-        $plugin = Inflector::camelize($plugin);
+        $plugin = Inflector::camelize($plugin) ?: '';
         $shellName = Inflector::camelize($shell);
-        $fullClassName = ($plugin ?: '') . $shellName;
+        $fullClassName = $plugin . $shellName;
 
         $class = App::className($fullClassName, 'Console/Command', 'Shell');
+
+        // If not found and no plugin specified, try as plugin.shell format
+        // This handles cases like 'test_plugin' -> 'TestPlugin.TestPlugin'
+        if (!$class && !$plugin) {
+            $class = App::className($shellName . '.' . $shellName, 'Console/Command', 'Shell');
+            if ($class) {
+                $plugin = $shellName . '.';
+            }
+        }
+
         if (!$class) {
             throw new MissingShellException([
                 'class' => $shellName . 'Shell',
