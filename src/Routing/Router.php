@@ -18,6 +18,7 @@
 
 namespace Cake\Routing;
 
+use Cake\Core\App;
 use Cake\Core\Configure;
 use Cake\Error\RouterException;
 use Cake\Network\CakeRequest;
@@ -208,7 +209,7 @@ class Router
      *
      * @var string
      */
-    protected static $_routeClass = 'CakeRoute';
+    protected static $_routeClass = CakeRoute::class;
 
     /**
      * Set the default route class to use or return the current one
@@ -377,7 +378,11 @@ class Router
         }
         $routeClass = static::$_routeClass;
         if (isset($options['routeClass'])) {
-            if (!str_contains($options['routeClass'], '.')) {
+            // Try to resolve the fully qualified class name for namespace support
+            $resolvedClass = App::className($options['routeClass'], 'Routing/Route');
+            if ($resolvedClass) {
+                $routeClass = $resolvedClass;
+            } elseif (!str_contains($options['routeClass'], '.')) {
                 $routeClass = $options['routeClass'];
             } else {
                 [, $routeClass] = pluginSplit($options['routeClass'], true);
