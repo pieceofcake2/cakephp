@@ -196,15 +196,14 @@ class Sanitize
      * Will remove all `<b>`, `<p>`, and `<div>` tags from the $dirty string.
      *
      * @param string $str String to sanitize.
+     * @param string ...$tags Tags to strip from the string
      * @return string sanitized String
      */
-    public static function stripTags($str)
+    public static function stripTags(string $str, string ...$tags): string
     {
-        $params = func_get_args();
-
-        for ($i = 1, $count = count($params); $i < $count; $i++) {
-            $str = preg_replace('/<' . $params[$i] . '\b[^>]*>/i', '', $str);
-            $str = preg_replace('/<\/' . $params[$i] . '[^>]*>/i', '', $str);
+        foreach ($tags as $tag) {
+            $str = preg_replace('/<' . $tag . '\b[^>]*>/i', '', $str);
+            $str = preg_replace('/<\/' . $tag . '[^>]*>/i', '', $str);
         }
 
         return $str;

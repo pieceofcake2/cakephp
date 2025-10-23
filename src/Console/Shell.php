@@ -415,13 +415,13 @@ class Shell extends CakeObject
      *
      * `return $this->dispatchShell('schema', 'create', 'i18n', '--dry');`
      *
+     * @param mixed ...$args Arguments to pass to the shell
      * @return mixed The return of the other shell.
      * @link https://book.cakephp.org/2.0/en/console-and-shells.html#Shell::dispatchShell
      */
-    public function dispatchShell()
+    public function dispatchShell(...$args)
     {
-        $args = func_get_args();
-        if (is_string($args[0]) && count($args) === 1) {
+        if (isset($args[0]) && is_string($args[0]) && count($args) === 1) {
             $args = explode(' ', $args[0]);
         }
 

@@ -218,16 +218,16 @@ class SecurityComponent extends Component
     /**
      * Holds the current action of the controller
      *
-     * @var string
+     * @var string|null
      */
-    protected $_action = null;
+    protected ?string $_action = null;
 
     /**
      * Request object
      *
      * @var CakeRequest
      */
-    public $request;
+    public CakeRequest $request;
 
     /**
      * Component startup. All security checking happens here.
@@ -276,61 +276,61 @@ class SecurityComponent extends Component
     /**
      * Sets the actions that require a POST request, or empty for all actions
      *
+     * @param array|string|null ...$args Action names that require POST
      * @return void
      * @deprecated 3.0.0 Use CakeRequest::onlyAllow() instead.
      * @link https://book.cakephp.org/2.0/en/core-libraries/components/security-component.html#SecurityComponent::requirePost
      */
-    public function requirePost()
+    public function requirePost(array|string|null ...$args): void
     {
-        $args = func_get_args();
         $this->_requireMethod('Post', $args);
     }
 
     /**
      * Sets the actions that require a GET request, or empty for all actions
      *
-     * @deprecated 3.0.0 Use CakeRequest::onlyAllow() instead.
+     * @param array|string|null ...$args Action names that require GET
      * @return void
+     * @deprecated 3.0.0 Use CakeRequest::onlyAllow() instead.
      */
-    public function requireGet()
+    public function requireGet(array|string|null ...$args): void
     {
-        $args = func_get_args();
         $this->_requireMethod('Get', $args);
     }
 
     /**
      * Sets the actions that require a PUT request, or empty for all actions
      *
-     * @deprecated 3.0.0 Use CakeRequest::onlyAllow() instead.
+     * @param array|string|null ...$args Action names that require PUT
      * @return void
+     * @deprecated 3.0.0 Use CakeRequest::onlyAllow() instead.
      */
-    public function requirePut()
+    public function requirePut(array|string|null ...$args): void
     {
-        $args = func_get_args();
         $this->_requireMethod('Put', $args);
     }
 
     /**
      * Sets the actions that require a DELETE request, or empty for all actions
      *
-     * @deprecated 3.0.0 Use CakeRequest::onlyAllow() instead.
+     * @param array|string|null ...$args Action names that require DELETE
      * @return void
+     * @deprecated 3.0.0 Use CakeRequest::onlyAllow() instead.
      */
-    public function requireDelete()
+    public function requireDelete(array|string|null ...$args): void
     {
-        $args = func_get_args();
         $this->_requireMethod('Delete', $args);
     }
 
     /**
      * Sets the actions that require a request that is SSL-secured, or empty for all actions
      *
+     * @param array|string|null ...$args Action names that require SSL
      * @return void
      * @link https://book.cakephp.org/2.0/en/core-libraries/components/security-component.html#SecurityComponent::requireSecure
      */
-    public function requireSecure()
+    public function requireSecure(array|string|null ...$args): void
     {
-        $args = func_get_args();
         $this->_requireMethod('Secure', $args);
     }
 
@@ -341,12 +341,12 @@ class SecurityComponent extends Component
      * set in SecurityComponent::$allowedControllers and
      * SecurityComponent::$allowedActions.
      *
+     * @param array|string|null ...$args Action names that require auth
      * @return void
      * @link https://book.cakephp.org/2.0/en/core-libraries/components/security-component.html#SecurityComponent::requireAuth
      */
-    public function requireAuth()
+    public function requireAuth(array|string|null ...$args): void
     {
-        $args = func_get_args();
         $this->_requireMethod('Auth', $args);
     }
 
@@ -394,10 +394,10 @@ class SecurityComponent extends Component
      * Sets the actions that require a $method HTTP request, or empty for all actions
      *
      * @param string $method The HTTP method to assign controller actions to
-     * @param array $actions Controller actions to set the required HTTP method to.
+     * @param array|string|null $actions Controller actions to set the required HTTP method to.
      * @return void
      */
-    protected function _requireMethod($method, $actions = [])
+    protected function _requireMethod(string $method, array|string|null $actions = []): void
     {
         if (isset($actions[0]) && is_array($actions[0])) {
             $actions = $actions[0];

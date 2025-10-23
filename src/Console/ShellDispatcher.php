@@ -210,50 +210,52 @@ class ShellDispatcher
      */
     public function dispatch()
     {
-        $shell = $this->shiftArgs();
+        $shiftArgs = $this->shiftArgs();
 
-        if (!$shell) {
+        if (!$shiftArgs) {
             $this->help();
 
             return false;
         }
-        if (in_array($shell, ['help', '--help', '-h'])) {
+        if (in_array($shiftArgs, ['help', '--help', '-h'])) {
             $this->help();
 
             return true;
         }
 
-        $Shell = $this->_getShell($shell);
+        $shell = $this->_getShell($shiftArgs);
 
         $command = '';
         if (isset($this->args[0])) {
             $command = $this->args[0];
         }
 
-        if ($Shell instanceof Shell) {
-            $Shell->initialize();
+        if ($shell instanceof Shell) {
+            $shell->initialize();
 
-            return $Shell->runCommand($command, $this->args);
+            return $shell->runCommand($command, $this->args);
         }
-        $methods = array_diff(get_class_methods($Shell), get_class_methods('Shell'));
+
+        $methods = array_diff(get_class_methods($shell), get_class_methods('Shell'));
         $added = in_array($command, $methods);
-        $private = str_starts_with($command, '_') && method_exists($Shell, $command);
+        $private = str_starts_with($command, '_') && method_exists($shell, $command);
 
         if (!$private) {
             if ($added) {
                 $this->shiftArgs();
-                $Shell->startup();
+                $shell->startup();
 
-                return $Shell->{$command}();
+                return $shell->{$command}();
             }
-            if (method_exists($Shell, 'main')) {
-                $Shell->startup();
 
-                return $Shell->main();
+            if (method_exists($shell, 'main')) {
+                $shell->startup();
+
+                return $shell->main();
             }
         }
 
-        throw new MissingShellMethodException(['shell' => $shell, 'method' => $command]);
+        throw new MissingShellMethodException(['shell' => $shiftArgs, 'method' => $command]);
     }
 
     /**
