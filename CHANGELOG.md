@@ -6,9 +6,23 @@
 
 Replace legacy `func_get_args()`, `func_num_args()`, and `func_get_arg()` calls with modern PHP variadic parameter syntax (`...$args`) across the codebase.
 
-- **Affected Components**: 15 files updated including AuthComponent, SecurityComponent, Controller, Model, Router, Hash, Set, Sanitize, HtmlHelper, Shell, CakeRequest, and more
-- **Code Quality**: 128 lines added, 136 lines removed - overall code simplification
-- **Type Safety**: Added type hints and return type declarations where appropriate
+- **Variadic Parameter Syntax**: Replaced legacy functions with `...$args` syntax
+  - 15 files updated including AuthComponent, SecurityComponent, Controller, Model, Router, Hash, Set, Sanitize, HtmlHelper, Shell, CakeRequest, and more
+  - 128 lines added, 136 lines removed - overall code simplification
+
+- **Return Type Declarations**: Added return type declarations across Console components
+  - `Shell::getOptionParser(): ConsoleOptionParser` - standardized across all shells and tasks
+  - `ConsoleOptionParser::create(): ConsoleOptionParser` - static factory method
+  - `ConsoleOptionParser::buildFromArray(): ConsoleOptionParser` - builder method
+  - Console shell methods: Added `void`, `bool`, and other appropriate return types
+  - Improved type safety and IDE support for console commands
+
+- **Type Safety Enhancements**: Added type hints and return type declarations where appropriate
+  - AuthComponent: `allow(...$actions): void`, `deny(...$actions): void`
+  - SecurityComponent: All `require*()` methods now use `: void`
+  - Controller: `setAction()`, `validate()`, `validateErrors()` with proper signatures
+  - Shell: Added return types to logger configuration methods
+
 - **Backwards Compatibility**: All existing method signatures and behaviors preserved
   - `AuthComponent::allow(null)` and `deny(null)` still work as expected
   - `HtmlHelper::css($path, 'stylesheet', $options)` legacy signature supported
