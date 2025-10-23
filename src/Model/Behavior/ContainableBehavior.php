@@ -233,13 +233,13 @@ class ContainableBehavior extends ModelBehavior
      * parameters unbinds all related models.
      *
      * @param Model $model Model on which binding restriction is being applied
+     * @param mixed ...$args Additional contain parameters
      * @return void
      * @link https://book.cakephp.org/2.0/en/core-libraries/behaviors/containable.html#using-containable
      */
-    public function contain(Model $model)
+    public function contain(Model $model, ...$args): void
     {
-        $args = func_get_args();
-        $contain = call_user_func_array('am', array_slice($args, 1));
+        $contain = call_user_func_array('am', $args);
         $this->runtime[$model->alias]['contain'] = $contain;
     }
 

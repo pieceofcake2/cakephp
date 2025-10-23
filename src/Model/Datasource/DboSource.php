@@ -619,11 +619,11 @@ class DboSource extends DataSource
     /**
      * DataSource Query abstraction
      *
-     * @return resource Result resource identifier.
+     * @param mixed ...$args Query arguments
+     * @return mixed Result resource identifier.
      */
-    public function query()
+    public function query(...$args)
     {
-        $args = func_get_args();
         $fields = null;
         $order = null;
         $limit = null;

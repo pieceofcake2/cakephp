@@ -87,12 +87,12 @@ class ApiShellTest extends CakeTestCase
             '21. render($view = NULL, $layout = NULL)',
             '22. scaffoldError($method)',
             '23. set($one, $two = NULL)',
-            '24. setAction($action)',
+            '24. setAction($action, $args)',
             '25. setRequest($request)',
             '26. shutdownProcess()',
             '27. startupProcess()',
-            '28. validate()',
-            '29. validateErrors()',
+            '28. validate($args)',
+            '29. validateErrors($objects)',
         ];
 
         $this->Shell->args = ['controller'];

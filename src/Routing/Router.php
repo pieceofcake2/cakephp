@@ -89,7 +89,7 @@ class Router
      *
      * @var array
      */
-    protected static $_validExtensions = [];
+    protected static array $_validExtensions = [];
 
     /**
      * Regular expression for action names
@@ -1301,14 +1301,15 @@ class Router
      * If no parameters are given, anything after the first . (dot) after the last / in the URL will be
      * parsed, excluding querystring parameters (i.e. ?q=...).
      *
+     * @param string ...$extensions List of extensions to parse
      * @return void
      * @see RequestHandler::startup()
      */
-    public static function parseExtensions()
+    public static function parseExtensions(string ...$extensions): void
     {
         static::$_parseExtensions = true;
-        if (func_num_args() > 0) {
-            static::setExtensions(func_get_args(), false);
+        if (!empty($extensions)) {
+            static::setExtensions($extensions, false);
         }
     }
 
@@ -1334,20 +1335,23 @@ class Router
      *
      * To have the extensions parsed you still need to call `Router::parseExtensions()`
      *
-     * @param array $extensions List of extensions to be added as valid extension
+     * @param array|null $extensions List of extensions to be added as valid extension
      * @param bool $merge Default true will merge extensions. Set to false to override current extensions
      * @return array
      */
-    public static function setExtensions($extensions, $merge = true)
+    public static function setExtensions(?array $extensions, bool $merge = true): array
     {
         if (!is_array($extensions)) {
             return static::$_validExtensions;
         }
-        if (!$merge) {
-            return static::$_validExtensions = $extensions;
+
+        if ($merge) {
+            static::$_validExtensions = array_merge(static::$_validExtensions, $extensions);
+        } else {
+            static::$_validExtensions = $extensions;
         }
 
-        return static::$_validExtensions = array_merge(static::$_validExtensions, $extensions);
+        return static::$_validExtensions;
     }
 
     /**

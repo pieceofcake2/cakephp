@@ -442,22 +442,19 @@ class HtmlHelper extends AppHelper
      * @param array|string $path The name of a CSS style sheet or an array containing names of
      *   CSS stylesheets. If `$path` is prefixed with '/', the path will be relative to the webroot
      *   of your application. Otherwise, the path will be relative to your CSS path, usually webroot/css.
-     * @param array $options Array of options and HTML arguments.
+     * @param array|string $options Array of options and HTML arguments, or a string for the rel attribute.
+     * @param array $extraOptions Additional options when $options is a string (for backwards compatibility).
      * @return string CSS `<link />` or `<style />` tag, depending on the type of link.
      * @link https://book.cakephp.org/2.0/en/core-libraries/helpers/html.html#HtmlHelper::css
      */
-    public function css($path, $options = [])
+    public function css($path, $options = [], $extraOptions = [])
     {
         if (!is_array($options)) {
             $rel = $options;
-            $options = [];
+            $options = $extraOptions;
             if ($rel) {
                 $options['rel'] = $rel;
             }
-            if (func_num_args() > 2) {
-                $options = func_get_arg(2) + $options;
-            }
-            unset($rel);
         }
 
         $options += [
@@ -1026,16 +1023,16 @@ class HtmlHelper extends AppHelper
      * Returns a formatted existent block of $tags
      *
      * @param string $tag Tag name
+     * @param mixed ...$args Additional arguments for tag formatting
      * @return string Formatted block
      * @link https://book.cakephp.org/2.0/en/core-libraries/helpers/html.html#HtmlHelper::useTag
      */
-    public function useTag($tag)
+    public function useTag(string $tag, ...$args): string
     {
         if (!isset($this->_tags[$tag])) {
             return '';
         }
-        $args = func_get_args();
-        array_shift($args);
+
         foreach ($args as &$arg) {
             if (is_array($arg)) {
                 $arg = $this->_parseAttributes($arg);
