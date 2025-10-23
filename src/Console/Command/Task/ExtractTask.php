@@ -18,9 +18,11 @@
 namespace Cake\Console\Command\Task;
 
 use AppShell;
+use Cake\Console\ConsoleOptionParser;
 use Cake\Console\Shell;
 use Cake\Core\App;
 use Cake\Core\CakePlugin;
+use Cake\Model\Model;
 use Cake\Utility\File;
 use Cake\Utility\Folder;
 use Cake\Utility\Hash;
@@ -139,7 +141,9 @@ class ExtractTask extends AppShell
             if (strtoupper($response) === 'Q') {
                 $this->err(__d('cake_console', 'Extract Aborted'));
 
-                return $this->_stop();
+                $this->_stop();
+
+                return;
             } elseif (strtoupper($response) === 'D' && count($this->_paths)) {
                 $this->out();
 
@@ -218,8 +222,9 @@ class ExtractTask extends AppShell
                 $response = $this->in($message, null, rtrim($this->_paths[0], DS) . DS . 'Locale');
                 if (strtoupper($response) === 'Q') {
                     $this->err(__d('cake_console', 'Extract Aborted'));
+                    $this->_stop();
 
-                    return $this->_stop();
+                    return;
                 } elseif ($this->_isPathUsable($response)) {
                     $this->_output = $response . DS;
                     break;
@@ -245,8 +250,9 @@ class ExtractTask extends AppShell
         $this->_output = rtrim($this->_output, DS) . DS;
         if (!$this->_isPathUsable($this->_output)) {
             $this->err(__d('cake_console', 'The output directory %s was not found or writable.', $this->_output));
+            $this->_stop();
 
-            return $this->_stop();
+            return;
         }
 
         $this->_extract();
@@ -506,20 +512,44 @@ class ExtractTask extends AppShell
      */
     protected function _extractPluginValidationMessages($plugin = null)
     {
-        App::uses('AppModel', 'Model');
+        // Load AppModel (namespace-aware)
+        App::className('AppModel', 'Model');
+
         if (!empty($plugin)) {
             if (!CakePlugin::loaded($plugin)) {
                 return;
             }
-            App::uses($plugin . 'AppModel', $plugin . '.Model');
+            // Try to load plugin's AppModel (namespace-aware)
+            App::className($plugin . '.' . $plugin . 'AppModel', 'Model');
             $plugin = $plugin . '.';
         }
         $models = App::objects($plugin . 'Model', null, false);
 
         foreach ($models as $model) {
-            App::uses($model, $plugin . 'Model');
-            $reflection = new ReflectionClass($model);
-            if (!$reflection->isSubClassOf('Model')) {
+            // Load model class (namespace-aware)
+            $modelClass = App::className($plugin . $model, 'Model');
+
+            // If not found and no plugin prefix, try to detect plugin from file path
+            if (!$modelClass && empty($plugin)) {
+                $paths = App::path('Model');
+                foreach ($paths as $path) {
+                    $file = $path . $model . '.php';
+                    if (file_exists($file)) {
+                        // Check if file is in a plugin directory
+                        if (preg_match('#[/\\\\]plugins?[/\\\\]([^/\\\\]+)[/\\\\]#i', $file, $matches)) {
+                            $detectedPlugin = $matches[1];
+                            $modelClass = App::className($detectedPlugin . '.' . $model, 'Model');
+                            break;
+                        }
+                    }
+                }
+            }
+
+            if (!$modelClass) {
+                continue;
+            }
+            $reflection = new ReflectionClass($modelClass);
+            if (!$reflection->isSubClassOf(Model::class)) {
                 continue;
             }
             $properties = $reflection->getDefaultProperties();
@@ -680,13 +710,13 @@ class ExtractTask extends AppShell
 
                 $filename = $domain . '.pot';
                 if ($category === 'LC_MESSAGES') {
-                    $File = new File($this->_output . $filename);
+                    $file = new File($this->_output . $filename);
                 } else {
                     new Folder($this->_output . $category, true);
-                    $File = new File($this->_output . $category . DS . $filename);
+                    $file = new File($this->_output . $category . DS . $filename);
                 }
                 $response = '';
-                while ($overwriteAll === false && $File->exists() && strtoupper($response) !== 'Y') {
+                while ($overwriteAll === false && $file->exists() && strtoupper($response) !== 'Y') {
                     $this->out();
                     $response = $this->in(
                         __d('cake_console', 'Error: %s already exists in this location. Overwrite? [Y]es, [N]o, [A]ll', $filename),
@@ -697,15 +727,15 @@ class ExtractTask extends AppShell
                         $response = '';
                         while (!$response) {
                             $response = $this->in(__d('cake_console', 'What would you like to name this file?'), null, 'new_' . $filename);
-                            $File = new File($this->_output . $response);
+                            $file = new File($this->_output . $response);
                             $filename = $response;
                         }
                     } elseif (strtoupper($response) === 'A') {
                         $overwriteAll = true;
                     }
                 }
-                $File->write($output);
-                $File->close();
+                $file->write($output);
+                $file->close();
             }
         }
     }
@@ -827,7 +857,7 @@ class ExtractTask extends AppShell
      *
      * @return void
      */
-    protected function _searchFiles()
+    protected function _searchFiles(): void
     {
         $pattern = false;
         if (!empty($this->_exclude)) {
@@ -842,8 +872,8 @@ class ExtractTask extends AppShell
         }
         foreach ($this->_paths as $i => $path) {
             $this->_paths[$i] = realpath($path) . DS;
-            $Folder = new Folder($this->_paths[$i]);
-            $files = $Folder->findRecursive('.*\.(php|ctp|thtml|inc|tpl)', true);
+            $folder = new Folder($this->_paths[$i]);
+            $files = $folder->findRecursive('.*\.(php|ctp|thtml|inc|tpl)', true);
             if (!empty($pattern)) {
                 $files = preg_grep($pattern, $files, PREG_GREP_INVERT);
                 $files = array_values($files);

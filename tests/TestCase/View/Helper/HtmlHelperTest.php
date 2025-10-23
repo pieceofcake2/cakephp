@@ -541,7 +541,10 @@ class HtmlHelperTest extends CakeTestCase
         new File($testfile, true);
 
         App::build([
-            'View' => [CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'View' . DS],
+            'View' => [
+                CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'View' . DS,
+                CORE_TESTS . DS . 'test_app' . DS . 'templates' . DS,
+            ],
         ]);
         Configure::write('Asset.timestamp', true);
         Configure::write('debug', 1);
@@ -616,7 +619,10 @@ class HtmlHelperTest extends CakeTestCase
     public function testThemeAssetsInMainWebrootPath()
     {
         App::build([
-            'View' => [CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'View' . DS],
+            'View' => [
+                CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'View' . DS,
+                CORE_TESTS . DS . 'test_app' . DS . 'templates' . DS,
+            ],
         ]);
         $webRoot = Configure::read('App.www_root');
         Configure::write('App.www_root', CORE_TESTS . DS . 'test_app' . DS . 'webroot' . DS);
@@ -1306,7 +1312,10 @@ class HtmlHelperTest extends CakeTestCase
         new File($testfile, true);
 
         App::build([
-            'View' => [CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'View' . DS],
+            'View' => [
+                CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'View' . DS,
+                CORE_TESTS . DS . 'test_app' . DS . 'templates' . DS,
+            ],
         ]);
 
         $this->Html->webroot = '/';

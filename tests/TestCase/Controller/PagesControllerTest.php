@@ -45,6 +45,7 @@ class PagesControllerTest extends CakeTestCase
         App::build([
             'View' => [
                 CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'View' . DS,
+                CORE_TESTS . DS . 'test_app' . DS . 'templates' . DS,
             ],
         ]);
         $Pages = new PagesController(new CakeRequest(null, false), new CakeResponse());
@@ -102,6 +103,7 @@ class PagesControllerTest extends CakeTestCase
         App::build([
             'View' => [
                 CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'View' . DS,
+                CORE_TESTS . DS . 'test_app' . DS . 'templates' . DS,
             ],
         ]);
         $Pages = new PagesController(new CakeRequest(null, false), new CakeResponse());

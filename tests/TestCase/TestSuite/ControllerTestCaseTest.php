@@ -31,7 +31,8 @@ use Cake\Routing\Router;
 use Cake\TestSuite\CakeTestCase;
 use Cake\TestSuite\ControllerTestCase;
 use Cake\Utility\ClassRegistry;
-use PluginsComponent;
+use TestPlugin\Controller\Component\PluginsComponent;
+use TestPlugin\Controller\Component\TestPluginEmailComponent;
 
 App::uses('AppModel', 'Model');
 
@@ -90,7 +91,7 @@ class PostsController extends AppController
         'Auth',
     ];
 }
-class_alias(PostsController::class, 'App\\Controller\\PostsController');
+class_alias(PostsController::class, 'TestApp\\Controller\\PostsController');
 
 /**
  * ControllerTestCaseTest controller
@@ -106,7 +107,7 @@ class ControllerTestCaseTestController extends AppController
      */
     public $uses = ['TestPlugin.TestPluginComment'];
 }
-class_alias(ControllerTestCaseTestController::class, 'App\\Controller\\ControllerTestCaseTestController');
+class_alias(ControllerTestCaseTestController::class, 'TestApp\\Controller\\ControllerTestCaseTestController');
 
 /**
  * ControllerTestCaseTest
@@ -115,6 +116,8 @@ class_alias(ControllerTestCaseTestController::class, 'App\\Controller\\Controlle
  */
 class ControllerTestCaseTest extends CakeTestCase
 {
+    protected $_appNamespace = null;
+
     /**
      * fixtures property
      *
@@ -130,11 +133,18 @@ class ControllerTestCaseTest extends CakeTestCase
     public function setUp(): void
     {
         parent::setUp();
+
+        $this->_appNamespace = Configure::read('App.namespace');
+        Configure::write('App.namespace', 'TestApp');
+
         App::build([
             'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
             'Controller' => [CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'Controller' . DS],
             'Model' => [CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'Model' . DS],
-            'View' => [CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'View' . DS],
+            'View' => [
+                CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'View' . DS,
+                CORE_TESTS . DS . 'test_app' . DS . 'templates' . DS,
+            ],
         ], App::RESET);
         CakePlugin::load(['TestPlugin', 'TestPluginTwo']);
         $this->Case = $this->getMockForAbstractClass(ControllerTestCase::class);
@@ -150,6 +160,7 @@ class ControllerTestCaseTest extends CakeTestCase
     {
         CakePlugin::unload();
         $this->Case->controller = null;
+        Configure::write('App.namespace', $this->_appNamespace);
 
         parent::tearDown();
     }
@@ -195,7 +206,7 @@ class ControllerTestCaseTest extends CakeTestCase
         $this->assertNull($posts->Post->save([]));
         $this->assertNull($posts->Post->find('all'));
 
-        $posts = $this->Case->generate('Cake\\Test\\TestCase\\TestSuite\\Posts', [
+        $posts = $this->Case->generate('Posts', [
             'models' => [
                 'Post' => ['save'],
             ],
@@ -203,7 +214,7 @@ class ControllerTestCaseTest extends CakeTestCase
         $this->assertNull($posts->Post->save([]));
         $this->assertIsArray($posts->Post->find('all'));
 
-        $posts = $this->Case->generate('Cake\\Test\\TestCase\\TestSuite\\Posts', [
+        $posts = $this->Case->generate('Posts', [
             'models' => ['Post'],
             'components' => [
                 'RequestHandler' => ['isPut'],
@@ -317,7 +328,7 @@ class ControllerTestCaseTest extends CakeTestCase
             ->method('send')
             ->will($this->returnValue(true));
 
-        $this->assertInstanceOf('TestPluginEmailComponent', $Posts->AliasedPluginEmail);
+        $this->assertInstanceOf(TestPluginEmailComponent::class, $Posts->AliasedPluginEmail);
         $this->assertTrue($Posts->AliasedPluginEmail->send());
     }
 

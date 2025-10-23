@@ -20,7 +20,6 @@ namespace Cake\Test\TestCase\Core;
 
 use AppController;
 use AppModel;
-use BananaHelper;
 use Cake\Configure\PhpReader;
 use Cake\Console\Shell;
 use Cake\Controller\Component\AuthComponent;
@@ -35,21 +34,22 @@ use Cake\TestSuite\CakeTestCase;
 use Cake\View\Helper\FormHelper;
 use ConfigureTestVendorSample;
 use ExampleExample;
-use Library;
-use OtherHelperHelper;
 use PagesController;
 use ReflectionClass;
 use SamplePluginClassTestName;
+use TestApp\Lib\Library;
 use TestApp\Model\PersisterOne;
 use TestApp\Model\PersisterTwo;
 use TestApp\Utility\TestUtilityClass;
+use TestApp\View\Helper\BananaHelper;
+use TestPlugin\Controller\TestPluginAppController;
+use TestPlugin\Controller\TestsController;
 use TestPlugin\Lib\Custom\Package\CustomLibClass;
+use TestPlugin\Lib\TestPluginLibrary;
 use TestPlugin\Lib\TestPluginOtherLibrary;
-use TestPluginAppController;
-use TestPluginAppHelper;
-use TestPluginLibrary;
-use TestsController;
-use TestSource;
+use TestPlugin\Model\Datasource\TestSource;
+use TestPlugin\View\Helper\OtherHelperHelper;
+use TestPlugin\View\Helper\TestPluginAppHelper;
 
 /**
  * AppTest class

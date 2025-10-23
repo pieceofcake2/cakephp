@@ -45,6 +45,7 @@ class CakeLogTest extends CakeTestCase
 
         $this->_appNamespace = Configure::read('App.namespace');
         Configure::write('App.namespace', 'TestApp');
+
         $streams = CakeLog::configured();
         foreach ($streams as $stream) {
             CakeLog::drop($stream);

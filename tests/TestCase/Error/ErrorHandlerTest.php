@@ -71,6 +71,7 @@ class ErrorHandlerTest extends CakeTestCase
         App::build([
             'View' => [
                 CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'View' . DS,
+                CORE_TESTS . DS . 'test_app' . DS . 'templates' . DS,
             ],
         ], App::RESET);
         Router::reload();

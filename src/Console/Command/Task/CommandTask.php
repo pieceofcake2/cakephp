@@ -160,14 +160,19 @@ class CommandTask extends AppShell
 
         $name = Inflector::camelize($name);
         $pluginDot = Inflector::camelize($pluginDot);
-        $class = $name . 'Shell';
-        App::uses($class, $pluginDot . 'Console/Command');
 
-        $Shell = new $class();
-        $Shell->plugin = trim($pluginDot, '.');
-        $Shell->initialize();
+        // Namespace-aware class loading
+        $shellName = $pluginDot . $name;
+        $class = App::className($shellName, 'Console/Command', 'Shell');
+        if (!$class) {
+            return false;
+        }
 
-        return $Shell;
+        $shell = new $class();
+        $shell->plugin = trim($pluginDot, '.');
+        $shell->initialize();
+
+        return $shell;
     }
 
     /**

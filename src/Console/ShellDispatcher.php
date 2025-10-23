@@ -24,6 +24,7 @@ use Cake\Error\MissingShellException;
 use Cake\Error\MissingShellMethodException;
 use Cake\Utility\Debugger;
 use Cake\Utility\Inflector;
+use Composer\InstalledVersions;
 use ReflectionClass;
 
 /**
@@ -96,7 +97,7 @@ class ShellDispatcher
             define('CAKEPHP_SHELL', true);
         }
 
-        require_once dirname(__DIR__, 2) . '/config/init.php';
+        require_once dirname(__DIR__, 2) . '/config/paths.php';
     }
 
     /**
@@ -346,13 +347,13 @@ class ShellDispatcher
      */
     protected function _getDefaults()
     {
-        $vendor = dirname((new ReflectionClass('Composer\Autoload\ClassLoader'))->getFileName(), 2);
-        $root = $vendor;
-        while (!file_exists($root . '/composer.json') && $root !== '/') {
-            $root = dirname($root);
-        }
-        if (is_dir($vendor . DS . 'pieceofcake2' . DS . 'app')) {
-            $root = $vendor . DS . 'pieceofcake2' . DS . 'app';
+        if (InstalledVersions::isInstalled('pieceofcake2/app')) {
+            $root = realpath(InstalledVersions::getInstallPath('pieceofcake2/app'));
+        } else {
+            $root = dirname((new ReflectionClass('Composer\Autoload\ClassLoader'))->getFileName(), 2);
+            while (!file_exists($root . '/composer.json') && $root !== '/') {
+                $root = dirname($root);
+            }
         }
 
         if (is_dir($root . DS . 'src')) {

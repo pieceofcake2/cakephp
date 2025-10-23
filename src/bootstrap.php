@@ -25,7 +25,7 @@ define('TIME_START', microtime(true));
 
 error_reporting(E_ALL & ~E_DEPRECATED);
 
-require_once dirname(__DIR__) . '/config/init.php';
+require_once dirname(__DIR__) . '/config/paths.php';
 require_once dirname(__DIR__) . '/config/define.php';
 
 require_once CAKE . 'basics.php';

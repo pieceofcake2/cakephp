@@ -163,7 +163,10 @@ class EmailComponentTest extends CakeTestCase
         static::$sentDate = date(DATE_RFC2822);
 
         App::build([
-            'View' => [CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'View' . DS],
+            'View' => [
+                CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'View' . DS,
+                CORE_TESTS . DS . 'test_app' . DS . 'templates' . DS,
+            ],
         ]);
     }
 
@@ -451,7 +454,10 @@ HTMLBLOC;
     public function testMessageRetrievalWithoutTemplate()
     {
         App::build([
-            'View' => [CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'View' . DS],
+            'View' => [
+                CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'View' . DS,
+                CORE_TESTS . DS . 'test_app' . DS . 'templates' . DS,
+            ],
         ]);
 
         $this->Controller->EmailTest->to = 'postmaster@example.com';
@@ -489,7 +495,10 @@ HTMLBLOC;
     public function testMessageRetrievalWithTemplate()
     {
         App::build([
-            'View' => [CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'View' . DS],
+            'View' => [
+                CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'View' . DS,
+                CORE_TESTS . DS . 'test_app' . DS . 'templates' . DS,
+            ],
         ]);
 
         $this->Controller->set('value', 22091985);
@@ -550,7 +559,10 @@ HTMLBLOC;
     public function testMessageRetrievalWithHelper()
     {
         App::build([
-            'View' => [CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'View' . DS],
+            'View' => [
+                CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'View' . DS,
+                CORE_TESTS . DS . 'test_app' . DS . 'templates' . DS,
+            ],
         ]);
 
         $timestamp = time();
@@ -854,7 +866,10 @@ HTMLBLOC;
     {
         App::build([
             'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
-            'View' => [CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'View' . DS],
+            'View' => [
+                CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'View' . DS,
+                CORE_TESTS . DS . 'test_app' . DS . 'templates' . DS,
+            ],
         ]);
 
         $this->Controller->view = 'TestPlugin.Email';

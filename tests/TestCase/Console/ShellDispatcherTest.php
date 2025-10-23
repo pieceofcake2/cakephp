@@ -23,6 +23,7 @@ use Cake\Console\ShellDispatcher;
 use Cake\Core\App;
 use Cake\Core\CakeObject;
 use Cake\Core\CakePlugin;
+use Cake\Core\Configure;
 use Cake\TestSuite\CakeTestCase;
 use TestApp\Console\Command\SampleShell;
 use TestPlugin\Console\Command\ExampleShell;
@@ -124,6 +125,8 @@ class TestShellDispatcher extends ShellDispatcher
  */
 class ShellDispatcherTest extends CakeTestCase
 {
+    protected $_appNamespace = null;
+
     /**
      * setUp method
      *
@@ -132,6 +135,10 @@ class ShellDispatcherTest extends CakeTestCase
     public function setUp(): void
     {
         parent::setUp();
+
+        $this->_appNamespace = Configure::read('App.namespace');
+        Configure::write('App.namespace', 'TestApp');
+
         App::build([
             'Plugin' => [
                 CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS,
@@ -151,6 +158,7 @@ class ShellDispatcherTest extends CakeTestCase
     public function tearDown(): void
     {
         CakePlugin::unload();
+        Configure::write('App.namespace', $this->_appNamespace);
 
         parent::tearDown();
     }

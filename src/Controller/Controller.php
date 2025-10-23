@@ -610,12 +610,34 @@ class Controller extends CakeObject implements CakeEventListener
     {
         $pluginController = $pluginDot = null;
 
+        $originalMergeParent = $this->_mergeParent;
         $_mergeParent = App::className($this->_mergeParent, 'Controller');
         if ($_mergeParent) {
             $this->_mergeParent = $_mergeParent;
         }
 
         $mergeParent = is_subclass_of($this, $this->_mergeParent);
+
+        // If not found via resolved FQCN, search for AppController in parent class chain
+        if (!$mergeParent) {
+            $currentClass = get_parent_class($this);
+            while ($currentClass && !$mergeParent) {
+                // Get short class name from current parent in chain
+                $shortName = $currentClass;
+                if (str_contains($currentClass, '\\')) {
+                    $parts = explode('\\', $currentClass);
+                    $shortName = end($parts);
+                }
+                // Compare with original _mergeParent name
+                if ($shortName === $originalMergeParent) {
+                    $mergeParent = true;
+                    $this->_mergeParent = $currentClass;
+                    break;
+                }
+                // Move up the class chain
+                $currentClass = get_parent_class($currentClass);
+            }
+        }
         $pluginVars = [];
         $appVars = [];
 

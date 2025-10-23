@@ -1007,6 +1007,7 @@ class Post extends CakeTestModel
     }
 }
 class_alias(Post::class, 'App\\Model\\Post');
+class_alias(Post::class, 'TestApp\\Model\\Post');
 
 /**
  * Author class
@@ -3098,6 +3099,7 @@ class TestPluginArticle extends CakeTestModel
     ];
 }
 class_alias(TestPluginArticle::class, 'App\\Model\\TestPluginArticle');
+class_alias(TestPluginArticle::class, 'TestPlugin\\Model\\TestPluginArticle');
 
 /**
  * TestPluginComment class

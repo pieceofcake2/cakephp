@@ -19,11 +19,17 @@ namespace Cake\Test\TestCase\Model;
 
 use Cake\Core\App;
 use Cake\Core\CakePlugin;
+use Cake\Core\Configure;
 use Cake\Error\MissingDatasourceConfigException;
 use Cake\Error\MissingDatasourceException;
 use Cake\Model\ConnectionManager;
+use Cake\Model\Datasource\DboSource;
 use Cake\TestSuite\CakeTestCase;
 use stdClass;
+use TestApp\Model\Datasource\Database\TestLocalDriver;
+use TestPlugin\Model\Datasource\Database\DboDummy;
+use TestPlugin\Model\Datasource\Database\TestDriver;
+use TestPlugin\Model\Datasource\TestSource;
 
 /**
  * ConnectionManagerTest
@@ -32,6 +38,19 @@ use stdClass;
  */
 class ConnectionManagerTest extends CakeTestCase
 {
+    protected $_appNamespace = null;
+
+    /**
+     * @return void
+     */
+    public function setUp(): void
+    {
+        parent::setUp();
+
+        $this->_appNamespace = Configure::read('App.namespace');
+        Configure::write('App.namespace', 'TestApp');
+    }
+
     /**
      * tearDown method
      *
@@ -40,6 +59,7 @@ class ConnectionManagerTest extends CakeTestCase
     public function tearDown(): void
     {
         CakePlugin::unload();
+        Configure::write('App.namespace', $this->_appNamespace);
 
         parent::tearDown();
     }
@@ -109,7 +129,7 @@ class ConnectionManagerTest extends CakeTestCase
         $config = ['datasource' => 'TestPlugin.TestSource'];
         $connection = ConnectionManager::create($name, $config);
 
-        $this->assertTrue(class_exists('TestSource'));
+        $this->assertTrue(class_exists(TestSource::class, false));
         $this->assertEquals($connection->configKeyName, $name);
         $this->assertEquals($connection->config, $config);
 
@@ -132,8 +152,8 @@ class ConnectionManagerTest extends CakeTestCase
 
         $connection = ConnectionManager::create($name, $config);
 
-        $this->assertTrue(class_exists('TestSource'));
-        $this->assertTrue(class_exists('TestDriver'));
+        $this->assertTrue(class_exists(TestSource::class, false));
+        $this->assertTrue(class_exists(TestDriver::class, false));
         $this->assertEquals($connection->configKeyName, $name);
         $this->assertEquals($connection->config, $config);
 
@@ -156,8 +176,8 @@ class ConnectionManagerTest extends CakeTestCase
 
         $connection = ConnectionManager::create($name, $config);
 
-        $this->assertTrue(class_exists('DboSource'));
-        $this->assertTrue(class_exists('DboDummy'));
+        $this->assertTrue(class_exists(DboSource::class, false));
+        $this->assertTrue(class_exists(DboDummy::class, false));
         $this->assertEquals($connection->configKeyName, $name);
 
         ConnectionManager::drop($name);
@@ -182,8 +202,8 @@ class ConnectionManagerTest extends CakeTestCase
 
         $connection = ConnectionManager::create($name, $config);
 
-        $this->assertTrue(class_exists('TestSource'));
-        $this->assertTrue(class_exists('TestLocalDriver'));
+        $this->assertTrue(class_exists(TestSource::class, false));
+        $this->assertTrue(class_exists(TestLocalDriver::class, false));
         $this->assertEquals($connection->configKeyName, $name);
         $this->assertEquals($connection->config, $config);
         ConnectionManager::drop($name);

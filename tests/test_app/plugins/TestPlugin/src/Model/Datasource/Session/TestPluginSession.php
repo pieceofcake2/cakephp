@@ -5,7 +5,7 @@
 
 namespace TestPlugin\Model\Datasource\Session;
 
-use Cake\Network\Session\CakeSessionHandlerInterface;
+use Cake\Model\Datasource\Session\CakeSessionHandlerInterface;
 
 class TestPluginSession implements CakeSessionHandlerInterface
 {
