@@ -65,6 +65,78 @@ CakePHP 2.x now supports modern PHP namespaces while maintaining full backward c
   - [pieceofcake2/app](https://github.com/pieceofcake2/app) - Application skeleton with namespace support
   - UPGRADE.md - Detailed migration guide with step-by-step instructions
 
+### Namespace Support Improvements ([PR #28](https://github.com/pieceofcake2/cakephp/pull/28))
+
+- **Dynamic App* Class Resolution**: Enhanced LegacyClassLoader with dynamic AppController/AppModel detection
+  - Automatically registers class aliases for application base classes (AppController, AppModel, etc.)
+  - Detects custom namespaces from `Configure::read('App.namespace')`
+  - Maps non-namespaced `AppController` to `{Namespace}\Controller\AppController`
+  - Maps non-namespaced `AppModel` to `{Namespace}\Model\AppModel`
+  - Enables seamless migration for applications using custom namespace configurations
+  - Prevents "Cannot declare class" errors when tests run in different order
+
+- **App::className() Simplification**: Removed redundant fallback code for cleaner implementation
+  - Simplified logic by removing unnecessary non-namespaced class checks
+  - Improved code maintainability while preserving all functionality
+
+- **Comprehensive Test Coverage**: Added extensive tests for namespace migration features
+  - LegacyClassLoaderTest validates class alias registration
+  - Tests cover both default 'App' and custom namespace configurations
+  - Ensures backward compatibility with non-namespaced code
+  - Verifies dynamic AppController/AppModel resolution
+
+### Test Application Namespace Migration ([PR #29](https://github.com/pieceofcake2/cakephp/pull/29))
+
+- **Modernized Test Application Structure**: Refactored tests/test_app with full namespace support
+  - Migrated test_app to use modern `src/` directory structure
+  - Added PSR-4 namespace declarations to all test_app classes
+  - Updated plugin structures (TestPlugin, TestPluginTwo) with namespace support
+  - Provides reference implementation for namespace migration patterns
+
+- **Dynamic src/ Directory Detection**: Enhanced App::path() for modern plugin structure
+  - Automatically detects modern `{Plugin}/src/` directory structure
+  - Falls back to legacy `{Plugin}/` structure for backward compatibility
+  - Supports both modern CakePHP 2.13 and traditional directory layouts
+  - Enables gradual plugin migration to modern structure
+
+- **Namespace Support for Console Components**:
+  - **Console Tasks**: Added namespace-aware class resolution in ConsoleTaskCollection
+    - Tasks loaded via `App::className()` for proper FQCN resolution
+    - Supports both plugin and application tasks with namespaces
+  - **Shell Dispatcher**: Enhanced ShellDispatcher with namespace support
+    - Added fallback logic for plugin.plugin format (e.g., 'test_plugin' → 'TestPlugin.TestPlugin')
+    - Proper handling of shells where name matches plugin name
+  - **Custom Route Classes**: Router::connect() now uses App::className() for route class resolution
+    - Supports Plugin.RouteClass syntax with namespace resolution
+    - Falls back to non-plugin route classes when needed
+    - Enables namespace-aware custom route implementations
+
+- **Controller Variable Merging**: Added parent class chain detection in Controller::_mergeControllerVars()
+  - Walks parent class hierarchy when FQCN resolution fails
+  - Compares short class names to find AppController in chain
+  - Prevents modelClass overwrites when controllers extend AppController from different namespaces
+  - Fixes test compatibility issues with inline AppController definitions
+
+- **App::import() Namespace Support**: Enhanced App::import() for namespace-aware class loading
+  - Modified _loadClass() to use `include_once` instead of `include`
+  - Prevents duplicate class declaration errors in namespace environments
+  - Enables proper class loading for both namespaced and non-namespaced code
+
+- **Plugin Model Initialization**: Fixed CakeSchema::read() to properly handle plugin models
+  - Passes plugin prefix when initializing models via ClassRegistry::init()
+  - Ensures correct table name resolution for plugin models in schema operations
+  - Fixes "Table not found" errors for plugin models
+
+- **Type Safety Improvements**: Added type hints to Inflector utility methods
+  - Added `?string` parameter and `string` return types to camelize(), underscore(), humanize()
+  - Improved IDE support and static analysis capabilities
+  - Enhanced type safety for string manipulation operations
+
+- **Test Configuration Management**: Standardized App.namespace configuration across test suite
+  - Added setUp/tearDown methods to preserve and restore App.namespace configuration
+  - Ensures test isolation and prevents namespace configuration leaks between tests
+  - Improves test reliability when running in different orders
+
 ## v2.12.0 (2025-10-09)
 
 ### Composer Autoloading Migration ([PR #22](https://github.com/pieceofcake2/cakephp/pull/22))
