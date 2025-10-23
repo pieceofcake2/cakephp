@@ -23,6 +23,7 @@ namespace Cake\Test\TestCase\TestSuite;
 use App\Model\Post;
 use Cake\Core\App;
 use Cake\Core\CakePlugin;
+use Cake\Core\Configure;
 use Cake\Error\MissingModelException;
 use Cake\Model\ConnectionManager;
 use Cake\Model\Model;
@@ -75,12 +76,25 @@ class ConstructorPost extends Model
  */
 class CakeTestCaseTest extends CakeTestCase
 {
+    protected $_appNamespace = null;
+
     /**
      * fixtures property
      *
      * @var array
      */
     public $fixtures = ['core.post', 'core.author', 'core.test_plugin_comment'];
+
+    /**
+     * @return void
+     */
+    public function setUp(): void
+    {
+        parent::setUp();
+
+        $this->_appNamespace = Configure::read('App.namespace');
+        Configure::write('App.namespace', 'TestApp');
+    }
 
     /**
      * tearDown
@@ -90,6 +104,7 @@ class CakeTestCaseTest extends CakeTestCase
     public function tearDown(): void
     {
         unset($this->Result);
+        Configure::write('App.namespace', $this->_appNamespace);
 
         parent::tearDown();
     }

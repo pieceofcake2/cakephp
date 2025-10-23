@@ -273,7 +273,7 @@ class AssetDispatcherTest extends CakeTestCase
         ]);
 
         $url = 'theme/test_theme/css/test_asset.css';
-        $file = 'View/Themed/TestTheme/webroot/css/test_asset.css';
+        $file = 'templates/Themed/TestTheme/webroot/css/test_asset.css';
 
         $request = new CakeRequest($url);
         $response = $this->getMock(CakeResponse::class, ['_sendHeader', 'send']);

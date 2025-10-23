@@ -39,6 +39,8 @@ if (!defined('FULL_BASE_URL')) {
  */
 class RouterTest extends CakeTestCase
 {
+    protected $_appNamespace = null;
+
     /**
      * setUp method
      *
@@ -47,6 +49,10 @@ class RouterTest extends CakeTestCase
     public function setUp(): void
     {
         parent::setUp();
+
+        $this->_appNamespace = Configure::read('App.namespace');
+        Configure::write('App.namespace', 'TestApp');
+
         Configure::write('Routing', ['admin' => null, 'prefixes' => []]);
     }
 
@@ -60,6 +66,8 @@ class RouterTest extends CakeTestCase
         CakePlugin::unload();
         Router::fullBaseUrl('');
         Configure::write('App.fullBaseUrl', 'http://localhost');
+
+        Configure::write('App.namespace', $this->_appNamespace);
 
         parent::tearDown();
     }
