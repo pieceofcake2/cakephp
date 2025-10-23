@@ -240,14 +240,17 @@ class App
 
             $packageFormat = static::_packageFormat();
             if (!empty($packageFormat[$type])) {
+                if ($type === 'Vendor' && is_dir($pluginPath . 'vendor')) {
+                    $path[] = $pluginPath . 'vendor' . DS;
+                } elseif ($type === 'View' && is_dir($pluginPath . 'templates')) {
+                    $path[] = $pluginPath . 'templates' . DS;
+                }
+
                 foreach ($packageFormat[$type] as $f) {
                     $_path = sprintf($f, $srcPath);
                     if ($f !== $_path) {
                         $path[] = $_path;
                     }
-                }
-                if ($type === 'View') {
-                    $path[] = $pluginPath . 'templates' . DS;
                 }
             }
 

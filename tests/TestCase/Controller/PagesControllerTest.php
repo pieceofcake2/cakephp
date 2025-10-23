@@ -26,7 +26,7 @@ use Cake\Error\NotFoundException;
 use Cake\Network\CakeRequest;
 use Cake\Network\CakeResponse;
 use Cake\TestSuite\CakeTestCase;
-use PagesController;
+use TestApp\Controller\PagesController;
 
 /**
  * PagesControllerTest class

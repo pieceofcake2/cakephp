@@ -236,7 +236,7 @@ class AppTest extends CakeTestCase
             '/foo/bar',
             APP . 'Plugin' . DS,
             ROOT . DS . 'plugins' . DS,
-            dirname(CAKE, 2) . DS . 'plugins' . DS,
+            dirname(CAKE) . DS . 'plugins' . DS,
         ];
         App::build([
             'Plugin' => [
@@ -284,7 +284,7 @@ class AppTest extends CakeTestCase
         CakePlugin::load('TestPlugin');
 
         $result = App::path('Vendor', 'TestPlugin');
-        $this->assertEquals($basepath . 'TestPlugin' . DS . 'Vendor' . DS, $result[0]);
+        $this->assertEquals($basepath . 'TestPlugin' . DS . 'vendor' . DS, $result[0]);
     }
 
     /**
@@ -793,11 +793,11 @@ class AppTest extends CakeTestCase
 
         $result = App::import('Vendor', 'TestPlugin.sample/SamplePlugin');
         $this->assertTrue($result);
-        $this->assertTrue(class_exists(SamplePluginClassTestName::class));
+        $this->assertTrue(class_exists(SamplePluginClassTestName::class, false));
 
         $result = App::import('Vendor', 'sample/ConfigureTestVendorSample');
         $this->assertTrue($result);
-        $this->assertTrue(class_exists(ConfigureTestVendorSample::class));
+        $this->assertTrue(class_exists(ConfigureTestVendorSample::class, false));
 
         ob_start();
         $result = App::import('Vendor', 'SomeNameInSubfolder', ['file' => 'somename/some.name.php']);

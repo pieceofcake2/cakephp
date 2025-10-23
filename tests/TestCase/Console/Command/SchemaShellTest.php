@@ -106,6 +106,8 @@ class SchemaShellTest extends CakeTestCase
         'core.comment', 'core.test_plugin_comment', 'core.aco', 'core.aro', 'core.aros_aco',
     ];
 
+    protected $_appNamespace = null;
+
     /**
      * setUp method
      *
@@ -114,6 +116,9 @@ class SchemaShellTest extends CakeTestCase
     public function setUp(): void
     {
         parent::setUp();
+
+        $this->_appNamespace = Configure::read('App.namespace');
+        Configure::write('App.namespace', 'TestApp');
 
         $out = $this->getMock(ConsoleOutput::class, [], [], '', false);
         $in = $this->getMock(ConsoleInput::class, [], [], '', false);
@@ -135,6 +140,8 @@ class SchemaShellTest extends CakeTestCase
             $this->file->delete();
             unset($this->file);
         }
+
+        Configure::write('App.namespace', $this->_appNamespace);
 
         parent::tearDown();
     }
