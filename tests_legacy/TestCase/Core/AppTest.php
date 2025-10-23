@@ -201,7 +201,7 @@ class AppTest extends CakeTestCase
             '/foo/bar',
             APP . 'Plugin' . DS,
             ROOT . DS . 'plugins' . DS,
-            dirname(CAKE, 2) . DS . 'plugins' . DS,
+            dirname(CAKE) . DS . 'plugins' . DS,
         ];
         App::build([
             'Plugin' => [

@@ -20,7 +20,6 @@ namespace Cake\Log;
 
 use Cake\Core\App;
 use Cake\Error\CakeLogException;
-use Cake\Log\Engine\BaseLog;
 use Cake\Utility\ObjectCollection;
 
 /**
