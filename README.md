@@ -162,7 +162,7 @@ For detailed information about prerequisites, migration steps, and breaking chan
 
 ```bash
 # Copy test database configuration
-cp tests/Config/database.php app/Config/database.php
+cp ./tests/config/database.php ./vendor/pieceofcake2/app/config/
 
 # Start services
 docker-compose up -d
@@ -185,7 +185,7 @@ DB=sqlsrv docker-compose exec web ./vendor/bin/phpunit
 composer install
 
 # Set up database configuration
-cp app/Config/database.php.default app/Config/database.php
+cp ./tests/config/database.php ./vendor/pieceofcake2/app/config/
 # Edit database.php with your database credentials
 
 # Run tests
