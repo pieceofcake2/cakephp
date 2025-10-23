@@ -635,7 +635,7 @@ class AppTest extends CakeTestCase
         $this->assertTrue($result);
         $this->assertTrue(class_exists(TestSource::class));
 
-        App::uses('ExampleExample', 'TestPlugin.Vendor/Example');
+        App::uses('ExampleExample', 'TestPlugin.vendor/Example');
         $this->assertTrue(class_exists(ExampleExample::class));
 
         App::build();
