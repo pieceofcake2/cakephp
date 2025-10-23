@@ -2,6 +2,18 @@
 
 ## Unreleased
 
+### Modern PHP Syntax Adoption ([PR #30](https://github.com/pieceofcake2/cakephp/pull/30))
+
+Replace legacy `func_get_args()`, `func_num_args()`, and `func_get_arg()` calls with modern PHP variadic parameter syntax (`...$args`) across the codebase.
+
+- **Affected Components**: 15 files updated including AuthComponent, SecurityComponent, Controller, Model, Router, Hash, Set, Sanitize, HtmlHelper, Shell, CakeRequest, and more
+- **Code Quality**: 128 lines added, 136 lines removed - overall code simplification
+- **Type Safety**: Added type hints and return type declarations where appropriate
+- **Backwards Compatibility**: All existing method signatures and behaviors preserved
+  - `AuthComponent::allow(null)` and `deny(null)` still work as expected
+  - `HtmlHelper::css($path, 'stylesheet', $options)` legacy signature supported
+  - All variadic methods accept the same argument patterns as before
+
 ### Security Improvements ([PR #23](https://github.com/pieceofcake2/cakephp/pull/23))
 
 - **XML External Entity (XXE) Protection**: Removed `loadEntities` option from `Xml::build()` for enhanced security
