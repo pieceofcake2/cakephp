@@ -20,9 +20,11 @@
 
 namespace Cake\Test\TestCase\Console\Command;
 
+use Cake\Console\ConsoleInput;
 use Cake\Console\ConsoleOutput;
 use Cake\Core\App;
 use Cake\Core\CakePlugin;
+use Cake\Core\Configure;
 use Cake\TestSuite\CakeTestCase;
 
 /**
@@ -47,6 +49,8 @@ class TestCompletionStringOutput extends ConsoleOutput
  */
 class CompletionShellTest extends CakeTestCase
 {
+    protected $_appNamespace = null;
+
     /**
      * setUp method
      *
@@ -55,12 +59,16 @@ class CompletionShellTest extends CakeTestCase
     public function setUp(): void
     {
         parent::setUp();
+
+        $this->_appNamespace = Configure::read('App.namespace');
+        Configure::write('App.namespace', 'TestApp');
+
         App::build([
             'Plugin' => [
-                CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS,
+                CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS,
             ],
             'Console/Command' => [
-                CORE_TESTS . DS . 'test_app' . DS . 'Console' . DS . 'Command' . DS,
+                CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'Console' . DS . 'Command' . DS,
             ],
         ], App::RESET);
         CakePlugin::load(['TestPlugin', 'TestPluginTwo']);
@@ -90,6 +98,7 @@ class CompletionShellTest extends CakeTestCase
     {
         unset($this->Shell);
         CakePlugin::unload();
+        Configure::write('App.namespace', $this->_appNamespace);
 
         parent::tearDown();
     }

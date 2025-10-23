@@ -54,7 +54,7 @@ use Exception;
 use OutOfBoundsException;
 use PDOException;
 use RuntimeException;
-use TestAppsExceptionRenderer;
+use TestApp\Error\TestAppsExceptionRenderer;
 
 /**
  * Short description for class.
@@ -176,6 +176,8 @@ class MissingWidgetThingException extends NotFoundException
  */
 class ExceptionRendererTest extends CakeTestCase
 {
+    protected $_appNamespace = null;
+
     protected $_restoreError = false;
 
     /**
@@ -186,10 +188,15 @@ class ExceptionRendererTest extends CakeTestCase
     public function setUp(): void
     {
         parent::setUp();
+
+        $this->_appNamespace = Configure::read('App.namespace');
+        Configure::write('App.namespace', 'TestApp');
+
         Configure::write('Config.language', 'eng');
         App::build([
             'View' => [
-                CORE_TESTS . DS . 'test_app' . DS . 'View' . DS,
+                CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'View' . DS,
+                CORE_TESTS . DS . 'test_app' . DS . 'templates' . DS,
             ],
         ], App::RESET);
         Router::reload();
@@ -210,6 +217,8 @@ class ExceptionRendererTest extends CakeTestCase
         if ($this->_restoreError) {
             restore_error_handler();
         }
+
+        Configure::write('App.namespace', $this->_appNamespace);
 
         parent::tearDown();
     }
@@ -879,7 +888,7 @@ class ExceptionRendererTest extends CakeTestCase
     public function testMissingPluginRenderSafeWithPlugin()
     {
         App::build([
-            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS],
+            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
         ], App::RESET);
         CakePlugin::load('TestPlugin');
         $exception = new NotFoundException();

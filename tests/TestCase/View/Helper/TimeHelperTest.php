@@ -20,9 +20,12 @@ namespace Cake\Test\TestCase\View\Helper;
 
 use Cake\Core\App;
 use Cake\Core\CakePlugin;
+use Cake\Core\Configure;
 use Cake\TestSuite\CakeTestCase;
 use Cake\View\Helper\TimeHelper;
 use Cake\View\View;
+use TestApp\Utility\TestAppEngine;
+use TestPlugin\Utility\TestPluginEngine;
 
 /**
  * TimeHelperTestObject class
@@ -50,7 +53,7 @@ class TimeHelperTestObject extends TimeHelper
 class CakeTimeMock
 {
 }
-class_alias(CakeTimeMock::class, 'App\\Utility\\CakeTimeMock');
+class_alias(CakeTimeMock::class, 'TestApp\\Utility\\CakeTimeMock');
 
 /**
  * TimeHelperTest class
@@ -59,6 +62,8 @@ class_alias(CakeTimeMock::class, 'App\\Utility\\CakeTimeMock');
  */
 class TimeHelperTest extends CakeTestCase
 {
+    protected $_appNamespace = null;
+
     public $Time = null;
 
     public $CakeTime = null;
@@ -71,6 +76,10 @@ class TimeHelperTest extends CakeTestCase
     public function setUp(): void
     {
         parent::setUp();
+
+        $this->_appNamespace = Configure::read('App.namespace');
+        Configure::write('App.namespace', 'TestApp');
+
         $this->View = new View(null);
     }
 
@@ -82,6 +91,8 @@ class TimeHelperTest extends CakeTestCase
     public function tearDown(): void
     {
         unset($this->View);
+
+        Configure::write('App.namespace', $this->_appNamespace);
 
         parent::tearDown();
     }
@@ -148,17 +159,17 @@ class TimeHelperTest extends CakeTestCase
     public function testEngineOverride()
     {
         App::build([
-            'Utility' => [CORE_TESTS . DS . 'test_app' . DS . 'Utility' . DS],
+            'Utility' => [CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'Utility' . DS],
         ], App::REGISTER);
         $Time = new TimeHelperTestObject($this->View, ['engine' => 'TestAppEngine']);
-        $this->assertInstanceOf('TestAppEngine', $Time->engine());
+        $this->assertInstanceOf(TestAppEngine::class, $Time->engine());
 
         App::build([
-            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS],
+            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
         ]);
         CakePlugin::load('TestPlugin');
         $Time = new TimeHelperTestObject($this->View, ['engine' => 'TestPlugin.TestPluginEngine']);
-        $this->assertInstanceOf('TestPluginEngine', $Time->engine());
+        $this->assertInstanceOf(TestPluginEngine::class, $Time->engine());
         CakePlugin::unload('TestPlugin');
     }
 

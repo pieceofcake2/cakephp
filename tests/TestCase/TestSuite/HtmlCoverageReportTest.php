@@ -46,7 +46,7 @@ class HtmlCoverageReportTest extends CakeTestCase
         // Therefore, CakeBaseReporter are unnecessary.
         parent::setUp();
         App::build([
-            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS],
+            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
         ], App::RESET);
         CakePlugin::load(['TestPlugin']);
         $reporter = new CakeHtmlReporter();

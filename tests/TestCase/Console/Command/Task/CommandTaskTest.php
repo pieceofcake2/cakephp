@@ -16,6 +16,8 @@
 
 namespace Cake\Test\TestCase\Console\Command\Task;
 
+use Cake\Console\ConsoleInput;
+use Cake\Console\ConsoleOutput;
 use Cake\Core\App;
 use Cake\Core\CakePlugin;
 use Cake\TestSuite\CakeTestCase;
@@ -37,10 +39,10 @@ class CommandTaskTest extends CakeTestCase
         parent::setUp();
         App::build([
             'Plugin' => [
-                CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS,
+                CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS,
             ],
             'Console/Command' => [
-                CORE_TESTS . DS . 'test_app' . DS . 'Console' . DS . 'Command' . DS,
+                CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'Console' . DS . 'Command' . DS,
             ],
         ], App::RESET);
         CakePlugin::load(['TestPlugin', 'TestPluginTwo']);

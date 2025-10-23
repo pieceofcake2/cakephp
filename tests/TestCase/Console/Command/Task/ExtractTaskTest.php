@@ -20,8 +20,11 @@
 
 namespace Cake\Test\TestCase\Console\Command\Task;
 
+use Cake\Console\ConsoleInput;
+use Cake\Console\ConsoleOutput;
 use Cake\Core\App;
 use Cake\Core\CakePlugin;
+use Cake\Core\Configure;
 use Cake\TestSuite\CakeTestCase;
 use Cake\Utility\Folder;
 
@@ -32,6 +35,8 @@ use Cake\Utility\Folder;
  */
 class ExtractTaskTest extends CakeTestCase
 {
+    protected $_appNamespace = null;
+
     /**
      * setUp method
      *
@@ -77,7 +82,7 @@ class ExtractTaskTest extends CakeTestCase
     {
         $this->Task->interactive = false;
 
-        $this->Task->params['paths'] = CORE_TESTS . DS . 'test_app' . DS . 'View' . DS . 'Pages';
+        $this->Task->params['paths'] = CORE_TESTS . DS . 'test_app' . DS . 'templates' . DS . 'Pages';
         $this->Task->params['output'] = $this->path . DS;
         $this->Task->params['extract-core'] = 'no';
         $this->Task->expects($this->never())->method('err');
@@ -204,7 +209,7 @@ class ExtractTaskTest extends CakeTestCase
     {
         $this->Task->interactive = false;
 
-        $this->Task->params['paths'] = CORE_TESTS . DS . 'test_app' . DS . 'View' . DS . 'Pages';
+        $this->Task->params['paths'] = CORE_TESTS . DS . 'test_app' . DS . 'templates' . DS . 'Pages';
         $this->Task->params['output'] = $this->path . DS;
         $this->Task->params['extract-core'] = 'no';
         $this->Task->params['merge'] = 'no';
@@ -235,7 +240,7 @@ class ExtractTaskTest extends CakeTestCase
     {
         $this->Task->interactive = false;
 
-        $this->Task->params['paths'] = CORE_TESTS . DS . 'test_app' . DS . 'View' . DS . 'Pages';
+        $this->Task->params['paths'] = CORE_TESTS . DS . 'test_app' . DS . 'templates' . DS . 'Pages';
         $this->Task->params['output'] = $this->path . DS;
         $this->Task->params['extract-core'] = 'no';
         $this->Task->params['merge'] = 'no';
@@ -264,7 +269,7 @@ class ExtractTaskTest extends CakeTestCase
     {
         $this->Task->interactive = false;
 
-        $this->Task->params['paths'] = CORE_TESTS . DS . 'test_app' . DS . 'View';
+        $this->Task->params['paths'] = CORE_TESTS . DS . 'test_app' . DS . 'templates';
         $this->Task->params['output'] = $this->path . DS;
         $this->Task->params['exclude'] = 'Pages,Layouts';
         $this->Task->params['extract-core'] = 'no';
@@ -293,8 +298,8 @@ class ExtractTaskTest extends CakeTestCase
         $this->Task->interactive = false;
 
         $this->Task->params['paths'] =
-            CORE_TESTS . DS . 'test_app' . DS . 'View' . DS . 'Pages,' .
-            CORE_TESTS . DS . 'test_app' . DS . 'View' . DS . 'Posts';
+            CORE_TESTS . DS . 'test_app' . DS . 'templates' . DS . 'Pages,' .
+            CORE_TESTS . DS . 'test_app' . DS . 'templates' . DS . 'Posts';
 
         $this->Task->params['output'] = $this->path . DS;
         $this->Task->params['extract-core'] = 'no';
@@ -316,7 +321,7 @@ class ExtractTaskTest extends CakeTestCase
     public function testExtractExcludePlugins()
     {
         App::build([
-            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS],
+            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
         ]);
         $this->out = $this->getMock(ConsoleOutput::class, [], [], '', false);
         $this->in = $this->getMock(ConsoleInput::class, [], [], '', false);
@@ -344,7 +349,7 @@ class ExtractTaskTest extends CakeTestCase
     public function testExtractPlugin()
     {
         App::build([
-            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS],
+            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
         ]);
 
         $this->out = $this->getMock(ConsoleOutput::class, [], [], '', false);
@@ -373,9 +378,12 @@ class ExtractTaskTest extends CakeTestCase
      */
     public function testExtractModelValidation()
     {
+        $this->_appNamespace = Configure::read('App.namespace');
+        Configure::write('App.namespace', 'TestApp');
+
         App::build([
-            'Model' => [CORE_TESTS . DS . 'test_app' . DS . 'Model' . DS],
-            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS],
+            'Model' => [CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'Model' . DS],
+            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
         ], App::RESET);
         $this->out = $this->getMock(ConsoleOutput::class, [], [], '', false);
         $this->in = $this->getMock(ConsoleInput::class, [], [], '', false);
@@ -384,7 +392,10 @@ class ExtractTaskTest extends CakeTestCase
             ['_isExtractingApp', 'in', 'out', 'err', 'clear', '_stop'],
             [$this->out, $this->out, $this->in],
         );
-        $this->Task->expects($this->exactly(2))->method('_isExtractingApp')->will($this->returnValue(true));
+        $this->Task
+            ->expects($this->exactly(2))
+            ->method('_isExtractingApp')
+            ->will($this->returnValue(true));
 
         $this->Task->params['paths'] = CORE_TESTS . DS . 'test_app' . DS;
         $this->Task->params['output'] = $this->path . DS;
@@ -402,6 +413,8 @@ class ExtractTaskTest extends CakeTestCase
         $this->assertStringContainsString('msgid "Post body is super required"', $result);
         $this->assertStringContainsString('msgid "double \\"quoted\\" validation"', $result, 'Strings with quotes not handled correctly');
         $this->assertStringContainsString("msgid \"single 'quoted' validation\"", $result, 'Strings with quotes not handled correctly');
+
+        Configure::write('App.namespace', $this->_appNamespace);
     }
 
     /**
@@ -413,7 +426,7 @@ class ExtractTaskTest extends CakeTestCase
     public function testExtractModelValidationWithDomainInModel()
     {
         App::build([
-            'Model' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS . 'TestPlugin' . DS . 'Model' . DS],
+            'Model' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS . 'TestPlugin' . DS . 'src' . DS . 'Model' . DS],
         ]);
         $this->out = $this->getMock(ConsoleOutput::class, [], [], '', false);
         $this->in = $this->getMock(ConsoleInput::class, [], [], '', false);
@@ -422,7 +435,10 @@ class ExtractTaskTest extends CakeTestCase
             ['_isExtractingApp', 'in', 'out', 'err', 'clear', '_stop'],
             [$this->out, $this->out, $this->in],
         );
-        $this->Task->expects($this->exactly(2))->method('_isExtractingApp')->will($this->returnValue(true));
+        $this->Task
+            ->expects($this->exactly(2))
+            ->method('_isExtractingApp')
+            ->will($this->returnValue(true));
 
         $this->Task->params['paths'] = CORE_TESTS . DS . 'test_app' . DS;
         $this->Task->params['output'] = $this->path . DS;
@@ -432,8 +448,8 @@ class ExtractTaskTest extends CakeTestCase
 
         $this->Task->execute();
         $result = file_get_contents($this->path . DS . 'test_plugin.pot');
-        $this->assertStringContainsString('Plugin/TestPlugin/Model/TestPluginPost.php:validation for field title', $result);
-        $this->assertStringContainsString('Plugin/TestPlugin/Model/TestPluginPost.php:validation for field body', $result);
+        $this->assertStringContainsString('plugins/TestPlugin/src/Model/TestPluginPost.php:validation for field title', $result);
+        $this->assertStringContainsString('plugins/TestPlugin/src/Model/TestPluginPost.php:validation for field body', $result);
         $this->assertStringContainsString('msgid "Post title is required"', $result);
         $this->assertStringContainsString('msgid "Post body is required"', $result);
         $this->assertStringContainsString('msgid "Post body is super required"', $result);
@@ -447,7 +463,7 @@ class ExtractTaskTest extends CakeTestCase
     public function testExtractModelValidationInPlugin()
     {
         App::build([
-            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS],
+            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
         ]);
         $this->out = $this->getMock(ConsoleOutput::class, [], [], '', false);
         $this->in = $this->getMock(ConsoleInput::class, [], [], '', false);

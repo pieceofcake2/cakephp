@@ -30,6 +30,7 @@ use Cake\Model\ModelBehavior;
 use Cake\TestSuite\CakeTestCase;
 use Cake\Utility\ClassRegistry;
 use Cake\Utility\Hash;
+use TestPlugin\Model\Behavior\TestPluginPersisterOneBehavior;
 
 App::uses('AppModel', 'Model');
 
@@ -565,10 +566,10 @@ class BehaviorCollectionTest extends CakeTestCase
         $this->assertEquals('working', $Apple->testMethod(true));
         $this->assertEquals('working', $Apple->Behaviors->dispatchMethod($Apple, 'testMethod'));
 
-        App::build(['Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS]]);
+        App::build(['Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS]]);
         CakePlugin::load('TestPlugin');
         $this->assertTrue($Apple->Behaviors->load('SomeOther', ['className' => 'TestPlugin.TestPluginPersisterOne']));
-        $this->assertInstanceOf('TestPluginPersisterOneBehavior', $Apple->Behaviors->SomeOther);
+        $this->assertInstanceOf(TestPluginPersisterOneBehavior::class, $Apple->Behaviors->SomeOther);
 
         $result = $Apple->Behaviors->loaded();
         $this->assertEquals(['Test', 'SomeOther'], $result, 'loaded() results are wrong.');

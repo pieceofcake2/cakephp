@@ -41,7 +41,7 @@ class RequestActionPost extends CakeTestModel
      */
     public $useTable = 'posts';
 }
-class_alias(RequestActionPost::class, 'App\\Model\\RequestActionPost');
+class_alias(RequestActionPost::class, 'TestApp\\Model\\RequestActionPost');
 
 /**
  * RequestActionController class
@@ -141,7 +141,7 @@ class RequestActionController extends Controller
         $this->response->body($content);
     }
 }
-class_alias(RequestActionController::class, 'App\\Controller\\RequestActionController');
+class_alias(RequestActionController::class, 'TestApp\\Controller\\RequestActionController');
 
 /**
  * TestCakeObject class
@@ -310,7 +310,7 @@ class ObjectTestModel extends CakeTestModel
 {
     public $useTable = false;
 }
-class_alias(ObjectTestModel::class, 'App\\Model\\ObjectTestModel');
+class_alias(ObjectTestModel::class, 'TestApp\\Model\\ObjectTestModel');
 
 /**
  * CakeObject Test class
@@ -319,6 +319,8 @@ class_alias(ObjectTestModel::class, 'App\\Model\\ObjectTestModel');
  */
 class CakeObjectTest extends CakeTestCase
 {
+    protected $_appNamespace = null;
+
     /**
      * fixtures
      *
@@ -334,6 +336,9 @@ class CakeObjectTest extends CakeTestCase
     public function setUp(): void
     {
         parent::setUp();
+
+        $this->_appNamespace = Configure::read('App.namespace');
+        Configure::write('App.namespace', 'TestApp');
         $this->object = new TestCakeObject();
     }
 
@@ -346,6 +351,7 @@ class CakeObjectTest extends CakeTestCase
     {
         CakePlugin::unload();
         unset($this->object);
+        Configure::write('App.namespace', $this->_appNamespace);
 
         parent::tearDown();
     }
@@ -488,9 +494,12 @@ class CakeObjectTest extends CakeTestCase
     public function testRequestAction()
     {
         App::build([
-            'Model' => [CORE_TESTS . DS . 'test_app' . DS . 'Model' . DS],
-            'View' => [CORE_TESTS . DS . 'test_app' . DS . 'View' . DS],
-            'Controller' => [CORE_TESTS . DS . 'test_app' . DS . 'Controller' . DS],
+            'Model' => [CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'Model' . DS],
+            'View' => [
+                CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'View' . DS,
+                CORE_TESTS . DS . 'test_app' . DS . 'templates' . DS,
+            ],
+            'Controller' => [CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'Controller' . DS],
         ], App::RESET);
         $this->assertNull(Router::getRequest(), 'request stack should be empty.');
 
@@ -549,7 +558,7 @@ class CakeObjectTest extends CakeTestCase
     public function testRequestActionPlugins()
     {
         App::build([
-            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS],
+            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
         ], App::RESET);
         CakePlugin::load('TestPlugin');
         Router::reload();
@@ -588,10 +597,13 @@ class CakeObjectTest extends CakeTestCase
     public function testRequestActionArray()
     {
         App::build([
-            'Model' => [CORE_TESTS . DS . 'test_app' . DS . 'Model' . DS],
-            'View' => [CORE_TESTS . DS . 'test_app' . DS . 'View' . DS],
-            'Controller' => [CORE_TESTS . DS . 'test_app' . DS . 'Controller' . DS],
-            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS],
+            'Model' => [CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'Model' . DS],
+            'View' => [
+                CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'View' . DS,
+                CORE_TESTS . DS . 'test_app' . DS . 'templates' . DS,
+            ],
+            'Controller' => [CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'Controller' . DS],
+            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
         ], App::RESET);
         CakePlugin::load(['TestPlugin']);
 

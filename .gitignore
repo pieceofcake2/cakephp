@@ -3,7 +3,8 @@
 /composer.lock
 /vendor
 *.mo
-!/tests/test_app/Locale/*_mo/**/*.mo
+!/tests/test_app/resources/locales/*_mo/**/*.mo
+!/tests_legacy/test_app/Locale/*_mo/**/*.mo
 .phpunit.result.cache
 /phpunit.xml
 /rector.php

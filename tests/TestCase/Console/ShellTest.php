@@ -35,7 +35,7 @@ use Cake\Utility\Folder;
 use Cake\Utility\Hash;
 use Comment;
 use RuntimeException;
-use TestPluginPost;
+use TestPlugin\Model\TestPluginPost;
 
 /**
  * ShellTestShell class
@@ -229,8 +229,8 @@ class ShellTest extends CakeTestCase
     public function testInitialize()
     {
         App::build([
-            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS],
-            'Model' => [CORE_TESTS . DS . 'test_app' . DS . 'Model' . DS],
+            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
+            'Model' => [CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'Model' . DS],
         ], App::RESET);
 
         CakePlugin::load('TestPlugin');
@@ -260,8 +260,8 @@ class ShellTest extends CakeTestCase
     public function testLoadModel()
     {
         App::build([
-            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS],
-            'Model' => [CORE_TESTS . DS . 'test_app' . DS . 'Model' . DS],
+            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
+            'Model' => [CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'Model' . DS],
         ], App::RESET);
 
         $Shell = new TestMergeShell();

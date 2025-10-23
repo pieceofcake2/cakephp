@@ -34,6 +34,8 @@ class CacheTest extends CakeTestCase
 {
     protected $_count = 0;
 
+    protected $_appNamespace = null;
+
     /**
      * setUp method
      *
@@ -42,6 +44,9 @@ class CacheTest extends CakeTestCase
     public function setUp(): void
     {
         parent::setUp();
+
+        $this->_appNamespace = Configure::read('App.namespace');
+        Configure::write('App.namespace', 'TestApp');
         $this->_cacheDisable = Configure::read('Cache.disable');
         Configure::write('Cache.disable', false);
 
@@ -61,6 +66,7 @@ class CacheTest extends CakeTestCase
         Cache::drop('archive');
         Configure::write('Cache.disable', $this->_cacheDisable);
         Cache::config('default', $this->_defaultCacheConfig['settings']);
+        Configure::write('App.namespace', $this->_appNamespace);
 
         parent::tearDown();
     }
@@ -125,8 +131,8 @@ class CacheTest extends CakeTestCase
     public function testConfigWithLibAndPluginEngines()
     {
         App::build([
-            'Lib' => [CORE_TESTS . DS . 'test_app' . DS . 'Lib' . DS],
-            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS],
+            'Lib' => [CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'Lib' . DS],
+            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
         ], App::RESET);
         CakePlugin::load('TestPlugin');
 
@@ -401,8 +407,8 @@ class CacheTest extends CakeTestCase
     public function testDrop()
     {
         App::build([
-            'Lib' => [CORE_TESTS . DS . 'test_app' . DS . 'Lib' . DS],
-            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS],
+            'Lib' => [CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'Lib' . DS],
+            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
         ], App::RESET);
 
         $result = Cache::drop('some_config_that_does_not_exist');
@@ -455,8 +461,8 @@ class CacheTest extends CakeTestCase
     public function testWriteTriggerError()
     {
         App::build([
-            'Lib' => [CORE_TESTS . DS . 'test_app' . DS . 'Lib' . DS],
-            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS],
+            'Lib' => [CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'Lib' . DS],
+            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
         ], App::RESET);
 
         $errorTriggered = false;

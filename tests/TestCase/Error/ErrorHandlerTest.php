@@ -70,7 +70,8 @@ class ErrorHandlerTest extends CakeTestCase
         parent::setUp();
         App::build([
             'View' => [
-                CORE_TESTS . DS . 'test_app' . DS . 'View' . DS,
+                CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'View' . DS,
+                CORE_TESTS . DS . 'test_app' . DS . 'templates' . DS,
             ],
         ], App::RESET);
         Router::reload();
@@ -316,7 +317,7 @@ class ErrorHandlerTest extends CakeTestCase
     {
         App::build([
             'Plugin' => [
-                CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS,
+                CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS,
             ],
         ], App::RESET);
         CakePlugin::load('TestPlugin');

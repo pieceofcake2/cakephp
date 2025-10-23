@@ -25,7 +25,7 @@ use Cake\Core\App;
 use Cake\Core\CakePlugin;
 use Cake\Error\MissingComponentException;
 use Cake\TestSuite\CakeTestCase;
-use OtherComponent;
+use TestPlugin\Controller\Component\OtherComponent;
 
 /**
  * Extended CookieComponent
@@ -100,7 +100,7 @@ class ComponentCollectionTest extends CakeTestCase
         $result = $this->Components->load('Cookie');
         $this->assertInstanceOf(CookieAliasComponent::class, $result);
 
-        App::build(['Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS]]);
+        App::build(['Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS]]);
         CakePlugin::load('TestPlugin');
         $result = $this->Components->load('SomeOther', ['className' => 'TestPlugin.Other']);
         $this->assertInstanceOf(OtherComponent::class, $result);
@@ -145,12 +145,12 @@ class ComponentCollectionTest extends CakeTestCase
     public function testLoadPluginComponent()
     {
         App::build([
-            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS],
+            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
         ]);
         CakePlugin::load('TestPlugin');
         $result = $this->Components->load('TestPlugin.Other');
-        $this->assertInstanceOf('OtherComponent', $result, 'Component class is wrong.');
-        $this->assertInstanceOf('OtherComponent', $this->Components->Other, 'Class is wrong');
+        $this->assertInstanceOf(OtherComponent::class, $result, 'Component class is wrong.');
+        $this->assertInstanceOf(OtherComponent::class, $this->Components->Other, 'Class is wrong');
         App::build();
         CakePlugin::unload();
     }

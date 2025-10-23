@@ -44,9 +44,9 @@ class TestScaffoldView extends ScaffoldView
      * testGetFilename method
      *
      * @param string $action
-     * @return void
+     * @return string
      */
-    public function testGetFilename($action)
+    public function testGetFilename($action): string
     {
         return $this->_getViewFileName($action);
     }
@@ -103,8 +103,11 @@ class ScaffoldViewTest extends CakeTestCase
         $this->Controller->response = $this->getMock(CakeResponse::class, ['_sendHeader']);
 
         App::build([
-            'View' => [CORE_TESTS . DS . 'test_app' . DS . 'View' . DS],
-            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS],
+            'View' => [
+                CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'View' . DS,
+                CORE_TESTS . DS . 'test_app' . DS . 'templates' . DS,
+            ],
+            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
         ]);
         CakePlugin::load('TestPlugin');
     }
@@ -176,11 +179,11 @@ class ScaffoldViewTest extends CakeTestCase
 
         $ScaffoldView = new TestScaffoldView($Controller);
         $result = $ScaffoldView->testGetFilename('admin_edit');
-        $expected = CORE_TESTS . DS . 'test_app' . DS . 'View' . DS . 'Posts' . DS . 'scaffold.form.ctp';
+        $expected = CORE_TESTS . DS . 'test_app' . DS . 'templates' . DS . 'Posts' . DS . 'scaffold.form.ctp';
         $this->assertEquals($expected, $result);
 
         $result = $ScaffoldView->testGetFilename('edit');
-        $expected = CORE_TESTS . DS . 'test_app' . DS . 'View' . DS . 'Posts' . DS . 'scaffold.form.ctp';
+        $expected = CORE_TESTS . DS . 'test_app' . DS . 'templates' . DS . 'Posts' . DS . 'scaffold.form.ctp';
         $this->assertEquals($expected, $result);
 
         $Controller = new ScaffoldViewMockController($this->request);
@@ -195,13 +198,13 @@ class ScaffoldViewTest extends CakeTestCase
 
         $ScaffoldView = new TestScaffoldView($Controller);
         $result = $ScaffoldView->testGetFilename('admin_add');
-        $expected = CORE_TESTS . DS . 'test_app' . DS . 'Plugin' .
-            DS . 'TestPlugin' . DS . 'View' . DS . 'Tests' . DS . 'scaffold.form.ctp';
+        $expected = CORE_TESTS . DS . 'test_app' . DS . 'plugins' .
+            DS . 'TestPlugin' . DS . 'templates' . DS . 'Tests' . DS . 'scaffold.form.ctp';
         $this->assertEquals($expected, $result);
 
         $result = $ScaffoldView->testGetFilename('add');
-        $expected = CORE_TESTS . DS . 'test_app' . DS . 'Plugin' .
-            DS . 'TestPlugin' . DS . 'View' . DS . 'Tests' . DS . 'scaffold.form.ctp';
+        $expected = CORE_TESTS . DS . 'test_app' . DS . 'plugins' .
+            DS . 'TestPlugin' . DS . 'templates' . DS . 'Tests' . DS . 'scaffold.form.ctp';
         $this->assertEquals($expected, $result);
 
         Configure::write('Routing.prefixes', $_admin);
@@ -220,7 +223,7 @@ class ScaffoldViewTest extends CakeTestCase
         $ScaffoldView = new TestScaffoldView($this->Controller);
 
         $result = $ScaffoldView->testGetFilename('index');
-        $expected = CORE_TESTS . DS . 'test_app' . DS . 'View' . DS .
+        $expected = CORE_TESTS . DS . 'test_app' . DS . 'templates' . DS .
             'Themed' . DS . 'TestTheme' . DS . 'Posts' . DS . 'scaffold.index.ctp';
         $this->assertEquals($expected, $result);
     }

@@ -27,6 +27,7 @@ use Cake\Network\CakeResponse;
 use Cake\Routing\Route\CakeRoute;
 use Cake\Routing\Router;
 use Cake\TestSuite\CakeTestCase;
+use TestPlugin\Routing\Route\TestRoute;
 
 if (!defined('FULL_BASE_URL')) {
     define('FULL_BASE_URL', 'https://cakephp.org');
@@ -39,6 +40,8 @@ if (!defined('FULL_BASE_URL')) {
  */
 class RouterTest extends CakeTestCase
 {
+    protected $_appNamespace = null;
+
     /**
      * setUp method
      *
@@ -47,6 +50,10 @@ class RouterTest extends CakeTestCase
     public function setUp(): void
     {
         parent::setUp();
+
+        $this->_appNamespace = Configure::read('App.namespace');
+        Configure::write('App.namespace', 'TestApp');
+
         Configure::write('Routing', ['admin' => null, 'prefixes' => []]);
     }
 
@@ -60,6 +67,8 @@ class RouterTest extends CakeTestCase
         CakePlugin::unload();
         Router::fullBaseUrl('');
         Configure::write('App.fullBaseUrl', 'http://localhost');
+
+        Configure::write('App.namespace', $this->_appNamespace);
 
         parent::tearDown();
     }
@@ -176,7 +185,7 @@ class RouterTest extends CakeTestCase
     {
         App::build([
             'Plugin' => [
-                CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS,
+                CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS,
             ],
         ]);
         $resources = Router::mapResources('TestPlugin.TestPlugin');
@@ -215,7 +224,7 @@ class RouterTest extends CakeTestCase
     {
         App::build([
             'Plugin' => [
-                CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS,
+                CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS,
             ],
         ]);
         CakePlugin::load('TestPlugin');
@@ -226,7 +235,7 @@ class RouterTest extends CakeTestCase
             ],
         ]);
         $route = end(Router::$routes);
-        $this->assertInstanceOf('TestRoute', $route);
+        $this->assertInstanceOf(TestRoute::class, $route);
         $this->assertEquals('^(bar)$', $route->options['foo']);
     }
 
@@ -239,7 +248,7 @@ class RouterTest extends CakeTestCase
     {
         App::build([
             'Plugin' => [
-                CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS,
+                CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS,
             ],
         ]);
         $resources = Router::mapResources('TestPlugin.TestPlugin', ['prefix' => '/api/']);
@@ -1358,7 +1367,7 @@ class RouterTest extends CakeTestCase
         $paths = App::path('plugins');
         App::build([
             'plugins' => [
-                CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS,
+                CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS,
             ],
         ], App::RESET);
         CakePlugin::load(['TestPlugin']);
@@ -2449,7 +2458,7 @@ class RouterTest extends CakeTestCase
     {
         App::build([
             'plugins' => [
-                CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS,
+                CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS,
             ],
         ], App::RESET);
         CakePlugin::load(['TestPlugin', 'PluginJs']);
@@ -2509,7 +2518,7 @@ class RouterTest extends CakeTestCase
     {
         App::build([
             'Plugin' => [
-                CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS,
+                CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS,
             ],
         ]);
         CakePlugin::load('TestPlugin');
@@ -2518,7 +2527,7 @@ class RouterTest extends CakeTestCase
             ['controller' => 'posts', 'action' => 'view'],
             ['routeClass' => 'TestPlugin.TestRoute', 'slug' => '[a-z_-]+'],
         );
-        $this->assertInstanceOf('TestRoute', $routes[0]);
+        $this->assertInstanceOf(TestRoute::class, $routes[0]);
         CakePlugin::unload('TestPlugin');
     }
 

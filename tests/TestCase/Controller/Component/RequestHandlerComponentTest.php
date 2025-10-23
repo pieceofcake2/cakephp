@@ -885,7 +885,10 @@ class RequestHandlerComponentTest extends CakeTestCase
     public function testAjaxRedirectAsRequestAction()
     {
         App::build([
-            'View' => [CORE_TESTS . DS . 'test_app' . DS . 'View' . DS],
+            'View' => [
+                CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'View' . DS,
+                CORE_TESTS . DS . 'test_app' . DS . 'templates' . DS,
+            ],
         ], App::RESET);
 
         $this->Controller->RequestHandler = $this->getMock(RequestHandlerComponent::class, ['_stop'], [&$this->Controller->Components]);
@@ -916,7 +919,10 @@ class RequestHandlerComponentTest extends CakeTestCase
     public function testAjaxRedirectAsRequestActionStillRenderingLayout()
     {
         App::build([
-            'View' => [CORE_TESTS . DS . 'test_app' . DS . 'View' . DS],
+            'View' => [
+                CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'View' . DS,
+                CORE_TESTS . DS . 'test_app' . DS . 'templates' . DS,
+            ],
         ], App::RESET);
 
         $this->Controller->RequestHandler = $this->getMock(RequestHandlerComponent::class, ['_stop'], [&$this->Controller->Components]);

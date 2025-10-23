@@ -245,7 +245,8 @@ class XmlViewTest extends CakeTestCase
     public function testRenderWithView()
     {
         App::build(['View' => [
-            CORE_TESTS . DS . 'test_app' . DS . 'View' . DS,
+            CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'View' . DS,
+            CORE_TESTS . DS . 'test_app' . DS . 'templates' . DS,
         ]]);
         $request = new CakeRequest();
         $response = new CakeResponse();

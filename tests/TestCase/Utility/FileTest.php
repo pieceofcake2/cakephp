@@ -648,7 +648,7 @@ class FileTest extends CakeTestCase
      */
     public function testReplaceText()
     {
-        $TestFile = new File(__DIR__ . '/../../test_app/Vendor/welcome.php');
+        $TestFile = new File(__DIR__ . '/../../test_app/vendor/welcome.php');
         $TmpFile = new File(TMP . 'tests' . DS . 'cakephp.file.test.tmp');
 
         // Copy the test file to the temporary location

@@ -23,6 +23,7 @@ namespace Cake\Test\TestCase\TestSuite;
 use App\Model\Post;
 use Cake\Core\App;
 use Cake\Core\CakePlugin;
+use Cake\Core\Configure;
 use Cake\Error\MissingModelException;
 use Cake\Model\ConnectionManager;
 use Cake\Model\Model;
@@ -75,12 +76,25 @@ class ConstructorPost extends Model
  */
 class CakeTestCaseTest extends CakeTestCase
 {
+    protected $_appNamespace = null;
+
     /**
      * fixtures property
      *
      * @var array
      */
     public $fixtures = ['core.post', 'core.author', 'core.test_plugin_comment'];
+
+    /**
+     * @return void
+     */
+    public function setUp(): void
+    {
+        parent::setUp();
+
+        $this->_appNamespace = Configure::read('App.namespace');
+        Configure::write('App.namespace', 'TestApp');
+    }
 
     /**
      * tearDown
@@ -90,6 +104,7 @@ class CakeTestCaseTest extends CakeTestCase
     public function tearDown(): void
     {
         unset($this->Result);
+        Configure::write('App.namespace', $this->_appNamespace);
 
         parent::tearDown();
     }
@@ -428,7 +443,7 @@ class CakeTestCaseTest extends CakeTestCase
     {
         App::build([
             'Model' => [
-                CORE_TESTS . DS . 'test_app' . DS . 'Model' . DS,
+                CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'Model' . DS,
             ],
         ], App::RESET);
         $Post = $this->getMockForModel('Post');
@@ -452,9 +467,9 @@ class CakeTestCaseTest extends CakeTestCase
     public function testGetMockForModelSecondaryDatasource()
     {
         App::build([
-            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS],
+            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
             'Model/Datasource/Database' => [
-                CORE_TESTS . DS . 'test_app' . DS . 'Model' . DS . 'Datasource' . DS . 'Database' . DS,
+                CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'Model' . DS . 'Datasource' . DS . 'Database' . DS,
             ],
         ], App::RESET);
         CakePlugin::load('TestPlugin');
@@ -487,7 +502,7 @@ class CakeTestCaseTest extends CakeTestCase
     {
         App::build([
             'Plugin' => [
-                CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS,
+                CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS,
             ],
         ], App::RESET);
         CakePlugin::load('TestPlugin');

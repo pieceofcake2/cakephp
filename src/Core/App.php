@@ -232,10 +232,24 @@ class App
         if (!empty($plugin)) {
             $path = [];
             $pluginPath = CakePlugin::path($plugin);
+
+            $srcPath = $pluginPath;
+            if (is_dir($pluginPath . 'src')) {
+                $srcPath = $pluginPath . 'src' . DS;
+            }
+
             $packageFormat = static::_packageFormat();
             if (!empty($packageFormat[$type])) {
+                if ($type === 'Vendor' && is_dir($pluginPath . 'vendor')) {
+                    $path[] = $pluginPath . 'vendor' . DS;
+                } elseif ($type === 'View' && is_dir($pluginPath . 'templates')) {
+                    $path[] = $pluginPath . 'templates' . DS;
+                } elseif ($type === 'Locale' && is_dir($pluginPath . 'resources' . DS . 'locales')) {
+                    $path[] = $pluginPath . 'resources' . DS . 'locales' . DS;
+                }
+
                 foreach ($packageFormat[$type] as $f) {
-                    $_path = sprintf($f, $pluginPath);
+                    $_path = sprintf($f, $srcPath);
                     if ($f !== $_path) {
                         $path[] = $_path;
                     }
@@ -290,7 +304,7 @@ class App
      */
     public static function build($paths = [], $mode = App::PREPEND)
     {
-        //Provides Backwards compatibility for old-style package names
+        // Provides Backwards compatibility for old-style package names
         $legacyPaths = [];
         foreach ($paths as $type => $path) {
             if (!empty(static::$legacy[$type])) {
@@ -582,7 +596,7 @@ class App
 
         $file = static::_mapped($className, $plugin);
         if ($file) {
-            return include $file;
+            return include_once $file;
         }
         $paths = static::path($package, $plugin);
 
@@ -603,7 +617,7 @@ class App
             if (file_exists($file)) {
                 static::_map($file, $className, $plugin);
 
-                return include $file;
+                return include_once $file;
             }
         }
 
@@ -922,7 +936,14 @@ class App
         $name = Inflector::camelize($name);
         App::uses($name, $plugin . $type);
 
-        return class_exists($name);
+        // Try to get the fully qualified class name for namespace support
+        $className = static::className($plugin . $name, $type);
+        if ($className && class_exists($className)) {
+            return true;
+        }
+
+        // Fallback for non-namespaced classes
+        return class_exists($name, false);
     }
 
     /**
@@ -1118,16 +1139,17 @@ class App
                     ROOT . DS . 'resources' . DS . 'locales' . DS,
                 ],
                 'Vendor' => [
+                    '%s' . 'vendor' . DS,
                     '%s' . 'Vendor' . DS,
                     ROOT . DS . 'vendor' . DS,
                     ROOT . DS . 'vendors' . DS,
-                    dirname(CAKE, 2) . DS . 'vendor' . DS,
-                    dirname(CAKE, 2) . DS . 'vendors' . DS,
+                    dirname(CAKE) . DS . 'vendor' . DS,
+                    dirname(CAKE) . DS . 'vendors' . DS,
                 ],
                 'Plugin' => [
                     APP . 'Plugin' . DS,
                     ROOT . DS . 'plugins' . DS,
-                    dirname(CAKE, 2) . DS . 'plugins' . DS,
+                    dirname(CAKE) . DS . 'plugins' . DS,
                 ],
             ];
         }

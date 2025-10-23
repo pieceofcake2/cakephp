@@ -113,7 +113,7 @@ class CakePlugin
                     break;
                 }
 
-                //Backwards compatibility to make easier to migrate to 2.0
+                // Backwards compatibility to make easier to migrate to 2.0
                 $underscored = Inflector::underscore($plugin);
                 if (is_dir($path . $underscored)) {
                     static::$_plugins[$plugin] = $config + ['path' => $path . $underscored . DS];
@@ -204,7 +204,9 @@ class CakePlugin
      */
     public static function classPath($plugin)
     {
-        return static::path($plugin);
+        $basePath = static::path($plugin);
+
+        return is_dir($basePath . 'src') ? $basePath . 'src' . DS : $basePath;
     }
 
     /**

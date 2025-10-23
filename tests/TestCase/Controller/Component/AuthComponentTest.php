@@ -1316,7 +1316,10 @@ class AuthComponentTest extends CakeTestCase
     public function testAjaxLogin()
     {
         App::build([
-            'View' => [CORE_TESTS . DS . 'test_app' . DS . 'View' . DS],
+            'View' => [
+                CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'View' . DS,
+                CORE_TESTS . DS . 'test_app' . DS . 'templates' . DS,
+            ],
         ]);
         $_SERVER['HTTP_X_REQUESTED_WITH'] = 'XMLHttpRequest';
         $Response = new CakeResponse();
@@ -1338,7 +1341,10 @@ class AuthComponentTest extends CakeTestCase
     public function testAjaxLoginResponseCode()
     {
         App::build([
-            'View' => [CORE_TESTS . DS . 'test_app' . DS . 'View' . DS],
+            'View' => [
+                CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'View' . DS,
+                CORE_TESTS . DS . 'test_app' . DS . 'templates' . DS,
+            ],
         ]);
         $_SERVER['HTTP_X_REQUESTED_WITH'] = 'XMLHttpRequest';
 

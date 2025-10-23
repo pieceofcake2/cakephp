@@ -38,7 +38,7 @@ class CakePluginTest extends CakeTestCase
     {
         parent::setUp();
         App::build([
-            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS],
+            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
         ], App::RESET);
         App::objects('plugins', null, false);
     }
@@ -258,10 +258,10 @@ class CakePluginTest extends CakeTestCase
     public function testPath()
     {
         CakePlugin::load(['TestPlugin', 'TestPluginTwo']);
-        $expected = CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS . 'TestPlugin' . DS;
+        $expected = CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS . 'TestPlugin' . DS;
         $this->assertEquals($expected, CakePlugin::path('TestPlugin'));
 
-        $expected = CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS . 'TestPluginTwo' . DS;
+        $expected = CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS . 'TestPluginTwo' . DS;
         $this->assertEquals($expected, CakePlugin::path('TestPluginTwo'));
     }
 

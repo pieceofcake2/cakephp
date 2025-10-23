@@ -193,7 +193,7 @@ class BlowfishAuthenticateTest extends CakeTestCase
     {
         Cache::delete('object_map', '_cake_core_');
         App::build([
-            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS],
+            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
         ], App::RESET);
         CakePlugin::load('TestPlugin');
 

@@ -23,7 +23,11 @@ use Cake\Console\ShellDispatcher;
 use Cake\Core\App;
 use Cake\Core\CakeObject;
 use Cake\Core\CakePlugin;
+use Cake\Core\Configure;
 use Cake\TestSuite\CakeTestCase;
+use TestApp\Console\Command\SampleShell;
+use TestPlugin\Console\Command\ExampleShell;
+use TestPlugin\Console\Command\TestPluginShell;
 
 /**
  * TestShellDispatcher class
@@ -121,6 +125,8 @@ class TestShellDispatcher extends ShellDispatcher
  */
 class ShellDispatcherTest extends CakeTestCase
 {
+    protected $_appNamespace = null;
+
     /**
      * setUp method
      *
@@ -129,12 +135,16 @@ class ShellDispatcherTest extends CakeTestCase
     public function setUp(): void
     {
         parent::setUp();
+
+        $this->_appNamespace = Configure::read('App.namespace');
+        Configure::write('App.namespace', 'TestApp');
+
         App::build([
             'Plugin' => [
-                CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS,
+                CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS,
             ],
             'Console/Command' => [
-                CORE_TESTS . DS . 'test_app' . DS . 'Console' . DS . 'Command' . DS,
+                CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'Console' . DS . 'Command' . DS,
             ],
         ], App::RESET);
         CakePlugin::load('TestPlugin');
@@ -148,6 +158,7 @@ class ShellDispatcherTest extends CakeTestCase
     public function tearDown(): void
     {
         CakePlugin::unload();
+        Configure::write('App.namespace', $this->_appNamespace);
 
         parent::tearDown();
     }
@@ -472,31 +483,31 @@ class ShellDispatcherTest extends CakeTestCase
      */
     public function testGetShell()
     {
-        $this->skipIf(class_exists('SampleShell'), 'SampleShell Class already loaded.');
-        $this->skipIf(class_exists('ExampleShell'), 'ExampleShell Class already loaded.');
+        $this->skipIf(class_exists(SampleShell::class, false), 'SampleShell Class already loaded.');
+        $this->skipIf(class_exists(ExampleShell::class, false), 'ExampleShell Class already loaded.');
 
-        $Dispatcher = new TestShellDispatcher();
+        $dispatcher = new TestShellDispatcher();
 
-        $result = $Dispatcher->getShell('sample');
-        $this->assertInstanceOf('SampleShell', $result);
+        $result = $dispatcher->getShell('sample');
+        $this->assertInstanceOf(SampleShell::class, $result);
 
-        $Dispatcher = new TestShellDispatcher();
-        $result = $Dispatcher->getShell('test_plugin.example');
-        $this->assertInstanceOf('ExampleShell', $result);
+        $dispatcher = new TestShellDispatcher();
+        $result = $dispatcher->getShell('test_plugin.example');
+        $this->assertInstanceOf(ExampleShell::class, $result);
         $this->assertEquals('TestPlugin', $result->plugin);
         $this->assertEquals('Example', $result->name);
 
-        $Dispatcher = new TestShellDispatcher();
-        $result = $Dispatcher->getShell('TestPlugin.example');
-        $this->assertInstanceOf('ExampleShell', $result);
+        $dispatcher = new TestShellDispatcher();
+        $result = $dispatcher->getShell('TestPlugin.example');
+        $this->assertInstanceOf(ExampleShell::class, $result);
 
-        $Dispatcher = new TestShellDispatcher();
-        $result = $Dispatcher->getShell('test_plugin');
-        $this->assertInstanceOf('TestPluginShell', $result);
+        $dispatcher = new TestShellDispatcher();
+        $result = $dispatcher->getShell('test_plugin');
+        $this->assertInstanceOf(TestPluginShell::class, $result);
 
-        $Dispatcher = new TestShellDispatcher();
-        $result = $Dispatcher->getShell('TestPlugin');
-        $this->assertInstanceOf('TestPluginShell', $result);
+        $dispatcher = new TestShellDispatcher();
+        $result = $dispatcher->getShell('TestPlugin');
+        $this->assertInstanceOf(TestPluginShell::class, $result);
     }
 
     /**
