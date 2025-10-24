@@ -2,12 +2,12 @@
 
 ## Unreleased
 
-### PHPStan Static Analysis - Zero Errors ([PR #31](https://github.com/pieceofcake2/cakephp/pull/31))
+### PHPStan Static Analysis & Comprehensive Type Declarations ([PR #31](https://github.com/pieceofcake2/cakephp/pull/31))
 
-Achieved 100% PHPStan level 0 compliance by resolving all 92 static analysis errors.
+Achieved 100% PHPStan level 0 compliance and added comprehensive property type declarations to all CakePHP 2.x core classes using Rector.
 
+#### PHPStan Error Resolution
 - **Static Analysis**: PHPStan level 0 now passes with zero errors (92 → 0)
-  - 76 files changed: +520 lines, -312 lines
   - Fixed 65 errors through code improvements
   - Configured 27 design-specific patterns in phpstan.neon
 
@@ -18,19 +18,40 @@ Achieved 100% PHPStan level 0 compliance by resolving all 92 static analysis err
   - Added descriptive exception messages
   - Enhanced type safety with return type declarations
 
-- **Type Safety Enhancements**:
-  - Cache: Abstract methods with proper return types
-  - Console: `ConsoleOptionParser` return types standardized
-  - Model: Exception messages, proper return types for behaviors
-  - Utility: Nullable return types (`ClassRegistry::_getMap(): ?string`)
-  - Validator: `CakeValidationSet::getRule(): ?CakeValidationRule`
-  - View: PaginatorHelper explicit variable assignments
+#### Comprehensive Type Declarations via Rector
 
-- **PHPStan Configuration**: Added ignore rules for CakePHP 2.x design patterns
-  - Dynamic method calls (Shell::main, DataSource::value)
-  - Deprecated mcrypt functions (PHP 7+ compatibility)
-  - Runtime-generated classes (EmailConfig)
-  - TestSuite reporter inheritance patterns
+Created comprehensive Rector configuration (`rector.php`) enabling automatic type declaration application for any CakePHP 2.x project.
+
+- **Property Type Declarations**: 96 properties across 9 core classes
+  - Controller (17): name, uses, helpers, components, request, response, viewPath, etc.
+  - Component (2): settings, components
+  - Helper (11): helpers, settings, theme, plugin, fieldset, tags, etc.
+  - View (19): Helpers, Blocks, request, response, elementCache, viewVars, etc.
+  - Model (21): name, alias, useTable, validate, actsAs, order, belongsTo, hasOne, hasMany, etc.
+  - ModelBehavior (2): settings, mapMethods
+  - BehaviorCollection (3): modelName, _methods, _mappedMethods
+  - CacheEngine (2): settings, _groupPrefix
+  - CakeRequest (7): params, data, query, url, base, webroot, here
+
+- **Return Type Declarations**: 4 methods
+  - `CakeEventListener::implementedEvents(): array`
+  - `Controller::implementedEvents(): array`
+  - `Model::implementedEvents(): array`
+  - `Component::implementedEvents(): array`
+
+- **Key Type Definitions**:
+  - `Model::$name`, `Model::$alias` → `string|null`
+  - `Model::$order` → `array|string|null`
+  - `Controller/View::$request` → `CakeRequest|null`
+  - `Controller/View::$response` → `CakeResponse|null`
+  - `View::$Helpers` → `HelperCollection`
+  - `View::$Blocks` → `ViewBlock`
+
+- **Bug Fixes**:
+  - Fixed `CakeRequest::__get()` to prevent type errors with typed properties
+  - Added proper PDO mocking with `MockPDO` class for database tests
+
+- **Reusability**: Other CakePHP 2.x projects can run `./vendor/bin/rector process` to automatically apply the same type declarations
 
 ### Modern PHP Syntax Adoption ([PR #30](https://github.com/pieceofcake2/cakephp/pull/30))
 
