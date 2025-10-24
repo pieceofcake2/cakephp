@@ -32,7 +32,7 @@ class ExteriorTypeCategoryFixture extends CakeTestFixture
      *
      * @var array
      */
-    public $fields = [
+    public array $fields = [
         'id' => ['type' => 'integer', 'key' => 'primary'],
         'image_id' => ['type' => 'integer', 'null' => false],
         'name' => ['type' => 'string', 'null' => false],
@@ -43,7 +43,7 @@ class ExteriorTypeCategoryFixture extends CakeTestFixture
      *
      * @var array
      */
-    public $records = [
+    public array $records = [
         ['image_id' => 1, 'name' => 'ExteriorTypeCategory 1'],
     ];
 }

@@ -32,7 +32,7 @@ class CdFixture extends CakeTestFixture
      *
      * @var array
      */
-    public $fields = [
+    public array $fields = [
         'id' => ['type' => 'integer', 'key' => 'primary'],
         'title' => ['type' => 'string', 'length' => 255],
         'artist' => ['type' => 'string', 'length' => 255, 'null' => true],
@@ -44,7 +44,7 @@ class CdFixture extends CakeTestFixture
      *
      * @var array
      */
-    public $records = [
+    public array $records = [
         ['id' => 1, 'title' => 'Grace', 'artist' => 'Jeff Buckley', 'genre' => 'awesome'],
     ];
 }

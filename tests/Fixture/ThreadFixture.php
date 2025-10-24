@@ -32,7 +32,7 @@ class ThreadFixture extends CakeTestFixture
      *
      * @var array
      */
-    public $fields = [
+    public array $fields = [
         'id' => ['type' => 'integer', 'key' => 'primary'],
         'project_id' => ['type' => 'integer', 'null' => false],
         'name' => ['type' => 'string', 'null' => false],
@@ -43,7 +43,7 @@ class ThreadFixture extends CakeTestFixture
      *
      * @var array
      */
-    public $records = [
+    public array $records = [
         ['project_id' => 1, 'name' => 'Project 1, Thread 1'],
         ['project_id' => 1, 'name' => 'Project 1, Thread 2'],
         ['project_id' => 2, 'name' => 'Project 2, Thread 1'],

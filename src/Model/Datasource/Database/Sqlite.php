@@ -40,28 +40,28 @@ class Sqlite extends DboSource
      *
      * @var string
      */
-    public $description = 'SQLite DBO Driver';
+    public string $description = 'SQLite DBO Driver';
 
     /**
      * Quote Start
      *
-     * @var string
+     * @var string|null
      */
-    public $startQuote = '"';
+    public ?string $startQuote = '"';
 
     /**
      * Quote End
      *
-     * @var string
+     * @var string|null
      */
-    public $endQuote = '"';
+    public ?string $endQuote = '"';
 
     /**
      * Base configuration settings for SQLite3 driver
      *
      * @var array
      */
-    protected $_baseConfig = [
+    protected array $_baseConfig = [
         'persistent' => false,
         'database' => null,
         'flags' => [],
@@ -73,7 +73,7 @@ class Sqlite extends DboSource
      * @var array
      * @link https://www.sqlite.org/datatype3.html Datatypes In SQLite Version 3
      */
-    public $columns = [
+    public array $columns = [
         'primary_key' => ['name' => 'integer primary key autoincrement'],
         'string' => ['name' => 'varchar', 'limit' => '255'],
         'text' => ['name' => 'text'],
@@ -96,7 +96,7 @@ class Sqlite extends DboSource
      *
      * @var array
      */
-    public $fieldParameters = [
+    public array $fieldParameters = [
         'collate' => [
             'value' => 'COLLATE',
             'quote' => false,
@@ -151,7 +151,7 @@ class Sqlite extends DboSource
      * @param mixed $data Unused.
      * @return array Array of table names in the database
      */
-    public function listSources($data = null)
+    public function listSources(?array $data = null): ?array
     {
         $cache = parent::listSources();
         if ($cache) {
@@ -324,7 +324,7 @@ class Sqlite extends DboSource
      */
     public function resultSet($results)
     {
-        $this->results = $results;
+        $this->_result = $results;
         $this->map = [];
         $numFields = $results->columnCount();
         $index = 0;
@@ -507,10 +507,10 @@ class Sqlite extends DboSource
      * Removes redundant primary key indexes, as they are handled in the column def of the key.
      *
      * @param array $indexes The indexes to build.
-     * @param string $table The table name.
-     * @return string The completed index.
+     * @param string|null $table The table name.
+     * @return array The completed index.
      */
-    public function buildIndex($indexes, $table = null)
+    public function buildIndex(array $indexes, ?string $table = null): array
     {
         $join = [];
 

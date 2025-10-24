@@ -32,7 +32,7 @@ class AcoActionFixture extends CakeTestFixture
      *
      * @var array
      */
-    public $fields = [
+    public array $fields = [
         'id' => ['type' => 'integer', 'key' => 'primary'],
         'parent_id' => ['type' => 'integer', 'length' => 10, 'null' => true],
         'model' => ['type' => 'string', 'default' => ''],
@@ -47,5 +47,5 @@ class AcoActionFixture extends CakeTestFixture
      *
      * @var array
      */
-    public $records = [];
+    public array $records = [];
 }

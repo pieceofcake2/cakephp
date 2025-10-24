@@ -27,13 +27,13 @@ use Cake\TestSuite\Fixture\CakeTestFixture;
  */
 class CounterCacheUserNonstandardPrimaryKeyFixture extends CakeTestFixture
 {
-    public $fields = [
+    public array $fields = [
         'uid' => ['type' => 'integer', 'key' => 'primary'],
         'name' => ['type' => 'string', 'length' => 255, 'null' => false],
         'post_count' => ['type' => 'integer', 'null' => true],
     ];
 
-    public $records = [
+    public array $records = [
         ['uid' => 66, 'name' => 'Alexander', 'post_count' => 2],
         ['uid' => 301, 'name' => 'Steven', 'post_count' => 1],
     ];

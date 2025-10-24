@@ -592,7 +592,7 @@ class BehaviorCollectionTest extends CakeTestCase
 
         $Apple->Behaviors->load('Test', ['key' => 'value']);
         $this->assertSame(['Test'], $Apple->Behaviors->loaded());
-        $this->assertEquals(TestBehavior::class, get_class($Apple->Behaviors->Test));
+        $this->assertEquals(TestBehavior::class, $Apple->Behaviors->Test::class);
         $expected = ['beforeFind' => 'on', 'afterFind' => 'off', 'key' => 'value'];
         $this->assertEquals($expected, $Apple->Behaviors->Test->settings['Apple']);
         $this->assertEquals(['priority', 'Apple'], array_keys($Apple->Behaviors->Test->settings));

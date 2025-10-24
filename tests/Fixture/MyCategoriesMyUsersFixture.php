@@ -32,7 +32,7 @@ class MyCategoriesMyUsersFixture extends CakeTestFixture
      *
      * @var array
      */
-    public $fields = [
+    public array $fields = [
         'my_category_id' => ['type' => 'integer'],
         'my_user_id' => ['type' => 'integer'],
     ];
@@ -42,7 +42,7 @@ class MyCategoriesMyUsersFixture extends CakeTestFixture
      *
      * @var array
      */
-    public $records = [
+    public array $records = [
         ['my_category_id' => 1, 'my_user_id' => 1],
         ['my_category_id' => 3, 'my_user_id' => 1],
         ['my_category_id' => 1, 'my_user_id' => 2],

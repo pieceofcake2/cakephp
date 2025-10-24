@@ -32,7 +32,7 @@ class SyfileFixture extends CakeTestFixture
      *
      * @var array
      */
-    public $fields = [
+    public array $fields = [
         'id' => ['type' => 'integer', 'key' => 'primary'],
         'image_id' => ['type' => 'integer', 'null' => true],
         'name' => ['type' => 'string', 'null' => false],
@@ -44,7 +44,7 @@ class SyfileFixture extends CakeTestFixture
      *
      * @var array
      */
-    public $records = [
+    public array $records = [
         ['image_id' => 1, 'name' => 'Syfile 1'],
         ['image_id' => 2, 'name' => 'Syfile 2'],
         ['image_id' => 5, 'name' => 'Syfile 3'],

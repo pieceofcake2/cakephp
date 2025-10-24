@@ -32,7 +32,7 @@ class TranslatedArticleFixture extends CakeTestFixture
      *
      * @var array
      */
-    public $fields = [
+    public array $fields = [
         'id' => ['type' => 'integer', 'key' => 'primary'],
         'user_id' => ['type' => 'integer', 'null' => false],
         'published' => ['type' => 'string', 'length' => 1, 'default' => 'N'],
@@ -45,7 +45,7 @@ class TranslatedArticleFixture extends CakeTestFixture
      *
      * @var array
      */
-    public $records = [
+    public array $records = [
         ['id' => 1, 'user_id' => 1, 'published' => 'Y', 'created' => '2007-03-18 10:39:23', 'updated' => '2007-03-18 10:41:31'],
         ['id' => 2, 'user_id' => 3, 'published' => 'Y', 'created' => '2007-03-18 10:41:23', 'updated' => '2007-03-18 10:43:31'],
         ['id' => 3, 'user_id' => 1, 'published' => 'Y', 'created' => '2007-03-18 10:43:23', 'updated' => '2007-03-18 10:45:31'],

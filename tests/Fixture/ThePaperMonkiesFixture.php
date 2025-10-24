@@ -32,7 +32,7 @@ class ThePaperMonkiesFixture extends CakeTestFixture
      *
      * @var array
      */
-    public $fields = [
+    public array $fields = [
         'apple_id' => ['type' => 'integer', 'length' => 10, 'null' => true],
         'device_id' => ['type' => 'integer', 'length' => 10, 'null' => true],
     ];
@@ -42,5 +42,5 @@ class ThePaperMonkiesFixture extends CakeTestFixture
      *
      * @var array
      */
-    public $records = [];
+    public array $records = [];
 }

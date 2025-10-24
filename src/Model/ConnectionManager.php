@@ -24,6 +24,7 @@ use Cake\Core\App;
 use Cake\Error\MissingDatasourceConfigException;
 use Cake\Error\MissingDatasourceException;
 use Cake\Model\Datasource\DataSource;
+use Cake\Model\Datasource\DboSource;
 use DATABASE_CONFIG;
 use Throwable;
 
@@ -86,7 +87,7 @@ class ConnectionManager
      * Gets a reference to a DataSource object
      *
      * @param string $name The name of the DataSource, as defined in app/Config/database.php
-     * @return DataSource Instance
+     * @return DataSource|DboSource Instance
      * @throws MissingDatasourceException
      */
     public static function getDataSource(string $name): DataSource

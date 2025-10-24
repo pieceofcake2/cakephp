@@ -32,7 +32,7 @@ class BookFixture extends CakeTestFixture
      *
      * @var array
      */
-    public $fields = [
+    public array $fields = [
         'id' => ['type' => 'integer', 'key' => 'primary'],
         'isbn' => ['type' => 'string', 'length' => 13],
         'title' => ['type' => 'string', 'length' => 255],
@@ -46,7 +46,7 @@ class BookFixture extends CakeTestFixture
      *
      * @var array
      */
-    public $records = [
+    public array $records = [
         ['id' => 1, 'isbn' => '1234567890', 'title' => 'Faust', 'author' => 'Johann Wolfgang von Goethe'],
     ];
 }

@@ -32,7 +32,7 @@ class BiddingMessageFixture extends CakeTestFixture
      *
      * @var array
      */
-    public $fields = [
+    public array $fields = [
         'bidding' => ['type' => 'string', 'null' => false, 'key' => 'primary'],
         'name' => ['type' => 'string', 'null' => false],
     ];
@@ -42,7 +42,7 @@ class BiddingMessageFixture extends CakeTestFixture
      *
      * @var array
      */
-    public $records = [
+    public array $records = [
         ['bidding' => 'One', 'name' => 'Message 1'],
         ['bidding' => 'Two', 'name' => 'Message 2'],
         ['bidding' => 'Three', 'name' => 'Message 3'],

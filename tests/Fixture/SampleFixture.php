@@ -32,7 +32,7 @@ class SampleFixture extends CakeTestFixture
      *
      * @var array
      */
-    public $fields = [
+    public array $fields = [
         'id' => ['type' => 'integer', 'key' => 'primary'],
         'apple_id' => ['type' => 'integer', 'null' => false],
         'name' => ['type' => 'string', 'length' => 40, 'null' => false],
@@ -43,7 +43,7 @@ class SampleFixture extends CakeTestFixture
      *
      * @var array
      */
-    public $records = [
+    public array $records = [
         ['apple_id' => 3, 'name' => 'sample1'],
         ['apple_id' => 2, 'name' => 'sample2'],
         ['apple_id' => 4, 'name' => 'sample3'],

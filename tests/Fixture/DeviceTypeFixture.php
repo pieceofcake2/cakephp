@@ -32,7 +32,7 @@ class DeviceTypeFixture extends CakeTestFixture
      *
      * @var array
      */
-    public $fields = [
+    public array $fields = [
         'id' => ['type' => 'integer', 'key' => 'primary'],
         'device_type_category_id' => ['type' => 'integer', 'null' => false],
         'feature_set_id' => ['type' => 'integer', 'null' => false],
@@ -49,7 +49,7 @@ class DeviceTypeFixture extends CakeTestFixture
      *
      * @var array
      */
-    public $records = [
+    public array $records = [
         ['device_type_category_id' => 1, 'feature_set_id' => 1, 'exterior_type_category_id' => 1, 'image_id' => 1, 'extra1_id' => 1, 'extra2_id' => 1, 'name' => 'DeviceType 1', 'order' => 0],
     ];
 }

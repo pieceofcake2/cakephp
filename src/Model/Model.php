@@ -227,7 +227,7 @@ class Model extends CakeObject implements CakeEventListener
      *
      * @var array
      */
-    public $validationErrors = [];
+    public array $validationErrors = [];
 
     /**
      * Name of the validation string domain to use when translating validation errors.
@@ -519,7 +519,7 @@ class Model extends CakeObject implements CakeEventListener
      *
      * @var bool
      */
-    public $cacheSources = true;
+    public bool $cacheSources = true;
 
     /**
      * Type of find query currently executing.

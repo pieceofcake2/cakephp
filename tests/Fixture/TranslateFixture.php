@@ -32,14 +32,14 @@ class TranslateFixture extends CakeTestFixture
      *
      * @var string
      */
-    public $table = 'i18n';
+    public ?string $table = 'i18n';
 
     /**
      * fields property
      *
      * @var array
      */
-    public $fields = [
+    public array $fields = [
         'id' => ['type' => 'integer', 'key' => 'primary'],
         'locale' => ['type' => 'string', 'length' => 6, 'null' => false],
         'model' => ['type' => 'string', 'null' => false],
@@ -53,7 +53,7 @@ class TranslateFixture extends CakeTestFixture
      *
      * @var array
      */
-    public $records = [
+    public array $records = [
         ['locale' => 'eng', 'model' => 'TranslatedItem', 'foreign_key' => 1, 'field' => 'title', 'content' => 'Title #1'],
         ['locale' => 'eng', 'model' => 'TranslatedItem', 'foreign_key' => 1, 'field' => 'content', 'content' => 'Content #1'],
         ['locale' => 'deu', 'model' => 'TranslatedItem', 'foreign_key' => 1, 'field' => 'title', 'content' => 'Titel #1'],

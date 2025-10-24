@@ -36,7 +36,7 @@ class NumberTreeTwoFixture extends CakeTestFixture
      *
      * @var array
      */
-    public $fields = [
+    public array $fields = [
         'id' => ['type' => 'integer', 'key' => 'primary'],
         'name' => ['type' => 'string', 'null' => false],
         'number_tree_id' => ['type' => 'integer', 'null' => false],

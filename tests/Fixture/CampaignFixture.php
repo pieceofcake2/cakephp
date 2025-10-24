@@ -33,7 +33,7 @@ class CampaignFixture extends CakeTestFixture
      *
      * @var array
      */
-    public $fields = [
+    public array $fields = [
         'id' => ['type' => 'integer', 'key' => 'primary'],
         'name' => ['type' => 'string', 'length' => 255, 'null' => false],
     ];
@@ -43,7 +43,7 @@ class CampaignFixture extends CakeTestFixture
      *
      * @var array
      */
-    public $records = [
+    public array $records = [
         ['name' => 'Hurtigruten'],
         ['name' => 'Colorline'],
         ['name' => 'Queen of Scandinavia'],

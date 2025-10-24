@@ -32,7 +32,7 @@ class MyCategoryFixture extends CakeTestFixture
      *
      * @var array
      */
-    public $fields = [
+    public array $fields = [
         'id' => ['type' => 'integer', 'key' => 'primary'],
         'name' => ['type' => 'string', 'null' => false],
     ];
@@ -42,7 +42,7 @@ class MyCategoryFixture extends CakeTestFixture
      *
      * @var array
      */
-    public $records = [
+    public array $records = [
         ['id' => 1, 'name' => 'A'],
         ['id' => 2, 'name' => 'B'],
         ['id' => 3, 'name' => 'C'],

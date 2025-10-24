@@ -81,22 +81,31 @@ class ClassRegistry
      * Examples
      * Simple Use: Get a Post model instance ```ClassRegistry::init('Post');```
      *
-     * Expanded: ```array('class' => 'ClassName', 'alias' => 'AliasNameStoredInTheRegistry');```
+     * Expanded: ```['class' => 'ClassName', 'alias' => 'AliasNameStoredInTheRegistry'];```
      *
-     * Model Classes can accept optional ```array('id' => $id, 'table' => $table, 'ds' => $ds, 'alias' => $alias);```
+     * Model Classes can accept optional ```['id' => $id, 'table' => $table, 'ds' => $ds, 'alias' => $alias];```
      *
      * When $class is a numeric keyed array, multiple class instances will be stored in the registry,
      *  no instance of the object will be returned
      * ```
-     * array(
-     *      array('class' => 'ClassName', 'alias' => 'AliasNameStoredInTheRegistry'),
-     *      array('class' => 'ClassName', 'alias' => 'AliasNameStoredInTheRegistry'),
-     *      array('class' => 'ClassName', 'alias' => 'AliasNameStoredInTheRegistry')
-     * );
+     * [
+     *      ['class' => 'ClassName', 'alias' => 'AliasNameStoredInTheRegistry'],
+     *      ['class' => 'ClassName', 'alias' => 'AliasNameStoredInTheRegistry'],
+     *      ['class' => 'ClassName', 'alias' => 'AliasNameStoredInTheRegistry'],
+     * ];
      * ```
      *
      * @template T
-     * @param class-string<T>|array{
+     * @param class-string<T>|array<array{
+     *      class: class-string,
+     *      alias?: string,
+     *      id?: int|string,
+     *      table?: string|false,
+     *      ds?: string,
+     *      plugin?: string,
+     *      testing?: bool,
+     *      name?: string
+     *  }>|array{
      *     class: class-string<T>,
      *     alias?: string,
      *     id?: int|string,
@@ -105,16 +114,7 @@ class ClassRegistry
      *     plugin?: string,
      *     testing?: bool,
      *     name?: string
-     * }|array<array{
-     *     class: class-string,
-     *     alias?: string,
-     *     id?: int|string,
-     *     table?: string|false,
-     *     ds?: string,
-     *     plugin?: string,
-     *     testing?: bool,
-     *     name?: string
-     * }> $class as a string or a single key => value array instance will be created,
+     * } $class as a string or a single key => value array instance will be created,
      *  stored in the registry and returned.
      * @param bool $strict if set to true it will return false if the class was not found instead
      *  of trying to create an AppModel

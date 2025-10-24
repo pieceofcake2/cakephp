@@ -166,13 +166,6 @@ class SecurityComponentTest extends CakeTestCase
     public $Controller;
 
     /**
-     * oldSalt property
-     *
-     * @var string
-     */
-    public $oldSalt;
-
-    /**
      * setUp method
      *
      * @return void

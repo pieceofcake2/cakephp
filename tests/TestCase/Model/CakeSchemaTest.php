@@ -364,23 +364,23 @@ class SchemaCrossDatabaseFixture extends CakeTestFixture
     /**
      * name property
      *
-     * @var string
+     * @var string|null
      */
-    public $name = 'CrossDatabase';
+    public ?string $name = 'CrossDatabase';
 
     /**
      * table property
      *
-     * @var string
+     * @var string|null
      */
-    public $table = 'cross_database';
+    public ?string $table = 'cross_database';
 
     /**
      * fields property
      *
      * @var array
      */
-    public $fields = [
+    public array $fields = [
         'id' => ['type' => 'integer', 'key' => 'primary'],
         'name' => 'string',
     ];
@@ -390,7 +390,7 @@ class SchemaCrossDatabaseFixture extends CakeTestFixture
      *
      * @var array
      */
-    public $records = [
+    public array $records = [
         ['id' => 1, 'name' => 'First'],
         ['id' => 2, 'name' => 'Second'],
     ];
@@ -406,23 +406,23 @@ class NonConventionalPrimaryKeyFixture extends CakeTestFixture
     /**
      * name property
      *
-     * @var string
+     * @var string|null
      */
-    public $name = 'NonConventional';
+    public ?string $name = 'NonConventional';
 
     /**
      * table property
      *
-     * @var string
+     * @var string|null
      */
-    public $table = 'non_conventional';
+    public ?string $table = 'non_conventional';
 
     /**
      * fields property
      *
      * @var array
      */
-    public $fields = [
+    public array $fields = [
         'version_id' => ['type' => 'integer', 'key' => 'primary'],
         'id' => ['type' => 'integer'],
         'name' => 'string',

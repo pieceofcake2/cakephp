@@ -34,14 +34,14 @@ class UnsignedFixture extends CakeTestFixture
      *
      * @var array
      */
-    public $table = 'unsigned';
+    public ?string $table = 'unsigned';
 
     /**
      * fields property
      *
      * @var array
      */
-    public $fields = [
+    public array $fields = [
         'uinteger' => ['type' => 'integer', 'null' => '', 'default' => '1', 'length' => '8', 'key' => 'primary', 'unsigned' => true],
         'integer' => ['type' => 'integer', 'length' => '8', 'unsigned' => false],
         'usmallinteger' => ['type' => 'smallinteger', 'unsigned' => true],
@@ -65,5 +65,5 @@ class UnsignedFixture extends CakeTestFixture
      *
      * @var array
      */
-    public $records = [];
+    public array $records = [];
 }

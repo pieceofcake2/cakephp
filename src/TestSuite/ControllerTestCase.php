@@ -71,7 +71,7 @@ class ControllerTestDispatcher extends Dispatcher
         }
         $this->testController->helpers = array_merge(['InterceptContent'], $this->testController->helpers);
         $this->testController->setRequest($request);
-        $this->testController->response = $this->response;
+        $this->testController->response = $response;
         foreach ($this->testController->Components->loaded() as $component) {
             $object = $this->testController->Components->{$component};
             if (isset($object->response)) {
@@ -129,58 +129,58 @@ abstract class ControllerTestCase extends CakeTestCase
     /**
      * The controller to test in testAction
      *
-     * @var Controller
+     * @var Controller|null
      */
-    public $controller = null;
+    public ?Controller $controller = null;
 
     /**
      * Automatically mock controllers that aren't mocked
      *
      * @var bool
      */
-    public $autoMock = true;
+    public bool $autoMock = true;
 
     /**
      * Use custom routes during tests
      *
      * @var bool
      */
-    public $loadRoutes = true;
+    public bool $loadRoutes = true;
 
     /**
      * The resulting view vars of the last testAction call
      *
-     * @var array
+     * @var array|null
      */
-    public $vars = null;
+    public ?array $vars = null;
 
     /**
      * The resulting rendered view of the last testAction call
      *
-     * @var string
+     * @var string|null
      */
-    public $view = null;
+    public ?string $view = null;
 
     /**
      * The resulting rendered layout+view of the last testAction call
      *
-     * @var string
+     * @var string|null
      */
-    public $contents = null;
+    public ?string $contents = null;
 
     /**
      * The returned result of the dispatch (requestAction), if any
      *
-     * @var string
+     * @var string|null
      */
-    public $result = null;
+    public ?string $result = null;
 
     /**
      * The headers that would have been sent by the action
      *
-     * @var string
+     * @var array|null
      */
-    public $headers = null;
+    public ?array $headers = null;
 
     /**
      * Flag for checking if the controller instance is dirty.
@@ -189,14 +189,14 @@ abstract class ControllerTestCase extends CakeTestCase
      *
      * @var bool
      */
-    protected $_dirtyController = false;
+    protected bool $_dirtyController = false;
 
     /**
      * The class name to use for mocking the response object.
      *
      * @var string
      */
-    protected $_responseClass = 'CakeResponse';
+    protected string $_responseClass = 'CakeResponse';
 
     /**
      * Used to enable calling ControllerTestCase::testAction() without the testing
@@ -456,13 +456,12 @@ abstract class ControllerTestCase extends CakeTestCase
     public function tearDown(): void
     {
         parent::tearDown();
-        unset(
-            $this->contents,
-            $this->controller,
-            $this->headers,
-            $this->result,
-            $this->view,
-            $this->vars,
-        );
+
+        $this->contents = null;
+        $this->controller = null;
+        $this->headers = null;
+        $this->result = null;
+        $this->view = null;
+        $this->vars = null;
     }
 }

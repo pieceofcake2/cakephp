@@ -44,6 +44,11 @@ class MemcachedEngine extends CacheEngine
     protected $_Memcached = null;
 
     /**
+     * @var array<string>
+     */
+    protected array $_compiledGroupNames = [];
+
+    /**
      * Settings
      *
      *  - servers = string or array of memcached servers, default => 127.0.0.1. If an

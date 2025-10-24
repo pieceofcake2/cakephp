@@ -20,6 +20,7 @@ namespace Cake\TestSuite\Fixture;
 
 use Cake\Core\CakePlugin;
 use Cake\Model\ConnectionManager;
+use Cake\Model\Datasource\DataSource;
 use Cake\TestSuite\CakeTestCase;
 use Cake\Utility\ClassRegistry;
 use Cake\Utility\Inflector;
@@ -42,23 +43,28 @@ class CakeFixtureManager
     /**
      * Default datasource to use
      *
-     * @var DataSource
+     * @var DataSource|null
      */
-    protected $_db = null;
+    protected ?DataSource $_db = null;
 
     /**
      * Holds the fixture classes that where instantiated
      *
      * @var array
      */
-    protected $_loaded = [];
+    protected array $_loaded = [];
 
     /**
      * Holds the fixture classes that where instantiated indexed by class name
      *
      * @var array
      */
-    protected $_fixtureMap = [];
+    protected array $_fixtureMap = [];
+
+    /**
+     * @var array<string, bool>
+     */
+    protected array $_processed = [];
 
     /**
      * Inspects the test to look for unloaded fixtures and loads them

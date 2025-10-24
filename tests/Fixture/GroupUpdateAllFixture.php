@@ -27,16 +27,16 @@ use Cake\TestSuite\Fixture\CakeTestFixture;
  */
 class GroupUpdateAllFixture extends CakeTestFixture
 {
-    public $table = 'group_update_all';
+    public ?string $table = 'group_update_all';
 
-    public $fields = [
+    public array $fields = [
         'id' => ['type' => 'integer', 'null' => false, 'default' => null, 'key' => 'primary'],
         'name' => ['type' => 'string', 'null' => false, 'length' => 29],
         'code' => ['type' => 'integer', 'null' => false, 'length' => 4],
         'indexes' => ['PRIMARY' => ['column' => 'id', 'unique' => 1]],
     ];
 
-    public $records = [
+    public array $records = [
         [
             'id' => 1,
             'name' => 'group one',

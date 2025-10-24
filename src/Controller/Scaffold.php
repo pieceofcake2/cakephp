@@ -27,6 +27,7 @@ use Cake\Error\MissingDatabaseException;
 use Cake\Error\MissingModelException;
 use Cake\Error\NotFoundException;
 use Cake\Model\ConnectionManager;
+use Cake\Model\Model;
 use Cake\Network\CakeRequest;
 use Cake\Utility\Inflector;
 
@@ -48,65 +49,90 @@ class Scaffold
      *
      * @var Controller
      */
-    public $controller = null;
+    public Controller $controller;
 
     /**
      * Name of the controller to scaffold
      *
-     * @var string
+     * @var string|null
      */
-    public $name = null;
+    public ?string $name = null;
 
     /**
      * Name of current model this view context is attached to
      *
-     * @var string
+     * @var string|null
      */
-    public $model = null;
+    public ?string $model = null;
 
     /**
      * Path to View.
      *
      * @var string
      */
-    public $viewPath;
+    public string $viewPath;
 
     /**
      * Name of layout to use with this View.
      *
      * @var string
      */
-    public $layout = 'default';
+    public string $layout = 'default';
 
     /**
      * Request object
      *
      * @var CakeRequest
      */
-    public $request;
+    public CakeRequest $request;
 
     /**
      * Valid session.
      *
-     * @var bool
+     * @var bool|null
      */
-    protected $_validSession = null;
+    protected ?bool $_validSession = null;
 
     /**
      * List of variables to collect from the associated controller
      *
-     * @var array
+     * @var array<string>
      */
-    protected $_passedVars = [
+    protected array $_passedVars = [
         'layout', 'name', 'viewPath', 'request',
     ];
 
     /**
      * Title HTML element for current scaffolded view
      *
-     * @var string
+     * @var string|null
      */
-    public $scaffoldTitle = null;
+    public ?string $scaffoldTitle = null;
+
+    /**
+     * @var Model
+     */
+    public Model $ScaffoldModel;
+
+    /**
+     * @var array<string, string>
+     */
+    public array $redirect;
+
+    /**
+     * @var string|null
+     */
+    public ?string $modelClass;
+
+    /**
+     * @var string|null
+     */
+    public ?string $modelKey;
+
+    /**
+     * @var mixed
+     */
+    public $scaffoldActions;
 
     /**
      * Construct and set up given controller with given parameters.
@@ -119,10 +145,8 @@ class Scaffold
     {
         $this->controller = $controller;
 
-        $count = count($this->_passedVars);
-        for ($j = 0; $j < $count; $j++) {
-            $var = $this->_passedVars[$j];
-            $this->{$var} = $controller->{$var};
+        foreach ($this->_passedVars as $passedVar) {
+            $this->{$passedVar} = $controller->{$passedVar};
         }
 
         $this->redirect = ['action' => 'index'];

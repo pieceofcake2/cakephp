@@ -32,7 +32,7 @@ class MessageFixture extends CakeTestFixture
      *
      * @var array
      */
-    public $fields = [
+    public array $fields = [
         'id' => ['type' => 'integer', 'key' => 'primary'],
         'thread_id' => ['type' => 'integer', 'null' => false],
         'name' => ['type' => 'string', 'null' => false],
@@ -43,7 +43,7 @@ class MessageFixture extends CakeTestFixture
      *
      * @var array
      */
-    public $records = [
+    public array $records = [
         ['thread_id' => 1, 'name' => 'Thread 1, Message 1'],
         ['thread_id' => 2, 'name' => 'Thread 2, Message 1'],
         ['thread_id' => 3, 'name' => 'Thread 3, Message 1'],

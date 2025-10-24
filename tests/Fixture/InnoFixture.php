@@ -32,7 +32,7 @@ class InnoFixture extends CakeTestFixture
      *
      * @var array
      */
-    public $fields = [
+    public array $fields = [
         'id' => ['type' => 'integer', 'key' => 'primary'],
         'name' => ['type' => 'string', 'null' => true],
         'tableParameters' => [
@@ -45,7 +45,7 @@ class InnoFixture extends CakeTestFixture
      *
      * @var array
      */
-    public $records = [
+    public array $records = [
         ['name' => 'Name 1'],
         ['name' => 'Name 2'],
     ];

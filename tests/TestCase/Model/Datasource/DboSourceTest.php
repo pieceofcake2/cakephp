@@ -116,9 +116,9 @@ class_alias(DboTestSource::class, 'App\\Model\\Datasource\\DboTestSource');
  */
 class DboSecondTestSource extends DboSource
 {
-    public $startQuote = '_';
+    public ?string $startQuote = '_';
 
-    public $endQuote = '_';
+    public ?string $endQuote = '_';
 
     public function connect($config = [])
     {

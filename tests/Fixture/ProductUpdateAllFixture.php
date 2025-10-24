@@ -27,9 +27,9 @@ use Cake\TestSuite\Fixture\CakeTestFixture;
  */
 class ProductUpdateAllFixture extends CakeTestFixture
 {
-    public $table = 'product_update_all';
+    public ?string $table = 'product_update_all';
 
-    public $fields = [
+    public array $fields = [
         'id' => ['type' => 'integer', 'null' => false, 'default' => null, 'key' => 'primary'],
         'name' => ['type' => 'string', 'null' => false, 'length' => 29],
         'groupcode' => ['type' => 'integer', 'null' => false, 'length' => 4],
@@ -37,7 +37,7 @@ class ProductUpdateAllFixture extends CakeTestFixture
         'indexes' => ['PRIMARY' => ['column' => 'id', 'unique' => 1]],
     ];
 
-    public $records = [
+    public array $records = [
         [
             'id' => 1,
             'name' => 'product one',

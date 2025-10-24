@@ -36,6 +36,7 @@ use Cake\View\HelperCollection;
 use Cake\View\View;
 use Error;
 use LogicException;
+use Stringable;
 
 /**
  * ViewPostsController class
@@ -244,9 +245,9 @@ class_alias(TestBeforeAfterHelper::class, 'App\\View\\Helper\\TestBeforeAfterHel
  *
  * An object with the magic method __toString() for testing with view blocks.
  */
-class TestObjectWithToString
+class TestObjectWithToString implements Stringable
 {
-    public function __toString()
+    public function __toString(): string
     {
         return "I'm ObjectWithToString";
     }

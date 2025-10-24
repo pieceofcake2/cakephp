@@ -33,7 +33,7 @@ class DependencyFixture extends CakeTestFixture
      *
      * @var array
      */
-    public $fields = [
+    public array $fields = [
         'id' => 'integer',
         'child_id' => 'integer',
         'parent_id' => 'integer',
@@ -44,7 +44,7 @@ class DependencyFixture extends CakeTestFixture
      *
      * @var array
      */
-    public $records = [
+    public array $records = [
         ['id' => 1, 'child_id' => 1, 'parent_id' => 2],
     ];
 }

@@ -32,7 +32,7 @@ class PlayerFixture extends CakeTestFixture
      *
      * @var array
      */
-    public $fields = [
+    public array $fields = [
         'id' => ['type' => 'integer', 'key' => 'primary'],
         'name' => ['type' => 'string', 'null' => false],
         'created' => 'datetime',
@@ -44,7 +44,7 @@ class PlayerFixture extends CakeTestFixture
      *
      * @var array
      */
-    public $records = [
+    public array $records = [
         ['name' => 'mark', 'created' => '2007-03-17 01:16:23'],
         ['name' => 'jack', 'created' => '2007-03-17 01:18:23'],
         ['name' => 'larry', 'created' => '2007-03-17 01:20:23'],

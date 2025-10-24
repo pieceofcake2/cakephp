@@ -62,9 +62,9 @@ class TestSource extends DataSource
     /**
      * listSources
      *
-     * @return bool
+     * @return array|null
      */
-    public function listSources($data = \null)
+    public function listSources(?array $data = null): ?array
     {
         return null;
     }

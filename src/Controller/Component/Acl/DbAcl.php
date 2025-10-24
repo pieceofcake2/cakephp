@@ -18,6 +18,8 @@ namespace Cake\Controller\Component\Acl;
 
 use Cake\Controller\Component;
 use Cake\Core\CakeObject;
+use Cake\Model\Model;
+use Cake\Model\Permission;
 use Cake\Utility\ClassRegistry;
 
 /**
@@ -42,12 +44,28 @@ use Cake\Utility\ClassRegistry;
 class DbAcl extends CakeObject implements AclInterface
 {
     /**
+     * @var Model
+     */
+    public Model $Permission;
+
+    /**
+     * @var Model
+     */
+    public Model $Aro;
+
+    /**
+     * @var Model
+     */
+    public Model $Aco;
+
+    /**
      * Constructor
      */
     public function __construct()
     {
         parent::__construct();
-        $this->Permission = ClassRegistry::init(['class' => 'Permission', 'alias' => 'Permission']);
+
+        $this->Permission = ClassRegistry::init(['class' => Permission::class, 'alias' => 'Permission']);
         $this->Aro = $this->Permission->Aro;
         $this->Aco = $this->Permission->Aco;
     }
@@ -83,14 +101,14 @@ class DbAcl extends CakeObject implements AclInterface
      *
      * @param string $aro ARO The requesting object identifier.
      * @param string $aco ACO The controlled object identifier.
-     * @param string $actions Action (defaults to *)
+     * @param string $action Action (defaults to *)
      * @param int $value Value to indicate access type (1 to give access, -1 to deny, 0 to inherit)
      * @return bool Success
      * @link https://book.cakephp.org/2.0/en/core-libraries/components/access-control-lists.html#assigning-permissions
      */
-    public function allow($aro, $aco, $actions = '*', $value = 1)
+    public function allow($aro, $aco, $action = '*', $value = 1)
     {
-        return $this->Permission->allow($aro, $aco, $actions, $value);
+        return $this->Permission->allow($aro, $aco, $action, $value);
     }
 
     /**

@@ -12,7 +12,7 @@ class TestOtherSource extends DataSource
         return compact('model');
     }
 
-    public function listSources($data = null)
+    public function listSources(?array $data = null): ?array
     {
         return ['test_source'];
     }

@@ -48,7 +48,7 @@ class AclNodeTwoTestBase extends AclNode
      *
      * @var bool
      */
-    public $cacheSources = false;
+    public bool $cacheSources = false;
 }
 class_alias(AclNodeTwoTestBase::class, 'App\\Model\\AclNodeTwoTestBase');
 

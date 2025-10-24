@@ -549,6 +549,11 @@ class FormHelperTest extends CakeTestCase
     public $autoFixtures = false;
 
     /**
+     * @var string|null
+     */
+    public ?string $oldSalt = null;
+
+    /**
      * setUp method
      *
      * @return void

@@ -24,6 +24,7 @@ use AllowDynamicProperties;
 use ArrayAccess;
 use ArrayIterator;
 use Cake\Event\CakeEvent;
+use Cake\Model\Validator\CakeValidationRule;
 use Cake\Model\Validator\CakeValidationSet;
 use Cake\Utility\Hash;
 use Countable;
@@ -48,14 +49,14 @@ class ModelValidator implements ArrayAccess, IteratorAggregate, Countable
      *
      * @var array<CakeValidationSet>
      */
-    protected $_fields = [];
+    protected array $_fields = [];
 
     /**
      * Holds the reference to the model this Validator is attached to
      *
-     * @var Model
+     * @var Model|null
      */
-    protected $_model = [];
+    protected ?Model $_model = null;
 
     /**
      * The validators $validate property, used for checking whether validation
@@ -63,7 +64,7 @@ class ModelValidator implements ArrayAccess, IteratorAggregate, Countable
      *
      * @var array
      */
-    protected $_validate = [];
+    protected array $_validate = [];
 
     /**
      * Holds the available custom callback methods, usually taken from model methods
@@ -71,21 +72,21 @@ class ModelValidator implements ArrayAccess, IteratorAggregate, Countable
      *
      * @var array
      */
-    protected $_methods = [];
+    protected array $_methods = [];
 
     /**
      * Holds the available custom callback methods from the model
      *
      * @var array
      */
-    protected $_modelMethods = [];
+    protected array $_modelMethods = [];
 
     /**
      * Holds the list of behavior names that were attached when this object was created
      *
      * @var array
      */
-    protected $_behaviors = [];
+    protected array $_behaviors = [];
 
     /**
      * Constructor
@@ -331,8 +332,9 @@ class ModelValidator implements ArrayAccess, IteratorAggregate, Countable
         foreach (array_keys($this->_model->Behaviors->methods()) as $method) {
             $methods += [strtolower($method) => [$this->_model, $method]];
         }
+        $this->_methods = $methods;
 
-        return $this->_methods = $methods;
+        return $this->_methods;
     }
 
     /**
@@ -418,14 +420,14 @@ class ModelValidator implements ArrayAccess, IteratorAggregate, Countable
      * @param array $fieldList list of fields to be used for validation
      * @return array<CakeValidationSet> List of validation rules to be applied
      */
-    protected function _validationList($fieldList = [])
+    protected function _validationList(array $fieldList = [])
     {
         if (empty($fieldList) || Hash::dimensions($fieldList) > 1) {
             return $this->_fields;
         }
 
         $validateList = [];
-        $this->validationErrors = [];
+        $this->getModel()->validationErrors = [];
         foreach ((array)$fieldList as $f) {
             if (!empty($this->_fields[$f])) {
                 $validateList[$f] = $this->_fields[$f];

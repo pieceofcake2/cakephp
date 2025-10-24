@@ -32,7 +32,7 @@ class ArosAcoTwoFixture extends CakeTestFixture
      *
      * @var array
      */
-    public $fields = [
+    public array $fields = [
         'id' => ['type' => 'integer', 'key' => 'primary'],
         'aro_id' => ['type' => 'integer', 'length' => 10, 'null' => false],
         'aco_id' => ['type' => 'integer', 'length' => 10, 'null' => false],
@@ -47,7 +47,7 @@ class ArosAcoTwoFixture extends CakeTestFixture
      *
      * @var array
      */
-    public $records = [
+    public array $records = [
         ['aro_id' => '1', 'aco_id' => '1', '_create' => '-1', '_read' => '-1', '_update' => '-1', '_delete' => '-1'],
         ['aro_id' => '2', 'aco_id' => '1', '_create' => '0', '_read' => '1', '_update' => '1', '_delete' => '1'],
         ['aro_id' => '3', 'aco_id' => '2', '_create' => '0', '_read' => '1', '_update' => '0', '_delete' => '0'],

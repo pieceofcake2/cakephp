@@ -32,7 +32,7 @@ class BasketFixture extends CakeTestFixture
      *
      * @var array
      */
-    public $fields = [
+    public array $fields = [
         'id' => ['type' => 'integer', 'key' => 'primary'],
         'type' => ['type' => 'string', 'length' => 255],
         'name' => ['type' => 'string', 'length' => 255],
@@ -45,7 +45,7 @@ class BasketFixture extends CakeTestFixture
      *
      * @var array
      */
-    public $records = [
+    public array $records = [
         ['id' => 1, 'type' => 'nonfile', 'name' => 'basket1', 'object_id' => 1, 'user_id' => 1],
         ['id' => 2, 'type' => 'file', 'name' => 'basket2', 'object_id' => 2, 'user_id' => 1],
     ];

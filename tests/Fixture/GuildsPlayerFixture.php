@@ -27,14 +27,14 @@ use Cake\TestSuite\Fixture\CakeTestFixture;
  */
 class GuildsPlayerFixture extends CakeTestFixture
 {
-    public $useDbConfig = 'test2';
+    public string $useDbConfig = 'test2';
 
     /**
      * fields property
      *
      * @var array
      */
-    public $fields = [
+    public array $fields = [
         'id' => ['type' => 'integer', 'key' => 'primary'],
         'player_id' => ['type' => 'integer', 'null' => false],
         'guild_id' => ['type' => 'integer', 'null' => false],
@@ -45,7 +45,7 @@ class GuildsPlayerFixture extends CakeTestFixture
      *
      * @var array
      */
-    public $records = [
+    public array $records = [
         ['player_id' => 1, 'guild_id' => 1],
         ['player_id' => 1, 'guild_id' => 2],
         ['player_id' => 4, 'guild_id' => 3],

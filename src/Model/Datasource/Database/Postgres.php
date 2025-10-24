@@ -35,14 +35,14 @@ class Postgres extends DboSource
      *
      * @var string
      */
-    public $description = 'PostgreSQL DBO Driver';
+    public string $description = 'PostgreSQL DBO Driver';
 
     /**
      * Base driver configuration settings. Merged with user settings.
      *
      * @var array
      */
-    protected $_baseConfig = [
+    protected array $_baseConfig = [
         'persistent' => true,
         'host' => 'localhost',
         'login' => 'root',
@@ -60,7 +60,7 @@ class Postgres extends DboSource
      * @var array
      * @link https://www.postgresql.org/docs/9.6/static/datatype.html PostgreSQL Data Types
      */
-    public $columns = [
+    public array $columns = [
         'primary_key' => ['name' => 'serial NOT NULL'],
         'string' => ['name' => 'varchar', 'limit' => '255'],
         'text' => ['name' => 'text'],
@@ -84,16 +84,16 @@ class Postgres extends DboSource
     /**
      * Starting Quote
      *
-     * @var string
+     * @var string|null
      */
-    public $startQuote = '"';
+    public ?string $startQuote = '"';
 
     /**
      * Ending Quote
      *
-     * @var string
+     * @var string|null
      */
-    public $endQuote = '"';
+    public ?string $endQuote = '"';
 
     /**
      * Contains mappings of custom auto-increment sequences, if a table uses a sequence name
@@ -101,14 +101,14 @@ class Postgres extends DboSource
      *
      * @var array
      */
-    protected $_sequenceMap = [];
+    protected array $_sequenceMap = [];
 
     /**
      * The set of valid SQL operations usable in a WHERE statement
      *
      * @var array
      */
-    protected $_sqlOps = ['like', 'ilike', 'or', 'not', 'in', 'between', '~', '~\*', '\!~', '\!~\*', 'similar to'];
+    protected array $_sqlOps = ['like', 'ilike', 'or', 'not', 'in', 'between', '~', '~\*', '\!~', '\!~\*', 'similar to'];
 
     /**
      * Connects to the database using options in the given configuration array.
@@ -177,7 +177,7 @@ class Postgres extends DboSource
      * @param mixed $data The sources to list.
      * @return array Array of table names in the database
      */
-    public function listSources($data = null)
+    public function listSources(?array $data = null): ?array
     {
         $cache = parent::listSources();
 
@@ -991,10 +991,10 @@ class Postgres extends DboSource
      * Format indexes for create table
      *
      * @param array $indexes The index to build
-     * @param string $table The table name.
-     * @return string
+     * @param string|null $table The table name.
+     * @return array<string>
      */
-    public function buildIndex($indexes, $table = null)
+    public function buildIndex(array $indexes, ?string $table = null): array
     {
         $join = [];
         if (!is_array($indexes)) {
@@ -1024,7 +1024,7 @@ class Postgres extends DboSource
     /**
      * @inheritDoc
      */
-    public function value($data, $column = null, $null = true)
+    public function value($data, ?string $column = null, bool $null = true): array|string
     {
         $value = parent::value($data, $column, $null);
         if ($column === 'uuid' && is_scalar($data) && $data === '') {

@@ -47,7 +47,7 @@ class DbAclNodeTestBase extends AclNode
      *
      * @var bool
      */
-    public $cacheSources = false;
+    public bool $cacheSources = false;
 }
 
 /**

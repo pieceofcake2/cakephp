@@ -6,6 +6,8 @@ use AppController;
 use Cake\Core\App;
 use Cake\Core\Configure;
 use Cake\Model\Datasource\CakeSession;
+use Cake\Network\CakeRequest;
+use Cake\Network\CakeResponse;
 use Cake\TestSuite\ControllerTestCase;
 
 App::uses('AppController', 'Controller');
@@ -78,8 +80,12 @@ class ApplicationControllerTest extends ControllerTestCase
      */
     public function setUp(): void
     {
-        CakeSession::destroy();
         parent::setUp();
+
+        CakeSession::destroy();
+
+        Configure::write('Security.salt', 'YJfIxfs2guVoUubWDYhG93b0qyJfIxfs2guwvniR2G0FgaC9mi');
+        Configure::write('Security.cipherSeed', 770011223369876);
     }
 
     /**
