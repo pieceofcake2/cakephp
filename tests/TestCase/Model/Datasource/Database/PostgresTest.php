@@ -31,11 +31,20 @@ use Cake\TestSuite\Fixture\CakeTestModel;
 use Cake\Utility\ClassRegistry;
 use PDO;
 use ReflectionClass;
-use stdClass;
 
 App::uses('AppModel', 'Model');
 
 require_once dirname(__DIR__, 2) . DS . 'models.php';
+
+class MockPDO extends PDO
+{
+    /**
+     * Constructor.
+     */
+    public function __construct()
+    {
+    }
+}
 
 /**
  * DboPostgresTestDb class
@@ -1369,7 +1378,7 @@ class PostgresTest extends CakeTestCase
     {
         // Test PostgreSQL 15.3 version
         $db = $this->getMock(Postgres::class, ['connect', '_execute']);
-        $mockConnection = $this->getMock(stdClass::class, ['getAttribute']);
+        $mockConnection = $this->getMock(MockPDO::class, ['getAttribute']);
         $mockConnection->expects($this->once())
             ->method('getAttribute')
             ->with(PDO::ATTR_SERVER_VERSION)
@@ -1385,7 +1394,7 @@ class PostgresTest extends CakeTestCase
 
         // Test PostgreSQL with Ubuntu version string
         $db = $this->getMock(Postgres::class, ['connect', '_execute']);
-        $mockConnection = $this->getMock(stdClass::class, ['getAttribute']);
+        $mockConnection = $this->getMock(MockPDO::class, ['getAttribute']);
         $mockConnection->expects($this->once())
             ->method('getAttribute')
             ->with(PDO::ATTR_SERVER_VERSION)
@@ -1401,7 +1410,7 @@ class PostgresTest extends CakeTestCase
 
         // Test PostgreSQL with platform info
         $db = $this->getMock(Postgres::class, ['connect', '_execute']);
-        $mockConnection = $this->getMock(stdClass::class, ['getAttribute']);
+        $mockConnection = $this->getMock(MockPDO::class, ['getAttribute']);
         $mockConnection->expects($this->once())
             ->method('getAttribute')
             ->with(PDO::ATTR_SERVER_VERSION)
@@ -1417,7 +1426,7 @@ class PostgresTest extends CakeTestCase
 
         // Test version caching
         $db = $this->getMock(Postgres::class, ['connect', '_execute']);
-        $mockConnection = $this->getMock(stdClass::class, ['getAttribute']);
+        $mockConnection = $this->getMock(MockPDO::class, ['getAttribute']);
         $mockConnection->expects($this->once()) // Only once even though we call getVersion twice
             ->method('getAttribute')
             ->with(PDO::ATTR_SERVER_VERSION)
@@ -1435,7 +1444,7 @@ class PostgresTest extends CakeTestCase
 
         // Test non-matching version pattern (fallback to original string)
         $db = $this->getMock(Postgres::class, ['connect', '_execute']);
-        $mockConnection = $this->getMock(stdClass::class, ['getAttribute']);
+        $mockConnection = $this->getMock(MockPDO::class, ['getAttribute']);
         $mockConnection->expects($this->once())
             ->method('getAttribute')
             ->with(PDO::ATTR_SERVER_VERSION)
@@ -1451,7 +1460,7 @@ class PostgresTest extends CakeTestCase
 
         // Test empty version string
         $db = $this->getMock(Postgres::class, ['connect', '_execute']);
-        $mockConnection = $this->getMock(stdClass::class, ['getAttribute']);
+        $mockConnection = $this->getMock(MockPDO::class, ['getAttribute']);
         $mockConnection->expects($this->once())
             ->method('getAttribute')
             ->with(PDO::ATTR_SERVER_VERSION)
