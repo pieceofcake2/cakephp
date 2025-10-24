@@ -292,7 +292,10 @@ jobs:
       - name: Install dependencies
         run: composer install --prefer-dist --no-interaction --no-progress
 
-      - name: Check PHP code style
+      - name: Copy database.php
+        run: cp ./tests/config/database.php ./vendor/pieceofcake2/app/config/
+
+      - name: PHPStan analyse
         id: phpcs
         run: ./vendor/bin/phpstan analyse --error-format=checkstyle > ./checkstyle.xml
 
