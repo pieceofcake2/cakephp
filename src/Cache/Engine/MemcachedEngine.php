@@ -41,7 +41,7 @@ class MemcachedEngine extends CacheEngine
      *
      * @var Memcached
      */
-    protected $_Memcached = null;
+    protected ?Memcached $_Memcached = null;
 
     /**
      * @var array<string>
@@ -64,7 +64,7 @@ class MemcachedEngine extends CacheEngine
      *
      * @var array
      */
-    public $settings = [];
+    public array $settings = [];
 
     /**
      * List of available serializer engines

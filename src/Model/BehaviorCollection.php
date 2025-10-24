@@ -38,23 +38,23 @@ class BehaviorCollection extends ObjectCollection implements CakeEventListener
     /**
      * Stores a reference to the attached name
      *
-     * @var string
+     * @var string|null
      */
-    public $modelName = null;
+    public ?string $modelName = null;
 
     /**
      * Keeps a list of all methods of attached behaviors
      *
      * @var array
      */
-    protected $_methods = [];
+    protected array $_methods = [];
 
     /**
      * Keeps a list of all methods which have been mapped with regular expressions
      *
      * @var array
      */
-    protected $_mappedMethods = [];
+    protected array $_mappedMethods = [];
 
     /**
      * Attaches a model object and loads a list of behaviors
@@ -63,7 +63,7 @@ class BehaviorCollection extends ObjectCollection implements CakeEventListener
      * @param array $behaviors Behaviors list.
      * @return void
      */
-    public function init($modelName, $behaviors = [])
+    public function init(string $modelName, array $behaviors = []): void
     {
         $this->modelName = $modelName;
 
@@ -297,7 +297,7 @@ class BehaviorCollection extends ObjectCollection implements CakeEventListener
      *
      * @return array
      */
-    public function implementedEvents()
+    public function implementedEvents(): array
     {
         return [
             'Model.beforeFind' => 'trigger',

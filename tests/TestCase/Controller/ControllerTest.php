@@ -51,21 +51,21 @@ class ControllerTestAppController extends Controller
      *
      * @var array
      */
-    public $helpers = ['Html'];
+    public array $helpers = ['Html'];
 
     /**
      * uses property
      *
-     * @var array
+     * @var array||bool
      */
-    public $uses = ['ControllerPost'];
+    public array|bool $uses = ['ControllerPost'];
 
     /**
      * components property
      *
      * @var array
      */
-    public $components = ['Cookie'];
+    public array $components = ['Cookie'];
 }
 class_alias(ControllerTestAppController::class, 'App\\Controller\\ControllerTestAppController');
 
@@ -81,7 +81,7 @@ class ControllerPost extends CakeTestModel
      *
      * @var string
      */
-    public $useTable = 'posts';
+    public string|bool|null $useTable = 'posts';
 
     /**
      * invalidFields property
@@ -137,7 +137,7 @@ class_alias(ControllerPost::class, 'TestApp\\Model\\ControllerPost');
  */
 class ControllerCommentsController extends ControllerTestAppController
 {
-    protected $_mergeParent = 'ControllerTestAppController';
+    protected string $_mergeParent = 'ControllerTestAppController';
 }
 class_alias(ControllerCommentsController::class, 'App\\Controller\\ControllerCommentsController');
 
@@ -153,14 +153,14 @@ class ControllerComment extends CakeTestModel
      *
      * @var string
      */
-    public $name = 'Comment';
+    public ?string $name = 'Comment';
 
     /**
      * useTable property
      *
      * @var string
      */
-    public $useTable = 'comments';
+    public string|bool|null $useTable = 'comments';
 
     /**
      * data property
@@ -174,7 +174,7 @@ class ControllerComment extends CakeTestModel
      *
      * @var string
      */
-    public $alias = 'ControllerComment';
+    public ?string $alias = 'ControllerComment';
 }
 class_alias(ControllerComment::class, 'App\\Model\\ControllerComment');
 class_alias(ControllerComment::class, 'TestPlugin\\Model\\ControllerComment');
@@ -191,14 +191,14 @@ class ControllerAlias extends CakeTestModel
      *
      * @var string
      */
-    public $alias = 'ControllerSomeAlias';
+    public ?string $alias = 'ControllerSomeAlias';
 
     /**
      * useTable property
      *
      * @var string
      */
-    public $useTable = 'posts';
+    public string|bool|null $useTable = 'posts';
 }
 class_alias(ControllerAlias::class, 'App\\Model\\ControllerAlias');
 
@@ -214,21 +214,21 @@ class NameTest extends CakeTestModel
      *
      * @var string
      */
-    public $name = 'Name';
+    public ?string $name = 'Name';
 
     /**
      * useTable property
      *
      * @var string
      */
-    public $useTable = 'comments';
+    public string|bool|null $useTable = 'comments';
 
     /**
      * alias property
      *
      * @var string
      */
-    public $alias = 'Name';
+    public ?string $alias = 'Name';
 }
 class_alias(NameTest::class, 'App\\Model\\NameTest');
 
@@ -244,23 +244,23 @@ class TestController extends ControllerTestAppController
      *
      * @var array
      */
-    public $helpers = ['Session'];
+    public array $helpers = ['Session'];
 
     /**
      * components property
      *
      * @var array
      */
-    public $components = ['Security'];
+    public array $components = ['Security'];
 
     /**
      * uses property
      *
-     * @var array
+     * @var array||bool
      */
-    public $uses = ['ControllerComment', 'ControllerAlias'];
+    public array|bool $uses = ['ControllerComment', 'ControllerAlias'];
 
-    protected $_mergeParent = 'ControllerTestAppController';
+    protected string $_mergeParent = 'ControllerTestAppController';
 
     /**
      * index method
@@ -405,16 +405,16 @@ class AnotherTestController extends ControllerTestAppController
     /**
      * uses property
      *
-     * @var array
+     * @var array||bool
      */
-    public $uses = false;
+    public array|bool $uses = false;
 
     /**
      * merge parent
      *
      * @var string
      */
-    protected $_mergeParent = 'ControllerTestAppController';
+    protected string $_mergeParent = 'ControllerTestAppController';
 }
 class_alias(AnotherTestController::class, 'App\\Controller\\AnotherTestController');
 
@@ -1093,13 +1093,13 @@ class ControllerTest extends CakeTestCase
             ->with(true)
             ->will($this->returnValue('/posts/index'));
 
-        $Controller = new Controller($request);
-        $result = $Controller->referer(null, true);
+        $controller = new Controller($request);
+        $result = $controller->referer(null, true);
         $this->assertEquals('/posts/index', $result);
 
-        $Controller = new Controller($request);
+        $controller = new Controller($request);
         $request->setReturnValue('referer', '/', [true]);
-        $result = $Controller->referer(['controller' => 'posts', 'action' => 'index'], true);
+        $result = $controller->referer(['controller' => 'posts', 'action' => 'index'], true);
         $this->assertEquals('/posts/index', $result);
 
         $request = $this->getMock(CakeRequest::class);
@@ -1108,12 +1108,12 @@ class ControllerTest extends CakeTestCase
             ->with(false)
             ->will($this->returnValue('http://localhost/posts/index'));
 
-        $Controller = new Controller($request);
-        $result = $Controller->referer();
+        $controller = new Controller($request);
+        $result = $controller->referer();
         $this->assertEquals('http://localhost/posts/index', $result);
 
-        $Controller = new Controller(null);
-        $result = $Controller->referer();
+        $controller = new Controller(null);
+        $result = $controller->referer();
         $this->assertEquals('/', $result);
     }
 

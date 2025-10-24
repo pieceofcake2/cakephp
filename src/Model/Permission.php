@@ -36,28 +36,28 @@ class Permission extends AppModel
      *
      * @var bool
      */
-    public $cacheQueries = false;
+    public bool $cacheQueries = false;
 
     /**
      * Override default table name
      *
      * @var string
      */
-    public $useTable = 'aros_acos';
+    public string|bool|null $useTable = 'aros_acos';
 
     /**
      * Permissions link AROs with ACOs
      *
      * @var array
      */
-    public $belongsTo = ['Aro', 'Aco'];
+    public array $belongsTo = ['Aro', 'Aco'];
 
     /**
      * No behaviors for this model
      *
      * @var array
      */
-    public $actsAs = null;
+    public array $actsAs = [];
 
     /**
      * Constructor, used to tell this model to use the

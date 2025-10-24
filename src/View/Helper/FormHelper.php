@@ -47,7 +47,7 @@ class FormHelper extends AppHelper
      *
      * @var array
      */
-    public $helpers = ['Html'];
+    public array $helpers = ['Html'];
 
     /**
      * Options used by DateTime fields
@@ -1795,7 +1795,7 @@ class FormHelper extends AppHelper
      * @return string Formatted input method.
      * @throws CakeException When there are no params for the method call.
      */
-    public function __call($method, $params)
+    public function __call(string $method, array $params): string
     {
         $options = [];
         if (empty($params)) {
@@ -2920,12 +2920,12 @@ class FormHelper extends AppHelper
     /**
      * Gets the input field name for the current tag
      *
-     * @param array $options Options list.
-     * @param string $field Field name.
+     * @param array|string|null $options Options list.
+     * @param string|null $field Field name.
      * @param string $key Key name.
      * @return array
      */
-    protected function _name($options = [], $field = null, $key = 'name')
+    protected function _name(array|string|null $options = [], ?string $field = null, string $key = 'name'): array
     {
         if ($this->requestType === 'get') {
             if ($options === null) {
@@ -3208,7 +3208,7 @@ class FormHelper extends AppHelper
      * @param array $options Array of options to append options into.
      * @return array Array of options for the input.
      */
-    protected function _initInputField($field, $options = [])
+    protected function _initInputField($field, $options = []): array
     {
         if (isset($options['secure'])) {
             $secure = $options['secure'];

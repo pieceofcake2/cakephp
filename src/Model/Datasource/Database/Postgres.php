@@ -390,7 +390,7 @@ class Postgres extends DboSource
      *    and if 1, sequences are not modified
      * @return bool SQL TRUNCATE TABLE statement, false if not applicable.
      */
-    public function truncate($table, $reset = false)
+    public function truncate(Model|string $table, bool $reset = false)
     {
         $table = $this->fullTableName($table, false, false);
         if (!isset($this->_sequenceMap[$table])) {
@@ -1083,7 +1083,7 @@ class Postgres extends DboSource
      *
      * @return bool
      */
-    public function nestedTransactionSupported()
+    public function nestedTransactionSupported(): bool
     {
         return $this->useNestedTransactions && version_compare($this->getVersion(), '8.0', '>=');
     }

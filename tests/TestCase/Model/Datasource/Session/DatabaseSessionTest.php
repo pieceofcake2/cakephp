@@ -32,7 +32,7 @@ use Cake\Utility\ClassRegistry;
  */
 class SessionTestModel extends Model
 {
-    public $useTable = 'sessions';
+    public string|bool|null $useTable = 'sessions';
 }
 class_alias(SessionTestModel::class, 'App\\Model\\SessionTestModel');
 

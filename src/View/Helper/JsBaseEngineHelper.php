@@ -155,7 +155,7 @@ abstract class JsBaseEngineHelper extends AppHelper
      * @param string $key Key name.
      * @return string a JavaScript-safe/JSON representation of $val
      */
-    public function value($val = [], $quoteString = null, $key = 'value')
+    public function value($val = [], $quoteString = null, $key = 'value'): string
     {
         if ($quoteString === null) {
             $quoteString = true;

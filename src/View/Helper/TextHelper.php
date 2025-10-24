@@ -23,6 +23,7 @@ namespace Cake\View\Helper;
 use AppHelper;
 use Cake\Core\App;
 use Cake\Error\CakeException;
+use Cake\Utility\CakeText;
 use Cake\Utility\Hash;
 use Cake\View\View;
 
@@ -45,7 +46,7 @@ class TextHelper extends AppHelper
      *
      * @var array
      */
-    public $helpers = ['Html'];
+    public array $helpers = ['Html'];
 
     /**
      * An array of md5sums and their contents.
@@ -53,12 +54,12 @@ class TextHelper extends AppHelper
      *
      * @var array
      */
-    protected $_placeholders = [];
+    protected array $_placeholders = [];
 
     /**
      * CakeText utility instance
      *
-     * @var stdClass
+     * @var CakeText
      */
     protected $_engine;
 
@@ -74,7 +75,7 @@ class TextHelper extends AppHelper
      * @param array $settings Settings array Settings array
      * @throws CakeException when the engine class could not be found.
      */
-    public function __construct(View $View, $settings = [])
+    public function __construct(View $View, array $settings = [])
     {
         $settings = Hash::merge(['engine' => 'CakeText'], $settings);
         parent::__construct($View, $settings);
@@ -95,7 +96,7 @@ class TextHelper extends AppHelper
      * @param array $params Parameters to pass to method.
      * @return mixed Whatever is returned by called method, or false on failure
      */
-    public function __call($method, $params)
+    public function __call(string $method, array $params)
     {
         return call_user_func_array([$this->_engine, $method], $params);
     }
@@ -109,11 +110,11 @@ class TextHelper extends AppHelper
      * - `escape` Control HTML escaping of input. Defaults to true.
      *
      * @param string $text Text
-     * @param array $options Array of HTML options, and options listed above.
+     * @param array{escape?: bool} $options Array of HTML options, and options listed above.
      * @return string The text with links
      * @link https://book.cakephp.org/2.0/en/core-libraries/helpers/text.html#TextHelper::autoLinkUrls
      */
-    public function autoLinkUrls($text, $options = [])
+    public function autoLinkUrls(string $text, array $options = []): string
     {
         $this->_placeholders = [];
         $options += ['escape' => true];
@@ -158,7 +159,7 @@ class TextHelper extends AppHelper
      * @param array $htmlOptions The options for the generated links.
      * @return string The text with links inserted.
      */
-    protected function _linkUrls($text, $htmlOptions)
+    protected function _linkUrls(string $text, array $htmlOptions): string
     {
         $replace = [];
         foreach ($this->_placeholders as $hash => $url) {
@@ -180,7 +181,7 @@ class TextHelper extends AppHelper
      * @return string
      * @see TextHelper::autoLinkEmails()
      */
-    protected function _linkEmails($text, $options)
+    protected function _linkEmails(string $text, array $options): string
     {
         $replace = [];
         foreach ($this->_placeholders as $hash => $url) {
@@ -198,11 +199,11 @@ class TextHelper extends AppHelper
      * - `escape` Control HTML escaping of input. Defaults to true.
      *
      * @param string $text Text
-     * @param array $options Array of HTML options, and options listed above.
+     * @param array{escape?: bool} $options Array of HTML options, and options listed above.
      * @return string The text with links
      * @link https://book.cakephp.org/2.0/en/core-libraries/helpers/text.html#TextHelper::autoLinkEmails
      */
-    public function autoLinkEmails($text, $options = [])
+    public function autoLinkEmails(string $text, array $options = []): string
     {
         $options += ['escape' => true];
         $this->_placeholders = [];
@@ -228,11 +229,11 @@ class TextHelper extends AppHelper
      * - `escape` Control HTML escaping of input. Defaults to true.
      *
      * @param string $text Text
-     * @param array $options Array of HTML options, and options listed above.
+     * @param array{escape?: bool} $options Array of HTML options, and options listed above.
      * @return string The text with links
      * @link https://book.cakephp.org/2.0/en/core-libraries/helpers/text.html#TextHelper::autoLink
      */
-    public function autoLink($text, $options = [])
+    public function autoLink(string $text, array $options = []): string
     {
         $text = $this->autoLinkUrls($text, $options);
 
@@ -244,13 +245,13 @@ class TextHelper extends AppHelper
      * may include the \1 expression to include the $phrase found.
      *
      * @param string $text Text to search the phrase in
-     * @param string $phrase The phrase that will be searched
-     * @param array $options An array of html attributes and options.
+     * @param array|string|null $phrase The phrase that will be searched
+     * @param array{format?: string, html?: bool, regex?: string} $options An array of html attributes and options.
      * @return string The highlighted text
      * @see CakeText::highlight()
      * @link https://book.cakephp.org/2.0/en/core-libraries/helpers/text.html#TextHelper::highlight
      */
-    public function highlight($text, $phrase, $options = [])
+    public function highlight(string $text, array|string|null $phrase, array $options = []): string
     {
         return $this->_engine->highlight($text, $phrase, $options);
     }
@@ -264,7 +265,7 @@ class TextHelper extends AppHelper
      * @return string The text with proper <p> and <br /> tags
      * @link https://book.cakephp.org/2.0/en/core-libraries/helpers/text.html#TextHelper::autoParagraph
      */
-    public function autoParagraph($text)
+    public function autoParagraph(string $text): string
     {
         if (trim($text) !== '') {
             $text = preg_replace('|<br[^>]*>\s*<br[^>]*>|i', "\n\n", $text . "\n");
@@ -288,7 +289,7 @@ class TextHelper extends AppHelper
      * @see CakeText::stripLinks()
      * @link https://book.cakephp.org/2.0/en/core-libraries/helpers/text.html#TextHelper::stripLinks
      */
-    public function stripLinks($text)
+    public function stripLinks(string $text): string
     {
         return $this->_engine->stripLinks($text);
     }
@@ -307,12 +308,12 @@ class TextHelper extends AppHelper
      *
      * @param string $text String to truncate.
      * @param int $length Length of returned string, including ellipsis.
-     * @param array $options An array of html attributes and options.
+     * @param array{ellipsis?: string, exact?: bool, html?: bool, ending?: string} $options An array of html attributes and options.
      * @return string Trimmed string.
      * @see CakeText::truncate()
      * @link https://book.cakephp.org/2.0/en/core-libraries/helpers/text.html#TextHelper::truncate
      */
-    public function truncate($text, $length = 100, $options = [])
+    public function truncate(string $text, int $length = 100, array $options = []): string
     {
         return $this->_engine->truncate($text, $length, $options);
     }
@@ -335,7 +336,7 @@ class TextHelper extends AppHelper
      * @see CakeText::tail()
      * @link https://book.cakephp.org/2.0/en/core-libraries/helpers/text.html#TextHelper::tail
      */
-    public function tail($text, $length = 100, $options = [])
+    public function tail(string $text, int $length = 100, array $options = []): string
     {
         return $this->_engine->tail($text, $length, $options);
     }
@@ -345,14 +346,14 @@ class TextHelper extends AppHelper
      * determined by radius.
      *
      * @param string $text String to search the phrase in
-     * @param string $phrase Phrase that will be searched for
+     * @param string|null $phrase Phrase that will be searched for
      * @param int $radius The amount of characters that will be returned on each side of the founded phrase
      * @param string $ending Ending that will be appended
      * @return string Modified string
      * @see CakeText::excerpt()
      * @link https://book.cakephp.org/2.0/en/core-libraries/helpers/text.html#TextHelper::excerpt
      */
-    public function excerpt($text, $phrase, $radius = 100, $ending = '...')
+    public function excerpt(string $text, ?string $phrase, int $radius = 100, string $ending = '...'): string
     {
         return $this->_engine->excerpt($text, $phrase, $radius, $ending);
     }
@@ -360,14 +361,14 @@ class TextHelper extends AppHelper
     /**
      * Creates a comma separated list where the last two items are joined with 'and', forming natural language.
      *
-     * @param array $list The list to be joined.
-     * @param string $and The word used to join the last and second last items together with. Defaults to 'and'.
+     * @param array<string> $list The list to be joined.
+     * @param string|null $and The word used to join the last and second last items together with. Defaults to 'and'.
      * @param string $separator The separator used to join all the other items together. Defaults to ', '.
      * @return string The glued together string.
      * @see CakeText::toList()
      * @link https://book.cakephp.org/2.0/en/core-libraries/helpers/text.html#TextHelper::toList
      */
-    public function toList($list, $and = null, $separator = ', ')
+    public function toList(array $list, ?string $and = null, string $separator = ', '): string
     {
         return $this->_engine->toList($list, $and, $separator);
     }

@@ -39,14 +39,14 @@ class MemcacheEngine extends CacheEngine
      *
      * @var array
      */
-    protected $_compiledGroupNames = [];
+    protected array $_compiledGroupNames = [];
 
     /**
      * Memcache wrapper.
      *
-     * @var Memcache
+     * @var Memcache|null
      */
-    protected $_Memcache = null;
+    protected ?Memcache $_Memcache = null;
 
     /**
      * Settings
@@ -57,7 +57,7 @@ class MemcacheEngine extends CacheEngine
      *
      * @var array
      */
-    public $settings = [];
+    public array $settings = [];
 
     /**
      * Initialize the Cache Engine

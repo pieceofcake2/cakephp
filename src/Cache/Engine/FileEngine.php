@@ -47,7 +47,7 @@ class FileEngine extends CacheEngine
      *
      * @var SplFileObject
      */
-    protected $_File = null;
+    protected ?SplFileObject $_File = null;
 
     /**
      * Settings
@@ -60,7 +60,7 @@ class FileEngine extends CacheEngine
      * @var array
      * @see CacheEngine::__defaults
      */
-    public $settings = [];
+    public array $settings = [];
 
     /**
      * True unless FileEngine::__active(); fails

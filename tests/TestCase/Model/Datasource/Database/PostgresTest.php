@@ -88,14 +88,14 @@ class PostgresTestModel extends Model
      *
      * @var bool
      */
-    public $useTable = false;
+    public string|bool|null $useTable = false;
 
     /**
      * belongsTo property
      *
      * @var array
      */
-    public $belongsTo = [
+    public array $belongsTo = [
         'PostgresClientTestModel' => [
             'foreignKey' => 'client_id',
         ],
@@ -173,7 +173,7 @@ class PostgresClientTestModel extends Model
      *
      * @var bool
      */
-    public $useTable = false;
+    public string|bool|null $useTable = false;
 
     /**
      * schema method

@@ -598,11 +598,11 @@ class HttpSocket extends CakeSocket
      *
      * Would return `/search?q=socket`.
      *
-     * @param array|string $url Either a string or array of URL options to create a URL with.
-     * @param string $uriTemplate A template string to use for URL formatting.
+     * @param array|string|bool|null $url Either a string or array of URL options to create a URL with.
+     * @param string|null $uriTemplate A template string to use for URL formatting.
      * @return mixed Either false on failure or a string containing the composed URL.
      */
-    public function url($url = null, $uriTemplate = null)
+    public function url(array|string|bool|null $url = null, ?string $uriTemplate = null)
     {
         if ($url === null) {
             $url = '/';

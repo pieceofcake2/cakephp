@@ -83,7 +83,7 @@ class SecurityTestController extends Controller
      *
      * @var array
      */
-    public $components = ['Session', 'TestSecurity'];
+    public array $components = ['Session', 'TestSecurity'];
 
     /**
      * failed property
@@ -137,9 +137,9 @@ class_alias(SecurityTestController::class, 'App\\Controller\\SecurityTestControl
 
 class BrokenCallbackController extends Controller
 {
-    public $name = 'UncallableCallback';
+    public ?string $name = 'UncallableCallback';
 
-    public $components = ['Session', 'TestSecurity'];
+    public array $components = ['Session', 'TestSecurity'];
 
     public function index()
     {

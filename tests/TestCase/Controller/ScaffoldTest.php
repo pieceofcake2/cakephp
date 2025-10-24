@@ -60,7 +60,7 @@ class ScaffoldMockControllerWithFields extends Controller
      *
      * @var string
      */
-    public $name = 'ScaffoldMock';
+    public ?string $name = 'ScaffoldMock';
 
     /**
      * scaffold property
@@ -95,7 +95,7 @@ class ScaffoldMockControllerWithError extends Controller
      *
      * @var string
      */
-    public $name = 'ScaffoldMock';
+    public ?string $name = 'ScaffoldMock';
 
     /**
      * scaffold property

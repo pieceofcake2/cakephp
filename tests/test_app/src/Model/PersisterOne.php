@@ -25,13 +25,13 @@ namespace TestApp\Model;
  */
 class PersisterOne extends AppModel
 {
-    public $useTable = 'posts';
+    public string|bool|null $useTable = 'posts';
 
-    public $actsAs = ['PersisterOneBehavior', 'TestPlugin.TestPluginPersisterOne'];
+    public array $actsAs = ['PersisterOneBehavior', 'TestPlugin.TestPluginPersisterOne'];
 
-    public $hasMany = ['Comment', 'TestPlugin.TestPluginComment'];
+    public array $hasMany = ['Comment', 'TestPlugin.TestPluginComment'];
 
-    public $validate = [
+    public array $validate = [
         'title' => [
             'custom' => [
                 'rule' => ['custom', '.*'],

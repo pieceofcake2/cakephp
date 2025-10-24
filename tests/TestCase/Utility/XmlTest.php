@@ -40,14 +40,14 @@ class XmlArticle extends CakeTestModel
      *
      * @var string
      */
-    public $name = 'Article';
+    public ?string $name = 'Article';
 
     /**
      * belongsTo property
      *
      * @var array
      */
-    public $belongsTo = [
+    public array $belongsTo = [
         'User' => [
             'className' => 'XmlUser',
             'foreignKey' => 'user_id',
@@ -68,14 +68,14 @@ class XmlUser extends CakeTestModel
      *
      * @var string
      */
-    public $name = 'User';
+    public ?string $name = 'User';
 
     /**
      * hasMany property
      *
      * @var array
      */
-    public $hasMany = [
+    public array $hasMany = [
         'Article' => [
             'className' => 'XmlArticle',
         ],

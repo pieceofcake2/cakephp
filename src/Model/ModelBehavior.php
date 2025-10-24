@@ -76,7 +76,7 @@ class ModelBehavior extends CakeObject
      * @var array
      * @see Model::$alias
      */
-    public $settings = [];
+    public array $settings = [];
 
     /**
      * Allows the mapping of preg-compatible regular expressions to public or
@@ -86,7 +86,7 @@ class ModelBehavior extends CakeObject
      *
      * @var array
      */
-    public $mapMethods = [];
+    public array $mapMethods = [];
 
     /**
      * Setup this behavior with the specified configuration settings.
@@ -151,7 +151,7 @@ class ModelBehavior extends CakeObject
      * @return bool|null False or null will abort the operation. Any other result will continue.
      * @see Model::save()
      */
-    public function beforeValidate(Model $model, $options = [])
+    public function beforeValidate(Model $model, array $options = []): ?bool
     {
         return true;
     }
@@ -161,9 +161,9 @@ class ModelBehavior extends CakeObject
      * to perform any data cleanup or preparation if needed
      *
      * @param Model $model Model using this behavior
-     * @return bool False will stop this event from being passed to other behaviors
+     * @return bool|null False will stop this event from being passed to other behaviors
      */
-    public function afterValidate(Model $model)
+    public function afterValidate(Model $model): ?bool
     {
         return true;
     }
@@ -174,10 +174,10 @@ class ModelBehavior extends CakeObject
      *
      * @param Model $model Model using this behavior
      * @param array $options Options passed from Model::save().
-     * @return bool False if the operation should abort. Any other result will continue.
+     * @return bool|null False if the operation should abort. Any other result will continue.
      * @see Model::save()
      */
-    public function beforeSave(Model $model, $options = [])
+    public function beforeSave(Model $model, array $options = []): ?bool
     {
         return true;
     }
@@ -188,11 +188,12 @@ class ModelBehavior extends CakeObject
      * @param Model $model Model using this behavior
      * @param bool $created True if this save created a new record
      * @param array $options Options passed from Model::save().
-     * @return void
+     * @return bool|null
      * @see Model::save()
      */
-    public function afterSave(Model $model, bool $created, array $options = []): void
+    public function afterSave(Model $model, bool $created, array $options = []): ?bool
     {
+        return null;
     }
 
     /**
@@ -203,7 +204,7 @@ class ModelBehavior extends CakeObject
      * @param bool $cascade If true records that depend on this record will also be deleted
      * @return bool|null False if the operation should abort. Any other result will continue.
      */
-    public function beforeDelete(Model $model, $cascade = true)
+    public function beforeDelete(Model $model, $cascade = true): ?bool
     {
         return true;
     }
@@ -212,10 +213,11 @@ class ModelBehavior extends CakeObject
      * After delete is called after any delete occurs on the attached model.
      *
      * @param Model $model Model using this behavior
-     * @return void
+     * @return bool|null
      */
-    public function afterDelete(Model $model)
+    public function afterDelete(Model $model): ?bool
     {
+        return null;
     }
 
     /**

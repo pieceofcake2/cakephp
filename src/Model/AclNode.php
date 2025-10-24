@@ -33,14 +33,14 @@ class AclNode extends Model
      *
      * @var bool
      */
-    public $cacheQueries = false;
+    public bool $cacheQueries = false;
 
     /**
      * ACL models use the Tree behavior
      *
      * @var array
      */
-    public $actsAs = ['Tree' => ['type' => 'nested']];
+    public array $actsAs = ['Tree' => ['type' => 'nested']];
 
     /**
      * Constructor

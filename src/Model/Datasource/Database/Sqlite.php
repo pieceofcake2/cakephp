@@ -250,7 +250,7 @@ class Sqlite extends DboSource
      * @param Model|string $table A string or model class representing the table to be truncated
      * @return bool SQL TRUNCATE TABLE statement, false if not applicable.
      */
-    public function truncate($table)
+    public function truncate(Model|string $table)
     {
         if (in_array('sqlite_sequence', $this->listSources())) {
             $this->_execute('DELETE FROM sqlite_sequence where name=' . $this->startQuote . $this->fullTableName($table, false, false) . $this->endQuote);
@@ -645,7 +645,7 @@ class Sqlite extends DboSource
      *
      * @return bool
      */
-    public function nestedTransactionSupported()
+    public function nestedTransactionSupported(): bool
     {
         return $this->useNestedTransactions && version_compare($this->getVersion(), '3.6.8', '>=');
     }

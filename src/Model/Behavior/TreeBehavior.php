@@ -93,9 +93,9 @@ class TreeBehavior extends ModelBehavior
      * @param Model $model Model using this behavior.
      * @param bool $created indicates whether the node just saved was created or updated
      * @param array $options Options passed from Model::save().
-     * @return void true on success, false on failure
+     * @return bool|null true on success, false on failure
      */
-    public function afterSave(Model $model, bool $created, array $options = []): void
+    public function afterSave(Model $model, bool $created, array $options = []): ?bool
     {
         extract($this->settings[$model->alias]);
         if ($created) {
@@ -109,6 +109,8 @@ class TreeBehavior extends ModelBehavior
             }
             $this->_setParent($model, $model->data[$model->alias][$parent]);
         }
+
+        return null;
     }
 
     /**
@@ -170,9 +172,9 @@ class TreeBehavior extends ModelBehavior
      *
      * @param Model $model Model using this behavior.
      * @param bool $cascade If true records that depend on this record will also be deleted
-     * @return bool
+     * @return bool|null
      */
-    public function beforeDelete(Model $model, $cascade = true)
+    public function beforeDelete(Model $model, $cascade = true): ?bool
     {
         extract($this->settings[$model->alias]);
         $data = $model->find('first', [
@@ -193,9 +195,9 @@ class TreeBehavior extends ModelBehavior
      * Will delete the current node and all children using the deleteAll method and sync the table
      *
      * @param Model $model Model using this behavior
-     * @return bool true to continue, false to abort the delete
+     * @return bool|null true to continue, false to abort the delete
      */
-    public function afterDelete(Model $model)
+    public function afterDelete(Model $model): ?bool
     {
         extract($this->settings[$model->alias]);
         $data = $this->_deletedRow[$model->alias];
@@ -227,10 +229,10 @@ class TreeBehavior extends ModelBehavior
      *
      * @param Model $model Model using this behavior
      * @param array $options Options passed from Model::save().
-     * @return bool true to continue, false to abort the save
+     * @return bool|null true to continue, false to abort the save
      * @see Model::save()
      */
-    public function beforeSave(Model $model, $options = [])
+    public function beforeSave(Model $model, array $options = []): ?bool
     {
         extract($this->settings[$model->alias]);
 

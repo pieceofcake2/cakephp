@@ -120,7 +120,7 @@ class FlashComponent extends Component
      * @return void
      * @throws InternalErrorException If missing the flash message.
      */
-    public function __call($name, $args)
+    public function __call(string $name, array $args)
     {
         $options = ['element' => Inflector::underscore($name)];
 

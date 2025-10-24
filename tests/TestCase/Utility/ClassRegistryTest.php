@@ -38,7 +38,7 @@ class ClassRegisterModel extends CakeTestModel
      *
      * @var bool
      */
-    public $useTable = false;
+    public string|bool|null $useTable = false;
 }
 class_alias(ClassRegisterModel::class, 'App\\Model\\ClassRegisterModel');
 
@@ -84,7 +84,7 @@ class RegistryPluginAppModel extends ClassRegisterModel
      *
      * @var string
      */
-    public $tablePrefix = 'something_';
+    public ?string $tablePrefix = 'something_';
 }
 class_alias(RegistryPluginAppModel::class, 'App\\Model\\RegistryPluginAppModel');
 class_alias(RegistryPluginAppModel::class, 'RegistryPlugin\\Model\\RegistryPluginAppModel');
@@ -122,7 +122,7 @@ class RegisterPrefixedDs extends ClassRegisterModel
      *
      * @var string
      */
-    public $useDbConfig = 'doesnotexist';
+    public string $useDbConfig = 'doesnotexist';
 }
 class_alias(RegisterPrefixedDs::class, 'App\\Model\\RegisterPrefixedDs');
 

@@ -118,7 +118,7 @@ class Cache
      *
      * @param string $name Name of the configuration
      * @param array $settings Optional associative array of settings passed to the engine
-     * @return array array(engine, settings) on success, false on failure
+     * @return array|false array(engine, settings) on success, false on failure
      * @throws CacheException
      * @see app/Config/core.php for configuration settings
      */
@@ -246,7 +246,7 @@ class Cache
      * @param array|string $settings Optional string for simple name-value pair or array
      * @param string $value Optional for a simple name-value pair
      * @param string $config The configuration name you are changing. Defaults to 'default'
-     * @return array Array of settings.
+     * @return array|false Array of settings.
      */
     public static function set($settings = [], $value = null, $config = 'default')
     {

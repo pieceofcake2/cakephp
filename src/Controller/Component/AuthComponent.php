@@ -57,7 +57,7 @@ class AuthComponent extends Component
      *
      * @var array
      */
-    public $components = ['Session', 'Flash', 'RequestHandler'];
+    public array $components = ['Session', 'Flash', 'RequestHandler'];
 
     /**
      * An array of authentication objects to use for authenticating users. You can configure

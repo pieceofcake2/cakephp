@@ -46,9 +46,9 @@ class ContactTestController extends Controller
     /**
      * uses property
      *
-     * @var mixed
+     * @var array||bool
      */
-    public $uses = null;
+    public array|bool $uses = [];
 }
 class_alias(ContactTestController::class, 'App\\Controller\\ContactTestController');
 
@@ -64,7 +64,7 @@ class Contact extends CakeTestModel
      *
      * @var bool
      */
-    public $useTable = false;
+    public string|bool|null $useTable = false;
 
     /**
      * Default schema
@@ -90,7 +90,7 @@ class Contact extends CakeTestModel
      *
      * @var array
      */
-    public $validate = [
+    public array $validate = [
         'non_existing' => [],
         'idontexist' => [],
         'imrequired' => ['rule' => ['between', 5, 30], 'allowEmpty' => false],
@@ -136,14 +136,14 @@ class Contact extends CakeTestModel
      *
      * @var array
      */
-    public $hasAndBelongsToMany = ['ContactTag' => ['with' => 'ContactTagsContact']];
+    public array $hasAndBelongsToMany = ['ContactTag' => ['with' => 'ContactTagsContact']];
 
     /**
      * hasAndBelongsToMany property
      *
      * @var array
      */
-    public $belongsTo = ['User' => ['className' => 'UserForm']];
+    public array $belongsTo = ['User' => ['className' => 'UserForm']];
 }
 class_alias(Contact::class, 'App\\Model\\Contact');
 
@@ -159,7 +159,7 @@ class ContactTagsContact extends CakeTestModel
      *
      * @var bool
      */
-    public $useTable = false;
+    public string|bool|null $useTable = false;
 
     /**
      * Default schema
@@ -197,7 +197,7 @@ class ContactNonStandardPk extends Contact
      *
      * @var string
      */
-    public $primaryKey = 'pk';
+    public ?string $primaryKey = 'pk';
 
     /**
      * schema method
@@ -227,7 +227,7 @@ class ContactTag extends Model
      *
      * @var bool
      */
-    public $useTable = false;
+    public string|bool|null $useTable = false;
 
     /**
      * schema definition
@@ -255,14 +255,14 @@ class UserForm extends CakeTestModel
      *
      * @var bool
      */
-    public $useTable = false;
+    public string|bool|null $useTable = false;
 
     /**
      * hasMany property
      *
      * @var array
      */
-    public $hasMany = [
+    public array $hasMany = [
         'OpenidUrl' => [
             'className' => 'OpenidUrl', 'foreignKey' => 'user_form_id',
         ],
@@ -298,14 +298,14 @@ class OpenidUrl extends CakeTestModel
      *
      * @var bool
      */
-    public $useTable = false;
+    public string|bool|null $useTable = false;
 
     /**
      * belongsTo property
      *
      * @var array
      */
-    public $belongsTo = ['UserForm' => [
+    public array $belongsTo = ['UserForm' => [
         'className' => 'UserForm', 'foreignKey' => 'user_form_id',
     ]];
 
@@ -314,7 +314,7 @@ class OpenidUrl extends CakeTestModel
      *
      * @var array
      */
-    public $validate = ['openid_not_registered' => []];
+    public array $validate = ['openid_not_registered' => []];
 
     /**
      * schema method
@@ -332,9 +332,9 @@ class OpenidUrl extends CakeTestModel
     /**
      * beforeValidate method
      *
-     * @return void
+     * @return bool
      */
-    public function beforeValidate($options = [])
+    public function beforeValidate(array $options = []): bool
     {
         $this->invalidate('openid_not_registered');
 
@@ -355,14 +355,14 @@ class ValidateUser extends CakeTestModel
      *
      * @var bool
      */
-    public $useTable = false;
+    public string|bool|null $useTable = false;
 
     /**
      * hasOne property
      *
      * @var array
      */
-    public $hasOne = ['ValidateProfile' => [
+    public array $hasOne = ['ValidateProfile' => [
         'className' => 'ValidateProfile', 'foreignKey' => 'user_id',
     ]];
 
@@ -387,9 +387,9 @@ class ValidateUser extends CakeTestModel
     /**
      * beforeValidate method
      *
-     * @return void
+     * @return bool
      */
-    public function beforeValidate($options = [])
+    public function beforeValidate(array $options = []): bool
     {
         $this->invalidate('email');
 
@@ -410,7 +410,7 @@ class ValidateProfile extends CakeTestModel
      *
      * @var bool
      */
-    public $useTable = false;
+    public string|bool|null $useTable = false;
 
     /**
      * schema property
@@ -431,7 +431,7 @@ class ValidateProfile extends CakeTestModel
      *
      * @var array
      */
-    public $hasOne = ['ValidateItem' => [
+    public array $hasOne = ['ValidateItem' => [
         'className' => 'ValidateItem', 'foreignKey' => 'profile_id',
     ]];
 
@@ -440,16 +440,16 @@ class ValidateProfile extends CakeTestModel
      *
      * @var array
      */
-    public $belongsTo = ['ValidateUser' => [
+    public array $belongsTo = ['ValidateUser' => [
         'className' => 'ValidateUser', 'foreignKey' => 'user_id',
     ]];
 
     /**
      * beforeValidate method
      *
-     * @return void
+     * @return bool
      */
-    public function beforeValidate($options = [])
+    public function beforeValidate(array $options = []): bool
     {
         $this->invalidate('full_name');
         $this->invalidate('city');
@@ -471,7 +471,7 @@ class ValidateItem extends CakeTestModel
      *
      * @var bool
      */
-    public $useTable = false;
+    public string|bool|null $useTable = false;
 
     /**
      * schema property
@@ -494,14 +494,14 @@ class ValidateItem extends CakeTestModel
      *
      * @var array
      */
-    public $belongsTo = ['ValidateProfile' => ['foreignKey' => 'profile_id']];
+    public array $belongsTo = ['ValidateProfile' => ['foreignKey' => 'profile_id']];
 
     /**
      * beforeValidate method
      *
-     * @return void
+     * @return bool
      */
-    public function beforeValidate($options = [])
+    public function beforeValidate(array $options = []): bool
     {
         $this->invalidate('description');
 
@@ -522,7 +522,7 @@ class TestMail extends CakeTestModel
      *
      * @var bool
      */
-    public $useTable = false;
+    public string|bool|null $useTable = false;
 }
 class_alias(TestMail::class, 'App\\Model\\TestMail');
 
@@ -2795,10 +2795,10 @@ class FormHelperTest extends CakeTestCase
         ];
         $this->assertTags($result, $expected);
 
-        unset($this->Form->request->data);
+        $this->Form->request->data = [];
 
-        $Contact = ClassRegistry::getObject('Contact');
-        $Contact->validationErrors['field'] = ['Badness!'];
+        $contact = ClassRegistry::getObject('Contact');
+        $contact->validationErrors['field'] = ['Badness!'];
         $result = $this->Form->input('Contact.field');
         $expected = [
             'div' => ['class' => 'input text error'],
@@ -2914,7 +2914,7 @@ class FormHelperTest extends CakeTestCase
         ];
         $this->assertTags($result, $expected);
 
-        $Contact->validationErrors['field'] = ['minLength'];
+        $contact->validationErrors['field'] = ['minLength'];
         $result = $this->Form->input('Contact.field', [
             'error' => [
                 'minLength' => 'Le login doit contenir au moins 2 caractères',
@@ -2934,7 +2934,7 @@ class FormHelperTest extends CakeTestCase
         ];
         $this->assertTags($result, $expected);
 
-        $Contact->validationErrors['field'] = ['maxLength'];
+        $contact->validationErrors['field'] = ['maxLength'];
         $result = $this->Form->input('Contact.field', [
             'error' => [
                 'attributes' => ['wrap' => 'span', 'rel' => 'fake'],

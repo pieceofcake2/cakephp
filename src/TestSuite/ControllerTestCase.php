@@ -111,7 +111,7 @@ class InterceptContentHelper extends Helper
      * @param string $viewFile The view file
      * @return void
      */
-    public function afterRender($viewFile)
+    public function afterRender($viewFile): void
     {
         $this->_View->assign('__view_no_layout__', $this->_View->fetch('content'));
         $this->_View->Helpers->unload('InterceptContent');

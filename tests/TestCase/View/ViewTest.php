@@ -50,14 +50,14 @@ class ViewPostsController extends Controller
      *
      * @var string
      */
-    public $name = 'Posts';
+    public ?string $name = 'Posts';
 
     /**
      * uses property
      *
-     * @var mixed
+     * @var array||bool
      */
-    public $uses = null;
+    public array|bool $uses = [];
 
     /**
      * index method
@@ -233,7 +233,7 @@ class TestBeforeAfterHelper extends Helper
      * @param string $layoutFile
      * @return void
      */
-    public function afterLayout($layoutFile)
+    public function afterLayout($layoutFile): void
     {
         $this->_View->output .= 'modified in the afterlife';
     }
@@ -288,7 +288,7 @@ class TestViewEventListener implements CakeEventListener
      *
      * @return array
      */
-    public function implementedEvents()
+    public function implementedEvents(): array
     {
         return [
                 'View.beforeRender' => 'beforeRender',
@@ -935,15 +935,15 @@ class ViewTest extends CakeTestCase
      */
     public function testElementParamsDontOverwriteHelpers()
     {
-        $Controller = new ViewPostsController();
-        $Controller->helpers = ['Form'];
+        $controller = new ViewPostsController();
+        $controller->helpers = ['Form'];
 
-        $View = new View($Controller);
-        $result = $View->element('type_check', ['form' => 'string'], ['callbacks' => true]);
+        $view = new View($controller);
+        $result = $view->element('type_check', ['form' => 'string'], ['callbacks' => true]);
         $this->assertEquals('string', $result);
 
-        $View->set('form', 'string');
-        $result = $View->element('type_check', [], ['callbacks' => true]);
+        $view->set('form', 'string');
+        $result = $view->element('type_check', [], ['callbacks' => true]);
         $this->assertEquals('string', $result);
     }
 

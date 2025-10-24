@@ -35,14 +35,14 @@ class ApcEngine extends CacheEngine
      *
      * @var array
      */
-    protected $_compiledGroupNames = [];
+    protected array $_compiledGroupNames = [];
 
     /**
      * APC or APCu extension
      *
      * @var string
      */
-    protected $_apcExtension = 'apc';
+    protected string $_apcExtension = 'apc';
 
     /**
      * Initialize the Cache Engine

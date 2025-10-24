@@ -25,7 +25,7 @@ use Cake\Model\Model;
  */
 class CakeTestModel extends Model
 {
-    public $useDbConfig = 'test';
+    public string $useDbConfig = 'test';
 
     public bool $cacheSources = false;
 

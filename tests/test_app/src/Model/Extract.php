@@ -27,9 +27,9 @@ namespace TestApp\Model;
  */
 class Extract extends AppModel
 {
-    public $useTable = false;
+    public string|bool|null $useTable = false;
 
-    public $validate = [
+    public array $validate = [
         'title' => [
             'custom' => [
                 'rule' => ['custom', '.*'],

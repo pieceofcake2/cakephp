@@ -49,7 +49,7 @@ class JsHelper extends AppHelper
      *
      * @var array
      */
-    public $helpers = ['Html', 'Form'];
+    public array $helpers = ['Html', 'Form'];
 
     /**
      * Variables to pass to Javascript.
@@ -123,7 +123,7 @@ class JsHelper extends AppHelper
      * @param array $params Parameters for the method being called.
      * @return mixed Depends on the return of the dispatched method, or it could be an instance of the EngineHelper
      */
-    public function __call($method, $params)
+    public function __call(string $method, array $params)
     {
         if ($this->{$this->_engineName} && method_exists($this->{$this->_engineName}, $method)) {
             $buffer = false;
@@ -166,12 +166,12 @@ class JsHelper extends AppHelper
      * See JsBaseEngineHelper::value() for more information on this method.
      *
      * @param mixed $val A PHP variable to be converted to JSON
-     * @param bool $quoteString If false, leaves string values unquoted
+     * @param bool|null $quoteString If false, leaves string values unquoted
      * @param string $key Key name.
      * @return string a JavaScript-safe/JSON representation of $val
      * @link https://book.cakephp.org/2.0/en/core-libraries/helpers/js.html#JsHelper::value
      */
-    public function value($val = [], $quoteString = null, $key = 'value')
+    public function value($val = [], $quoteString = null, $key = 'value'): string
     {
         if ($quoteString === null) {
             $quoteString = true;

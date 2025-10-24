@@ -25,9 +25,9 @@ namespace TestApp\Controller;
  */
 class TestsAppsPostsController extends AppController
 {
-    public $uses = ['Post'];
+    public array|bool $uses = ['Post'];
 
-    public $viewPath = 'TestsApps';
+    public ?string $viewPath = 'TestsApps';
 
     /**
      * add method

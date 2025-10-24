@@ -396,12 +396,12 @@ class CakeText
      * - `regex` a custom regex rule that is used to match words, default is '|$tag|iu'
      *
      * @param string $text Text to search the phrase in.
-     * @param array|string $phrase The phrase or phrases that will be searched.
-     * @param array $options An array of html attributes and options.
+     * @param array|string|null $phrase The phrase or phrases that will be searched.
+     * @param array{format?: string, html?: bool, regex?: string} $options An array of html attributes and options.
      * @return string The highlighted text
      * @link https://book.cakephp.org/2.0/en/core-libraries/helpers/text.html#TextHelper::highlight
      */
-    public static function highlight($text, $phrase, $options = [])
+    public static function highlight(string $text, array|string|null $phrase, array $options = []): string
     {
         if (empty($phrase)) {
             return $text;
@@ -447,7 +447,7 @@ class CakeText
      * @return string The text without links
      * @link https://book.cakephp.org/2.0/en/core-libraries/helpers/text.html#TextHelper::stripLinks
      */
-    public static function stripLinks($text)
+    public static function stripLinks(string $text): string
     {
         return preg_replace('|<a\s+[^>]+>|im', '', preg_replace('|<\/a>|im', '', $text));
     }
@@ -468,7 +468,7 @@ class CakeText
      * @param array $options An array of options.
      * @return string Trimmed string.
      */
-    public static function tail($text, $length = 100, $options = [])
+    public static function tail(string $text, int $length = 100, array $options = []): string
     {
         $defaults = [
             'ellipsis' => '...', 'exact' => true,
@@ -503,11 +503,11 @@ class CakeText
      *
      * @param string $text CakeText to truncate.
      * @param int $length Length of returned string, including ellipsis.
-     * @param array $options An array of html attributes and options.
+     * @param array{ellipsis?: string, exact?: bool, html?: bool, ending?: string} $options An array of html attributes and options.
      * @return string Trimmed string.
      * @link https://book.cakephp.org/2.0/en/core-libraries/helpers/text.html#TextHelper::truncate
      */
-    public static function truncate($text, $length = 100, $options = [])
+    public static function truncate(string $text, $length = 100, array $options = []): string
     {
         $defaults = [
             'ellipsis' => '...', 'exact' => true, 'html' => false,
@@ -618,13 +618,13 @@ class CakeText
      * determined by radius.
      *
      * @param string $text CakeText to search the phrase in
-     * @param string $phrase Phrase that will be searched for
+     * @param string|null $phrase Phrase that will be searched for
      * @param int $radius The amount of characters that will be returned on each side of the founded phrase
      * @param string $ellipsis Ending that will be appended
      * @return string Modified string
      * @link https://book.cakephp.org/2.0/en/core-libraries/helpers/text.html#TextHelper::excerpt
      */
-    public static function excerpt($text, $phrase, $radius = 100, $ellipsis = '...')
+    public static function excerpt(string $text, ?string $phrase, int $radius = 100, string $ellipsis = '...'): string
     {
         if (empty($text) || empty($phrase)) {
             return static::truncate($text, $radius * 2, ['ellipsis' => $ellipsis]);
@@ -661,21 +661,21 @@ class CakeText
     /**
      * Creates a comma separated list where the last two items are joined with 'and', forming natural language.
      *
-     * @param array $list The list to be joined.
-     * @param string $and The word used to join the last and second last items together with. Defaults to 'and'.
+     * @param array<string> $list The list to be joined.
+     * @param string|null $and The word used to join the last and second last items together with. Defaults to 'and'.
      * @param string $separator The separator used to join all the other items together. Defaults to ', '.
      * @return string The glued together string.
      * @link https://book.cakephp.org/2.0/en/core-libraries/helpers/text.html#TextHelper::toList
      */
-    public static function toList($list, $and = null, $separator = ', ')
+    public static function toList(array $list, ?string $and = null, string $separator = ', '): string
     {
         if ($and === null) {
             $and = __d('cake', 'and');
         }
         if (count($list) > 1) {
-            return implode($separator, array_slice($list, null, -1)) . ' ' . $and . ' ' . array_pop($list);
+            return implode($separator, array_slice($list, 0, -1)) . ' ' . $and . ' ' . array_pop($list);
         }
 
-        return array_pop($list);
+        return array_pop($list) ?? '';
     }
 }

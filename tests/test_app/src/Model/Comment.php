@@ -30,5 +30,5 @@ class Comment extends AppModel
      *
      * @var string
      */
-    public $useTable = 'comments';
+    public string|bool|null $useTable = 'comments';
 }

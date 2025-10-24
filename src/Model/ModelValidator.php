@@ -251,12 +251,12 @@ class ModelValidator implements ArrayAccess, IteratorAggregate, Countable
      * Returns an array of fields that have failed validation. On the current model. This method will
      * actually run validation rules over data, not just return the messages.
      *
-     * @param string $options An optional array of custom options to be made available in the beforeValidate callback
-     * @return array|bool Array of invalid fields
+     * @param array $options An optional array of custom options to be made available in the beforeValidate callback
+     * @return array|false Array of invalid fields
      * @triggers Model.afterValidate $model
      * @see ModelValidator::validates()
      */
-    public function errors($options = [])
+    public function errors(array $options = []): array|false
     {
         if (!$this->_triggerBeforeValidate($options)) {
             return false;

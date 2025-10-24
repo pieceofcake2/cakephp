@@ -150,14 +150,14 @@ class MyPluginController extends MyPluginAppController
     /**
      * uses property
      *
-     * @var array
+     * @var array||bool
      */
-    public $uses = [];
+    public array|bool $uses = [];
 
     /**
      * index method
      *
-     * @return void
+     * @return bool
      */
     public function index()
     {
@@ -167,7 +167,7 @@ class MyPluginController extends MyPluginAppController
     /**
      * add method
      *
-     * @return void
+     * @return bool
      */
     public function add()
     {
@@ -199,9 +199,9 @@ class SomePagesController extends AppController
     /**
      * uses property
      *
-     * @var array
+     * @var array||bool
      */
-    public $uses = [];
+    public array|bool $uses = [];
 
     /**
      * display method
@@ -259,9 +259,9 @@ class OtherPagesController extends MyPluginAppController
     /**
      * uses property
      *
-     * @var array
+     * @var array||bool
      */
-    public $uses = [];
+    public array|bool $uses = [];
 
     /**
      * display method
@@ -297,14 +297,14 @@ class TestDispatchPagesController extends AppController
     /**
      * uses property
      *
-     * @var array
+     * @var array||bool
      */
-    public $uses = [];
+    public array|bool $uses = [];
 
     /**
      * admin_index method
      *
-     * @return void
+     * @return bool
      */
     public function admin_index()
     {
@@ -314,7 +314,7 @@ class TestDispatchPagesController extends AppController
     /**
      * camelCased method
      *
-     * @return void
+     * @return bool
      */
     public function camelCased()
     {
@@ -343,14 +343,14 @@ class ArticlesTestController extends ArticlesTestAppController
     /**
      * uses property
      *
-     * @var array
+     * @var array||bool
      */
-    public $uses = [];
+    public array|bool $uses = [];
 
     /**
      * admin_index method
      *
-     * @return void
+     * @return bool
      */
     public function admin_index()
     {
@@ -360,7 +360,7 @@ class ArticlesTestController extends ArticlesTestAppController
     /**
      * fake index method.
      *
-     * @return void
+     * @return bool
      */
     public function index()
     {
@@ -379,16 +379,16 @@ class SomePostsController extends AppController
     /**
      * uses property
      *
-     * @var array
+     * @var array||bool
      */
-    public $uses = [];
+    public array|bool $uses = [];
 
     /**
      * autoRender property
      *
      * @var bool
      */
-    public $autoRender = false;
+    public bool $autoRender = false;
 
     /**
      * beforeFilter method
@@ -408,7 +408,7 @@ class SomePostsController extends AppController
     /**
      * index method
      *
-     * @return void
+     * @return bool
      */
     public function index()
     {
@@ -418,7 +418,7 @@ class SomePostsController extends AppController
     /**
      * change method
      *
-     * @return void
+     * @return bool
      */
     public function change()
     {
@@ -437,16 +437,16 @@ class TestCachedPagesController extends Controller
     /**
      * uses property
      *
-     * @var array
+     * @var array||bool
      */
-    public $uses = [];
+    public array|bool $uses = [];
 
     /**
      * helpers property
      *
      * @var array
      */
-    public $helpers = ['Cache', 'Html'];
+    public array $helpers = ['Cache', 'Html'];
 
     /**
      * cacheAction property
@@ -464,14 +464,14 @@ class TestCachedPagesController extends Controller
      *
      * @var string
      */
-    protected $_responseClass = 'DispatcherMockCakeResponse';
+    protected string $_responseClass = 'DispatcherMockCakeResponse';
 
     /**
      * viewPath property
      *
      * @var string
      */
-    public $viewPath = 'Posts';
+    public ?string $viewPath = 'Posts';
 
     /**
      * index method
@@ -538,14 +538,14 @@ class TimesheetsController extends Controller
     /**
      * uses property
      *
-     * @var array
+     * @var array|bool
      */
-    public $uses = [];
+    public array|bool $uses = [];
 
     /**
      * index method
      *
-     * @return void
+     * @return bool
      */
     public function index()
     {

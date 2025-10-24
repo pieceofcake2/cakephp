@@ -29,8 +29,6 @@ use Cake\Model\Datasource\DboSource;
 use Cake\Utility\ClassRegistry;
 use Cake\Utility\Hash;
 
-require_once __DIR__ . DS . 'ModelTestBase.php';
-
 /**
  * DboMock class
  * A Dbo Source driver to mock a connection and a identity name() method

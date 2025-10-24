@@ -28,15 +28,15 @@ abstract class CacheEngine
      *
      * @var array
      */
-    public $settings = [];
+    public array $settings = [];
 
     /**
      * Contains the compiled string with all groups
      * prefixes to be prepended to every key in this cache engine
      *
-     * @var string
+     * @var string|null
      */
-    protected $_groupPrefix = null;
+    protected ?string $_groupPrefix = null;
 
     /**
      * Initialize the cache engine

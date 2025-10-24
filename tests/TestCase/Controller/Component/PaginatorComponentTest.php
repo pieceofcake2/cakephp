@@ -45,7 +45,7 @@ class PaginatorTestController extends Controller
      *
      * @var array
      */
-    public $components = ['Paginator'];
+    public array $components = ['Paginator'];
 }
 
 /**
@@ -60,7 +60,7 @@ class PaginatorControllerPost extends CakeTestModel
      *
      * @var string
      */
-    public $useTable = 'posts';
+    public string|bool|null $useTable = 'posts';
 
     /**
      * invalidFields property
@@ -81,7 +81,7 @@ class PaginatorControllerPost extends CakeTestModel
      *
      * @var array
      */
-    public $belongsTo = ['PaginatorAuthor' => ['foreignKey' => 'author_id']];
+    public array $belongsTo = ['PaginatorAuthor' => ['foreignKey' => 'author_id']];
 
     /**
      * beforeFind method
@@ -127,7 +127,7 @@ class ControllerPaginateModel extends CakeTestModel
      *
      * @var string
      */
-    public $useTable = 'comments';
+    public string|bool|null $useTable = 'comments';
 
     /**
      * paginate method
@@ -165,21 +165,21 @@ class PaginatorControllerComment extends CakeTestModel
      *
      * @var string
      */
-    public $name = 'Comment';
+    public ?string $name = 'Comment';
 
     /**
      * useTable property
      *
      * @var string
      */
-    public $useTable = 'comments';
+    public string|bool|null $useTable = 'comments';
 
     /**
      * alias property
      *
      * @var string
      */
-    public $alias = 'PaginatorControllerComment';
+    public ?string $alias = 'PaginatorControllerComment';
 }
 class_alias(PaginatorControllerComment::class, 'App\\Model\\PaginatorControllerComment');
 
@@ -195,14 +195,14 @@ class PaginatorAuthor extends CakeTestModel
      *
      * @var string
      */
-    public $useTable = 'authors';
+    public string|bool|null $useTable = 'authors';
 
     /**
      * alias property
      *
-     * @var string
+     * @var array
      */
-    public $virtualFields = [
+    public array $virtualFields = [
         'joined_offset' => 'PaginatorAuthor.id + 1',
     ];
 }
@@ -220,21 +220,21 @@ class PaginatorCustomPost extends CakeTestModel
      *
      * @var string
      */
-    public $useTable = 'posts';
+    public string|bool|null $useTable = 'posts';
 
     /**
      * belongsTo property
      *
      * @var string
      */
-    public $belongsTo = ['Author'];
+    public array $belongsTo = ['Author'];
 
     /**
      * findMethods property
      *
      * @var array
      */
-    public $findMethods = [
+    public array $findMethods = [
         'published' => true,
         'totals' => true,
         'totalsOperation' => true,

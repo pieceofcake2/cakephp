@@ -34,14 +34,12 @@ use Exception;
 use PDOException;
 use PHPUnit\Framework\MockObject\MockObject;
 
-require_once __DIR__ . DS . 'ModelTestBase.php';
-
 /**
  * Helper class for testing with mocked datasources
  */
 class TestAuthor extends Author
 {
-    public $hasMany = [
+    public array $hasMany = [
         'Post' => [
             'className' => 'TestPost',
         ],
@@ -84,7 +82,7 @@ class_alias(TestAuthor::class, 'App\\Model\\TestAuthor');
  */
 class TestPost extends Post
 {
-    public $belongsTo = [
+    public array $belongsTo = [
         'Author' => [
             'className' => 'TestAuthor',
         ],

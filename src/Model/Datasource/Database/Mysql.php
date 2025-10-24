@@ -934,7 +934,7 @@ class Mysql extends DboSource
      *
      * @return bool
      */
-    public function nestedTransactionSupported()
+    public function nestedTransactionSupported(): bool
     {
         return $this->useNestedTransactions && version_compare($this->getVersion(), '4.1', '>=');
     }
@@ -1017,14 +1017,14 @@ class Mysql extends DboSource
      * Inserts multiple values into a table. Uses a single query in order to insert
      * multiple rows.
      *
-     * @param string $table The table being inserted into.
+     * @param Model|string $table The table being inserted into.
      * @param array $fields The array of field/column names being inserted.
      * @param array $values The array of values to insert. The values should
      *   be an array of rows. Each row should have values keyed by the column name.
      *   Each row must have the values in the same order as $fields.
      * @return bool
      */
-    public function insertMulti($table, $fields, $values)
+    public function insertMulti(Model|string $table, array $fields, array $values): bool
     {
         $table = $this->fullTableName($table);
         $holder = implode(', ', array_fill(0, count($fields), '?'));

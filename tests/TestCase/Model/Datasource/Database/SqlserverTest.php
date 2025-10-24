@@ -141,7 +141,7 @@ class SqlserverTestModel extends CakeTestModel
      *
      * @var bool
      */
-    public $useTable = false;
+    public string|bool|null $useTable = false;
 
     /**
      * _schema property
@@ -174,7 +174,7 @@ class SqlserverTestModel extends CakeTestModel
      *
      * @var array
      */
-    public $belongsTo = [
+    public array $belongsTo = [
         'SqlserverClientTestModel' => [
             'foreignKey' => 'client_id',
         ],
@@ -208,7 +208,7 @@ class SqlserverClientTestModel extends CakeTestModel
      *
      * @var bool
      */
-    public $useTable = false;
+    public string|bool|null $useTable = false;
 
     /**
      * _schema property

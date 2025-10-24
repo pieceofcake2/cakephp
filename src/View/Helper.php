@@ -20,6 +20,7 @@ use Cake\Core\App;
 use Cake\Core\CakeObject;
 use Cake\Core\CakePlugin;
 use Cake\Core\Configure;
+use Cake\Network\CakeRequest;
 use Cake\Routing\Router;
 use Cake\Utility\ClassRegistry;
 use Cake\Utility\Hash;
@@ -39,42 +40,42 @@ class Helper extends CakeObject
      *
      * @var array
      */
-    public $settings = [];
+    public array $settings = [];
 
     /**
      * List of helpers used by this helper
      *
      * @var array
      */
-    public $helpers = [];
+    public array $helpers = [];
 
     /**
      * A helper lookup table used to lazy load helper objects.
      *
      * @var array
      */
-    protected $_helperMap = [];
+    protected array $_helperMap = [];
 
     /**
      * The current theme name if any.
      *
-     * @var string
+     * @var string|null
      */
-    public $theme = null;
+    public ?string $theme = null;
 
     /**
      * Request object
      *
      * @var CakeRequest
      */
-    public $request = null;
+    public ?CakeRequest $request = null;
 
     /**
      * Plugin path
      *
-     * @var string
+     * @var string|null
      */
-    public $plugin = null;
+    public ?string $plugin = null;
 
     /**
      * Holds the fields array('field_name' => array('type' => 'string', 'length' => 100),
@@ -82,26 +83,26 @@ class Helper extends CakeObject
      *
      * @var array
      */
-    public $fieldset = [];
+    public array $fieldset = [];
 
     /**
      * Holds tag templates.
      *
      * @var array
      */
-    public $tags = [];
+    public array $tags = [];
 
     /**
      * Holds the content to be cleaned.
      *
-     * @var mixed
+     * @var mixed|null
      */
     protected $_tainted = null;
 
     /**
      * Holds the cleaned content.
      *
-     * @var mixed
+     * @var mixed|null
      */
     protected $_cleaned = null;
 
@@ -110,7 +111,7 @@ class Helper extends CakeObject
      *
      * @var View
      */
-    protected $_View;
+    protected View $_View;
 
     /**
      * A list of strings that should be treated as suffixes, or
@@ -119,7 +120,7 @@ class Helper extends CakeObject
      *
      * @var array
      */
-    protected $_fieldSuffixes = [
+    protected array $_fieldSuffixes = [
         'year', 'month', 'day', 'hour', 'min', 'second', 'meridian',
     ];
 
@@ -127,32 +128,32 @@ class Helper extends CakeObject
      * The name of the current model entities are in scope of.
      *
      * @see Helper::setEntity()
-     * @var string
+     * @var string|null
      */
-    protected $_modelScope;
+    protected ?string $_modelScope = null;
 
     /**
      * The name of the current model association entities are in scope of.
      *
      * @see Helper::setEntity()
-     * @var string
+     * @var string|null
      */
-    protected $_association;
+    protected ?string $_association = null;
 
     /**
      * The dot separated list of elements the current field entity is for.
      *
      * @see Helper::setEntity()
-     * @var string
+     * @var string|null
      */
-    protected $_entityPath;
+    protected ?string $_entityPath = null;
 
     /**
      * Minimized attributes
      *
      * @var array
      */
-    protected $_minimizedAttributes = [
+    protected array $_minimizedAttributes = [
         'allowfullscreen',
         'async',
         'autofocus',
@@ -202,25 +203,25 @@ class Helper extends CakeObject
      *
      * @var string
      */
-    protected $_attributeFormat = '%s="%s"';
+    protected string $_attributeFormat = '%s="%s"';
 
     /**
      * Format to attribute
      *
      * @var string
      */
-    protected $_minimizedAttributeFormat = '%s="%s"';
+    protected string $_minimizedAttributeFormat = '%s="%s"';
 
     /**
      * Default Constructor
      *
-     * @param View $View The View this helper is being attached to.
+     * @param View $view The View this helper is being attached to.
      * @param array $settings Configuration settings for the helper.
      */
-    public function __construct(View $View, $settings = [])
+    public function __construct(View $view, $settings = [])
     {
-        $this->_View = $View;
-        $this->request = $View->request;
+        $this->_View = $view;
+        $this->request = $view->request;
         if ($settings) {
             $this->settings = Hash::merge($this->settings, $settings);
         }
@@ -236,7 +237,7 @@ class Helper extends CakeObject
      * @param array $params Array of params for the method.
      * @return void
      */
-    public function __call($method, $params)
+    public function __call(string $method, array $params)
     {
         trigger_error(__d('cake_dev', 'Method %1$s::%2$s does not exist', static::class, $method), E_USER_WARNING);
     }
@@ -248,7 +249,7 @@ class Helper extends CakeObject
      * @return mixed Helper or property found at $name
      * @deprecated 3.0.0 Accessing request properties through this method is deprecated and will be removed in 3.0.
      */
-    public function __get($name)
+    public function __get(string $name)
     {
         if (isset($this->_helperMap[$name]) && !isset($this->{$name})) {
             $settings = ['enabled' => false] + (array)$this->_helperMap[$name]['settings'];
@@ -278,7 +279,7 @@ class Helper extends CakeObject
      * @return void
      * @deprecated 3.0.0 This method will be removed in 3.0
      */
-    public function __set($name, $value)
+    public function __set(string $name, $value): void
     {
         switch ($name) {
             case 'base':
@@ -301,14 +302,14 @@ class Helper extends CakeObject
      *
      * Returns a URL pointing at the provided parameters.
      *
-     * @param array|string $url Either a relative string url like `/products/view/23` or
+     * @param array|string|null $url Either a relative string url like `/products/view/23` or
      *    an array of URL parameters. Using an array for URLs will allow you to leverage
      *    the reverse routing features of CakePHP.
-     * @param bool $full If true, the full base URL will be prepended to the result
-     * @return string Full translated URL with base path.
+     * @param array|bool $full If true, the full base URL will be prepended to the result
+     * @return array|string Full translated URL with base path.
      * @link https://book.cakephp.org/2.0/en/views/helpers.html
      */
-    public function url($url = null, $full = false)
+    public function url(array|string|null $url = null, array|bool $full = false): array|string
     {
         return h(Router::url($url, $full));
     }
@@ -319,7 +320,7 @@ class Helper extends CakeObject
      * @param string $file The file to create a webroot path to.
      * @return string Web accessible path to file.
      */
-    public function webroot($file)
+    public function webroot(string $file): string
     {
         $asset = explode('?', $file);
         $asset[1] = isset($asset[1]) ? '?' . $asset[1] : null;
@@ -363,7 +364,7 @@ class Helper extends CakeObject
      *   `plugin` False value will prevent parsing path as a plugin
      * @return string Generated URL
      */
-    public function assetUrl($path, $options = [])
+    public function assetUrl(array|string $path, array $options = []): string
     {
         if (is_array($path)) {
             return $this->url($path, !empty($options['fullBase']));
@@ -405,7 +406,7 @@ class Helper extends CakeObject
      * @param string $url The URL to encode.
      * @return string The URL encoded for both URL & HTML contexts.
      */
-    protected function _encodeUrl($url)
+    protected function _encodeUrl(string $url): string
     {
         $path = parse_url($url, PHP_URL_PATH);
         $parts = array_map('rawurldecode', explode('/', $path));
@@ -423,7 +424,7 @@ class Helper extends CakeObject
      * @param string $path The file path to timestamp, the path must be inside WWW_ROOT
      * @return string Path with a timestamp added, or not.
      */
-    public function assetTimestamp($path)
+    public function assetTimestamp(string $path): string
     {
         $stamp = Configure::read('Asset.timestamp');
         $timestampEnabled = $stamp === 'force' || ($stamp === true && Configure::read('debug') > 0);
@@ -435,26 +436,22 @@ class Helper extends CakeObject
             );
             $webrootPath = WWW_ROOT . str_replace('/', DS, $filepath);
             if (file_exists($webrootPath)) {
-                //@codingStandardsIgnoreStart
-                return $path . '?' . @filemtime($webrootPath);
-                //@codingStandardsIgnoreEnd
+                return $path . '?' . @filemtime($webrootPath); // phpcs:ignore
             }
             $segments = explode('/', ltrim($filepath, '/'));
             if ($segments[0] === 'theme') {
                 $theme = $segments[1];
                 unset($segments[0], $segments[1]);
                 $themePath = App::themePath($theme) . 'webroot' . DS . implode(DS, $segments);
-                //@codingStandardsIgnoreStart
-                return $path . '?' . @filemtime($themePath);
-                //@codingStandardsIgnoreEnd
+
+                return $path . '?' . @filemtime($themePath); // phpcs:ignore
             } else {
                 $plugin = Inflector::camelize($segments[0]);
                 if (CakePlugin::loaded($plugin)) {
                     unset($segments[0]);
                     $pluginPath = CakePlugin::path($plugin) . 'webroot' . DS . implode(DS, $segments);
-                    //@codingStandardsIgnoreStart
-                    return $path . '?' . @filemtime($pluginPath);
-                    //@codingStandardsIgnoreEnd
+
+                    return $path . '?' . @filemtime($pluginPath); // phpcs:ignore
                 }
             }
         }
@@ -509,21 +506,17 @@ class Helper extends CakeObject
      *
      * If value for any option key is set to `null` or `false`, that option will be excluded from output.
      *
-     * @param array $options Array of options.
+     * @param array|string|null $options Array of options.
      * @param array $exclude Array of options to be excluded, the options here will not be part of the return.
      * @param string $insertBefore String to be inserted before options.
-     * @param string $insertAfter String to be inserted after options.
+     * @param string|null $insertAfter String to be inserted after options.
      * @return string Composed attributes.
      * @deprecated 3.0.0 This method will be moved to HtmlHelper in 3.0
      */
-    protected function _parseAttributes($options, $exclude = null, $insertBefore = ' ', $insertAfter = null)
+    protected function _parseAttributes(array|string|null $options, array $exclude = [], string $insertBefore = ' ', ?string $insertAfter = null): string
     {
         if (!is_string($options)) {
             $options = (array)$options + ['escape' => true];
-
-            if (!is_array($exclude)) {
-                $exclude = [];
-            }
 
             $exclude = ['escape' => true] + array_flip($exclude);
             $escape = $options['escape'];
@@ -547,12 +540,12 @@ class Helper extends CakeObject
      * Works with minimized attributes that have the same value as their name such as 'disabled' and 'checked'
      *
      * @param string $key The name of the attribute to create
-     * @param string $value The value of the attribute to create.
+     * @param array|string $value The value of the attribute to create.
      * @param bool $escape Define if the value must be escaped
      * @return string The composed attribute.
      * @deprecated 3.0.0 This method will be moved to HtmlHelper in 3.0
      */
-    protected function _formatAttribute($key, $value, $escape = true)
+    protected function _formatAttribute(string $key, array|string $value, bool $escape = true): string
     {
         if (is_array($value)) {
             $value = implode(' ', $value);
@@ -578,10 +571,10 @@ class Helper extends CakeObject
      * @param string $message Message to be displayed
      * @param string $okCode Code to be executed after user chose 'OK'
      * @param string $cancelCode Code to be executed after user chose 'Cancel', also executed when okCode doesn't return
-     * @param array $options Array of options
+     * @param array{escape?: bool} $options Array of options
      * @return string onclick JS code
      */
-    protected function _confirm($message, $okCode, $cancelCode = '', $options = [])
+    protected function _confirm(string $message, string $okCode, string $cancelCode = '', array $options = []): string
     {
         $message = json_encode($message);
         $confirm = "if (confirm({$message})) { {$okCode} } {$cancelCode}";
@@ -595,14 +588,14 @@ class Helper extends CakeObject
     /**
      * Sets this helper's model and field properties to the dot-separated value-pair in $entity.
      *
-     * @param string $entity A field name, like "ModelName.fieldName" or "ModelName.ID.fieldName"
+     * @param string|null $entity A field name, like "ModelName.fieldName" or "ModelName.ID.fieldName"
      * @param bool $setScope Sets the view scope to the model specified in $tagValue
      * @return void
      */
-    public function setEntity($entity, $setScope = false)
+    public function setEntity(?string $entity, bool $setScope = false): void
     {
         if ($entity === null) {
-            $this->_modelScope = false;
+            $this->_modelScope = null;
         }
         if ($setScope === true) {
             $this->_modelScope = $entity;
@@ -667,7 +660,7 @@ class Helper extends CakeObject
      *
      * @return array An array containing the identity elements of an entity
      */
-    public function entity()
+    public function entity(): array
     {
         return explode('.', (string)$this->_entityPath);
     }
@@ -675,9 +668,9 @@ class Helper extends CakeObject
     /**
      * Gets the currently-used model of the rendering context.
      *
-     * @return string
+     * @return string|null
      */
-    public function model()
+    public function model(): ?string
     {
         if ($this->_association) {
             return $this->_association;
@@ -693,7 +686,7 @@ class Helper extends CakeObject
      *
      * @return string
      */
-    public function field()
+    public function field(): string
     {
         $entity = $this->entity();
         $count = count($entity);
@@ -709,13 +702,13 @@ class Helper extends CakeObject
      * Generates a DOM ID for the selected element, if one is not set.
      * Uses the current View::entity() settings to generate a CamelCased id attribute.
      *
-     * @param array|string $options Either an array of html attributes to add $id into, or a string
+     * @param array|string|null $options Either an array of html attributes to add $id into, or a string
      *   with a view entity path to get a domId for.
      * @param string $id The name of the 'id' attribute.
-     * @return mixed If $options was an array, an array will be returned with $id set. If a string
+     * @return array|string|null If $options was an array, an array will be returned with $id set. If a string
      *   was supplied, a string will be returned.
      */
-    public function domId($options = null, $id = 'id')
+    public function domId(array|string|null $options = null, string $id = 'id'): array|string|null
     {
         if (is_array($options) && array_key_exists($id, $options) && $options[$id] === null) {
             unset($options[$id]);
@@ -744,14 +737,14 @@ class Helper extends CakeObject
      * Gets the input field name for the current tag. Creates input name attributes
      * using CakePHP's data[Model][field] formatting.
      *
-     * @param array|string $options If an array, should be an array of attributes that $key needs to be added to.
+     * @param array|string|null $options If an array, should be an array of attributes that $key needs to be added to.
      *   If a string or null, will be used as the View entity.
-     * @param string $field Field name.
+     * @param string|null $field Field name.
      * @param string $key The name of the attribute to be set, defaults to 'name'
-     * @return mixed If an array was given for $options, an array with $key set will be returned.
+     * @return array|string|null If an array was given for $options, an array with $key set will be returned.
      *   If a string was supplied a string will be returned.
      */
-    protected function _name($options = [], $field = null, $key = 'name')
+    protected function _name(array|string|null $options = [], ?string $field = null, string $key = 'name'): array|string|null
     {
         if ($options === null) {
             $options = [];
@@ -788,14 +781,14 @@ class Helper extends CakeObject
     /**
      * Gets the data for the current tag
      *
-     * @param array|string $options If an array, should be an array of attributes that $key needs to be added to.
+     * @param array|string|null $options If an array, should be an array of attributes that $key needs to be added to.
      *   If a string or null, will be used as the View entity.
-     * @param string $field Field name.
+     * @param string|null $field Field name.
      * @param string $key The name of the attribute to be set, defaults to 'value'
-     * @return mixed If an array was given for $options, an array with $key set will be returned.
+     * @return array|string|null  If an array was given for $options, an array with $key set will be returned.
      *   If a string was supplied a string will be returned.
      */
-    public function value($options = [], $field = null, $key = 'value')
+    public function value($options = [], $field = null, $key = 'value'): array|string|null
     {
         if ($options === null) {
             $options = [];
@@ -849,16 +842,15 @@ class Helper extends CakeObject
      * Sets the defaults for an input tag. Will set the
      * name, value, and id attributes for an array of html attributes.
      *
-     * @param string $field The field name to initialize.
+     * @param string|null $field The field name to initialize.
      * @param array $options Array of options to use while initializing an input field.
      * @return array Array options for the form input.
      */
-    protected function _initInputField($field, $options = [])
+    protected function _initInputField(?string $field, array $options = []): array
     {
         if ($field !== null) {
             $this->setEntity($field);
         }
-        $options = (array)$options;
         $options = $this->_name($options);
         $options = $this->value($options);
         $options = $this->domId($options);
@@ -870,11 +862,11 @@ class Helper extends CakeObject
      * Adds the given class to the element options
      *
      * @param array $options Array options/attributes to add a class to
-     * @param string $class The class name being added.
+     * @param string|null $class The class name being added.
      * @param string $key the key to use for class.
      * @return array Array of options with $key set.
      */
-    public function addClass($options = [], $class = null, $key = 'class')
+    public function addClass(array $options = [], ?string $class = null, string $key = 'class'): array
     {
         if (isset($options[$key]) && trim($options[$key])) {
             $options[$key] .= ' ' . $class;
@@ -894,7 +886,7 @@ class Helper extends CakeObject
      * @return string
      * @deprecated 3.0.0 This method will be removed in future versions.
      */
-    public function output($str)
+    public function output(string $str): string
     {
         return $str;
     }
@@ -907,7 +899,7 @@ class Helper extends CakeObject
      * @param string $viewFile The view file that is going to be rendered
      * @return void
      */
-    public function beforeRender($viewFile): void
+    public function beforeRender(string $viewFile): void
     {
     }
 
@@ -920,7 +912,7 @@ class Helper extends CakeObject
      * @param string $viewFile The view file that was rendered.
      * @return void
      */
-    public function afterRender($viewFile)
+    public function afterRender(string $viewFile): void
     {
     }
 
@@ -932,7 +924,7 @@ class Helper extends CakeObject
      * @param string $layoutFile The layout about to be rendered.
      * @return void
      */
-    public function beforeLayout($layoutFile)
+    public function beforeLayout(string $layoutFile): void
     {
     }
 
@@ -944,7 +936,7 @@ class Helper extends CakeObject
      * @param string $layoutFile The layout file that was rendered.
      * @return void
      */
-    public function afterLayout($layoutFile)
+    public function afterLayout(string $layoutFile): void
     {
     }
 
@@ -955,9 +947,9 @@ class Helper extends CakeObject
      * Overridden in subclasses.
      *
      * @param string $viewFile The file about to be rendered.
-     * @return void
+     * @return mixed|void
      */
-    public function beforeRenderFile($viewFile)
+    public function beforeRenderFile(string $viewFile)
     {
     }
 
@@ -969,9 +961,9 @@ class Helper extends CakeObject
      *
      * @param string $viewFile The file just be rendered.
      * @param string $content The content that was rendered.
-     * @return void
+     * @return mixed|void
      */
-    public function afterRenderFile($viewFile, $content)
+    public function afterRenderFile(string $viewFile, string $content)
     {
     }
 
@@ -981,9 +973,9 @@ class Helper extends CakeObject
      *
      * @param array|string $data Data array or model name.
      * @param string $key Field name.
-     * @return array
+     * @return array|null
      */
-    protected function _selectedArray($data, $key = 'id')
+    protected function _selectedArray(array|string $data, string $key = 'id'): ?array
     {
         if (!is_array($data)) {
             $model = $data;
@@ -1011,7 +1003,7 @@ class Helper extends CakeObject
      *
      * @return void
      */
-    protected function _reset()
+    protected function _reset(): void
     {
         $this->_tainted = null;
         $this->_cleaned = null;
@@ -1022,7 +1014,7 @@ class Helper extends CakeObject
      *
      * @return void
      */
-    protected function _clean()
+    protected function _clean(): void
     {
         $this->_cleaned = $this->_tainted;
 

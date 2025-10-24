@@ -39,7 +39,7 @@ class ThemePosts2Controller extends Controller
      *
      * @var string
      */
-    public $name = 'ThemePosts';
+    public ?string $name = 'ThemePosts';
 
     public $theme = null;
 

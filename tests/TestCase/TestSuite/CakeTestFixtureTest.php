@@ -204,23 +204,23 @@ class CakeTestFixtureDefaultImportFixture extends CakeTestFixture
  */
 class FixtureImportTestModel extends Model
 {
-    public $name = 'FixtureImport';
+    public ?string $name = 'FixtureImport';
 
-    public $useTable = 'fixture_tests';
+    public string|bool|null $useTable = 'fixture_tests';
 
-    public $useDbConfig = 'test';
+    public string $useDbConfig = 'test';
 }
 class_alias(FixtureImportTestModel::class, 'App\\Model\\FixtureImportTestModel');
 
 class FixturePrefixTest extends Model
 {
-    public $name = 'FixturePrefix';
+    public ?string $name = 'FixturePrefix';
 
-    public $useTable = '_tests';
+    public string|bool|null $useTable = '_tests';
 
-    public $tablePrefix = 'fixture';
+    public ?string $tablePrefix = 'fixture';
 
-    public $useDbConfig = 'test';
+    public string $useDbConfig = 'test';
 }
 class_alias(FixturePrefixTest::class, 'App\\Model\\FixturePrefixTest');
 

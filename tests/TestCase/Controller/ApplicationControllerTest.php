@@ -24,7 +24,7 @@ class TransSessionIdController extends AppController
      *
      * @var bool
      */
-    public $autoRender = false;
+    public bool $autoRender = false;
 
     /**
      * Constructor.

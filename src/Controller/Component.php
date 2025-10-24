@@ -46,28 +46,28 @@ class Component extends CakeObject
      *
      * @var ComponentCollection
      */
-    protected $_Collection;
+    protected ComponentCollection $_Collection;
 
     /**
      * Settings for this Component
      *
      * @var array
      */
-    public $settings = [];
+    public array $settings = [];
 
     /**
      * Other Components this component uses.
      *
      * @var array
      */
-    public $components = [];
+    public array $components = [];
 
     /**
      * A component lookup table used to lazy load component objects.
      *
      * @var array
      */
-    protected $_componentMap = [];
+    protected array $_componentMap = [];
 
     /**
      * Constructor
@@ -75,7 +75,7 @@ class Component extends CakeObject
      * @param ComponentCollection $collection A ComponentCollection this component can use to lazy load its components
      * @param array $settings Array of configuration settings.
      */
-    public function __construct(ComponentCollection $collection, $settings = [])
+    public function __construct(ComponentCollection $collection, array $settings = [])
     {
         $this->_Collection = $collection;
         $this->settings = $settings;
@@ -91,7 +91,7 @@ class Component extends CakeObject
      * @param string $name Name of component to get.
      * @return mixed A Component object or null.
      */
-    public function __get($name)
+    public function __get(string $name)
     {
         if (isset($this->_componentMap[$name]) && !isset($this->{$name})) {
             $settings = (array)$this->_componentMap[$name]['settings'] + ['enabled' => false];

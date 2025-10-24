@@ -70,7 +70,7 @@ class CakeEventTestListener
  */
 class CustomTestEventListener extends CakeEventTestListener implements CakeEventListener
 {
-    public function implementedEvents()
+    public function implementedEvents(): array
     {
         return [
             'fake.event' => 'listenerFunction',

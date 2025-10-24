@@ -25,6 +25,7 @@ use Cake\Core\Configure;
 use Cake\Error\ForbiddenException;
 use Cake\Error\MissingViewException;
 use Cake\Error\NotFoundException;
+use Cake\Network\CakeResponse;
 use Cake\Utility\Inflector;
 
 /**
@@ -42,20 +43,20 @@ class PagesController extends AppController
      *
      * @var array
      */
-    public $helpers = ['Html', 'Session'];
+    public array $helpers = ['Html', 'Session'];
 
     /**
      * This controller does not use a model
      *
      * @var array
      */
-    public $uses = [];
+    public array|bool $uses = [];
 
     /**
      * Displays a view
      *
      * @param string ...$path What page to display
-     * @return void
+     * @return CakeResponse|void
      * @throws NotFoundException When the view file could not be found
      *  or MissingViewException in debug mode.
      */

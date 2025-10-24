@@ -22,6 +22,8 @@ namespace Cake\Controller;
 
 use AppController;
 use Cake\Core\App;
+use Cake\Network\CakeRequest;
+use Cake\Network\CakeResponse;
 use Cake\Routing\Router;
 
 App::uses('AppController', 'Controller');
@@ -38,9 +40,9 @@ class CakeErrorController extends AppController
     /**
      * Uses Property
      *
-     * @var array
+     * @var array|bool
      */
-    public $uses = [];
+    public array|bool $uses = [];
 
     /**
      * Constructor

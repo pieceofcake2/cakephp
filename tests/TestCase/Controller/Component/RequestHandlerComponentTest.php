@@ -39,9 +39,9 @@ class RequestHandlerTestController extends Controller
     /**
      * uses property
      *
-     * @var mixed
+     * @var array||bool
      */
-    public $uses = null;
+    public array|bool $uses = [];
 
     /**
      * test method for ajax redirection

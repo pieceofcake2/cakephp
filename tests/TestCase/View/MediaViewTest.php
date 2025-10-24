@@ -18,6 +18,7 @@
 
 namespace Cake\Test\TestCase\View;
 
+use Cake\Network\CakeResponse;
 use Cake\TestSuite\CakeTestCase;
 use Cake\View\MediaView;
 
@@ -28,6 +29,8 @@ use Cake\View\MediaView;
  */
 class MediaViewTest extends CakeTestCase
 {
+    public ?MediaView $MediaView = null;
+
     /**
      * setUp method
      *
@@ -54,7 +57,7 @@ class MediaViewTest extends CakeTestCase
      */
     public function tearDown(): void
     {
-        unset($this->MediaView);
+        $this->MediaView = null;
 
         parent::tearDown();
     }
@@ -72,10 +75,12 @@ class MediaViewTest extends CakeTestCase
         ];
         $this->MediaView->viewVars = $vars;
 
-        $this->MediaView->response->expects($this->once())
+        $this->MediaView->response
+            ->expects($this->once())
             ->method('disableCache');
 
-        $this->MediaView->response->expects($this->once())
+        $this->MediaView->response
+            ->expects($this->once())
             ->method('file')
             ->with(
                 $vars['path'] . $vars['id'],
@@ -101,14 +106,17 @@ class MediaViewTest extends CakeTestCase
         ];
         $this->MediaView->viewVars = $vars;
 
-        $this->MediaView->response->expects($this->never())
+        $this->MediaView->response
+            ->expects($this->never())
             ->method('disableCache');
 
-        $this->MediaView->response->expects($this->once())
+        $this->MediaView->response
+            ->expects($this->once())
             ->method('cache')
             ->with($this->anything(), $vars['cache']);
 
-        $this->MediaView->response->expects($this->once())
+        $this->MediaView->response
+            ->expects($this->once())
             ->method('file')
             ->with(
                 $vars['path'] . $vars['id'],
@@ -133,7 +141,8 @@ class MediaViewTest extends CakeTestCase
             'id' => 'test_2.JPG',
         ];
 
-        $this->MediaView->response->expects($this->any())
+        $this->MediaView->response
+            ->expects($this->any())
             ->method('type')
             ->with('jpg')
             ->will($this->returnArgument(0));

@@ -77,7 +77,7 @@ class TimeHelper extends AppHelper
      * @param string $value Value of the attribute to set.
      * @return void
      */
-    public function __set($name, $value)
+    public function __set($name, $value): void
     {
         switch ($name) {
             case 'niceFormat':
@@ -133,7 +133,7 @@ class TimeHelper extends AppHelper
      * @param array $params Parameters to pass to method.
      * @return mixed Whatever is returned by called method, or false on failure
      */
-    public function __call($method, $params)
+    public function __call(string $method, array $params)
     {
         return call_user_func_array([$this->_engine, $method], $params);
     }

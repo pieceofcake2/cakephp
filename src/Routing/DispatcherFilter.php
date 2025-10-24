@@ -63,7 +63,7 @@ abstract class DispatcherFilter implements CakeEventListener
      *
      * @return array
      */
-    public function implementedEvents()
+    public function implementedEvents(): array
     {
         return [
             'Dispatcher.beforeDispatch' => ['callable' => 'beforeDispatch', 'priority' => $this->priority],

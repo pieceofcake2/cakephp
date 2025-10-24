@@ -39,7 +39,7 @@ class CacheTestController extends Controller
      *
      * @var array
      */
-    public $helpers = ['Html', 'Cache'];
+    public array $helpers = ['Html', 'Cache'];
 
     /**
      * cache_parsing method

@@ -34,7 +34,7 @@ class SanitizeDataTest extends CakeTestModel
      *
      * @var string
      */
-    public $useTable = 'data_tests';
+    public string|bool|null $useTable = 'data_tests';
 }
 class_alias(SanitizeDataTest::class, 'App\\Model\\SanitizeDataTest');
 
@@ -50,7 +50,7 @@ class SanitizeArticle extends CakeTestModel
      *
      * @var string
      */
-    public $useTable = 'articles';
+    public string|bool|null $useTable = 'articles';
 }
 class_alias(SanitizeArticle::class, 'App\\Model\\SanitizeArticle');
 

@@ -40,7 +40,7 @@ class RssHelper extends AppHelper
      *
      * @var array
      */
-    public $helpers = ['Time'];
+    public array $helpers = ['Time'];
 
     /**
      * Base URL

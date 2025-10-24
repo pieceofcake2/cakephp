@@ -19,6 +19,7 @@
 namespace Cake\Cache\Engine;
 
 use Cake\Cache\CacheEngine;
+use Cake\Error\CacheException;
 use Cake\Utility\Inflector;
 use Redis;
 use RedisException;
@@ -49,7 +50,7 @@ class RedisEngine extends CacheEngine
      *
      * @var array
      */
-    public $settings = [];
+    public array $settings = [];
 
     /**
      * Initialize the Cache Engine

@@ -21,8 +21,6 @@ namespace Cake\Test\TestCase\Model;
 use Cake\Utility\ClassRegistry;
 use PDOException;
 
-require_once __DIR__ . DS . 'ModelTestBase.php';
-
 /**
  * ModelDeleteTest
  *

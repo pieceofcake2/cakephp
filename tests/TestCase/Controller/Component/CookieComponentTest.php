@@ -40,7 +40,7 @@ class CookieComponentTestController extends Controller
      *
      * @var array
      */
-    public $components = ['Cookie'];
+    public array $components = ['Cookie'];
 
     /**
      * beforeFilter method

@@ -83,14 +83,14 @@ class View extends CakeObject
      *
      * @var HelperCollection
      */
-    public $Helpers;
+    public HelperCollection $Helpers;
 
     /**
      * ViewBlock instance.
      *
      * @var ViewBlock
      */
-    public $Blocks;
+    public ViewBlock $Blocks;
 
     /**
      * Name of the plugin.
@@ -98,70 +98,70 @@ class View extends CakeObject
      * @link http://manual.cakephp.org/chapter/plugins
      * @var string
      */
-    public $plugin = null;
+    public ?string $plugin = null;
 
     /**
      * Name of the controller.
      *
      * @var string
      */
-    public $name = null;
+    public ?string $name = null;
 
     /**
      * Fully qualified controller class name.
      *
      * @var string
      */
-    public $controllerClass = null;
+    public ?string $controllerClass = null;
 
     /**
      * Current passed params
      *
      * @var mixed
      */
-    public $passedArgs = [];
+    public array $passedArgs = [];
 
     /**
      * An array of names of built-in helpers to include.
      *
-     * @var mixed
+     * @var array
      */
-    public $helpers = [];
+    public array $helpers = [];
 
     /**
      * Path to View.
      *
      * @var string
      */
-    public $viewPath = null;
+    public ?string $viewPath = null;
 
     /**
      * Variables for the view
      *
      * @var array
      */
-    public $viewVars = [];
+    public array $viewVars = [];
 
     /**
      * Name of view to use with this View.
      *
      * @var string
      */
-    public $view = null;
+    public ?string $view = null;
 
     /**
      * Name of layout to use with this View. If `false` then no layout is rendered.
      *
      * @var string|bool
      */
-    public $layout = 'default';
+    public string|bool $layout = 'default';
 
     /**
      * Path to Layout.
      *
      * @var string
      */
-    public $layoutPath = null;
+    public ?string $layoutPath = null;
 
     /**
      * Turns on or off CakePHP's conventional mode of applying layout files. On by default.
@@ -169,14 +169,14 @@ class View extends CakeObject
      *
      * @var bool
      */
-    public $autoLayout = true;
+    public bool $autoLayout = true;
 
     /**
      * File extension. Defaults to CakePHP's template ".ctp".
      *
      * @var string
      */
-    public $ext = '.ctp';
+    public string $ext = '.ctp';
 
     /**
      * Sub-directory for this view file. This is often used for extension based routing.
@@ -184,14 +184,14 @@ class View extends CakeObject
      *
      * @var string
      */
-    public $subDir = null;
+    public ?string $subDir = null;
 
     /**
      * Theme name.
      *
      * @var string
      */
-    public $theme = null;
+    public ?string $theme = null;
 
     /**
      * Used to define methods a controller that will be cached.
@@ -206,37 +206,37 @@ class View extends CakeObject
      *
      * @var array
      */
-    public $validationErrors = [];
+    public array $validationErrors = [];
 
     /**
      * True when the view has been rendered.
      *
      * @var bool
      */
-    public $hasRendered = false;
+    public bool $hasRendered = false;
 
     /**
      * List of generated DOM UUIDs.
      *
      * @var array
      */
-    public $uuids = [];
+    public array $uuids = [];
 
     /**
      * An instance of a CakeRequest object that contains information about the current request.
      * This object contains all the information about a request and several methods for reading
      * additional information about the request.
      *
-     * @var CakeRequest
+     * @var CakeRequest|null
      */
-    public $request;
+    public ?CakeRequest $request = null;
 
     /**
      * Reference to the Response object
      *
-     * @var CakeResponse
+     * @var CakeResponse|null
      */
-    public $response;
+    public ?CakeResponse $response = null;
 
     /**
      * The Cache configuration View will use to store cached elements. Changing this will change
@@ -246,7 +246,7 @@ class View extends CakeObject
      * @var string
      * @see View::element()
      */
-    public $elementCache = 'default';
+    public string $elementCache = 'default';
 
     /**
      * Element cache settings
@@ -255,7 +255,7 @@ class View extends CakeObject
      * @see View::_elementCache();
      * @see View::_renderElement
      */
-    public $elementCacheSettings = [];
+    public array $elementCacheSettings = [];
 
     /**
      * List of variables to collect from the associated controller.
@@ -1184,9 +1184,9 @@ class View extends CakeObject
      * Finds an element filename, returns false on failure.
      *
      * @param string $name The name of the element to find.
-     * @return mixed Either a string to the element filename or false when one can't be found.
+     * @return string|false Either a string to the element filename or false when one can't be found.
      */
-    protected function _getElementFileName($name)
+    protected function _getElementFileName(string $name): string|false
     {
         [$plugin, $name] = $this->pluginSplit($name);
 

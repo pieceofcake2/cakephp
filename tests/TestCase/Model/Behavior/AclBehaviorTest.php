@@ -38,21 +38,21 @@ class AclPerson extends CakeTestModel
      *
      * @var string
      */
-    public $useTable = 'people';
+    public string|bool|null $useTable = 'people';
 
     /**
      * actsAs property
      *
      * @var array
      */
-    public $actsAs = ['Acl' => 'both'];
+    public array $actsAs = ['Acl' => 'both'];
 
     /**
      * belongsTo property
      *
      * @var array
      */
-    public $belongsTo = [
+    public array $belongsTo = [
         'Mother' => [
             'className' => 'AclPerson',
             'foreignKey' => 'mother_id',
@@ -64,7 +64,7 @@ class AclPerson extends CakeTestModel
      *
      * @var array
      */
-    public $hasMany = [
+    public array $hasMany = [
         'Child' => [
             'className' => 'AclPerson',
             'foreignKey' => 'mother_id',
@@ -103,21 +103,21 @@ class AclUser extends CakeTestModel
      *
      * @var string
      */
-    public $name = 'User';
+    public ?string $name = 'User';
 
     /**
      * useTable property
      *
      * @var string
      */
-    public $useTable = 'users';
+    public string|bool|null $useTable = 'users';
 
     /**
      * actsAs property
      *
      * @var array
      */
-    public $actsAs = ['Acl' => ['type' => 'requester']];
+    public array $actsAs = ['Acl' => ['type' => 'requester']];
 
     /**
      * parentNode
@@ -143,21 +143,21 @@ class AclPost extends CakeTestModel
      *
      * @var string
      */
-    public $name = 'Post';
+    public ?string $name = 'Post';
 
     /**
      * useTable property
      *
      * @var string
      */
-    public $useTable = 'posts';
+    public string|bool|null $useTable = 'posts';
 
     /**
      * actsAs property
      *
      * @var array
      */
-    public $actsAs = ['Acl' => ['type' => 'Controlled']];
+    public array $actsAs = ['Acl' => ['type' => 'Controlled']];
 
     /**
      * parentNode

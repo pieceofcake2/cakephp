@@ -769,12 +769,12 @@ class Sqlserver extends DboSource
     /**
      * Inserts multiple values into a table
      *
-     * @param string $table The table to insert into.
+     * @param Model|string $table The table to insert into.
      * @param array $fields The fields to set.
      * @param array $values The values to set.
      * @return bool
      */
-    public function insertMulti($table, $fields, $values)
+    public function insertMulti(Model|string $table, array $fields, array $values): bool
     {
         $primaryKey = $this->_getPrimaryKey($table);
         $hasPrimaryKey = $primaryKey && (

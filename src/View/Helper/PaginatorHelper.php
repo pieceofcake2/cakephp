@@ -45,7 +45,7 @@ class PaginatorHelper extends AppHelper
      *
      * @var array
      */
-    public $helpers = ['Html'];
+    public array $helpers = ['Html'];
 
     /**
      * The class used for 'Ajax' pagination links. Defaults to JsHelper. You should make sure
@@ -469,10 +469,10 @@ class PaginatorHelper extends AppHelper
      * @param array $options Pagination/URL options array
      * @param bool $asArray Return the URL as an array, or a URI string
      * @param string $model Which model to paginate on
-     * @return mixed By default, returns a full pagination URL string for use in non-standard contexts (i.e. JavaScript)
+     * @return array|string By default, returns a full pagination URL string for use in non-standard contexts (i.e. JavaScript)
      * @link https://book.cakephp.org/2.0/en/core-libraries/helpers/paginator.html#PaginatorHelper::url
      */
-    public function url($options = [], $asArray = false, $model = null)
+    public function url($options = [], $asArray = false, $model = null): array|string
     {
         $paging = $this->params($model);
         $url = array_merge(array_filter($paging['options']), $options);

@@ -39,7 +39,7 @@ class RequestActionPost extends CakeTestModel
      *
      * @var string
      */
-    public $useTable = 'posts';
+    public string|bool|null $useTable = 'posts';
 }
 class_alias(RequestActionPost::class, 'TestApp\\Model\\RequestActionPost');
 
@@ -53,9 +53,9 @@ class RequestActionController extends Controller
     /**
      * uses property
      *
-     * @var array
+     * @var array||bool
      */
-    public $uses = ['RequestActionPost'];
+    public array|bool $uses = ['RequestActionPost'];
 
     /**
      * test_request_action method
@@ -308,7 +308,7 @@ class TestCakeObject extends CakeObject
  */
 class ObjectTestModel extends CakeTestModel
 {
-    public $useTable = false;
+    public string|bool|null $useTable = false;
 }
 class_alias(ObjectTestModel::class, 'TestApp\\Model\\ObjectTestModel');
 
@@ -327,6 +327,11 @@ class CakeObjectTest extends CakeTestCase
      * @var string
      */
     public $fixtures = ['core.post', 'core.test_plugin_comment', 'core.comment'];
+
+    /**
+     * @var TestCakeObject
+     */
+    public TestCakeObject $object;
 
     /**
      * setUp method

@@ -104,16 +104,16 @@ class EmailTestController extends Controller
     /**
      * uses property
      *
-     * @var mixed
+     * @var array||bool
      */
-    public $uses = null;
+    public array|bool $uses = [];
 
     /**
      * components property
      *
      * @var array
      */
-    public $components = ['Session', 'EmailTest'];
+    public array $components = ['Session', 'EmailTest'];
 }
 class_alias(EmailTestController::class, 'App\\Controller\\EmailTestController');
 

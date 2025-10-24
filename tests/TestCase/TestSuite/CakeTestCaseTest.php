@@ -44,12 +44,12 @@ class SecondaryPost extends Model
     /**
      * @var string
      */
-    public $useTable = 'posts';
+    public string|bool|null $useTable = 'posts';
 
     /**
      * @var string
      */
-    public $useDbConfig = 'secondary';
+    public string $useDbConfig = 'secondary';
 }
 
 /**
@@ -60,7 +60,7 @@ class ConstructorPost extends Model
     /**
      * @var string
      */
-    public $useTable = 'posts';
+    public string|bool|null $useTable = 'posts';
 
     public function __construct($id = false, $table = null, $ds = null)
     {

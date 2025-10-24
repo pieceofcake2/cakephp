@@ -54,7 +54,7 @@ class TestBaseAuthenticate extends BaseAuthenticate
      *
      * @return array of events => callbacks.
      */
-    public function implementedEvents()
+    public function implementedEvents(): array
     {
         return [
             'Auth.afterIdentify' => 'afterIdentify',
@@ -171,7 +171,7 @@ class AuthUser extends CakeTestModel
      *
      * @var string
      */
-    public $useDbConfig = 'test';
+    public string $useDbConfig = 'test';
 }
 class_alias(AuthUser::class, 'App\\Model\\AuthUser');
 
@@ -185,16 +185,16 @@ class AuthTestController extends Controller
     /**
      * uses property
      *
-     * @var array
+     * @var array|bool
      */
-    public $uses = ['AuthUser'];
+    public array|bool $uses = ['AuthUser'];
 
     /**
      * components property
      *
      * @var array
      */
-    public $components = ['Session', 'Flash', 'Auth'];
+    public array $components = ['Session', 'Flash', 'Auth'];
 
     /**
      * testUrl property
@@ -308,14 +308,14 @@ class AjaxAuthController extends Controller
      *
      * @var array
      */
-    public $components = ['Session', 'TestAuth'];
+    public array $components = ['Session', 'TestAuth'];
 
     /**
      * uses property
      *
-     * @var array
+     * @var array|bool
      */
-    public $uses = [];
+    public array|bool $uses = [];
 
     /**
      * testUrl property
