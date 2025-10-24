@@ -23,6 +23,7 @@ namespace Cake\View\Helper;
 use AppHelper;
 use Cake\Core\App;
 use Cake\Error\CakeException;
+use Cake\Network\CakeRequest;
 use Cake\Utility\Inflector;
 use Cake\View\View;
 

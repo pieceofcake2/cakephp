@@ -102,7 +102,7 @@ class CakeTime
      * Used by TimeHelper to modify static variables in CakeTime
      *
      * @param string $name Variable name
-     * @param mixes $value Variable value
+     * @param mixed $value Variable value
      * @return void
      */
     public function __set($name, $value)

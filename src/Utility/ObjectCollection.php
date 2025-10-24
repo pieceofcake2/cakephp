@@ -14,6 +14,7 @@
 
 namespace Cake\Utility;
 
+use Cake\Core\CakeObject;
 use Cake\Error\CakeException;
 use Cake\Event\CakeEvent;
 

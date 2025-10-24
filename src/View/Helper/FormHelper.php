@@ -20,6 +20,7 @@ use AppHelper;
 use Cake\Core\App;
 use Cake\Core\Configure;
 use Cake\Error\CakeException;
+use Cake\Model\Model;
 use Cake\Utility\ClassRegistry;
 use Cake\Utility\Hash;
 use Cake\Utility\Inflector;

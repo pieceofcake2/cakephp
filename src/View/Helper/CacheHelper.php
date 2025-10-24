@@ -21,6 +21,7 @@ use Cake\Core\App;
 use Cake\Core\Configure;
 use Cake\Network\CakeRequest; // phpcs:ignore
 use Cake\Utility\Inflector;
+use Cake\View\View;
 use Exception;
 
 // phpcs:ignore

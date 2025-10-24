@@ -21,8 +21,10 @@ namespace Cake\View\Helper;
 use AppHelper;
 use Cake\Core\App;
 use Cake\Error\CakeException;
+use Cake\Utility\CakeTime;
 use Cake\Utility\Hash;
 use Cake\View\View;
+use DateTime;
 
 App::uses('AppHelper', 'View/Helper');
 

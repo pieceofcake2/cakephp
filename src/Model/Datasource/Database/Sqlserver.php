@@ -25,6 +25,7 @@ use Cake\Model\Model;
 use InvalidArgumentException;
 use PDO;
 use PDOException;
+use PDOStatement;
 
 /**
  * Dbo layer for Microsoft's official SQLServer driver

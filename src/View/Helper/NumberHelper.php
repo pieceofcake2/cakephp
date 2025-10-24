@@ -23,6 +23,7 @@ namespace Cake\View\Helper;
 use AppHelper;
 use Cake\Core\App;
 use Cake\Error\CakeException;
+use Cake\Utility\CakeNumber;
 use Cake\Utility\Hash;
 use Cake\View\View;
 

@@ -25,6 +25,7 @@ use Cake\Utility\CakeText;
 use Exception;
 use PDO;
 use PDOException;
+use PDOStatement;
 
 /**
  * DBO implementation for the SQLite3 DBMS.
