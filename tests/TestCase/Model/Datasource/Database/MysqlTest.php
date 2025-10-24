@@ -51,16 +51,6 @@ App::uses('AppModel', 'Model');
 
 require_once dirname(__DIR__, 2) . DS . 'models.php';
 
-class MockPDO extends PDO
-{
-    /**
-     * Constructor.
-     */
-    public function __construct()
-    {
-    }
-}
-
 /**
  * DboMysqlTest class
  *

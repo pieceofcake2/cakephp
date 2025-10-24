@@ -109,7 +109,7 @@ class TestDispatcher extends Dispatcher
         return $event->data['response'];
     }
 }
-class_alias(TestDispatcher::class, 'App\\Routing\\Filter\\TestDispatcher');
+class_alias(TestDispatcher::class, 'TestApp\\Routing\\Filter\\TestDispatcher');
 
 /**
  * MyPluginAppController class
@@ -119,7 +119,7 @@ class_alias(TestDispatcher::class, 'App\\Routing\\Filter\\TestDispatcher');
 class MyPluginAppController extends AppController
 {
 }
-class_alias(MyPluginAppController::class, 'App\\Controller\\MyPluginAppController');
+class_alias(MyPluginAppController::class, 'TestApp\\Controller\\MyPluginAppController');
 
 /**
  * Abstract Class DispatcherTestAbstractController
@@ -128,7 +128,7 @@ abstract class DispatcherTestAbstractController extends Controller
 {
     abstract public function index();
 }
-class_alias(DispatcherTestAbstractController::class, 'App\\Controller\\DispatcherTestAbstractController');
+class_alias(DispatcherTestAbstractController::class, 'TestApp\\Controller\\DispatcherTestAbstractController');
 
 /**
  * Interface DispatcherTestInterfaceController
@@ -138,7 +138,7 @@ interface DispatcherTestInterfaceController
     public function index();
 }
 
-class_alias(DispatcherTestInterfaceController::class, 'App\\Controller\\DispatcherTestInterfaceController');
+class_alias(DispatcherTestInterfaceController::class, 'TestApp\\Controller\\DispatcherTestInterfaceController');
 
 /**
  * MyPluginController class
@@ -186,7 +186,7 @@ class MyPluginController extends MyPluginAppController
     }
 }
 
-class_alias(MyPluginController::class, 'App\\Controller\\MyPluginController');
+class_alias(MyPluginController::class, 'TestApp\\Controller\\MyPluginController');
 class_alias(MyPluginController::class, 'MyPlugin\\Controller\\MyPluginController');
 
 /**
@@ -246,7 +246,7 @@ class SomePagesController extends AppController
         return $this->response;
     }
 }
-class_alias(SomePagesController::class, 'App\\Controller\\SomePagesController');
+class_alias(SomePagesController::class, 'TestApp\\Controller\\SomePagesController');
 class_alias(SomePagesController::class, 'MyPlugin\\Controller\\SomePagesController');
 
 /**
@@ -259,7 +259,7 @@ class OtherPagesController extends MyPluginAppController
     /**
      * uses property
      *
-     * @var array||bool
+     * @var array|bool
      */
     public array|bool $uses = [];
 
@@ -267,7 +267,7 @@ class OtherPagesController extends MyPluginAppController
      * display method
      *
      * @param string $page
-     * @return void
+     * @return string
      */
     public function display($page = null)
     {
@@ -277,14 +277,14 @@ class OtherPagesController extends MyPluginAppController
     /**
      * index method
      *
-     * @return void
+     * @return bool
      */
     public function index()
     {
         return true;
     }
 }
-class_alias(OtherPagesController::class, 'App\\Controller\\OtherPagesController');
+class_alias(OtherPagesController::class, 'TestApp\\Controller\\OtherPagesController');
 class_alias(OtherPagesController::class, 'MyPlugin\\Controller\\OtherPagesController');
 
 /**
@@ -321,7 +321,7 @@ class TestDispatchPagesController extends AppController
         return true;
     }
 }
-class_alias(TestDispatchPagesController::class, 'App\\Controller\\TestDispatchPagesController');
+class_alias(TestDispatchPagesController::class, 'TestApp\\Controller\\TestDispatchPagesController');
 
 /**
  * ArticlesTestAppController class
@@ -331,7 +331,7 @@ class_alias(TestDispatchPagesController::class, 'App\\Controller\\TestDispatchPa
 class ArticlesTestAppController extends AppController
 {
 }
-class_alias(ArticlesTestAppController::class, 'App\\Controller\\ArticlesTestAppController');
+class_alias(ArticlesTestAppController::class, 'TestApp\\Controller\\ArticlesTestAppController');
 
 /**
  * ArticlesTestController class
@@ -425,7 +425,7 @@ class SomePostsController extends AppController
         return true;
     }
 }
-class_alias(SomePostsController::class, 'App\\Controller\\SomePostsController');
+class_alias(SomePostsController::class, 'TestApp\\Controller\\SomePostsController');
 
 /**
  * TestCachedPagesController class
@@ -526,7 +526,7 @@ class TestCachedPagesController extends Controller
         $this->theme = 'TestTheme';
     }
 }
-class_alias(TestCachedPagesController::class, 'App\\Controller\\TestCachedPagesController');
+class_alias(TestCachedPagesController::class, 'TestApp\\Controller\\TestCachedPagesController');
 
 /**
  * TimesheetsController class
@@ -552,7 +552,7 @@ class TimesheetsController extends Controller
         return true;
     }
 }
-class_alias(TimesheetsController::class, 'App\\Controller\\TimesheetsController');
+class_alias(TimesheetsController::class, 'TestApp\\Controller\\TimesheetsController');
 
 /**
  * TestFilterDispatcher class
@@ -588,7 +588,7 @@ class TestFilterDispatcher extends DispatcherFilter
     {
     }
 }
-class_alias(TestFilterDispatcher::class, 'App\\Routing\\Filter\\TestFilterDispatcher');
+class_alias(TestFilterDispatcher::class, 'TestApp\\Routing\\Filter\\TestFilterDispatcher');
 
 /**
  * DispatcherTest class
@@ -597,6 +597,14 @@ class_alias(TestFilterDispatcher::class, 'App\\Routing\\Filter\\TestFilterDispat
  */
 class DispatcherTest extends CakeTestCase
 {
+    protected $_get = [];
+    protected $_post = [];
+    protected $_files = [];
+    protected $_server = [];
+    protected $_app = null;
+    protected $_cache = null;
+    protected $_debug = null;
+
     /**
      * setUp method
      *
@@ -605,13 +613,16 @@ class DispatcherTest extends CakeTestCase
     public function setUp(): void
     {
         parent::setUp();
+
+        $this->_app = Configure::read('App');
+
         $this->_get = $_GET;
         $_GET = [];
         $this->_post = $_POST;
         $this->_files = $_FILES;
         $this->_server = $_SERVER;
 
-        $this->_app = Configure::read('App');
+        Configure::write('App.namespace', 'TestApp');
         Configure::write('App.base', false);
         Configure::write('App.baseUrl', false);
         Configure::write('App.dir', 'app');

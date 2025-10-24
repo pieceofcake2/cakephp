@@ -36,16 +36,6 @@ App::uses('AppModel', 'Model');
 
 require_once dirname(__DIR__, 2) . DS . 'models.php';
 
-class MockPDO extends PDO
-{
-    /**
-     * Constructor.
-     */
-    public function __construct()
-    {
-    }
-}
-
 /**
  * DboPostgresTestDb class
  *
@@ -187,7 +177,7 @@ class PostgresClientTestModel extends Model
     /**
      * schema method
      *
-     * @return void
+     * @return array
      */
     public function schema($field = false)
     {
