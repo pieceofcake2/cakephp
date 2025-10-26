@@ -50,21 +50,21 @@ class AppController extends Controller
      *
      * @var array
      */
-    public $helpers = ['Html'];
+    public array $helpers = ['Html'];
 
     /**
      * uses property
      *
-     * @var array
+     * @var array||bool
      */
-    public $uses = ['ControllerPost'];
+    public array|bool $uses = ['ControllerPost'];
 
     /**
      * components property
      *
      * @var array
      */
-    public $components = ['Cookie'];
+    public array $components = ['Cookie'];
 }
 
 /**
@@ -79,7 +79,7 @@ class PostsController extends AppController
      *
      * @var array
      */
-    public $components = [
+    public array $components = [
         'RequestHandler',
         'Email',
         'AliasedEmail' => [
@@ -103,9 +103,9 @@ class ControllerTestCaseTestController extends AppController
     /**
      * Uses array
      *
-     * @param array
+     * @param array||bool
      */
-    public $uses = ['TestPlugin.TestPluginComment'];
+    public array|bool $uses = ['TestPlugin.TestPluginComment'];
 }
 class_alias(ControllerTestCaseTestController::class, 'TestApp\\Controller\\ControllerTestCaseTestController');
 

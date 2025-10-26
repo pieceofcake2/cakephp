@@ -25,5 +25,5 @@ namespace TestApp\Model;
  */
 class Post extends AppModel
 {
-    public $useTable = 'posts';
+    public string|bool|null $useTable = 'posts';
 }

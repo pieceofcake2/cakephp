@@ -6,7 +6,7 @@ use Cake\Controller\CakeErrorController;
 
 class TestConfigsController extends CakeErrorController
 {
-    public $components = [
+    public array $components = [
         'RequestHandler' => [
             'some' => 'config',
         ],

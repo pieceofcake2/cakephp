@@ -50,21 +50,21 @@ class DboSource extends DataSource
      *
      * @var string
      */
-    public $description = 'Database Data Source';
+    public string $description = 'Database Data Source';
 
     /**
      * index definition, standard cake, primary, index, unique
      *
      * @var array
      */
-    public $index = ['PRI' => 'primary', 'MUL' => 'index', 'UNI' => 'unique'];
+    public array $index = ['PRI' => 'primary', 'MUL' => 'index', 'UNI' => 'unique'];
 
     /**
      * Database keyword used to assign aliases to identifiers.
      *
      * @var string
      */
-    public $alias = 'AS ';
+    public string $alias = 'AS ';
 
     /**
      * Caches result from query parsing operations. Cached results for both DboSource::name() and DboSource::fields()
@@ -75,7 +75,7 @@ class DboSource extends DataSource
      *
      * @var array
      */
-    public static $methodCache = [];
+    public static array $methodCache = [];
 
     /**
      * Whether or not to cache the results of DboSource::name() and DboSource::fields() into the memory cache.
@@ -83,7 +83,7 @@ class DboSource extends DataSource
      *
      * @var bool
      */
-    public $cacheMethods = true;
+    public bool $cacheMethods = true;
 
     /**
      * Flag to support nested transactions. If it is set to false, you will be able to use
@@ -92,63 +92,63 @@ class DboSource extends DataSource
      *
      * @var bool
      */
-    public $useNestedTransactions = false;
+    public bool $useNestedTransactions = false;
 
     /**
      * Print full query debug info?
      *
      * @var bool
      */
-    public $fullDebug = false;
+    public bool $fullDebug = false;
 
     /**
      * String to hold how many rows were affected by the last SQL operation.
      *
-     * @var string
+     * @var string|null
      */
-    public $affected = null;
+    public ?string $affected = null;
 
     /**
      * Number of rows in current resultset
      *
-     * @var int
+     * @var int|null
      */
-    public $numRows = null;
+    public ?int $numRows = null;
 
     /**
      * Time the last query took
      *
      * @var int|null
      */
-    public $took = null;
+    public ?int $took = null;
 
     /**
      * Result
      *
-     * @var PDOStatement|array
+     * @var PDOStatement|bool|null
      */
-    protected $_result = null;
+    protected PDOStatement|bool|null $_result = null;
 
     /**
      * Queries count.
      *
      * @var int
      */
-    protected $_queriesCnt = 0;
+    protected int $_queriesCnt = 0;
 
     /**
      * Total duration of all queries.
      *
-     * @var int
+     * @var int|null
      */
-    protected $_queriesTime = null;
+    protected ?int $_queriesTime = null;
 
     /**
      * Log of queries executed by this DataSource
      *
      * @var array
      */
-    protected $_queriesLog = [];
+    protected array $_queriesLog = [];
 
     /**
      * Maximum number of items in query log
@@ -157,70 +157,70 @@ class DboSource extends DataSource
      *
      * @var int
      */
-    protected $_queriesLogMax = 200;
+    protected int $_queriesLogMax = 200;
 
     /**
      * Caches serialized results of executed queries
      *
      * @var array
      */
-    protected $_queryCache = [];
+    protected array $_queryCache = [];
 
     /**
      * A reference to the physical connection of this DataSource
      *
-     * @var array
+     * @var PDO|null
      */
-    protected $_connection = null;
+    protected ?PDO $_connection = null;
 
     /**
      * The DataSource configuration key name
      *
      * @var string|null
      */
-    public $configKeyName = null;
+    public ?string $configKeyName = null;
 
     /**
      * The starting character that this DataSource uses for quoted identifiers.
      *
-     * @var string
+     * @var string|null
      */
-    public $startQuote = null;
+    public ?string $startQuote = null;
 
     /**
      * The ending character that this DataSource uses for quoted identifiers.
      *
-     * @var string
+     * @var string|null
      */
-    public $endQuote = null;
+    public ?string $endQuote = null;
 
     /**
      * The set of valid SQL operations usable in a WHERE statement
      *
-     * @var array
+     * @var array<string>
      */
-    protected $_sqlOps = ['like', 'ilike', 'rlike', 'or', 'not', 'in', 'between', 'regexp', 'similar to'];
+    protected array $_sqlOps = ['like', 'ilike', 'rlike', 'or', 'not', 'in', 'between', 'regexp', 'similar to'];
 
     /**
      * The set of valid SQL boolean operations usable in a WHERE statement
      *
-     * @var array
+     * @var array<string>
      */
-    protected $_sqlBoolOps = ['and', 'or', 'not', 'and not', 'or not', 'xor', '||', '&&'];
+    protected array $_sqlBoolOps = ['and', 'or', 'not', 'and not', 'or not', 'xor', '||', '&&'];
 
     /**
      * Indicates the level of nested transactions
      *
      * @var int
      */
-    protected $_transactionNesting = 0;
+    protected int $_transactionNesting = 0;
 
     /**
      * Default fields that are used by the DBO
      *
-     * @var array
+     * @var array<string, mixed>
      */
-    protected $_queryDefaults = [
+    protected array $_queryDefaults = [
         'conditions' => [],
         'fields' => null,
         'table' => null,
@@ -239,21 +239,21 @@ class DboSource extends DataSource
      *
      * @var string
      */
-    public $virtualFieldSeparator = '__';
+    public string $virtualFieldSeparator = '__';
 
     /**
      * List of table engine specific parameters used on table creating
      *
      * @var array
      */
-    public $tableParameters = [];
+    public array $tableParameters = [];
 
     /**
      * List of engine specific additional field parameters used on table creating
      *
      * @var array
      */
-    public $fieldParameters = [];
+    public array $fieldParameters = [];
 
     /**
      * Indicates whether there was a change on the cached results on the methods of this class
@@ -261,14 +261,14 @@ class DboSource extends DataSource
      *
      * @var bool
      */
-    protected $_methodCacheChange = false;
+    protected bool $_methodCacheChange = false;
 
     /**
      * Map of the columns contained in a result.
      *
      * @var array
      */
-    public $map = [];
+    public array $map = [];
 
     /**
      * The server version
@@ -367,14 +367,9 @@ class DboSource extends DataSource
     }
 
     /**
-     * Returns a quoted and escaped string of $data for use in an SQL statement.
-     *
-     * @param string $data String to be prepared for use in an SQL statement
-     * @param string $column The column datatype into which this data will be inserted.
-     * @param bool $null Column allows NULL values
-     * @return string Quoted and escaped data
+     * @inheritDoc
      */
-    public function value($data, $column = null, $null = true)
+    public function value($data, ?string $column = null, bool $null = true): array|string
     {
         if (is_array($data) && !empty($data)) {
             return array_map(
@@ -483,7 +478,7 @@ class DboSource extends DataSource
      */
     public function rawQuery($sql, $params = [])
     {
-        $this->took = $this->numRows = false;
+        $this->took = $this->numRows = null;
 
         return $this->execute($sql, [], $params);
     }
@@ -1465,10 +1460,10 @@ class DboSource extends DataSource
      * @param array &$resultSet Existing results.
      * @param int $recursive Number of levels of association.
      * @param array $stack A list with joined models.
-     * @return mixed
+     * @return void
      * @throws CakeException when results cannot be created.
      */
-    public function queryAssociation(Model $model, Model $LinkModel, $type, $association, $assocData, &$queryData, $external, &$resultSet, $recursive, $stack)
+    public function queryAssociation(Model $model, Model $LinkModel, $type, $association, $assocData, &$queryData, $external, &$resultSet, $recursive, $stack): void
     {
         if (isset($stack['_joined'])) {
             $joined = $stack['_joined'];
@@ -1477,7 +1472,7 @@ class DboSource extends DataSource
 
         $queryTemplate = $this->generateAssociationQuery($model, $LinkModel, $type, $association, $assocData, $queryData, $external);
         if (empty($queryTemplate)) {
-            return null;
+            return;
         }
 
         if (!is_array($resultSet)) {
@@ -1520,7 +1515,9 @@ class DboSource extends DataSource
             }
 
             // Merge
-            return $this->_mergeHasMany($resultSet, $assocResultSet, $association, $model);
+            $this->_mergeHasMany($resultSet, $assocResultSet, $association, $model);
+
+            return;
         } elseif ($type === 'hasAndBelongsToMany') {
             // 'hasAndBelongsToMany' associations.
 
@@ -1703,7 +1700,7 @@ class DboSource extends DataSource
      * @param Model $model Model being merged onto.
      * @return void
      */
-    protected function _mergeHasMany(&$resultSet, $assocResultSet, $association, Model $model)
+    protected function _mergeHasMany(&$resultSet, $assocResultSet, $association, Model $model): void
     {
         $modelAlias = $model->alias;
         $primaryKey = $model->primaryKey;
@@ -2492,7 +2489,7 @@ class DboSource extends DataSource
      * @param array $params Function parameters (any values must be quoted manually)
      * @return string An SQL calculation function
      */
-    public function calculate(Model $model, $func, $params = [])
+    public function calculate(Model $model, $func, $params = []): string
     {
         $params = (array)$params;
 
@@ -2524,6 +2521,8 @@ class DboSource extends DataSource
 
                 return strtoupper($func) . '(' . $arg . ') AS ' . $this->name($params[1]);
         }
+
+        return '';
     }
 
     /**
@@ -2533,7 +2532,7 @@ class DboSource extends DataSource
      * @param Model|string $table A string or model class representing the table to be truncated
      * @return bool SQL TRUNCATE TABLE statement, false if not applicable.
      */
-    public function truncate($table)
+    public function truncate(Model|string $table)
     {
         return $this->execute('TRUNCATE TABLE ' . $this->fullTableName($table));
     }
@@ -2543,7 +2542,7 @@ class DboSource extends DataSource
      *
      * @return bool
      */
-    public function nestedTransactionSupported()
+    public function nestedTransactionSupported(): bool
     {
         return false;
     }
@@ -2568,7 +2567,7 @@ class DboSource extends DataSource
 
         $this->_transactionNesting = 0;
         if ($this->fullDebug) {
-            $this->took = $this->numRows = $this->affected = false;
+            $this->took = $this->numRows = $this->affected = null;
             $this->logQuery('BEGIN');
         }
 
@@ -2584,7 +2583,7 @@ class DboSource extends DataSource
     {
         $query = 'SAVEPOINT LEVEL' . ++$this->_transactionNesting;
         if ($this->fullDebug) {
-            $this->took = $this->numRows = $this->affected = false;
+            $this->took = $this->numRows = $this->affected = null;
             $this->logQuery($query);
         }
         $this->_connection->exec($query);
@@ -2607,7 +2606,7 @@ class DboSource extends DataSource
 
         if ($this->_transactionNesting === 0) {
             if ($this->fullDebug) {
-                $this->took = $this->numRows = $this->affected = false;
+                $this->took = $this->numRows = $this->affected = null;
                 $this->logQuery('COMMIT');
             }
             $this->_transactionStarted = false;
@@ -2633,7 +2632,7 @@ class DboSource extends DataSource
     {
         $query = 'RELEASE SAVEPOINT LEVEL' . $this->_transactionNesting--;
         if ($this->fullDebug) {
-            $this->took = $this->numRows = $this->affected = false;
+            $this->took = $this->numRows = $this->affected = null;
             $this->logQuery($query);
         }
         $this->_connection->exec($query);
@@ -2656,7 +2655,7 @@ class DboSource extends DataSource
 
         if ($this->_transactionNesting === 0) {
             if ($this->fullDebug) {
-                $this->took = $this->numRows = $this->affected = false;
+                $this->took = $this->numRows = $this->affected = null;
                 $this->logQuery('ROLLBACK');
             }
             $this->_transactionStarted = false;
@@ -2682,7 +2681,7 @@ class DboSource extends DataSource
     {
         $query = 'ROLLBACK TO SAVEPOINT LEVEL' . $this->_transactionNesting--;
         if ($this->fullDebug) {
-            $this->took = $this->numRows = $this->affected = false;
+            $this->took = $this->numRows = $this->affected = null;
             $this->logQuery($query);
         }
         $this->_connection->exec($query);
@@ -3509,14 +3508,14 @@ class DboSource extends DataSource
     /**
      * Inserts multiple values into a table
      *
-     * @param string $table The table being inserted into.
+     * @param Model|string $table The table being inserted into.
      * @param array $fields The array of field/column names being inserted.
      * @param array $values The array of values to insert. The values should
      *   be an array of rows. Each row should have values keyed by the column name.
      *   Each row must have the values in the same order as $fields.
      * @return bool
      */
-    public function insertMulti($table, $fields, $values)
+    public function insertMulti(Model|string $table, array $fields, array $values): bool
     {
         $table = $this->fullTableName($table);
         $holder = implode(',', array_fill(0, count($fields), '?'));
@@ -3570,8 +3569,9 @@ class DboSource extends DataSource
      * @param string $column The column to use when resetting the sequence value.
      * @return bool Success.
      */
-    public function resetSequence($table, $column)
+    public function resetSequence(string $table, string $column): bool
     {
+        return true;
     }
 
     /**
@@ -3692,10 +3692,10 @@ class DboSource extends DataSource
     /**
      * Generate a "drop table" statement for a single table
      *
-     * @param string $table Name of the table to drop
+     * @param Model|string $table Name of the table to drop
      * @return string Drop table SQL statement
      */
-    protected function _dropTable($table)
+    protected function _dropTable($table): string
     {
         return 'DROP TABLE ' . $this->fullTableName($table) . ';';
     }
@@ -3803,10 +3803,10 @@ class DboSource extends DataSource
      * Format indexes for create table.
      *
      * @param array $indexes The indexes to build
-     * @param string $table The table name.
-     * @return array
+     * @param string|null $table The table name.
+     * @return array<string>
      */
-    public function buildIndex($indexes, $table = null)
+    public function buildIndex(array $indexes, ?string $table = null): array
     {
         $join = [];
         foreach ($indexes as $name => $value) {

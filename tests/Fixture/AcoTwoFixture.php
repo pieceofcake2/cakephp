@@ -32,7 +32,7 @@ class AcoTwoFixture extends CakeTestFixture
      *
      * @var array
      */
-    public $fields = [
+    public array $fields = [
         'id' => ['type' => 'integer', 'key' => 'primary'],
         'parent_id' => ['type' => 'integer', 'length' => 10, 'null' => true],
         'model' => ['type' => 'string', 'null' => true],
@@ -47,7 +47,7 @@ class AcoTwoFixture extends CakeTestFixture
      *
      * @var array
      */
-    public $records = [
+    public array $records = [
         ['parent_id' => null, 'model' => null, 'foreign_key' => null, 'alias' => 'ROOT', 'lft' => 1, 'rght' => 20],
         ['parent_id' => 1, 'model' => null, 'foreign_key' => null, 'alias' => 'tpsReports', 'lft' => 2, 'rght' => 9],
         ['parent_id' => 2, 'model' => null, 'foreign_key' => null, 'alias' => 'view', 'lft' => 3, 'rght' => 6],

@@ -33,7 +33,7 @@ class UuidTreeFixture extends CakeTestFixture
      *
      * @var array
      */
-    public $fields = [
+    public array $fields = [
         'id' => ['type' => 'string', 'length' => 36, 'key' => 'primary'],
         'name' => ['type' => 'string', 'null' => false],
         'parent_id' => ['type' => 'string', 'length' => 36, 'null' => true],

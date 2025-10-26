@@ -103,9 +103,9 @@ class AclBehavior extends ModelBehavior
      * @param Model $model Model using this behavior.
      * @param bool $created True if this is a new record
      * @param array $options Options passed from Model::save().
-     * @return void
+     * @return bool|null
      */
-    public function afterSave(Model $model, $created, $options = [])
+    public function afterSave(Model $model, bool $created, array $options = []): ?bool
     {
         $types = $this->_typeMaps[$this->settings[$model->name]['type']];
         if (!is_array($types)) {
@@ -128,15 +128,17 @@ class AclBehavior extends ModelBehavior
             $model->{$type}->create();
             $model->{$type}->save($data);
         }
+
+        return null;
     }
 
     /**
      * Destroys the ARO/ACO node bound to the deleted record
      *
      * @param Model $model Model using this behavior.
-     * @return void
+     * @return bool|null
      */
-    public function afterDelete(Model $model)
+    public function afterDelete(Model $model): ?bool
     {
         $types = $this->_typeMaps[$this->settings[$model->name]['type']];
         if (!is_array($types)) {
@@ -148,5 +150,7 @@ class AclBehavior extends ModelBehavior
                 $model->{$type}->delete($node);
             }
         }
+
+        return null;
     }
 }

@@ -32,7 +32,7 @@ class OverallFavoriteFixture extends CakeTestFixture
      *
      * @var array
      */
-    public $fields = [
+    public array $fields = [
         'id' => ['type' => 'integer', 'key' => 'primary'],
         'model_type' => ['type' => 'string', 'length' => 255],
         'model_id' => ['type' => 'integer'],
@@ -44,7 +44,7 @@ class OverallFavoriteFixture extends CakeTestFixture
      *
      * @var array
      */
-    public $records = [
+    public array $records = [
         ['id' => 1, 'model_type' => 'Cd', 'model_id' => '1', 'priority' => '1'],
         ['id' => 2, 'model_type' => 'Book', 'model_id' => '1', 'priority' => '2'],
     ];

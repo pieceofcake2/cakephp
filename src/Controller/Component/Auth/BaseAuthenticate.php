@@ -79,7 +79,7 @@ abstract class BaseAuthenticate implements CakeEventListener
      *
      * @return array of events => callbacks.
      */
-    public function implementedEvents()
+    public function implementedEvents(): array
     {
         return [];
     }

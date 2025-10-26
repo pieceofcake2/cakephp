@@ -68,7 +68,7 @@ class AuthBlueberryUser extends CakeTestModel
      *
      * @var string
      */
-    public $useTable = false;
+    public string|bool|null $useTable = false;
 }
 class_alias(AuthBlueberryUser::class, 'App\\Model\\AuthBlueberryUser');
 
@@ -108,23 +108,23 @@ class TestErrorController extends Controller
     /**
      * uses property
      *
-     * @var array
+     * @var array||bool
      */
-    public $uses = [];
+    public array|bool $uses = [];
 
     /**
      * components property
      *
      * @return void
      */
-    public $components = ['Blueberry'];
+    public array $components = ['Blueberry'];
 
     /**
      * beforeRender method
      *
      * @return void
      */
-    public function beforeRender()
+    public function beforeRender(): void
     {
         echo $this->Blueberry->testName;
     }

@@ -24,6 +24,7 @@ use Cake\Model\Datasource\DboSource;
 use Cake\Model\Model;
 use PDO;
 use PDOException;
+use PDOStatement;
 
 /**
  * MySQL DBO driver object
@@ -60,14 +61,14 @@ class Mysql extends DboSource
      *
      * @var string
      */
-    public $description = 'MySQL DBO Driver';
+    public string $description = 'MySQL DBO Driver';
 
     /**
      * Base configuration settings for MySQL driver
      *
      * @var array
      */
-    protected $_baseConfig = [
+    protected array $_baseConfig = [
         'persistent' => true,
         'host' => 'localhost',
         'login' => 'root',
@@ -78,39 +79,32 @@ class Mysql extends DboSource
     ];
 
     /**
-     * Reference to the PDO object connection
-     *
-     * @var PDO
-     */
-    protected $_connection = null;
-
-    /**
      * Start quote
      *
-     * @var string
+     * @var string|null
      */
-    public $startQuote = '`';
+    public ?string $startQuote = '`';
 
     /**
      * End quote
      *
-     * @var string
+     * @var string|null
      */
-    public $endQuote = '`';
+    public ?string $endQuote = '`';
 
     /**
      * use alias for update and delete. Set to true if version >= 4.1
      *
      * @var bool
      */
-    protected $_useAlias = true;
+    protected bool $_useAlias = true;
 
     /**
      * List of engine specific additional field parameters used on table creating
      *
      * @var array
      */
-    public $fieldParameters = [
+    public array $fieldParameters = [
         'charset' => ['value' => 'CHARACTER SET', 'quote' => false, 'join' => ' ', 'column' => false, 'position' => 'beforeDefault'],
         'collate' => ['value' => 'COLLATE', 'quote' => false, 'join' => ' ', 'column' => 'Collation', 'position' => 'beforeDefault'],
         'comment' => ['value' => 'COMMENT', 'quote' => true, 'join' => ' ', 'column' => 'Comment', 'position' => 'afterDefault'],
@@ -131,7 +125,7 @@ class Mysql extends DboSource
      *
      * @var array
      */
-    public $tableParameters = [
+    public array $tableParameters = [
         'charset' => ['value' => 'DEFAULT CHARSET', 'quote' => false, 'join' => '=', 'column' => 'charset'],
         'collate' => ['value' => 'COLLATE', 'quote' => false, 'join' => '=', 'column' => 'Collation'],
         'engine' => ['value' => 'ENGINE', 'quote' => false, 'join' => '=', 'column' => 'Engine'],
@@ -144,7 +138,7 @@ class Mysql extends DboSource
      * @var array
      * @link https://dev.mysql.com/doc/refman/5.7/en/data-types.html MySQL Data Types
      */
-    public $columns = [
+    public array $columns = [
         'primary_key' => ['name' => 'NOT NULL AUTO_INCREMENT'],
         'string' => ['name' => 'varchar', 'limit' => '255'],
         'text' => ['name' => 'text'],
@@ -263,7 +257,7 @@ class Mysql extends DboSource
      * @param mixed $data List of tables.
      * @return array Array of table names in the database
      */
-    public function listSources($data = null)
+    public function listSources(?array $data = null): ?array
     {
         $cache = parent::listSources();
         if ($cache) {
@@ -680,10 +674,10 @@ class Mysql extends DboSource
     /**
      * Generate a "drop table" statement for the given table
      *
-     * @param type $table Name of the table to drop
+     * @param Model|string $table Name of the table to drop
      * @return string Drop table SQL statement
      */
-    protected function _dropTable($table)
+    protected function _dropTable($table): string
     {
         return 'DROP TABLE IF EXISTS ' . $this->fullTableName($table) . ';';
     }
@@ -708,11 +702,11 @@ class Mysql extends DboSource
      * Format indexes for create table
      *
      * @param array $indexes An array of indexes to generate SQL from
-     * @param string $table Optional table name, not used
-     * @return array An array of SQL statements for indexes
+     * @param string|null $table Optional table name, not used
+     * @return array<string> An array of SQL statements for indexes
      * @see DboSource::buildIndex()
      */
-    public function buildIndex($indexes, $table = null)
+    public function buildIndex(array $indexes, ?string $table = null): array
     {
         $join = [];
         foreach ($indexes as $name => $value) {
@@ -915,7 +909,7 @@ class Mysql extends DboSource
     /**
      * @inheritDoc
      */
-    public function value($data, $column = null, $null = true)
+    public function value($data, ?string $column = null, bool $null = true): array|string
     {
         $value = parent::value($data, $column, $null);
         if (is_numeric($value) && $column !== null && str_starts_with($column, 'set')) {
@@ -940,7 +934,7 @@ class Mysql extends DboSource
      *
      * @return bool
      */
-    public function nestedTransactionSupported()
+    public function nestedTransactionSupported(): bool
     {
         return $this->useNestedTransactions && version_compare($this->getVersion(), '4.1', '>=');
     }
@@ -1023,14 +1017,14 @@ class Mysql extends DboSource
      * Inserts multiple values into a table. Uses a single query in order to insert
      * multiple rows.
      *
-     * @param string $table The table being inserted into.
+     * @param Model|string $table The table being inserted into.
      * @param array $fields The array of field/column names being inserted.
      * @param array $values The array of values to insert. The values should
      *   be an array of rows. Each row should have values keyed by the column name.
      *   Each row must have the values in the same order as $fields.
      * @return bool
      */
-    public function insertMulti($table, $fields, $values)
+    public function insertMulti(Model|string $table, array $fields, array $values): bool
     {
         $table = $this->fullTableName($table);
         $holder = implode(', ', array_fill(0, count($fields), '?'));

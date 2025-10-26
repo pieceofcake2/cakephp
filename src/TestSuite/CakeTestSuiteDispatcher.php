@@ -23,6 +23,7 @@ namespace Cake\TestSuite;
  */
 
 use Cake\Error\MissingConnectionException;
+use Cake\TestSuite\Reporter\CakeBaseReporter;
 use PHPUnit\Framework\TestCase;
 
 /**

@@ -27,5 +27,5 @@ use AppHelper;
  */
 class PluggedHelperHelper extends AppHelper
 {
-    public $helpers = ['TestPlugin.OtherHelper'];
+    public array $helpers = ['TestPlugin.OtherHelper'];
 }

@@ -35,14 +35,14 @@ class ApcEngine extends CacheEngine
      *
      * @var array
      */
-    protected $_compiledGroupNames = [];
+    protected array $_compiledGroupNames = [];
 
     /**
      * APC or APCu extension
      *
      * @var string
      */
-    protected $_apcExtension = 'apc';
+    protected string $_apcExtension = 'apc';
 
     /**
      * Initialize the Cache Engine
@@ -226,8 +226,9 @@ class ApcEngine extends CacheEngine
      * @param string $group The group to clear.
      * @return bool success
      */
-    public function clearGroup($group)
+    public function clearGroup(string $group): bool
     {
+        $success = false;
         $func = $this->_apcExtension . '_inc';
         $func($this->settings['prefix'] . $group, 1, $success);
 

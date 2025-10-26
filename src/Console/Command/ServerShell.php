@@ -18,6 +18,7 @@
 namespace Cake\Console\Command;
 
 use AppShell;
+use Cake\Console\ConsoleOptionParser;
 use Cake\Core\App;
 use Cake\Core\Configure;
 
@@ -131,7 +132,7 @@ class ServerShell extends AppShell
      *
      * @return void
      */
-    public function main()
+    public function main(): void
     {
         $command = sprintf(
             'php -S %s:%d -t %s %s',
@@ -151,7 +152,7 @@ class ServerShell extends AppShell
      *
      * @return ConsoleOptionParser
      */
-    public function getOptionParser()
+    public function getOptionParser(): ConsoleOptionParser
     {
         $parser = parent::getOptionParser();
 

@@ -28,9 +28,9 @@ class PluginShortRoute extends CakeRoute
      * controller parameter
      *
      * @param string $url The URL to parse
-     * @return mixed false on failure, or an array of request parameters
+     * @return array|bool false on failure, or an array of request parameters
      */
-    public function parse($url)
+    public function parse($url): array|bool
     {
         $params = parent::parse($url);
         if (!$params) {

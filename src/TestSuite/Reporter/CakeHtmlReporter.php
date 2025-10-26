@@ -7,11 +7,12 @@ use Cake\Core\Configure;
 use Cake\TestSuite\Coverage\HtmlCoverageReport;
 use Cake\Utility\Inflector;
 use Exception;
+use PHPUnit\Framework\AssertionFailedError;
 use PHPUnit\Framework\Test;
-use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\TestResult;
 use PHPUnit\Framework\TestSuite;
 use SebastianBergmann\Diff\Differ;
+use Throwable;
 
 /**
  * CakeHtmlReporter
@@ -50,7 +51,7 @@ class CakeHtmlReporter extends CakeBaseReporter
      *
      * @return void
      */
-    public function paintHeader()
+    public function paintHeader(): void
     {
         $this->_headerSent = true;
         ob_start();
@@ -159,7 +160,7 @@ class CakeHtmlReporter extends CakeBaseReporter
      * @param TestResult $result Result object
      * @return void
      */
-    public function paintFooter(TestResult $result)
+    public function paintFooter(TestResult $result): void
     {
         echo $this->_buffer;
 
@@ -200,7 +201,7 @@ class CakeHtmlReporter extends CakeBaseReporter
      * @param array $coverage The coverage data
      * @return void
      */
-    public function paintCoverage(array $coverage)
+    public function paintCoverage(array $coverage): void
     {
         $reporter = new HtmlCoverageReport($coverage, $this);
         echo $reporter->report();
@@ -211,7 +212,7 @@ class CakeHtmlReporter extends CakeBaseReporter
      *
      * @return void
      */
-    protected function _paintLinks()
+    protected function _paintLinks(): void
     {
         [$show, $query] = $this->_getQueryLink();
 
@@ -227,7 +228,7 @@ class CakeHtmlReporter extends CakeBaseReporter
      * @param array $url Url hash to be converted
      * @return string Converted url query string
      */
-    protected function _queryString($url)
+    protected function _queryString($url): string
     {
         $out = '?';
         $params = [];
@@ -244,7 +245,7 @@ class CakeHtmlReporter extends CakeBaseReporter
      *
      * @return void
      */
-    public function paintDocumentEnd()
+    public function paintDocumentEnd(): void
     {
         $baseDir = $this->params['baseDir'];
         include CAKE . 'TestSuite' . DS . 'templates' . DS . 'footer.php';
@@ -260,10 +261,10 @@ class CakeHtmlReporter extends CakeBaseReporter
      *
      * @param AssertionFailedError $message Failure object displayed in
      *   the context of the other tests.
-     * @param mixed $test The test case to paint a failure for.
+     * @param Test $test The test case to paint a failure for.
      * @return void
      */
-    public function paintFail($message, $test)
+    public function paintFail($message, Test $test): void
     {
         ob_start();
         $trace = $this->_getStackTrace($message);
@@ -309,11 +310,11 @@ class CakeHtmlReporter extends CakeBaseReporter
      * trail of the nesting test suites below the
      * top level test.
      *
-     * @param \PHPUnit\Framework\Test $test Test method that just passed
-     * @param float $time time spent to run the test method
+     * @param Test $test Test method that just passed
+     * @param float|null $time time spent to run the test method
      * @return void
      */
-    public function paintPass(Test $test, $time = null)
+    public function paintPass(Test $test, $time = null): void
     {
         ob_start();
         if (isset($this->params['showPasses']) && $this->params['showPasses']) {
@@ -330,10 +331,10 @@ class CakeHtmlReporter extends CakeBaseReporter
      * Paints a PHP exception.
      *
      * @param Exception $message Exception to display.
-     * @param mixed $test The test that failed.
+     * @param Test $test The test that failed.
      * @return void
      */
-    public function paintException($message, $test)
+    public function paintException(Exception $message, Test $test): void
     {
         ob_start();
         $trace = $this->_getStackTrace($message);
@@ -352,11 +353,11 @@ class CakeHtmlReporter extends CakeBaseReporter
     /**
      * Prints the message for skipping tests.
      *
-     * @param string $message Text of skip condition.
-     * @param TestCase $test the test method skipped
+     * @param Exception|Throwable $message Text of skip condition.
+     * @param Test $test the test method skipped
      * @return void
      */
-    public function paintSkip($message, TestCase $test)
+    public function paintSkip(Exception|Throwable $message, Test $test): void
     {
         ob_start();
         echo "<li class='skipped'>\n";
@@ -372,7 +373,7 @@ class CakeHtmlReporter extends CakeBaseReporter
      * @param string $message Text to show.
      * @return void
      */
-    public function paintFormattedMessage($message)
+    public function paintFormattedMessage($message): void
     {
         echo '<pre>' . $this->_htmlEntities($message) . '</pre>';
     }
@@ -383,7 +384,7 @@ class CakeHtmlReporter extends CakeBaseReporter
      * @param string $message Plain text or Unicode message.
      * @return string Browser readable message.
      */
-    protected function _htmlEntities($message)
+    protected function _htmlEntities(string $message): string
     {
         return htmlentities($message, ENT_COMPAT, $this->_characterSet);
     }
@@ -394,7 +395,7 @@ class CakeHtmlReporter extends CakeBaseReporter
      * @param Exception $e Exception to get a stack trace for.
      * @return string Generated stack trace.
      */
-    protected function _getStackTrace(Exception $e)
+    protected function _getStackTrace(Exception $e): string
     {
         $trace = $e->getTrace();
         $out = [];

@@ -21,8 +21,6 @@ namespace Cake\Test\TestCase\Model;
 use Cake\Utility\ClassRegistry;
 use PDOException;
 
-require_once __DIR__ . DS . 'ModelTestBase.php';
-
 /**
  * ModelDeleteTest
  *
@@ -654,7 +652,7 @@ class ModelDeleteTest extends BaseModelTest
      *
      * @return void
      */
-    public function testDeleteLinksWithPLuginJoinModel()
+    public function testDeleteLinksWithPLuginJoinModel(): void
     {
         $this->loadFixtures('Article', 'ArticlesTag', 'Tag', 'Comment', 'Attachment');
         $article = new Article();

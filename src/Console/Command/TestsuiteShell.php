@@ -37,7 +37,7 @@ class TestsuiteShell extends TestShell
      *
      * @return ConsoleOptionParser
      */
-    public function getOptionParser()
+    public function getOptionParser(): ConsoleOptionParser
     {
         $parser = parent::getOptionParser();
 
@@ -88,7 +88,7 @@ class TestsuiteShell extends TestShell
      *
      * @return void
      */
-    public function main()
+    public function main(): void
     {
         $this->out(__d('cake_console', 'CakePHP Test Shell'));
         $this->hr();

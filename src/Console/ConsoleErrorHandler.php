@@ -67,8 +67,7 @@ class ConsoleErrorHandler
         ));
         $code = $exception->getCode();
         $code = $code && is_int($code) ? $code : 1;
-
-        return $this->_stop($code);
+        $this->_stop($code);
     }
 
     /**
@@ -97,7 +96,7 @@ class ConsoleErrorHandler
         }
 
         if ($log === LOG_ERR) {
-            return $this->_stop(1);
+            $this->_stop(1);
         }
     }
 

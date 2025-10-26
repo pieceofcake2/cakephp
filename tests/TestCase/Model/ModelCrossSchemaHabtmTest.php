@@ -25,8 +25,6 @@ use Cake\Model\Datasource\Database\Sqlite;
 use Cake\Utility\ClassRegistry;
 use Cake\Utility\Hash;
 
-require_once __DIR__ . DS . 'ModelTestBase.php';
-
 /**
  * ModelCrossSchemaHabtmTest
  *

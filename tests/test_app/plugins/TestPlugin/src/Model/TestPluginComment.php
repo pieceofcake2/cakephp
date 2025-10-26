@@ -25,7 +25,7 @@ namespace TestPlugin\Model;
  */
 class TestPluginComment extends TestPluginAppModel
 {
-    public $useTable = 'test_plugin_comments';
+    public string|bool|null $useTable = 'test_plugin_comments';
 
-    public $name = 'TestPluginComment';
+    public ?string $name = 'TestPluginComment';
 }

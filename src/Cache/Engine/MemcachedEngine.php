@@ -41,7 +41,12 @@ class MemcachedEngine extends CacheEngine
      *
      * @var Memcached
      */
-    protected $_Memcached = null;
+    protected ?Memcached $_Memcached = null;
+
+    /**
+     * @var array<string>
+     */
+    protected array $_compiledGroupNames = [];
 
     /**
      * Settings
@@ -59,7 +64,7 @@ class MemcachedEngine extends CacheEngine
      *
      * @var array
      */
-    public $settings = [];
+    public array $settings = [];
 
     /**
      * List of available serializer engines
@@ -357,7 +362,7 @@ class MemcachedEngine extends CacheEngine
      * @param string $group The group to clear.
      * @return bool success
      */
-    public function clearGroup($group)
+    public function clearGroup(string $group): bool
     {
         return (bool)$this->_Memcached->increment($this->settings['prefix'] . $group);
     }

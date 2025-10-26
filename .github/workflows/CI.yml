@@ -14,6 +14,8 @@ permissions:
 
 jobs:
   phpunit:
+    name: PHPUnit
+
     runs-on: ubuntu-latest
 
     strategy:
@@ -217,6 +219,8 @@ jobs:
           command: complete
 
   phpcs:
+    name: PHP_CodeSniffer
+
     runs-on: ubuntu-latest
 
     env:
@@ -254,3 +258,47 @@ jobs:
       - name: Show PHPCS results in PR
         if: ${{ always() && steps.phpcs.outcome == 'failure' }}
         run: cs2pr ./phpcs-report.xml
+
+  phpstan:
+    name: PHPStan
+
+    runs-on: ubuntu-latest
+
+    env:
+      COMPOSER_ROOT_VERSION: 2.12.x-dev
+
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          coverage: none
+          tools: cs2pr
+
+      - name: Composer get cache directory
+        id: composer-cache
+        run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+
+      - name: Cache Composer
+        uses: actions/cache@v4
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ runner.os }}-php8.4-composer-${{ hashFiles('**/composer.json') }}
+          restore-keys: |
+            ${{ runner.os }}-php8.4-composer-
+
+      - name: Install dependencies
+        run: composer install --prefer-dist --no-interaction --no-progress
+
+      - name: Copy database.php
+        run: cp ./tests/config/database.php ./vendor/pieceofcake2/app/config/
+
+      - name: PHPStan analyse
+        id: phpcs
+        run: ./vendor/bin/phpstan analyse --error-format=checkstyle > ./checkstyle.xml
+
+      - name: Show PHPStan results in PR
+        if: ${{ always() && steps.phpcs.outcome == 'failure' }}
+        run: cs2pr ./checkstyle.xml

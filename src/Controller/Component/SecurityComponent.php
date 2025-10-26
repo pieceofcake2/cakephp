@@ -213,7 +213,7 @@ class SecurityComponent extends Component
      *
      * @var array
      */
-    public $components = ['Session'];
+    public array $components = ['Session'];
 
     /**
      * Holds the current action of the controller

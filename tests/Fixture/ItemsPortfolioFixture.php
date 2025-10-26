@@ -32,7 +32,7 @@ class ItemsPortfolioFixture extends CakeTestFixture
      *
      * @var array
      */
-    public $fields = [
+    public array $fields = [
         'id' => ['type' => 'integer', 'key' => 'primary'],
         'item_id' => ['type' => 'integer', 'null' => false],
         'portfolio_id' => ['type' => 'integer', 'null' => false],
@@ -43,7 +43,7 @@ class ItemsPortfolioFixture extends CakeTestFixture
      *
      * @var array
      */
-    public $records = [
+    public array $records = [
         ['item_id' => 1, 'portfolio_id' => 1],
         ['item_id' => 2, 'portfolio_id' => 2],
         ['item_id' => 3, 'portfolio_id' => 1],

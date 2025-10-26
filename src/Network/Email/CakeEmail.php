@@ -25,6 +25,7 @@ use Cake\Log\CakeLog;
 use Cake\Utility\CakeText;
 use Cake\Utility\File;
 use Cake\Utility\Hash;
+use Cake\View\View;
 use EmailConfig;
 
 /**

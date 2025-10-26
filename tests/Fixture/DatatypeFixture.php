@@ -32,7 +32,7 @@ class DatatypeFixture extends CakeTestFixture
      *
      * @var array
      */
-    public $fields = [
+    public array $fields = [
         'id' => ['type' => 'integer', 'null' => false, 'default' => 0, 'key' => 'primary'],
         'float_field' => ['type' => 'float', 'length' => '5,2', 'null' => false, 'default' => null],
         'decimal_field' => ['type' => 'decimal', 'length' => '6,3', 'default' => '0.000'],
@@ -48,7 +48,7 @@ class DatatypeFixture extends CakeTestFixture
      *
      * @var array
      */
-    public $records = [
+    public array $records = [
         [
             'id' => 1,
             'float_field' => 42.23,

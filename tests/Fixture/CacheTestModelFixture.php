@@ -32,7 +32,7 @@ class CacheTestModelFixture extends CakeTestFixture
      *
      * @var array
      */
-    public $fields = [
+    public array $fields = [
         'id' => ['type' => 'string', 'length' => 255, 'key' => 'primary'],
         'data' => ['type' => 'string', 'length' => 255, 'default' => ''],
         'expires' => ['type' => 'integer', 'length' => 10, 'default' => '0'],

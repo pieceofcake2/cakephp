@@ -36,14 +36,14 @@ class MergeVarsAppController extends Controller
      *
      * @var array
      */
-    public $components = ['MergeVar' => ['flag', 'otherFlag', 'redirect' => false]];
+    public array $components = ['MergeVar' => ['flag', 'otherFlag', 'redirect' => false]];
 
     /**
      * helpers
      *
      * @var array
      */
-    public $helpers = ['MergeVar' => ['format' => 'html', 'terse']];
+    public array $helpers = ['MergeVar' => ['format' => 'html', 'terse']];
 }
 class_alias(MergeVarsAppController::class, 'App\\Controller\\MergeVarsAppController');
 
@@ -68,16 +68,16 @@ class MergeVariablesController extends MergeVarsAppController
     /**
      * uses
      *
-     * @var array
+     * @var array||bool
      */
-    public $uses = [];
+    public array|bool $uses = [];
 
     /**
      * parent for mergeVars
      *
      * @var string
      */
-    protected $_mergeParent = 'MergeVarsAppController';
+    protected string $_mergeParent = 'MergeVarsAppController';
 }
 class_alias(MergeVariablesController::class, 'App\\Controller\\MergeVariablesController');
 
@@ -93,21 +93,21 @@ class MergeVarPluginAppController extends MergeVarsAppController
      *
      * @var array
      */
-    public $components = ['Auth' => ['setting' => 'val', 'otherVal']];
+    public array $components = ['Auth' => ['setting' => 'val', 'otherVal']];
 
     /**
      * helpers
      *
      * @var array
      */
-    public $helpers = ['Js'];
+    public array $helpers = ['Js'];
 
     /**
      * parent for mergeVars
      *
      * @var string
      */
-    protected $_mergeParent = 'MergeVarsAppController';
+    protected string $_mergeParent = 'MergeVarsAppController';
 }
 class_alias(MergeVarPluginAppController::class, 'App\\Controller\\MergeVarPluginAppController');
 class_alias(MergeVarPluginAppController::class, 'MergeVarPlugin\\Controller\\MergeVarPluginAppController');
@@ -122,9 +122,9 @@ class MergePostsController extends MergeVarPluginAppController
     /**
      * uses
      *
-     * @var array
+     * @var array||bool
      */
-    public $uses = [];
+    public array|bool $uses = [];
 }
 class_alias(MergePostsController::class, 'App\\Controller\\MergePostsController');
 

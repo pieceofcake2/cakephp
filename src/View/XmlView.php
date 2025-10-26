@@ -62,7 +62,7 @@ class XmlView extends View
      *
      * @var string
      */
-    public $subDir = 'xml';
+    public ?string $subDir = 'xml';
 
     /**
      * Constructor

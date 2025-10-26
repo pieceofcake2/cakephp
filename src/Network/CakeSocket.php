@@ -38,14 +38,14 @@ class CakeSocket
      *
      * @var string
      */
-    public $description = 'Remote DataSource Network Socket Interface';
+    public string $description = 'Remote DataSource Network Socket Interface';
 
     /**
      * Base configuration settings for the socket connection
      *
      * @var array
      */
-    protected $_baseConfig = [
+    protected array $_baseConfig = [
         'persistent' => false,
         'host' => 'localhost',
         'protocol' => 'tcp',

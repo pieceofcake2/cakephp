@@ -5,8 +5,11 @@
 
 namespace Cake\Test\TestCase;
 
+use Cake\Controller\Controller;
+use Cake\Core\App;
 use Cake\Core\Configure;
 use Cake\LegacyClassLoader;
+use Cake\Model\Model;
 use Cake\TestSuite\CakeTestCase;
 
 /**
@@ -109,10 +112,10 @@ class LegacyClassLoaderTest extends CakeTestCase
         $classMap = LegacyClassLoader::getClassMap();
 
         $this->assertArrayHasKey('Controller', $classMap);
-        $this->assertEquals('Cake\Controller\Controller', $classMap['Controller']);
+        $this->assertEquals(Controller::class, $classMap['Controller']);
 
         $this->assertArrayHasKey('Model', $classMap);
-        $this->assertEquals('Cake\Model\Model', $classMap['Model']);
+        $this->assertEquals(Model::class, $classMap['Model']);
     }
 
     /**
@@ -141,7 +144,7 @@ class LegacyClassLoaderTest extends CakeTestCase
         // 'App' alone should not be handled by App* resolution (it's in the class map)
         $classMap = LegacyClassLoader::getClassMap();
         $this->assertArrayHasKey('App', $classMap);
-        $this->assertEquals('Cake\Core\App', $classMap['App']);
+        $this->assertEquals(App::class, $classMap['App']);
 
         // 'Application' should not match App* pattern (lowercase after 'App')
         $this->assertFalse(

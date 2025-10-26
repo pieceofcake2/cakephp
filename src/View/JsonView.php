@@ -63,7 +63,7 @@ class JsonView extends View
      *
      * @var string
      */
-    public $subDir = 'json';
+    public ?string $subDir = 'json';
 
     /**
      * Constructor

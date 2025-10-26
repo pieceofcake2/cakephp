@@ -1562,7 +1562,7 @@ SQL;
     {
         // Test regular MySQL version
         $db = $this->getMock(Mysql::class, ['connect', '_execute']);
-        $mockConnection = $this->getMock(stdClass::class, ['getAttribute']);
+        $mockConnection = $this->getMock(MockPDO::class, ['getAttribute']);
         $mockConnection->expects($this->once())
             ->method('getAttribute')
             ->with(PDO::ATTR_SERVER_VERSION)
@@ -1578,7 +1578,7 @@ SQL;
 
         // Test MariaDB version
         $db = $this->getMock(Mysql::class, ['connect', '_execute']);
-        $mockConnection = $this->getMock(stdClass::class, ['getAttribute']);
+        $mockConnection = $this->getMock(MockPDO::class, ['getAttribute']);
         $mockConnection->expects($this->once())
             ->method('getAttribute')
             ->with(PDO::ATTR_SERVER_VERSION)
@@ -1594,7 +1594,7 @@ SQL;
 
         // Test Aurora MySQL version
         $db = $this->getMock(Mysql::class, ['connect', '_execute']);
-        $mockConnection = $this->getMock(stdClass::class, ['getAttribute']);
+        $mockConnection = $this->getMock(MockPDO::class, ['getAttribute']);
         $mockConnection->expects($this->once())
             ->method('getAttribute')
             ->with(PDO::ATTR_SERVER_VERSION)
@@ -1610,7 +1610,7 @@ SQL;
 
         // Test MySQL 5.7 version
         $db = $this->getMock(Mysql::class, ['connect', '_execute']);
-        $mockConnection = $this->getMock(stdClass::class, ['getAttribute']);
+        $mockConnection = $this->getMock(MockPDO::class, ['getAttribute']);
         $mockConnection->expects($this->once())
             ->method('getAttribute')
             ->with(PDO::ATTR_SERVER_VERSION)
@@ -1626,7 +1626,7 @@ SQL;
 
         // Test MySQL 5.5.3 version
         $db = $this->getMock(Mysql::class, ['connect', '_execute']);
-        $mockConnection = $this->getMock(stdClass::class, ['getAttribute']);
+        $mockConnection = $this->getMock(MockPDO::class, ['getAttribute']);
         $mockConnection->expects($this->once())
             ->method('getAttribute')
             ->with(PDO::ATTR_SERVER_VERSION)
@@ -1642,7 +1642,7 @@ SQL;
 
         // Test MariaDB 5.5 version
         $db = $this->getMock(Mysql::class, ['connect', '_execute']);
-        $mockConnection = $this->getMock(stdClass::class, ['getAttribute']);
+        $mockConnection = $this->getMock(MockPDO::class, ['getAttribute']);
         $mockConnection->expects($this->once())
             ->method('getAttribute')
             ->with(PDO::ATTR_SERVER_VERSION)
@@ -1658,7 +1658,7 @@ SQL;
 
         // Test Aurora MySQL 5.7 version
         $db = $this->getMock(Mysql::class, ['connect', '_execute']);
-        $mockConnection = $this->getMock(stdClass::class, ['getAttribute']);
+        $mockConnection = $this->getMock(MockPDO::class, ['getAttribute']);
         $mockConnection->expects($this->once())
             ->method('getAttribute')
             ->with(PDO::ATTR_SERVER_VERSION)
@@ -1674,7 +1674,7 @@ SQL;
 
         // Test version caching
         $db = $this->getMock(Mysql::class, ['connect', '_execute']);
-        $mockConnection = $this->getMock(stdClass::class, ['getAttribute']);
+        $mockConnection = $this->getMock(MockPDO::class, ['getAttribute']);
         $mockConnection->expects($this->once()) // Only once even though we call getVersion twice
             ->method('getAttribute')
             ->with(PDO::ATTR_SERVER_VERSION)
@@ -1692,7 +1692,7 @@ SQL;
 
         // Test non-matching version pattern (fallback to original string)
         $db = $this->getMock(Mysql::class, ['connect', '_execute']);
-        $mockConnection = $this->getMock(stdClass::class, ['getAttribute']);
+        $mockConnection = $this->getMock(MockPDO::class, ['getAttribute']);
         $mockConnection->expects($this->once())
             ->method('getAttribute')
             ->with(PDO::ATTR_SERVER_VERSION)
@@ -1708,7 +1708,7 @@ SQL;
 
         // Test empty version string
         $db = $this->getMock(Mysql::class, ['connect', '_execute']);
-        $mockConnection = $this->getMock(stdClass::class, ['getAttribute']);
+        $mockConnection = $this->getMock(MockPDO::class, ['getAttribute']);
         $mockConnection->expects($this->once())
             ->method('getAttribute')
             ->with(PDO::ATTR_SERVER_VERSION)
@@ -1747,7 +1747,7 @@ SQL;
     {
         // Test regular MySQL
         $db = $this->getMock(Mysql::class, ['connect', '_execute']);
-        $mockConnection = $this->getMock(stdClass::class, ['getAttribute']);
+        $mockConnection = $this->getMock(MockPDO::class, ['getAttribute']);
         $mockConnection->expects($this->once())
             ->method('getAttribute')
             ->with(PDO::ATTR_SERVER_VERSION)
@@ -1767,7 +1767,7 @@ SQL;
 
         // Test MariaDB
         $db = $this->getMock(Mysql::class, ['connect', '_execute']);
-        $mockConnection = $this->getMock(stdClass::class, ['getAttribute']);
+        $mockConnection = $this->getMock(MockPDO::class, ['getAttribute']);
         $mockConnection->expects($this->once())
             ->method('getAttribute')
             ->with(PDO::ATTR_SERVER_VERSION)
@@ -1787,7 +1787,7 @@ SQL;
 
         // Test Aurora MySQL
         $db = $this->getMock(Mysql::class, ['connect', '_execute']);
-        $mockConnection = $this->getMock(stdClass::class, ['getAttribute']);
+        $mockConnection = $this->getMock(MockPDO::class, ['getAttribute']);
         $mockConnection->expects($this->once())
             ->method('getAttribute')
             ->with(PDO::ATTR_SERVER_VERSION)

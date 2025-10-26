@@ -54,10 +54,10 @@ class SmtpTestTransport extends SmtpTransport
      * Magic function to call protected methods
      *
      * @param string $method The method to call.
-     * @param string $args The arguments.
+     * @param array $args The arguments.
      * @return mixed
      */
-    public function __call($method, $args)
+    public function __call(string $method, array $args)
     {
         $method = '_' . $method;
 

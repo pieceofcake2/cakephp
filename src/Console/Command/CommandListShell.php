@@ -17,6 +17,7 @@
 namespace Cake\Console\Command;
 
 use AppShell;
+use Cake\Console\ConsoleOptionParser;
 use Cake\Console\ConsoleOutput;
 use Cake\Core\App;
 use Cake\Core\CakePlugin;
@@ -44,7 +45,7 @@ class CommandListShell extends AppShell
      *
      * @return void
      */
-    public function startup()
+    public function startup(): void
     {
         if (empty($this->params['xml'])) {
             parent::startup();
@@ -56,7 +57,7 @@ class CommandListShell extends AppShell
      *
      * @return void
      */
-    public function main()
+    public function main(): void
     {
         if (empty($this->params['xml'])) {
             $this->out(__d('cake_console', '<info>Current Paths:</info>'), 2);
@@ -91,7 +92,7 @@ class CommandListShell extends AppShell
      * @param array $shellList The shell list.
      * @return void
      */
-    protected function _asText($shellList)
+    protected function _asText($shellList): void
     {
         foreach ($shellList as $plugin => $commands) {
             sort($commands);
@@ -110,7 +111,7 @@ class CommandListShell extends AppShell
      * @param array $shellList The shell list.
      * @return void
      */
-    protected function _asXml($shellList)
+    protected function _asXml($shellList): void
     {
         $plugins = CakePlugin::loaded();
         $shells = new SimpleXmlElement('<shells></shells>');
@@ -137,7 +138,7 @@ class CommandListShell extends AppShell
      *
      * @return ConsoleOptionParser
      */
-    public function getOptionParser()
+    public function getOptionParser(): ConsoleOptionParser
     {
         $parser = parent::getOptionParser();
 

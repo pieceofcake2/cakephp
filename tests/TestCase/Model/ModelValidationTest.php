@@ -28,8 +28,6 @@ use Cake\Utility\ClassRegistry;
 use PHPUnit\Framework\Error;
 use TypeError;
 
-require_once __DIR__ . DS . 'ModelTestBase.php';
-
 /**
  * ModelValidationTest
  *
@@ -2122,12 +2120,14 @@ class ModelValidationTest extends BaseModelTest
      */
     public function testValidateCallbacks()
     {
-        $TestModel = $this->getMock(Article::class, ['beforeValidate', 'afterValidate']);
-        $TestModel->expects($this->once())->method('beforeValidate');
-        $TestModel->expects($this->once())->method('afterValidate');
+        $testModel = $this->getMock(Article::class, ['beforeValidate', 'afterValidate']);
+        $testModel->expects($this->once())
+            ->method('beforeValidate');
+        $testModel->expects($this->once())
+            ->method('afterValidate');
 
-        $TestModel->set(['title' => '', 'body' => 'body']);
-        $TestModel->validates();
+        $testModel->set(['title' => '', 'body' => 'body']);
+        $testModel->validates();
     }
 
     /**
@@ -2654,12 +2654,14 @@ class ValidationRuleBehavior extends ModelBehavior
         $this->settings[$model->alias] = $config;
     }
 
-    public function beforeValidate(Model $model, $options = [])
+    public function beforeValidate(Model $model, array $options = []): ?bool
     {
         $fields = $this->settings[$model->alias]['fields'];
         foreach ($fields as $field) {
             $model->whitelist[] = $field;
         }
+
+        return null;
     }
 }
 class_alias(ValidationRuleBehavior::class, 'App\\Model\\Behavior\\ValidationRuleBehavior');

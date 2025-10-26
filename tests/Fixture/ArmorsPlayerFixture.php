@@ -34,14 +34,14 @@ class ArmorsPlayerFixture extends CakeTestFixture
      *
      * @var string
      */
-    public $useDbConfig = 'test_database_three';
+    public string $useDbConfig = 'test_database_three';
 
     /**
      * fields property
      *
      * @var array
      */
-    public $fields = [
+    public array $fields = [
         'id' => ['type' => 'integer', 'key' => 'primary'],
         'player_id' => ['type' => 'integer', 'null' => false],
         'armor_id' => ['type' => 'integer', 'null' => false],
@@ -55,7 +55,7 @@ class ArmorsPlayerFixture extends CakeTestFixture
      *
      * @var array
      */
-    public $records = [
+    public array $records = [
         ['player_id' => 1, 'armor_id' => 1, 'broken' => false],
         ['player_id' => 2, 'armor_id' => 2, 'broken' => false],
         ['player_id' => 3, 'armor_id' => 3, 'broken' => false],

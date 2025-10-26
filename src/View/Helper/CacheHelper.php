@@ -21,6 +21,7 @@ use Cake\Core\App;
 use Cake\Core\Configure;
 use Cake\Network\CakeRequest; // phpcs:ignore
 use Cake\Utility\Inflector;
+use Cake\View\View;
 use Exception;
 
 // phpcs:ignore
@@ -81,11 +82,13 @@ class CacheHelper extends AppHelper
      * @param string $output The output for the file.
      * @return string Updated content.
      */
-    public function afterRenderFile($viewFile, $output)
+    public function afterRenderFile(string $viewFile, string $output): string
     {
         if ($this->_enabled()) {
             return $this->_parseContent($viewFile, $output);
         }
+
+        return $output;
     }
 
     /**
@@ -94,7 +97,7 @@ class CacheHelper extends AppHelper
      * @param string $layoutFile Layout file name.
      * @return void
      */
-    public function afterLayout($layoutFile)
+    public function afterLayout($layoutFile): void
     {
         if ($this->_enabled()) {
             $this->_View->output = $this->cache($layoutFile, $this->_View->output);
@@ -111,7 +114,7 @@ class CacheHelper extends AppHelper
      * @param string $out The output for the file.
      * @return string Updated content.
      */
-    protected function _parseContent($file, $out)
+    protected function _parseContent(string $file, string $out): string
     {
         $out = preg_replace_callback('/<!--nocache-->/', [$this, '_replaceSection'], $out);
         $this->_parseFile($file, $out);

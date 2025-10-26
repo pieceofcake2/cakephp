@@ -28,15 +28,15 @@ abstract class CacheEngine
      *
      * @var array
      */
-    public $settings = [];
+    public array $settings = [];
 
     /**
      * Contains the compiled string with all groups
      * prefixes to be prepended to every key in this cache engine
      *
-     * @var string
+     * @var string|null
      */
-    protected $_groupPrefix = null;
+    protected ?string $_groupPrefix = null;
 
     /**
      * Initialize the cache engine
@@ -96,9 +96,7 @@ abstract class CacheEngine
      * @param int $duration How long to cache for.
      * @return bool True if the data was successfully cached, false on failure
      */
-    public function add($key, $value, $duration)
-    {
-    }
+    abstract public function add($key, $value, $duration);
 
     /**
      * Read a key from the cache
@@ -150,10 +148,7 @@ abstract class CacheEngine
      * @param string $group name of the group to be cleared
      * @return bool
      */
-    public function clearGroup($group)
-    {
-        return false;
-    }
+    abstract public function clearGroup(string $group): bool;
 
     /**
      * Does whatever initialization for each group is required

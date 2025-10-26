@@ -25,11 +25,11 @@ namespace TestPlugin\Controller;
  */
 class TestsController extends TestPluginAppController
 {
-    public $uses = [];
+    public array|bool $uses = [];
 
-    public $helpers = ['TestPlugin.OtherHelper', 'Html'];
+    public array $helpers = ['TestPlugin.OtherHelper', 'Html'];
 
-    public $components = ['TestPlugin.Plugins'];
+    public array $components = ['TestPlugin.Plugins'];
 
     public function index()
     {

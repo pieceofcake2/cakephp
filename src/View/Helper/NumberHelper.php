@@ -23,6 +23,7 @@ namespace Cake\View\Helper;
 use AppHelper;
 use Cake\Core\App;
 use Cake\Error\CakeException;
+use Cake\Utility\CakeNumber;
 use Cake\Utility\Hash;
 use Cake\View\View;
 
@@ -78,7 +79,7 @@ class NumberHelper extends AppHelper
      * @param array $params Parameters to pass to method.
      * @return mixed Whatever is returned by called method, or false on failure
      */
-    public function __call($method, $params)
+    public function __call(string $method, array $params)
     {
         return call_user_func_array([$this->_engine, $method], $params);
     }

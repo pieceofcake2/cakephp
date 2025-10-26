@@ -102,7 +102,7 @@ class DboTestSource extends DboSource
         $this->_connection = $conn;
     }
 
-    public function nestedTransactionSupported()
+    public function nestedTransactionSupported(): bool
     {
         return $this->useNestedTransactions && $this->nestedSupport;
     }
@@ -116,9 +116,9 @@ class_alias(DboTestSource::class, 'App\\Model\\Datasource\\DboTestSource');
  */
 class DboSecondTestSource extends DboSource
 {
-    public $startQuote = '_';
+    public ?string $startQuote = '_';
 
-    public $endQuote = '_';
+    public ?string $endQuote = '_';
 
     public function connect($config = [])
     {

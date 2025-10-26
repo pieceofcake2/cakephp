@@ -860,7 +860,7 @@ class Router
      * - `#` - Allows you to set URL hash fragments.
      * - `full_base` - If true the `Router::fullBaseUrl()` value will be prepended to generated URLs.
      *
-     * @param array|string $url Cake-relative URL, like "/products/edit/92" or "/presidents/elect/4"
+     * @param array|string|null $url Cake-relative URL, like "/products/edit/92" or "/presidents/elect/4"
      *   or an array specifying any of the following: 'controller', 'action',
      *   and/or 'plugin', in addition to named arguments (keyed array elements),
      *   and standard URL arguments (indexed array elements)
@@ -870,7 +870,7 @@ class Router
      *    - full - if true the full base URL will be prepended.
      * @return string Full translated URL with base path.
      */
-    public static function url($url = null, $full = false)
+    public static function url(array|string|null $url = null, array|bool $full = false): string
     {
         if (!static::$initialized) {
             static::_loadRoutes();

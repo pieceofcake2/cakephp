@@ -38,42 +38,42 @@ class DataSource extends CakeObject
      *
      * @var bool
      */
-    public $connected = false;
+    public bool $connected = false;
 
     /**
      * The default configuration of a specific DataSource
      *
      * @var array
      */
-    protected $_baseConfig = [];
+    protected array $_baseConfig = [];
 
     /**
      * Holds references to descriptions loaded by the DataSource
      *
      * @var array
      */
-    protected $_descriptions = [];
+    protected array $_descriptions = [];
 
     /**
      * Holds a list of sources (tables) contained in the DataSource
      *
-     * @var array
+     * @var array|null
      */
-    protected $_sources = null;
+    protected ?array $_sources = null;
 
     /**
      * The DataSource configuration
      *
      * @var array
      */
-    public $config = [];
+    public array $config = [];
 
     /**
      * Whether or not this DataSource is in the middle of a transaction
      *
      * @var bool
      */
-    protected $_transactionStarted = false;
+    protected bool $_transactionStarted = false;
 
     /**
      * Whether or not source data like available tables and schema descriptions
@@ -81,7 +81,7 @@ class DataSource extends CakeObject
      *
      * @var bool
      */
-    public $cacheSources = true;
+    public bool $cacheSources = true;
 
     /**
      * Constructor.
@@ -97,10 +97,10 @@ class DataSource extends CakeObject
     /**
      * Caches/returns cached results for child instances
      *
-     * @param mixed $data Unused in this class.
+     * @param array|null $data Unused in this class.
      * @return array|null Array of sources available in this datasource.
      */
-    public function listSources($data = null)
+    public function listSources(?array $data = null): ?array
     {
         if ($this->cacheSources === false) {
             return null;
@@ -418,6 +418,19 @@ class DataSource extends CakeObject
         }
 
         return $query;
+    }
+
+    /**
+     * Returns a quoted and escaped string of $data for use in an SQL statement.
+     *
+     * @param mixed $data String to be prepared for use in an SQL statement
+     * @param string|null $column The column datatype into which this data will be inserted.
+     * @param bool $null Column allows NULL values
+     * @return array|string Quoted and escaped data
+     */
+    public function value($data, ?string $column = null, bool $null = true): array|string
+    {
+        return '';
     }
 
     /**

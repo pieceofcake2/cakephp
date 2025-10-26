@@ -17,6 +17,7 @@
 namespace TestPlugin\Routing\Filter;
 
 use Cake\Event\CakeEvent;
+use Cake\Network\CakeResponse;
 use Cake\Routing\DispatcherFilter;
 
 /**
@@ -26,9 +27,15 @@ use Cake\Routing\DispatcherFilter;
  */
 class TestDispatcherFilter extends DispatcherFilter
 {
-    public function beforeDispatch(CakeEvent $event)
+    /**
+     * @param CakeEvent $event
+     * @return CakeResponse|false|null
+     */
+    public function beforeDispatch(CakeEvent $event): CakeResponse|false|null
     {
         $event->data['request']->params['altered'] = true;
+
+        return null;
     }
 
     public function afterDispatch(CakeEvent $event)

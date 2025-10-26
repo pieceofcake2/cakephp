@@ -50,14 +50,14 @@ class TheHtmlTestController extends Controller
      *
      * @var string
      */
-    public $name = 'TheTest';
+    public ?string $name = 'TheTest';
 
     /**
      * uses property
      *
-     * @var mixed
+     * @var array||bool
      */
-    public $uses = null;
+    public array|bool $uses = [];
 }
 
 class TestHtmlHelper extends HtmlHelper
@@ -65,13 +65,13 @@ class TestHtmlHelper extends HtmlHelper
     /**
      * expose a method as public
      *
-     * @param string $options
-     * @param string $exclude
+     * @param array|string|null $options
+     * @param array $exclude
      * @param string $insertBefore
-     * @param string $insertAfter
-     * @return void
+     * @param string|null $insertAfter
+     * @return string
      */
-    public function parseAttributes($options, $exclude = null, $insertBefore = ' ', $insertAfter = null)
+    public function parseAttributes(array|string|null $options, array $exclude = [], string $insertBefore = ' ', ?string $insertAfter = null): string
     {
         return $this->_parseAttributes($options, $exclude, $insertBefore, $insertAfter);
     }
@@ -104,21 +104,21 @@ class Html5TestHelper extends TestHtmlHelper
      *
      * @var array
      */
-    protected $_minimizedAttributes = ['require', 'checked'];
+    protected array $_minimizedAttributes = ['require', 'checked'];
 
     /**
      * Allow compact use in HTML
      *
      * @var string
      */
-    protected $_minimizedAttributeFormat = '%s';
+    protected string $_minimizedAttributeFormat = '%s';
 
     /**
      * Test to attribute format
      *
      * @var string
      */
-    protected $_attributeFormat = 'data-%s="%s"';
+    protected string $_attributeFormat = 'data-%s="%s"';
 }
 
 /**

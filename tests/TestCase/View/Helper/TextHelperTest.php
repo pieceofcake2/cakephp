@@ -64,6 +64,8 @@ class TextHelperTest extends CakeTestCase
 {
     protected $_appNamespace = null;
 
+    public ?View $View = null;
+
     /**
      * setUp method
      *
@@ -87,8 +89,7 @@ class TextHelperTest extends CakeTestCase
      */
     public function tearDown(): void
     {
-        unset($this->View);
-
+        $this->View = null;
         Configure::write('App.namespace', $this->_appNamespace);
 
         parent::tearDown();
@@ -102,29 +103,34 @@ class TextHelperTest extends CakeTestCase
     public function testTextHelperProxyMethodCalls()
     {
         $methods = [
-            'highlight', 'stripLinks', 'truncate', 'tail', 'excerpt', 'toList',
+            'highlight' => ['who', 'what', []],
+            'stripLinks' => ['who'],
+            'truncate' => ['who'],
+            'tail' => ['who'],
+            'excerpt' => ['who', 'what'],
+            'toList' => [['who', 'what']],
         ];
 
-        $CakeText = $this->getMock(CakeTextMock::class, $methods);
-        $Text = new TextHelperTestObject($this->View, ['engine' => 'CakeTextMock']);
-        $Text->attach($CakeText);
+        $cakeText = $this->getMock(CakeTextMock::class, array_keys($methods));
+        $text = new TextHelperTestObject($this->View, ['engine' => 'CakeTextMock']);
+        $text->attach($cakeText);
 
         $calledMethods = [];
-        foreach ($methods as $method) {
-            $CakeText->expects($this->once())
+        foreach ($methods as $method => $args) {
+            $cakeText->expects($this->once())
                 ->method($method)
                 ->willReturnCallback(function () use ($method, &$calledMethods) {
                     $calledMethods[] = $method;
 
-                    return null;
+                    return '';
                 });
         }
 
-        foreach ($methods as $method) {
-            $Text->{$method}('who', 'what', 'when', 'where', 'how');
+        foreach ($methods as $method => $args) {
+            $text->{$method}(...$args);
         }
 
-        $this->assertEquals($methods, $calledMethods);
+        $this->assertEquals(array_keys($methods), $calledMethods);
     }
 
     /**

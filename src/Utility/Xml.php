@@ -25,6 +25,7 @@ use Cake\Error\SocketException;
 use Cake\Error\XmlException;
 use Cake\Network\Http\HttpSocket;
 use DOMDocument;
+use DOMElement;
 use DOMNode;
 use DOMText;
 use Exception;

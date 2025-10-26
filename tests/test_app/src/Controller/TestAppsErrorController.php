@@ -6,7 +6,7 @@ use Cake\Controller\CakeErrorController;
 
 class TestAppsErrorController extends CakeErrorController
 {
-    public $helpers = [
+    public array $helpers = [
         'Html',
         'Session',
         'Form',

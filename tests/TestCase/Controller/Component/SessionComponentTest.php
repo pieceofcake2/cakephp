@@ -36,9 +36,9 @@ class SessionTestController extends Controller
     /**
      * uses property
      *
-     * @var array
+     * @var array||bool
      */
-    public $uses = [];
+    public array|bool $uses = [];
 
     /**
      * sessionId method
@@ -62,9 +62,9 @@ class OrangeSessionTestController extends Controller
     /**
      * uses property
      *
-     * @var array
+     * @var array||bool
      */
-    public $uses = [];
+    public array|bool $uses = [];
 
     /**
      * sessionId method

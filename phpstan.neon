@@ -13,18 +13,12 @@ parameters:
         - tests/bootstrap.php
     treatPhpDocTypesAsCertain: false
     ignoreErrors:
-        # Ignore dynamic property creation for now
-        - '#Access to an undefined property#'
-        - '#Creating dynamic property#'
         # Ignore deprecated functions that are part of CakePHP 2.x
         - '#Function strftime\(\) is deprecated#'
         - '#Function mcrypt_.*\(\) is deprecated#'
-        # Ignore missing return types for now
-        - '#Method .* has no return type specified#'
-        - '#Method .* has parameter .* with no type specified#'
-        # Ignore array shape issues
-        - '#Method .* return type has no value type specified in iterable type array#'
-        - '#Method .* has parameter .* with no value type specified in iterable type array#'
+        - '#Function mcrypt_.* not found#'
+        # Config classes (generated at runtime)
+        - '#Class EmailConfig not found#'
     parallel:
         processTimeout: 300.0
         maximumNumberOfProcesses: 4

@@ -32,7 +32,7 @@ class ImageFixture extends CakeTestFixture
      *
      * @var array
      */
-    public $fields = [
+    public array $fields = [
         'id' => ['type' => 'integer', 'key' => 'primary'],
         'name' => ['type' => 'string', 'null' => false],
     ];
@@ -42,7 +42,7 @@ class ImageFixture extends CakeTestFixture
      *
      * @var array
      */
-    public $records = [
+    public array $records = [
         ['name' => 'Image 1'],
         ['name' => 'Image 2'],
         ['name' => 'Image 3'],

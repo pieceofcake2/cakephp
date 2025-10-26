@@ -772,27 +772,27 @@ abstract class CakeTestCase extends TestCase
         $callOriginalClone = true,
         $callAutoload = true,
     ) {
-        $MockBuilder = $this->getMockBuilder($originalClassName);
+        $mockBuilder = $this->getMockBuilder($originalClassName);
         if (!empty($methods)) {
-            $MockBuilder = $MockBuilder->setMethods($methods);
+            $mockBuilder = $mockBuilder->setMethods($methods);
         }
         if (!empty($arguments)) {
-            $MockBuilder = $MockBuilder->setConstructorArgs($arguments);
+            $mockBuilder = $mockBuilder->setConstructorArgs($arguments);
         }
         if ($mockClassName != '') {
-            $MockBuilder = $MockBuilder->setMockClassName($mockClassName);
+            $mockBuilder = $mockBuilder->setMockClassName($mockClassName);
         }
         if ($callOriginalConstructor !== true) {
-            $MockBuilder = $MockBuilder->disableOriginalConstructor();
+            $mockBuilder = $mockBuilder->disableOriginalConstructor();
         }
         if ($callOriginalClone !== true) {
-            $MockBuilder = $MockBuilder->disableOriginalClone();
+            $mockBuilder = $mockBuilder->disableOriginalClone();
         }
         if ($callAutoload !== true) {
-            $MockBuilder = $MockBuilder->disableAutoload();
+            $mockBuilder = $mockBuilder->disableAutoload();
         }
 
-        return $MockBuilder->getMock();
+        return $mockBuilder->getMock();
     }
 
     /**

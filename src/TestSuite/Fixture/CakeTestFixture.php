@@ -22,6 +22,7 @@ use Cake\Error\MissingModelException;
 use Cake\Log\CakeLog;
 use Cake\Model\CakeSchema;
 use Cake\Model\ConnectionManager;
+use Cake\Model\Datasource\DataSource;
 use Cake\Model\Datasource\DboSource;
 use Cake\Model\Model;
 use Cake\Utility\ClassRegistry;
@@ -40,37 +41,37 @@ class CakeTestFixture
     /**
      * Name of the object
      *
-     * @var string
+     * @var string|null
      */
-    public $name = null;
+    public ?string $name = null;
 
     /**
      * CakePHP's DBO driver (e.g: DboMysql).
      *
-     * @var object
+     * @var DataSource|null
      */
-    public $db = null;
+    public ?DataSource $db = null;
 
     /**
      * Fixture Datasource
      *
      * @var string
      */
-    public $useDbConfig = 'test';
+    public string $useDbConfig = 'test';
 
     /**
      * Full Table Name
      *
-     * @var string
+     * @var string|null
      */
-    public $table = null;
+    public ?string $table = null;
 
     /**
      * List of datasources where this fixture has been created
      *
      * @var array
      */
-    public $created = [];
+    public array $created = [];
 
     /**
      * Fields / Schema for the fixture.
@@ -78,21 +79,21 @@ class CakeTestFixture
      *
      * @var array
      */
-    public $fields = [];
+    public array $fields = [];
 
     /**
      * Fixture records to be inserted.
      *
      * @var array
      */
-    public $records = [];
+    public array $records = [];
 
     /**
      * The primary key for the table this fixture represents.
      *
-     * @var string
+     * @var string|null
      */
-    public $primaryKey = null;
+    public ?string $primaryKey = null;
 
     /**
      * Fixture data can be stored in memory by default.
@@ -101,7 +102,12 @@ class CakeTestFixture
      *
      * @var bool
      */
-    public $canUseMemory = true;
+    public bool $canUseMemory = true;
+
+    /**
+     * @var CakeSchema|null
+     */
+    public ?CakeSchema $Schema = null;
 
     /**
      * Instantiate the fixture.
@@ -299,7 +305,7 @@ class CakeTestFixture
      * @return bool on success or if there are no records to insert, or false on failure
      * @throws CakeException if counts of values and fields do not match.
      */
-    public function insert($db)
+    public function insert($db): bool
     {
         if (!isset($this->_insert)) {
             $values = [];
@@ -342,6 +348,8 @@ class CakeTestFixture
 
             return true;
         }
+
+        return false;
     }
 
     /**

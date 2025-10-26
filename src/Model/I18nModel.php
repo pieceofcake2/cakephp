@@ -33,19 +33,19 @@ class I18nModel extends AppModel
      *
      * @var string
      */
-    public $name = 'I18nModel';
+    public ?string $name = 'I18nModel';
 
     /**
      * Table name
      *
      * @var string
      */
-    public $useTable = 'i18n';
+    public string|bool|null $useTable = 'i18n';
 
     /**
      * Display field
      *
      * @var string
      */
-    public $displayField = 'field';
+    public string|bool|null $displayField = 'field';
 }

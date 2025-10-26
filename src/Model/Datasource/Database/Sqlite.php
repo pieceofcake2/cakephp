@@ -25,6 +25,7 @@ use Cake\Utility\CakeText;
 use Exception;
 use PDO;
 use PDOException;
+use PDOStatement;
 
 /**
  * DBO implementation for the SQLite3 DBMS.
@@ -40,28 +41,28 @@ class Sqlite extends DboSource
      *
      * @var string
      */
-    public $description = 'SQLite DBO Driver';
+    public string $description = 'SQLite DBO Driver';
 
     /**
      * Quote Start
      *
-     * @var string
+     * @var string|null
      */
-    public $startQuote = '"';
+    public ?string $startQuote = '"';
 
     /**
      * Quote End
      *
-     * @var string
+     * @var string|null
      */
-    public $endQuote = '"';
+    public ?string $endQuote = '"';
 
     /**
      * Base configuration settings for SQLite3 driver
      *
      * @var array
      */
-    protected $_baseConfig = [
+    protected array $_baseConfig = [
         'persistent' => false,
         'database' => null,
         'flags' => [],
@@ -73,7 +74,7 @@ class Sqlite extends DboSource
      * @var array
      * @link https://www.sqlite.org/datatype3.html Datatypes In SQLite Version 3
      */
-    public $columns = [
+    public array $columns = [
         'primary_key' => ['name' => 'integer primary key autoincrement'],
         'string' => ['name' => 'varchar', 'limit' => '255'],
         'text' => ['name' => 'text'],
@@ -96,7 +97,7 @@ class Sqlite extends DboSource
      *
      * @var array
      */
-    public $fieldParameters = [
+    public array $fieldParameters = [
         'collate' => [
             'value' => 'COLLATE',
             'quote' => false,
@@ -151,7 +152,7 @@ class Sqlite extends DboSource
      * @param mixed $data Unused.
      * @return array Array of table names in the database
      */
-    public function listSources($data = null)
+    public function listSources(?array $data = null): ?array
     {
         $cache = parent::listSources();
         if ($cache) {
@@ -250,7 +251,7 @@ class Sqlite extends DboSource
      * @param Model|string $table A string or model class representing the table to be truncated
      * @return bool SQL TRUNCATE TABLE statement, false if not applicable.
      */
-    public function truncate($table)
+    public function truncate(Model|string $table)
     {
         if (in_array('sqlite_sequence', $this->listSources())) {
             $this->_execute('DELETE FROM sqlite_sequence where name=' . $this->startQuote . $this->fullTableName($table, false, false) . $this->endQuote);
@@ -324,7 +325,7 @@ class Sqlite extends DboSource
      */
     public function resultSet($results)
     {
-        $this->results = $results;
+        $this->_result = $results;
         $this->map = [];
         $numFields = $results->columnCount();
         $index = 0;
@@ -507,10 +508,10 @@ class Sqlite extends DboSource
      * Removes redundant primary key indexes, as they are handled in the column def of the key.
      *
      * @param array $indexes The indexes to build.
-     * @param string $table The table name.
-     * @return string The completed index.
+     * @param string|null $table The table name.
+     * @return array The completed index.
      */
-    public function buildIndex($indexes, $table = null)
+    public function buildIndex(array $indexes, ?string $table = null): array
     {
         $join = [];
 
@@ -622,10 +623,10 @@ class Sqlite extends DboSource
     /**
      * Generate a "drop table" statement for the given table
      *
-     * @param type $table Name of the table to drop
+     * @param Model|string $table Name of the table to drop
      * @return string Drop table SQL statement
      */
-    protected function _dropTable($table)
+    protected function _dropTable($table): string
     {
         return 'DROP TABLE IF EXISTS ' . $this->fullTableName($table) . ';';
     }
@@ -645,7 +646,7 @@ class Sqlite extends DboSource
      *
      * @return bool
      */
-    public function nestedTransactionSupported()
+    public function nestedTransactionSupported(): bool
     {
         return $this->useNestedTransactions && version_compare($this->getVersion(), '3.6.8', '>=');
     }

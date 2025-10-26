@@ -48,7 +48,7 @@ class TestBehavior extends ModelBehavior
      *
      * @var array
      */
-    public $mapMethods = ['/test(\w+)/' => 'testMethod', '/look for\s+(.+)/' => 'speakEnglish'];
+    public array $mapMethods = ['/test(\w+)/' => 'testMethod', '/look for\s+(.+)/' => 'speakEnglish'];
 
     /**
      * setup method
@@ -123,10 +123,10 @@ class TestBehavior extends ModelBehavior
      *
      * @param Model $model Model using this behavior
      * @param array $options Options passed from Model::save().
-     * @return bool False if the operation should abort. Any other result will continue.
+     * @return bool|null False if the operation should abort. Any other result will continue.
      * @see Model::save()
      */
-    public function beforeSave(Model $model, $options = [])
+    public function beforeSave(Model $model, array $options = []): ?bool
     {
         $settings = $this->settings[$model->alias];
         if (!isset($settings['beforeSave']) || $settings['beforeSave'] === 'off') {
@@ -142,6 +142,8 @@ class TestBehavior extends ModelBehavior
 
                 return true;
         }
+
+        return null;
     }
 
     /**
@@ -150,14 +152,17 @@ class TestBehavior extends ModelBehavior
      * @param Model $model
      * @param bool $created
      * @param array $options Options passed from Model::save().
-     * @return bool|void
+     * @return bool|null
      */
-    public function afterSave(Model $model, $created, $options = [])
+    public function afterSave(Model $model, bool $created, array $options = []): ?bool
     {
         $settings = $this->settings[$model->alias];
         if (!isset($settings['afterSave']) || $settings['afterSave'] === 'off') {
-            return parent::afterSave($model, $created, $options);
+            parent::afterSave($model, $created, $options);
+
+            return null;
         }
+
         $string = 'modified after';
         if ($created) {
             $string .= ' on create';
@@ -170,11 +175,13 @@ class TestBehavior extends ModelBehavior
                 unset($model->data[$model->alias]['name']);
                 break;
             case 'test2':
-                return false;
+                break;
             case 'modify':
                 $model->data[$model->alias]['name'] .= ' ' . $string;
                 break;
         }
+
+        return null;
     }
 
     /**
@@ -185,7 +192,7 @@ class TestBehavior extends ModelBehavior
      * @return bool|null
      * @see Model::save()
      */
-    public function beforeValidate(Model $model, $options = [])
+    public function beforeValidate(Model $model, array $options = []): ?bool
     {
         $settings = $this->settings[$model->alias];
         if (!isset($settings['validate']) || $settings['validate'] === 'off') {
@@ -207,16 +214,17 @@ class TestBehavior extends ModelBehavior
 
                 return false;
         }
+
+        return null;
     }
 
     /**
      * afterValidate method
      *
      * @param Model $model
-     * @param bool $cascade
-     * @return bool
+     * @return bool|null
      */
-    public function afterValidate(Model $model)
+    public function afterValidate(Model $model): ?bool
     {
         $settings = $this->settings[$model->alias];
         if (!isset($settings['afterValidate']) || $settings['afterValidate'] === 'off') {
@@ -230,6 +238,8 @@ class TestBehavior extends ModelBehavior
 
                 return true;
         }
+
+        return null;
     }
 
     /**
@@ -239,7 +249,7 @@ class TestBehavior extends ModelBehavior
      * @param bool $cascade
      * @return bool|null
      */
-    public function beforeDelete(Model $model, $cascade = true)
+    public function beforeDelete(Model $model, $cascade = true): ?bool
     {
         $settings = $this->settings[$model->alias];
         if (!isset($settings['beforeDelete']) || $settings['beforeDelete'] === 'off') {
@@ -258,27 +268,31 @@ class TestBehavior extends ModelBehavior
 
                 return true;
         }
+
+        return null;
     }
 
     /**
      * afterDelete method
      *
      * @param Model $model
-     * @return void
+     * @return bool|null
      */
-    public function afterDelete(Model $model)
+    public function afterDelete(Model $model): ?bool
     {
         $settings = $this->settings[$model->alias];
         if (!isset($settings['afterDelete']) || $settings['afterDelete'] === 'off') {
             parent::afterDelete($model);
 
-            return;
+            return null;
         }
         switch ($settings['afterDelete']) {
             case 'on':
                 echo 'afterDelete success';
                 break;
         }
+
+        return null;
     }
 
     /**
@@ -381,7 +395,7 @@ class_alias(TestBehavior::class, 'App\\Model\\Behavior\\TestBehavior');
  */
 class Test2Behavior extends TestBehavior
 {
-    public $mapMethods = ['/mappingRobot(\w+)/' => 'mapped'];
+    public array $mapMethods = ['/mappingRobot(\w+)/' => 'mapped'];
 
     public function resolveMethod(Model $model, $stuff)
     {
@@ -589,7 +603,7 @@ class BehaviorCollectionTest extends CakeTestCase
 
         $Apple->Behaviors->load('Test', ['key' => 'value']);
         $this->assertSame(['Test'], $Apple->Behaviors->loaded());
-        $this->assertEquals(TestBehavior::class, get_class($Apple->Behaviors->Test));
+        $this->assertEquals(TestBehavior::class, $Apple->Behaviors->Test::class);
         $expected = ['beforeFind' => 'on', 'afterFind' => 'off', 'key' => 'value'];
         $this->assertEquals($expected, $Apple->Behaviors->Test->settings['Apple']);
         $this->assertEquals(['priority', 'Apple'], array_keys($Apple->Behaviors->Test->settings));

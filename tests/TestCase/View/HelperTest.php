@@ -43,7 +43,7 @@ class HelperTestPost extends Model
      *
      * @var bool
      */
-    public $useTable = false;
+    public string|bool|null $useTable = false;
 
     /**
      * schema method
@@ -70,7 +70,7 @@ class HelperTestPost extends Model
      *
      * @var array
      */
-    public $hasAndBelongsToMany = ['HelperTestTag' => ['with' => 'HelperTestPostsTag']];
+    public array $hasAndBelongsToMany = ['HelperTestTag' => ['with' => 'HelperTestPostsTag']];
 }
 
 /**
@@ -85,7 +85,7 @@ class HelperTestComment extends Model
      *
      * @var bool
      */
-    public $useTable = false;
+    public string|bool|null $useTable = false;
 
     /**
      * schema method
@@ -120,7 +120,7 @@ class HelperTestTag extends Model
      *
      * @var bool
      */
-    public $useTable = false;
+    public string|bool|null $useTable = false;
 
     /**
      * schema method
@@ -152,12 +152,12 @@ class HelperTestPostsTag extends Model
      *
      * @var bool
      */
-    public $useTable = false;
+    public string|bool|null $useTable = false;
 
     /**
      * schema method
      *
-     * @return void
+     * @return array
      */
     public function schema($field = false)
     {
@@ -177,7 +177,7 @@ class TestHelper extends Helper
      *
      * @var array
      */
-    public $settings = [
+    public array $settings = [
         'key1' => 'val1',
         'key2' => ['key2.1' => 'val2.1', 'key2.2' => 'val2.2'],
     ];
@@ -187,7 +187,7 @@ class TestHelper extends Helper
      *
      * @var array
      */
-    public $helpers = ['Html', 'TestPlugin.OtherHelper'];
+    public array $helpers = ['Html', 'TestPlugin.OtherHelper'];
 
     /**
      * expose a method as public

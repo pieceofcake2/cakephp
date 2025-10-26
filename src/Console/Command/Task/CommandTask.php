@@ -38,7 +38,7 @@ class CommandTask extends AppShell
      *
      * @return array
      */
-    public function getShellList()
+    public function getShellList(): array
     {
         $skipFiles = ['AppShell'];
 

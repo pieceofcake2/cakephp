@@ -41,14 +41,14 @@ class AclNodeTwoTestBase extends AclNode
      *
      * @var string
      */
-    public $useDbConfig = 'test';
+    public string $useDbConfig = 'test';
 
     /**
      * cacheSources property
      *
      * @var bool
      */
-    public $cacheSources = false;
+    public bool $cacheSources = false;
 }
 class_alias(AclNodeTwoTestBase::class, 'App\\Model\\AclNodeTwoTestBase');
 
@@ -64,21 +64,21 @@ class AroTwoTest extends AclNodeTwoTestBase
      *
      * @var string
      */
-    public $name = 'AroTwoTest';
+    public ?string $name = 'AroTwoTest';
 
     /**
      * useTable property
      *
      * @var string
      */
-    public $useTable = 'aro_twos';
+    public string|bool|null $useTable = 'aro_twos';
 
     /**
      * hasAndBelongsToMany property
      *
      * @var array
      */
-    public $hasAndBelongsToMany = ['AcoTwoTest' => ['with' => 'PermissionTwoTest']];
+    public array $hasAndBelongsToMany = ['AcoTwoTest' => ['with' => 'PermissionTwoTest']];
 }
 class_alias(AroTwoTest::class, 'App\\Controller\\Component\\Acl\\AroTwoTest');
 
@@ -94,21 +94,21 @@ class AcoTwoTest extends AclNodeTwoTestBase
      *
      * @var string
      */
-    public $name = 'AcoTwoTest';
+    public ?string $name = 'AcoTwoTest';
 
     /**
      * useTable property
      *
      * @var string
      */
-    public $useTable = 'aco_twos';
+    public string|bool|null $useTable = 'aco_twos';
 
     /**
      * hasAndBelongsToMany property
      *
      * @var array
      */
-    public $hasAndBelongsToMany = ['AroTwoTest' => ['with' => 'PermissionTwoTest']];
+    public array $hasAndBelongsToMany = ['AroTwoTest' => ['with' => 'PermissionTwoTest']];
 }
 class_alias(AcoTwoTest::class, 'App\\Model\\AcoTwoTest');
 
@@ -124,35 +124,35 @@ class PermissionTwoTest extends Permission
      *
      * @var string
      */
-    public $name = 'PermissionTwoTest';
+    public ?string $name = 'PermissionTwoTest';
 
     /**
      * useTable property
      *
      * @var string
      */
-    public $useTable = 'aros_aco_twos';
+    public string|bool|null $useTable = 'aros_aco_twos';
 
     /**
      * cacheQueries property
      *
      * @var bool
      */
-    public $cacheQueries = false;
+    public bool $cacheQueries = false;
 
     /**
      * belongsTo property
      *
      * @var array
      */
-    public $belongsTo = ['AroTwoTest' => ['foreignKey' => 'aro_id'], 'AcoTwoTest' => ['foreignKey' => 'aco_id']];
+    public array $belongsTo = ['AroTwoTest' => ['foreignKey' => 'aro_id'], 'AcoTwoTest' => ['foreignKey' => 'aco_id']];
 
     /**
      * actsAs property
      *
      * @var mixed
      */
-    public $actsAs = null;
+    public array $actsAs = [];
 }
 class_alias(PermissionTwoTest::class, 'App\\Model\\PermissionTwoTest');
 

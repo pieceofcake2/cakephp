@@ -25,9 +25,9 @@ use Cake\Model\Model;
  */
 class CakeTestModel extends Model
 {
-    public $useDbConfig = 'test';
+    public string $useDbConfig = 'test';
 
-    public $cacheSources = false;
+    public bool $cacheSources = false;
 
     /**
      * Sets default order for the model to avoid failing tests caused by

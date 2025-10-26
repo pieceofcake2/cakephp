@@ -236,21 +236,21 @@ class SchemaPost extends CakeTestModel
      *
      * @var string
      */
-    public $useTable = 'posts';
+    public string|bool|null $useTable = 'posts';
 
     /**
      * hasMany property
      *
      * @var array
      */
-    public $hasMany = ['SchemaComment'];
+    public array $hasMany = ['SchemaComment'];
 
     /**
      * hasAndBelongsToMany property
      *
      * @var array
      */
-    public $hasAndBelongsToMany = ['SchemaTag'];
+    public array $hasAndBelongsToMany = ['SchemaTag'];
 }
 class_alias(SchemaPost::class, 'App\\Model\\SchemaPost');
 
@@ -266,14 +266,14 @@ class SchemaComment extends CakeTestModel
      *
      * @var string
      */
-    public $useTable = 'comments';
+    public string|bool|null $useTable = 'comments';
 
     /**
      * belongsTo property
      *
      * @var array
      */
-    public $belongsTo = ['SchemaPost'];
+    public array $belongsTo = ['SchemaPost'];
 }
 class_alias(SchemaComment::class, 'App\\Model\\SchemaComment');
 
@@ -289,14 +289,14 @@ class SchemaTag extends CakeTestModel
      *
      * @var string
      */
-    public $useTable = 'tags';
+    public string|bool|null $useTable = 'tags';
 
     /**
      * hasAndBelongsToMany property
      *
      * @var array
      */
-    public $hasAndBelongsToMany = ['SchemaPost'];
+    public array $hasAndBelongsToMany = ['SchemaPost'];
 }
 class_alias(SchemaTag::class, 'App\\Model\\SchemaTag');
 
@@ -312,7 +312,7 @@ class SchemaDatatype extends CakeTestModel
      *
      * @var string
      */
-    public $useTable = 'datatypes';
+    public string|bool|null $useTable = 'datatypes';
 }
 class_alias(SchemaDatatype::class, 'App\\Model\\SchemaDatatype');
 
@@ -343,14 +343,14 @@ class SchemaCrossDatabase extends CakeTestModel
      *
      * @var string
      */
-    public $useTable = 'cross_database';
+    public string|bool|null $useTable = 'cross_database';
 
     /**
      * useDbConfig property
      *
      * @var string
      */
-    public $useDbConfig = 'test2';
+    public string $useDbConfig = 'test2';
 }
 class_alias(SchemaCrossDatabase::class, 'App\\Model\\SchemaCrossDatabase');
 
@@ -364,23 +364,23 @@ class SchemaCrossDatabaseFixture extends CakeTestFixture
     /**
      * name property
      *
-     * @var string
+     * @var string|null
      */
-    public $name = 'CrossDatabase';
+    public ?string $name = 'CrossDatabase';
 
     /**
      * table property
      *
-     * @var string
+     * @var string|null
      */
-    public $table = 'cross_database';
+    public ?string $table = 'cross_database';
 
     /**
      * fields property
      *
      * @var array
      */
-    public $fields = [
+    public array $fields = [
         'id' => ['type' => 'integer', 'key' => 'primary'],
         'name' => 'string',
     ];
@@ -390,7 +390,7 @@ class SchemaCrossDatabaseFixture extends CakeTestFixture
      *
      * @var array
      */
-    public $records = [
+    public array $records = [
         ['id' => 1, 'name' => 'First'],
         ['id' => 2, 'name' => 'Second'],
     ];
@@ -406,23 +406,23 @@ class NonConventionalPrimaryKeyFixture extends CakeTestFixture
     /**
      * name property
      *
-     * @var string
+     * @var string|null
      */
-    public $name = 'NonConventional';
+    public ?string $name = 'NonConventional';
 
     /**
      * table property
      *
-     * @var string
+     * @var string|null
      */
-    public $table = 'non_conventional';
+    public ?string $table = 'non_conventional';
 
     /**
      * fields property
      *
      * @var array
      */
-    public $fields = [
+    public array $fields = [
         'version_id' => ['type' => 'integer', 'key' => 'primary'],
         'id' => ['type' => 'integer'],
         'name' => 'string',
@@ -441,14 +441,14 @@ class SchemaPrefixAuthUser extends CakeTestModel
      *
      * @var string
      */
-    public $tablePrefix = 'auth_';
+    public ?string $tablePrefix = 'auth_';
 
     /**
      * useTable
      *
      * @var string
      */
-    public $useTable = 'users';
+    public string|bool|null $useTable = 'users';
 }
 class_alias(SchemaPrefixAuthUser::class, 'App\\Model\\SchemaPrefixAuthUser');
 

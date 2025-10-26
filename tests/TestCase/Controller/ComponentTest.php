@@ -37,7 +37,7 @@ class ParamTestComponent extends Component
      *
      * @var array
      */
-    public $components = [
+    public array $components = [
         'Apple' => ['enabled' => true],
         'Banana' => ['config' => 'value'],
     ];
@@ -54,9 +54,9 @@ class ComponentTestController extends Controller
     /**
      * uses property
      *
-     * @var array
+     * @var array||bool
      */
-    public $uses = [];
+    public array|bool $uses = [];
 }
 class_alias(ComponentTestController::class, 'App\\Controller\\ComponentTestController');
 
@@ -72,7 +72,7 @@ class AppleComponent extends Component
      *
      * @var array
      */
-    public $components = ['Orange'];
+    public array $components = ['Orange'];
 
     /**
      * testName property
@@ -106,7 +106,7 @@ class OrangeComponent extends Component
      *
      * @var array
      */
-    public $components = ['Banana'];
+    public array $components = ['Banana'];
 
     /**
      * initialize method
@@ -172,7 +172,7 @@ class MutuallyReferencingOneComponent extends Component
      *
      * @var array
      */
-    public $components = ['MutuallyReferencingTwo'];
+    public array $components = ['MutuallyReferencingTwo'];
 }
 class_alias(MutuallyReferencingOneComponent::class, 'App\\Controller\\Component\\MutuallyReferencingOneComponent');
 
@@ -188,7 +188,7 @@ class MutuallyReferencingTwoComponent extends Component
      *
      * @var array
      */
-    public $components = ['MutuallyReferencingOne'];
+    public array $components = ['MutuallyReferencingOne'];
 }
 class_alias(MutuallyReferencingTwoComponent::class, 'App\\Controller\\Component\\MutuallyReferencingTwoComponent');
 
@@ -204,7 +204,7 @@ class SomethingWithEmailComponent extends Component
      *
      * @var array
      */
-    public $components = ['Email'];
+    public array $components = ['Email'];
 }
 class_alias(SomethingWithEmailComponent::class, 'App\\Controller\\Component\\SomethingWithEmailComponent');
 

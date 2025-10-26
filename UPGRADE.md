@@ -46,6 +46,51 @@ The following files need to be updated:
 
 See [`pieceofcake2/app`](https://github.com/pieceofcake2/app) for the modern application skeleton compatible with both CakePHP 2.x and 5.x.
 
+### Type Declarations ([PR #31](https://github.com/pieceofcake2/cakephp/pull/31))
+
+This fork now includes comprehensive property type declarations across all CakePHP 2.x core classes. These changes improve type safety, IDE support, and static analysis capabilities.
+
+#### What Changed
+
+All major CakePHP classes now have property type declarations:
+- **96 properties** across Controller, Component, Helper, View, Model, ModelBehavior, BehaviorCollection, CacheEngine, and CakeRequest
+- **4 methods** with return type declarations for `implementedEvents(): array`
+
+#### Impact on Your Application
+
+**No breaking changes** - The type declarations are backward compatible. However, be aware:
+
+1. **Subclasses must match parent types**: If you override properties in your AppController, AppModel, or custom helpers, ensure types match:
+   ```php
+   // Before (still works, but should be updated)
+   class AppController extends Controller {
+       public $components = ['Session'];  // No type
+   }
+
+   // After (recommended)
+   class AppController extends Controller {
+       public array $components = ['Session'];  // Add type
+   }
+   ```
+
+2. **Common property types to match**:
+   - `Controller::$components` → `array`
+   - `Controller::$helpers` → `array`
+   - `Controller::$uses` → `array|bool`
+   - `Model::$name` → `string|null`
+   - `Model::$actsAs` → `array`
+   - `Model::$belongsTo`, `$hasOne`, `$hasMany`, `$hasAndBelongsToMany` → `array`
+   - `Helper::$helpers` → `array`
+
+3. **Use Rector to automatically add types**: Run `./vendor/bin/rector process` on your application code
+   - Requires: `composer require --dev rector/rector`
+   - Copy `rector.php` from this repository to your project
+   - The Rector configuration will automatically add matching type declarations
+
+#### CakeRequest::__get() Fix
+
+The `CakeRequest::__get()` method has been updated to prevent type errors when accessing typed properties. This change is internal and should not affect your application.
+
 ### Namespace Migration ([PR #23](https://github.com/pieceofcake2/cakephp/pull/23))
 
 CakePHP 2.x now supports modern PHP namespaces while maintaining full backward compatibility with non-namespaced code. This brings the framework closer to CakePHP 5.x architecture and enables gradual migration.

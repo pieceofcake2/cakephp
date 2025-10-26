@@ -39,6 +39,7 @@ use Cake\Network\CakeResponse;
 use Cake\Routing\Router;
 use Cake\Utility\ClassRegistry;
 use Cake\Utility\Inflector;
+use Cake\View\View;
 use ReflectionException;
 use ReflectionMethod;
 use RuntimeException;
@@ -88,17 +89,17 @@ class Controller extends CakeObject implements CakeEventListener
     /**
      * The name of this controller. Controller names are plural, named after the model they manipulate.
      *
-     * @var string
+     * @var string|null
      * @link https://book.cakephp.org/2.0/en/controllers.html#controller-attributes
      */
-    public $name = null;
+    public ?string $name = null;
 
     /**
      * Fully qualified controller class name. Used for passing to the View for namespace support.
      *
      * @var string
      */
-    public $controllerClass = null;
+    public string $controllerClass;
 
     /**
      * An array containing the class names of models this controller uses.
@@ -118,7 +119,7 @@ class Controller extends CakeObject implements CakeEventListener
      * @var array|bool
      * @link https://book.cakephp.org/2.0/en/controllers.html#components-helpers-and-uses
      */
-    public $uses = true;
+    public array|bool $uses = true;
 
     /**
      * An array containing the names of helpers this controller uses. The array elements should
@@ -126,73 +127,73 @@ class Controller extends CakeObject implements CakeEventListener
      *
      * Example: `public $helpers = array('Html', 'Js', 'Time', 'Ajax');`
      *
-     * @var mixed
+     * @var array
      * @link https://book.cakephp.org/2.0/en/controllers.html#components-helpers-and-uses
      */
-    public $helpers = [];
+    public array $helpers = [];
 
     /**
      * An instance of a CakeRequest object that contains information about the current request.
      * This object contains all the information about a request and several methods for reading
      * additional information about the request.
      *
-     * @var CakeRequest
+     * @var CakeRequest|null
      * @link https://book.cakephp.org/2.0/en/controllers/request-response.html#cakerequest
      */
-    public $request;
+    public ?CakeRequest $request = null;
 
     /**
      * An instance of a CakeResponse object that contains information about the impending response
      *
-     * @var CakeResponse
+     * @var CakeResponse|null
      * @link https://book.cakephp.org/2.0/en/controllers/request-response.html#cakeresponse
      */
-    public $response;
+    public ?CakeResponse $response = null;
 
     /**
      * The class name to use for creating the response object.
      *
      * @var string
      */
-    protected $_responseClass = 'CakeResponse';
+    protected string $_responseClass = 'CakeResponse';
 
     /**
      * The name of the views subfolder containing views for this controller.
      *
-     * @var string
+     * @var string|null
      */
-    public $viewPath = null;
+    public ?string $viewPath = null;
 
     /**
      * The name of the layouts subfolder containing layouts for this controller.
      *
-     * @var string
+     * @var string|null
      */
-    public $layoutPath = null;
+    public ?string $layoutPath = null;
 
     /**
      * Contains variables to be handed to the view.
      *
      * @var array
      */
-    public $viewVars = [];
+    public array $viewVars = [];
 
     /**
      * The name of the view file to render. The name specified
      * is the filename in /app/View/<SubFolder> without the .ctp extension.
      *
-     * @var string
+     * @var string|null
      */
-    public $view = null;
+    public ?string $view = null;
 
     /**
      * The name of the layout file to render the view inside of. The name specified
      * is the filename of the layout in /app/View/Layouts without the .ctp
      * extension. If `false` then no layout is rendered.
      *
-     * @var string|bool
+     * @var string|false
      */
-    public $layout = 'default';
+    public string|false $layout = 'default';
 
     /**
      * Set to true to automatically render the view
@@ -200,21 +201,21 @@ class Controller extends CakeObject implements CakeEventListener
      *
      * @var bool
      */
-    public $autoRender = true;
+    public bool $autoRender = true;
 
     /**
      * Set to true to automatically render the layout around views.
      *
      * @var bool
      */
-    public $autoLayout = true;
+    public bool $autoLayout = true;
 
     /**
      * Instance of ComponentCollection used to handle callbacks.
      *
      * @var ComponentCollection
      */
-    public $Components = null;
+    public ComponentCollection $Components;
 
     /**
      * Array containing the names of components this controller uses. Component names
@@ -225,14 +226,14 @@ class Controller extends CakeObject implements CakeEventListener
      * @var array
      * @link https://book.cakephp.org/2.0/en/controllers/components.html
      */
-    public $components = ['Session', 'Flash'];
+    public array $components = ['Session', 'Flash'];
 
     /**
      * The name of the View class this controller sends output to.
      *
      * @var string
      */
-    public $viewClass = 'View';
+    public string $viewClass = 'View';
 
     /**
      * Instance of the View created during rendering. Won't be set until after
@@ -240,21 +241,21 @@ class Controller extends CakeObject implements CakeEventListener
      *
      * @var View
      */
-    public $View;
+    public View $View;
 
     /**
      * File extension for view templates. Defaults to CakePHP's conventional ".ctp".
      *
      * @var string
      */
-    public $ext = '.ctp';
+    public string $ext = '.ctp';
 
     /**
      * Automatically set to the name of a plugin.
      *
-     * @var string
+     * @var string|null
      */
-    public $plugin = null;
+    public ?string $plugin = null;
 
     /**
      * Used to define methods a controller that will be cached. To cache a
@@ -299,7 +300,7 @@ class Controller extends CakeObject implements CakeEventListener
      *
      * @var array
      */
-    public $methods = [];
+    public array $methods = [];
 
     /**
      * This controller's primary model class name, the Inflector::singularize()'ed version of
@@ -307,26 +308,26 @@ class Controller extends CakeObject implements CakeEventListener
      *
      * Example: For a controller named 'Comments', the modelClass would be 'Comment'
      *
-     * @var string
+     * @var string|null
      */
-    public $modelClass = null;
+    public ?string $modelClass = null;
 
     /**
      * This controller's model key name, an underscored version of the controller's $modelClass property.
      *
      * Example: For a controller named 'ArticleComments', the modelKey would be 'article_comment'
      *
-     * @var string
+     * @var string|null
      */
-    public $modelKey = null;
+    public ?string $modelKey = null;
 
     /**
      * Holds any validation errors produced by the last call of the validateErrors() method.
      * Contains `false` if no validation errors happened.
      *
-     * @var array|bool
+     * @var array|false|null
      */
-    public $validationErrors = null;
+    public array|false|null $validationErrors = null;
 
     /**
      * The class name of the parent class you wish to merge with.
@@ -335,24 +336,24 @@ class Controller extends CakeObject implements CakeEventListener
      *
      * @var string
      */
-    protected $_mergeParent = 'AppController';
+    protected string $_mergeParent = 'AppController';
 
     /**
      * Instance of the CakeEventManager this controller is using
      * to dispatch inner events.
      *
-     * @var CakeEventManager
+     * @var CakeEventManager|null
      */
-    protected $_eventManager = null;
+    protected ?CakeEventManager $_eventManager = null;
 
     /**
      * Constructor.
      *
-     * @param CakeRequest $request Request object for this controller. Can be null for testing,
+     * @param CakeRequest|null $request Request object for this controller. Can be null for testing,
      *  but expect that features that use the request parameters will not work.
-     * @param CakeResponse $response Response object for this controller.
+     * @param CakeResponse|null $response Response object for this controller.
      */
-    public function __construct($request = null, $response = null)
+    public function __construct(?CakeRequest $request = null, ?CakeResponse $response = null)
     {
         // Store the fully qualified class name for View
         $this->controllerClass = static::class;
@@ -710,7 +711,7 @@ class Controller extends CakeObject implements CakeEventListener
      *
      * @return array
      */
-    public function implementedEvents()
+    public function implementedEvents(): array
     {
         return [
             'Controller.initialize' => 'beforeFilter',
@@ -1256,7 +1257,7 @@ class Controller extends CakeObject implements CakeEventListener
      * @return void
      * @link https://book.cakephp.org/2.0/en/controllers.html#request-life-cycle-callbacks
      */
-    public function beforeRender()
+    public function beforeRender(): void
     {
     }
 

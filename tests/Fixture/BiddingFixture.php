@@ -32,7 +32,7 @@ class BiddingFixture extends CakeTestFixture
      *
      * @var array
      */
-    public $fields = [
+    public array $fields = [
         'id' => ['type' => 'integer', 'key' => 'primary'],
         'bid' => ['type' => 'string', 'null' => false],
         'name' => ['type' => 'string', 'null' => false],
@@ -43,7 +43,7 @@ class BiddingFixture extends CakeTestFixture
      *
      * @var array
      */
-    public $records = [
+    public array $records = [
         ['bid' => 'One', 'name' => 'Bid 1'],
         ['bid' => 'Two', 'name' => 'Bid 2'],
         ['bid' => 'Three', 'name' => 'Bid 3'],

@@ -424,7 +424,7 @@ class TranslateBehavior extends ModelBehavior
      * @return bool
      * @see Model::save()
      */
-    public function beforeValidate(Model $model, $options = [])
+    public function beforeValidate(Model $model, array $options = []): ?bool
     {
         unset($this->runtime[$model->alias]['beforeSave']);
         $this->_setRuntimeData($model);
@@ -440,10 +440,10 @@ class TranslateBehavior extends ModelBehavior
      *
      * @param Model $model Model save was called on.
      * @param array $options Options passed from Model::save().
-     * @return bool true.
+     * @return bool|null true.
      * @see Model::save()
      */
-    public function beforeSave(Model $model, $options = [])
+    public function beforeSave(Model $model, array $options = []): ?bool
     {
         if (isset($options['validate']) && !$options['validate']) {
             unset($this->runtime[$model->alias]['beforeSave']);
@@ -464,14 +464,15 @@ class TranslateBehavior extends ModelBehavior
      * is disabled.
      *
      * @param Model $model Model using this behavior.
-     * @return bool true.
+     * @return void
      */
-    protected function _setRuntimeData(Model $model)
+    protected function _setRuntimeData(Model $model): void
     {
         $locale = $this->_getLocale($model);
         if (empty($locale)) {
-            return true;
+            return;
         }
+
         $fields = array_merge($this->settings[$model->alias], $this->runtime[$model->alias]['fields']);
         $tempData = [];
 
@@ -498,9 +499,9 @@ class TranslateBehavior extends ModelBehavior
      * This solves issues with saveAssociated and validate = first.
      *
      * @param Model $model Model using this behavior.
-     * @return bool true.
+     * @return bool|null true.
      */
-    public function afterValidate(Model $model)
+    public function afterValidate(Model $model): ?bool
     {
         $model->data[$model->alias] = array_merge(
             $model->data[$model->alias],
@@ -516,12 +517,12 @@ class TranslateBehavior extends ModelBehavior
      * @param Model $model Model the callback is called on
      * @param bool $created Whether or not the save created a record.
      * @param array $options Options passed from Model::save().
-     * @return bool true.
+     * @return bool|null
      */
-    public function afterSave(Model $model, $created, $options = [])
+    public function afterSave(Model $model, bool $created, array $options = []): ?bool
     {
         if (!isset($this->runtime[$model->alias]['beforeValidate']) && !isset($this->runtime[$model->alias]['beforeSave'])) {
-            return true;
+            return null;
         }
         if (isset($this->runtime[$model->alias]['beforeValidate'])) {
             $tempData = $this->runtime[$model->alias]['beforeValidate'];
@@ -579,6 +580,8 @@ class TranslateBehavior extends ModelBehavior
                 }
             }
         }
+
+        return null;
     }
 
     /**
@@ -619,13 +622,15 @@ class TranslateBehavior extends ModelBehavior
      * afterDelete Callback
      *
      * @param Model $model Model the callback was run on.
-     * @return void
+     * @return bool|null
      */
-    public function afterDelete(Model $model)
+    public function afterDelete(Model $model): ?bool
     {
         $RuntimeModel = $this->translateModel($model);
         $conditions = ['model' => $model->name, 'foreign_key' => $model->id];
         $RuntimeModel->deleteAll($conditions);
+
+        return null;
     }
 
     /**
@@ -689,7 +694,7 @@ class TranslateBehavior extends ModelBehavior
      * @throws CakeException when attempting to bind a translating called name. This is not allowed
      *   as it shadows Model::$name.
      */
-    public function bindTranslation(Model $model, $fields, $reset = true)
+    public function bindTranslation(Model $model, array|string $fields, bool $reset = true): bool
     {
         if (is_string($fields)) {
             $fields = [$fields];

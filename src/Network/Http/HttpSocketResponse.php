@@ -186,7 +186,7 @@ class HttpSocketResponse implements ArrayAccess
         $this->body = $decoded['body'];
 
         if (!empty($decoded['header'])) {
-            $this->headers = $this->_parseHeader($this->_buildHeader($this->headers) . $this->_buildHeader($decoded['header']));
+            $this->headers = $this->_parseHeader($this->headers) + $this->_parseHeader($decoded['header']);
         }
 
         if (!empty($this->headers)) {

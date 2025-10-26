@@ -32,7 +32,7 @@ class StoryFixture extends CakeTestFixture
      *
      * @var array
      */
-    public $fields = [
+    public array $fields = [
         'story' => ['type' => 'integer', 'key' => 'primary'],
         'title' => ['type' => 'string', 'null' => false],
     ];
@@ -42,7 +42,7 @@ class StoryFixture extends CakeTestFixture
      *
      * @var array
      */
-    public $records = [
+    public array $records = [
         ['title' => 'First Story'],
         ['title' => 'Second Story'],
     ];

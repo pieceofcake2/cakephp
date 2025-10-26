@@ -32,7 +32,7 @@ class SessionFixture extends CakeTestFixture
      *
      * @var array
      */
-    public $fields = [
+    public array $fields = [
         'id' => ['type' => 'string', 'length' => 128, 'key' => 'primary'],
         'data' => ['type' => 'text', 'null' => true],
         'expires' => ['type' => 'integer', 'length' => 11, 'null' => true],
@@ -43,5 +43,5 @@ class SessionFixture extends CakeTestFixture
      *
      * @var array
      */
-    public $records = [];
+    public array $records = [];
 }

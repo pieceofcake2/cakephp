@@ -25,6 +25,7 @@ use Cake\Model\Model;
 use InvalidArgumentException;
 use PDO;
 use PDOException;
+use PDOStatement;
 
 /**
  * Dbo layer for Microsoft's official SQLServer driver
@@ -42,21 +43,21 @@ class Sqlserver extends DboSource
      *
      * @var string
      */
-    public $description = 'SQL Server DBO Driver';
+    public string $description = 'SQL Server DBO Driver';
 
     /**
      * Starting quote character for quoted identifiers
      *
-     * @var string
+     * @var string|null
      */
-    public $startQuote = '[';
+    public ?string $startQuote = '[';
 
     /**
      * Ending quote character for quoted identifiers
      *
-     * @var string
+     * @var string|null
      */
-    public $endQuote = ']';
+    public ?string $endQuote = ']';
 
     /**
      * Creates a map between field aliases and numeric indexes. Workaround for the
@@ -64,7 +65,7 @@ class Sqlserver extends DboSource
      *
      * @var array
      */
-    protected $_fieldMappings = [];
+    protected array $_fieldMappings = [];
 
     /**
      * Storing the last affected value
@@ -78,7 +79,7 @@ class Sqlserver extends DboSource
      *
      * @var array
      */
-    protected $_baseConfig = [
+    protected array $_baseConfig = [
         'host' => 'localhost\SQLEXPRESS',
         'login' => '',
         'password' => '',
@@ -93,7 +94,7 @@ class Sqlserver extends DboSource
      * @var array
      * @link https://msdn.microsoft.com/en-us/library/ms187752.aspx SQL Server Data Types
      */
-    public $columns = [
+    public array $columns = [
         'primary_key' => ['name' => 'IDENTITY (1, 1) NOT NULL'],
         'string' => ['name' => 'nvarchar', 'limit' => '255'],
         'text' => ['name' => 'nvarchar', 'limit' => 'MAX'],
@@ -112,6 +113,8 @@ class Sqlserver extends DboSource
         'binary' => ['name' => 'varbinary'],
         'boolean' => ['name' => 'bit'],
     ];
+
+    public $error = null;
 
     /**
      * Magic column name used to provide pagination support for SQLServer 2008
@@ -218,7 +221,7 @@ class Sqlserver extends DboSource
      * @param mixed $data The names
      * @return array Array of table names in the database
      */
-    public function listSources($data = null)
+    public function listSources(?array $data = null): ?array
     {
         $cache = parent::listSources();
         if ($cache !== null) {
@@ -695,14 +698,9 @@ class Sqlserver extends DboSource
     }
 
     /**
-     * Returns a quoted and escaped string of $data for use in an SQL statement.
-     *
-     * @param string $data String to be prepared for use in an SQL statement
-     * @param string $column The column into which this data will be inserted
-     * @param bool $null Column allows NULL values
-     * @return string Quoted and escaped data
+     * @inheritDoc
      */
-    public function value($data, $column = null, $null = true)
+    public function value($data, ?string $column = null, bool $null = true): array|string
     {
         if ($data === null || is_array($data) || is_object($data)) {
             return parent::value($data, $column, $null);
@@ -772,12 +770,12 @@ class Sqlserver extends DboSource
     /**
      * Inserts multiple values into a table
      *
-     * @param string $table The table to insert into.
+     * @param Model|string $table The table to insert into.
      * @param array $fields The fields to set.
      * @param array $values The values to set.
      * @return bool
      */
-    public function insertMulti($table, $fields, $values)
+    public function insertMulti(Model|string $table, array $fields, array $values): bool
     {
         $primaryKey = $this->_getPrimaryKey($table);
         $hasPrimaryKey = $primaryKey && (
@@ -837,10 +835,10 @@ class Sqlserver extends DboSource
      * Format indexes for create table
      *
      * @param array $indexes The indexes to build
-     * @param string $table The table to make indexes for.
-     * @return string
+     * @param string|null $table The table to make indexes for.
+     * @return array<string>
      */
-    public function buildIndex($indexes, $table = null)
+    public function buildIndex(array $indexes, ?string $table = null): array
     {
         $join = [];
 
@@ -921,20 +919,14 @@ class Sqlserver extends DboSource
         try {
             $this->_lastAffected = $this->_connection->exec($sql);
             if ($this->_lastAffected === false) {
-                $this->_results = null;
-                $error = $this->_connection->errorInfo();
-                $this->error = $error[2];
+                $this->_result = null;
 
                 return false;
             }
 
             return true;
         } catch (PDOException $e) {
-            if (isset($query->queryString)) {
-                $e->queryString = $query->queryString;
-            } else {
-                $e->queryString = $sql;
-            }
+            $e->queryString = $sql;
             throw $e;
         }
     }
@@ -942,10 +934,10 @@ class Sqlserver extends DboSource
     /**
      * Generate a "drop table" statement for the given table
      *
-     * @param type $table Name of the table to drop
+     * @param Model|string $table Name of the table to drop
      * @return string Drop table SQL statement
      */
-    protected function _dropTable($table)
+    protected function _dropTable($table): string
     {
         return "IF OBJECT_ID('" . $this->fullTableName($table, false) . "', 'U') IS NOT NULL DROP TABLE " . $this->fullTableName($table) . ';';
     }

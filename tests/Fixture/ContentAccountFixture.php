@@ -27,14 +27,14 @@ use Cake\TestSuite\Fixture\CakeTestFixture;
  */
 class ContentAccountFixture extends CakeTestFixture
 {
-    public $table = 'ContentAccounts';
+    public ?string $table = 'ContentAccounts';
 
     /**
      * fields property
      *
      * @var array
      */
-    public $fields = [
+    public array $fields = [
         'iContentAccountsId' => ['type' => 'integer', 'key' => 'primary'],
         'iContentId' => ['type' => 'integer'],
         'iAccountId' => ['type' => 'integer'],
@@ -45,7 +45,7 @@ class ContentAccountFixture extends CakeTestFixture
      *
      * @var array
      */
-    public $records = [
+    public array $records = [
         ['iContentId' => 1, 'iAccountId' => 1],
         ['iContentId' => 2, 'iAccountId' => 2],
         ['iContentId' => 3, 'iAccountId' => 3],

@@ -32,7 +32,7 @@ class PrimaryModelFixture extends CakeTestFixture
      *
      * @var array
      */
-    public $fields = [
+    public array $fields = [
         'id' => ['type' => 'integer', 'key' => 'primary'],
         'primary_name' => ['type' => 'string', 'null' => false],
     ];
@@ -42,7 +42,7 @@ class PrimaryModelFixture extends CakeTestFixture
      *
      * @var array
      */
-    public $records = [
+    public array $records = [
         ['primary_name' => 'Primary Name Existing'],
     ];
 }

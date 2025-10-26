@@ -28,8 +28,6 @@ use Cake\Utility\ClassRegistry;
 use Cake\Utility\Hash;
 use PDOException;
 
-require_once __DIR__ . DS . 'ModelTestBase.php';
-
 /**
  * ModelReadTest
  *

@@ -3,6 +3,7 @@
 namespace Cake\Utility;
 
 use Cake\Core\Configure;
+use Cake\Error\CakeException;
 use Cake\I18n\Multibyte;
 use DateTime;
 use DateTimeZone;
@@ -101,7 +102,7 @@ class CakeTime
      * Used by TimeHelper to modify static variables in CakeTime
      *
      * @param string $name Variable name
-     * @param mixes $value Variable value
+     * @param mixed $value Variable value
      * @return void
      */
     public function __set($name, $value)
@@ -326,11 +327,11 @@ class CakeTime
      * Returns a timestamp, given either a UNIX timestamp or a valid strtotime() date string.
      *
      * @param DateTime|string|int $dateString UNIX timestamp, strtotime() valid string or DateTime object
-     * @param DateTimeZone|string $timezone Timezone string or DateTimeZone object
+     * @param DateTimeZone|string|null $timezone Timezone string or DateTimeZone object
      * @return int|false Parsed given timezone timestamp.
      * @link https://book.cakephp.org/2.0/en/core-libraries/helpers/time.html#TimeHelper::fromString
      */
-    public static function fromString($dateString, $timezone = null)
+    public static function fromString(DateTime|string|int|null $dateString, DateTimeZone|string|null $timezone = null): int|false
     {
         if (empty($dateString)) {
             return false;
@@ -629,12 +630,12 @@ class CakeTime
     /**
      * Returns the quarter
      *
-     * @param DateTime|string|int $dateString UNIX timestamp, strtotime() valid string or DateTime object
+     * @param DateTime|string|int|null $dateString UNIX timestamp, strtotime() valid string or DateTime object
      * @param bool $range if true returns a range in Y-m-d format
      * @return array|int 1, 2, 3, or 4 quarter of year or array if $range true
      * @link https://book.cakephp.org/2.0/en/core-libraries/helpers/time.html#TimeHelper::toQuarter
      */
-    public static function toQuarter($dateString, $range = false)
+    public static function toQuarter(DateTime|string|int|null $dateString, bool $range = false): array|int
     {
         $time = static::fromString($dateString);
         $date = (int)ceil(date('m', $time) / 3);
@@ -652,6 +653,12 @@ class CakeTime
                 return [$year . '-07-01', $year . '-09-30'];
             case 4:
                 return [$year . '-10-01', $year . '-12-31'];
+            default:
+                throw new CakeException(__d(
+                    'cake_dev',
+                    'Invalid quarter value %s. Expected 1-4.',
+                    $date,
+                ));
         }
     }
 

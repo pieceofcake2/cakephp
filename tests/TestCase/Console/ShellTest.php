@@ -158,6 +158,8 @@ class_alias(TestBananaTask::class, 'App\\Console\\Command\\Task\\TestBananaTask'
  */
 class ShellTest extends CakeTestCase
 {
+    public Shell $Shell;
+
     /**
      * Fixtures used in this test case
      *
@@ -264,10 +266,10 @@ class ShellTest extends CakeTestCase
             'Model' => [CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'Model' . DS],
         ], App::RESET);
 
-        $Shell = new TestMergeShell();
-        $this->assertEquals('Comment', $Shell->Comment->alias);
-        $this->assertInstanceOf(Comment::class, $Shell->Comment);
-        $this->assertEquals('Comment', $Shell->modelClass);
+        $shell = new TestMergeShell();
+        $this->assertEquals('Comment', $shell->Comment->alias);
+        $this->assertInstanceOf(Comment::class, $shell->Comment);
+        $this->assertEquals('Comment', $shell->modelClass);
 
         CakePlugin::load('TestPlugin');
         $this->Shell->loadModel('TestPlugin.TestPluginPost');
@@ -286,7 +288,8 @@ class ShellTest extends CakeTestCase
      */
     public function testIn()
     {
-        $this->Shell->stdin->expects($this->exactly(6))
+        $this->Shell->stdin
+            ->expects($this->exactly(6))
             ->method('read')
             ->willReturnOnConsecutiveCalls('n', 'Y', 'y', 'y', 'y', '0');
 
@@ -330,7 +333,8 @@ class ShellTest extends CakeTestCase
     public function testOut()
     {
         $writeCalls = [];
-        $this->Shell->stdout->expects($this->exactly(4))
+        $this->Shell->stdout
+            ->expects($this->exactly(4))
             ->method('write')
             ->willReturnCallback(function ($message, $newlines = 1) use (&$writeCalls) {
                 $writeCalls[] = ['message' => $message, 'newlines' => $newlines];
@@ -357,7 +361,8 @@ class ShellTest extends CakeTestCase
     public function testVerboseOutput()
     {
         $writeCalls = [];
-        $this->Shell->stdout->expects($this->exactly(3))
+        $this->Shell->stdout
+            ->expects($this->exactly(3))
             ->method('write')
             ->willReturnCallback(function ($message, $newlines) use (&$writeCalls) {
                 $writeCalls[] = ['message' => $message, 'newlines' => $newlines];
@@ -384,7 +389,8 @@ class ShellTest extends CakeTestCase
      */
     public function testQuietOutput()
     {
-        $this->Shell->stdout->expects($this->once())->method('write')
+        $this->Shell->stdout
+            ->expects($this->once())->method('write')
             ->with('Quiet', 1);
 
         $this->Shell->params['verbose'] = false;
@@ -407,7 +413,8 @@ class ShellTest extends CakeTestCase
         $returnValues = [$number, $number, 9, $number - 9, null];
         $callIndex = 0;
 
-        $this->Shell->stdout->expects($this->exactly(5))
+        $this->Shell->stdout
+            ->expects($this->exactly(5))
             ->method('write')
             ->willReturnCallback(function ($message, $newlines) use (&$writeCalls, &$callIndex, $returnValues) {
                 $writeCalls[] = ['message' => $message, 'newlines' => $newlines];
@@ -437,7 +444,8 @@ class ShellTest extends CakeTestCase
     public function testErr()
     {
         $writeCalls = [];
-        $this->Shell->stderr->expects($this->exactly(4))
+        $this->Shell->stderr
+            ->expects($this->exactly(4))
             ->method('write')
             ->willReturnCallback(function ($message, $newlines = 1) use (&$writeCalls) {
                 $writeCalls[] = ['message' => $message, 'newlines' => $newlines];
@@ -483,7 +491,8 @@ class ShellTest extends CakeTestCase
     {
         $bar = '---------------------------------------------------------------';
         $writeCalls = [];
-        $this->Shell->stdout->expects($this->exactly(9))
+        $this->Shell->stdout
+            ->expects($this->exactly(9))
             ->method('write')
             ->willReturnCallback(function ($message, $newlines) use (&$writeCalls) {
                 $writeCalls[] = ['message' => $message, 'newlines' => $newlines];
@@ -516,7 +525,8 @@ class ShellTest extends CakeTestCase
     public function testError()
     {
         $writeCalls = [];
-        $this->Shell->stderr->expects($this->exactly(3))
+        $this->Shell->stderr
+            ->expects($this->exactly(3))
             ->method('write')
             ->willReturnCallback(function ($message, $newlines) use (&$writeCalls) {
                 $writeCalls[] = ['message' => $message, 'newlines' => $newlines];
@@ -677,7 +687,8 @@ class ShellTest extends CakeTestCase
 
         $readReturns = ['n', 'y'];
         $readCallIndex = 0;
-        $this->Shell->stdin->expects($this->exactly(2))
+        $this->Shell->stdin
+            ->expects($this->exactly(2))
             ->method('read')
             ->willReturnCallback(function () use ($readReturns, &$readCallIndex) {
                 $return = $readReturns[$readCallIndex];
@@ -797,13 +808,19 @@ class ShellTest extends CakeTestCase
      */
     public function testRunCommandBaseclassMethod()
     {
-        $Mock = $this->getMock(Shell::class, ['startup', 'getOptionParser', 'out'], [], '', false);
-        $Parser = $this->getMock(ConsoleOptionParser::class, [], [], '', false);
-        $Parser->expects($this->once())->method('help');
-        $Mock->expects($this->once())->method('getOptionParser')
-            ->will($this->returnValue($Parser));
-        $Mock->expects($this->once())->method('out');
-        $Mock->runCommand('hr', []);
+        $mock = $this->getMock(Shell::class, ['startup', 'getOptionParser', 'out'], [], '', false);
+        $parser = $this->getMock(ConsoleOptionParser::class, ['help', 'parse'], [], '', false);
+        $parser->expects($this->once())
+            ->method('help');
+        $parser->expects($this->once())
+            ->method('parse')
+            ->will($this->returnValue([[], []]));
+        $mock->expects($this->once())
+            ->method('getOptionParser')
+            ->will($this->returnValue($parser));
+        $mock->expects($this->once())
+            ->method('out');
+        $mock->runCommand('hr', []);
     }
 
     /**
@@ -813,13 +830,15 @@ class ShellTest extends CakeTestCase
      */
     public function testRunCommandMissingMethod()
     {
-        $Mock = $this->getMock(Shell::class, ['startup', 'getOptionParser', 'out'], [], '', false);
-        $Parser = $this->getMock(ConsoleOptionParser::class, [], [], '', false);
-        $Parser->expects($this->once())->method('help');
-        $Mock->expects($this->once())->method('getOptionParser')
-            ->will($this->returnValue($Parser));
-        $Mock->expects($this->once())->method('out');
-        $result = $Mock->runCommand('idontexist', []);
+        $mock = $this->getMock(Shell::class, ['startup', 'getOptionParser', 'out'], [], '', false);
+        $parser = $this->getMock(ConsoleOptionParser::class, ['help', 'parse'], [], '', false);
+        $parser->expects($this->once())->method('help');
+        $parser->expects($this->once())->method('parse')
+            ->will($this->returnValue([[], []]));
+        $mock->expects($this->once())->method('getOptionParser')
+            ->will($this->returnValue($parser));
+        $mock->expects($this->once())->method('out');
+        $result = $mock->runCommand('idontexist', []);
         $this->assertFalse($result);
     }
 
@@ -834,20 +853,20 @@ class ShellTest extends CakeTestCase
         $error = $this->getMock(ConsoleOutput::class, [], [], '', false);
         $in = $this->getMock(ConsoleInput::class, [], [], '', false);
 
-        $Parser = $this->getMock(ConsoleOptionParser::class, [], [], '', false);
-        $Parser->expects($this->once())->method('parse')
+        $parser = $this->getMock(ConsoleOptionParser::class, [], [], '', false);
+        $parser->expects($this->once())->method('parse')
             ->with(['--unknown'])
             ->will($this->throwException(new ConsoleException('Unknown option `unknown`')));
-        $Parser->expects($this->once())->method('help');
+        $parser->expects($this->once())->method('help');
 
-        $Shell = $this->getMock(ShellTestShell::class, ['getOptionParser'], [$output, $error, $in]);
+        $shell = $this->getMock(ShellTestShell::class, ['getOptionParser'], [$output, $error, $in]);
 
-        $Shell->expects($this->once())->method('getOptionParser')
-            ->will($this->returnValue($Parser));
-        $Shell->stderr->expects($this->once())->method('write');
-        $Shell->stdout->expects($this->once())->method('write');
+        $shell->expects($this->once())->method('getOptionParser')
+            ->will($this->returnValue($parser));
+        $shell->stderr->expects($this->once())->method('write');
+        $shell->stdout->expects($this->once())->method('write');
 
-        $Shell->runCommand('do_something', ['do_something', '--unknown']);
+        $shell->runCommand('do_something', ['do_something', '--unknown']);
     }
 
     /**
@@ -857,18 +876,18 @@ class ShellTest extends CakeTestCase
      */
     public function testRunCommandTriggeringHelp()
     {
-        $Parser = $this->getMock(ConsoleOptionParser::class, [], [], '', false);
-        $Parser->expects($this->once())->method('parse')
+        $parser = $this->getMock(ConsoleOptionParser::class, [], [], '', false);
+        $parser->expects($this->once())->method('parse')
             ->with(['--help'])
             ->will($this->returnValue([['help' => true], []]));
-        $Parser->expects($this->once())->method('help');
+        $parser->expects($this->once())->method('help');
 
-        $Shell = $this->getMock(Shell::class, ['getOptionParser', 'out', 'startup', '_welcome'], [], '', false);
-        $Shell->expects($this->once())->method('getOptionParser')
-            ->will($this->returnValue($Parser));
-        $Shell->expects($this->once())->method('out');
+        $shell = $this->getMock(Shell::class, ['getOptionParser', 'out', 'startup', '_welcome'], [], '', false);
+        $shell->expects($this->once())->method('getOptionParser')
+            ->will($this->returnValue($parser));
+        $shell->expects($this->once())->method('out');
 
-        $Shell->runCommand('', ['--help']);
+        $shell->runCommand('', ['--help']);
     }
 
     /**
@@ -878,20 +897,20 @@ class ShellTest extends CakeTestCase
      */
     public function testRunCommandHittingTask()
     {
-        $Shell = $this->getMock(Shell::class, ['hasTask', 'startup'], [], '', false);
+        $shell = $this->getMock(Shell::class, ['hasTask', 'startup'], [], '', false);
         $task = $this->getMock(Shell::class, ['execute', 'runCommand'], [], '', false);
         $task->expects($this->any())
             ->method('runCommand')
             ->with('execute', ['one', 'value']);
 
-        $Shell->expects($this->once())->method('startup');
-        $Shell->expects($this->any())
+        $shell->expects($this->once())->method('startup');
+        $shell->expects($this->any())
             ->method('hasTask')
             ->will($this->returnValue(true));
 
-        $Shell->RunCommand = $task;
+        $shell->RunCommand = $task;
 
-        $Shell->runCommand('run_command', ['run_command', 'one', 'value']);
+        $shell->runCommand('run_command', ['run_command', 'one', 'value']);
     }
 
     /**

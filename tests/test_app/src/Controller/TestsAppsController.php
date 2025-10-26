@@ -25,9 +25,9 @@ namespace TestApp\Controller;
  */
 class TestsAppsController extends AppController
 {
-    public $uses = [];
+    public array|bool $uses = [];
 
-    public $components = ['RequestHandler'];
+    public array $components = ['RequestHandler'];
 
     public function index()
     {

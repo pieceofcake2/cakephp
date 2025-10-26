@@ -32,7 +32,7 @@ class FeatureSetFixture extends CakeTestFixture
      *
      * @var array
      */
-    public $fields = [
+    public array $fields = [
         'id' => ['type' => 'integer', 'key' => 'primary'],
         'name' => ['type' => 'string', 'null' => false],
     ];
@@ -42,7 +42,7 @@ class FeatureSetFixture extends CakeTestFixture
      *
      * @var array
      */
-    public $records = [
+    public array $records = [
         ['name' => 'FeatureSet 1'],
     ];
 }

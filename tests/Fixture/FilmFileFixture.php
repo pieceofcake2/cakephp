@@ -32,7 +32,7 @@ class FilmFileFixture extends CakeTestFixture
      *
      * @var array
      */
-    public $fields = [
+    public array $fields = [
         'id' => ['type' => 'integer', 'key' => 'primary'],
         'name' => ['type' => 'string', 'length' => 255],
     ];
@@ -42,7 +42,7 @@ class FilmFileFixture extends CakeTestFixture
      *
      * @var array
      */
-    public $records = [
+    public array $records = [
         ['id' => 1, 'name' => 'one'],
         ['id' => 2, 'name' => 'two'],
     ];

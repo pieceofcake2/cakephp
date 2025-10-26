@@ -32,7 +32,7 @@ class StoriesTagFixture extends CakeTestFixture
      *
      * @var array
      */
-    public $fields = [
+    public array $fields = [
         'story' => ['type' => 'integer', 'null' => false],
         'tag_id' => ['type' => 'integer', 'null' => false],
         'indexes' => ['UNIQUE_STORY_TAG' => ['column' => ['story', 'tag_id'], 'unique' => 1]],
@@ -43,7 +43,7 @@ class StoriesTagFixture extends CakeTestFixture
      *
      * @var array
      */
-    public $records = [
+    public array $records = [
         ['story' => 1, 'tag_id' => 1],
     ];
 }

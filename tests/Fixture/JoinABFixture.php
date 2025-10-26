@@ -32,14 +32,14 @@ class JoinABFixture extends CakeTestFixture
      *
      * @var string
      */
-    public $name = 'JoinAsJoinB';
+    public ?string $name = 'JoinAsJoinB';
 
     /**
      * fields property
      *
      * @var array
      */
-    public $fields = [
+    public array $fields = [
         'id' => ['type' => 'integer', 'key' => 'primary'],
         'join_a_id' => ['type' => 'integer', 'length' => 10, 'null' => true],
         'join_b_id' => ['type' => 'integer', 'default' => null],
@@ -53,7 +53,7 @@ class JoinABFixture extends CakeTestFixture
      *
      * @var array
      */
-    public $records = [
+    public array $records = [
         ['join_a_id' => 1, 'join_b_id' => 2, 'other' => 'Data for Join A 1 Join B 2', 'created' => '2008-01-03 10:56:33', 'updated' => '2008-01-03 10:56:33'],
         ['join_a_id' => 2, 'join_b_id' => 3, 'other' => 'Data for Join A 2 Join B 3', 'created' => '2008-01-03 10:56:34', 'updated' => '2008-01-03 10:56:34'],
         ['join_a_id' => 3, 'join_b_id' => 1, 'other' => 'Data for Join A 3 Join B 1', 'created' => '2008-01-03 10:56:35', 'updated' => '2008-01-03 10:56:35'],

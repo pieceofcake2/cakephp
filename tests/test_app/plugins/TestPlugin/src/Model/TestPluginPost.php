@@ -30,21 +30,21 @@ class TestPluginPost extends TestPluginAppModel
      *
      * @var string
      */
-    public $name = 'Post';
+    public ?string $name = 'Post';
 
     /**
      * useTable property
      *
      * @var string
      */
-    public $useTable = 'posts';
+    public string|bool|null $useTable = 'posts';
 
     /**
      * Validation rules
      *
      * @var array
      */
-    public $validate = [
+    public array $validate = [
         'title' => [
             'rule' => ['custom', '.*'],
             'allowEmpty' => true,
@@ -71,5 +71,5 @@ class TestPluginPost extends TestPluginAppModel
      *
      * @var string
      */
-    public $validationDomain = 'test_plugin';
+    public ?string $validationDomain = 'test_plugin';
 }

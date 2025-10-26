@@ -19,8 +19,11 @@ namespace Cake\TestSuite\Reporter;
 
 use Cake\TestSuite\Coverage\TextCoverageReport;
 use Cake\Utility\Inflector;
+use Exception;
 use PHPUnit\Framework\AssertionFailedError;
+use PHPUnit\Framework\Test;
 use PHPUnit\Framework\TestResult;
+use Throwable;
 
 /**
  * CakeTextReporter contains reporting features used for plain text based output
@@ -34,7 +37,7 @@ class CakeTextReporter extends CakeBaseReporter
      *
      * @return void
      */
-    public function paintDocumentStart()
+    public function paintDocumentStart(): void
     {
         if (!headers_sent()) {
             header('Content-type: text/plain');
@@ -44,9 +47,11 @@ class CakeTextReporter extends CakeBaseReporter
     /**
      * Paints a pass
      *
+     * @param Test $test
+     * @param float|null$time
      * @return void
      */
-    public function paintPass()
+    public function paintPass(Test $test, $time = null): void
     {
         echo '.';
     }
@@ -56,9 +61,10 @@ class CakeTextReporter extends CakeBaseReporter
      *
      * @param AssertionFailedError $message Failure object displayed in
      *   the context of the other tests.
+     * @param Test $test
      * @return void
      */
-    public function paintFail($message)
+    public function paintFail($message, Test $test): void
     {
         $context = $message->getTrace();
         $realContext = $context[3];
@@ -80,7 +86,7 @@ class CakeTextReporter extends CakeBaseReporter
      * @param TestResult $result Result object
      * @return void
      */
-    public function paintFooter(TestResult $result)
+    public function paintFooter(TestResult $result): void
     {
         if ($result->failureCount() + $result->errorCount()) {
             echo "FAILURES!!!\n";
@@ -108,7 +114,7 @@ class CakeTextReporter extends CakeBaseReporter
      *
      * @return void
      */
-    public function paintHeader()
+    public function paintHeader(): void
     {
         $this->paintDocumentStart();
         flush();
@@ -117,10 +123,11 @@ class CakeTextReporter extends CakeBaseReporter
     /**
      * Paints a PHP exception.
      *
-     * @param Exception $exception Exception to describe.
+     * @param Exception $exception
+     * @param Test $test
      * @return void
      */
-    public function paintException($exception)
+    public function paintException(Exception $exception, Test $test): void
     {
         $message = 'Unexpected exception of type [' . $exception::class .
             '] with message [' . $exception->getMessage() .
@@ -132,10 +139,11 @@ class CakeTextReporter extends CakeBaseReporter
     /**
      * Prints the message for skipping tests.
      *
-     * @param string $message Text of skip condition.
+     * @param Exception|Throwable $message Text of skip condition.
+     * @param Test $test
      * @return void
      */
-    public function paintSkip($message)
+    public function paintSkip(Exception|Throwable $message, Test $test): void
     {
         printf("Skip: %s\n", $message->getMessage());
     }
@@ -159,7 +167,7 @@ class CakeTextReporter extends CakeBaseReporter
      *
      * @return void
      */
-    public function testCaseList()
+    public function testCaseList(): void
     {
         $testCases = parent::testCaseList();
         $app = $this->params['app'];

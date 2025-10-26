@@ -33,7 +33,7 @@ class AdFixture extends CakeTestFixture
      *
      * @var array
      */
-    public $fields = [
+    public array $fields = [
         'id' => ['type' => 'integer', 'key' => 'primary'],
         'campaign_id' => ['type' => 'integer'],
         'parent_id' => ['type' => 'integer'],
@@ -47,7 +47,7 @@ class AdFixture extends CakeTestFixture
      *
      * @var array
      */
-    public $records = [
+    public array $records = [
         ['parent_id' => null, 'lft' => 1, 'rght' => 2, 'campaign_id' => 1, 'name' => 'Nordover'],
         ['parent_id' => null, 'lft' => 3, 'rght' => 4, 'campaign_id' => 1, 'name' => 'Statbergen'],
         ['parent_id' => null, 'lft' => 5, 'rght' => 6, 'campaign_id' => 1, 'name' => 'Feroy'],

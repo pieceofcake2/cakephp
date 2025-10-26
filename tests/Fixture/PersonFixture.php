@@ -32,7 +32,7 @@ class PersonFixture extends CakeTestFixture
      *
      * @var array
      */
-    public $fields = [
+    public array $fields = [
         'id' => ['type' => 'integer', 'null' => false, 'key' => 'primary'],
         'name' => ['type' => 'string', 'null' => false, 'length' => 32],
         'mother_id' => ['type' => 'integer', 'null' => false, 'key' => 'index'],
@@ -48,7 +48,7 @@ class PersonFixture extends CakeTestFixture
      *
      * @var array
      */
-    public $records = [
+    public array $records = [
         ['name' => 'person', 'mother_id' => 2, 'father_id' => 3],
         ['name' => 'mother', 'mother_id' => 4, 'father_id' => 5],
         ['name' => 'father', 'mother_id' => 6, 'father_id' => 7],

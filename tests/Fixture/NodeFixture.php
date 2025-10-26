@@ -33,7 +33,7 @@ class NodeFixture extends CakeTestFixture
      *
      * @var array
      */
-    public $fields = [
+    public array $fields = [
         'id' => ['type' => 'integer', 'key' => 'primary'],
         'name' => 'string',
         'state' => 'integer',
@@ -44,7 +44,7 @@ class NodeFixture extends CakeTestFixture
      *
      * @var array
      */
-    public $records = [
+    public array $records = [
         ['id' => 1, 'name' => 'First', 'state' => 50],
         ['id' => 2, 'name' => 'Second', 'state' => 60],
     ];

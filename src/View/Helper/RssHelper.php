@@ -23,6 +23,7 @@ namespace Cake\View\Helper;
 use AppHelper;
 use Cake\Core\App;
 use Cake\Utility\Xml;
+use DateTime;
 
 App::uses('AppHelper', 'View/Helper');
 
@@ -40,7 +41,7 @@ class RssHelper extends AppHelper
      *
      * @var array
      */
-    public $helpers = ['Time'];
+    public array $helpers = ['Time'];
 
     /**
      * Base URL

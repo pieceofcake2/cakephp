@@ -32,7 +32,7 @@ class PostsTagFixture extends CakeTestFixture
      *
      * @var array
      */
-    public $fields = [
+    public array $fields = [
         'post_id' => ['type' => 'integer', 'null' => false],
         'tag_id' => ['type' => 'string', 'null' => false],
         'indexes' => ['posts_tag' => ['column' => ['tag_id', 'post_id'], 'unique' => 1]],
@@ -43,7 +43,7 @@ class PostsTagFixture extends CakeTestFixture
      *
      * @var array
      */
-    public $records = [
+    public array $records = [
         ['post_id' => 1, 'tag_id' => 'tag1'],
         ['post_id' => 1, 'tag_id' => 'tag2'],
         ['post_id' => 2, 'tag_id' => 'tag1'],

@@ -32,7 +32,7 @@ class UuidNativeTagFixture extends CakeTestFixture
      *
      * @var array
      */
-    public $fields = [
+    public array $fields = [
         'id' => ['type' => 'uuid', 'key' => 'primary'],
         'name' => ['type' => 'string', 'length' => 255],
         'created' => ['type' => 'datetime'],
@@ -43,7 +43,7 @@ class UuidNativeTagFixture extends CakeTestFixture
      *
      * @var array
      */
-    public $records = [
+    public array $records = [
         ['id' => '481fc6d0-b920-43e0-e50f-6d1740cf8569', 'name' => 'MyTag', 'created' => '2009-12-09 12:30:00'],
     ];
 }

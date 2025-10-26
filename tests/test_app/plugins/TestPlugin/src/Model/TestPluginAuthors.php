@@ -25,11 +25,11 @@ namespace TestPlugin\Model;
  */
 class TestPluginAuthors extends TestPluginAppModel
 {
-    public $useTable = 'authors';
+    public string|bool|null $useTable = 'authors';
 
-    public $name = 'TestPluginAuthors';
+    public ?string $name = 'TestPluginAuthors';
 
-    public $validate = [
+    public array $validate = [
         'field' => [
             'notBlank' => [
                 'rule' => 'notBlank',

@@ -84,7 +84,7 @@ class Dispatcher implements CakeEventListener
      *
      * @return array
      */
-    public function implementedEvents()
+    public function implementedEvents(): array
     {
         return ['Dispatcher.beforeDispatch' => 'parseParams'];
     }

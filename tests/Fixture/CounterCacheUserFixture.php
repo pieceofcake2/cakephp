@@ -27,14 +27,14 @@ use Cake\TestSuite\Fixture\CakeTestFixture;
  */
 class CounterCacheUserFixture extends CakeTestFixture
 {
-    public $fields = [
+    public array $fields = [
         'id' => ['type' => 'integer', 'key' => 'primary'],
         'name' => ['type' => 'string', 'length' => 255, 'null' => false],
         'post_count' => ['type' => 'integer', 'null' => true],
         'posts_published' => ['type' => 'integer', 'null' => true],
     ];
 
-    public $records = [
+    public array $records = [
         ['id' => 66, 'name' => 'Alexander', 'post_count' => 2, 'posts_published' => 1],
         ['id' => 301, 'name' => 'Steven', 'post_count' => 1, 'posts_published' => 1],
     ];
