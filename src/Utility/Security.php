@@ -370,14 +370,14 @@ class Security
      * Any trailing null bytes will be removed on decryption due to how PHP pads messages
      * with nulls prior to encryption.
      *
-     * @param string $plain The value to encrypt.
+     * @param string|null $plain The value to encrypt.
      * @param string $key The 256 bit/32 byte key to use as a cipher key.
      * @param string|null $hmacSalt The salt to use for the HMAC process. Leave null to use Security.salt.
      * @return string Encrypted data.
      * @throws CakeException On invalid data or key.
      */
     public static function encrypt(
-        string $plain,
+        ?string $plain,
         string $key,
         ?string $hmacSalt = null,
     ): string {
