@@ -297,4 +297,8 @@ jobs:
 
       - name: PHPStan analyse
         id: phpcs
-        run: ./vendor/bin/phpstan analyse --error-format=github
+        run: ./vendor/bin/phpstan analyse --error-format=checkstyle > ./checkstyle.xml
+
+      - name: Show PHPStan results in PR
+        if: ${{ always() && steps.phpcs.outcome == 'failure' }}
+        run: cs2pr ./checkstyle.xml
