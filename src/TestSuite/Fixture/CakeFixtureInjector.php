@@ -3,6 +3,7 @@
 namespace Cake\TestSuite\Fixture;
 
 use Cake\TestSuite\CakeTestCase;
+use Exception;
 use PHPUnit\Framework\AssertionFailedError;
 use PHPUnit\Framework\Test;
 use PHPUnit\Framework\TestListener;
@@ -10,15 +11,11 @@ use PHPUnit\Framework\TestSuite;
 use PHPUnit\Framework\Warning;
 use Throwable;
 
-/**
- * @property CakeFixtureManager $_fixtureManager
- * @property TestSuite $_first
- */
 class CakeFixtureInjector implements TestListener
 {
-    protected $_fixtureManager;
+    protected ?CakeFixtureManager $_fixtureManager = null;
 
-    protected $_first;
+    protected ?TestSuite $_first = null;
 
     public function __construct(?CakeFixtureManager $manager = null)
     {
@@ -42,8 +39,8 @@ class CakeFixtureInjector implements TestListener
 
     public function startTest(Test $test): void
     {
-        $test->fixtureManager = $this->_fixtureManager;
         if ($test instanceof CakeTestCase) {
+            $test->fixtureManager = $this->_fixtureManager;
             $this->_fixtureManager->fixturize($test);
             $this->_fixtureManager->load($test);
         }
@@ -56,27 +53,27 @@ class CakeFixtureInjector implements TestListener
         }
     }
 
-    public function addError(Test $test, Throwable $e, $time): void
+    public function addError(Test $test, Exception|Throwable $t, $time): void
     {
     }
 
-    public function addFailure(Test $test, AssertionFailedError $e, $time): void
+    public function addFailure(Test $test, AssertionFailedError $exception, $time): void
     {
     }
 
-    public function addIncompleteTest(Test $test, Throwable $e, $time): void
+    public function addIncompleteTest(Test $test, Throwable $exception, $time): void
     {
     }
 
-    public function addSkippedTest(Test $test, Throwable $e, $time): void
+    public function addSkippedTest(Test $test, Throwable $exception, $time): void
     {
     }
 
-    public function addRiskyTest(Test $test, Throwable $e, $time): void
+    public function addRiskyTest(Test $test, Throwable $exception, $time): void
     {
     }
 
-    public function addWarning(Test $test, Warning $e, float $time): void
+    public function addWarning(Test $test, Warning $exception, float $time): void
     {
     }
 }

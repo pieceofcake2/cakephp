@@ -25,7 +25,7 @@ namespace TestApp\Controller;
  */
 class TestsAppsController extends AppController
 {
-    public array|bool $uses = [];
+    public array|bool|null $uses = [];
 
     public array $components = ['RequestHandler'];
 

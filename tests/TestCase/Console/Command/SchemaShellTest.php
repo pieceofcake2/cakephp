@@ -29,6 +29,7 @@ use Cake\Model\ConnectionManager;
 use Cake\TestSuite\CakeTestCase;
 use Cake\Utility\File;
 use I18nSchema;
+use PHPUnit\Framework\MockObject\MockObject;
 use TestPluginAppSchema;
 
 /**
@@ -101,12 +102,22 @@ class SchemaShellTest extends CakeTestCase
      *
      * @var array
      */
-    public $fixtures = [
-        'core.article', 'core.user', 'core.post', 'core.auth_user', 'core.author',
-        'core.comment', 'core.test_plugin_comment', 'core.aco', 'core.aro', 'core.aros_aco',
+    public array $fixtures = [
+        'core.article',
+        'core.user',
+        'core.post',
+        'core.auth_user',
+        'core.author',
+        'core.comment',
+        'core.test_plugin_comment',
+        'core.aco',
+        'core.aro',
+        'core.aros_aco',
     ];
 
-    protected $_appNamespace = null;
+    protected ?string $_appNamespace = null;
+
+    public SchemaShell|MockObject|null $Shell = null;
 
     /**
      * setUp method
@@ -348,19 +359,23 @@ class SchemaShellTest extends CakeTestCase
             ->method('out')
             ->willReturnCallback(function ($message = '') use (&$outCalls) {
                 $outCalls[] = $message;
+
+                return 0;
             });
 
         $this->Shell->Schema = $this->getMock(CakeSchema::class);
         $this->Shell->Schema->path = TMP;
 
-        $this->Shell->Schema->expects($this->once())
+        $this->Shell->Schema
+            ->expects($this->once())
             ->method('read')
             ->will($this->returnValue(['schema data']));
 
-        $this->Shell->Schema->expects($this->once())
+        $this->Shell->Schema
+            ->expects($this->once())
             ->method('write')
             ->with(['schema data', 'file' => 'schema.php'])
-            ->will($this->returnValue(true));
+            ->willReturn(true);
 
         $this->Shell->generate();
 

@@ -79,27 +79,27 @@ class CakeEvent
      *
      * @var mixed
      */
-    public $data = null;
+    public mixed $data = null;
 
     /**
      * Property used to retain the result value of the event listeners
      *
      * @var mixed
      */
-    public $result = null;
+    public mixed $result = null;
 
     /**
      * Flags an event as stopped or not, default is false
      *
      * @var bool
      */
-    protected $_stopped = false;
+    protected bool $_stopped = false;
 
     /**
      * Constructor
      *
      * @param string $name Name of the event
-     * @param object $subject the object that this event applies to (usually the object that is generating the event)
+     * @param object|null $subject the object that this event applies to (usually the object that is generating the event)
      * @param mixed $data any value you wish to be transported with this event to it can be read by listeners
      *
      * ## Examples of usage:
@@ -109,7 +109,7 @@ class CakeEvent
      *  $event = new CakeEvent('User.afterRegister', $UserModel);
      * ```
      */
-    public function __construct($name, $subject = null, $data = null)
+    public function __construct(string $name, ?object $subject = null, mixed $data = null)
     {
         $this->_name = $name;
         $this->data = $data;
@@ -122,7 +122,7 @@ class CakeEvent
      * @param string $attribute Attribute name.
      * @return mixed
      */
-    public function __get($attribute)
+    public function __get(string $attribute): mixed
     {
         if ($attribute === 'name' || $attribute === 'subject') {
             return $this->{$attribute}();

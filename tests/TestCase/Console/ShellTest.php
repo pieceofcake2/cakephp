@@ -34,6 +34,7 @@ use Cake\TestSuite\CakeTestCase;
 use Cake\Utility\Folder;
 use Cake\Utility\Hash;
 use Comment;
+use PHPUnit\Framework\MockObject\MockObject;
 use RuntimeException;
 use TestPlugin\Model\TestPluginPost;
 
@@ -41,6 +42,9 @@ use TestPlugin\Model\TestPluginPost;
  * ShellTestShell class
  *
  * @package       Cake.Test.Case.Console.Command
+ * @property ConsoleInput&MockObject $stdin
+ * @property ConsoleOutput&MockObject $stdout
+ * @property ConsoleOutput&MockObject $stderr
  */
 class ShellTestShell extends Shell
 {
@@ -49,53 +53,49 @@ class ShellTestShell extends Shell
      *
      * @var string name
      */
-    public $name = 'ShellTestShell';
+    public ?string $name = 'ShellTestShell';
 
     /**
      * stopped property
      *
-     * @var int
+     * @var int|null
      */
-    public $stopped;
+    public ?int $stopped = null;
 
     /**
      * testMessage property
      *
      * @var string
      */
-    public $testMessage = 'all your base are belong to us';
+    public string $testMessage = 'all your base are belong to us';
 
     /**
      * stop method
      *
-     * @param int $status
+     * @param string|int $status
      * @return void
      */
-    protected function _stop($status = 0)
+    protected function _stop(string|int $status = 0): void
     {
         $this->stopped = $status;
     }
 
-    protected function _secret()
+    protected function _secret(): void
     {
     }
 
-    //@codingStandardsIgnoreStart
-
-    public function do_something()
+    public function do_something(): void
     {
     }
 
-    protected function no_access()
+    protected function no_access(): void
     {
     }
 
-    public function log_something()
+    public function log_something(): void
     {
         $this->log($this->testMessage);
     }
-
-    //@codingStandardsIgnoreEnd
 
     /**
      * @template T
@@ -126,9 +126,9 @@ class ShellTestShell extends Shell
  */
 class TestMergeShell extends Shell
 {
-    public $tasks = ['DbConfig', 'Fixture'];
+    public array $tasks = ['DbConfig', 'Fixture'];
 
-    public $uses = ['Comment'];
+    public array $uses = ['Comment'];
 }
 
 /**
@@ -158,16 +158,21 @@ class_alias(TestBananaTask::class, 'App\\Console\\Command\\Task\\TestBananaTask'
  */
 class ShellTest extends CakeTestCase
 {
-    public Shell $Shell;
+    public ?Shell $Shell = null;
 
     /**
      * Fixtures used in this test case
      *
      * @var array
      */
-    public $fixtures = [
-        'core.post', 'core.comment', 'core.article', 'core.user',
-        'core.tag', 'core.articles_tag', 'core.attachment',
+    public array $fixtures = [
+        'core.post',
+        'core.comment',
+        'core.article',
+        'core.user',
+        'core.tag',
+        'core.articles_tag',
+        'core.attachment',
     ];
 
     /**
@@ -336,8 +341,10 @@ class ShellTest extends CakeTestCase
         $this->Shell->stdout
             ->expects($this->exactly(4))
             ->method('write')
-            ->willReturnCallback(function ($message, $newlines = 1) use (&$writeCalls) {
+            ->willReturnCallback(function (array|string|null $message, int $newlines = 1) use (&$writeCalls) {
                 $writeCalls[] = ['message' => $message, 'newlines' => $newlines];
+
+                return 0;
             });
 
         $this->Shell->out('Just a test');
@@ -366,6 +373,8 @@ class ShellTest extends CakeTestCase
             ->method('write')
             ->willReturnCallback(function ($message, $newlines) use (&$writeCalls) {
                 $writeCalls[] = ['message' => $message, 'newlines' => $newlines];
+
+                return 0;
             });
 
         $this->Shell->params['verbose'] = true;
@@ -390,8 +399,10 @@ class ShellTest extends CakeTestCase
     public function testQuietOutput()
     {
         $this->Shell->stdout
-            ->expects($this->once())->method('write')
-            ->with('Quiet', 1);
+            ->expects($this->once())
+            ->method('write')
+            ->with('Quiet', 1)
+            ->willReturn(0);
 
         $this->Shell->params['verbose'] = false;
         $this->Shell->params['quiet'] = true;
@@ -410,7 +421,7 @@ class ShellTest extends CakeTestCase
     {
         $number = strlen('Some text I want to overwrite');
         $writeCalls = [];
-        $returnValues = [$number, $number, 9, $number - 9, null];
+        $returnValues = [$number, $number, 9, $number - 9, 0];
         $callIndex = 0;
 
         $this->Shell->stdout
@@ -496,6 +507,8 @@ class ShellTest extends CakeTestCase
             ->method('write')
             ->willReturnCallback(function ($message, $newlines) use (&$writeCalls) {
                 $writeCalls[] = ['message' => $message, 'newlines' => $newlines];
+
+                return 0;
             });
 
         $this->Shell->hr();
@@ -530,6 +543,8 @@ class ShellTest extends CakeTestCase
             ->method('write')
             ->willReturnCallback(function ($message, $newlines) use (&$writeCalls) {
                 $writeCalls[] = ['message' => $message, 'newlines' => $newlines];
+
+                return 0;
             });
 
         $this->Shell->error('Foo Not Found');
@@ -556,15 +571,6 @@ class ShellTest extends CakeTestCase
     {
         $this->assertTrue($this->Shell->loadTasks());
 
-        $this->Shell->tasks = null;
-        $this->assertTrue($this->Shell->loadTasks());
-
-        $this->Shell->tasks = false;
-        $this->assertTrue($this->Shell->loadTasks());
-
-        $this->Shell->tasks = true;
-        $this->assertTrue($this->Shell->loadTasks());
-
         $this->Shell->tasks = [];
         $this->assertTrue($this->Shell->loadTasks());
 
@@ -572,7 +578,7 @@ class ShellTest extends CakeTestCase
         $this->assertTrue($this->Shell->loadTasks());
         $this->assertInstanceOf(TestAppleTask::class, $this->Shell->TestApple);
 
-        $this->Shell->tasks = 'TestBanana';
+        $this->Shell->tasks = ['TestBanana'];
         $this->assertTrue($this->Shell->loadTasks());
         $this->assertInstanceOf(TestAppleTask::class, $this->Shell->TestApple);
         $this->assertInstanceOf(TestBananaTask::class, $this->Shell->TestBanana);
@@ -656,6 +662,9 @@ class ShellTest extends CakeTestCase
         new Folder($path, true);
 
         $this->Shell->interactive = false;
+        $this->Shell->stdout
+            ->method('write')
+            ->willReturn(0);
 
         $contents = "<?php{$eol}echo 'test';{$eol}\$te = 'st';{$eol}";
         $result = $this->Shell->createFile($file, $contents);
@@ -697,6 +706,10 @@ class ShellTest extends CakeTestCase
                 return $return;
             });
 
+        $this->Shell->stdout
+            ->method('write')
+            ->willReturn(0);
+
         $contents = "<?php{$eol}echo 'yet another test';{$eol}\$te = 'st';{$eol}";
         $result = $this->Shell->createFile($file, $contents);
         $this->assertTrue($result);
@@ -726,6 +739,10 @@ class ShellTest extends CakeTestCase
     public function testCreateFileNoPermissions()
     {
         $this->skipIf(DIRECTORY_SEPARATOR === '\\', 'Cant perform operations using permissions on Windows.');
+
+        $this->Shell->stdout
+            ->method('write')
+            ->willReturn(0);
 
         $path = TMP . 'shell_test';
         $file = $path . DS . 'no_perms';
@@ -863,8 +880,14 @@ class ShellTest extends CakeTestCase
 
         $shell->expects($this->once())->method('getOptionParser')
             ->will($this->returnValue($parser));
-        $shell->stderr->expects($this->once())->method('write');
-        $shell->stdout->expects($this->once())->method('write');
+        $shell->stderr
+            ->expects($this->once())
+            ->method('write')
+            ->willReturn(0);
+        $shell->stdout
+            ->expects($this->once())
+            ->method('write')
+            ->willReturn(0);
 
         $shell->runCommand('do_something', ['do_something', '--unknown']);
     }

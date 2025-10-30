@@ -154,9 +154,9 @@ class TreeBehavior extends ModelBehavior
      *
      * @param Model $model Model using the behavior
      * @param array $query Query parameters as set by cake
-     * @return array
+     * @return array|bool|null
      */
-    public function beforeFind(Model $model, $query)
+    public function beforeFind(Model $model, array $query): array|bool|null
     {
         if ($model->findQueryType === 'threaded' && !isset($query['parent'])) {
             $query['parent'] = $this->settings[$model->alias]['parent'];

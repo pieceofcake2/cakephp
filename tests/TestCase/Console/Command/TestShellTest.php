@@ -348,18 +348,24 @@ class TestShellTest extends CakeTestCase
         $this->Shell->args = ['core'];
 
         $outputs = [];
-        $this->Shell->expects($this->atLeast(3))
+        $this->Shell
+            ->expects($this->atLeast(3))
             ->method('out')
             ->willReturnCallback(function ($value) use (&$outputs) {
                 $outputs[] = $value;
+
+                return 0;
             });
 
-        $this->Shell->expects($this->once())
+        $this->Shell
+            ->expects($this->once())
             ->method('in')
             ->with(__d('cake_console', 'What test case would you like to run?'), null, 'q')
             ->will($this->returnValue('1'));
 
-        $this->Shell->expects($this->once())->method('_run');
+        $this->Shell
+            ->expects($this->once())
+            ->method('_run');
         $this->Shell->available();
 
         $this->assertEquals(['core', 'AllBehaviors'], $this->Shell->args);

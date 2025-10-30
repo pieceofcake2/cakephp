@@ -567,7 +567,7 @@ class App
      * @param string $className the name of the class to load
      * @return bool
      */
-    public static function load($className)
+    public static function load(string $className): bool
     {
         if (str_contains($className, '\\')) {
             return false;

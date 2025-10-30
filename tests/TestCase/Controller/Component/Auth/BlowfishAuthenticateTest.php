@@ -40,7 +40,10 @@ require_once CORE_TESTS . DS . 'TestCase' . DS . 'Model' . DS . 'models.php';
  */
 class BlowfishAuthenticateTest extends CakeTestCase
 {
-    public $fixtures = ['core.user', 'core.auth_user'];
+    public array $fixtures = [
+        'core.user',
+        'core.auth_user',
+    ];
 
     /**
      * setup

@@ -40,30 +40,30 @@ class EmailComponent extends Component
     /**
      * Recipient of the email
      *
-     * @var string
+     * @var array|string|null
      */
-    public $to = null;
+    public array|string|null $to = null;
 
     /**
      * The mail which the email is sent from
      *
-     * @var string
+     * @var string|null
      */
-    public $from = null;
+    public ?string $from = null;
 
     /**
      * The email the recipient will reply to
      *
-     * @var string
+     * @var string|null
      */
-    public $replyTo = null;
+    public ?string $replyTo = null;
 
     /**
      * The read receipt email
      *
-     * @var string
+     * @var string|null
      */
-    public $readReceipt = null;
+    public ?string $readReceipt = null;
 
     /**
      * The mail that will be used in case of any errors like
@@ -71,9 +71,9 @@ class EmailComponent extends Component
      * - Remote user has exceeded his quota
      * - Unknown user
      *
-     * @var string
+     * @var string|null
      */
-    public $return = null;
+    public ?string $return = null;
 
     /**
      * Carbon Copy
@@ -81,9 +81,9 @@ class EmailComponent extends Component
      * List of email's that should receive a copy of the email.
      * The Recipient WILL be able to see this list
      *
-     * @var array
+     * @var array|string
      */
-    public $cc = [];
+    public array|string $cc = [];
 
     /**
      * Blind Carbon Copy
@@ -91,25 +91,25 @@ class EmailComponent extends Component
      * List of email's that should receive a copy of the email.
      * The Recipient WILL NOT be able to see this list
      *
-     * @var array
+     * @var array|string
      */
-    public $bcc = [];
+    public array|string $bcc = [];
 
     /**
      * The date to put in the Date: header. This should be a date
      * conforming with the RFC2822 standard. Leave null, to have
      * today's date generated.
      *
-     * @var string
+     * @var string|null
      */
-    public $date = null;
+    public ?string $date = null;
 
     /**
      * The subject of the email
      *
-     * @var string
+     * @var string|null
      */
-    public $subject = null;
+    public ?string $subject = null;
 
     /**
      * Associative array of a user defined headers
@@ -117,30 +117,30 @@ class EmailComponent extends Component
      *
      * @var array
      */
-    public $headers = [];
+    public array $headers = [];
 
     /**
      * List of additional headers
      *
      * These will NOT be used if you are using safemode and mail()
      *
-     * @var string
+     * @var string|null
      */
-    public $additionalParams = null;
+    public ?string $additionalParams = null;
 
     /**
      * Layout for the View
      *
      * @var string
      */
-    public $layout = 'default';
+    public string $layout = 'default';
 
     /**
      * Template for the view
      *
-     * @var string
+     * @var string|null
      */
-    public $template = null;
+    public ?string $template = null;
 
     /**
      * Line feed character(s) to be used when sending using mail() function
@@ -151,7 +151,7 @@ class EmailComponent extends Component
      *
      * @var string
      */
-    public $lineFeed = PHP_EOL;
+    public string $lineFeed = PHP_EOL;
 
     /**
      * What format should the email be sent in
@@ -163,7 +163,7 @@ class EmailComponent extends Component
      *
      * @var string
      */
-    public $sendAs = 'text';
+    public string $sendAs = 'text';
 
     /**
      * What method should the email be sent by
@@ -175,14 +175,14 @@ class EmailComponent extends Component
      *
      * @var string
      */
-    public $delivery = 'mail';
+    public string $delivery = 'mail';
 
     /**
      * charset the email is sent in
      *
      * @var string
      */
-    public $charset = 'utf-8';
+    public string $charset = 'utf-8';
 
     /**
      * List of files that should be attached to the email.
@@ -191,21 +191,21 @@ class EmailComponent extends Component
      *
      * @var array
      */
-    public $attachments = [];
+    public array $attachments = [];
 
     /**
      * What mailer should EmailComponent identify itself as
      *
      * @var string
      */
-    public $xMailer = 'CakePHP Email Component';
+    public string $xMailer = 'CakePHP Email Component';
 
     /**
      * The list of paths to search if an attachment isn't absolute
      *
      * @var array
      */
-    public $filePaths = [];
+    public array $filePaths = [];
 
     /**
      * List of options to use for smtp mail method
@@ -220,21 +220,21 @@ class EmailComponent extends Component
      *
      * @var array
      */
-    public $smtpOptions = [];
+    public array $smtpOptions = [];
 
     /**
      * Contains the rendered plain text message if one was sent.
      *
-     * @var string
+     * @var string|null
      */
-    public $textMessage = null;
+    public ?string $textMessage = null;
 
     /**
      * Contains the rendered HTML message if one was sent.
      *
-     * @var string
+     * @var string|null
      */
-    public $htmlMessage = null;
+    public ?string $htmlMessage = null;
 
     /**
      * Whether to generate a Message-ID header for the
@@ -247,14 +247,17 @@ class EmailComponent extends Component
      *
      * @var mixed
      */
-    public $messageId = true;
+    public mixed $messageId = true;
 
     /**
      * Controller reference
      *
-     * @var Controller
+     * @var Controller|null
      */
-    protected $_controller = null;
+    protected ?Controller $_controller = null;
+
+    protected array $_header = [];
+    protected array $_message = [];
 
     /**
      * Constructor
@@ -262,7 +265,7 @@ class EmailComponent extends Component
      * @param ComponentCollection $collection A ComponentCollection this component can use to lazy load its components
      * @param array $settings Array of configuration settings.
      */
-    public function __construct(ComponentCollection $collection, $settings = [])
+    public function __construct(ComponentCollection $collection, array $settings = [])
     {
         $this->_controller = $collection->getController();
         parent::__construct($collection, $settings);
@@ -274,7 +277,7 @@ class EmailComponent extends Component
      * @param Controller $controller Instantiating controller
      * @return void
      */
-    public function initialize(Controller $controller)
+    public function initialize(Controller $controller): void
     {
         if (Configure::read('App.encoding') !== null) {
             $this->charset = Configure::read('App.encoding');
@@ -284,13 +287,13 @@ class EmailComponent extends Component
     /**
      * Send an email using the specified content, template and layout
      *
-     * @param array|string $content Either an array of text lines, or a string with contents
+     * @param array|string|null $content Either an array of text lines, or a string with contents
      *  If you are rendering a template this variable will be sent to the templates as `$content`
-     * @param string $template Template to use when sending email
-     * @param string $layout Layout to use to enclose email body
+     * @param string|null $template Template to use when sending email
+     * @param string|null $layout Layout to use to enclose email body
      * @return array Success
      */
-    public function send($content = null, $template = null, $layout = null)
+    public function send(array|string|null $content = null, ?string $template = null, ?string $layout = null): array
     {
         $lib = new CakeEmail();
         $lib->charset = $this->charset;
@@ -372,7 +375,7 @@ class EmailComponent extends Component
      *
      * @return void
      */
-    public function reset()
+    public function reset(): void
     {
         $this->template = null;
         $this->to = [];
@@ -396,7 +399,7 @@ class EmailComponent extends Component
      *
      * @return array
      */
-    protected function _formatAttachFiles()
+    protected function _formatAttachFiles(): array
     {
         $files = [];
         foreach ($this->attachments as $filename => $attachment) {
@@ -418,16 +421,14 @@ class EmailComponent extends Component
      * @param string $attachment Attachment file name to find
      * @return string|null Path to located file
      */
-    protected function _findFiles($attachment)
+    protected function _findFiles(string $attachment): ?string
     {
         if (file_exists($attachment)) {
             return $attachment;
         }
         foreach ($this->filePaths as $path) {
             if (file_exists($path . DS . $attachment)) {
-                $file = $path . DS . $attachment;
-
-                return $file;
+                return $path . DS . $attachment;
             }
         }
 
@@ -440,12 +441,12 @@ class EmailComponent extends Component
      * @param array $addresses Address to format.
      * @return array
      */
-    protected function _formatAddresses($addresses)
+    protected function _formatAddresses(array $addresses): array
     {
         $formatted = [];
         foreach ($addresses as $address) {
-            if (preg_match('/((.*))?\s?<(.+)>/', $address, $matches) && !empty($matches[2])) {
-                $formatted[$this->_strip($matches[3])] = $matches[2];
+            if (preg_match('/(.*)?\s?<(.+)>/', $address, $matches) && !empty($matches[1])) {
+                $formatted[$this->_strip($matches[2])] = $matches[1];
             } else {
                 $address = $this->_strip($address);
                 $formatted[$address] = $address;
@@ -463,17 +464,16 @@ class EmailComponent extends Component
      * @param bool $message Set to true to indicate main message content
      * @return string Stripped value
      */
-    protected function _strip($value, $message = false)
+    protected function _strip(string $value, bool $message = false): string
     {
-        $search = '%0a|%0d|Content-(?:Type|Transfer-Encoding)\:';
-        $search .= '|charset\=|mime-version\:|multipart/mixed|(?:[^a-z]to|b?cc)\:.*';
-
+        $search = '(?:%0a|%0d|Content-(?:Type|Transfer-Encoding)\:|charset\=|mime-version\:|multipart/mixed|(?:[^a-z]to|b?cc)\:.*';
         if ($message !== true) {
             $search .= '|\r|\n';
         }
-        $search = '#(?:' . $search . ')#i';
-        while (preg_match($search, $value)) {
-            $value = preg_replace($search, '', $value);
+        $search .= ')';
+
+        while (preg_match('#' . $search . '#i', $value)) {
+            $value = preg_replace('#' . $search . '#i', '', $value);
         }
 
         return $value;

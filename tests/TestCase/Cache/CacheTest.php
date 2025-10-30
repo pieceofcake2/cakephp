@@ -34,7 +34,7 @@ class CacheTest extends CakeTestCase
 {
     protected $_count = 0;
 
-    protected $_appNamespace = null;
+    protected ?string $_appNamespace = null;
 
     /**
      * setUp method

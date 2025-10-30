@@ -135,9 +135,9 @@ class TranslateBehavior extends ModelBehavior
      *
      * @param Model $model Model find is being run on.
      * @param array $query Array of Query parameters.
-     * @return array Modified query
+     * @return array|bool|null Modified query
      */
-    public function beforeFind(Model $model, $query)
+    public function beforeFind(Model $model, array $query): array|bool|null
     {
         $this->runtime[$model->alias]['virtualFields'] = $model->virtualFields;
         $locale = $this->_getLocale($model);
@@ -367,7 +367,7 @@ class TranslateBehavior extends ModelBehavior
      * @param bool $primary Did the find originate on $model.
      * @return array Modified results
      */
-    public function afterFind(Model $model, $results, $primary = false)
+    public function afterFind(Model $model, mixed $results, bool $primary = false): mixed
     {
         $model->virtualFields = $this->runtime[$model->alias]['virtualFields'];
 

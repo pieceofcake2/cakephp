@@ -30,7 +30,7 @@ abstract class AbstractTransport
      *
      * @var array
      */
-    protected $_config = [];
+    protected array $_config = [];
 
     /**
      * Send mail
@@ -38,15 +38,15 @@ abstract class AbstractTransport
      * @param CakeEmail $email CakeEmail instance.
      * @return array
      */
-    abstract public function send(CakeEmail $email);
+    abstract public function send(CakeEmail $email): array;
 
     /**
      * Set the config
      *
-     * @param array $config Configuration options.
+     * @param array|null $config Configuration options.
      * @return array Returns configs
      */
-    public function config($config = null)
+    public function config(?array $config = null): array
     {
         if (is_array($config)) {
             $this->_config = $config + $this->_config;
@@ -62,7 +62,7 @@ abstract class AbstractTransport
      * @param string $eol End of line string.
      * @return string
      */
-    protected function _headersToString($headers, $eol = "\r\n")
+    protected function _headersToString(array $headers, string $eol = "\r\n"): string
     {
         $out = '';
         foreach ($headers as $key => $value) {

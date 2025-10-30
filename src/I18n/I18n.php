@@ -190,26 +190,26 @@ class I18n
      * Returns a translated string based on current language and translation files stored in locale folder
      *
      * @param string $singular String to translate
-     * @param string $plural Plural string (if any)
-     * @param string $domain Domain The domain of the translation. Domains are often used by plugin translations.
+     * @param string|null $plural Plural string (if any)
+     * @param string|null $domain Domain The domain of the translation. Domains are often used by plugin translations.
      *    If null, the default domain will be used.
-     * @param string|int $category Category The integer value of the category to use.
-     * @param int $count Count Count is used with $plural to choose the correct plural form.
-     * @param string $language Language to translate string to.
+     * @param string|int|null $category Category The integer value of the category to use.
+     * @param int|null $count Count Count is used with $plural to choose the correct plural form.
+     * @param string|null $language Language to translate string to.
      *    If null it checks for language in session followed by Config.language configuration variable.
-     * @param string $context Context The context of the translation, e.g a verb or a noun.
-     * @return string translated string.
+     * @param string|null $context Context The context of the translation, e.g a verb or a noun.
+     * @return array|string translated string.
      * @throws CakeException When '' is provided as a domain.
      */
     public static function translate(
-        $singular,
-        $plural = null,
-        $domain = null,
-        $category = self::LC_MESSAGES,
-        $count = null,
-        $language = null,
-        $context = null,
-    ) {
+        string $singular,
+        ?string $plural = null,
+        ?string $domain = null,
+        string|int|null $category = self::LC_MESSAGES,
+        ?int $count = null,
+        ?string $language = null,
+        ?string $context = null,
+    ): array|string {
         $_this = I18n::getInstance();
 
         if (str_contains($singular, "\r\n")) {

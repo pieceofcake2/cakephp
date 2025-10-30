@@ -121,10 +121,10 @@ class ModelBehavior extends CakeObject
      *
      * @param Model $model Model using this behavior
      * @param array $query Data used to execute this query, i.e. conditions, order, etc.
-     * @return array|bool False or null will abort the operation. You can return an array to replace the
+     * @return array|bool|null False or null will abort the operation. You can return an array to replace the
      *   $query that will be eventually run.
      */
-    public function beforeFind(Model $model, $query)
+    public function beforeFind(Model $model, array $query): array|bool|null
     {
         return true;
     }
@@ -137,8 +137,9 @@ class ModelBehavior extends CakeObject
      * @param bool $primary Whether this model is being queried directly (vs. being queried as an association)
      * @return mixed|void An array value will replace the value of $results - any other value will be ignored.
      */
-    public function afterFind(Model $model, $results, $primary = false)
+    public function afterFind(Model $model, mixed $results, bool $primary = false): mixed
     {
+        return null;
     }
 
     /**

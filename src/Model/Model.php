@@ -32,6 +32,7 @@ use Cake\Event\CakeEvent;
 use Cake\Event\CakeEventListener;
 use Cake\Event\CakeEventManager;
 use Cake\Model\Datasource\DataSource;
+use Cake\Model\Datasource\DboSource;
 use Cake\Utility\CakeText;
 use Cake\Utility\ClassRegistry;
 use Cake\Utility\Hash;
@@ -90,17 +91,17 @@ class Model extends CakeObject implements CakeEventListener
      * Value of the primary key ID of the record that this model is currently pointing to.
      * Automatically set after database insertions.
      *
-     * @var mixed|false
+     * @var mixed
      */
-    public $id = false;
+    public mixed $id = false;
 
     /**
      * Container for the data that this model gets from persistent storage (usually, a database).
      *
-     * @var array|false
+     * @var array|false|null
      * @link https://book.cakephp.org/2.0/en/models/model-attributes.html#data
      */
-    public $data = [];
+    public array|false|null $data = [];
 
     /**
      * Holds physical schema/database name for this model. Automatically set during Model creation.
@@ -129,7 +130,7 @@ class Model extends CakeObject implements CakeEventListener
      *
      * @var array|null
      */
-    protected $_schema = null;
+    protected ?array $_schema = null;
 
     /**
      * List of validation rules. It must be an array with the field name as key and using
@@ -497,7 +498,7 @@ class Model extends CakeObject implements CakeEventListener
      * );
      * ```
      *
-     * @var array
+     * @var array<string|array<string, array>>
      * @link https://book.cakephp.org/2.0/en/models/behaviors.html#using-behaviors
      */
     public array $actsAs = [];
@@ -611,7 +612,7 @@ class Model extends CakeObject implements CakeEventListener
      *
      * @var array
      */
-    public $__backContainableAssociation = [];
+    public array $__backContainableAssociation = [];
 
     /**
      * Safe update mode
@@ -620,8 +621,6 @@ class Model extends CakeObject implements CakeEventListener
      * @var bool
      */
     public bool $__safeUpdateMode = false;
-
-// @codingStandardsIgnoreEnd
 
     /**
      * If true, afterFind will be passed consistent formatted $results in case of $primary is false.
@@ -710,23 +709,41 @@ class Model extends CakeObject implements CakeEventListener
      * Would create a model attached to the posts table on connection2. Dynamic model creation is useful
      * when you want a model object that contains no associations or attached behaviors.
      *
-     * @param array|string|int|bool $id Set this ID for this model on startup,
+     * @param array{
+     *     id?: mixed,
+     *     table?: string|bool|null,
+     *     ds?: string,
+     *     name?: string|null,
+     *     alias?: string|null,
+     *     plugin?: string|null
+     * }|string|int|false|null $id Set this ID for this model on startup,
      * can also be an array of options, see above.
-     * @param string|false $table Name of database table to use.
-     * @param string $ds DataSource connection name.
+     * @param string|false|null $table Name of database table to use.
+     * @param string|null $ds DataSource connection name.
      */
-    public function __construct($id = false, $table = null, $ds = null)
-    {
+    public function __construct(
+        array|string|int|false|null $id = false,
+        string|false|null $table = null,
+        ?string $ds = null,
+    ) {
         parent::__construct();
 
         if (is_array($id)) {
-            extract(array_merge(
-                [
-                    'id' => $this->id, 'table' => $this->useTable, 'ds' => $this->useDbConfig,
-                    'name' => $this->name, 'alias' => $this->alias, 'plugin' => $this->plugin,
-                ],
-                $id,
-            ));
+            $config = array_merge([
+                'id' => $this->id,
+                'table' => $this->useTable,
+                'ds' => $this->useDbConfig,
+                'name' => $this->name,
+                'alias' => $this->alias,
+                'plugin' => $this->plugin,
+            ], $id);
+
+            $id = $config['id'];
+            $table = $config['table'];
+            $ds = $config['ds'];
+            $name = $config['name'];
+            $alias = $config['alias'];
+            $plugin = $config['plugin'];
         }
 
         if ($this->plugin === null) {
@@ -808,7 +825,7 @@ class Model extends CakeObject implements CakeEventListener
      * Returns a list of all events that will fire in the model during it's lifecycle.
      * You can override this function to add your own listener callbacks
      *
-     * @return array
+     * @return array<string, array>
      */
     public function implementedEvents(): array
     {
@@ -831,7 +848,7 @@ class Model extends CakeObject implements CakeEventListener
      *
      * @return CakeEventManager
      */
-    public function getEventManager()
+    public function getEventManager(): CakeEventManager
     {
         if (empty($this->_eventManager)) {
             $this->_eventManager = new CakeEventManager();
@@ -850,7 +867,7 @@ class Model extends CakeObject implements CakeEventListener
      * @param array $params Parameters for the method.
      * @return mixed Whatever is returned by called method
      */
-    public function __call($method, $params)
+    public function __call(string $method, array $params): mixed
     {
         $result = $this->Behaviors->dispatchMethod($this, $method, $params);
         if ($result !== ['unhandled']) {
@@ -866,17 +883,18 @@ class Model extends CakeObject implements CakeEventListener
      * @param string $name variable tested for existence in class
      * @return bool true if the variable exists (if is a not loaded model association it will be created), false otherwise
      */
-    public function __isset($name)
+    public function __isset(string $name): bool
     {
-        $className = false;
-
+        $className = null;
+        $assocKey = null;
         foreach ($this->_associations as $type) {
-            if (isset($name, $this->{$type}[$name])) {
-                $className = empty($this->{$type}[$name]['className']) ? $name : $this->{$type}[$name]['className'];
+            if (isset($this->{$type}[$name])) {
+                $className = empty($this->{$type}[$name]['className'])
+                    ? $name : $this->{$type}[$name]['className'];
                 break;
-            } elseif (isset($name, $this->__backAssociation[$type][$name])) {
-                $className = empty($this->__backAssociation[$type][$name]['className']) ?
-                    $name : $this->__backAssociation[$type][$name]['className'];
+            } elseif (isset($this->__backAssociation[$type][$name])) {
+                $className = empty($this->__backAssociation[$type][$name]['className'])
+                    ? $name : $this->__backAssociation[$type][$name]['className'];
                 break;
             } elseif ($type === 'hasAndBelongsToMany') {
                 foreach ($this->{$type} as $k => $relation) {
@@ -889,7 +907,7 @@ class Model extends CakeObject implements CakeEventListener
                             $className = $name;
                         }
                     } else {
-                        [$plugin, $class] = pluginSplit($relation['with']);
+                        [, $class] = pluginSplit($relation['with']);
                         if ($class === $name) {
                             $className = $relation['with'];
                         }
@@ -936,7 +954,7 @@ class Model extends CakeObject implements CakeEventListener
      * @param string $name variable requested for it's value or reference
      * @return mixed value of requested variable if it is set
      */
-    public function __get($name)
+    public function __get(string $name): mixed
     {
         if ($name === 'displayField') {
             return $this->displayField = $this->hasField(['title', 'name', $this->primaryKey]);
@@ -944,16 +962,19 @@ class Model extends CakeObject implements CakeEventListener
 
         if ($name === 'tablePrefix') {
             $this->setDataSource();
-            if (property_exists($this, 'tablePrefix') && !empty($this->tablePrefix)) {
-                return $this->tablePrefix;
+
+            if (empty($this->tablePrefix)) {
+                $this->tablePrefix = null;
             }
 
-            return $this->tablePrefix = null;
+            return $this->tablePrefix;
         }
 
         if (isset($this->{$name})) {
             return $this->{$name};
         }
+
+        return null;
     }
 
     /**
@@ -975,7 +996,7 @@ class Model extends CakeObject implements CakeEventListener
      * @return bool Success
      * @link https://book.cakephp.org/2.0/en/models/associations-linking-models-together.html#creating-and-destroying-associations-on-the-fly
      */
-    public function bindModel($params, $reset = true)
+    public function bindModel(array $params, bool $reset = true): bool
     {
         foreach ($params as $assoc => $model) {
             if ($reset === true && !isset($this->__backAssociation[$assoc])) {
@@ -1027,7 +1048,7 @@ class Model extends CakeObject implements CakeEventListener
      * @return bool Success
      * @link https://book.cakephp.org/2.0/en/models/associations-linking-models-together.html#creating-and-destroying-associations-on-the-fly
      */
-    public function unbindModel($params, $reset = true)
+    public function unbindModel(array $params, bool $reset = true): bool
     {
         foreach ($params as $assoc => $models) {
             if ($reset === true && !isset($this->__backAssociation[$assoc])) {
@@ -1051,7 +1072,7 @@ class Model extends CakeObject implements CakeEventListener
      *
      * @return void
      */
-    protected function _createLinks()
+    protected function _createLinks(): void
     {
         foreach ($this->_associations as $type) {
             $association =& $this->{$type};
@@ -1068,8 +1089,6 @@ class Model extends CakeObject implements CakeEventListener
 
             if (!empty($association)) {
                 foreach ($association as $assoc => $value) {
-                    $plugin = null;
-
                     if (is_numeric($assoc)) {
                         unset($association[$assoc]);
                         $assoc = $value;
@@ -1092,9 +1111,9 @@ class Model extends CakeObject implements CakeEventListener
     /**
      * Protected helper method to create associated models of a given class.
      *
-     * @param string $assoc Association name
-     * @param string $className Class name
-     * @param string $plugin name of the plugin where $className is located
+     * @param string|null $assoc Association name
+     * @param string|null $className Class name
+     * @param string|null $plugin name of the plugin where $className is located
      *  examples: public $hasMany = array('Assoc' => array('className' => 'ModelName'));
      *                  usage: $this->Assoc->modelMethods();
      *
@@ -1102,8 +1121,11 @@ class Model extends CakeObject implements CakeEventListener
      *                  usage: $this->ModelName->modelMethods();
      * @return void
      */
-    protected function _constructLinkedModel($assoc, $className = null, $plugin = null)
-    {
+    protected function _constructLinkedModel(
+        ?string $assoc,
+        ?string $className = null,
+        ?string $plugin = null,
+    ): void {
         if (empty($className)) {
             $className = $assoc;
         }
@@ -1113,15 +1135,19 @@ class Model extends CakeObject implements CakeEventListener
                 $plugin .= '.';
             }
 
-            $model = ['class' => $plugin . $className, 'alias' => $assoc];
-            $this->{$assoc} = ClassRegistry::init($model);
+            /** @var Model $model */
+            $model = ClassRegistry::init([
+                'class' => $plugin . $className,
+                'alias' => $assoc,
+            ]);
+            $this->{$assoc} = $model;
 
             if ($plugin) {
-                ClassRegistry::addObject($plugin . $className, $this->{$assoc});
+                ClassRegistry::addObject($plugin . $className, $model);
             }
 
             if ($assoc) {
-                $this->tableToModel[$this->{$assoc}->table] = $assoc;
+                $this->tableToModel[$model->table] = $assoc;
             }
         }
     }
@@ -1133,7 +1159,7 @@ class Model extends CakeObject implements CakeEventListener
      * @param string $assocKey Association key.
      * @return void
      */
-    protected function _generateAssociation($type, $assocKey)
+    protected function _generateAssociation(string $type, string $assocKey): void
     {
         $class = $assocKey;
         $dynamicWith = false;
@@ -1141,42 +1167,27 @@ class Model extends CakeObject implements CakeEventListener
 
         foreach ($this->_associationKeys[$type] as $key) {
             if (!isset($assoc[$key]) || $assoc[$key] === null) {
-                $data = '';
-
-                switch ($key) {
-                    case 'fields':
-                        $data = '';
-                        break;
-
-                    case 'foreignKey':
-                        $data = ($type === 'belongsTo' ? Inflector::underscore($assocKey) : Inflector::singularize($this->table)) . '_id';
-                        break;
-
-                    case 'associationForeignKey':
-                        $data = Inflector::singularize($this->{$class}->table) . '_id';
-                        break;
-
-                    case 'with':
-                        $data = Inflector::camelize(Inflector::singularize($assoc['joinTable']));
+                $assoc[$key] = match ($key) {
+                    'foreignKey' => ($type === 'belongsTo' ? Inflector::underscore($assocKey) : Inflector::singularize($this->table)) . '_id',
+                    'associationForeignKey' => (function() use ($class) {
+                        $table = $this->{$class}->table;
+                        return Inflector::singularize($table) . '_id';
+                    })(),
+                    'with' => (function () use (&$dynamicWith, $assoc) {
                         $dynamicWith = true;
-                        break;
 
-                    case 'joinTable':
+                        return Inflector::camelize(Inflector::singularize($assoc['joinTable']));
+                    })(),
+                    'joinTable' => (function () use ($class) {
                         $tables = [$this->table, $this->{$class}->table];
                         sort($tables);
-                        $data = $tables[0] . '_' . $tables[1];
-                        break;
 
-                    case 'className':
-                        $data = $class;
-                        break;
-
-                    case 'unique':
-                        $data = true;
-                        break;
-                }
-
-                $assoc[$key] = $data;
+                        return $tables[0] . '_' . $tables[1];
+                    })(),
+                    'className' => $class,
+                    'unique' => true,
+                    default => '',
+                };
             }
 
             if ($dynamicWith) {
@@ -1192,7 +1203,7 @@ class Model extends CakeObject implements CakeEventListener
      * @throws MissingTableException when database table $tableName is not found on data source
      * @return void
      */
-    public function setSource($tableName)
+    public function setSource(string $tableName): void
     {
         $this->setDataSource($this->useDbConfig);
         $db = ConnectionManager::getDataSource($this->useDbConfig);
@@ -1230,12 +1241,12 @@ class Model extends CakeObject implements CakeEventListener
      * (Alternative indata: two strings, which are mangled to
      * a one-item, two-dimensional array using $one for a key and $two as its value.)
      *
-     * @param SimpleXmlElement|DomNode|array|string $one Array or string of data
-     * @param string|false $two Value string for the alternative indata method
+     * @param mixed $one Array or string of data
+     * @param string|false|null $two Value string for the alternative indata method
      * @return array|null Data with all of $one's keys and values, otherwise null.
      * @link https://book.cakephp.org/2.0/en/models/saving-your-data.html
      */
-    public function set($one, $two = null)
+    public function set(mixed $one, string|false|null $two = null): ?array
     {
         if (!$one) {
             return null;
@@ -1291,7 +1302,7 @@ class Model extends CakeObject implements CakeEventListener
      * @param array $data Data.
      * @return array
      */
-    protected function _setAliasData($data)
+    protected function _setAliasData(array $data): array
     {
         $models = array_keys($this->getAssociated());
         $schema = array_keys((array)$this->schema());
@@ -1312,7 +1323,7 @@ class Model extends CakeObject implements CakeEventListener
      * @param array $xml XML as array
      * @return array
      */
-    protected function _normalizeXmlData(array $xml)
+    protected function _normalizeXmlData(array $xml): array
     {
         $return = [];
         foreach ($xml as $key => $value) {
@@ -1335,7 +1346,7 @@ class Model extends CakeObject implements CakeEventListener
      * @param object|array $data An array or object to be deconstructed into a field
      * @return mixed The resulting data that should be assigned to a field
      */
-    public function deconstruct($field, $data)
+    public function deconstruct(string $field, object|array $data): mixed
     {
         if (!is_array($data)) {
             return $data;
@@ -1359,7 +1370,6 @@ class Model extends CakeObject implements CakeEventListener
         }
 
         if (
-            isset($data['hour']) &&
             isset($data['meridian']) &&
             !empty($data['hour']) &&
             $data['hour'] != 12 &&
@@ -1398,13 +1408,11 @@ class Model extends CakeObject implements CakeEventListener
                     }
                 }
 
-                if (!isset($data[$val]) || isset($data[$val]) && (empty($data[$val]) || str_starts_with($data[$val], '-'))) {
+                if (empty($data[$val]) || str_starts_with($data[$val], '-')) {
                     return null;
                 }
 
-                if (isset($data[$val]) && !empty($data[$val])) {
-                    $date[$key] = $data[$val];
-                }
+                $date[$key] = $data[$val];
             }
         }
 
@@ -1429,7 +1437,7 @@ class Model extends CakeObject implements CakeEventListener
      * @param string|bool $field Set to true to reload schema, or a string to return a specific field
      * @return array|null Array of table metadata
      */
-    public function schema($field = false)
+    public function schema(string|bool $field = false): ?array
     {
         if ($this->useTable !== false && (!is_array($this->_schema) || $field === true)) {
             $db = $this->getDataSource();
@@ -1451,31 +1459,28 @@ class Model extends CakeObject implements CakeEventListener
      *
      * @return array Field types indexed by field name
      */
-    public function getColumnTypes()
+    public function getColumnTypes(): array
     {
         $columns = $this->schema();
         if (empty($columns)) {
             trigger_error(__d('cake_dev', '(Model::getColumnTypes) Unable to build model field data. If you are using a model without a database table, try implementing schema()'), E_USER_WARNING);
         }
 
-        $cols = [];
-        foreach ($columns as $field => $values) {
-            $cols[$field] = $values['type'];
-        }
-
-        return $cols;
+        return array_map(function ($values) {
+            return $values['type'];
+        }, $columns);
     }
 
     /**
      * Returns the column type of a column in the model.
      *
-     * @param string $column The name of the model column
-     * @return string Column type
+     * @param string|null $column The name of the model column
+     * @return string|null Column type
      */
-    public function getColumnType($column)
+    public function getColumnType(?string $column): ?string
     {
         $cols = $this->schema();
-        if (isset($cols[$column]) && isset($cols[$column]['type'])) {
+        if (isset($cols[$column]['type'])) {
             return $cols[$column]['type'];
         }
 
@@ -1504,13 +1509,13 @@ class Model extends CakeObject implements CakeEventListener
     /**
      * Returns true if the supplied field exists in the model's database table.
      *
-     * @param array|string $name Name of field to look for, or an array of names
+     * @param array|string|null $name Name of field to look for, or an array of names
      * @param bool $checkVirtual checks if the field is declared as virtual
      * @return mixed If $name is a string, returns a boolean indicating whether the field exists.
      *               If $name is an array of field names, returns the first field that exists,
      *               or false if none exist.
      */
-    public function hasField($name, $checkVirtual = false)
+    public function hasField(array|string|null $name, bool $checkVirtual = false): mixed
     {
         if (is_array($name)) {
             foreach ($name as $n) {
@@ -1544,7 +1549,7 @@ class Model extends CakeObject implements CakeEventListener
      * @param string $method The method to be called.
      * @return bool True on method being callable.
      */
-    public function hasMethod($method)
+    public function hasMethod(string $method): bool
     {
         if (method_exists($this, $method)) {
             return true;
@@ -1556,10 +1561,10 @@ class Model extends CakeObject implements CakeEventListener
     /**
      * Returns true if the supplied field is a model Virtual Field
      *
-     * @param string $field Name of field to look for
+     * @param mixed $field Name of field to look for
      * @return bool indicating whether the field exists as a model virtual field.
      */
-    public function isVirtualField($field)
+    public function isVirtualField(mixed $field): bool
     {
         if (empty($this->virtualFields) || !is_string($field)) {
             return false;
@@ -1582,12 +1587,12 @@ class Model extends CakeObject implements CakeEventListener
     /**
      * Returns the expression for a model virtual field
      *
-     * @param string $field Name of field to look for
+     * @param string|null $field Name of field to look for
      * @return mixed If $field is string expression bound to virtual field $field
      *    If $field is null, returns an array of all model virtual fields
      *    or false if none $field exist.
      */
-    public function getVirtualField($field = null)
+    public function getVirtualField(?string $field = null): mixed
     {
         if (!$field) {
             return empty($this->virtualFields) ? false : $this->virtualFields;
@@ -1609,13 +1614,13 @@ class Model extends CakeObject implements CakeEventListener
      * for those fields that are not defined in $data, and clearing previous validation errors.
      * Especially helpful for saving data in loops.
      *
-     * @param array|bool $data Optional data array to assign to the model after it is created. If null or false,
+     * @param array|bool|null $data Optional data array to assign to the model after it is created. If null or false,
      *   schema data defaults are not merged.
      * @param bool $filterKey If true, overwrites any primary key input with an empty value
      * @return array The current Model::data; after merging $data and/or defaults from database
      * @link https://book.cakephp.org/2.0/en/models/saving-your-data.html#model-create-array-data-array
      */
-    public function create($data = [], $filterKey = false)
+    public function create(array|bool|null $data = [], bool $filterKey = false): array
     {
         $defaults = [];
         $this->id = false;
@@ -1647,7 +1652,7 @@ class Model extends CakeObject implements CakeEventListener
      * @return bool Always true upon success
      * @see Model::create()
      */
-    public function clear()
+    public function clear(): bool
     {
         $this->create(false);
 
@@ -1658,12 +1663,12 @@ class Model extends CakeObject implements CakeEventListener
      * Returns a list of fields from the database, and sets the current model
      * data (Model::$data) with the record found.
      *
-     * @param array|string $fields String of single field name, or an array of field names.
-     * @param string|int $id The ID of the record to read
+     * @param array|string|null $fields String of single field name, or an array of field names.
+     * @param string|int|bool|null $id The ID of the record to read
      * @return array|false Array of database fields, or false if not found
      * @link https://book.cakephp.org/2.0/en/models/retrieving-your-data.html#model-read
      */
-    public function read($fields = null, $id = null)
+    public function read(array|string|null $fields = null, string|int|bool|null $id = null): array|false
     {
         $this->validationErrors = [];
 
@@ -1694,13 +1699,16 @@ class Model extends CakeObject implements CakeEventListener
      * of the first record in the supplied order.
      *
      * @param string $name The name of the field to get.
-     * @param array $conditions SQL conditions (defaults to NULL).
-     * @param array|string $order SQL ORDER BY fragment.
+     * @param array|bool|null $conditions SQL conditions (defaults to NULL).
+     * @param array|string|null $order SQL ORDER BY fragment.
      * @return string|false Field content, or false if not found.
      * @link https://book.cakephp.org/2.0/en/models/retrieving-your-data.html#model-field
      */
-    public function field($name, $conditions = null, $order = null)
-    {
+    public function field(
+        string $name,
+        array|bool|null $conditions = null,
+        array|string|null $order = null,
+    ): string|false {
         if ($conditions === null && !in_array($this->id, [false, null], true)) {
             $conditions = [$this->alias . '.' . $this->primaryKey => $this->id];
         }
@@ -1750,7 +1758,7 @@ class Model extends CakeObject implements CakeEventListener
      * @see Model::save()
      * @link https://book.cakephp.org/2.0/en/models/saving-your-data.html#model-savefield-string-fieldname-string-fieldvalue-validate-false
      */
-    public function saveField($name, $value, $validate = false)
+    public function saveField(string $name, mixed $value, array|bool $validate = false): array|bool
     {
         $id = $this->id;
         $this->create(false);
@@ -1768,7 +1776,7 @@ class Model extends CakeObject implements CakeEventListener
      * default, validation occurs before save. Passthrough method to _doSave() with
      * transaction handling.
      *
-     * @param array $data Data to save.
+     * @param array|null $data Data to save.
      * @param array|bool $validate Either a boolean, or an array.
      *   If a boolean, indicates whether or not to validate before saving.
      *   If an array, can have following keys:
@@ -1788,11 +1796,16 @@ class Model extends CakeObject implements CakeEventListener
      * @triggers Model.afterSave $this, array($created, $options)
      * @link https://book.cakephp.org/2.0/en/models/saving-your-data.html
      */
-    public function save($data = null, $validate = true, $fieldList = [])
-    {
+    public function save(
+        array|null $data = null,
+        array|bool $validate = true,
+        array $fieldList = [],
+    ): mixed {
         $defaults = [
-            'validate' => true, 'fieldList' => [],
-            'callbacks' => true, 'counterCache' => true,
+            'validate' => true,
+            'fieldList' => [],
+            'callbacks' => true,
+            'counterCache' => true,
             'atomic' => true,
         ];
 
@@ -1831,7 +1844,7 @@ class Model extends CakeObject implements CakeEventListener
      * Saves model data (based on white-list, if supplied) to the database. By
      * default, validation occurs before save.
      *
-     * @param array $data Data to save.
+     * @param array|null $data Data to save.
      * @param array $options can have following keys:
      *
      *   - validate: Set to true/false to enable or disable validation.
@@ -1839,11 +1852,11 @@ class Model extends CakeObject implements CakeEventListener
      *   - callbacks: Set to false to disable callbacks. Using 'before' or 'after'
      *      will enable only those callbacks.
      *   - `counterCache`: Boolean to control updating of counter caches (if any)
-     * @return mixed On success Model::$data if its not empty or true, false on failure
+     * @return array|bool On success Model::$data if its not empty or true, false on failure
      * @throws PDOException
      * @link https://book.cakephp.org/2.0/en/models/saving-your-data.html
      */
-    protected function _doSave($data = null, $options = [])
+    protected function _doSave(?array $data = null, array $options = []): array|bool
     {
         $_whitelist = $this->whitelist;
         $fields = [];
@@ -2015,7 +2028,7 @@ class Model extends CakeObject implements CakeEventListener
         if (!$success) {
             $this->whitelist = $_whitelist;
 
-            return $success;
+            return false;
         }
 
         if ($count > 0) {
@@ -2047,7 +2060,7 @@ class Model extends CakeObject implements CakeEventListener
      * @param string $field the field to check
      * @return bool
      */
-    protected function _isUUIDField($field)
+    protected function _isUUIDField(string $field): bool
     {
         $field = $this->schema($field);
 
@@ -2059,10 +2072,10 @@ class Model extends CakeObject implements CakeEventListener
      *
      * @param array $joined Data to save
      * @param string|int $id ID of record in this model
-     * @param DataSource $db Datasource instance.
+     * @param DboSource $db Datasource instance.
      * @return void
      */
-    protected function _saveMulti($joined, $id, $db)
+    protected function _saveMulti(array $joined, string|int $id, DboSource $db): void
     {
         foreach ($joined as $assoc => $data) {
             if (!isset($this->hasAndBelongsToMany[$assoc])) {
@@ -2117,7 +2130,7 @@ class Model extends CakeObject implements CakeEventListener
                     }
 
                     $newData[] = $row;
-                } elseif (isset($row[$join]) && isset($row[$join][$habtm['associationForeignKey']])) {
+                } elseif (isset($row[$join][$habtm['associationForeignKey']])) {
                     if (!empty($row[$join][$model->primaryKey])) {
                         $newJoins[] = $row[$join][$habtm['associationForeignKey']];
                     }
@@ -2127,6 +2140,7 @@ class Model extends CakeObject implements CakeEventListener
             }
 
             $keepExisting = $habtm['unique'] === 'keepExisting';
+            $associationForeignKey = null;
             if ($habtm['unique']) {
                 $conditions = [
                     $join . '.' . $habtm['foreignKey'] => $id,
@@ -2156,13 +2170,13 @@ class Model extends CakeObject implements CakeEventListener
             }
 
             if (!empty($newData)) {
-                foreach ($newData as $data) {
-                    $data[$habtm['foreignKey']] = $id;
-                    if (empty($data[$model->primaryKey])) {
+                foreach ($newData as $_data) {
+                    $_data[$habtm['foreignKey']] = $id;
+                    if (empty($_data[$model->primaryKey])) {
                         $model->create();
                     }
 
-                    $model->save($data, ['atomic' => false]);
+                    $model->save($_data, ['atomic' => false]);
                 }
             }
 
@@ -2196,7 +2210,7 @@ class Model extends CakeObject implements CakeEventListener
      *   'counterScope' defined get updated
      * @return void
      */
-    public function updateCounterCache($keys = [], $created = false)
+    public function updateCounterCache(array $keys = [], bool $created = false): void
     {
         if (empty($keys) && isset($this->data[$this->alias])) {
             $keys = $this->data[$this->alias];
@@ -2255,7 +2269,7 @@ class Model extends CakeObject implements CakeEventListener
                 $conditions[$fkQuoted] = $keys[$foreignKey];
 
                 if ($recursive === 0) {
-                    $conditions = array_merge($conditions, (array)$conditions);
+                    $conditions = array_merge($conditions, $conditions);
                 }
 
                 $count = (int)$this->find('count', compact('conditions', 'recursive'));
@@ -2275,7 +2289,7 @@ class Model extends CakeObject implements CakeEventListener
      * @return array Returns updated foreign key values, along with an 'old' key containing the old
      *     values, or empty if no foreign keys are updated.
      */
-    protected function _prepareUpdateFields($data)
+    protected function _prepareUpdateFields(array $data): array
     {
         $foreignKeys = [];
         foreach ($this->belongsTo as $assoc => $info) {
@@ -2334,7 +2348,7 @@ class Model extends CakeObject implements CakeEventListener
      * @link https://book.cakephp.org/2.0/en/models/saving-your-data.html#model-saveassociated-array-data-null-array-options-array
      * @link https://book.cakephp.org/2.0/en/models/saving-your-data.html#model-saveall-array-data-null-array-options-array
      */
-    public function saveAll($data = [], $options = [])
+    public function saveAll(array $data = [], array $options = []): mixed
     {
         $options += ['validate' => 'first'];
         if (Hash::numeric(array_keys($data))) {
@@ -2366,15 +2380,15 @@ class Model extends CakeObject implements CakeEventListener
      * - `callbacks`: See Model::save()
      * - `counterCache`: See Model::save()
      *
-     * @param array $data Record data to save. This should be a numerically-indexed array
+     * @param array|null $data Record data to save. This should be a numerically-indexed array
      * @param array $options Options to use when saving record data, See $options above.
-     * @return mixed If atomic: True on success, or false on failure.
+     * @return array|bool If atomic: True on success, or false on failure.
      *    Otherwise: array similar to the $data array passed, but values are set to true/false
      *    depending on whether each record saved successfully.
      * @throws PDOException
      * @link https://book.cakephp.org/2.0/en/models/saving-your-data.html#model-savemany-array-data-null-array-options-array
      */
-    public function saveMany($data = null, $options = [])
+    public function saveMany(?array $data = null, array $options = []): array|bool
     {
         if (empty($data)) {
             $data = $this->data;
@@ -2401,6 +2415,7 @@ class Model extends CakeObject implements CakeEventListener
         }
 
         $transactionBegun = false;
+        $db = null;
         if ($options['atomic']) {
             $db = $this->getDataSource();
             $transactionBegun = $db->begin();
@@ -2409,17 +2424,14 @@ class Model extends CakeObject implements CakeEventListener
         try {
             $return = [];
             foreach ($data as $key => $record) {
-                $validates = $this->create(null) !== null;
-                $saved = false;
-                if ($validates) {
-                    if ($options['deep']) {
-                        $saved = $this->saveAssociated($record, ['atomic' => false] + $options);
-                    } else {
-                        $saved = (bool)$this->save($record, ['atomic' => false] + $options);
-                    }
+                $this->create(null);
+                if ($options['deep']) {
+                    $saved = $this->saveAssociated($record, ['atomic' => false] + $options);
+                } else {
+                    $saved = (bool)$this->save($record, ['atomic' => false] + $options);
                 }
 
-                $validates = ($validates && ($saved === true || (is_array($saved) && !in_array(false, Hash::flatten($saved), true))));
+                $validates = ($saved === true || (is_array($saved) && !in_array(false, Hash::flatten($saved), true)));
                 if (!$validates) {
                     $validationErrors[$key] = $this->validationErrors;
                 }
@@ -2477,7 +2489,7 @@ class Model extends CakeObject implements CakeEventListener
      *    Otherwise: array similar to the $data array passed, but values are set to true/false
      *    depending on whether each record validated successfully.
      */
-    public function validateMany(&$data, $options = [])
+    public function validateMany(array &$data, array $options = []): array|bool
     {
         return $this->validator()->validateMany($data, $options);
     }
@@ -2503,7 +2515,7 @@ class Model extends CakeObject implements CakeEventListener
      * - `callbacks`: See Model::save()
      * - `counterCache`: See Model::save()
      *
-     * @param array $data Record data to save. This should be an array indexed by association name.
+     * @param array|null $data Record data to save. This should be an array indexed by association name.
      * @param array $options Options to use when saving record data, See $options above.
      * @return mixed If atomic: True on success, or false on failure.
      *    Otherwise: array similar to the $data array passed, but values are set to true/false
@@ -2511,7 +2523,7 @@ class Model extends CakeObject implements CakeEventListener
      * @throws PDOException
      * @link https://book.cakephp.org/2.0/en/models/saving-your-data.html#model-saveassociated-array-data-null-array-options-array
      */
-    public function saveAssociated($data = null, $options = [])
+    public function saveAssociated(?array $data = null, array $options = []): mixed
     {
         if (empty($data)) {
             $data = $this->data;
@@ -2539,6 +2551,7 @@ class Model extends CakeObject implements CakeEventListener
         }
 
         $transactionBegun = false;
+        $db = null;
         if ($options['atomic']) {
             $db = $this->getDataSource();
             $transactionBegun = $db->begin();
@@ -2558,7 +2571,6 @@ class Model extends CakeObject implements CakeEventListener
                 $model = $this->{$association};
 
                 $validates = $model->create(null) !== null;
-                $saved = false;
                 if ($validates) {
                     if ($options['deep']) {
                         $saved = $model->saveAssociated($values, ['atomic' => false] + $options);
@@ -2613,7 +2625,6 @@ class Model extends CakeObject implements CakeEventListener
 
                         $validates = $model->create(null) !== null;
                         $saved = false;
-
                         if ($validates) {
                             $options = $model->_addToWhiteList($key, $options);
                             if ($options['deep']) {
@@ -2632,7 +2643,7 @@ class Model extends CakeObject implements CakeEventListener
                         break;
                     case 'hasMany':
                         foreach ($values as $i => $value) {
-                            if (isset($values[$i][$association])) {
+                            if (isset($value[$association])) {
                                 $values[$i][$association][$key] = $this->id;
                             } else {
                                 $values[$i] = array_merge([$key => $this->id], $value, [$key => $this->id]);
@@ -2689,7 +2700,7 @@ class Model extends CakeObject implements CakeEventListener
      * @param array $options Options list
      * @return array options
      */
-    protected function _addToWhiteList($key, $options)
+    protected function _addToWhiteList(string $key, array $options): array
     {
         if (empty($options['fieldList']) && $this->whitelist && !in_array($key, $this->whitelist)) {
             $options['fieldList'][$this->alias] = $this->whitelist;
@@ -2730,7 +2741,7 @@ class Model extends CakeObject implements CakeEventListener
      *    Otherwise: array similar to the $data array passed, but values are set to true/false
      *    depending on whether each record validated successfully.
      */
-    public function validateAssociated(&$data, $options = [])
+    public function validateAssociated(array &$data, array $options = []): array|bool
     {
         return $this->validator()->validateAssociated($data, $options);
     }
@@ -2744,7 +2755,7 @@ class Model extends CakeObject implements CakeEventListener
      * @return bool True on success, false on failure
      * @link https://book.cakephp.org/2.0/en/models/saving-your-data.html#model-updateall-array-fields-mixed-conditions
      */
-    public function updateAll($fields, $conditions = true)
+    public function updateAll(array $fields, mixed $conditions = true): bool
     {
         return $this->getDataSource()->update($this, $fields, null, $conditions);
     }
@@ -2752,14 +2763,14 @@ class Model extends CakeObject implements CakeEventListener
     /**
      * Removes record for given ID. If no ID is given, the current ID is used. Returns true on success.
      *
-     * @param string|int $id ID of record to delete
+     * @param string|int|null $id ID of record to delete
      * @param bool $cascade Set to true to delete records that depend on this record
      * @return bool True on success
      * @triggers Model.beforeDelete $this, array($cascade)
      * @triggers Model.afterDelete $this
      * @link https://book.cakephp.org/2.0/en/models/deleting-data.html
      */
-    public function delete($id = null, $cascade = true)
+    public function delete(string|int|null $id = null, bool $cascade = true): bool
     {
         if (!empty($id)) {
             $this->id = $id;
@@ -2820,7 +2831,7 @@ class Model extends CakeObject implements CakeEventListener
      * @param bool $cascade Set to true to delete records that depend on this record
      * @return void
      */
-    protected function _deleteDependent($id, $cascade)
+    protected function _deleteDependent(string $id, bool $cascade): void
     {
         if ($cascade !== true) {
             return;
@@ -2875,7 +2886,7 @@ class Model extends CakeObject implements CakeEventListener
      * @param string $id ID of record that was deleted
      * @return void
      */
-    protected function _deleteLinks($id)
+    protected function _deleteLinks(string $id): void
     {
         foreach ($this->hasAndBelongsToMany as $data) {
             [, $joinModel] = pluginSplit($data['with']);
@@ -2904,8 +2915,11 @@ class Model extends CakeObject implements CakeEventListener
      * @param array $relationshipConfig The relationship config defined on the primary model
      * @return array
      */
-    protected function _getConditionsForDeletingLinks(Model $model, $id, array $relationshipConfig)
-    {
+    protected function _getConditionsForDeletingLinks(
+        Model $model,
+        mixed $id,
+        array $relationshipConfig,
+    ): array {
         return [$model->escapeField($relationshipConfig['foreignKey']) => $id];
     }
 
@@ -2918,8 +2932,11 @@ class Model extends CakeObject implements CakeEventListener
      * @return bool True on success, false on failure
      * @link https://book.cakephp.org/2.0/en/models/deleting-data.html#deleteall
      */
-    public function deleteAll($conditions, $cascade = true, $callbacks = false)
-    {
+    public function deleteAll(
+        mixed $conditions,
+        bool $cascade = true,
+        bool $callbacks = false,
+    ): bool {
         if (empty($conditions)) {
             return false;
         }
@@ -2930,11 +2947,17 @@ class Model extends CakeObject implements CakeEventListener
             return $db->delete($this, $conditions);
         }
 
-        $ids = $this->find('all', array_merge([
-            'fields' => "{$this->alias}.{$this->primaryKey}",
-            'order' => false,
-            'group' => "{$this->alias}.{$this->primaryKey}",
-            'recursive' => 0], compact('conditions')),);
+        $ids = $this->find(
+            'all',
+            array_merge([
+                'fields' => "{$this->alias}.{$this->primaryKey}",
+                'order' => false,
+                'group' => "{$this->alias}.{$this->primaryKey}",
+                'recursive' => 0,
+            ], [
+                'conditions' => $conditions,
+            ]),
+        );
 
         if ($ids === false || $ids === null) {
             return false;
@@ -2973,7 +2996,7 @@ class Model extends CakeObject implements CakeEventListener
      * @param string $type Association type.
      * @return array
      */
-    protected function _collectForeignKeys($type = 'belongsTo')
+    protected function _collectForeignKeys(string $type = 'belongsTo'): array
     {
         $result = [];
 
@@ -2993,10 +3016,10 @@ class Model extends CakeObject implements CakeEventListener
      * and then performs a `Model::find('count')` on the currently configured datasource
      * to ascertain the existence of the record in persistent storage.
      *
-     * @param string|int $id ID of record to check for existence
+     * @param string|int|bool|null $id ID of record to check for existence
      * @return bool True if such a record exists
      */
-    public function exists($id = null)
+    public function exists(string|int|bool|null $id = null): bool
     {
         if ($id === null) {
             $id = $this->getID();
@@ -3022,10 +3045,10 @@ class Model extends CakeObject implements CakeEventListener
     /**
      * Returns true if a record that meets given conditions exists.
      *
-     * @param array $conditions SQL conditions array
+     * @param array|null $conditions SQL conditions array
      * @return bool True if such a record exists
      */
-    public function hasAny($conditions = null)
+    public function hasAny(?array $conditions = null): bool
     {
         return (bool)$this->find('count', ['conditions' => $conditions, 'recursive' => -1]);
     }
@@ -3095,11 +3118,13 @@ class Model extends CakeObject implements CakeEventListener
      *
      * @param string $type Type of find operation (all / first / count / neighbors / list / threaded)
      * @param array $query Option fields (conditions / fields / joins / limit / offset / order / page / group / callbacks)
-     * @return array|int|null Array of records, int if the type is count, or Null on failure.
+     * @return array|int|false|null Array of records, int if the type is count, or Null on failure.
      * @link https://book.cakephp.org/2.0/en/models/retrieving-your-data.html
      */
-    public function find(string $type = 'first', array $query = [])
-    {
+    public function find(
+        string $type = 'first',
+        array $query = [],
+    ): array|int|false|null {
         $this->findQueryType = $type;
         $this->id = $this->getID();
 
@@ -3175,7 +3200,7 @@ class Model extends CakeObject implements CakeEventListener
                 'conditions' => null, 'fields' => null, 'joins' => [], 'limit' => null,
                 'offset' => null, 'order' => null, 'page' => 1, 'group' => null, 'callbacks' => true,
             ],
-            (array)$query,
+            $query,
         );
 
         if ($this->findMethods[$type] === true) {
@@ -3224,7 +3249,7 @@ class Model extends CakeObject implements CakeEventListener
      * @return array
      * @see Model::find()
      */
-    protected function _findAll($state, $query, $results = [])
+    protected function _findAll(string $state, array $query, array $results = []): array
     {
         if ($state === 'before') {
             return $query;
@@ -3238,11 +3263,11 @@ class Model extends CakeObject implements CakeEventListener
      *
      * @param string $state Either "before" or "after"
      * @param array $query Query.
-     * @param array $results Results.
+     * @param array|false $results Results.
      * @return array
      * @see Model::find()
      */
-    protected function _findFirst($state, $query, $results = [])
+    protected function _findFirst(string $state, array $query, array|false $results = []): array
     {
         if ($state === 'before') {
             $query['limit'] = 1;
@@ -3263,10 +3288,10 @@ class Model extends CakeObject implements CakeEventListener
      * @param string $state Either "before" or "after"
      * @param array $query Query.
      * @param array $results Results.
-     * @return int|false The number of records found, or false
+     * @return array|int|false The number of records found, or false
      * @see Model::find()
      */
-    protected function _findCount($state, $query, $results = [])
+    protected function _findCount(string $state, array $query, array $results = []): array|int|false
     {
         if ($state === 'before') {
             if (!empty($query['type']) && isset($this->findMethods[$query['type']]) && $query['type'] !== 'count') {
@@ -3319,7 +3344,7 @@ class Model extends CakeObject implements CakeEventListener
      * @return array Key/value pairs of primary keys/display field values of all records found
      * @see Model::find()
      */
-    protected function _findList($state, $query, $results = [])
+    protected function _findList(string $state, array $query, array $results = []): array
     {
         if ($state === 'before') {
             if (empty($query['fields'])) {
@@ -3380,7 +3405,7 @@ class Model extends CakeObject implements CakeEventListener
      * @param array $results Results.
      * @return array
      */
-    protected function _findNeighbors($state, $query, $results = [])
+    protected function _findNeighbors(string $state, array $query, array $results = []): array
     {
         extract($query);
 
@@ -3443,8 +3468,11 @@ class Model extends CakeObject implements CakeEventListener
      * @param array $results Results.
      * @return array Threaded results
      */
-    protected function _findThreaded($state, $query, $results = [])
-    {
+    protected function _findThreaded(
+        string $state,
+        array $query,
+        array $results = [],
+    ): array {
         if ($state === 'before') {
             return $query;
         }
@@ -3465,11 +3493,13 @@ class Model extends CakeObject implements CakeEventListener
      *
      * @param array $results Results to filter
      * @param bool $primary If this is the primary model results (results from model where the find operation was performed)
-     * @return array Set of filtered results
+     * @return array|false Set of filtered results
      * @triggers Model.afterFind $this, array($results, $primary)
      */
-    protected function _filterResults($results, $primary = true)
-    {
+    protected function _filterResults(
+        array|false $results,
+        bool $primary = true,
+    ): array|false {
         $event = new CakeEvent('Model.afterFind', $this, [$results, $primary]);
         $event->modParams = 0;
         $this->getEventManager()->dispatch($event);
@@ -3484,7 +3514,7 @@ class Model extends CakeObject implements CakeEventListener
      *
      * @return bool Success
      */
-    public function resetAssociations()
+    public function resetAssociations(): bool
     {
         if (!empty($this->__backAssociation)) {
             foreach ($this->_associations as $type) {
@@ -3520,8 +3550,11 @@ class Model extends CakeObject implements CakeEventListener
      * @param mixed ...$args
      * @return bool False if any records matching any fields are found
      */
-    public function isUnique($fields, $or = true, ...$args): bool
-    {
+    public function isUnique(
+        array|string $fields,
+        array|bool $or = true,
+        mixed ...$args,
+    ): bool {
         if (is_array($or)) {
             $isRule = (
                 array_key_exists('rule', $or) &&
@@ -3587,7 +3620,7 @@ class Model extends CakeObject implements CakeEventListener
      * @return mixed Resultset array or boolean indicating success / failure depending on the query executed
      * @link https://book.cakephp.org/2.0/en/models/retrieving-your-data.html#model-query
      */
-    public function query(...$params)
+    public function query(mixed ...$params): mixed
     {
         // use $this->cacheQueries as default when argument not explicitly given already
         if (count($params) === 1 || count($params) === 2 && !is_bool($params[1])) {
@@ -3607,7 +3640,7 @@ class Model extends CakeObject implements CakeEventListener
      * @param array $options An optional array of custom options to be made available in the beforeValidate callback
      * @return bool True if there are no errors
      */
-    public function validates($options = [])
+    public function validates(array $options = []): bool
     {
         return $this->validator()->validates($options);
     }
@@ -3618,10 +3651,10 @@ class Model extends CakeObject implements CakeEventListener
      * Additionally it populates the validationErrors property of the model with the same array.
      *
      * @param array|string $options An optional array of custom options to be made available in the beforeValidate callback
-     * @return array|bool Array of invalid fields and their error messages
+     * @return array|false Array of invalid fields and their error messages
      * @see Model::validates()
      */
-    public function invalidFields($options = [])
+    public function invalidFields(array|string $options = []): array|false
     {
         return $this->validator()->errors($options);
     }
@@ -3635,7 +3668,7 @@ class Model extends CakeObject implements CakeEventListener
      *    be returned. If no validation key is provided, defaults to true.
      * @return void
      */
-    public function invalidate($field, $value = true)
+    public function invalidate(string $field, mixed $value = true): void
     {
         $this->validator()->invalidate($field, $value);
     }
@@ -3646,7 +3679,7 @@ class Model extends CakeObject implements CakeEventListener
      * @param string $field Returns true if the input string ends in "_id"
      * @return bool True if the field is a foreign key listed in the belongsTo array.
      */
-    public function isForeignKey($field)
+    public function isForeignKey(string $field): bool
     {
         $foreignKeys = [];
         if (!empty($this->belongsTo)) {
@@ -3662,11 +3695,11 @@ class Model extends CakeObject implements CakeEventListener
      * Escapes the field name and prepends the model name. Escaping is done according to the
      * current database driver's rules.
      *
-     * @param string $field Field to escape (e.g: id)
-     * @param string $alias Alias for the model (e.g: Post)
-     * @return string The name of the escaped field for this Model (i.e. id becomes `Post`.`id`).
+     * @param string|null $field Field to escape (e.g: id)
+     * @param string|null $alias Alias for the model (e.g: Post)
+     * @return string|null The name of the escaped field for this Model (i.e. id becomes `Post`.`id`).
      */
-    public function escapeField($field = null, $alias = null)
+    public function escapeField(?string $field = null, ?string $alias = null): ?string
     {
         if (empty($alias)) {
             $alias = $this->alias;
@@ -3690,7 +3723,7 @@ class Model extends CakeObject implements CakeEventListener
      * @param int $list Index on which the composed ID is located
      * @return mixed The ID of the current record, false if no ID
      */
-    public function getID($list = 0)
+    public function getID(int $list = 0): mixed
     {
         if (empty($this->id) || (is_array($this->id) && isset($this->id[0]) && empty($this->id[0]))) {
             return false;
@@ -3714,9 +3747,9 @@ class Model extends CakeObject implements CakeEventListener
     /**
      * Returns the ID of the last record this model inserted.
      *
-     * @return mixed Last inserted ID
+     * @return string|int|null Last inserted ID
      */
-    public function getLastInsertID()
+    public function getLastInsertID(): string|int|null
     {
         return $this->getInsertID();
     }
@@ -3724,9 +3757,9 @@ class Model extends CakeObject implements CakeEventListener
     /**
      * Returns the ID of the last record this model inserted.
      *
-     * @return mixed Last inserted ID
+     * @return string|int|null Last inserted ID
      */
-    public function getInsertID()
+    public function getInsertID(): string|int|null
     {
         return $this->_insertID;
     }
@@ -3734,10 +3767,10 @@ class Model extends CakeObject implements CakeEventListener
     /**
      * Sets the ID of the last record this model inserted
      *
-     * @param string|int $id Last inserted ID
+     * @param string|int|null $id Last inserted ID
      * @return void
      */
-    public function setInsertID($id)
+    public function setInsertID(string|int|null $id): void
     {
         $this->_insertID = $id;
     }
@@ -3745,9 +3778,9 @@ class Model extends CakeObject implements CakeEventListener
     /**
      * Returns the number of rows returned from the last query.
      *
-     * @return int Number of rows
+     * @return int|false Number of rows
      */
-    public function getNumRows()
+    public function getNumRows(): int|false
     {
         return $this->getDataSource()->lastNumRows();
     }
@@ -3755,9 +3788,9 @@ class Model extends CakeObject implements CakeEventListener
     /**
      * Returns the number of rows affected by the last query.
      *
-     * @return int Number of rows
+     * @return int|false Number of rows
      */
-    public function getAffectedRows()
+    public function getAffectedRows(): int|false
     {
         return $this->getDataSource()->lastAffected();
     }
@@ -3765,11 +3798,11 @@ class Model extends CakeObject implements CakeEventListener
     /**
      * Sets the DataSource to which this model is bound.
      *
-     * @param string $dataSource The name of the DataSource, as defined in app/Config/database.php
+     * @param string|null $dataSource The name of the DataSource, as defined in app/Config/database.php
      * @return void
      * @throws MissingConnectionException
      */
-    public function setDataSource($dataSource = null)
+    public function setDataSource(?string $dataSource = null): void
     {
         $oldConfig = $this->useDbConfig;
 
@@ -3816,7 +3849,7 @@ class Model extends CakeObject implements CakeEventListener
      *
      * @return array
      */
-    public function associations()
+    public function associations(): array
     {
         return $this->_associations;
     }
@@ -3824,10 +3857,10 @@ class Model extends CakeObject implements CakeEventListener
     /**
      * Gets all the models with which this model is associated.
      *
-     * @param string $type Only result associations of this type
+     * @param string|null $type Only result associations of this type
      * @return array|null Associations
      */
-    public function getAssociated($type = null)
+    public function getAssociated(?string $type = null): ?array
     {
         if (!$type) {
             $associated = [];
@@ -3876,16 +3909,18 @@ class Model extends CakeObject implements CakeEventListener
      * Gets the name and fields to be used by a join model. This allows specifying join fields
      * in the association definition.
      *
-     * @param array|string $assoc The model to be joined
+     * @param mixed $assoc The model to be joined
      * @param array $keys Any join keys which must be merged with the keys queried
      * @return array
      */
-    public function joinModel(array|string $assoc, array $keys = []): array
+    public function joinModel(mixed $assoc, array $keys = []): array
     {
         if (is_string($assoc)) {
             [, $assoc] = pluginSplit($assoc);
+            $schema = $this->{$assoc}->schema();
+            $schemaKeys = array_keys($schema ?: []);
 
-            return [$assoc, array_keys($this->{$assoc}->schema())];
+            return [$assoc, $schemaKeys];
         }
 
         if (is_array($assoc)) {
@@ -3907,11 +3942,11 @@ class Model extends CakeObject implements CakeEventListener
      * call, otherwise return the (modified) query data.
      *
      * @param array $query Data used to execute this query, i.e. conditions, order, etc.
-     * @return mixed true if the operation should continue, false if it should abort; or, modified
+     * @return array|bool|null true if the operation should continue, false if it should abort; or, modified
      *  $query to continue with new $query
      * @link https://book.cakephp.org/2.0/en/models/callback-methods.html#beforefind
      */
-    public function beforeFind($query)
+    public function beforeFind(array $query): array|bool|null
     {
         return true;
     }
@@ -3925,7 +3960,7 @@ class Model extends CakeObject implements CakeEventListener
      * @return mixed Result of the find operation
      * @link https://book.cakephp.org/2.0/en/models/callback-methods.html#afterfind
      */
-    public function afterFind($results, bool $primary = false)
+    public function afterFind(mixed $results, bool $primary = false): mixed
     {
         return $results;
     }
@@ -3965,7 +4000,7 @@ class Model extends CakeObject implements CakeEventListener
      * @return bool|null True if the operation should continue, false if it should abort
      * @link https://book.cakephp.org/2.0/en/models/callback-methods.html#beforedelete
      */
-    public function beforeDelete($cascade = true): ?bool
+    public function beforeDelete(bool $cascade = true): ?bool
     {
         return true;
     }
@@ -3986,7 +4021,7 @@ class Model extends CakeObject implements CakeEventListener
      * validation rules can be defined in $validate.
      *
      * @param array $options Options passed from Model::save().
-     * @return bool True if validate operation should continue, false to abort
+     * @return bool|null True if validate operation should continue, false to abort
      * @link https://book.cakephp.org/2.0/en/models/callback-methods.html#beforevalidate
      * @see Model::save()
      */

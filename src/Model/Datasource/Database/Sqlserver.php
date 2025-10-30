@@ -700,7 +700,7 @@ class Sqlserver extends DboSource
     /**
      * @inheritDoc
      */
-    public function value($data, ?string $column = null, bool $null = true): array|string
+    public function value(mixed $data, ?string $column = null, bool $null = true): array|string
     {
         if ($data === null || is_array($data) || is_object($data)) {
             return parent::value($data, $column, $null);
@@ -884,9 +884,9 @@ class Sqlserver extends DboSource
      * this returns false.
      *
      * @param mixed $source Unused
-     * @return int Number of affected rows
+     * @return int|false Number of affected rows
      */
-    public function lastAffected($source = null)
+    public function lastAffected(mixed $source = null): int|false
     {
         $affected = parent::lastAffected();
         if ($affected === null && $this->_lastAffected !== false) {

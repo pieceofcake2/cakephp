@@ -40,9 +40,9 @@ class CakeErrorController extends AppController
     /**
      * Uses Property
      *
-     * @var array|bool
+     * @var array|bool|null
      */
-    public array|bool $uses = [];
+    public array|bool|null $uses = [];
 
     /**
      * Constructor

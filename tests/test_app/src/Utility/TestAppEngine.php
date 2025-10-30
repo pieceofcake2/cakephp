@@ -2,6 +2,8 @@
 
 namespace TestApp\Utility;
 
-class TestAppEngine
+use Cake\Utility\CakeNumber;
+
+class TestAppEngine extends CakeNumber
 {
 }

@@ -60,7 +60,9 @@ class TreeBehaviorUuidTest extends CakeTestCase
      *
      * @var array
      */
-    public array $fixtures = ['core.uuid_tree'];
+    public array $fixtures = [
+        'core.uuid_tree',
+    ];
 
     /**
      * testAddWithPreSpecifiedId method

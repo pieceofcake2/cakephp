@@ -145,7 +145,7 @@ class RequestHandlerComponent extends Component
      * @return void
      * @see Router::parseExtensions()
      */
-    public function initialize(Controller $controller)
+    public function initialize(Controller $controller): void
     {
         if (isset($this->request->params['ext'])) {
             $this->ext = $this->request->params['ext'];
@@ -268,19 +268,21 @@ class RequestHandlerComponent extends Component
      * Modifies the $_POST and $_SERVER['REQUEST_METHOD'] to simulate a new GET request.
      *
      * @param Controller $controller A reference to the controller
-     * @param array|string $url A string or array containing the redirect location
-     * @param array|int $status HTTP Status for redirect
+     * @param array|string|null $url A string or array containing the redirect location
+     * @param array|int|null $status HTTP Status for redirect
      * @param bool $exit Whether to exit script, defaults to `true`.
-     * @return void
+     * @return array|string|false|null
      */
-    public function beforeRedirect(Controller $controller, $url, $status = null, $exit = true)
-    {
-        if (!$this->request->is('ajax')) {
-            return;
+    public function beforeRedirect(
+        Controller $controller,
+        array|string|null $url,
+        array|int|null $status = null,
+        bool $exit = true,
+    ): array|string|false|null {
+        if (!$this->request->is('ajax') || empty($url)) {
+            return null;
         }
-        if (empty($url)) {
-            return;
-        }
+
         $_SERVER['REQUEST_METHOD'] = 'GET';
         foreach ($_POST as $key => $val) {
             unset($_POST[$key]);
@@ -298,6 +300,8 @@ class RequestHandlerComponent extends Component
         $this->response->body($this->requestAction($url, ['return', 'bare' => false]));
         $this->response->send();
         $this->_stop();
+
+        return null;
     }
 
     /**
@@ -492,10 +496,10 @@ class RequestHandlerComponent extends Component
      *
      * @param bool $safe Use safe = false when you think the user might manipulate
      *   their HTTP_CLIENT_IP header. Setting $safe = false will also look at HTTP_X_FORWARDED_FOR
-     * @return string Client IP address
+     * @return string|false Client IP address
      * @deprecated 3.0.0 Use $this->request->clientIp() from your, controller instead.
      */
-    public function getClientIP($safe = true)
+    public function getClientIP(bool $safe = true): string|false
     {
         return $this->request->clientIp($safe);
     }

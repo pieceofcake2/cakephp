@@ -36,23 +36,23 @@ class ConsoleOutputStub extends ConsoleOutput
      *
      * @var array
      */
-    protected $_out = [];
+    protected array $_out = [];
 
     /**
      * The number of bytes written by last call to write
      *
      * @var int
      */
-    protected $_lastWritten = 0;
+    protected int $_lastWritten = 0;
 
     /**
      * Write output to the buffer.
      *
-     * @param array|string $message A string or an array of strings to output
+     * @param array|string|null $message A string or an array of strings to output
      * @param int $newlines Number of newlines to append
-     * @return void
+     * @return int|false|null
      */
-    public function write($message, $newlines = 1)
+    public function write(array|string|null $message, int $newlines = 1): int|false|null
     {
         foreach ((array)$message as $line) {
             $this->_out[] = $line;
@@ -64,6 +64,8 @@ class ConsoleOutputStub extends ConsoleOutput
             $this->_lastWritten = 0;
             $newlines--;
         }
+
+        return null;
     }
 
     /**
@@ -71,11 +73,11 @@ class ConsoleOutputStub extends ConsoleOutput
      *
      * @param array|string $message The message to output.
      * @param int $newlines Number of newlines to append.
-     * @param int $size The number of bytes to overwrite. Defaults to the
+     * @param int|null $size The number of bytes to overwrite. Defaults to the
      *    length of the last message output.
      * @return void
      */
-    public function overwrite($message, $newlines = 1, $size = null)
+    public function overwrite(array|string $message, int $newlines = 1, ?int $size = null): void
     {
         //insert an empty array to mock deletion of existing output
         $this->_out[] = '';
@@ -88,7 +90,7 @@ class ConsoleOutputStub extends ConsoleOutput
      *
      * @return array
      */
-    public function messages()
+    public function messages(): array
     {
         return $this->_out;
     }

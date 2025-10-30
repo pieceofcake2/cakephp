@@ -33,6 +33,13 @@ use Cake\Utility\ObjectCollection;
 class ComponentCollection extends ObjectCollection implements CakeEventListener
 {
     /**
+     * A hash of loaded objects, indexed by name
+     *
+     * @var array<Component>
+     */
+    protected array $_loaded = [];
+
+    /**
      * The controller that this collection was initialized with.
      *
      * @var Controller
@@ -46,7 +53,7 @@ class ComponentCollection extends ObjectCollection implements CakeEventListener
      * @param Controller $controller Controller to initialize components for.
      * @return void
      */
-    public function init(Controller $controller)
+    public function init(Controller $controller): void
     {
         if (empty($controller->components)) {
             return;
@@ -64,7 +71,7 @@ class ComponentCollection extends ObjectCollection implements CakeEventListener
      * @param Controller $controller Controller to set
      * @return void
      */
-    public function setController(Controller $controller)
+    public function setController(Controller $controller): void
     {
         $this->_Controller = $controller;
     }
@@ -72,9 +79,9 @@ class ComponentCollection extends ObjectCollection implements CakeEventListener
     /**
      * Get the controller associated with the collection.
      *
-     * @return Controller Controller instance
+     * @return Controller|null Controller instance
      */
-    public function getController()
+    public function getController(): ?Controller
     {
         return $this->_Controller;
     }
@@ -94,36 +101,37 @@ class ComponentCollection extends ObjectCollection implements CakeEventListener
      * ```
      * All calls to the `Email` component would use `AliasedEmail` instead.
      *
-     * @param string $component Component name to load
-     * @param array $settings Settings for the component.
-     * @return Component A component object, Either the existing loaded component or a new one.
+     * @template T of Component
+     * @param class-string<T>|string $name Component name to load
+     * @param array $options Settings for the component.
+     * @return Component|T A component object, Either the existing loaded component or a new one.
      * @throws MissingComponentException when the component could not be found
      */
-    public function load($component, $settings = [])
+    public function load(string $name, array $options = []): Component
     {
-        if (isset($settings['className'])) {
-            $alias = $component;
-            $component = $settings['className'];
-        }
-        [$plugin, $name] = pluginSplit($component, true);
-        if (!isset($alias)) {
+        if (isset($options['className'])) {
             $alias = $name;
+            $name = $options['className'];
+        }
+        [$plugin, $_name] = pluginSplit($name, true);
+        if (!isset($alias)) {
+            $alias = $_name;
         }
         if (isset($this->_loaded[$alias])) {
             return $this->_loaded[$alias];
         }
 
-        $componentClass = App::className($component, 'Controller/Component', 'Component');
+        $componentClass = App::className($name, 'Controller/Component', 'Component');
 
         if (!$componentClass) {
             throw new MissingComponentException([
-                'class' => $name . 'Component',
+                'class' => $_name . 'Component',
                 'plugin' => $plugin ? substr($plugin, 0, -1) : null,
             ]);
         }
 
-        $this->_loaded[$alias] = new $componentClass($this, $settings);
-        $enable = $settings['enabled'] ?? true;
+        $this->_loaded[$alias] = new $componentClass($this, $options);
+        $enable = $options['enabled'] ?? true;
         if ($enable) {
             $this->enable($alias);
         }

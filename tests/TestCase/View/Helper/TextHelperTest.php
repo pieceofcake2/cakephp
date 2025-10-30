@@ -62,7 +62,7 @@ class_alias(CakeTextMock::class, 'TestApp\\Utility\\CakeTextMock');
  */
 class TextHelperTest extends CakeTestCase
 {
-    protected $_appNamespace = null;
+    protected ?string $_appNamespace = null;
 
     public ?View $View = null;
 

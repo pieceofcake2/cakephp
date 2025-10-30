@@ -48,9 +48,11 @@ class DatabaseSessionTest extends CakeTestCase
     /**
      * fixtures
      *
-     * @var string
+     * @var array
      */
-    public $fixtures = ['core.session'];
+    public array $fixtures = [
+        'core.session',
+    ];
 
     /**
      * test case startup

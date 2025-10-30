@@ -178,7 +178,7 @@ class TestShell extends Shell
      * @return void
      * @throws Exception
      */
-    public function initialize()
+    public function initialize(): void
     {
         $this->_dispatcher = new CakeTestSuiteDispatcher();
         $success = $this->_dispatcher->loadTestFramework();

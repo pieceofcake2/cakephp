@@ -55,9 +55,9 @@ class AppController extends Controller
     /**
      * uses property
      *
-     * @var array||bool
+     * @var array|bool|null
      */
-    public array|bool $uses = ['ControllerPost'];
+    public array|bool|null $uses = ['ControllerPost'];
 
     /**
      * components property
@@ -71,6 +71,7 @@ class AppController extends Controller
  * PostsController
  *
  * @package       Cake.Test.Case.TestSuite
+ * @property TestPluginEmailComponent $AliasedPluginEmail
  */
 class PostsController extends AppController
 {
@@ -103,9 +104,9 @@ class ControllerTestCaseTestController extends AppController
     /**
      * Uses array
      *
-     * @param array||bool
+     * @var array|bool|null
      */
-    public array|bool $uses = ['TestPlugin.TestPluginComment'];
+    public array|bool|null $uses = ['TestPlugin.TestPluginComment'];
 }
 class_alias(ControllerTestCaseTestController::class, 'TestApp\\Controller\\ControllerTestCaseTestController');
 
@@ -116,14 +117,20 @@ class_alias(ControllerTestCaseTestController::class, 'TestApp\\Controller\\Contr
  */
 class ControllerTestCaseTest extends CakeTestCase
 {
-    protected $_appNamespace = null;
+    protected ?string $_appNamespace = null;
 
     /**
      * fixtures property
      *
      * @var array
      */
-    public $fixtures = ['core.post', 'core.author', 'core.test_plugin_comment'];
+    public array $fixtures = [
+        'core.post',
+        'core.author',
+        'core.test_plugin_comment',
+    ];
+
+    public ?ControllerTestCase $Case = null;
 
     /**
      * reset environment.
@@ -222,12 +229,14 @@ class ControllerTestCaseTest extends CakeTestCase
                 'Session',
             ],
         ]);
-        $posts->RequestHandler->expects($this->once())
+        $posts->RequestHandler
+            ->expects($this->once())
             ->method('isPut')
             ->will($this->returnValue(true));
         $this->assertTrue($posts->RequestHandler->isPut());
 
-        $posts->Auth->Session->expects($this->any())
+        $posts->Auth->Session
+            ->expects($this->any())
             ->method('write')
             ->will($this->returnValue('written!'));
         $this->assertEquals('written!', $posts->Auth->Session->write('something'));
@@ -299,17 +308,17 @@ class ControllerTestCaseTest extends CakeTestCase
      */
     public function testGenerateWithMockedAliasedComponent()
     {
-        $Posts = $this->Case->generate('Posts', [
+        $posts = $this->Case->generate('Posts', [
             'components' => [
                 'AliasedEmail' => ['send'],
             ],
         ]);
-        $Posts->AliasedEmail->expects($this->once())
+        $posts->AliasedEmail->expects($this->once())
             ->method('send')
-            ->will($this->returnValue(true));
+            ->willReturn(['foo' => 'bar']);
 
-        $this->assertInstanceOf('EmailComponent', $Posts->AliasedEmail);
-        $this->assertTrue($Posts->AliasedEmail->send());
+        $this->assertInstanceOf('EmailComponent', $posts->AliasedEmail);
+        $this->assertNotEmpty($posts->AliasedEmail->send());
     }
 
     /**
@@ -319,17 +328,17 @@ class ControllerTestCaseTest extends CakeTestCase
      */
     public function testGenerateWithMockedAliasedPluginComponent()
     {
-        $Posts = $this->Case->generate('Posts', [
+        $posts = $this->Case->generate('Posts', [
             'components' => [
                 'AliasedPluginEmail' => ['send'],
             ],
         ]);
-        $Posts->AliasedPluginEmail->expects($this->once())
+        $posts->AliasedPluginEmail->expects($this->once())
             ->method('send')
-            ->will($this->returnValue(true));
+            ->willReturn(['foo' => 'bar']);
 
-        $this->assertInstanceOf(TestPluginEmailComponent::class, $Posts->AliasedPluginEmail);
-        $this->assertTrue($Posts->AliasedPluginEmail->send());
+        $this->assertInstanceOf(TestPluginEmailComponent::class, $posts->AliasedPluginEmail);
+        $this->assertNotEmpty($posts->AliasedPluginEmail->send());
     }
 
     /**

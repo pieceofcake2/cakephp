@@ -29,17 +29,18 @@ use Cake\Utility\Inflector;
  *
  * @package Cake.View
  * @deprecated 3.0.0 Dynamic scaffolding will be removed and replaced in 3.0
+ * @property string|null $action
  */
 class ScaffoldView extends View
 {
     /**
      * Override _getViewFileName Appends special scaffolding views in.
      *
-     * @param string $name name of the view file to get.
+     * @param string|null $name name of the view file to get.
      * @return string action
      * @throws MissingViewException
      */
-    protected function _getViewFileName($name = null)
+    protected function _getViewFileName(?string $name = null): string
     {
         if ($name === null) {
             $name = $this->action;

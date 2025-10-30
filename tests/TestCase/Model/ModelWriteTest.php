@@ -19,6 +19,7 @@
 namespace Cake\Test\TestCase\Model;
 
 use Cake\Core\Configure;
+use Cake\Event\CakeEvent;
 use Cake\Model\ConnectionManager;
 use Cake\Model\Datasource\Database\Mysql;
 use Cake\Model\Datasource\Database\Postgres;
@@ -26,6 +27,7 @@ use Cake\Model\Datasource\Database\Sqlite;
 use Cake\Model\Datasource\Database\Sqlserver;
 use Cake\Model\Datasource\DataSource;
 use Cake\Model\Datasource\DboSource;
+use Cake\Model\Model;
 use Cake\Utility\ClassRegistry;
 use Cake\Utility\Hash;
 use Cake\Utility\Set;
@@ -33,6 +35,8 @@ use Cake\Utility\Xml;
 use Exception;
 use PDOException;
 use PHPUnit\Framework\MockObject\MockObject;
+
+require_once __DIR__ . DS . 'models.php';
 
 /**
  * Helper class for testing with mocked datasources
@@ -933,18 +937,18 @@ class ModelWriteTest extends BaseModelTest
 
         $db->expects($this->once())
             ->method('describe')
-            ->will($this->returnValue([]));
+            ->willReturn([]);
         $db->expects($this->once())
             ->method('begin')
-            ->will($this->returnValue(true));
+            ->willReturn(true);
         $db->expects($this->once())
             ->method('rollback');
 
-        $Post = new TestPost();
-        $Post->setDataSourceObject($db);
+        $post = new TestPost();
+        $post->setDataSourceObject($db);
 
         $callback = [$this, 'callbackForTestSaveTransaction'];
-        $Post->getEventManager()->attach($callback, 'Model.beforeSave');
+        $post->getEventManager()->attach($callback, 'Model.beforeSave');
 
         $data = [
             'Post' => [
@@ -952,7 +956,7 @@ class ModelWriteTest extends BaseModelTest
                 'title' => 'New Fourth Post',
             ],
         ];
-        $Post->save($data, ['atomic' => true]);
+        $post->save($data, ['atomic' => true]);
     }
 
     /**
@@ -960,9 +964,9 @@ class ModelWriteTest extends BaseModelTest
      *
      * @return bool false to stop event propagation
      */
-    public function callbackForTestSaveTransaction($event)
+    public function callbackForTestSaveTransaction(CakeEvent $event): bool
     {
-        $TestModel = new Article();
+        $article = new Article();
 
         // Create record. Do not use same model as in testSaveTransaction
         // to avoid infinite loop.
@@ -975,8 +979,8 @@ class ModelWriteTest extends BaseModelTest
                 'published' => 'Y',
             ],
         ];
-        $TestModel->create();
-        $result = $TestModel->save($data);
+        $article->create();
+        $result = $article->save($data);
         $this->assertTrue((bool)$result);
 
         // force transaction to be rolled back in Post model
@@ -8292,7 +8296,7 @@ class ModelWriteTest extends BaseModelTest
      * @param CakeEvent $event containing the Model
      * @return void
      */
-    public function deleteMe($event)
+    public function deleteMe($event): void
     {
         $Model = $event->subject;
         $Model->getDataSource()->delete($Model, [$Model->alias . '.' . $Model->primaryKey => $Model->id]);

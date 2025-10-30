@@ -25,7 +25,7 @@ namespace TestPlugin\Controller;
  */
 class TestPluginController extends TestPluginAppController
 {
-    public array|bool $uses = [];
+    public array|bool|null $uses = [];
 
     public function index()
     {

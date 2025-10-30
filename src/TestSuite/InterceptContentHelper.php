@@ -1,6 +1,7 @@
 <?php
+
 /**
- * Short description for file.
+ * ControllerTestCase file
  *
  * CakePHP(tm) Tests <https://book.cakephp.org/2.0/en/development/testing.html>
  * Copyright (c) Cake Software Foundation, Inc. (https://cakefoundation.org)
@@ -11,33 +12,31 @@
  *
  * @copyright     Copyright (c) Cake Software Foundation, Inc. (https://cakefoundation.org)
  * @link          https://book.cakephp.org/2.0/en/development/testing.html CakePHP(tm) Tests
- * @package       Cake.Test.TestApp.Plugin.TestPlugin.Controller
- * @since         CakePHP(tm) v 1.2.0.4206
+ * @package       Cake.TestSuite
+ * @since         CakePHP(tm) v 2.0
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-namespace TestPlugin\Controller;
+namespace Cake\TestSuite;
+
+use Cake\View\Helper;
 
 /**
- * TestsController
+ * InterceptContentHelper class
  *
- * @package       Cake.Test.TestApp.Plugin.TestPlugin.Controller
+ * @package       Cake.TestSuite
  */
-class TestsController extends TestPluginAppController
+class InterceptContentHelper extends Helper
 {
-    public array|bool|null $uses = [];
-
-    public array $helpers = ['TestPlugin.OtherHelper', 'Html'];
-
-    public array $components = ['TestPlugin.Plugins'];
-
-    public function index()
+    /**
+     * Intercepts and stores the contents of the view before the layout is rendered
+     *
+     * @param string $viewFile The view file
+     * @return void
+     */
+    public function afterRender(string $viewFile): void
     {
-        $this->set('test_value', 'It is a variable');
-    }
-
-    public function some_method()
-    {
-        return 25;
+        $this->_View->assign('__view_no_layout__', $this->_View->fetch('content'));
+        $this->_View->Helpers->unload('InterceptContent');
     }
 }

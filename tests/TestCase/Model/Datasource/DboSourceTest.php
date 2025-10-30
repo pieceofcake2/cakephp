@@ -204,16 +204,25 @@ class DboSourceTest extends CakeTestCase
      *
      * @var bool
      */
-    public $autoFixtures = false;
+    public bool $autoFixtures = false;
 
     /**
      * fixtures property
      *
      * @var array
      */
-    public $fixtures = [
-        'core.apple', 'core.article', 'core.articles_tag', 'core.attachment', 'core.comment',
-        'core.sample', 'core.tag', 'core.user', 'core.post', 'core.author', 'core.data_test',
+    public array $fixtures = [
+        'core.apple',
+        'core.article',
+        'core.articles_tag',
+        'core.attachment',
+        'core.comment',
+        'core.sample',
+        'core.tag',
+        'core.user',
+        'core.post',
+        'core.author',
+        'core.data_test',
     ];
 
     /**

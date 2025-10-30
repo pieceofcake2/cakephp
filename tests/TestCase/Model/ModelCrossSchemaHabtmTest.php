@@ -37,9 +37,12 @@ class ModelCrossSchemaHabtmTest extends BaseModelTest
      *
      * @var array
      */
-    public $fixtures = [
-        'core.player', 'core.guild', 'core.guilds_player',
-        'core.armor', 'core.armors_player',
+    public array $fixtures = [
+        'core.player',
+        'core.guild',
+        'core.guilds_player',
+        'core.armor',
+        'core.armors_player',
     ];
 
     /**
@@ -47,14 +50,14 @@ class ModelCrossSchemaHabtmTest extends BaseModelTest
      *
      * @var bool
      */
-    public $dropTables = false;
+    public bool $dropTables = false;
 
     /**
      * Don't auto load fixtures
      *
      * @var bool
      */
-    public $autoFixtures = false;
+    public bool $autoFixtures = false;
 
     /**
      * setUp method

@@ -91,7 +91,7 @@ class Test extends CakeTestModel
      *
      * @var array
      */
-    protected $_schema = [
+    protected ?array $_schema = [
         'id' => ['type' => 'integer', 'null' => '', 'default' => '1', 'length' => '8', 'key' => 'primary'],
         'name' => ['type' => 'string', 'null' => '', 'default' => '', 'length' => '255'],
         'email' => ['type' => 'string', 'null' => '1', 'default' => '', 'length' => '155'],
@@ -128,7 +128,7 @@ class TestAlias extends CakeTestModel
      *
      * @var array
      */
-    protected $_schema = [
+    protected ?array $_schema = [
         'id' => ['type' => 'integer', 'null' => '', 'default' => '1', 'length' => '8', 'key' => 'primary'],
         'name' => ['type' => 'string', 'null' => '', 'default' => '', 'length' => '255'],
         'email' => ['type' => 'string', 'null' => '1', 'default' => '', 'length' => '155'],
@@ -165,7 +165,7 @@ class TestValidate extends CakeTestModel
      *
      * @var array
      */
-    protected $_schema = [
+    protected ?array $_schema = [
         'id' => ['type' => 'integer', 'null' => '', 'default' => '', 'length' => '8'],
         'title' => ['type' => 'string', 'null' => '', 'default' => '', 'length' => '255'],
         'body' => ['type' => 'string', 'null' => '1', 'default' => '', 'length' => ''],
@@ -226,12 +226,13 @@ class User extends CakeTestModel
     /**
      * beforeFind() callback used to run ContainableBehaviorTest::testLazyLoad()
      *
-     * @return bool
+     * @param array $query
+     * @return array|bool|null
      * @throws Exception
      */
-    public function beforeFind($queryData)
+    public function beforeFind(array $query): array|bool|null
     {
-        if (!empty($queryData['lazyLoad'])) {
+        if (!empty($query['lazyLoad'])) {
             if (!isset($this->Article, $this->Comment, $this->ArticleFeatured)) {
                 throw new Exception('Unavailable associations');
             }
@@ -589,9 +590,9 @@ class ModifiedComment extends CakeTestModel
     /**
      * afterFind callback
      *
-     * @return void
+     * @return mixed
      */
-    public function afterFind($results, $primary = false)
+    public function afterFind(mixed $results, bool $primary = false): mixed
     {
         if (isset($results[0])) {
             $results[0]['Comment']['callback'] = 'Fire';
@@ -636,9 +637,9 @@ class AgainModifiedComment extends CakeTestModel
     /**
      * afterFind callback
      *
-     * @return void
+     * @return mixed
      */
-    public function afterFind($results, $primary = false)
+    public function afterFind(mixed $results, bool $primary = false): mixed
     {
         if (isset($results[0])) {
             $results[0]['Comment']['querytype'] = $this->findQueryType;
@@ -766,9 +767,9 @@ class ModifiedAttachment extends CakeTestModel
     /**
      * afterFind callback
      *
-     * @return void
+     * @return mixed
      */
-    public function afterFind($results, $primary = false)
+    public function afterFind(mixed $results, bool $primary = false): mixed
     {
         if ($this->useConsistentAfterFind) {
             if (isset($results[0][$this->alias]['id'])) {
@@ -982,13 +983,13 @@ class Post extends CakeTestModel
     public array $belongsTo = ['Author'];
 
     /**
-     * @param array $queryData
-     * @return bool true
+     * @param array $query
+     * @return array|bool|null true
      */
-    public function beforeFind($queryData)
+    public function beforeFind(array $query): array|bool|null
     {
-        if (isset($queryData['connection'])) {
-            $this->useDbConfig = $queryData['connection'];
+        if (isset($query['connection'])) {
+            $this->useDbConfig = $query['connection'];
         }
 
         return true;
@@ -997,9 +998,9 @@ class Post extends CakeTestModel
     /**
      * @param array $results
      * @param bool $primary
-     * @return array results
+     * @return mixed
      */
-    public function afterFind($results, $primary = false)
+    public function afterFind(mixed $results, bool $primary = false): mixed
     {
         $this->useDbConfig = 'test';
 
@@ -1034,9 +1035,9 @@ class Author extends CakeTestModel
      * afterFind method
      *
      * @param array $results
-     * @return void
+     * @return mixed
      */
-    public function afterFind($results, $primary = false)
+    public function afterFind(mixed $results, bool $primary = false): mixed
     {
         $results[0]['Author']['test'] = 'working';
 
@@ -1063,9 +1064,9 @@ class ModifiedAuthor extends Author
      * afterFind method
      *
      * @param array $results
-     * @return void
+     * @return mixed
      */
-    public function afterFind($results, $primary = false)
+    public function afterFind(mixed $results, bool $primary = false): mixed
     {
         foreach ($results as $index => $result) {
             $results[$index]['Author']['user'] .= ' (CakePHP)';
@@ -1292,9 +1293,9 @@ class NodeAfterFind extends CakeTestModel
      * afterFind method
      *
      * @param mixed $results
-     * @return array
+     * @return mixed
      */
-    public function afterFind($results, $primary = false)
+    public function afterFind(mixed $results, bool $primary = false): mixed
     {
         return $results;
     }
@@ -1591,9 +1592,9 @@ class SomethingElse extends CakeTestModel
      *
      * @param array $results
      * @param bool $primary
-     * @return array
+     * @return mixed
      */
-    public function afterFind($results, $primary = false)
+    public function afterFind(mixed $results, bool $primary = false): mixed
     {
         foreach ($results as $key => $result) {
             if (!empty($result[$this->alias]) && is_array($result[$this->alias])) {
@@ -1632,9 +1633,9 @@ class JoinThing extends CakeTestModel
      *
      * @param array $results
      * @param bool $primary
-     * @return array
+     * @return mixed
      */
-    public function afterFind($results, $primary = false)
+    public function afterFind(mixed $results, bool $primary = false): mixed
     {
         foreach ($results as $key => $result) {
             if (!empty($result[$this->alias]) && is_array($result[$this->alias])) {
@@ -2302,7 +2303,7 @@ class ValidationTest1 extends CakeTestModel
      *
      * @var array
      */
-    protected $_schema = [];
+    protected ?array $_schema = [];
 
     /**
      * validate property
@@ -2418,9 +2419,9 @@ class ValidationTest2 extends CakeTestModel
     /**
      * schema method
      *
-     * @return array
+     * @return array|null
      */
-    public function schema($field = false)
+    public function schema(string|bool $field = false): ?array
     {
         return [];
     }
@@ -3860,7 +3861,7 @@ class TestModel extends CakeTestModel
      *
      * @var array
      */
-    protected $_schema = [
+    protected ?array $_schema = [
         'id' => ['type' => 'integer', 'null' => '', 'default' => '', 'length' => '8'],
         'client_id' => ['type' => 'integer', 'null' => '', 'default' => '', 'length' => '11'],
         'name' => ['type' => 'string', 'null' => '', 'default' => '', 'length' => '255'],
@@ -3888,10 +3889,14 @@ class TestModel extends CakeTestModel
      * @param mixed $fields
      * @param mixed $order
      * @param mixed $recursive
-     * @return void
+     * @return array|int|false|null
      */
-    public function find($conditions = null, $fields = null, $order = null, $recursive = null)
-    {
+    public function find(
+        $conditions = null,
+        $fields = null,
+        $order = null,
+        $recursive = null,
+    ): array|int|false|null {
         return [$conditions, $fields];
     }
 
@@ -4025,9 +4030,9 @@ class TestModel4 extends CakeTestModel
     /**
      * schema method
      *
-     * @return void
+     * @return array|null
      */
-    public function schema($field = false)
+    public function schema(string|bool $field = false): ?array
     {
         if (!isset($this->_schema)) {
             $this->_schema = [
@@ -4074,9 +4079,9 @@ class TestModel4TestModel7 extends CakeTestModel
     /**
      * schema method
      *
-     * @return void
+     * @return array|null
      */
-    public function schema($field = false)
+    public function schema(string|bool $field = false): ?array
     {
         if (!isset($this->_schema)) {
             $this->_schema = [
@@ -4141,9 +4146,9 @@ class TestModel5 extends CakeTestModel
     /**
      * schema method
      *
-     * @return void
+     * @return array|null
      */
-    public function schema($field = false)
+    public function schema(string|bool $field = false): ?array
     {
         if (!isset($this->_schema)) {
             $this->_schema = [
@@ -4203,9 +4208,9 @@ class TestModel6 extends CakeTestModel
     /**
      * schema method
      *
-     * @return void
+     * @return array|null
      */
-    public function schema($field = false)
+    public function schema(string|bool $field = false): ?array
     {
         if (!isset($this->_schema)) {
             $this->_schema = [
@@ -4253,9 +4258,9 @@ class TestModel7 extends CakeTestModel
     /**
      * schema method
      *
-     * @return void
+     * @return array|null
      */
-    public function schema($field = false)
+    public function schema(string|bool $field = false): ?array
     {
         if (!isset($this->_schema)) {
             $this->_schema = [
@@ -4315,9 +4320,9 @@ class TestModel8 extends CakeTestModel
     /**
      * schema method
      *
-     * @return void
+     * @return array|null
      */
-    public function schema($field = false)
+    public function schema(string|bool $field = false): ?array
     {
         if (!isset($this->_schema)) {
             $this->_schema = [
@@ -4378,9 +4383,9 @@ class TestModel9 extends CakeTestModel
     /**
      * schema method
      *
-     * @return void
+     * @return array|null
      */
-    public function schema($field = false)
+    public function schema(string|bool $field = false): ?array
     {
         if (!isset($this->_schema)) {
             $this->_schema = [
@@ -4442,9 +4447,9 @@ class Level extends CakeTestModel
     /**
      * schema method
      *
-     * @return void
+     * @return array|null
      */
-    public function schema($field = false)
+    public function schema(string|bool $field = false): ?array
     {
         if (!isset($this->_schema)) {
             $this->_schema = [
@@ -4503,9 +4508,9 @@ class Group extends CakeTestModel
     /**
      * schema method
      *
-     * @return void
+     * @return array|null
      */
-    public function schema($field = false)
+    public function schema(string|bool $field = false): ?array
     {
         if (!isset($this->_schema)) {
             $this->_schema = [
@@ -4576,9 +4581,9 @@ class User2 extends CakeTestModel
     /**
      * schema method
      *
-     * @return void
+     * @return array|null
      */
-    public function schema($field = false)
+    public function schema(string|bool $field = false): ?array
     {
         if (!isset($this->_schema)) {
             $this->_schema = [
@@ -4658,9 +4663,9 @@ class Category2 extends CakeTestModel
     /**
      * schema method
      *
-     * @return void
+     * @return array|null
      */
-    public function schema($field = false)
+    public function schema(string|bool $field = false): ?array
     {
         if (!isset($this->_schema)) {
             $this->_schema = [
@@ -4720,9 +4725,9 @@ class Article2 extends CakeTestModel
     /**
      * schema method
      *
-     * @return void
+     * @return array|null
      */
-    public function schema($field = false)
+    public function schema(string|bool $field = false): ?array
     {
         if (!isset($this->_schema)) {
             $this->_schema = [
@@ -4784,9 +4789,9 @@ class CategoryFeatured2 extends CakeTestModel
     /**
      * schema method
      *
-     * @return void
+     * @return array|null
      */
-    public function schema($field = false)
+    public function schema(string|bool $field = false): ?array
     {
         if (!isset($this->_schema)) {
             $this->_schema = [
@@ -4845,9 +4850,9 @@ class Featured2 extends CakeTestModel
     /**
      * schema method
      *
-     * @return void
+     * @return array|null
      */
-    public function schema($field = false)
+    public function schema(string|bool $field = false): ?array
     {
         if (!isset($this->_schema)) {
             $this->_schema = [
@@ -4901,9 +4906,9 @@ class Comment2 extends CakeTestModel
     /**
      * schema method
      *
-     * @return void
+     * @return array|null
      */
-    public function schema($field = false)
+    public function schema(string|bool $field = false): ?array
     {
         if (!isset($this->_schema)) {
             $this->_schema = [
@@ -4978,9 +4983,9 @@ class ArticleFeatured2 extends CakeTestModel
     /**
      * schema method
      *
-     * @return void
+     * @return array|null
      */
-    public function schema($field = false)
+    public function schema(string|bool $field = false): ?array
     {
         if (!isset($this->_schema)) {
             $this->_schema = [
@@ -5029,10 +5034,14 @@ class MysqlTestModel extends Model
      * @param mixed $fields
      * @param mixed $order
      * @param mixed $recursive
-     * @return void
+     * @return array|int|false|null
      */
-    public function find($conditions = null, $fields = null, $order = null, $recursive = null)
-    {
+    public function find(
+        $conditions = null,
+        $fields = null,
+        $order = null,
+        $recursive = null,
+    ): array|int|false|null {
         return $conditions;
     }
 
@@ -5053,9 +5062,9 @@ class MysqlTestModel extends Model
     /**
      * schema method
      *
-     * @return void
+     * @return array|null
      */
-    public function schema($field = false)
+    public function schema(string|bool $field = false): ?array
     {
         return [
             'id' => ['type' => 'integer', 'null' => '', 'default' => '', 'length' => '8'],
@@ -5381,7 +5390,7 @@ class Example extends AppModel
      *
      * @var array
      */
-    protected $_schema = [
+    protected ?array $_schema = [
         'filefield' => [
             'type' => 'string',
             'length' => 254,

@@ -30,7 +30,7 @@ class PluginShortRoute extends CakeRoute
      * @param string $url The URL to parse
      * @return array|bool false on failure, or an array of request parameters
      */
-    public function parse($url): array|bool
+    public function parse(string $url): array|bool
     {
         $params = parent::parse($url);
         if (!$params) {
@@ -46,9 +46,9 @@ class PluginShortRoute extends CakeRoute
      * are not the same the match is an auto fail.
      *
      * @param array $url Array of parameters to convert to a string.
-     * @return mixed either false or a string URL.
+     * @return string|false either false or a string URL.
      */
-    public function match($url)
+    public function match(array $url): string|false
     {
         if (isset($url['controller']) && isset($url['plugin']) && $url['plugin'] != $url['controller']) {
             return false;

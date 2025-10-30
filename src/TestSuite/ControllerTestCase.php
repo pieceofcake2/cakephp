@@ -33,90 +33,7 @@ use Cake\Routing\Route\RedirectRoute;
 use Cake\Routing\Router;
 use Cake\Utility\ClassRegistry;
 use Cake\Utility\Inflector;
-use Cake\View\Helper;
 use PHPUnit\Framework\MockObject\MockObject;
-
-/**
- * ControllerTestDispatcher class
- *
- * @package       Cake.TestSuite
- */
-class ControllerTestDispatcher extends Dispatcher
-{
-    /**
-     * The controller to use in the dispatch process
-     *
-     * @var Controller
-     */
-    public $testController = null;
-
-    /**
-     * Use custom routes during tests
-     *
-     * @var bool
-     */
-    public $loadRoutes = true;
-
-    /**
-     * Returns the test controller
-     *
-     * @param CakeRequest $request The request instance.
-     * @param CakeResponse $response The response instance.
-     * @return Controller
-     */
-    protected function _getController($request, $response)
-    {
-        if ($this->testController === null) {
-            $this->testController = parent::_getController($request, $response);
-        }
-        $this->testController->helpers = array_merge(['InterceptContent'], $this->testController->helpers);
-        $this->testController->setRequest($request);
-        $this->testController->response = $response;
-        foreach ($this->testController->Components->loaded() as $component) {
-            $object = $this->testController->Components->{$component};
-            if (isset($object->response)) {
-                $object->response = $response;
-            }
-            if (isset($object->request)) {
-                $object->request = $request;
-            }
-        }
-
-        return $this->testController;
-    }
-
-    /**
-     * Loads routes and resets if the test case dictates it should
-     *
-     * @return void
-     */
-    protected function _loadRoutes()
-    {
-        if (!$this->loadRoutes) {
-            Router::reload();
-        }
-    }
-}
-
-/**
- * InterceptContentHelper class
- *
- * @package       Cake.TestSuite
- */
-class InterceptContentHelper extends Helper
-{
-    /**
-     * Intercepts and stores the contents of the view before the layout is rendered
-     *
-     * @param string $viewFile The view file
-     * @return void
-     */
-    public function afterRender($viewFile): void
-    {
-        $this->_View->assign('__view_no_layout__', $this->_View->fetch('content'));
-        $this->_View->Helpers->unload('InterceptContent');
-    }
-}
 
 /**
  * ControllerTestCase class
@@ -196,7 +113,7 @@ abstract class ControllerTestCase extends CakeTestCase
      *
      * @var string
      */
-    protected string $_responseClass = 'CakeResponse';
+    protected string $_responseClass = CakeResponse::class;
 
     /**
      * Used to enable calling ControllerTestCase::testAction() without the testing
@@ -308,7 +225,9 @@ abstract class ControllerTestCase extends CakeTestCase
             $params['requested'] = 1;
         }
         $dispatcher->testController = $this->controller;
-        $dispatcher->response = $this->getMock($this->_responseClass, ['send', '_clearBuffer']);
+        /** @var CakeResponse $response */
+        $response = $this->getMock($this->_responseClass, ['send', '_clearBuffer']);
+        $dispatcher->response = $response;
         $this->result = $dispatcher->dispatch($request, $dispatcher->response, $params);
 
         // Clear out any stored requests.
@@ -334,7 +253,7 @@ abstract class ControllerTestCase extends CakeTestCase
     /**
      * Creates the test dispatcher class
      *
-     * @return Dispatcher
+     * @return ControllerTestDispatcher
      */
     protected function _createDispatcher()
     {
@@ -362,7 +281,7 @@ abstract class ControllerTestCase extends CakeTestCase
      * @throws MissingControllerException When controllers could not be created.
      * @throws MissingComponentException When components could not be created.
      */
-    public function generate($controller, $mocks = [])
+    public function generate(string $controller, array $mocks = [])
     {
         [$plugin, $controller] = pluginSplit($controller);
         if ($plugin) {

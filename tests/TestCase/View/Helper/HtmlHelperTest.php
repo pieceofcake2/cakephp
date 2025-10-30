@@ -55,9 +55,9 @@ class TheHtmlTestController extends Controller
     /**
      * uses property
      *
-     * @var array||bool
+     * @var array|bool|null
      */
-    public array|bool $uses = [];
+    public array|bool|null $uses = [];
 }
 
 class TestHtmlHelper extends HtmlHelper
@@ -1344,10 +1344,8 @@ class HtmlHelperTest extends CakeTestCase
     {
         $result = $this->Html->scriptBlock('window.foo = 2;');
         $expected = [
-            'script' => ['type' => 'text/javascript'],
-            $this->cDataStart,
+            'script' => [],
             'window.foo = 2;',
-            $this->cDataEnd,
             '/script',
         ];
         $this->assertTags($result, $expected);
@@ -1355,16 +1353,14 @@ class HtmlHelperTest extends CakeTestCase
         $result = $this->Html->scriptBlock('window.foo = 2;', ['type' => 'text/x-handlebars-template']);
         $expected = [
             'script' => ['type' => 'text/x-handlebars-template'],
-            $this->cDataStart,
             'window.foo = 2;',
-            $this->cDataEnd,
             '/script',
         ];
         $this->assertTags($result, $expected);
 
         $result = $this->Html->scriptBlock('window.foo = 2;', ['safe' => false]);
         $expected = [
-            'script' => ['type' => 'text/javascript'],
+            'script' => [],
             'window.foo = 2;',
             '/script',
         ];
@@ -1372,7 +1368,7 @@ class HtmlHelperTest extends CakeTestCase
 
         $result = $this->Html->scriptBlock('window.foo = 2;', ['safe' => true]);
         $expected = [
-            'script' => ['type' => 'text/javascript'],
+            'script' => [],
             $this->cDataStart,
             'window.foo = 2;',
             $this->cDataEnd,
@@ -1401,7 +1397,7 @@ class HtmlHelperTest extends CakeTestCase
 
         $result = $this->Html->scriptBlock('window.foo = 2;', ['safe' => false, 'encoding' => 'utf-8']);
         $expected = [
-            'script' => ['type' => 'text/javascript', 'encoding' => 'utf-8'],
+            'script' => ['encoding' => 'utf-8'],
             'window.foo = 2;',
             '/script',
         ];
@@ -1421,7 +1417,7 @@ class HtmlHelperTest extends CakeTestCase
 
         $result = $this->Html->scriptEnd();
         $expected = [
-            'script' => ['type' => 'text/javascript'],
+            'script' => [],
             $this->cDataStart,
             'this is some javascript',
             $this->cDataEnd,
@@ -1435,7 +1431,7 @@ class HtmlHelperTest extends CakeTestCase
 
         $result = $this->Html->scriptEnd();
         $expected = [
-            'script' => ['type' => 'text/javascript'],
+            'script' => [],
             'this is some javascript',
             '/script',
         ];

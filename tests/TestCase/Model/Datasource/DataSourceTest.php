@@ -35,7 +35,7 @@ class TestSource extends DataSource
      *
      * @var array
      */
-    protected $_schema = [
+    protected ?array $_schema = [
         'id' => [
             'type' => 'integer',
             'null' => false,

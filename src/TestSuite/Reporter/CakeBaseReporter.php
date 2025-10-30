@@ -39,21 +39,21 @@ abstract class CakeBaseReporter implements ResultPrinter
      *
      * @var bool
      */
-    protected $_headerSent = false;
+    protected bool $_headerSent = false;
 
     /**
      * Array of request parameters. Usually parsed GET params.
      *
      * @var array
      */
-    public $params = [];
+    public array $params = [];
 
     /**
      * Character set for the output of test reporting.
      *
      * @var string
      */
-    protected $_characterSet;
+    protected string $_characterSet;
 
     /**
      * @var int
@@ -166,14 +166,14 @@ abstract class CakeBaseReporter implements ResultPrinter
     /**
      * An error occurred.
      *
-     * @param \PHPUnit\Framework\Test $test The test to add an error for.
-     * @param Exception|Throwable $e The exception object to add.
+     * @param Test $test The test to add an error for.
+     * @param Throwable $t The exception object to add.
      * @param float $time The current time.
      * @return void
      */
-    public function addError(Test $test, Exception|Throwable $e, $time): void
+    public function addError(Test $test, Throwable $t, $time): void
     {
-        $this->paintException($e, $test);
+        $this->paintException($t, $test);
     }
 
     /**
@@ -243,7 +243,7 @@ abstract class CakeBaseReporter implements ResultPrinter
     /**
      * A test started.
      *
-     * @param \PHPUnit\Framework\Test $test The test that started.
+     * @param Test $test The test that started.
      * @return void
      */
     public function startTest(Test $test): void
@@ -253,14 +253,16 @@ abstract class CakeBaseReporter implements ResultPrinter
     /**
      * A test ended.
      *
-     * @param \PHPUnit\Framework\Test $test The test that ended
+     * @param Test $test The test that ended
      * @param float $time The current time.
      * @return void
      */
     public function endTest(Test $test, $time): void
     {
-        $this->numAssertions += $test->getNumAssertions();
-        if ($test->hasFailed()) {
+        if (method_exists($test, 'getNumAssertions')) {
+            $this->numAssertions += $test->getNumAssertions();
+        }
+        if (!method_exists($test, 'hasFailed') || $test->hasFailed()) {
             return;
         }
         $this->paintPass($test, $time);
@@ -322,11 +324,11 @@ abstract class CakeBaseReporter implements ResultPrinter
     abstract public function paintSkip(Exception|Throwable $message, Test $test): void;
 
     /**
-     * @param Exception $exception
+     * @param Exception|Throwable $exception
      * @param Test $test
      * @return void
      */
-    abstract public function paintException(Exception $exception, Test $test): void;
+    abstract public function paintException(Exception|Throwable $exception, Test $test): void;
 
     /**
      * @param mixed $message

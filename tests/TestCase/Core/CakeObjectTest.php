@@ -53,9 +53,9 @@ class RequestActionController extends Controller
     /**
      * uses property
      *
-     * @var array||bool
+     * @var array|bool|null
      */
-    public array|bool $uses = ['RequestActionPost'];
+    public array|bool|null $uses = ['RequestActionPost'];
 
     /**
      * test_request_action method
@@ -290,7 +290,7 @@ class TestCakeObject extends CakeObject
      *
      * @return string
      */
-    public function toString()
+    public function toString(): string
     {
         $class = static::class;
         if (str_contains($class, '\\')) {
@@ -319,14 +319,18 @@ class_alias(ObjectTestModel::class, 'TestApp\\Model\\ObjectTestModel');
  */
 class CakeObjectTest extends CakeTestCase
 {
-    protected $_appNamespace = null;
+    protected ?string $_appNamespace = null;
 
     /**
      * fixtures
      *
      * @var string
      */
-    public $fixtures = ['core.post', 'core.test_plugin_comment', 'core.comment'];
+    public array $fixtures = [
+        'core.post',
+        'core.test_plugin_comment',
+        'core.comment',
+    ];
 
     /**
      * @var TestCakeObject

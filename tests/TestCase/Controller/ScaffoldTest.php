@@ -43,9 +43,9 @@ class ScaffoldMockController extends Controller
     /**
      * scaffold property
      *
-     * @var mixed
+     * @var string|null|false
      */
-    public $scaffold;
+    public string|null|false $scaffold = null;
 }
 
 /**
@@ -65,9 +65,9 @@ class ScaffoldMockControllerWithFields extends Controller
     /**
      * scaffold property
      *
-     * @var mixed
+     * @var string|null|false
      */
-    public $scaffold;
+    public string|null|false $scaffold = null;
 
     /**
      * function beforeScaffold
@@ -75,7 +75,7 @@ class ScaffoldMockControllerWithFields extends Controller
      * @param string $method Method name.
      * @return bool true
      */
-    public function beforeScaffold($method)
+    public function beforeScaffold(string $method): bool
     {
         $this->set('scaffoldFields', ['title']);
 
@@ -100,9 +100,9 @@ class ScaffoldMockControllerWithError extends Controller
     /**
      * scaffold property
      *
-     * @var mixed
+     * @var string|null|false
      */
-    public $scaffold;
+    public string|null|false $scaffold = null;
 
     /**
      * function beforeScaffold
@@ -110,7 +110,7 @@ class ScaffoldMockControllerWithError extends Controller
      * @param string $method Method name.
      * @return bool false
      */
-    public function beforeScaffold($method)
+    public function beforeScaffold(string $method): bool
     {
         return false;
     }
@@ -155,16 +155,22 @@ class ScaffoldTest extends CakeTestCase
     /**
      * Controller property
      *
-     * @var SecurityTestController
+     * @var Controller|null
      */
-    public $Controller;
+    public ?Controller $Controller = null;
 
     /**
      * fixtures property
      *
      * @var array
      */
-    public $fixtures = ['core.article', 'core.user', 'core.comment', 'core.join_thing', 'core.tag'];
+    public array $fixtures = [
+        'core.article',
+        'core.user',
+        'core.comment',
+        'core.join_thing',
+        'core.tag',
+    ];
 
     /**
      * setUp method

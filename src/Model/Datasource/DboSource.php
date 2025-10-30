@@ -369,7 +369,7 @@ class DboSource extends DataSource
     /**
      * @inheritDoc
      */
-    public function value($data, ?string $column = null, bool $null = true): array|string
+    public function value(mixed $data, ?string $column = null, bool $null = true): array|string
     {
         if (is_array($data) && !empty($data)) {
             return array_map(
@@ -588,9 +588,9 @@ class DboSource extends DataSource
      * this returns false.
      *
      * @param mixed $source The source to check.
-     * @return int Number of affected rows
+     * @return int|false Number of affected rows
      */
-    public function lastAffected($source = null)
+    public function lastAffected(mixed $source = null): int|false
     {
         if ($this->hasResult()) {
             return $this->_result->rowCount();
@@ -617,7 +617,7 @@ class DboSource extends DataSource
      * @param mixed ...$args Query arguments
      * @return mixed Result resource identifier.
      */
-    public function query(...$args)
+    public function query(mixed ...$args): mixed
     {
         $fields = null;
         $order = null;

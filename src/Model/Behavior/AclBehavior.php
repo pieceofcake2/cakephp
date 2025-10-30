@@ -145,7 +145,7 @@ class AclBehavior extends ModelBehavior
             $types = [$types];
         }
         foreach ($types as $type) {
-            $node = Hash::extract($this->node($model, null, $type), "0.{$type}.id");
+            $node = Hash::get($this->node($model, null, $type), "0.{$type}.id");
             if (!empty($node)) {
                 $model->{$type}->delete($node);
             }

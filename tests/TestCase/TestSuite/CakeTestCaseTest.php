@@ -76,14 +76,18 @@ class ConstructorPost extends Model
  */
 class CakeTestCaseTest extends CakeTestCase
 {
-    protected $_appNamespace = null;
+    protected ?string $_appNamespace = null;
 
     /**
      * fixtures property
      *
      * @var array
      */
-    public $fixtures = ['core.post', 'core.author', 'core.test_plugin_comment'];
+    public array $fixtures = [
+        'core.post',
+        'core.author',
+        'core.test_plugin_comment',
+    ];
 
     /**
      * @return void

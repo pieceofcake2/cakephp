@@ -87,11 +87,13 @@ class PaginatorControllerPost extends CakeTestModel
      * beforeFind method
      *
      * @param mixed $query
-     * @return void
+     * @return array|bool|null
      */
-    public function beforeFind($query)
+    public function beforeFind(array $query): array|bool|null
     {
         array_unshift($this->lastQueries, $query);
+
+        return null;
     }
 
     /**
@@ -99,10 +101,14 @@ class PaginatorControllerPost extends CakeTestModel
      *
      * @param mixed $type
      * @param array $options
-     * @return void
+     * @return array|int|false|null
      */
-    public function find($conditions = null, $fields = [], $order = null, $recursive = null)
-    {
+    public function find(
+        $conditions = null,
+        $fields = [],
+        $order = null,
+        $recursive = null,
+    ): array|int|false|null {
         if ($conditions === 'popular') {
             $conditions = [$this->name . '.' . $this->primaryKey . ' > ' => '1'];
             $options = Hash::merge($fields, compact('conditions'));
@@ -144,11 +150,13 @@ class ControllerPaginateModel extends CakeTestModel
     /**
      * paginateCount
      *
-     * @return void
+     * @return int
      */
     public function paginateCount($conditions, $recursive, $extra)
     {
         $this->extraCount = $extra;
+
+        return 1;
     }
 }
 class_alias(ControllerPaginateModel::class, 'App\\Model\\ControllerPaginateModel');
@@ -316,8 +324,14 @@ class PaginatorComponentTest extends CakeTestCase
      *
      * @var array
      */
-    public $fixtures = ['core.post', 'core.comment', 'core.author',
-            'core.translated_article', 'core.translate_article', 'core.user'];
+    public array $fixtures = [
+        'core.post',
+        'core.comment',
+        'core.author',
+        'core.translated_article',
+        'core.translate_article',
+        'core.user',
+    ];
 
     /**
      * setup

@@ -71,52 +71,52 @@ class Shell extends CakeObject
     /**
      * An instance of ConsoleOptionParser that has been configured for this class.
      *
-     * @var ConsoleOptionParser
+     * @var ConsoleOptionParser|null
      */
-    public $OptionParser;
+    public ?ConsoleOptionParser $OptionParser = null;
 
     /**
      * If true, the script will ask for permission to perform actions.
      *
      * @var bool
      */
-    public $interactive = true;
+    public bool $interactive = true;
 
     /**
      * Contains command switches parsed from the command line.
      *
      * @var array
      */
-    public $params = [];
+    public array $params = [];
 
     /**
      * The command (method/task) that is being run.
      *
      * @var string
      */
-    public $command;
+    public ?string $command = null;
 
     /**
      * Contains arguments parsed from the command line.
      *
      * @var array
      */
-    public $args = [];
+    public array $args = [];
 
     /**
      * The name of the shell in camelized.
      *
-     * @var string
+     * @var string|null
      */
-    public $name = null;
+    public ?string $name = null;
 
     /**
      * The name of the plugin the shell belongs to.
      * Is automatically set by ShellDispatcher when a shell is constructed.
      *
-     * @var string
+     * @var string|null
      */
-    public $plugin = null;
+    public ?string $plugin = null;
 
     /**
      * Contains tasks to load and instantiate
@@ -124,14 +124,14 @@ class Shell extends CakeObject
      * @var array
      * @link https://book.cakephp.org/2.0/en/console-and-shells.html#Shell::$tasks
      */
-    public $tasks = [];
+    public array $tasks = [];
 
     /**
      * Contains the loaded tasks
      *
      * @var array
      */
-    public $taskNames = [];
+    public array $taskNames = [];
 
     /**
      * Contains models to load and instantiate
@@ -139,49 +139,49 @@ class Shell extends CakeObject
      * @var array
      * @link https://book.cakephp.org/2.0/en/console-and-shells.html#Shell::$uses
      */
-    public $uses = [];
+    public array $uses = [];
 
     /**
      * This shell's primary model class name, the first model in the $uses property
      *
-     * @var string
+     * @var string|null
      */
-    public $modelClass = null;
+    public ?string $modelClass = null;
 
     /**
      * Task Collection for the command, used to create Tasks.
      *
      * @var TaskCollection
      */
-    public $Tasks;
+    public ?TaskCollection $Tasks = null;
 
     /**
      * Normalized map of tasks.
      *
-     * @var string
+     * @var array
      */
-    protected $_taskMap = [];
+    protected array $_taskMap = [];
 
     /**
      * stdout object.
      *
-     * @var ConsoleOutput
+     * @var ConsoleOutput|null
      */
-    public $stdout;
+    public ?ConsoleOutput $stdout = null;
 
     /**
      * stderr object.
      *
-     * @var ConsoleOutput
+     * @var ConsoleOutput|null
      */
-    public $stderr;
+    public ?ConsoleOutput $stderr = null;
 
     /**
      * stdin object
      *
-     * @var ConsoleInput
+     * @var ConsoleInput|null
      */
-    public $stdin;
+    public ?ConsoleInput $stdin = null;
 
     /**
      * The number of bytes last written to the output stream
@@ -189,25 +189,28 @@ class Shell extends CakeObject
      *
      * @var int
      */
-    protected $_lastWritten = 0;
+    protected int $_lastWritten = 0;
 
     /**
      * Contains helpers which have been previously instantiated
      *
      * @var array
      */
-    protected $_helpers = [];
+    protected array $_helpers = [];
 
     /**
      *  Constructs this Shell instance.
      *
-     * @param ConsoleOutput $stdout A ConsoleOutput object for stdout.
-     * @param ConsoleOutput $stderr A ConsoleOutput object for stderr.
-     * @param ConsoleInput $stdin A ConsoleInput object for stdin.
+     * @param ConsoleOutput|null $stdout A ConsoleOutput object for stdout.
+     * @param ConsoleOutput|null $stderr A ConsoleOutput object for stderr.
+     * @param ConsoleInput|null $stdin A ConsoleInput object for stdin.
      * @link https://book.cakephp.org/2.0/en/console-and-shells.html#Shell
      */
-    public function __construct($stdout = null, $stderr = null, $stdin = null)
-    {
+    public function __construct(
+        ?ConsoleOutput $stdout = null,
+        ?ConsoleOutput $stderr = null,
+        ?ConsoleInput $stdin = null,
+    ) {
         if (!$this->name) {
             $className = static::class;
             // Remove namespace from class name to get base name
@@ -240,7 +243,7 @@ class Shell extends CakeObject
      * @return void
      * @link https://book.cakephp.org/2.0/en/console-and-shells.html#Shell::initialize
      */
-    public function initialize()
+    public function initialize(): void
     {
         $this->_loadModels();
         $this->loadTasks();
@@ -256,7 +259,7 @@ class Shell extends CakeObject
      * @return void
      * @link https://book.cakephp.org/2.0/en/console-and-shells.html#Shell::startup
      */
-    public function startup()
+    public function startup(): void
     {
         $this->_welcome();
     }
@@ -266,7 +269,7 @@ class Shell extends CakeObject
      *
      * @return void
      */
-    protected function _welcome()
+    protected function _welcome(): void
     {
         $this->out();
         $this->out(__d('cake_console', '<info>Welcome to CakePHP %s Console</info>', 'v' . Configure::version()));
@@ -281,7 +284,7 @@ class Shell extends CakeObject
      *
      * @return bool
      */
-    protected function _loadModels()
+    protected function _loadModels(): bool
     {
         if (is_array($this->uses)) {
             [, $this->modelClass] = pluginSplit(current($this->uses));
@@ -299,7 +302,7 @@ class Shell extends CakeObject
      * @param string $name The name of the model to look for.
      * @return bool
      */
-    public function __isset($name): bool
+    public function __isset(string $name): bool
     {
         if (is_array($this->uses)) {
             foreach ($this->uses as $modelClass) {
@@ -558,7 +561,7 @@ class Shell extends CakeObject
      * @param string $name The property name to access.
      * @return Shell Object of Task
      */
-    public function __get($name)
+    public function __get(string $name): mixed
     {
         if (empty($this->{$name}) && in_array($name, $this->taskNames)) {
             $properties = $this->_taskMap[$name];
@@ -696,14 +699,17 @@ class Shell extends CakeObject
      * present in most shells. Using Shell::QUIET for a message means it will always display.
      * While using Shell::VERBOSE means it will only display when verbose output is toggled.
      *
-     * @param array|string $message A string or an array of strings to output
+     * @param array|string|null $message A string or an array of strings to output
      * @param int $newlines Number of newlines to append
      * @param int $level The message's output level, see above.
-     * @return int|bool|null Returns the number of bytes returned from writing to stdout.
+     * @return int|bool Returns the number of bytes returned from writing to stdout.
      * @link https://book.cakephp.org/2.0/en/console-and-shells.html#Shell::out
      */
-    public function out($message = null, $newlines = 1, $level = Shell::NORMAL): int|bool|null
-    {
+    public function out(
+        array|string|null $message = null,
+        int $newlines = 1,
+        int $level = Shell::NORMAL,
+    ): int|bool {
         $currentLevel = Shell::NORMAL;
         if (!empty($this->params['verbose'])) {
             $currentLevel = Shell::VERBOSE;
@@ -728,13 +734,16 @@ class Shell extends CakeObject
      *
      * **Warning** You cannot overwrite text that contains newlines.
      *
-     * @param array|string $message The message to output.
+     * @param array|string|null $message The message to output.
      * @param int $newlines Number of newlines to append.
-     * @param int $size The number of bytes to overwrite. Defaults to the length of the last message output.
+     * @param int|null $size The number of bytes to overwrite. Defaults to the length of the last message output.
      * @return int|bool Returns the number of bytes returned from writing to stdout.
      */
-    public function overwrite($message, $newlines = 1, $size = null)
-    {
+    public function overwrite(
+        array|string|null $message,
+        int $newlines = 1,
+        ?int $size = null,
+    ): int|bool {
         $size = $size ?: $this->_lastWritten;
 
         // Output backspaces.
@@ -758,12 +767,12 @@ class Shell extends CakeObject
      * Outputs a single or multiple error messages to stderr. If no parameters
      * are passed outputs just a newline.
      *
-     * @param array|string $message A string or an array of strings to output
+     * @param array|string|null $message A string or an array of strings to output
      * @param int $newlines Number of newlines to append
      * @return void
      * @link https://book.cakephp.org/2.0/en/console-and-shells.html#Shell::err
      */
-    public function err($message = null, $newlines = 1)
+    public function err(array|string|null $message = null, int $newlines = 1): void
     {
         $this->stderr->write($message, $newlines);
     }
@@ -788,7 +797,7 @@ class Shell extends CakeObject
      * @return void
      * @link https://book.cakephp.org/2.0/en/console-and-shells.html#Shell::hr
      */
-    public function hr($newlines = 0, $width = 63)
+    public function hr(int $newlines = 0, int $width = 63): void
     {
         $this->out(null, $newlines);
         $this->out(str_repeat('-', $width));
@@ -800,11 +809,11 @@ class Shell extends CakeObject
      * and exits the application with status code 1
      *
      * @param string $title Title of the error
-     * @param string $message An optional error message
+     * @param string|null $message An optional error message
      * @return int
      * @link https://book.cakephp.org/2.0/en/console-and-shells.html#Shell::error
      */
-    public function error($title, $message = null)
+    public function error(string $title, ?string $message = null): int
     {
         $this->err(__d('cake_console', '<error>Error:</error> %s', $title));
 
@@ -822,10 +831,10 @@ class Shell extends CakeObject
      * @return void
      * @link https://book.cakephp.org/2.0/en/console-and-shells.html#Shell::clear
      */
-    public function clear()
+    public function clear(): void
     {
         if (empty($this->params['noclear'])) {
-            if (DS === '/') {
+            if (DIRECTORY_SEPARATOR === '/') {
                 passthru('clear');
             } else {
                 passthru('cls');
@@ -841,7 +850,7 @@ class Shell extends CakeObject
      * @return bool Success
      * @link https://book.cakephp.org/2.0/en/console-and-shells.html#Shell::createFile
      */
-    public function createFile($path, $contents)
+    public function createFile(string $path, string $contents): bool
     {
         $this->out();
 

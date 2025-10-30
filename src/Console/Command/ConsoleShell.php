@@ -88,7 +88,7 @@ class ConsoleShell extends AppShell
      *
      * @return void
      */
-    public function startup()
+    public function startup(): void
     {
         $this->Dispatcher = new Dispatcher();
         $this->models = App::objects('Model');

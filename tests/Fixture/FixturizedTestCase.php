@@ -17,7 +17,9 @@ class FixturizedTestCase extends CakeTestCase
      *
      * @var array
      */
-    public $fixtures = ['core.category'];
+    public array $fixtures = [
+        'core.category',
+    ];
 
     /**
      * test that the shared fixture is correctly set

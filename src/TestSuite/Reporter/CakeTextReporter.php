@@ -23,6 +23,7 @@ use Exception;
 use PHPUnit\Framework\AssertionFailedError;
 use PHPUnit\Framework\Test;
 use PHPUnit\Framework\TestResult;
+use SebastianBergmann\CodeCoverage\ProcessedCodeCoverageData;
 use Throwable;
 
 /**
@@ -103,9 +104,11 @@ class CakeTextReporter extends CakeBaseReporter
         echo 'Time: ' . $result->time() . " seconds\n";
         echo 'Peak memory: ' . number_format(memory_get_peak_usage()) . " bytes\n";
 
-        if (isset($this->params['codeCoverage']) && $this->params['codeCoverage']) {
-            $coverage = $result->getCodeCoverage()->getSummary();
-            $this->paintCoverage($coverage);
+        if ($this->params['codeCoverage'] ?? false) {
+            $report = $result->getCodeCoverage()?->getData();
+            if ($report) {
+                $this->paintCoverage($report);
+            }
         }
     }
 
@@ -123,11 +126,11 @@ class CakeTextReporter extends CakeBaseReporter
     /**
      * Paints a PHP exception.
      *
-     * @param Exception $exception
+     * @param Exception|Throwable $exception
      * @param Test $test
      * @return void
      */
-    public function paintException(Exception $exception, Test $test): void
+    public function paintException(Exception|Throwable $exception, Test $test): void
     {
         $message = 'Unexpected exception of type [' . $exception::class .
             '] with message [' . $exception->getMessage() .
@@ -196,10 +199,10 @@ class CakeTextReporter extends CakeBaseReporter
     /**
      * Generates a Text summary of the coverage data.
      *
-     * @param array $coverage Array of coverage data.
+     * @param ProcessedCodeCoverageData $coverage Array of coverage data.
      * @return void
      */
-    public function paintCoverage($coverage): void
+    public function paintCoverage(ProcessedCodeCoverageData $coverage): void
     {
         $reporter = new TextCoverageReport($coverage, $this);
         echo $reporter->report();

@@ -192,7 +192,7 @@ class DbAclTest extends CakeTestCase
      *
      * @var array
      */
-    public $fixtures = ['core.aro_two', 'core.aco_two', 'core.aros_aco_two'];
+    public array $fixtures = ['core.aro_two', 'core.aco_two', 'core.aros_aco_two'];
 
     /**
      * setUp method

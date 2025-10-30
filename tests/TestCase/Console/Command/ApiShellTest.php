@@ -30,6 +30,8 @@ use Cake\TestSuite\CakeTestCase;
  */
 class ApiShellTest extends CakeTestCase
 {
+    public ?ApiShell $Shell = null;
+
     /**
      * setUp method
      *
@@ -63,6 +65,8 @@ class ApiShellTest extends CakeTestCase
             ->method('out')
             ->willReturnCallback(function ($message = '') use (&$outCalls) {
                 $outCalls[] = $message;
+
+                return 0;
             });
 
         $expected = [

@@ -33,7 +33,7 @@ class DigestAuthentication
      * @return void
      * @link http://www.ietf.org/rfc/rfc2617.txt
      */
-    public static function authentication(HttpSocket $http, &$authInfo)
+    public static function authentication(HttpSocket $http, array &$authInfo): void
     {
         if (isset($authInfo['user'], $authInfo['pass'])) {
             if (!isset($authInfo['realm']) && !static::_getServerInformation($http, $authInfo)) {
@@ -50,7 +50,7 @@ class DigestAuthentication
      * @param array &$authInfo Authentication info.
      * @return bool
      */
-    protected static function _getServerInformation(HttpSocket $http, &$authInfo)
+    protected static function _getServerInformation(HttpSocket $http, array &$authInfo): bool
     {
         $originalRequest = $http->request;
         $http->configAuth(false);
@@ -61,7 +61,7 @@ class DigestAuthentication
         if (empty($http->response['header']['WWW-Authenticate'])) {
             return false;
         }
-        preg_match_all('@(\w+)=(?:(?:")([^"]+)"|([^\s,$]+))@', $http->response['header']['WWW-Authenticate'], $matches, PREG_SET_ORDER);
+        preg_match_all('@(\w+)=(?:"([^"]+)"|([^\s,$]+))@', $http->response['header']['WWW-Authenticate'], $matches, PREG_SET_ORDER);
         foreach ($matches as $match) {
             $authInfo[$match[1]] = $match[2];
         }
@@ -79,13 +79,14 @@ class DigestAuthentication
      * @param array &$authInfo Authentication info.
      * @return string
      */
-    protected static function _generateHeader(HttpSocket $http, &$authInfo)
+    protected static function _generateHeader(HttpSocket $http, array &$authInfo): string
     {
         $a1 = md5($authInfo['user'] . ':' . $authInfo['realm'] . ':' . $authInfo['pass']);
         $a2 = md5($http->request['method'] . ':' . $http->request['uri']['path']);
 
         if (empty($authInfo['qop'])) {
             $response = md5($a1 . ':' . $authInfo['nonce'] . ':' . $a2);
+            $nc = '';
         } else {
             $authInfo['cnonce'] = uniqid();
             $nc = sprintf('%08x', $authInfo['nc']++);

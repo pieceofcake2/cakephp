@@ -17,6 +17,7 @@
 namespace Cake\Controller\Component\Acl;
 
 use Cake\Controller\Component;
+use Cake\Model\Model;
 
 /**
  * Access Control List interface.
@@ -29,42 +30,58 @@ interface AclInterface
     /**
      * Empty method to be overridden in subclasses
      *
-     * @param string $aro ARO The requesting object identifier.
-     * @param string $aco ACO The controlled object identifier.
+     * @param Model|array|string $aro ARO The requesting object identifier.
+     * @param Model|array|string $aco ACO The controlled object identifier.
      * @param string $action Action (defaults to *)
      * @return bool Success
      */
-    public function check($aro, $aco, $action = '*');
+    public function check(
+        Model|array|string|null $aro,
+        Model|array|string|null $aco,
+        string $action = '*',
+    ): bool;
 
     /**
      * Allow methods are used to grant an ARO access to an ACO.
      *
-     * @param string $aro ARO The requesting object identifier.
-     * @param string $aco ACO The controlled object identifier.
-     * @param string $action Action (defaults to *)
+     * @param Model|array|string|null $aro ARO The requesting object identifier.
+     * @param Model|array|string|null $aco ACO The controlled object identifier.
+     * @param array|string $action Action (defaults to *)
      * @return bool Success
      */
-    public function allow($aro, $aco, $action = '*');
+    public function allow(
+        Model|array|string|null $aro,
+        Model|array|string|null $aco,
+        array|string $action = '*',
+    ): bool;
 
     /**
      * Deny methods are used to remove permission from an ARO to access an ACO.
      *
-     * @param string $aro ARO The requesting object identifier.
-     * @param string $aco ACO The controlled object identifier.
+     * @param Model|array|string $aro ARO The requesting object identifier.
+     * @param Model|array|string $aco ACO The controlled object identifier.
      * @param string $action Action (defaults to *)
      * @return bool Success
      */
-    public function deny($aro, $aco, $action = '*');
+    public function deny(
+        Model|array|string|null $aro,
+        Model|array|string|null $aco,
+        string $action = '*',
+    ): bool;
 
     /**
      * Inherit methods modify the permission for an ARO to be that of its parent object.
      *
-     * @param string $aro ARO The requesting object identifier.
-     * @param string $aco ACO The controlled object identifier.
+     * @param Model|array|string $aro ARO The requesting object identifier.
+     * @param Model|array|string $aco ACO The controlled object identifier.
      * @param string $action Action (defaults to *)
      * @return bool Success
      */
-    public function inherit($aro, $aco, $action = '*');
+    public function inherit(
+        Model|array|string|null $aro,
+        Model|array|string|null $aco,
+        string $action = '*',
+    ): bool;
 
     /**
      * Initialization method for the Acl implementation
@@ -72,5 +89,5 @@ interface AclInterface
      * @param Component $component The AclComponent instance.
      * @return void
      */
-    public function initialize(Component $component);
+    public function initialize(Component $component): void;
 }

@@ -21,6 +21,7 @@ use Cake\TestSuite\CakeTestCase;
 use Cake\Utility\Hash;
 use InvalidArgumentException;
 use stdClass;
+use TypeError;
 
 /**
  * HashTest
@@ -262,7 +263,7 @@ class HashTest extends CakeTestCase
      */
     public function testGetInvalidPath()
     {
-        $this->expectException(InvalidArgumentException::class);
+        $this->expectException(TypeError::class);
         Hash::get(['one' => 'two'], new stdClass());
     }
 

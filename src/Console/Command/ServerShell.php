@@ -71,7 +71,7 @@ class ServerShell extends AppShell
      *
      * @return void
      */
-    public function initialize()
+    public function initialize(): void
     {
         $this->_host = static::DEFAULT_HOST;
         $this->_port = static::DEFAULT_PORT;
@@ -88,7 +88,7 @@ class ServerShell extends AppShell
      * @return void
      * @link https://book.cakephp.org/2.0/en/console-and-shells.html#Shell::startup
      */
-    public function startup()
+    public function startup(): void
     {
         if (!empty($this->params['host'])) {
             $this->_host = $this->params['host'];

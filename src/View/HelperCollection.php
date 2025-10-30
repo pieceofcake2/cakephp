@@ -20,6 +20,7 @@
 namespace Cake\View;
 
 use Cake\Core\App;
+use Cake\Error\CakeException;
 use Cake\Error\MissingHelperException;
 use Cake\Event\CakeEvent;
 use Cake\Event\CakeEventListener;
@@ -41,6 +42,11 @@ class HelperCollection extends ObjectCollection implements CakeEventListener
     protected $_View;
 
     /**
+     * @var array<Helper>
+     */
+    protected array $_loaded = [];
+
+    /**
      * Constructor
      *
      * @param View $view View instance.
@@ -55,22 +61,22 @@ class HelperCollection extends ObjectCollection implements CakeEventListener
      * in the application folder, then it tries looking under the current plugin
      * if any
      *
-     * @param string $helper The helper name to be loaded
+     * @param string $name The helper name to be loaded
      * @return bool whether the helper could be loaded or not
      * @throws MissingHelperException When a helper could not be found.
      *    App helpers are searched, and then plugin helpers.
      */
-    public function __isset($helper)
+    public function __isset(string $name): bool
     {
-        if (parent::__isset($helper)) {
+        if (parent::__isset($name)) {
             return true;
         }
 
         try {
-            $this->load($helper);
+            $this->load($name);
         } catch (MissingHelperException $exception) {
             if ($this->_View->plugin) {
-                $this->load($this->_View->plugin . '.' . $helper);
+                $this->load($this->_View->plugin . '.' . $name);
 
                 return true;
             }
@@ -89,7 +95,7 @@ class HelperCollection extends ObjectCollection implements CakeEventListener
      * @param string $name Name of property to read
      * @return mixed
      */
-    public function __get($name)
+    public function __get(string $name): mixed
     {
         if ($result = parent::__get($name)) {
             return $result;
@@ -117,42 +123,42 @@ class HelperCollection extends ObjectCollection implements CakeEventListener
      * ```
      * All calls to the `Html` helper would use `AliasedHtml` instead.
      *
-     * @param string $helper Helper name to load
-     * @param array $settings Settings for the helper.
+     * @param string $name Helper name to load
+     * @param array $options Settings for the helper.
      * @return Helper A helper object, Either the existing loaded helper or a new one.
      * @throws MissingHelperException when the helper could not be found
      */
-    public function load($helper, $settings = [])
+    public function load(string $name, array $options = []): Helper
     {
-        if (isset($settings['className'])) {
-            $alias = $helper;
-            $helper = $settings['className'];
-        }
-        [$plugin, $name] = pluginSplit($helper, true);
-        if (!isset($alias)) {
+        if (isset($options['className'])) {
             $alias = $name;
+            $name = $options['className'];
+        }
+        [$plugin, $_name] = pluginSplit($name, true);
+        if (!isset($alias)) {
+            $alias = $_name;
         }
 
         if (isset($this->_loaded[$alias])) {
             return $this->_loaded[$alias];
         }
 
-        $helperClass = App::className($helper, 'View/Helper', 'Helper');
+        $helperClass = App::className($name, 'View/Helper', 'Helper');
 
         if (!$helperClass) {
             throw new MissingHelperException([
-                'class' => $name . 'Helper',
+                'class' => $_name . 'Helper',
                 'plugin' => $plugin ? substr($plugin, 0, -1) : null,
             ]);
         }
 
-        $this->_loaded[$alias] = new $helperClass($this->_View, $settings);
+        $this->_loaded[$alias] = new $helperClass($this->_View, $options);
 
         $vars = ['request', 'theme', 'plugin'];
         foreach ($vars as $var) {
             $this->_loaded[$alias]->{$var} = $this->_View->{$var};
         }
-        $enable = $settings['enabled'] ?? true;
+        $enable = $options['enabled'] ?? true;
         if ($enable) {
             $this->enable($alias);
         }
@@ -208,7 +214,7 @@ class HelperCollection extends ObjectCollection implements CakeEventListener
      * @return mixed Either the last result or all results if collectReturn is on.
      * @throws CakeException when modParams is used with an index that does not exist.
      */
-    public function trigger($callback, $params = [], $options = [])
+    public function trigger(CakeEvent|string $callback, array $params = [], array $options = []): mixed
     {
         if ($callback instanceof CakeEvent) {
             $callback->omitSubject = true;

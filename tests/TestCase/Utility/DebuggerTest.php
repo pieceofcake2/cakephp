@@ -79,7 +79,7 @@ class DebuggerTest extends CakeTestCase
         ini_set('docref_root', '');
         $this->assertEquals(ini_get('docref_root'), '');
         new Debugger();
-        $this->assertEquals(ini_get('docref_root'), 'http://php.net/');
+        $this->assertEquals(ini_get('docref_root'), 'https://php.net/');
     }
 
     /**
@@ -423,6 +423,7 @@ object(Cake\View\View) {
 	[protected] _stack => array()
 	[protected] _eventManager => object(Cake\Event\CakeEventManager) {}
 	[protected] _eventManagerConfigured => false
+	[private] __viewFile => null
 }
 TEXT;
 

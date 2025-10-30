@@ -32,7 +32,7 @@ class Inflector
      *
      * @var array
      */
-    protected static $_plural = [
+    protected static array $_plural = [
         'rules' => [
             '/(s)tatus$/i' => '\1tatuses',
             '/(quiz)$/i' => '\1zes',
@@ -119,7 +119,7 @@ class Inflector
      *
      * @var array
      */
-    protected static $_singular = [
+    protected static array $_singular = [
         'rules' => [
             '/(s)tatuses$/i' => '\1\2tatus',
             '/^(.*)(menu)s$/i' => '\1\2',
@@ -170,7 +170,7 @@ class Inflector
      *
      * @var array
      */
-    protected static $_uninflected = [
+    protected static array $_uninflected = [
         'Amoyese', 'bison', 'Borghese', 'bream', 'breeches', 'britches', 'buffalo', 'cantus',
         'carp', 'chassis', 'clippers', 'cod', 'coitus', 'Congoese', 'contretemps', 'corps',
         'debris', 'diabetes', 'djinn', 'eland', 'elk', 'equipment', 'Faroese', 'flounder',
@@ -190,7 +190,7 @@ class Inflector
      *
      * @var array
      */
-    protected static $_transliteration = [
+    protected static array $_transliteration = [
         '/À|Á|Â|Ã|Å|Ǻ|Ā|Ă|Ą|Ǎ/' => 'A',
         '/Æ|Ǽ/' => 'AE',
         '/Ä/' => 'Ae',
@@ -255,24 +255,24 @@ class Inflector
      *
      * @var array
      */
-    protected static $_cache = [];
+    protected static array $_cache = [];
 
     /**
      * The initial state of Inflector so reset() works.
      *
      * @var array
      */
-    protected static $_initialState = [];
+    protected static array $_initialState = [];
 
     /**
      * Cache inflected values, and return if already available
      *
      * @param string $type Inflection type
-     * @param string $key Original value
-     * @param string $value Inflected value
+     * @param string|null $key Original value
+     * @param string|false $value Inflected value
      * @return string|false Inflected value, from cache
      */
-    protected static function _cache($type, $key, $value = false)
+    protected static function _cache(string $type, ?string $key, string|false $value = false): string|false
     {
         $key = '_' . $key;
         $type = '_' . $type;
@@ -294,7 +294,7 @@ class Inflector
      *
      * @return void
      */
-    public static function reset()
+    public static function reset(): void
     {
         if (empty(static::$_initialState)) {
             static::$_initialState = get_class_vars(self::class);
@@ -329,7 +329,7 @@ class Inflector
      *        new rules that are being defined in $rules.
      * @return void
      */
-    public static function rules($type, $rules, $reset = false)
+    public static function rules(string $type, array $rules, bool $reset = false): void
     {
         $var = '_' . $type;
 
@@ -423,11 +423,11 @@ class Inflector
     /**
      * Return $word in singular form.
      *
-     * @param string $word Word in plural
-     * @return string Word in singular
+     * @param string|null $word Word in plural
+     * @return string|null Word in singular
      * @link https://book.cakephp.org/2.0/en/core-utility-libraries/inflector.html#Inflector::singularize
      */
-    public static function singularize($word)
+    public static function singularize(?string $word): ?string
     {
         if (isset(static::$_cache['singularize'][$word])) {
             return static::$_cache['singularize'][$word];
@@ -542,7 +542,7 @@ class Inflector
      * @return string Name of the database table for given class
      * @link https://book.cakephp.org/2.0/en/core-utility-libraries/inflector.html#Inflector::tableize
      */
-    public static function tableize($className)
+    public static function tableize(string $className): string
     {
         if (!($result = static::_cache(__FUNCTION__, $className))) {
             $result = Inflector::pluralize(Inflector::underscore($className));
@@ -559,7 +559,7 @@ class Inflector
      * @return string Class name
      * @link https://book.cakephp.org/2.0/en/core-utility-libraries/inflector.html#Inflector::classify
      */
-    public static function classify($tableName)
+    public static function classify(string $tableName): string
     {
         if (!($result = static::_cache(__FUNCTION__, $tableName))) {
             $result = Inflector::camelize(Inflector::singularize($tableName));
@@ -576,7 +576,7 @@ class Inflector
      * @return string in variable form
      * @link https://book.cakephp.org/2.0/en/core-utility-libraries/inflector.html#Inflector::variable
      */
-    public static function variable($string)
+    public static function variable(string $string): string
     {
         if (!($result = static::_cache(__FUNCTION__, $string))) {
             $camelized = Inflector::camelize(Inflector::underscore($string));
@@ -597,7 +597,7 @@ class Inflector
      * @return string
      * @link https://book.cakephp.org/2.0/en/core-utility-libraries/inflector.html#Inflector::slug
      */
-    public static function slug($string, $replacement = '_')
+    public static function slug(string $string, string $replacement = '_'): string
     {
         $quotedReplacement = preg_quote($replacement, '/');
 

@@ -27,7 +27,8 @@ use Cake\Log\CakeLogInterface;
  */
 class TestPluginLog implements CakeLogInterface
 {
-    public function write($type, $message)
+    public function write(string $type, string $message): ?bool
     {
+        return null;
     }
 }

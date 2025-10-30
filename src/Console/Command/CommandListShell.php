@@ -38,7 +38,7 @@ class CommandListShell extends AppShell
      *
      * @var array
      */
-    public $tasks = ['Command'];
+    public array $tasks = ['Command'];
 
     /**
      * startup

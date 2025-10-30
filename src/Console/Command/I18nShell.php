@@ -49,7 +49,7 @@ class I18nShell extends AppShell
      *
      * @return mixed
      */
-    public function startup()
+    public function startup(): void
     {
         $this->_welcome();
         if (isset($this->params['datasource'])) {

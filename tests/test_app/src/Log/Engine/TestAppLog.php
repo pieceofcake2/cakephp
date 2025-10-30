@@ -27,7 +27,8 @@ use Cake\Log\Engine\BaseLog;
  */
 class TestAppLog extends BaseLog
 {
-    public function write($type, $message)
+    public function write(string $type, string $message): ?bool
     {
+        return null;
     }
 }

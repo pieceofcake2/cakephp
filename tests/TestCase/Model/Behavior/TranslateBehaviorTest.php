@@ -48,16 +48,23 @@ class TranslateBehaviorTest extends CakeTestCase
      *
      * @var bool
      */
-    public $autoFixtures = false;
+    public bool $autoFixtures = false;
 
     /**
      * fixtures property
      *
      * @var array
      */
-    public $fixtures = [
-        'core.translated_item', 'core.translate', 'core.translate_table',
-        'core.translated_article', 'core.translate_article', 'core.user', 'core.comment', 'core.tag', 'core.articles_tag',
+    public array $fixtures = [
+        'core.translated_item',
+        'core.translate',
+        'core.translate_table',
+        'core.translated_article',
+        'core.translate_article',
+        'core.user',
+        'core.comment',
+        'core.tag',
+        'core.articles_tag',
         'core.translate_with_prefix',
     ];
 
@@ -1164,7 +1171,7 @@ class TranslateBehaviorTest extends CakeTestCase
         ]];
         $TestModel->create();
         $result = $TestModel->save($data);
-        $this->assertFalse(empty($result));
+        $this->assertNotEmpty($result);
     }
 
     /**

@@ -27,6 +27,7 @@ use DateTime;
 use DOMDocument;
 use Exception;
 use SimpleXMLElement;
+use TypeError;
 
 /**
  * Article class
@@ -95,15 +96,16 @@ class XmlTest extends CakeTestCase
      *
      * @var bool
      */
-    public $autoFixtures = false;
+    public bool $autoFixtures = false;
 
     /**
      * fixtures property
      *
      * @var array
      */
-    public $fixtures = [
-        'core.article', 'core.user',
+    public array $fixtures = [
+        'core.article',
+        'core.user',
     ];
 
     /**
@@ -592,9 +594,6 @@ XML;
     public static function invalidArrayDataProvider()
     {
         return [
-            [''],
-            [null],
-            [false],
             [[]],
             [['numeric key as root']],
             [['item1' => '', 'item2' => '']],
@@ -624,7 +623,6 @@ XML;
                     ],
                 ],
             ]],
-            [new DateTime()],
         ];
     }
 
@@ -636,16 +634,38 @@ XML;
      */
     public function testFromArrayFail($value)
     {
-        set_error_handler(fn($errno, $errstr) => true, E_WARNING | E_USER_WARNING);
+        $this->expectException(Exception::class);
 
-        try {
-            Xml::fromArray($value);
-            $this->fail('No exception.');
-        } catch (Exception) {
-            $this->assertTrue(true, 'Caught exception.');
-        } finally {
-            restore_error_handler();
-        }
+        Xml::fromArray($value);
+    }
+
+    /**
+     * data provider for fromArray() failures
+     *
+     * @return array
+     */
+    public static function invalidNotArrayDataProvider()
+    {
+        return [
+            [''],
+            [null],
+            [false],
+            [new DateTime()],
+        ];
+    }
+
+    /**
+     * testFromArrayFail method
+     *
+     * @dataProvider invalidNotArrayDataProvider
+     * @return void
+     */
+    public function testFromNotArrayFail($value)
+    {
+        $this->expectException(TypeError::class);
+        $this->expectExceptionMessageMatches('/Argument #1 \(\$input\) must be of type array/');
+
+        Xml::fromArray($value);
     }
 
     /**

@@ -18,8 +18,11 @@
 
 namespace Cake\Test\TestCase\Network\Http;
 
+use Cake\Core\App;
+use Cake\Error\SocketException;
 use Cake\Network\Http\DigestAuthentication;
 use Cake\Network\Http\HttpSocket;
+use Cake\Network\Http\HttpSocketResponse;
 use Cake\TestSuite\CakeTestCase;
 
 /**
@@ -34,24 +37,28 @@ class DigestHttpSocket extends HttpSocket
      *
      * @var string
      */
-    public $nextHeader = '';
+    public string $nextHeader = '';
 
     /**
      * request method
      *
      * @param mixed $request
-     * @return void
+     * @return HttpSocketResponse|false
      */
-    public function request($request = [])
+    public function request(mixed $request = []): HttpSocketResponse|false
     {
         if ($request === false) {
             if (isset($this->response['header']['WWW-Authenticate'])) {
                 unset($this->response['header']['WWW-Authenticate']);
             }
 
-            return;
+            return $this->response;
         }
-        $this->response['header']['WWW-Authenticate'] = $this->nextHeader;
+
+        $this->response = new HttpSocketResponse();
+        $this->response->headers['WWW-Authenticate'] = $this->nextHeader;
+
+        return $this->response;
     }
 }
 
@@ -65,9 +72,9 @@ class DigestAuthenticationTest extends CakeTestCase
     /**
      * Socket property
      *
-     * @var mixed
+     * @var DigestHttpSocket|null
      */
-    public $HttpSocket = null;
+    public ?DigestHttpSocket $HttpSocket = null;
 
     /**
      * This function sets up a HttpSocket instance we are going to use for testing

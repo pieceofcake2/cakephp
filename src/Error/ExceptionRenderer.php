@@ -34,6 +34,7 @@ use Cake\Routing\Router;
 use Cake\Utility\Inflector;
 use Cake\View\View;
 use Exception;
+use ParseError;
 use PDOException;
 
 /**
@@ -68,30 +69,30 @@ class ExceptionRenderer
     /**
      * Controller instance.
      *
-     * @var Controller
+     * @var Controller|null
      */
-    public $controller = null;
+    public ?Controller $controller = null;
 
     /**
      * template to render for CakeException
      *
      * @var string
      */
-    public $template = '';
+    public string $template = '';
 
     /**
      * The method corresponding to the Exception this object is for.
      *
      * @var string
      */
-    public $method = '';
+    public string $method = '';
 
     /**
      * The exception being handled.
      *
-     * @var Exception
+     * @var Exception|null
      */
-    public $error = null;
+    public ?Exception $error = null;
 
     /**
      * Creates the controller to perform rendering on the error response.
@@ -100,7 +101,7 @@ class ExceptionRenderer
      *
      * @param Exception|ParseError $exception Exception
      */
-    public function __construct($exception)
+    public function __construct(Exception|ParseError $exception)
     {
         $this->controller = $this->_getController($exception);
 
@@ -156,7 +157,7 @@ class ExceptionRenderer
      * @param Exception $exception The exception to get a controller for.
      * @return Controller
      */
-    protected function _getController($exception)
+    protected function _getController(Exception $exception): Controller
     {
         App::uses('AppController', 'Controller');
         if (!$request = Router::getRequest(true)) {
@@ -203,7 +204,7 @@ class ExceptionRenderer
      *
      * @return void
      */
-    public function render()
+    public function render(): void
     {
         if ($this->method) {
             call_user_func_array([$this, $this->method], [$this->error]);
@@ -216,7 +217,7 @@ class ExceptionRenderer
      * @param CakeException $error The exception to render.
      * @return void
      */
-    protected function _cakeError(CakeException $error)
+    protected function _cakeError(CakeException $error): void
     {
         $url = $this->controller->request->here();
         $code = $error->getCode() >= 400 && $error->getCode() < 506 ? $error->getCode() : 500;
@@ -239,7 +240,7 @@ class ExceptionRenderer
      * @param Exception $error The exception to render.
      * @return void
      */
-    public function error400($error)
+    public function error400(Exception $error): void
     {
         $message = $error->getMessage();
         if (!Configure::read('debug') && $error instanceof CakeException) {
@@ -263,7 +264,7 @@ class ExceptionRenderer
      * @param Exception $error The exception to render.
      * @return void
      */
-    public function error500($error)
+    public function error500(Exception $error): void
     {
         $message = $error->getMessage();
         if (!Configure::read('debug')) {
@@ -288,7 +289,7 @@ class ExceptionRenderer
      * @param PDOException $error The exception to render.
      * @return void
      */
-    public function pdoError(PDOException $error)
+    public function pdoError(PDOException $error): void
     {
         $url = $this->controller->request->here();
         $code = 500;
@@ -310,7 +311,7 @@ class ExceptionRenderer
      * @param string $template The template to render.
      * @return void
      */
-    protected function _outputMessage($template)
+    protected function _outputMessage(string $template): void
     {
         try {
             $this->controller->render($template);
@@ -341,7 +342,7 @@ class ExceptionRenderer
      * @param string $template The template to render
      * @return void
      */
-    protected function _outputMessageSafe($template)
+    protected function _outputMessageSafe(string $template): void
     {
         $this->controller->layoutPath = null;
         $this->controller->subDir = null;
@@ -362,7 +363,7 @@ class ExceptionRenderer
      *
      * @return void
      */
-    protected function _shutdown()
+    protected function _shutdown(): void
     {
         $afterFilterEvent = new CakeEvent('Controller.shutdown', $this->controller);
         $this->controller->getEventManager()->dispatch($afterFilterEvent);

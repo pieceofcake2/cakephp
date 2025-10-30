@@ -28,7 +28,8 @@ use RecursiveIteratorIterator;
 /**
  * FolderTest class
  *
- * @package       Cake.Test.Case.Utility
+ * @package Cake.Test.Case.Utility
+ * @coversDefaultClass \Cake\Utility\Folder
  */
 class FolderTest extends CakeTestCase
 {
@@ -1231,8 +1232,8 @@ class FolderTest extends CakeTestCase
     {
         extract($this->_setupFilesystem());
 
-        $Folder = new Folder($folderOne);
-        $result = $Folder->move($folderTwo);
+        $folder = new Folder($folderOne);
+        $result = $folder->move($folderTwo);
         $this->assertTrue($result);
         $this->assertTrue(file_exists($folderTwo . DS . 'file1.php'));
         $this->assertTrue(is_dir($folderTwo . DS . 'folderB'));
@@ -1242,16 +1243,16 @@ class FolderTest extends CakeTestCase
         $this->assertFalse(file_exists($folderOneA));
         $this->assertFalse(file_exists($fileOneA));
 
-        $Folder = new Folder($folderTwo);
-        $Folder->delete();
+        $folder = new Folder($folderTwo);
+        $folder->delete();
 
         new Folder($folderOne, true);
         new Folder($folderOneA, true);
         touch($fileOne);
         touch($fileOneA);
 
-        $Folder = new Folder($folderOne);
-        $result = $Folder->move($folderTwo);
+        $folder = new Folder($folderOne);
+        $result = $folder->move($folderTwo);
         $this->assertTrue($result);
         $this->assertTrue(file_exists($folderTwo . DS . 'file1.php'));
         $this->assertTrue(is_dir($folderTwo . DS . 'folderA'));
@@ -1260,8 +1261,8 @@ class FolderTest extends CakeTestCase
         $this->assertFalse(file_exists($folderOneA));
         $this->assertFalse(file_exists($fileOneA));
 
-        $Folder = new Folder($folderTwo);
-        $Folder->delete();
+        $folder = new Folder($folderTwo);
+        $folder->delete();
 
         new Folder($folderOne, true);
         new Folder($folderOneA, true);
@@ -1273,8 +1274,8 @@ class FolderTest extends CakeTestCase
         touch($folderOne . DS . 'folderB' . DS . 'fileB.php');
         file_put_contents($folderTwoB . DS . 'fileB.php', 'untouched');
 
-        $Folder = new Folder($folderOne);
-        $result = $Folder->move($folderTwo);
+        $folder = new Folder($folderOne);
+        $result = $folder->move($folderTwo);
         $this->assertTrue($result);
         $this->assertTrue(file_exists($folderTwo . DS . 'file1.php'));
         $this->assertEquals('', file_get_contents($folderTwoB . DS . 'fileB.php'));
@@ -1282,8 +1283,8 @@ class FolderTest extends CakeTestCase
         $this->assertFalse(file_exists($folderOneA));
         $this->assertFalse(file_exists($fileOneA));
 
-        $Folder = new Folder($path);
-        $Folder->delete();
+        $folder = new Folder($path);
+        $folder->delete();
     }
 
     /**
@@ -1300,8 +1301,8 @@ class FolderTest extends CakeTestCase
     {
         extract($this->_setupFilesystem());
 
-        $Folder = new Folder($folderOne);
-        $result = $Folder->move(['to' => $folderTwo, 'scheme' => Folder::SKIP]);
+        $folder = new Folder($folderOne);
+        $result = $folder->move(['to' => $folderTwo, 'scheme' => Folder::SKIP]);
         $this->assertTrue($result);
         $this->assertTrue(file_exists($folderTwo . DS . 'file1.php'));
         $this->assertTrue(is_dir($folderTwo . DS . 'folderB'));
@@ -1310,8 +1311,8 @@ class FolderTest extends CakeTestCase
         $this->assertFalse(file_exists($folderOneA));
         $this->assertFalse(file_exists($fileOneA));
 
-        $Folder = new Folder($folderTwo);
-        $Folder->delete();
+        $folder = new Folder($folderTwo);
+        $folder->delete();
 
         new Folder($folderOne, true);
         new Folder($folderOneA, true);
@@ -1319,8 +1320,8 @@ class FolderTest extends CakeTestCase
         touch($fileOne);
         touch($fileOneA);
 
-        $Folder = new Folder($folderOne);
-        $result = $Folder->move(['to' => $folderTwo, 'scheme' => Folder::SKIP]);
+        $folder = new Folder($folderOne);
+        $result = $folder->move(['to' => $folderTwo, 'scheme' => Folder::SKIP]);
         $this->assertTrue($result);
         $this->assertTrue(file_exists($folderTwo . DS . 'file1.php'));
         $this->assertTrue(is_dir($folderTwo . DS . 'folderA'));
@@ -1329,8 +1330,8 @@ class FolderTest extends CakeTestCase
         $this->assertFalse(file_exists($folderOneA));
         $this->assertFalse(file_exists($fileOneA));
 
-        $Folder = new Folder($folderTwo);
-        $Folder->delete();
+        $folder = new Folder($folderTwo);
+        $folder->delete();
 
         new Folder($folderOne, true);
         new Folder($folderOneA, true);
@@ -1340,8 +1341,8 @@ class FolderTest extends CakeTestCase
         touch($fileOneA);
         file_put_contents($folderTwoB . DS . 'fileB.php', 'untouched');
 
-        $Folder = new Folder($folderOne);
-        $result = $Folder->move(['to' => $folderTwo, 'scheme' => Folder::SKIP]);
+        $folder = new Folder($folderOne);
+        $result = $folder->move(['to' => $folderTwo, 'scheme' => Folder::SKIP]);
         $this->assertTrue($result);
         $this->assertTrue(file_exists($folderTwo . DS . 'file1.php'));
         $this->assertEquals('untouched', file_get_contents($folderTwoB . DS . 'fileB.php'));
@@ -1349,8 +1350,8 @@ class FolderTest extends CakeTestCase
         $this->assertFalse(file_exists($folderOneA));
         $this->assertFalse(file_exists($fileOneA));
 
-        $Folder = new Folder($path);
-        $Folder->delete();
+        $folder = new Folder($path);
+        $folder->delete();
     }
 
     /**
@@ -1362,21 +1363,21 @@ class FolderTest extends CakeTestCase
      */
     public function testSortByTime()
     {
-        $Folder = new Folder(TMP . 'test_sort_by_time', true);
+        $folder = new Folder(TMP . 'test_sort_by_time', true);
 
-        $file2 = new File($Folder->pwd() . DS . 'file_2.tmp');
+        $file2 = new File($folder->pwd() . DS . 'file_2.tmp');
         $file2->create();
 
         sleep(1);
 
-        $file1 = new File($Folder->pwd() . DS . 'file_1.tmp');
+        $file1 = new File($folder->pwd() . DS . 'file_1.tmp');
         $file1->create();
 
         $expected = ['file_2.tmp', 'file_1.tmp'];
-        $result = $Folder->find('.*', Folder::SORT_TIME);
+        $result = $folder->find('.*', Folder::SORT_TIME);
         $this->assertSame($expected, $result);
 
-        $Folder->delete();
+        $folder->delete();
     }
 
     /**
@@ -1388,26 +1389,26 @@ class FolderTest extends CakeTestCase
      */
     public function testSortByTime2()
     {
-        $Folder = new Folder(TMP . 'test_sort_by_time2', true);
+        $folder = new Folder(TMP . 'test_sort_by_time2', true);
 
-        $fileC = new File($Folder->pwd() . DS . 'c.txt');
+        $fileC = new File($folder->pwd() . DS . 'c.txt');
         $fileC->create();
 
         sleep(1);
 
-        $fileA = new File($Folder->pwd() . DS . 'a.txt');
+        $fileA = new File($folder->pwd() . DS . 'a.txt');
         $fileA->create();
 
         sleep(1);
 
-        $fileB = new File($Folder->pwd() . DS . 'b.txt');
+        $fileB = new File($folder->pwd() . DS . 'b.txt');
         $fileB->create();
 
         $expected = ['c.txt', 'a.txt', 'b.txt'];
-        $result = $Folder->find('.*', Folder::SORT_TIME);
+        $result = $folder->find('.*', Folder::SORT_TIME);
         $this->assertSame($expected, $result);
 
-        $Folder->delete();
+        $folder->delete();
     }
 
     /**

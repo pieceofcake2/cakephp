@@ -29,6 +29,7 @@ use Cake\Error\NotFoundException;
 use Cake\Model\ConnectionManager;
 use Cake\Model\Model;
 use Cake\Network\CakeRequest;
+use Cake\Network\CakeResponse;
 use Cake\Utility\Inflector;
 
 /**
@@ -70,7 +71,7 @@ class Scaffold
      *
      * @var string
      */
-    public string $viewPath;
+    public string $viewPath = '';
 
     /**
      * Name of layout to use with this View.
@@ -383,14 +384,17 @@ class Scaffold
      * @param string $element Flash template to use
      * @return CakeResponse|null
      */
-    protected function _sendMessage($message, $element = 'default')
+    protected function _sendMessage(string $message, string $element = 'default'): ?CakeResponse
     {
         if ($this->_validSession) {
             $this->controller->Flash->set($message, compact('element'));
 
             return $this->controller->redirect($this->redirect);
         }
+
         $this->controller->flash($message, $this->redirect);
+
+        return null;
     }
 
     /**

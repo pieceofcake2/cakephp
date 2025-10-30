@@ -22,6 +22,8 @@ use Cake\Configure\PhpReader;
 use Cake\Controller\Component;
 use Cake\Core\CakeObject;
 use Cake\Error\AclException;
+use Cake\Model\AclNode;
+use Cake\Model\Model;
 use Cake\Utility\Hash;
 use Cake\Utility\Inflector;
 
@@ -54,21 +56,21 @@ class PhpAcl extends CakeObject implements AclInterface
      *
      * @var array
      */
-    public $options = [];
+    public array $options = [];
 
     /**
      * Aro Object
      *
-     * @var PhpAro
+     * @var PhpAro|Model|null
      */
-    public $Aro = null;
+    public PhpAro|Model|null $Aro = null;
 
     /**
      * Aco Object
      *
-     * @var PhpAco
+     * @var PhpAco|Model|null
      */
-    public $Aco = null;
+    public PhpAco|Model|null $Aco = null;
 
     /**
      * Constructor
@@ -86,20 +88,20 @@ class PhpAcl extends CakeObject implements AclInterface
     /**
      * Initialize method
      *
-     * @param AclComponent $Component Component instance
+     * @param Component $component Component instance
      * @return void
      */
-    public function initialize(Component $Component)
+    public function initialize(Component $component): void
     {
-        if (!empty($Component->settings['adapter'])) {
-            $this->options = $Component->settings['adapter'] + $this->options;
+        if (!empty($component->settings['adapter'])) {
+            $this->options = $component->settings['adapter'] + $this->options;
         }
 
         $Reader = new PhpReader(dirname($this->options['config']) . DS);
         $config = $Reader->read(basename($this->options['config']));
         $this->build($config);
-        $Component->Aco = $this->Aco;
-        $Component->Aro = $this->Aro;
+        $component->Aco = $this->Aco;
+        $component->Aro = $this->Aro;
     }
 
     /**
@@ -132,39 +134,52 @@ class PhpAcl extends CakeObject implements AclInterface
     /**
      * No op method, allow cannot be done with PhpAcl
      *
-     * @param string $aro ARO The requesting object identifier.
-     * @param string $aco ACO The controlled object identifier.
-     * @param string $action Action (defaults to *)
+     * @param Model|array|string $aro ARO The requesting object identifier.
+     * @param Model|array|string $aco ACO The controlled object identifier.
+     * @param array|string $action Action (defaults to *)
      * @return bool Success
      */
-    public function allow($aro, $aco, $action = '*')
-    {
-        return $this->Aco->access($this->Aro->resolve($aro), $aco, $action, 'allow');
+    public function allow(
+        Model|array|string|null $aro,
+        Model|array|string|null $aco,
+        array|string $action = '*',
+    ): bool {
+        $this->Aco->access($this->Aro->resolve($aro), $aco, $action, 'allow');
+
+        return false;
     }
 
     /**
      * deny ARO access to ACO
      *
-     * @param string $aro ARO The requesting object identifier.
-     * @param string $aco ACO The controlled object identifier.
+     * @param Model|array|string $aro ARO The requesting object identifier.
+     * @param Model|array|string $aco ACO The controlled object identifier.
      * @param string $action Action (defaults to *)
      * @return bool Success
      */
-    public function deny($aro, $aco, $action = '*')
-    {
-        return $this->Aco->access($this->Aro->resolve($aro), $aco, $action, 'deny');
+    public function deny(
+        Model|array|string|null $aro,
+        Model|array|string|null $aco,
+        string $action = '*',
+    ): bool {
+        $this->Aco->access($this->Aro->resolve($aro), $aco, $action, 'deny');
+
+        return false;
     }
 
     /**
      * No op method
      *
-     * @param string $aro ARO The requesting object identifier.
-     * @param string $aco ACO The controlled object identifier.
+     * @param Model|array|string $aro ARO The requesting object identifier.
+     * @param Model|array|string $aco ACO The controlled object identifier.
      * @param string $action Action (defaults to *)
      * @return bool Success
      */
-    public function inherit($aro, $aco, $action = '*')
-    {
+    public function inherit(
+        Model|array|string|null $aro,
+        Model|array|string|null $aco,
+        string $action = '*',
+    ): bool {
         return false;
     }
 
@@ -172,13 +187,16 @@ class PhpAcl extends CakeObject implements AclInterface
      * Main ACL check function. Checks to see if the ARO (access request object) has access to the
      * ACO (access control object).
      *
-     * @param string $aro ARO
-     * @param string $aco ACO
+     * @param Model|array|string $aro ARO
+     * @param Model|array|string $aco ACO
      * @param string $action Action
      * @return bool true if access is granted, false otherwise
      */
-    public function check($aro, $aco, $action = '*')
-    {
+    public function check(
+        Model|array|string|null $aro,
+        Model|array|string|null $aco,
+        string $action = '*',
+    ): bool {
         $allow = $this->options['policy'];
         $prioritizedAros = $this->Aro->roles($aro);
 
@@ -218,14 +236,14 @@ class PhpAco
      *
      * @var array
      */
-    protected $_tree = [];
+    protected array $_tree = [];
 
     /**
      * map modifiers for ACO paths to their respective PCRE pattern
      *
      * @var array
      */
-    public static $modifiers = [
+    public static array $modifiers = [
         '*' => '.*',
     ];
 
@@ -248,10 +266,10 @@ class PhpAco
     /**
      * return path to the requested ACO with allow and deny rules attached on each level
      *
-     * @param string $aco ACO string
+     * @param array|string $aco ACO string
      * @return array
      */
-    public function path($aco)
+    public function path(array|string $aco)
     {
         $aco = $this->resolve($aco);
         $path = [];
@@ -294,13 +312,13 @@ class PhpAco
     /**
      * allow/deny ARO access to ARO
      *
-     * @param string $aro ARO string
-     * @param string $aco ACO string
-     * @param string $action Action string
+     * @param array|string $aro ARO string
+     * @param array|string  $aco ACO string
+     * @param string|null $action Action string
      * @param string $type access type
      * @return void
      */
-    public function access($aro, $aco, $action, $type = 'deny')
+    public function access(array|string $aro, array|string $aco, ?string $action, string $type = 'deny'): void
     {
         $aco = $this->resolve($aco);
         $depth = count($aco);
@@ -331,10 +349,10 @@ class PhpAco
     /**
      * resolve given ACO string to a path
      *
-     * @param string $aco ACO string
+     * @param array|string $aco ACO string
      * @return array path
      */
-    public function resolve($aco)
+    public function resolve(array|string $aco): array
     {
         if (is_array($aco)) {
             return array_map('strtolower', $aco);
@@ -355,7 +373,7 @@ class PhpAco
      * @param array $deny ACO deny rules
      * @return void
      */
-    public function build(array $allow, array $deny = [])
+    public function build(array $allow, array $deny = []): void
     {
         $this->_tree = [];
 
@@ -402,7 +420,7 @@ class PhpAro
      * @var array
      * @see app/Config/acl.php
      */
-    public $map = [
+    public array $map = [
         'User' => 'User/username',
         'Role' => 'User/role',
     ];
@@ -412,14 +430,14 @@ class PhpAro
      *
      * @var array
      */
-    public $aliases = [];
+    public array $aliases = [];
 
     /**
      * internal ARO representation
      *
      * @var array
      */
-    protected $_tree = [];
+    protected array $_tree = [];
 
     /**
      * Constructor

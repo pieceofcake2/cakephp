@@ -107,10 +107,14 @@ class PostgresTestModel extends Model
      * @param mixed $fields
      * @param mixed $order
      * @param mixed $recursive
-     * @return void
+     * @return array|int|false|null
      */
-    public function find($conditions = null, $fields = null, $order = null, $recursive = null)
-    {
+    public function find(
+        mixed $conditions = null,
+        mixed $fields = null,
+        mixed $order = null,
+        mixed $recursive = null
+    ): array|int|false|null {
         return $conditions;
     }
 
@@ -121,19 +125,23 @@ class PostgresTestModel extends Model
      * @param mixed $fields
      * @param mixed $order
      * @param mixed $recursive
-     * @return void
+     * @return mixed
      */
-    public function findAll($conditions = null, $fields = null, $order = null, $recursive = null)
-    {
+    public function findAll(
+        mixed $conditions = null,
+        mixed $fields = null,
+        mixed $order = null,
+        mixed $recursive = null,
+    ): mixed {
         return $conditions;
     }
 
     /**
      * schema method
      *
-     * @return void
+     * @return array|null
      */
-    public function schema($field = false)
+    public function schema(string|bool $field = false): ?array
     {
         return [
             'id' => ['type' => 'integer', 'null' => '', 'default' => '', 'length' => '8'],
@@ -177,9 +185,9 @@ class PostgresClientTestModel extends Model
     /**
      * schema method
      *
-     * @return array
+     * @return array|null
      */
-    public function schema($field = false)
+    public function schema(string|bool $field = false): ?array
     {
         return [
             'id' => ['type' => 'integer', 'null' => '', 'default' => '', 'length' => '8', 'key' => 'primary'],
@@ -205,38 +213,47 @@ class PostgresTest extends CakeTestCase
      *
      * @var bool
      */
-    public $autoFixtures = false;
+    public bool $autoFixtures = false;
 
     /**
      * Fixtures
      *
-     * @var object
+     * @var array
      */
-    public $fixtures = ['core.user', 'core.binary_test', 'core.comment', 'core.article',
-        'core.tag', 'core.articles_tag', 'core.attachment', 'core.person', 'core.post', 'core.author',
+    public array $fixtures = [
+        'core.user',
+        'core.binary_test',
+        'core.comment',
+        'core.article',
+        'core.tag',
+        'core.articles_tag',
+        'core.attachment',
+        'core.person',
+        'core.post',
+        'core.author',
         'core.datatype',
     ];
 
     /**
      * Actual DB connection used in testing
      *
-     * @var DboSource
+     * @var DboSource|null
      */
-    public $Dbo = null;
+    public ?DboSource $Dbo = null;
 
     /**
      * Simulated DB connection used in testing
      *
-     * @var DboSource
+     * @var DboSource|null
      */
-    public $Dbo2 = null;
+    public ?DboSource $Dbo2 = null;
 
     /**
      * Number locale before changing during testing
      *
-     * @var string
+     * @var string|null
      */
-    public $restoreLocaleNumeric = null;
+    public ?string $restoreLocaleNumeric = null;
 
     /**
      * Sets up a Dbo class instance for testing

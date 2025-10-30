@@ -48,7 +48,7 @@ class ApiShell extends AppShell
      *
      * @return void
      */
-    public function initialize()
+    public function initialize(): void
     {
         $this->paths = array_merge($this->paths, [
             'behavior' => CAKE . 'Model' . DS . 'Behavior' . DS,

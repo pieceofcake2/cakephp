@@ -81,7 +81,7 @@ class_alias(TestDatabaseSession::class, 'TestApp\\Model\\Datasource\\Session\\Te
  */
 class CakeSessionTest extends CakeTestCase
 {
-    protected $_appNamespace = null;
+    protected ?string $_appNamespace = null;
 
     protected static $_gcDivisor;
 
@@ -90,7 +90,9 @@ class CakeSessionTest extends CakeTestCase
      *
      * @var array
      */
-    public $fixtures = ['core.session'];
+    public array $fixtures = [
+        'core.session',
+    ];
 
     /**
      * setup before class.

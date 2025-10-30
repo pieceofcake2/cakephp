@@ -12,7 +12,7 @@ use TestApp\Controller\TestAppsErrorController;
 
 class TestAppsExceptionRenderer extends ExceptionRenderer
 {
-    protected function _getController($exception)
+    protected function _getController($exception): Controller
     {
         if (!$request = Router::getRequest(true)) {
             $request = new CakeRequest();

@@ -33,7 +33,7 @@ class CakeText
      * @see http://www.ietf.org/rfc/rfc4122.txt
      * @return string RFC 4122 UUID
      */
-    public static function uuid()
+    public static function uuid(): string
     {
         $random = function_exists('random_int') ? 'random_int' : 'mt_rand';
 
@@ -61,13 +61,13 @@ class CakeText
      * Tokenizes a string using $separator, ignoring any instance of $separator that appears between
      * $leftBound and $rightBound.
      *
-     * @param string $data The data to tokenize.
+     * @param string|null $data The data to tokenize.
      * @param string $separator The token to split the data on.
      * @param string $leftBound The left boundary to ignore separators in.
      * @param string $rightBound The right boundary to ignore separators in.
-     * @return mixed Array of tokens in $data or original input if empty.
+     * @return array Array of tokens in $data or original input if empty.
      */
-    public static function tokenize($data, $separator = ',', $leftBound = '(', $rightBound = ')')
+    public static function tokenize(?string $data, string $separator = ',', string $leftBound = '(', string $rightBound = ')'): array
     {
         if (empty($data)) {
             return [];
@@ -151,15 +151,25 @@ class CakeText
      * - clean: A boolean or array with instructions for CakeText::cleanInsert
      *
      * @param string $str A string containing variable placeholders
-     * @param array $data A key => val array where each key stands for a placeholder variable name
+     * @param array|string $data A key => val array where each key stands for a placeholder variable name
      *     to be replaced with val
-     * @param array $options An array of options, see description above
+     * @param array{
+     *     before?: string|null,
+     *      after?: string|null,
+     *      escape?: string,
+     *      format?: string|null,
+     *      clean?: bool
+     * } $options An array of options, see description above
      * @return string
      */
-    public static function insert($str, $data, $options = [])
+    public static function insert(string $str, array|string $data, array $options = []): string
     {
         $defaults = [
-            'before' => ':', 'after' => null, 'escape' => '\\', 'format' => null, 'clean' => false,
+            'before' => ':',
+            'after' => null,
+            'escape' => '\\',
+            'format' => null,
+            'clean' => false,
         ];
         $options += $defaults;
         $format = $options['format'];
@@ -197,12 +207,12 @@ class CakeText
 
         foreach ($tempData as $key => $hashVal) {
             $key = sprintf($format, preg_quote($key, '/'));
-            $str = preg_replace($key, $hashVal, $str);
+            $str = preg_replace($key, (string)$hashVal, $str);
         }
         $dataReplacements = array_combine($hashKeys, array_values($data));
         foreach ($dataReplacements as $tmpHash => $tmpValue) {
             $tmpValue = is_array($tmpValue) ? '' : $tmpValue;
-            $str = str_replace($tmpHash, $tmpValue ?? '', $str);
+            $str = str_replace((string)$tmpHash, $tmpValue ?? '', $str);
         }
 
         if (!isset($options['format']) && isset($options['before'])) {
@@ -223,7 +233,7 @@ class CakeText
      * @return string
      * @see CakeText::insert()
      */
-    public static function cleanInsert($str, $options)
+    public static function cleanInsert(string $str, array $options): string
     {
         $clean = $options['clean'];
         if (!$clean) {
@@ -293,7 +303,7 @@ class CakeText
      * @param array|int $options Array of options to use, or an integer to wrap the text to.
      * @return string Formatted text.
      */
-    public static function wrap($text, $options = [])
+    public static function wrap(string $text, array|int $options = []): string
     {
         if (is_numeric($options)) {
             $options = ['width' => $options];
@@ -324,7 +334,7 @@ class CakeText
      * @param bool $cut If the cut is set to true, the string is always wrapped at the specified width.
      * @return string Formatted text.
      */
-    public static function wordWrap($text, $width = 72, $break = "\n", $cut = false)
+    public static function wordWrap(string $text, int $width = 72, string $break = "\n", bool $cut = false): string
     {
         $paragraphs = explode($break, $text);
         foreach ($paragraphs as &$paragraph) {
@@ -343,7 +353,7 @@ class CakeText
      * @param bool $cut If the cut is set to true, the string is always wrapped at the specified width.
      * @return string Formatted text.
      */
-    protected static function _wordWrap($text, $width = 72, $break = "\n", $cut = false)
+    protected static function _wordWrap(string $text, int $width = 72, string $break = "\n", bool $cut = false): string
     {
         if ($cut) {
             $parts = [];
@@ -397,7 +407,7 @@ class CakeText
      *
      * @param string $text Text to search the phrase in.
      * @param array|string|null $phrase The phrase or phrases that will be searched.
-     * @param array{format?: string, html?: bool, regex?: string} $options An array of html attributes and options.
+     * @param array{format?: array|string, html?: bool, regex?: string} $options An array of html attributes and options.
      * @return string The highlighted text
      * @link https://book.cakephp.org/2.0/en/core-libraries/helpers/text.html#TextHelper::highlight
      */
@@ -413,7 +423,9 @@ class CakeText
             'regex' => '|%s|iu',
         ];
         $options += $defaults;
-        extract($options);
+        $format = $options['format'];
+        $html = $options['html'];
+        $regex = $options['regex'];
 
         if (is_array($phrase)) {
             $replace = [];
@@ -426,7 +438,7 @@ class CakeText
                 }
 
                 $with[] = is_array($format) ? $format[$key] : $format;
-                $replace[] = sprintf($options['regex'], $segment);
+                $replace[] = sprintf($regex, $segment);
             }
 
             return preg_replace($replace, $with, $text);
@@ -465,16 +477,18 @@ class CakeText
      *
      * @param string $text CakeText to truncate.
      * @param int $length Length of returned string, including ellipsis.
-     * @param array $options An array of options.
+     * @param array{ellipsis?: string, exact?: bool} $options An array of options.
      * @return string Trimmed string.
      */
     public static function tail(string $text, int $length = 100, array $options = []): string
     {
         $defaults = [
-            'ellipsis' => '...', 'exact' => true,
+            'ellipsis' => '...',
+            'exact' => true,
         ];
         $options += $defaults;
-        extract($options);
+        $ellipsis = $options['ellipsis'];
+        $exact = $options['exact'];
 
         if (mb_strlen($text) <= $length) {
             return $text;

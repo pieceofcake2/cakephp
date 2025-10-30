@@ -95,24 +95,24 @@ class GenericObjectCollection extends ObjectCollection
     /**
      * Loads a generic object
      *
-     * @param string $object CakeObject name
-     * @param array $settings Settings array
-     * @return array List of loaded objects
+     * @param string $name CakeObject name
+     * @param array $options Settings array
+     * @return object List of loaded objects
      */
-    public function load($object, $settings = [])
+    public function load(string $name, array $options = []): object
     {
-        [, $name] = pluginSplit($object);
-        if (isset($this->_loaded[$name])) {
-            return $this->_loaded[$name];
+        [, $_name] = pluginSplit($name);
+        if (isset($this->_loaded[$_name])) {
+            return $this->_loaded[$_name];
         }
-        $objectClass = $name . 'GenericObject';
-        $this->_loaded[$name] = new $objectClass($this, $settings);
-        $enable = $settings['enabled'] ?? true;
+        $objectClass = $_name . 'GenericObject';
+        $this->_loaded[$_name] = new $objectClass($this, $options);
+        $enable = $options['enabled'] ?? true;
         if ($enable === true) {
-            $this->enable($name);
+            $this->enable($_name);
         }
 
-        return $this->_loaded[$name];
+        return $this->_loaded[$_name];
     }
 
     /**
@@ -120,11 +120,11 @@ class GenericObjectCollection extends ObjectCollection
      * settings
      *
      * @param string $name Name of the object
-     * @param CakeObject $object The object to use
+     * @param object $object The object to use
      * @param array $settings Settings to apply for the object
      * @return array Loaded objects
      */
-    public function setObject($name, $object, $settings = [])
+    public function setObject(string $name, object $object, array $settings = []): array
     {
         $this->_loaded[$name] = $object;
         if (isset($settings['priority'])) {
@@ -141,6 +141,8 @@ class GenericObjectCollection extends ObjectCollection
 
 class ObjectCollectionTest extends CakeTestCase
 {
+    public ?GenericObjectCollection $Objects = null;
+
     /**
      * setUp
      *
@@ -159,7 +161,7 @@ class ObjectCollectionTest extends CakeTestCase
      */
     public function tearDown(): void
     {
-        unset($this->Objects);
+        $this->Objects = null;
 
         parent::tearDown();
     }

@@ -64,17 +64,19 @@ App::uses('AppHelper', 'View/Helper');
  * Example of theme path with `$this->theme = 'SuperHot';` Would be `app/View/Themed/SuperHot/Posts`
  *
  * @package       Cake.View
- * @property      CacheHelper $Cache
- * @property      FormHelper $Form
- * @property      HtmlHelper $Html
- * @property      JsHelper $Js
- * @property      NumberHelper $Number
- * @property      PaginatorHelper $Paginator
- * @property      RssHelper $Rss
- * @property      SessionHelper $Session
- * @property      TextHelper $Text
- * @property      TimeHelper $Time
- * @property      ViewBlock $Blocks
+ * @property CacheHelper $Cache
+ * @property FormHelper $Form
+ * @property HtmlHelper $Html
+ * @property JsHelper $Js
+ * @property NumberHelper $Number
+ * @property PaginatorHelper $Paginator
+ * @property RssHelper $Rss
+ * @property SessionHelper $Session
+ * @property TextHelper $Text
+ * @property TimeHelper $Time
+ * @property ViewBlock $Blocks
+ * @property string $output
+ * @property bool|null $modelScope
  */
 class View extends CakeObject
 {
@@ -103,21 +105,21 @@ class View extends CakeObject
     /**
      * Name of the controller.
      *
-     * @var string
+     * @var string|null
      */
     public ?string $name = null;
 
     /**
      * Fully qualified controller class name.
      *
-     * @var string
+     * @var string|null
      */
     public ?string $controllerClass = null;
 
     /**
      * Current passed params
      *
-     * @var mixed
+     * @var array
      */
     public array $passedArgs = [];
 
@@ -131,7 +133,7 @@ class View extends CakeObject
     /**
      * Path to View.
      *
-     * @var string
+     * @var string|null
      */
     public ?string $viewPath = null;
 
@@ -145,7 +147,7 @@ class View extends CakeObject
     /**
      * Name of view to use with this View.
      *
-     * @var string
+     * @var string|null
      */
     public ?string $view = null;
 
@@ -159,7 +161,7 @@ class View extends CakeObject
     /**
      * Path to Layout.
      *
-     * @var string
+     * @var string|null
      */
     public ?string $layoutPath = null;
 
@@ -182,14 +184,14 @@ class View extends CakeObject
      * Sub-directory for this view file. This is often used for extension based routing.
      * Eg. With an `xml` extension, $subDir would be `xml/`
      *
-     * @var string
+     * @var string|null
      */
     public ?string $subDir = null;
 
     /**
      * Theme name.
      *
-     * @var string
+     * @var string|null
      */
     public ?string $theme = null;
 
@@ -197,9 +199,9 @@ class View extends CakeObject
      * Used to define methods a controller that will be cached.
      *
      * @see Controller::$cacheAction
-     * @var mixed
+     * @var array|string|int|false
      */
-    public $cacheAction = false;
+    public array|string|int|false $cacheAction = false;
 
     /**
      * Holds current errors for the model validation.
@@ -260,9 +262,9 @@ class View extends CakeObject
     /**
      * List of variables to collect from the associated controller.
      *
-     * @var array
+     * @var array<string>
      */
-    protected $_passedVars = [
+    protected array $_passedVars = [
         'viewVars', 'autoLayout', 'ext', 'helpers', 'view', 'layout', 'name', 'theme',
         'layoutPath', 'viewPath', 'request', 'plugin', 'passedArgs', 'cacheAction', 'controllerClass',
     ];
@@ -272,35 +274,35 @@ class View extends CakeObject
      *
      * @var array
      */
-    protected $_scripts = [];
+    protected array $_scripts = [];
 
     /**
      * Holds an array of paths.
      *
      * @var array
      */
-    protected $_paths = [];
+    protected array $_paths = [];
 
     /**
      * Holds an array of plugin paths.
      *
      * @var array
      */
-    protected $_pathsForPlugin = [];
+    protected array $_pathsForPlugin = [];
 
     /**
      * The names of views and their parents used with View::extend();
      *
      * @var array
      */
-    protected $_parents = [];
+    protected array $_parents = [];
 
     /**
      * The currently rendering view file. Used for resolving parent files.
      *
-     * @var string
+     * @var string|null
      */
-    protected $_current = null;
+    protected ?string $_current = null;
 
     /**
      * Currently rendering an element. Used for finding parent fragments
@@ -308,14 +310,14 @@ class View extends CakeObject
      *
      * @var string
      */
-    protected $_currentType = '';
+    protected string $_currentType = '';
 
     /**
      * Content stack, used for nested templates that all use View::extend();
      *
      * @var array
      */
-    protected $_stack = [];
+    protected array $_stack = [];
 
     /**
      * Instance of the CakeEventManager this View object is using
@@ -323,16 +325,21 @@ class View extends CakeObject
      * the controller, so it it possible to register view events in
      * the controller layer.
      *
-     * @var CakeEventManager
+     * @var CakeEventManager|null
      */
-    protected $_eventManager = null;
+    protected ?CakeEventManager $_eventManager = null;
 
     /**
      * Whether the event manager was already configured for this object
      *
      * @var bool
      */
-    protected $_eventManagerConfigured = false;
+    protected bool $_eventManagerConfigured = false;
+
+    /**
+     * @var string|null
+     */
+    private ?string $__viewFile = null;
 
     /**
      * Constant for view file type 'view'
@@ -494,13 +501,13 @@ class View extends CakeObject
      * the view will be located along the regular view path cascade.
      *
      * @param string|false|null $view Name of view file to use.
-     * @param string|null $layout Layout to use.
+     * @param string|false|null $layout Layout to use.
      * @return string|null Rendered content or null if content already rendered and returned earlier.
      * @triggers View.beforeRender $this, array($viewFileName)
      * @triggers View.afterRender $this, array($viewFileName)
      * @throws CakeException If there is an error in the view.
      */
-    public function render($view = null, $layout = null)
+    public function render(string|false|null $view = null, string|false|null $layout = null): ?string
     {
         if ($this->hasRendered) {
             return null;
@@ -596,10 +603,10 @@ class View extends CakeObject
      * render cached view files.
      *
      * @param string $filename the cache file to include
-     * @param string $timeStart the page render start time
+     * @param string|float $timeStart the page render start time
      * @return string|false Success of rendering the cached file.
      */
-    public function renderCache(string $filename, $timeStart): string|bool
+    public function renderCache(string $filename, string|float $timeStart): string|bool
     {
         $response = $this->response;
         ob_start();
@@ -707,7 +714,7 @@ class View extends CakeObject
      * @return void
      * @see ViewBlock::concat()
      */
-    public function append($name, $value = null)
+    public function append(string $name, mixed $value = null): void
     {
         $this->Blocks->concat($name, $value);
     }
@@ -907,7 +914,7 @@ class View extends CakeObject
      * @param string $name Name of the attribute to get.
      * @return mixed
      */
-    public function __get($name)
+    public function __get(string $name): mixed
     {
         switch ($name) {
             case 'base':
@@ -936,13 +943,14 @@ class View extends CakeObject
      *
      * @param string $name Name of the attribute to set.
      * @param mixed $value Value of the attribute to set.
-     * @return mixed
+     * @return void
      */
-    public function __set(string $name, $value)
+    public function __set(string $name, mixed $value): void
     {
         switch ($name) {
             case 'output':
-                return $this->Blocks->set('content', $value);
+                $this->Blocks->set('content', $value);
+                break;
             default:
                 $this->{$name} = $value;
         }
@@ -954,7 +962,7 @@ class View extends CakeObject
      * @param string $name Name of the attribute to check.
      * @return bool
      */
-    public function __isset($name)
+    public function __isset(string $name): bool
     {
         if (isset($this->{$name})) {
             return true;
@@ -1037,15 +1045,13 @@ class View extends CakeObject
      *    If empty the current View::$viewVars will be used.
      * @return string Rendered output
      */
-    protected function _evaluate($viewFile, $dataForView)
+    protected function _evaluate(string $viewFile, array $dataForView): string
     {
         $this->__viewFile = $viewFile;
         extract($dataForView);
         ob_start();
-
         include $this->__viewFile;
-
-        unset($this->__viewFile);
+        $this->__viewFile = null;
 
         return ob_get_clean();
     }
@@ -1068,11 +1074,11 @@ class View extends CakeObject
      * CamelCased action names will be under_scored! This means that you can have
      * LongActionNames that refer to long_action_names.ctp views.
      *
-     * @param string $name Controller action to find template filename for
+     * @param string|null $name Controller action to find template filename for
      * @return string Template filename
      * @throws MissingViewException when a view file could not be found.
      */
-    protected function _getViewFileName($name = null)
+    protected function _getViewFileName(?string $name = null): string
     {
         $subDir = null;
 
@@ -1116,9 +1122,9 @@ class View extends CakeObject
      *
      * @param string $name The name you want to plugin split.
      * @param bool $fallback If true uses the plugin set in the current CakeRequest when parsed plugin is not loaded
-     * @return array Array with 2 indexes. 0 => plugin name, 1 => filename
+     * @return array{string|null, string} Array with 2 indexes. 0 => plugin name, 1 => filename
      */
-    public function pluginSplit($name, $fallback = true)
+    public function pluginSplit(string $name, bool $fallback = true): array
     {
         $plugin = null;
         [$first, $second] = pluginSplit($name);
@@ -1136,11 +1142,11 @@ class View extends CakeObject
     /**
      * Returns layout filename for this template as a string.
      *
-     * @param string $name The name of the layout to find.
+     * @param string|null $name The name of the layout to find.
      * @return string Filename for layout file (.ctp).
      * @throws MissingLayoutException when a layout cannot be located
      */
-    protected function _getLayoutFileName($name = null)
+    protected function _getLayoutFileName(?string $name = null): string
     {
         if ($name === null) {
             $name = $this->layout;
@@ -1162,6 +1168,7 @@ class View extends CakeObject
                 }
             }
         }
+
         throw new MissingLayoutException(['file' => $file . $this->ext]);
     }
 
@@ -1170,7 +1177,7 @@ class View extends CakeObject
      *
      * @return array Array of extensions view files use.
      */
-    protected function _getExtensions()
+    protected function _getExtensions(): array
     {
         $exts = [$this->ext];
         if ($this->ext !== '.ctp') {
@@ -1206,11 +1213,11 @@ class View extends CakeObject
     /**
      * Return all possible paths to find view files in order
      *
-     * @param string $plugin Optional plugin name to scan for view files.
+     * @param string|null $plugin Optional plugin name to scan for view files.
      * @param bool $cached Set to false to force a refresh of view paths. Default true.
      * @return array paths
      */
-    protected function _paths($plugin = null, $cached = true)
+    protected function _paths(?string $plugin = null, bool $cached = true): array
     {
         if ($cached === true) {
             if ($plugin === null && !empty($this->_paths)) {
@@ -1252,8 +1259,9 @@ class View extends CakeObject
         if ($plugin !== null) {
             return $this->_pathsForPlugin[$plugin] = $paths;
         }
+        $this->_paths = $paths;
 
-        return $this->_paths = $paths;
+        return $this->_paths;
     }
 
     /**

@@ -26,7 +26,7 @@ use Cake\Utility\Folder;
  * FileTest class
  *
  * @package       Cake.Test.Case.Utility
- * @coversDefaultClass File
+ * @coversDefaultClass \Cake\Utility\File
  */
 class FileTest extends CakeTestCase
 {
@@ -554,10 +554,10 @@ class FileTest extends CakeTestCase
      * @return void
      * @covers ::delete
      */
-    public function testDeleteAfterRead()
+    public function testDeleteAfterRead(): void
     {
         if (!$tmpFile = $this->_getTmpFile()) {
-            return false;
+            return;
         }
         if (!file_exists($tmpFile)) {
             touch($tmpFile);
@@ -573,7 +573,7 @@ class FileTest extends CakeTestCase
      * @return void
      * @covers ::copy
      */
-    public function testCopy()
+    public function testCopy(): void
     {
         $dest = TMP . 'tests' . DS . 'cakephp.file.test.tmp';
         $file = __FILE__;

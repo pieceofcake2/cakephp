@@ -38,8 +38,10 @@ class TestDispatcherFilter extends DispatcherFilter
         return null;
     }
 
-    public function afterDispatch(CakeEvent $event)
+    public function afterDispatch(CakeEvent $event): ?bool
     {
         $event->data['response']->statusCode(304);
+
+        return null;
     }
 }

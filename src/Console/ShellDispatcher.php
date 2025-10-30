@@ -454,7 +454,7 @@ class ShellDispatcher
      * @param string|int $status see http://php.net/exit for values
      * @return never
      */
-    protected function _stop($status = 0)
+    protected function _stop(string|int $status = 0): void
     {
         exit($status);
     }

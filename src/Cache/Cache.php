@@ -52,28 +52,28 @@ class Cache
      *
      * @var array
      */
-    protected static $_config = [];
+    protected static array $_config = [];
 
     /**
      * Group to Config mapping
      *
      * @var array
      */
-    protected static $_groups = [];
+    protected static array $_groups = [];
 
     /**
      * Whether to reset the settings with the next call to Cache::set();
      *
-     * @var array
+     * @var bool
      */
-    protected static $_reset = false;
+    protected static bool $_reset = false;
 
     /**
      * Engine instances keyed by configuration name.
      *
      * @var array
      */
-    protected static $_engines = [];
+    protected static array $_engines = [];
 
     /**
      * Set the cache configuration to use. config() can
@@ -116,13 +116,13 @@ class Cache
      * - `user` Used by Xcache. Username for XCache
      * - `password` Used by Xcache/Redis. Password for XCache/Redis
      *
-     * @param string $name Name of the configuration
+     * @param array|string|null $name Name of the configuration
      * @param array $settings Optional associative array of settings passed to the engine
-     * @return array|false array(engine, settings) on success, false on failure
+     * @return array{engine: mixed, settings: mixed}|false array(engine, settings) on success, false on failure
      * @throws CacheException
      * @see app/Config/core.php for configuration settings
      */
-    public static function config($name = null, $settings = [])
+    public static function config(array|string|null $name = null, array $settings = []): array|false
     {
         if (is_array($name)) {
             $settings = $name;
@@ -168,7 +168,7 @@ class Cache
      * @return bool
      * @throws CacheException
      */
-    protected static function _buildEngine($name)
+    protected static function _buildEngine(string $name): bool
     {
         $config = static::$_config[$name];
 
@@ -202,7 +202,7 @@ class Cache
      *
      * @return array Array of configured Cache config names.
      */
-    public static function configured()
+    public static function configured(): array
     {
         return array_keys(static::$_config);
     }
@@ -215,7 +215,7 @@ class Cache
      * @param string $name A currently configured cache config you wish to remove.
      * @return bool success of the removal, returns false when the config does not exist.
      */
-    public static function drop($name)
+    public static function drop(string $name): bool
     {
         if (!isset(static::$_config[$name])) {
             return false;
@@ -243,12 +243,12 @@ class Cache
      *
      * `Cache::set(null, 'my_config');`
      *
-     * @param array|string $settings Optional string for simple name-value pair or array
-     * @param string $value Optional for a simple name-value pair
+     * @param array|string|null $settings Optional string for simple name-value pair or array
+     * @param string|null $value Optional for a simple name-value pair
      * @param string $config The configuration name you are changing. Defaults to 'default'
      * @return array|false Array of settings.
      */
-    public static function set($settings = [], $value = null, $config = 'default')
+    public static function set(array|string|null $settings = [], ?string $value = null, string $config = 'default'): array|false
     {
         if (is_array($settings) && $value !== null) {
             $config = $value;
@@ -285,10 +285,10 @@ class Cache
      * Permanently remove all expired and deleted data
      *
      * @param string $config [optional] The config name you wish to have garbage collected. Defaults to 'default'
-     * @param int $expires [optional] An expires timestamp. Defaults to NULL
+     * @param int|null $expires [optional] An expires timestamp. Defaults to NULL
      * @return bool
      */
-    public static function gc($config = 'default', $expires = null)
+    public static function gc(string $config = 'default', ?int $expires = null): bool
     {
         return static::$_engines[$config]->gc($expires);
     }
@@ -306,12 +306,12 @@ class Cache
      *
      * `Cache::write('cached_data', $data, 'long_term');`
      *
-     * @param string $key Identifier for the data
+     * @param string|null $key Identifier for the data
      * @param mixed $value Data to be cached - anything except a resource
      * @param string $config Optional string configuration name to write to. Defaults to 'default'
      * @return bool True if the data was successfully cached, false on failure
      */
-    public static function write($key, $value, $config = 'default')
+    public static function write(?string $key, mixed $value, string $config = 'default'): bool
     {
         $settings = static::settings($config);
 
@@ -362,7 +362,7 @@ class Cache
      * @param string $config optional name of the configuration to use. Defaults to 'default'
      * @return mixed The cached data, or false if the data doesn't exist, has expired, or if there was an error fetching it
      */
-    public static function read($key, $config = 'default')
+    public static function read(string $key, string $config = 'default'): mixed
     {
         $settings = static::settings($config);
 
@@ -389,7 +389,7 @@ class Cache
      * @return mixed new value, or false if the data doesn't exist, is not integer,
      *    or if there was an error fetching it.
      */
-    public static function increment($key, $offset = 1, $config = 'default')
+    public static function increment(string $key, int $offset = 1, string $config = 'default'): mixed
     {
         $settings = static::settings($config);
 
@@ -419,7 +419,7 @@ class Cache
      * @return mixed new value, or false if the data doesn't exist, is not integer,
      *   or if there was an error fetching it
      */
-    public static function decrement($key, $offset = 1, $config = 'default')
+    public static function decrement(string $key, int $offset = 1, string $config = 'default'): mixed
     {
         $settings = static::settings($config);
 
@@ -457,7 +457,7 @@ class Cache
      * @param string $config name of the configuration to use. Defaults to 'default'
      * @return bool True if the value was successfully deleted, false if it didn't exist or couldn't be removed
      */
-    public static function delete($key, $config = 'default')
+    public static function delete(string $key, string $config = 'default'): bool
     {
         $settings = static::settings($config);
 
@@ -485,7 +485,7 @@ class Cache
      * @param string $config name of the configuration to use. Defaults to 'default'
      * @return bool True if the cache was successfully cleared, false otherwise
      */
-    public static function clear($check = false, $config = 'default')
+    public static function clear(bool $check = false, string $config = 'default'): bool
     {
         if (!static::isInitialized($config)) {
             return false;
@@ -503,7 +503,7 @@ class Cache
      * @param string $config name of the configuration to use. Defaults to 'default'
      * @return bool True if the cache group was successfully cleared, false otherwise
      */
-    public static function clearGroup($group, $config = 'default')
+    public static function clearGroup(string $group, string $config = 'default'): bool
     {
         if (!static::isInitialized($config)) {
             return false;
@@ -520,7 +520,7 @@ class Cache
      * @param string $config name of the configuration to use. Defaults to 'default'
      * @return bool Whether or not the config name has been initialized.
      */
-    public static function isInitialized($config = 'default')
+    public static function isInitialized(string $config = 'default'): bool
     {
         if (Configure::read('Cache.disable')) {
             return false;
@@ -536,7 +536,7 @@ class Cache
      * @return array list of settings for this engine
      * @see Cache::config()
      */
-    public static function settings($name = 'default')
+    public static function settings(string $name = 'default'): array
     {
         if (!empty(static::$_engines[$name])) {
             return static::$_engines[$name]->settings();
@@ -560,11 +560,11 @@ class Cache
      *
      * $config will equal to `array('posts' => array('daily', 'weekly'))`
      *
-     * @param string $group group name or null to retrieve all group mappings
+     * @param string|null $group group name or null to retrieve all group mappings
      * @return array map of group and all configuration that has the same group
      * @throws CacheException
      */
-    public static function groupConfigs($group = null)
+    public static function groupConfigs(?string $group = null): array
     {
         if ($group === null) {
             return static::$_groups;
@@ -600,7 +600,7 @@ class Cache
      *   Defaults to default.
      * @return mixed The results of the callable or unserialized results.
      */
-    public static function remember($key, $callable, $config = 'default')
+    public static function remember(string $key, callable $callable, string $config = 'default'): mixed
     {
         $existing = static::read($key, $config);
         if ($existing !== false) {
@@ -631,7 +631,7 @@ class Cache
      * @return bool True if the data was successfully cached, false on failure.
      *   Or if the key existed already.
      */
-    public static function add($key, $value, $config = 'default')
+    public static function add(string $key, mixed $value, string $config = 'default'): bool
     {
         $settings = self::settings($config);
 
@@ -659,7 +659,7 @@ class Cache
      * @param string $config Optional string configuration name to get an engine for. Defaults to 'default'.
      * @return CacheEngine|null Null if the engine has not been initialized or the engine.
      */
-    public static function engine($config = 'default')
+    public static function engine(string $config = 'default'): ?CacheEngine
     {
         if (self::isInitialized($config)) {
             return self::$_engines[$config];

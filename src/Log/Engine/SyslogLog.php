@@ -101,9 +101,9 @@ class SyslogLog extends BaseLog
      *
      * @param string $type The type of log you are making.
      * @param string $message The message you want to log.
-     * @return bool success of write.
+     * @return bool|null success of write.
      */
-    public function write($type, $message)
+    public function write(string $type, string $message): ?bool
     {
         if (!$this->_open) {
             $config = $this->_config;

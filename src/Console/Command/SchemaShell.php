@@ -60,7 +60,7 @@ class SchemaShell extends AppShell
      *
      * @return void
      */
-    public function startup()
+    public function startup(): void
     {
         $this->_welcome();
         $this->out('Cake Schema Shell');

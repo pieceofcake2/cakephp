@@ -34,7 +34,7 @@ class CompletionShell extends AppShell
      *
      * @var array
      */
-    public $tasks = ['Command'];
+    public array $tasks = ['Command'];
 
     /**
      * Echo no header by overriding the startup method

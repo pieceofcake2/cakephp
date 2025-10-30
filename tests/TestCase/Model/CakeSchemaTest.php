@@ -464,10 +464,17 @@ class CakeSchemaTest extends CakeTestCase
      *
      * @var array
      */
-    public $fixtures = [
-        'core.post', 'core.tag', 'core.posts_tag', 'core.test_plugin_comment',
-        'core.datatype', 'core.auth_user', 'core.author',
-        'core.test_plugin_article', 'core.user', 'core.comment',
+    public array $fixtures = [
+        'core.post',
+        'core.tag',
+        'core.posts_tag',
+        'core.test_plugin_comment',
+        'core.datatype',
+        'core.auth_user',
+        'core.author',
+        'core.test_plugin_article',
+        'core.user',
+        'core.comment',
         'core.prefix_test',
     ];
 

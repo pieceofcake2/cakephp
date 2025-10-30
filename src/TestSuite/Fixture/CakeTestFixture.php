@@ -281,7 +281,7 @@ class CakeTestFixture
      * @param DboSource $db An instance of the database object used to create the fixture table
      * @return bool True on success, false on failure
      */
-    public function drop($db)
+    public function drop(DboSource $db): bool
     {
         if (empty($this->fields)) {
             return false;

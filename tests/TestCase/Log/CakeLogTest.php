@@ -32,7 +32,7 @@ use Cake\TestSuite\CakeTestCase;
  */
 class CakeLogTest extends CakeTestCase
 {
-    protected $_appNamespace = null;
+    protected ?string $_appNamespace = null;
 
     /**
      * Start test callback, clears all streams enabled.

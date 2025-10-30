@@ -18,6 +18,8 @@ namespace Cake\Controller\Component\Acl;
 
 use Cake\Controller\Component;
 use Cake\Core\CakeObject;
+use Cake\Model\Aco;
+use Cake\Model\Aro;
 use Cake\Model\Model;
 use Cake\Model\Permission;
 use Cake\Utility\ClassRegistry;
@@ -44,17 +46,17 @@ use Cake\Utility\ClassRegistry;
 class DbAcl extends CakeObject implements AclInterface
 {
     /**
-     * @var Model
+     * @var Model|Permission
      */
     public Model $Permission;
 
     /**
-     * @var Model
+     * @var Model|Aro
      */
     public Model $Aro;
 
     /**
-     * @var Model
+     * @var Model|Aco
      */
     public Model $Aco;
 
@@ -76,7 +78,7 @@ class DbAcl extends CakeObject implements AclInterface
      * @param Component $component The AclComponent instance.
      * @return void
      */
-    public function initialize(Component $component)
+    public function initialize(Component $component): void
     {
         $component->Aro = $this->Aro;
         $component->Aco = $this->Aco;
@@ -85,96 +87,117 @@ class DbAcl extends CakeObject implements AclInterface
     /**
      * Checks if the given $aro has access to action $action in $aco
      *
-     * @param string $aro ARO The requesting object identifier.
-     * @param string $aco ACO The controlled object identifier.
+     * @param Model|array|string $aro ARO The requesting object identifier.
+     * @param Model|array|string $aco ACO The controlled object identifier.
      * @param string $action Action (defaults to *)
      * @return bool Success (true if ARO has access to action in ACO, false otherwise)
      * @link https://book.cakephp.org/2.0/en/core-libraries/components/access-control-lists.html#checking-permissions-the-acl-component
      */
-    public function check($aro, $aco, $action = '*')
-    {
+    public function check(
+        Model|array|string|null $aro,
+        Model|array|string|null $aco,
+        string $action = '*',
+    ): bool {
         return $this->Permission->check($aro, $aco, $action);
     }
 
     /**
      * Allow $aro to have access to action $actions in $aco
      *
-     * @param string $aro ARO The requesting object identifier.
-     * @param string $aco ACO The controlled object identifier.
-     * @param string $action Action (defaults to *)
+     * @param Model|array|string $aro ARO The requesting object identifier.
+     * @param Model|array|string $aco ACO The controlled object identifier.
+     * @param array|string $action Action (defaults to *)
      * @param int $value Value to indicate access type (1 to give access, -1 to deny, 0 to inherit)
      * @return bool Success
      * @link https://book.cakephp.org/2.0/en/core-libraries/components/access-control-lists.html#assigning-permissions
      */
-    public function allow($aro, $aco, $action = '*', $value = 1)
-    {
+    public function allow(
+        Model|array|string|null $aro,
+        Model|array|string|null $aco,
+        array|string $action = '*',
+        int $value = 1,
+    ): bool {
         return $this->Permission->allow($aro, $aco, $action, $value);
     }
 
     /**
      * Deny access for $aro to action $action in $aco
      *
-     * @param string $aro ARO The requesting object identifier.
-     * @param string $aco ACO The controlled object identifier.
+     * @param Model|array|string $aro ARO The requesting object identifier.
+     * @param Model|array|string $aco ACO The controlled object identifier.
      * @param string $action Action (defaults to *)
      * @return bool Success
      * @link https://book.cakephp.org/2.0/en/core-libraries/components/access-control-lists.html#assigning-permissions
      */
-    public function deny($aro, $aco, $action = '*')
-    {
+    public function deny(
+        Model|array|string|null $aro,
+        Model|array|string|null $aco,
+        string $action = '*',
+    ): bool {
         return $this->allow($aro, $aco, $action, -1);
     }
 
     /**
      * Let access for $aro to action $action in $aco be inherited
      *
-     * @param string $aro ARO The requesting object identifier.
-     * @param string $aco ACO The controlled object identifier.
+     * @param Model|array|string $aro ARO The requesting object identifier.
+     * @param Model|array|string $aco ACO The controlled object identifier.
      * @param string $action Action (defaults to *)
      * @return bool Success
      */
-    public function inherit($aro, $aco, $action = '*')
-    {
+    public function inherit(
+        Model|array|string|null $aro,
+        Model|array|string|null $aco,
+        string $action = '*',
+    ): bool {
         return $this->allow($aro, $aco, $action, 0);
     }
 
     /**
      * Allow $aro to have access to action $actions in $aco
      *
-     * @param string $aro ARO The requesting object identifier.
-     * @param string $aco ACO The controlled object identifier.
+     * @param Model|array|string $aro ARO The requesting object identifier.
+     * @param Model|array|string $aco ACO The controlled object identifier.
      * @param string $action Action (defaults to *)
      * @return bool Success
      * @see allow()
      */
-    public function grant($aro, $aco, $action = '*')
-    {
+    public function grant(
+        Model|array|string|null $aro,
+        Model|array|string|null $aco,
+        string $action = '*',
+    ): bool {
         return $this->allow($aro, $aco, $action);
     }
 
     /**
      * Deny access for $aro to action $action in $aco
      *
-     * @param string $aro ARO The requesting object identifier.
-     * @param string $aco ACO The controlled object identifier.
+     * @param Model|array|string $aro ARO The requesting object identifier.
+     * @param Model|array|string $aco ACO The controlled object identifier.
      * @param string $action Action (defaults to *)
      * @return bool Success
      * @see deny()
      */
-    public function revoke($aro, $aco, $action = '*')
-    {
+    public function revoke(
+        Model|array|string|null $aro,
+        Model|array|string|null $aco,
+        string $action = '*',
+    ): bool {
         return $this->deny($aro, $aco, $action);
     }
 
     /**
      * Get an array of access-control links between the given Aro and Aco
      *
-     * @param string $aro ARO The requesting object identifier.
-     * @param string $aco ACO The controlled object identifier.
-     * @return array Indexed array with: 'aro', 'aco' and 'link'
+     * @param Model|array|string $aro ARO The requesting object identifier.
+     * @param Model|array|string $aco ACO The controlled object identifier.
+     * @return array|false Indexed array with: 'aro', 'aco' and 'link'
      */
-    public function getAclLink($aro, $aco)
-    {
+    public function getAclLink(
+        Model|array|string|null $aro,
+        Model|array|string|null $aco,
+    ): array|false {
         return $this->Permission->getAclLink($aro, $aco);
     }
 

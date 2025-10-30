@@ -31,7 +31,7 @@ require_once dirname(__DIR__) . '/config/define.php';
 require_once CAKE . 'basics.php';
 require_once CAKE . 'functions.php';
 
-spl_autoload_register(['App', 'load'], true, true);
+spl_autoload_register('Cake\Core\App::load', true, true);
 
 App::$bootstrapping = true;
 

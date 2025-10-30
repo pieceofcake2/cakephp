@@ -80,11 +80,9 @@ class TestShellDispatcher extends ShellDispatcher
      *
      * @return void
      */
-    protected function _stop($status = 0)
+    protected function _stop(string|int $status = 0): void
     {
         $this->stopped = 'Stopped with status: ' . $status;
-
-        return $status;
     }
 
     /**
@@ -125,7 +123,7 @@ class TestShellDispatcher extends ShellDispatcher
  */
 class ShellDispatcherTest extends CakeTestCase
 {
-    protected $_appNamespace = null;
+    protected ?string $_appNamespace = null;
 
     /**
      * setUp method

@@ -43,9 +43,9 @@ class NumberHelper extends AppHelper
     /**
      * CakeNumber instance
      *
-     * @var CakeNumber
+     * @var CakeNumber|null
      */
-    protected $_engine = null;
+    protected ?CakeNumber $_engine = null;
 
     /**
      * Default Constructor
@@ -59,7 +59,7 @@ class NumberHelper extends AppHelper
      * @param array $settings Configuration settings for the helper
      * @throws CakeException When the engine class could not be found.
      */
-    public function __construct(View $View, $settings = [])
+    public function __construct(View $View, array $settings = [])
     {
         $settings = Hash::merge(['engine' => 'CakeNumber'], $settings);
         parent::__construct($View, $settings);
@@ -79,7 +79,7 @@ class NumberHelper extends AppHelper
      * @param array $params Parameters to pass to method.
      * @return mixed Whatever is returned by called method, or false on failure
      */
-    public function __call(string $method, array $params)
+    public function __call(string $method, array $params): mixed
     {
         return call_user_func_array([$this->_engine, $method], $params);
     }
@@ -89,11 +89,11 @@ class NumberHelper extends AppHelper
      *
      * @param float $number A floating point number.
      * @param int $precision The precision of the returned number.
-     * @return float Formatted float.
+     * @return string Formatted float.
      * @see CakeNumber::precision()
      * @link https://book.cakephp.org/2.0/en/core-libraries/helpers/number.html#NumberHelper::precision
      */
-    public function precision($number, $precision = 3)
+    public function precision(float $number, int $precision = 3): string
     {
         return $this->_engine->precision($number, $precision);
     }
@@ -106,7 +106,7 @@ class NumberHelper extends AppHelper
      * @see CakeNumber::toReadableSize()
      * @link https://book.cakephp.org/2.0/en/core-libraries/helpers/number.html#NumberHelper::toReadableSize
      */
-    public function toReadableSize($size)
+    public function toReadableSize(int $size): string
     {
         return $this->_engine->toReadableSize($size);
     }
@@ -134,13 +134,13 @@ class NumberHelper extends AppHelper
      * Formats a number into a currency format.
      *
      * @param float $number A floating point number
-     * @param int $options If integer then places, if string then before, if (,.-) then use it
+     * @param array|string|int|false $options If integer then places, if string then before, if (,.-) then use it
      *   or array with places and before keys
      * @return string formatted number
      * @see CakeNumber::format()
      * @link https://book.cakephp.org/2.0/en/core-libraries/helpers/number.html#NumberHelper::format
      */
-    public function format($number, $options = false)
+    public function format(float $number, array|string|int|false $options = false): string
     {
         return $this->_engine->format($number, $options);
     }
@@ -149,7 +149,7 @@ class NumberHelper extends AppHelper
      * Formats a number into a currency format.
      *
      * @param float $number Number to format.
-     * @param string $currency Shortcut to default options. Valid values are 'USD', 'EUR', 'GBP', otherwise
+     * @param string|null $currency Shortcut to default options. Valid values are 'USD', 'EUR', 'GBP', otherwise
      *   set at least 'before' and 'after' options.
      * 'USD' is the default currency, use CakeNumber::defaultCurrency() to change this default.
      * @param array $options Options list.
@@ -157,7 +157,7 @@ class NumberHelper extends AppHelper
      * @see CakeNumber::currency()
      * @link https://book.cakephp.org/2.0/en/core-libraries/helpers/number.html#NumberHelper::currency
      */
-    public function currency($number, $currency = null, $options = [])
+    public function currency(float $number, ?string $currency = null, array $options = []): string
     {
         return $this->_engine->currency($number, $currency, $options);
     }
@@ -181,19 +181,19 @@ class NumberHelper extends AppHelper
      * @see CakeNumber::addFormat()
      * @link https://book.cakephp.org/2.0/en/core-libraries/helpers/number.html#NumberHelper::addFormat
      */
-    public function addFormat($formatName, $options)
+    public function addFormat(string $formatName, array $options): void
     {
-        return $this->_engine->addFormat($formatName, $options);
+        $this->_engine->addFormat($formatName, $options);
     }
 
     /**
      * Getter/setter for default currency
      *
-     * @param string $currency The currency to be used in the future.
+     * @param string|null $currency The currency to be used in the future.
      * @return string Currency
      * @see CakeNumber::defaultCurrency()
      */
-    public function defaultCurrency($currency)
+    public function defaultCurrency(?string $currency = null): string
     {
         return $this->_engine->defaultCurrency($currency);
     }

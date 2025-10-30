@@ -24,6 +24,7 @@ use AppHelper;
 use Cake\Core\App;
 use Cake\Utility\Xml;
 use DateTime;
+use DateTimeInterface;
 
 App::uses('AppHelper', 'View/Helper');
 
@@ -287,12 +288,12 @@ class RssHelper extends AppHelper
     /**
      * Converts a time in any format to an RSS time
      *
-     * @param DateTime|string|int $time UNIX timestamp or valid time string or DateTime object.
+     * @param DateTimeInterface|string|int|null $time UNIX timestamp or valid time string or DateTime object.
      * @return string An RSS-formatted timestamp
      * @see TimeHelper::toRSS
      * @link https://book.cakephp.org/2.0/en/core-libraries/helpers/rss.html#RssHelper::time
      */
-    public function time($time)
+    public function time(DateTimeInterface|string|int|null $time): string
     {
         return $this->Time->toRSS($time);
     }

@@ -103,7 +103,9 @@ class ConsoleErrorHandlerTest extends CakeTestCase
     public function testCakeErrors()
     {
         $exception = new MissingActionException('Missing action');
-        ConsoleErrorHandler::$stderr->expects($this->once())->method('write')
+        ConsoleErrorHandler::$stderr
+            ->expects($this->once())
+            ->method('write')
             ->with($this->stringContains('Missing action'));
 
         $this->Error->expects($this->once())
@@ -122,7 +124,9 @@ class ConsoleErrorHandlerTest extends CakeTestCase
     {
         $exception = new InvalidArgumentException('Too many parameters.');
 
-        ConsoleErrorHandler::$stderr->expects($this->once())->method('write')
+        ConsoleErrorHandler::$stderr
+            ->expects($this->once())
+            ->method('write')
             ->with($this->stringContains('Too many parameters.'));
 
         $this->Error->expects($this->once())
@@ -141,7 +145,9 @@ class ConsoleErrorHandlerTest extends CakeTestCase
     {
         $exception = new NotFoundException('dont use me in cli.');
 
-        ConsoleErrorHandler::$stderr->expects($this->once())->method('write')
+        ConsoleErrorHandler::$stderr
+            ->expects($this->once())
+            ->method('write')
             ->with($this->stringContains('dont use me in cli.'));
 
         $this->Error->expects($this->once())
@@ -160,7 +166,9 @@ class ConsoleErrorHandlerTest extends CakeTestCase
     {
         $exception = new InternalErrorException('dont use me in cli.');
 
-        ConsoleErrorHandler::$stderr->expects($this->once())->method('write')
+        ConsoleErrorHandler::$stderr
+            ->expects($this->once())
+            ->method('write')
             ->with($this->stringContains('dont use me in cli.'));
 
         $this->Error->expects($this->once())
@@ -184,7 +192,9 @@ class ConsoleErrorHandlerTest extends CakeTestCase
         $property->setAccessible(true);
         $property->setValue($exception, '42S22');
 
-        ConsoleErrorHandler::$stderr->expects($this->once())->method('write')
+        ConsoleErrorHandler::$stderr
+            ->expects($this->once())
+            ->method('write')
             ->with($this->stringContains('Non-integer exception code'));
 
         $this->Error->expects($this->once())

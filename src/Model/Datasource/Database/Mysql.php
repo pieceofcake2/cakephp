@@ -909,7 +909,7 @@ class Mysql extends DboSource
     /**
      * @inheritDoc
      */
-    public function value($data, ?string $column = null, bool $null = true): array|string
+    public function value(mixed $data, ?string $column = null, bool $null = true): array|string
     {
         $value = parent::value($data, $column, $null);
         if (is_numeric($value) && $column !== null && str_starts_with($column, 'set')) {

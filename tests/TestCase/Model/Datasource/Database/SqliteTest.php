@@ -25,6 +25,7 @@ use Cake\Error\MissingConnectionException;
 use Cake\Model\CakeSchema;
 use Cake\Model\ConnectionManager;
 use Cake\Model\Datasource\Database\Sqlite;
+use Cake\Model\Datasource\DboSource;
 use Cake\Model\Model;
 use Cake\Test\TestCase\Model\TestModel;
 use Cake\Test\TestCase\Model\User;
@@ -86,21 +87,25 @@ class SqliteTest extends CakeTestCase
      *
      * @var bool
      */
-    public $autoFixtures = false;
+    public bool $autoFixtures = false;
 
     /**
      * Fixtures
      *
-     * @var object
+     * @var array
      */
-    public $fixtures = ['core.user', 'core.uuid', 'core.datatype'];
+    public array $fixtures = [
+        'core.user',
+        'core.uuid',
+        'core.datatype',
+    ];
 
     /**
      * Actual DB connection used in testing
      *
-     * @var DboSource
+     * @var DboSource|null
      */
-    public $Dbo = null;
+    public ?DboSource $Dbo = null;
 
     /**
      * Sets up a Dbo class instance for testing

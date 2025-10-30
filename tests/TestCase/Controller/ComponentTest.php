@@ -54,9 +54,9 @@ class ComponentTestController extends Controller
     /**
      * uses property
      *
-     * @var array||bool
+     * @var array|bool|null
      */
-    public array|bool $uses = [];
+    public array|bool|null $uses = [];
 }
 class_alias(ComponentTestController::class, 'App\\Controller\\ComponentTestController');
 
@@ -114,7 +114,7 @@ class OrangeComponent extends Component
      * @param Controller $controller
      * @return void
      */
-    public function initialize(Controller $controller)
+    public function initialize(Controller $controller): void
     {
         $this->Controller = $controller;
         $this->Banana->testField = 'OrangeField';

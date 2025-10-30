@@ -690,8 +690,9 @@ class CakeResponseTest extends CakeTestCase
 
         $response = $this->getMock(CakeResponse::class, ['_sendHeader', '_sendContent']);
         $response->length(false);
-        $this->assertFalse($response->length());
-        $response->expects($this->exactly(2))
+        $this->assertNull($response->length());
+        $response
+            ->expects($this->exactly(2))
             ->method('_sendHeader');
         $response->send();
     }
@@ -1657,6 +1658,8 @@ class CakeResponseTest extends CakeTestCase
             ->method('header')
             ->willReturnCallback(function () use (&$headerCalls) {
                 $headerCalls[] = func_get_args();
+
+                return [];
             });
 
         $response->expects($this->never())
@@ -1822,6 +1825,8 @@ class CakeResponseTest extends CakeTestCase
             ->method('header')
             ->willReturnCallback(function () use (&$headerCalls) {
                 $headerCalls[] = func_get_args();
+
+                return [];
             });
 
         $response->expects($this->any())
@@ -2003,6 +2008,8 @@ class CakeResponseTest extends CakeTestCase
             ->method('header')
             ->willReturnCallback(function () use (&$headerCalls) {
                 $headerCalls[] = func_get_args();
+
+                return [];
             });
 
         $response->expects($this->any())

@@ -26,6 +26,7 @@ use Cake\Utility\CakeTime;
 use DateTime;
 use DateTimeZone;
 use Locale;
+use TypeError;
 use function PHP81_BC\strftime;
 
 /**
@@ -40,7 +41,11 @@ class CakeTimeTest extends CakeTestCase
      *
      * @var string
      */
-    protected $_systemTimezoneIdentifier = null;
+    protected ?string $_systemTimezoneIdentifier = null;
+
+    public ?CakeTime $Time = null;
+
+    protected ?string $_locale = null;
 
     /**
      * setUp method
@@ -50,9 +55,12 @@ class CakeTimeTest extends CakeTestCase
     public function setUp(): void
     {
         parent::setUp();
+
         $this->Time = new CakeTime();
         $this->_systemTimezoneIdentifier = date_default_timezone_get();
         Configure::write('Config.language', 'eng');
+        $this->_locale = Locale::getDefault();
+        Locale::setDefault('en_Us');
     }
 
     /**
@@ -62,8 +70,9 @@ class CakeTimeTest extends CakeTestCase
      */
     public function tearDown(): void
     {
-        unset($this->Time);
+        $this->Time = null;
         $this->_restoreSystemTimezone();
+        Locale::setDefault($this->_locale);
 
         parent::tearDown();
     }
@@ -147,9 +156,9 @@ class CakeTimeTest extends CakeTestCase
     /**
      * provider for timeAgo with an end date.
      *
-     * @return void
+     * @return array
      */
-    public function timeAgoEndProvider()
+    public function timeAgoEndProvider(): array
     {
         return [
             [
@@ -194,9 +203,12 @@ class CakeTimeTest extends CakeTestCase
      * test the end option for timeAgoInWords
      *
      * @dataProvider timeAgoEndProvider
+     * @param string $input
+     * @param string $expected
+     * @param string $end
      * @return void
      */
-    public function testTimeAgoInWordsEnd($input, $expected, $end)
+    public function testTimeAgoInWordsEnd(string $input, string $expected, string $end): void
     {
         $result = $this->Time->timeAgoInWords(
             $input,
@@ -604,8 +616,6 @@ class CakeTimeTest extends CakeTestCase
         $expected = date('l jS \of F Y h:i:s A', $time);
         $this->assertEquals($expected, $result);
 
-        $this->assertFalse($this->Time->toServer(time(), new CakeObject()));
-
         date_default_timezone_set('UTC');
 
         $serverTime = new DateTime('2012-12-11 14:15:20');
@@ -626,6 +636,12 @@ class CakeTimeTest extends CakeTestCase
         $this->assertEquals($expected, $result);
 
         $this->_restoreSystemTimezone();
+    }
+
+    public function testTypeError()
+    {
+        $this->expectException(TypeError::class);
+        $this->assertFalse($this->Time->toServer(time(), new CakeObject()));
     }
 
     /**

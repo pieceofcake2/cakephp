@@ -119,6 +119,8 @@ class ConsoleOutputTest extends CakeTestCase
             ->method('_write')
             ->willReturnCallback(function ($arg) use (&$actualCalls) {
                 $actualCalls[] = $arg;
+
+                return 0;
             });
 
         $this->output->write($testString, 0);

@@ -66,14 +66,17 @@ class SanitizeTest extends CakeTestCase
      *
      * @var bool
      */
-    public $autoFixtures = false;
+    public bool $autoFixtures = false;
 
     /**
      * fixtures property
      *
      * @var array
      */
-    public $fixtures = ['core.data_test', 'core.article'];
+    public array $fixtures = [
+        'core.data_test',
+        'core.article',
+    ];
 
     /**
      * testEscapeAlphaNumeric method

@@ -148,7 +148,7 @@ class SqlserverTestModel extends CakeTestModel
      *
      * @var array
      */
-    protected $_schema = [
+    protected ?array $_schema = [
         'id' => ['type' => 'integer', 'null' => '', 'default' => '', 'length' => '8', 'key' => 'primary'],
         'client_id' => ['type' => 'integer', 'null' => '', 'default' => '0', 'length' => '11'],
         'name' => ['type' => 'string', 'null' => '', 'default' => '', 'length' => '255'],
@@ -187,10 +187,14 @@ class SqlserverTestModel extends CakeTestModel
      * @param mixed $fields
      * @param mixed $order
      * @param mixed $recursive
-     * @return mixed
+     * @return array|int|false|null
      */
-    public function find($conditions = null, $fields = null, $order = null, $recursive = null)
-    {
+    public function find(
+        $conditions = null,
+        $fields = null,
+        $order = null,
+        $recursive = null,
+    ): array|int|false|null {
         return $conditions;
     }
 }
@@ -215,7 +219,7 @@ class SqlserverClientTestModel extends CakeTestModel
      *
      * @var array
      */
-    protected $_schema = [
+    protected ?array $_schema = [
         'id' => ['type' => 'integer', 'null' => '', 'default' => '', 'length' => '8', 'key' => 'primary'],
         'name' => ['type' => 'string', 'null' => '', 'default' => '', 'length' => '255'],
         'email' => ['type' => 'string', 'null' => '1', 'default' => '', 'length' => '155'],
@@ -268,23 +272,28 @@ class SqlserverTest extends CakeTestCase
     /**
      * The Dbo instance to be tested
      *
-     * @var DboSource
+     * @var DboSource|null
      */
-    public $db = null;
+    public ?DboSource $db = null;
 
     /**
      * autoFixtures property
      *
      * @var bool
      */
-    public $autoFixtures = false;
+    public bool $autoFixtures = false;
 
     /**
      * fixtures property
      *
      * @var array
      */
-    public $fixtures = ['core.user', 'core.category', 'core.author', 'core.post'];
+    public array $fixtures = [
+        'core.user',
+        'core.category',
+        'core.author',
+        'core.post',
+    ];
 
     /**
      * Sets up a Dbo class instance for testing

@@ -219,7 +219,13 @@ class AclNodeTest extends CakeTestCase
      *
      * @var array
      */
-    public $fixtures = ['core.aro', 'core.aco', 'core.aros_aco', 'core.aco_action', 'core.auth_user'];
+    public array $fixtures = [
+        'core.aro',
+        'core.aco',
+        'core.aros_aco',
+        'core.aco_action',
+        'core.auth_user',
+    ];
 
     /**
      * setUp method

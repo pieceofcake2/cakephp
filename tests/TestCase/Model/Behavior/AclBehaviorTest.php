@@ -197,7 +197,14 @@ class AclBehaviorTest extends CakeTestCase
      *
      * @var array
      */
-    public array $fixtures = ['core.person', 'core.user', 'core.post', 'core.aco', 'core.aro', 'core.aros_aco'];
+    public array $fixtures = [
+        'core.person',
+        'core.user',
+        'core.post',
+        'core.aco',
+        'core.aro',
+        'core.aros_aco',
+    ];
 
     /**
      * Set up the test

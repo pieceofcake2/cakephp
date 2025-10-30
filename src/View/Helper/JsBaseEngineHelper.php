@@ -46,7 +46,7 @@ abstract class JsBaseEngineHelper extends AppHelper
      *
      * @var array
      */
-    protected $_optionMap = [];
+    protected array $_optionMap = [];
 
     /**
      * An array of lowercase method names in the Engine that are buffered unless otherwise disabled.
@@ -61,7 +61,7 @@ abstract class JsBaseEngineHelper extends AppHelper
      *
      * @var array
      */
-    protected $_callbackArguments = [];
+    protected array $_callbackArguments = [];
 
     /**
      * Create an `alert()` message in JavaScript
@@ -78,10 +78,10 @@ abstract class JsBaseEngineHelper extends AppHelper
      * Redirects to a URL. Creates a window.location modification snippet
      * that can be used to trigger 'redirects' from JavaScript.
      *
-     * @param array|string $url URL
+     * @param array|string|null $url URL
      * @return string completed redirect in javascript
      */
-    public function redirect($url = null)
+    public function redirect(array|string|null $url = null): string
     {
         return 'window.location = "' . Router::url($url) . '";';
     }
@@ -151,11 +151,11 @@ abstract class JsBaseEngineHelper extends AppHelper
      * Converts a PHP-native variable of any type to a JSON-equivalent representation
      *
      * @param mixed $val A PHP variable to be converted to JSON
-     * @param bool $quoteString If false, leaves string values unquoted
+     * @param bool|null $quoteString If false, leaves string values unquoted
      * @param string $key Key name.
      * @return string a JavaScript-safe/JSON representation of $val
      */
-    public function value($val = [], $quoteString = null, $key = 'value'): string
+    public function value(mixed $val = [], $quoteString = null, string $key = 'value'): string
     {
         if ($quoteString === null) {
             $quoteString = true;
@@ -171,7 +171,6 @@ abstract class JsBaseEngineHelper extends AppHelper
                 $val = $val === true ? 'true' : 'false';
                 break;
             case is_int($val):
-                $val = $val;
                 break;
             case is_float($val):
                 $val = sprintf('%.11f', $val);
@@ -198,7 +197,7 @@ abstract class JsBaseEngineHelper extends AppHelper
      * @param string $string String that needs to get escaped.
      * @return string Escaped string.
      */
-    public function escape($string)
+    public function escape(string $string): string
     {
         return $this->_utf8ToHex($string);
     }
@@ -209,7 +208,7 @@ abstract class JsBaseEngineHelper extends AppHelper
      * @param string $string The string that needs to be utf8->hex encoded
      * @return string
      */
-    protected function _utf8ToHex($string)
+    protected function _utf8ToHex(string $string): string
     {
         $length = strlen($string);
         $return = '';
@@ -306,7 +305,7 @@ abstract class JsBaseEngineHelper extends AppHelper
      * @param string $selector The selector that is targeted
      * @return self instance of $this. Allows chained methods.
      */
-    abstract public function get($selector);
+    abstract public function get(string $selector): self;
 
     /**
      * Add an event to the script cache. Operates on the currently selected elements.
@@ -321,7 +320,7 @@ abstract class JsBaseEngineHelper extends AppHelper
      * @param array $options Options for the event.
      * @return string completed event handler
      */
-    abstract public function event($type, $callback, $options = []);
+    abstract public function event(string $type, string $callback, array $options = []): string;
 
     /**
      * Create a domReady event. This is a special event in many libraries
@@ -329,7 +328,7 @@ abstract class JsBaseEngineHelper extends AppHelper
      * @param string $functionBody The code to run on domReady
      * @return string completed domReady method
      */
-    abstract public function domReady($functionBody);
+    abstract public function domReady(string $functionBody): string;
 
     /**
      * Create an iteration over the current selection result.
@@ -337,7 +336,7 @@ abstract class JsBaseEngineHelper extends AppHelper
      * @param string $callback The function body you wish to apply during the iteration.
      * @return string completed iteration
      */
-    abstract public function each($callback);
+    abstract public function each(string $callback): string;
 
     /**
      * Trigger an Effect.
@@ -362,7 +361,7 @@ abstract class JsBaseEngineHelper extends AppHelper
      * @param array $options Array of options for the effect.
      * @return string completed string with effect.
      */
-    abstract public function effect($name, $options = []);
+    abstract public function effect(string $name, array $options = []): string;
 
     /**
      * Make an XHR request
@@ -389,7 +388,7 @@ abstract class JsBaseEngineHelper extends AppHelper
      * @param array $options Array of options. See above for cross library supported options
      * @return string XHR request.
      */
-    abstract public function request($url, $options = []);
+    abstract public function request(array|string $url, array $options = []): string;
 
     /**
      * Create a draggable element. Works on the currently selected element.
@@ -410,7 +409,7 @@ abstract class JsBaseEngineHelper extends AppHelper
      * @param array $options Options array see above.
      * @return string Completed drag script
      */
-    abstract public function drag($options = []);
+    abstract public function drag(array $options = []): string;
 
     /**
      * Create a droppable element. Allows for draggable elements to be dropped on it.
@@ -430,7 +429,7 @@ abstract class JsBaseEngineHelper extends AppHelper
      * @param array $options Array of options for the drop. See above.
      * @return string Completed drop script
      */
-    abstract public function drop($options = []);
+    abstract public function drop(array $options = []): string;
 
     /**
      * Create a sortable element.
@@ -453,7 +452,7 @@ abstract class JsBaseEngineHelper extends AppHelper
      * @param array $options Array of options for the sortable. See above.
      * @return string Completed sortable script.
      */
-    abstract public function sortable($options = []);
+    abstract public function sortable(array $options = []): string;
 
     /**
      * Create a slider UI widget. Comprised of a track and knob.
@@ -476,7 +475,7 @@ abstract class JsBaseEngineHelper extends AppHelper
      * @param array $options Array of options for the slider. See above.
      * @return string Completed slider script
      */
-    abstract public function slider($options = []);
+    abstract public function slider(array $options = []): string;
 
     /**
      * Serialize the form attached to $selector.
@@ -492,7 +491,7 @@ abstract class JsBaseEngineHelper extends AppHelper
      * @param array $options options for serialization generation.
      * @return string completed form serialization script
      */
-    abstract public function serializeForm($options = []);
+    abstract public function serializeForm(array $options = []): string;
 
     /**
      * Parse an options assoc array into a JavaScript object literal.

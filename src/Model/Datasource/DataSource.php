@@ -84,6 +84,11 @@ class DataSource extends CakeObject
     public bool $cacheSources = true;
 
     /**
+     * @var array
+     */
+    public array $columns = [];
+
+    /**
      * Constructor.
      *
      * @param array $config Array of configuration information for the datasource.
@@ -282,7 +287,7 @@ class DataSource extends CakeObject
      * @param mixed $source The source name.
      * @return int Number of rows affected by last query.
      */
-    public function lastAffected($source = null)
+    public function lastAffected(mixed $source = null): int|false
     {
         return false;
     }
@@ -428,7 +433,7 @@ class DataSource extends CakeObject
      * @param bool $null Column allows NULL values
      * @return array|string Quoted and escaped data
      */
-    public function value($data, ?string $column = null, bool $null = true): array|string
+    public function value(mixed $data, ?string $column = null, bool $null = true): array|string
     {
         return '';
     }

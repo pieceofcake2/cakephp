@@ -87,7 +87,7 @@ class ConnectionManager
      * Gets a reference to a DataSource object
      *
      * @param string $name The name of the DataSource, as defined in app/Config/database.php
-     * @return DataSource|DboSource Instance
+     * @return DataSource Instance
      * @throws MissingDatasourceException
      */
     public static function getDataSource(string $name): DataSource
@@ -108,7 +108,7 @@ class ConnectionManager
         $conn = static::$_connectionsEnum[$name];
         $class = $conn['classname'];
 
-        if (!class_exists($class) && !str_contains(App::location($class), 'Datasource')) {
+        if (!class_exists($class)) {
             throw new MissingDatasourceException([
                 'class' => $class,
                 'plugin' => null,
@@ -119,6 +119,31 @@ class ConnectionManager
         static::$_dataSources[$name]->configKeyName = $name;
 
         return static::$_dataSources[$name];
+    }
+
+    /**
+     * Gets a reference to a DataSource object
+     *
+     * @param string $name The name of the DataSource, as defined in app/Config/database.php
+     * @return DboSource Instance
+     * @throws MissingDatasourceException
+     */
+    public static function getDboSource(string $name): DboSource
+    {
+        $dataSource = static::getDataSource($name);
+
+        if (!$dataSource instanceof DboSource) {
+            $conn = static::$_connectionsEnum[$name];
+            $class = $conn['classname'];
+
+            throw new MissingDatasourceException([
+                'class' => $class,
+                'plugin' => null,
+                'message' => 'DboSource is not found in Model/Datasource package.',
+            ]);
+        }
+
+        return $dataSource;
     }
 
     /**

@@ -92,7 +92,7 @@ class BlueberryComponent extends Component
      * @param Controller $controller
      * @return void
      */
-    public function initialize(Controller $controller)
+    public function initialize(Controller $controller): void
     {
         $this->testName = 'BlueberryComponent';
     }
@@ -108,9 +108,9 @@ class TestErrorController extends Controller
     /**
      * uses property
      *
-     * @var array||bool
+     * @var array|bool|null
      */
-    public array|bool $uses = [];
+    public array|bool|null $uses = [];
 
     /**
      * components property
@@ -176,7 +176,7 @@ class MissingWidgetThingException extends NotFoundException
  */
 class ExceptionRendererTest extends CakeTestCase
 {
-    protected $_appNamespace = null;
+    protected ?string $_appNamespace = null;
 
     protected $_restoreError = false;
 

@@ -71,9 +71,9 @@ class TestBehavior extends ModelBehavior
      *
      * @param Model $model
      * @param array $query
-     * @return array|bool
+     * @return array|bool|null
      */
-    public function beforeFind(Model $model, $query)
+    public function beforeFind(Model $model, array $query): array|bool|null
     {
         $settings = $this->settings[$model->alias];
         if (!isset($settings['beforeFind']) || $settings['beforeFind'] === 'off') {
@@ -100,7 +100,7 @@ class TestBehavior extends ModelBehavior
      * @param bool $primary
      * @return array|bool
      */
-    public function afterFind(Model $model, $results, $primary = false)
+    public function afterFind(Model $model, mixed $results, bool $primary = false): mixed
     {
         $settings = $this->settings[$model->alias];
         if (!isset($settings['afterFind']) || $settings['afterFind'] === 'off') {
@@ -116,6 +116,8 @@ class TestBehavior extends ModelBehavior
             case 'modify':
                 return Hash::extract($results, "{n}.{$model->alias}");
         }
+
+        return null;
     }
 
     /**
@@ -494,7 +496,7 @@ class_alias(TestAliasBehavior::class, 'App\\Model\\Behavior\\TestAliasBehavior')
  */
 class FirstBehavior extends ModelBehavior
 {
-    public function beforeFind(Model $model, $query = [])
+    public function beforeFind(Model $model, array $query = []): array|bool|null
     {
         $model->called[] = static::class;
 
@@ -540,9 +542,16 @@ class BehaviorCollectionTest extends CakeTestCase
      *
      * @var array
      */
-    public $fixtures = [
-        'core.apple', 'core.sample', 'core.article', 'core.user', 'core.comment',
-        'core.attachment', 'core.tag', 'core.articles_tag', 'core.translate',
+    public array $fixtures = [
+        'core.apple',
+        'core.sample',
+        'core.article',
+        'core.user',
+        'core.comment',
+        'core.attachment',
+        'core.tag',
+        'core.articles_tag',
+        'core.translate',
         'core.device',
     ];
 

@@ -176,15 +176,15 @@ if (!function_exists('h')) {
     /**
      * Convenience method for htmlspecialchars.
      *
-     * @param object|array|string $text Text to wrap through htmlspecialchars. Also works with arrays, and objects.
+     * @param object|array|string|bool|null $text Text to wrap through htmlspecialchars. Also works with arrays, and objects.
      *    Arrays will be mapped and have all their elements escaped. Objects will be string cast if they
      *    implement a `__toString` method. Otherwise the class name will be used.
      * @param string|bool $double Boolean - encode existing html entities. String - character set to use when escaping.
      * @param string|null $charset Character set to use when escaping. Defaults to config value in 'App.encoding' or 'UTF-8'
-     * @return object|array|string|bool Wrapped text, Wrapped Array or Wrapped Object.
+     * @return array|string|bool Wrapped text, Wrapped Array or Wrapped Object.
      * @link https://book.cakephp.org/2.0/en/core-libraries/global-constants-and-functions.html#h
      */
-    function h($text, string|bool $double = true, $charset = null)
+    function h(object|array|string|bool|null $text, string|bool $double = true, ?string $charset = null): array|string|bool
     {
         if (is_array($text)) {
             $texts = [];
@@ -406,12 +406,12 @@ if (!function_exists('cache')) {
      *
      * @param string $path File path within /tmp to save the file.
      * @param mixed $data The data to save to the temporary file.
-     * @param string|null $expires A valid strtotime string when the data expires.
+     * @param string|int|null $expires A valid strtotime string when the data expires.
      * @param string $target The target of the cached data; either 'cache' or 'public'.
      * @return mixed The contents of the temporary file.
      * @deprecated 3.0.0 Will be removed in 3.0. Please use Cache::write() instead.
      */
-    function cache(string $path, $data = null, string|int $expires = '+1 day', string $target = 'cache')
+    function cache(string $path, mixed $data = null, string|int|null $expires = '+1 day', string $target = 'cache'): mixed
     {
         if (Configure::read('Cache.disable')) {
             return null;
@@ -437,27 +437,19 @@ if (!function_exists('cache')) {
         $filetime = false;
 
         if (file_exists($filename)) {
-            //@codingStandardsIgnoreStart
-            $filetime = @filemtime($filename);
-            //@codingStandardsIgnoreEnd
+            $filetime = @filemtime($filename); // phpcs:ignore
         }
 
         if ($data === null) {
             if (file_exists($filename) && $filetime !== false) {
                 if ($filetime + $timediff < $now) {
-                    //@codingStandardsIgnoreStart
-                    @unlink($filename);
-                    //@codingStandardsIgnoreEnd
+                    @unlink($filename); // phpcs:ignore
                 } else {
-                    //@codingStandardsIgnoreStart
-                    $data = @file_get_contents($filename);
-                    //@codingStandardsIgnoreEnd
+                    $data = @file_get_contents($filename); // phpcs:ignore
                 }
             }
         } elseif (is_writable(dirname($filename))) {
-            //@codingStandardsIgnoreStart
-            @file_put_contents($filename, $data, LOCK_EX);
-            //@codingStandardsIgnoreEnd
+            @file_put_contents($filename, $data, LOCK_EX); // phpcs:ignore
         }
 
         return $data;

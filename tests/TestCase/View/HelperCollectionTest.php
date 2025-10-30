@@ -43,7 +43,7 @@ class_alias(HtmlAliasHelper::class, 'TestApp\\View\\Helper\\HtmlAliasHelper');
  */
 class HelperCollectionTest extends CakeTestCase
 {
-    protected $_appNamespace = null;
+    protected ?string $_appNamespace = null;
 
     /**
      * setUp

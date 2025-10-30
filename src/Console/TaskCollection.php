@@ -35,23 +35,28 @@ class TaskCollection extends ObjectCollection
      *
      * @var Shell
      */
-    protected $_Shell;
+    protected Shell $_Shell;
 
     /**
      * The directory inside each shell path that contains tasks.
      *
      * @var string
      */
-    public $taskPathPrefix = 'tasks/';
+    public string $taskPathPrefix = 'tasks/';
+
+    /**
+     * @var array<Shell>
+     */
+    protected array $_loaded = [];
 
     /**
      * Constructor
      *
-     * @param Shell $Shell The shell this task collection is attached to.
+     * @param Shell $shell The shell this task collection is attached to.
      */
-    public function __construct(Shell $Shell)
+    public function __construct(Shell $shell)
     {
-        $this->_Shell = $Shell;
+        $this->_Shell = $shell;
     }
 
     /**
@@ -59,39 +64,39 @@ class TaskCollection extends ObjectCollection
      *
      * You can alias your task as an existing task by setting the 'className' key, i.e.,
      * ```
-     * public $tasks = array(
-     * 'DbConfig' => array(
-     * 'className' => 'Bakeplus.DbConfigure'
-     * );
-     * );
+     * public $tasks = [
+     *     'DbConfig' => [
+     *         'className' => 'Bakeplus.DbConfigure',
+     *     ];
+     * ];
      * ```
      * All calls to the `DbConfig` task would use `DbConfigure` found in the `Bakeplus` plugin instead.
      *
-     * @param string $task Task name to load
-     * @param array $settings Settings for the task.
-     * @return AppShell A task object, Either the existing loaded task or a new one.
+     * @param string $name Task name to load
+     * @param array $options Settings for the task.
+     * @return Shell A task object, Either the existing loaded task or a new one.
      * @throws MissingTaskException when the task could not be found
      */
-    public function load($task, $settings = [])
+    public function load($name, array $options = []): Shell
     {
-        if (is_array($settings) && isset($settings['className'])) {
-            $alias = $task;
-            $task = $settings['className'];
-        }
-        [$plugin, $name] = pluginSplit($task, true);
-        if (!isset($alias)) {
+        if (isset($options['className'])) {
             $alias = $name;
+            $name = $options['className'];
+        }
+        [$plugin, $_name] = pluginSplit($name, true);
+        if (!isset($alias)) {
+            $alias = $_name;
         }
 
         if (isset($this->_loaded[$alias])) {
             return $this->_loaded[$alias];
         }
 
-        $taskClass = App::className($task, 'Console/Command/Task', 'Task');
+        $taskClass = App::className($name, 'Console/Command/Task', 'Task');
 
         if (!$taskClass) {
             throw new MissingTaskException([
-                'class' => $name . 'Task',
+                'class' => $_name . 'Task',
                 'plugin' => $plugin ? substr($plugin, 0, -1) : null,
             ]);
         }
