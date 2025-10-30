@@ -305,6 +305,51 @@ class User extends AppModel
 
 **Your existing non-namespaced application will continue to work without any changes** thanks to the LegacyClassLoader. This migration is completely optional and can be done at your own pace.
 
+### EmailConfig Must Implement EmailConfigInterface ([PR #32](https://github.com/pieceofcake2/cakephp/pull/32))
+
+All email configuration classes must now implement `EmailConfigInterface`. This change improves type safety and ensures consistent email configuration across applications.
+
+#### What Changed
+
+- `EmailConfig` class must implement `Cake\Network\Email\EmailConfigInterface`
+- The interface requires all email configuration classes to define email settings as public properties
+
+#### Impact on Your Application
+
+If you have a custom `EmailConfig` class in `app/Config/email.php` or `config/email.php`, you need to update it to implement the interface:
+
+**Before:**
+```php
+<?php
+class EmailConfig
+{
+    public $default = [
+        'transport' => 'Mail',
+        'from' => 'you@localhost',
+    ];
+}
+```
+
+**After:**
+```php
+<?php
+use Cake\Network\Email\EmailConfigInterface;
+
+class EmailConfig implements EmailConfigInterface
+{
+    public $default = [
+        'transport' => 'Mail',
+        'from' => 'you@localhost',
+    ];
+}
+```
+
+#### Migration Steps
+
+1. Add the `use` statement for `EmailConfigInterface` at the top of your `EmailConfig` class file
+2. Add `implements EmailConfigInterface` to your `EmailConfig` class declaration
+3. Ensure all email configurations are defined as public properties (arrays)
+
 ### Directory Structure Modernization ([PR #21](https://github.com/pieceofcake2/cakephp/pull/21))
 
 - **Directory layout has been restructured to modern standards**
