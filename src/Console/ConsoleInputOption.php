@@ -106,9 +106,9 @@ class ConsoleInputOption
     /**
      * Get the value of the name attribute.
      *
-     * @return string Value of this->_name.
+     * @return array|string Value of this->_name.
      */
-    public function name()
+    public function name(): array|string
     {
         return $this->_name;
     }
@@ -116,9 +116,9 @@ class ConsoleInputOption
     /**
      * Get the value of the short attribute.
      *
-     * @return string Value of this->_short.
+     * @return string|null Value of this->_short.
      */
-    public function short()
+    public function short(): ?string
     {
         return $this->_short;
     }
@@ -129,7 +129,7 @@ class ConsoleInputOption
      * @param int $width The width to make the name of the option.
      * @return string
      */
-    public function help($width = 0)
+    public function help(int $width = 0): string
     {
         $default = $short = '';
         if (!empty($this->_default) && $this->_default !== true) {

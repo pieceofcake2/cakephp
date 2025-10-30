@@ -77,9 +77,9 @@ class ConsoleInputSubcommand
     /**
      * Get the value of the name attribute.
      *
-     * @return string Value of this->_name.
+     * @return array|string Value of this->_name.
      */
-    public function name()
+    public function name(): array|string
     {
         return $this->_name;
     }

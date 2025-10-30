@@ -180,7 +180,7 @@ class ApiShell extends AppShell
      *
      * @return void
      */
-    public function help()
+    public function help(): void
     {
         $head = "Usage: cake api [<type>] <className> [-m <method>]\n";
         $head .= "-----------------------------------------------\n";

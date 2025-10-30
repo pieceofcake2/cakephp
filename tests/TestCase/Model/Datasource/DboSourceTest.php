@@ -82,9 +82,11 @@ class DboTestSource extends DboSource
 {
     public $nestedSupport = false;
 
-    public function connect($config = [])
+    public function connect(): bool
     {
         $this->connected = true;
+
+        return true;
     }
 
     public function mergeAssociation(&$data, &$merge, $association, $type, $selfJoin = false)
@@ -92,7 +94,7 @@ class DboTestSource extends DboSource
         return parent::_mergeAssociation($data, $merge, $association, $type, $selfJoin);
     }
 
-    public function setConfig($config = [])
+    public function setConfig(array $config = []): void
     {
         $this->config = $config;
     }
@@ -120,9 +122,11 @@ class DboSecondTestSource extends DboSource
 
     public ?string $endQuote = '_';
 
-    public function connect($config = [])
+    public function connect(): bool
     {
         $this->connected = true;
+
+        return true;
     }
 
     public function mergeAssociation(&$data, &$merge, $association, $type, $selfJoin = false)
@@ -130,7 +134,7 @@ class DboSecondTestSource extends DboSource
         return parent::_mergeAssociation($data, $merge, $association, $type, $selfJoin);
     }
 
-    public function setConfig($config = [])
+    public function setConfig(array $config = []): void
     {
         $this->config = $config;
     }
@@ -149,12 +153,14 @@ class_alias(DboSecondTestSource::class, 'App\\Model\\Datasource\\DboSecondTestSo
  */
 class DboThirdTestSource extends DboSource
 {
-    public function connect($config = [])
+    public function connect(): bool
     {
         $this->connected = true;
+
+        return true;
     }
 
-    public function cacheMethodHasher($value)
+    public function cacheMethodHasher(string $value): string
     {
         return hash('sha1', $value);
     }
@@ -168,13 +174,18 @@ class_alias(DboThirdTestSource::class, 'App\\Model\\Datasource\\DboThirdTestSour
  */
 class DboFourthTestSource extends DboSource
 {
-    public function connect($config = [])
+    public function connect(): bool
     {
         $this->connected = true;
+
+        return true;
     }
 
-    public function cacheMethodFilter($method, $key, $value)
-    {
+    public function cacheMethodFilter(
+        string $method,
+        string $key,
+        mixed $value,
+    ): bool {
         if ($method === 'name') {
             if ($value === '`menus`') {
                 return false;
@@ -1108,8 +1119,8 @@ class DboSourceTest extends CakeTestCase
         $result = $this->db->query($query);
         $this->assertTrue($result);
 
-        $EnumTest = ClassRegistry::init('EnumTest');
-        $enumResult = $EnumTest->save(['mood' => '']);
+        $enumTest = ClassRegistry::init('EnumTest');
+        $enumResult = $enumTest->save(['mood' => '']);
 
         $query = "DROP TABLE {$name};";
         $result = $this->db->query($query);
@@ -1663,7 +1674,7 @@ class DboSourceTest extends CakeTestCase
             ],
             $this->Model,
         );
-        $expected = 'SELECT user_id, COUNT(*) AS count FROM articles AS Article   WHERE 1 = 1  GROUP BY user_id  HAVING COUNT(*) > 10  ORDER BY COUNT(*) DESC  LIMIT 5';
+        $expected = 'SELECT user_id, COUNT(*) AS count FROM articles AS Article   WHERE 1 = 1  GROUP BY user_id HAVING COUNT(*) > 10  ORDER BY COUNT(*) DESC  LIMIT 5';
         $this->assertEquals($expected, $sql);
     }
 
@@ -1692,7 +1703,7 @@ class DboSourceTest extends CakeTestCase
             ],
             $this->Model,
         );
-        $expected = 'SELECT id FROM users AS User   WHERE 1 = 1   ORDER BY id ASC  LIMIT 1  FOR UPDATE';
+        $expected = 'SELECT id FROM users AS User   WHERE 1 = 1   ORDER BY id ASC  LIMIT 1 FOR UPDATE';
         $this->assertEquals($expected, $sql);
     }
 
@@ -2334,7 +2345,7 @@ class DboSourceTest extends CakeTestCase
             ->method('getDataSource')
             ->will($this->returnValue($db));
 
-        $expected = 'SELECT Test.id FROM tests AS Test   WHERE id = 1   ORDER BY Test.id ASC  LIMIT 1  FOR UPDATE';
+        $expected = 'SELECT Test.id FROM tests AS Test   WHERE id = 1   ORDER BY Test.id ASC  LIMIT 1 FOR UPDATE';
 
         $db->expects($this->once())
             ->method('execute')

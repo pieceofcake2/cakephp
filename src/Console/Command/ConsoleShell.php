@@ -197,7 +197,7 @@ class ConsoleShell extends AppShell
      *
      * @return void
      */
-    public function help()
+    public function help(): void
     {
         $optionParser = $this->getOptionParser();
         $this->out($optionParser->epilog());

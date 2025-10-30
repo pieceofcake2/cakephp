@@ -357,9 +357,9 @@ class CakeTestFixture
      * CakeFixture to trigger other events before / after truncate.
      *
      * @param DboSource $db A reference to a db instance
-     * @return bool
+     * @return bool|null
      */
-    public function truncate($db)
+    public function truncate(DboSource $db): bool|null
     {
         $fullDebug = $db->fullDebug;
         $db->fullDebug = false;

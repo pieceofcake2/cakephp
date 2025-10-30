@@ -38,9 +38,9 @@ class DboMock extends DboSource
     /**
      * Returns the $field without modifications
      *
-     * @return string
+     * @return array|string
      */
-    public function name($field)
+    public function name(mixed $field): array|string
     {
         return $field;
     }
@@ -50,7 +50,7 @@ class DboMock extends DboSource
      *
      * @return bool true
      */
-    public function connect()
+    public function connect(): bool
     {
         return true;
     }

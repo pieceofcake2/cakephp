@@ -23,6 +23,7 @@ use Cake\Error\MissingConnectionException;
 use Cake\Model\Datasource\DboSource;
 use Cake\Model\Model;
 use InvalidArgumentException;
+use Override;
 use PDO;
 use PDOException;
 use PDOStatement;
@@ -136,7 +137,7 @@ class Sqlserver extends DboSource
      * @throws InvalidArgumentException if an unsupported setting is in the database config
      * @throws MissingConnectionException
      */
-    public function connect()
+    public function connect(): bool
     {
         // Set default schema to 'dbo' if not specified
         if (!isset($this->config['schema']) || $this->config['schema'] === '') {
@@ -331,13 +332,17 @@ class Sqlserver extends DboSource
      * Generates the fields list of an SQL query.
      *
      * @param Model $model The model to get fields for.
-     * @param string $alias Alias table name
+     * @param string|null $alias Alias table name
      * @param array $fields The fields so far.
      * @param bool $quote Whether or not to quote identfiers.
      * @return array
      */
-    public function fields(Model $model, $alias = null, $fields = [], $quote = true)
-    {
+    public function fields(
+        Model $model,
+        ?string $alias = null,
+        mixed $fields = [],
+        bool $quote = true,
+    ): array {
         if (empty($alias)) {
             $alias = $model->alias;
         }
@@ -420,12 +425,15 @@ class Sqlserver extends DboSource
      * value is empty.
      *
      * @param Model $model The model to insert into.
-     * @param array $fields The fields to set.
-     * @param array $values The values to set.
+     * @param array|null $fields The fields to set.
+     * @param array|null $values The values to set.
      * @return array
      */
-    public function create(Model $model, $fields = null, $values = null)
-    {
+    public function create(
+        Model $model,
+        ?array $fields = null,
+        ?array $values = null,
+    ): bool {
         if (!empty($values)) {
             $fields = array_combine($fields, $values);
         }
@@ -451,13 +459,17 @@ class Sqlserver extends DboSource
      * Removes Identity (primary key) column from update data before returning to parent.
      *
      * @param Model $model The model to update.
-     * @param array $fields The fields to set.
-     * @param array $values The values to set.
+     * @param array|null $fields The fields to set.
+     * @param array|null $values The values to set.
      * @param mixed $conditions The conditions to use.
-     * @return array
+     * @return bool
      */
-    public function update(Model $model, $fields = [], $values = null, $conditions = null)
-    {
+    public function update(
+        Model $model,
+        ?array $fields = [],
+        ?array $values = null,
+        mixed $conditions = null,
+    ): bool {
         if (!empty($values)) {
             $fields = array_combine($fields, $values);
         }
@@ -481,12 +493,14 @@ class Sqlserver extends DboSource
     /**
      * Returns a limit statement in the correct format for the particular database.
      *
-     * @param int $limit Limit of results returned
-     * @param int|null $offset Offset from which to start results
-     * @return string SQL limit/offset statement
+     * @param array|string|int|null $limit Limit of results returned
+     * @param array|string|int|null $offset Offset from which to start results
+     * @return string|null SQL limit/offset statement
      */
-    public function limit($limit, $offset = null)
-    {
+    public function limit(
+        array|string|int|null $limit,
+        array|string|int|null $offset = null,
+    ): ?string {
         if ($limit) {
             $rt = '';
             if (!strpos(strtolower($limit), 'top') || str_starts_with(strtolower($limit), 'top')) {
@@ -566,30 +580,31 @@ class Sqlserver extends DboSource
      * Handle SQLServer specific length properties.
      * SQLServer handles text types as nvarchar/varchar with a length of -1.
      *
-     * @param object|string $length Either the length as a string, or a Column descriptor object.
-     * @return mixed null|integer with length of column.
+     * @param object|string $real Either the length as a string, or a Column descriptor object.
+     * @return string|int|null with length of column.
      */
-    public function length($length)
+    #[Override]
+    public function length(object|string $real): string|int|null
     {
-        if (is_object($length)) {
-            if (!isset($length->Length) || $length->Length === null) {
+        if (is_object($real)) {
+            if (!isset($real->Length)) {
                 return null;
             }
 
-            if ($length->Length == -1 && str_contains($length->Type, 'char')) {
+            if ($real->Length == -1 && str_contains($real->Type, 'char')) {
                 return null;
             }
-            if (in_array($length->Type, ['nchar', 'nvarchar'])) {
-                return floor($length->Length / 2);
+            if (in_array($real->Type, ['nchar', 'nvarchar'])) {
+                return (int)floor($real->Length / 2);
             }
-            if ($length->Type === 'text') {
+            if ($real->Type === 'text') {
                 return null;
             }
 
-            return $length->Length;
+            return $real->Length;
         }
 
-        return parent::length($length);
+        return parent::length($real);
     }
 
     /**
@@ -598,7 +613,7 @@ class Sqlserver extends DboSource
      * @param PDOStatement $results The result to modify.
      * @return void
      */
-    public function resultSet($results)
+    public function resultSet(PDOStatement $results): void
     {
         $this->map = [];
         $numFields = $results->columnCount();
@@ -629,9 +644,9 @@ class Sqlserver extends DboSource
      *
      * @param string $type Query type
      * @param array $data Query data
-     * @return string
+     * @return string|null
      */
-    public function renderStatement($type, $data)
+    public function renderStatement(string $type, array $data): ?string
     {
         switch (strtolower($type)) {
             case 'select':
@@ -728,11 +743,14 @@ class Sqlserver extends DboSource
      *
      * @param Model $model The model to read from
      * @param array $queryData The query data
-     * @param int $recursive How many layers to go.
+     * @param int|null $recursive How many layers to go.
      * @return array|false Array of resultset rows, or false if no rows matched
      */
-    public function read(Model $model, $queryData = [], $recursive = null)
-    {
+    public function read(
+        Model $model,
+        array $queryData = [],
+        ?int $recursive = null,
+    ): false|array {
         $results = parent::read($model, $queryData, $recursive);
         $this->_fieldMappings = [];
 
@@ -743,9 +761,9 @@ class Sqlserver extends DboSource
      * Fetches the next row from the current result set.
      * Eats the magic ROW_COUNTER variable.
      *
-     * @return mixed
+     * @return array|false
      */
-    public function fetchResult()
+    public function fetchResult(): array|false
     {
         if ($row = $this->_result->fetch(PDO::FETCH_NUM)) {
             $resultRow = [];
@@ -802,9 +820,9 @@ class Sqlserver extends DboSource
      * @param array $column An array structured like the
      *   following: array('name'=>'value', 'type'=>'value'[, options]),
      *   where options can be 'default', 'length', or 'key'.
-     * @return string
+     * @return string|null
      */
-    public function buildColumn($column)
+    public function buildColumn(array $column): ?string
     {
         $result = parent::buildColumn($column);
         $result = preg_replace('/(bigint|int|integer)\([0-9]+\)/i', '$1', $result);
@@ -906,8 +924,11 @@ class Sqlserver extends DboSource
      * query returning no rows, such as a CREATE statement, false otherwise
      * @throws PDOException
      */
-    protected function _execute($sql, $params = [], $prepareOptions = [])
-    {
+    protected function _execute(
+        string $sql,
+        array $params = [],
+        array $prepareOptions = [],
+    ): PDOStatement|bool {
         $this->_lastAffected = false;
         $sql = trim($sql);
         if (strncasecmp($sql, 'SELECT', 6) === 0 || preg_match('/^EXEC(?:UTE)?\s/mi', $sql) > 0) {
@@ -960,7 +981,7 @@ class Sqlserver extends DboSource
      * @param mixed $mode Lock mode
      * @return string|null WITH (UPDLOCK) clause or null
      */
-    public function getLockingHint($mode)
+    public function getLockingHint(mixed $mode): ?string
     {
         if ($mode !== true) {
             return null;

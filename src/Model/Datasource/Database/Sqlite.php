@@ -116,7 +116,7 @@ class Sqlite extends DboSource
      * @return bool
      * @throws MissingConnectionException
      */
-    public function connect()
+    public function connect(): bool
     {
         $config = $this->config;
         $flags = $config['flags'] + [
@@ -223,13 +223,17 @@ class Sqlite extends DboSource
      * Generates and executes an SQL UPDATE statement for given model, fields, and values.
      *
      * @param Model $model The model instance to update.
-     * @param array $fields The fields to update.
-     * @param array $values The values to set columns to.
+     * @param array|null $fields The fields to update.
+     * @param array|null $values The values to set columns to.
      * @param mixed $conditions array of conditions to use.
      * @return bool
      */
-    public function update(Model $model, $fields = [], $values = null, $conditions = null)
-    {
+    public function update(
+        Model $model,
+        ?array $fields = [],
+        ?array $values = null,
+        mixed $conditions = null,
+    ): bool {
         if (empty($values) && !empty($fields)) {
             foreach ($fields as $field => $value) {
                 if (str_contains($field, $model->alias . '.')) {
@@ -249,10 +253,11 @@ class Sqlite extends DboSource
      * primary key, where applicable.
      *
      * @param Model|string $table A string or model class representing the table to be truncated
-     * @return bool SQL TRUNCATE TABLE statement, false if not applicable.
+     * @return bool|null SQL TRUNCATE TABLE statement, false if not applicable.
      */
-    public function truncate(Model|string $table)
-    {
+    public function truncate(
+        Model|string $table,
+    ): bool|null {
         if (in_array('sqlite_sequence', $this->listSources())) {
             $this->_execute('DELETE FROM sqlite_sequence where name=' . $this->startQuote . $this->fullTableName($table, false, false) . $this->endQuote);
         }
@@ -323,7 +328,7 @@ class Sqlite extends DboSource
      * @param PDOStatement $results The results to modify.
      * @return void
      */
-    public function resultSet($results)
+    public function resultSet(PDOStatement $results): void
     {
         $this->_result = $results;
         $this->map = [];
@@ -389,9 +394,9 @@ class Sqlite extends DboSource
     /**
      * Fetches the next row from the current result set
      *
-     * @return mixed array with results fetched and mapped to column names or false if there is no results left to fetch
+     * @return array|false array with results fetched and mapped to column names or false if there is no results left to fetch
      */
-    public function fetchResult()
+    public function fetchResult(): array|false
     {
         if ($row = $this->_result->fetch(PDO::FETCH_NUM)) {
             $resultRow = [];
@@ -413,17 +418,20 @@ class Sqlite extends DboSource
     /**
      * Returns a limit statement in the correct format for the particular database.
      *
-     * @param int $limit Limit of results returned
-     * @param int|null $offset Offset from which to start results
+     * @param array|string|int|null $limit Limit of results returned
+     * @param array|string|int|null $offset Offset from which to start results
      * @return string|null SQL limit/offset statement
      */
-    public function limit($limit, $offset = null)
-    {
+    public function limit(
+        array|string|int|null$limit,
+        array|string|int|null $offset = null,
+    ): ?string {
         if ($limit) {
             // Suppress PHP 8.5+ warning for backward compatibility with existing limit/offset behavior
             // The sprintf %u format behavior is undefined for values outside int range, but must remain
             // consistent with previous PHP versions for query generation
             set_error_handler(function () {
+                return true;
             }, E_WARNING);
             $rt = sprintf(' LIMIT %u', $limit);
             if ($offset) {
@@ -442,9 +450,9 @@ class Sqlite extends DboSource
      *
      * @param array $column An array structured like the following: array('name'=>'value', 'type'=>'value'[, options]),
      *    where options can be 'default', 'length', or 'key'.
-     * @return string
+     * @return string|null
      */
-    public function buildColumn($column)
+    public function buildColumn(array $column): ?string
     {
         $name = $type = null;
         $column += ['null' => true];
@@ -550,7 +558,7 @@ class Sqlite extends DboSource
      * @param Model|string $model Name of model to inspect
      * @return array Fields in table. Keys are column and unique
      */
-    public function index($model)
+    public function index(Model|string $model): array
     {
         $index = [];
         $table = $this->fullTableName($model, false, false);
@@ -590,9 +598,9 @@ class Sqlite extends DboSource
      *
      * @param string $type The type of statement being rendered.
      * @param array $data The data to convert to SQL.
-     * @return string
+     * @return string|null
      */
-    public function renderStatement($type, $data)
+    public function renderStatement(string $type, array $data): ?string
     {
         switch (strtolower($type)) {
             case 'schema':
@@ -615,7 +623,7 @@ class Sqlite extends DboSource
      *
      * @return bool
      */
-    public function hasResult()
+    public function hasResult(): bool
     {
         return is_object($this->_result);
     }
@@ -659,7 +667,7 @@ class Sqlite extends DboSource
      * @param mixed $mode Lock mode
      * @return string|null Null
      */
-    public function getLockingHint($mode)
+    public function getLockingHint(mixed $mode): ?string
     {
         return null;
     }

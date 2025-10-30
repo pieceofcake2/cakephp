@@ -82,9 +82,9 @@ class ConsoleInputArgument
     /**
      * Get the value of the name attribute.
      *
-     * @return string Value of this->_name.
+     * @return array|string Value of this->_name.
      */
-    public function name()
+    public function name(): array|string
     {
         return $this->_name;
     }
@@ -95,7 +95,7 @@ class ConsoleInputArgument
      * @param int $width The width to make the name of the option.
      * @return string
      */
-    public function help($width = 0)
+    public function help(int $width = 0): string
     {
         $name = $this->_name;
         if (strlen($name) < $width) {

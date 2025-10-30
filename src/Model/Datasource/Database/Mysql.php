@@ -189,7 +189,7 @@ class Mysql extends DboSource
      * @return bool True if the database could be connected, else false
      * @throws MissingConnectionException
      */
-    public function connect()
+    public function connect(): bool
     {
         $config = $this->config;
         $this->connected = false;
@@ -288,7 +288,7 @@ class Mysql extends DboSource
      * @param PDOStatement $results The results to format.
      * @return void
      */
-    public function resultSet($results)
+    public function resultSet(PDOStatement $results): void
     {
         $this->map = [];
         $numFields = $results->columnCount();
@@ -312,9 +312,9 @@ class Mysql extends DboSource
     /**
      * Fetches the next row from the current result set
      *
-     * @return mixed array with results fetched and mapped to column names or false if there is no results left to fetch
+     * @return array|false array with results fetched and mapped to column names or false if there is no results left to fetch
      */
-    public function fetchResult()
+    public function fetchResult(): array|false
     {
         if ($row = $this->_result->fetch(PDO::FETCH_NUM)) {
             $resultRow = [];
@@ -441,13 +441,17 @@ class Mysql extends DboSource
      * Generates and executes an SQL UPDATE statement for given model, fields, and values.
      *
      * @param Model $model The model to update.
-     * @param array $fields The fields to update.
-     * @param array $values The values to set.
+     * @param array|null $fields The fields to update.
+     * @param array|null $values The values to set.
      * @param mixed $conditions The conditions to use.
      * @return bool
      */
-    public function update(Model $model, $fields = [], $values = null, $conditions = null)
-    {
+    public function update(
+        Model $model,
+        ?array $fields = [],
+        ?array $values = null,
+        mixed $conditions = null,
+    ): bool {
         if (!$this->_useAlias) {
             return parent::update($model, $fields, $values, $conditions);
         }
@@ -491,8 +495,10 @@ class Mysql extends DboSource
      * @param mixed $conditions The conditions to use.
      * @return bool Success
      */
-    public function delete(Model $model, $conditions = null)
-    {
+    public function delete(
+        Model $model,
+        mixed $conditions = null,
+    ): bool {
         if (!$this->_useAlias) {
             return parent::delete($model, $conditions);
         }
@@ -509,9 +515,6 @@ class Mysql extends DboSource
         }
 
         $conditions = $this->conditions($this->defaultConditions($model, $conditions, $alias), true, true, $model);
-        if ($conditions === false) {
-            return false;
-        }
         if ($this->execute($this->renderStatement('delete', compact('alias', 'table', 'joins', 'conditions'))) === false) {
             $model->onError();
 
@@ -561,7 +564,7 @@ class Mysql extends DboSource
      * @param Model|string $model Name of model to inspect
      * @return array Fields in table. Keys are column and unique
      */
-    public function index($model)
+    public function index(Model|string $model): array
     {
         $index = [];
         $table = $this->fullTableName($model);
@@ -607,11 +610,11 @@ class Mysql extends DboSource
     /**
      * Generate a MySQL Alter Table syntax for the given Schema comparison
      *
-     * @param array $compare Result of a CakeSchema::compare()
-     * @param string $table The table name.
+     * @param mixed $compare Result of a CakeSchema::compare()
+     * @param string|null $table The table name.
      * @return string|false String of alter statements to make.
      */
-    public function alterSchema($compare, $table = null)
+    public function alterSchema(mixed $compare, ?string $table = null): string|false
     {
         if (!is_array($compare)) {
             return false;

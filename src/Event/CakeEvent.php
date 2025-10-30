@@ -127,14 +127,16 @@ class CakeEvent
         if ($attribute === 'name' || $attribute === 'subject') {
             return $this->{$attribute}();
         }
+
+        return null;
     }
 
     /**
      * Returns the name of this event. This is usually used as the event identifier
      *
-     * @return string
+     * @return string|null
      */
-    public function name()
+    public function name(): ?string
     {
         return $this->_name;
     }
@@ -142,9 +144,9 @@ class CakeEvent
     /**
      * Returns the subject of this event
      *
-     * @return object
+     * @return object|null
      */
-    public function subject()
+    public function subject(): ?object
     {
         return $this->_subject;
     }

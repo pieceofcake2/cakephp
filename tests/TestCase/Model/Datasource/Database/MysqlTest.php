@@ -4061,7 +4061,7 @@ SQL;
      *
      * @return array
      */
-    public function buildColumnUnsignedProvider()
+    public function buildColumnUnsignedProvider(): array
     {
         return [
             // unsigned int

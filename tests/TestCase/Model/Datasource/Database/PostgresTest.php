@@ -30,6 +30,7 @@ use Cake\TestSuite\CakeTestCase;
 use Cake\TestSuite\Fixture\CakeTestModel;
 use Cake\Utility\ClassRegistry;
 use PDO;
+use PDOStatement;
 use ReflectionClass;
 
 App::uses('AppModel', 'Model');
@@ -53,14 +54,19 @@ class DboPostgresTestDb extends Postgres
     /**
      * execute method
      *
-     * @param mixed $sql
-     * @return void
+     * @param string $sql
+     * @param array $params
+     * @param array $prepareOptions
+     * @return PDOStatement|bool
      */
-    protected function _execute($sql, $params = [], $prepareOptions = [])
-    {
+    protected function _execute(
+        string $sql,
+        array $params = [],
+        array $prepareOptions = [],
+    ): PDOStatement|bool {
         $this->simulated[] = $sql;
 
-        return null;
+        return false;
     }
 
     /**

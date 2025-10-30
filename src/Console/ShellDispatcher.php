@@ -442,7 +442,7 @@ class ShellDispatcher
      *
      * @return void
      */
-    public function help()
+    public function help(): void
     {
         $this->args = array_merge(['command_list'], $this->args);
         $this->dispatch();

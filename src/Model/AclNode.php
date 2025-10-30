@@ -18,6 +18,7 @@ namespace Cake\Model;
 
 use Cake\Core\Configure;
 use Cake\Error\CakeException;
+use Cake\Model\Datasource\DboSource;
 use Cake\Utility\ClassRegistry;
 use Cake\Utility\Inflector;
 
@@ -62,12 +63,13 @@ class AclNode extends Model
     /**
      * Retrieves the Aro/Aco node for this model
      *
-     * @param Model|array|string $ref Array with 'model' and 'foreign_key', model object, or string value
-     * @return array Node found in database
+     * @param Model|array|string|null $ref Array with 'model' and 'foreign_key', model object, or string value
+     * @return array|false|null Node found in database
      * @throws CakeException when binding to a model that doesn't exist.
      */
     public function node($ref = null)
     {
+        /** @var DboSource $db */
         $db = $this->getDataSource();
         $type = $this->alias;
         $result = null;

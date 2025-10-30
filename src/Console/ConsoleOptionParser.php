@@ -553,8 +553,11 @@ class ConsoleOptionParser
      * @param int $width The width to format user content to. Defaults to 72
      * @return string Generated help.
      */
-    public function help($subcommand = null, string|bool $format = 'text', int $width = 72): string
-    {
+    public function help(
+        ?string $subcommand = null,
+        string|bool $format = 'text',
+        int $width = 72,
+    ): string {
         if (
             $subcommand &&
             isset($this->_subcommands[$subcommand]) &&

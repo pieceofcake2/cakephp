@@ -27,6 +27,7 @@ use Cake\Model\Model;
 use Cake\TestSuite\CakeTestCase;
 use Cake\TestSuite\Fixture\CakeTestModel;
 use Cake\Utility\ClassRegistry;
+use PDOStatement;
 
 App::uses('AppModel', 'Model');
 
@@ -61,16 +62,19 @@ class SqlserverTestDb extends Sqlserver
     /**
      * execute method
      *
-     * @param mixed $sql
-     * @param mixed $params
-     * @param mixed $prepareOptions
-     * @return mixed
+     * @param string $sql
+     * @param array $params
+     * @param array $prepareOptions
+     * @return PDOStatement|bool
      */
-    protected function _execute($sql, $params = [], $prepareOptions = [])
-    {
+    protected function _execute(
+        string $sql,
+        array $params = [],
+        array $prepareOptions = [],
+    ): PDOStatement|bool {
         $this->simulated[] = $sql;
 
-        return empty($this->executeResultsStack) ? null : array_pop($this->executeResultsStack);
+        return empty($this->executeResultsStack) ? false : array_pop($this->executeResultsStack);
     }
 
     /**
@@ -80,8 +84,10 @@ class SqlserverTestDb extends Sqlserver
      * @param mixed $conditions
      * @return string
      */
-    protected function _matchRecords(Model $model, $conditions = null): string
-    {
+    protected function _matchRecords(
+        Model $model,
+        mixed $conditions = null,
+    ): string|false {
         return $this->conditions(['id' => [1, 2]]);
     }
 

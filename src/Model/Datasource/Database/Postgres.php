@@ -22,6 +22,7 @@ use Cake\Model\Model;
 use Cake\Utility\Hash;
 use PDO;
 use PDOException;
+use PDOStatement;
 
 /**
  * PostgreSQL layer for DBO.
@@ -116,7 +117,7 @@ class Postgres extends DboSource
      * @return bool True if successfully connected.
      * @throws MissingConnectionException
      */
-    public function connect()
+    public function connect(): bool
     {
         $config = $this->config;
         $this->connected = false;
@@ -331,12 +332,14 @@ class Postgres extends DboSource
     /**
      * Returns the ID generated from the previous INSERT operation.
      *
-     * @param string $source Name of the database table
+     * @param mixed $source Name of the database table
      * @param string $field Name of the ID database field. Defaults to "id"
-     * @return int
+     * @return mixed
      */
-    public function lastInsertId($source = null, $field = 'id')
-    {
+    public function lastInsertId(
+        mixed $source = null,
+        string $field = 'id',
+    ): mixed {
         $seq = $this->getSequence($source, $field);
 
         return $this->_connection->lastInsertId($seq);
@@ -349,7 +352,7 @@ class Postgres extends DboSource
      * @param string $field Name of the ID database field. Defaults to "id"
      * @return string The associated sequence name from the sequence map, defaults to "{$table}_{$field}_seq"
      */
-    public function getSequence($table, $field = 'id')
+    public function getSequence(Model|string $table, string $field = 'id'): string
     {
         if (is_object($table)) {
             $table = $this->fullTableName($table, false, false);
@@ -388,10 +391,12 @@ class Postgres extends DboSource
      * @param Model|string $table A string or model class representing the table to be truncated
      * @param bool $reset true for resetting the sequence, false to leave it as is.
      *    and if 1, sequences are not modified
-     * @return bool SQL TRUNCATE TABLE statement, false if not applicable.
+     * @return bool|null SQL TRUNCATE TABLE statement, false if not applicable.
      */
-    public function truncate(Model|string $table, bool $reset = false)
-    {
+    public function truncate(
+        Model|string $table,
+        bool $reset = false,
+    ): bool|null {
         $table = $this->fullTableName($table, false, false);
         if (!isset($this->_sequenceMap[$table])) {
             $cache = $this->cacheSources;
@@ -416,10 +421,10 @@ class Postgres extends DboSource
     /**
      * Prepares field names to be quoted by parent
      *
-     * @param string $data The name to format.
-     * @return string SQL field
+     * @param mixed $data The name to format.
+     * @return array|string SQL field
      */
-    public function name($data)
+    public function name(mixed $data): array|string
     {
         if (is_string($data)) {
             $data = str_replace('"__"', '__', $data);
@@ -432,13 +437,17 @@ class Postgres extends DboSource
      * Generates the fields list of an SQL query.
      *
      * @param Model $model The model to get fields for.
-     * @param string $alias Alias table name.
+     * @param string|null $alias Alias table name.
      * @param mixed $fields The list of fields to get.
      * @param bool $quote Whether or not to quote identifiers.
      * @return array
      */
-    public function fields(Model $model, $alias = null, $fields = [], $quote = true)
-    {
+    public function fields(
+        Model $model,
+        ?string $alias = null,
+        mixed $fields = [],
+        bool $quote = true,
+    ): array {
         if (empty($alias)) {
             $alias = $model->alias;
         }
@@ -524,7 +533,7 @@ class Postgres extends DboSource
      * @param Model|string $model Name of model to inspect
      * @return array Fields in table. Keys are column and unique
      */
-    public function index($model)
+    public function index(Model|string $model): array
     {
         $index = [];
         $table = $this->fullTableName($model, false, false);
@@ -561,17 +570,17 @@ class Postgres extends DboSource
     /**
      * Alter the Schema of a table.
      *
-     * @param array $compare Results of CakeSchema::compare()
-     * @param string $table name of the table
-     * @return array
+     * @param mixed $compare Results of CakeSchema::compare()
+     * @param string|null $table name of the table
+     * @return mixed
      */
-    public function alterSchema($compare, $table = null)
+    public function alterSchema(mixed $compare, ?string $table = null): string|false
     {
         if (!is_array($compare)) {
             return false;
         }
+
         $out = '';
-        $colList = [];
         foreach ($compare as $curTable => $types) {
             $indexes = $colList = [];
             if (!$table || $table === $curTable) {
@@ -721,17 +730,20 @@ class Postgres extends DboSource
     /**
      * Returns a limit statement in the correct format for the particular database.
      *
-     * @param int $limit Limit of results returned
-     * @param int|null $offset Offset from which to start results
+     * @param array|string|int|null $limit Limit of results returned
+     * @param array|string|int|null $offset Offset from which to start results
      * @return string|null SQL limit/offset statement
      */
-    public function limit($limit, $offset = null)
-    {
+    public function limit(
+        array|string|int|null $limit,
+        array|string|int|null $offset = null,
+    ): ?string {
         if ($limit) {
             // Suppress PHP 8.5+ warning for backward compatibility with existing limit/offset behavior
             // The sprintf %u format behavior is undefined for values outside int range, but must remain
             // consistent with previous PHP versions for query generation
             set_error_handler(function () {
+                return true;
             }, E_WARNING);
             $rt = sprintf(' LIMIT %u', $limit);
             if ($offset) {
@@ -805,10 +817,10 @@ class Postgres extends DboSource
     /**
      * Gets the length of a database-native column description, or null if no length
      *
-     * @param string $real Real database-layer column type (i.e. "varchar(255)")
+     * @param object|string $real Real database-layer column type (i.e. "varchar(255)")
      * @return int An integer representing the length of the column
      */
-    public function length($real)
+    public function length(object|string $real): string|int|null
     {
         $col = $real;
         if (str_contains($real, '(')) {
@@ -827,7 +839,7 @@ class Postgres extends DboSource
      * @param PDOStatement $results The results
      * @return void
      */
-    public function resultSet($results)
+    public function resultSet(PDOStatement $results): void
     {
         $this->map = [];
         $numFields = $results->columnCount();
@@ -849,9 +861,9 @@ class Postgres extends DboSource
     /**
      * Fetches the next row from the current result set
      *
-     * @return array
+     * @return array|false
      */
-    public function fetchResult()
+    public function fetchResult(): array|false
     {
         if ($row = $this->_result->fetch(PDO::FETCH_NUM)) {
             $resultRow = [];
@@ -884,9 +896,9 @@ class Postgres extends DboSource
      *
      * @param mixed $data Value to be translated
      * @param bool $quote true to quote a boolean to be used in a query, false to return the boolean value
-     * @return bool Converted boolean value
+     * @return string|bool Converted boolean value
      */
-    public function boolean($data, $quote = false)
+    public function boolean(mixed $data, bool $quote = false): string|bool
     {
         switch (true) {
             case $data === true || $data === false:
@@ -909,7 +921,7 @@ class Postgres extends DboSource
             return $result ? 'TRUE' : 'FALSE';
         }
 
-        return (bool)$result;
+        return $result;
     }
 
     /**
@@ -944,9 +956,9 @@ class Postgres extends DboSource
      * @param array $column An array structured like the following:
      *                      array('name'=>'value', 'type'=>'value'[, options]),
      *                      where options can be 'default', 'length', or 'key'.
-     * @return string
+     * @return string|null
      */
-    public function buildColumn($column)
+    public function buildColumn(array $column): ?string
     {
         $col = $this->columns[$column['type']];
         if (!isset($col['length']) && !isset($col['limit'])) {
@@ -1039,9 +1051,9 @@ class Postgres extends DboSource
      *
      * @param string $type The query type.
      * @param array $data The array of data to render.
-     * @return string
+     * @return string|null
      */
-    public function renderStatement($type, $data)
+    public function renderStatement(string $type, array $data): ?string
     {
         switch (strtolower($type)) {
             case 'schema':

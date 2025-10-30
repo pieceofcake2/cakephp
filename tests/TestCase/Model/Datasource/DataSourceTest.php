@@ -86,11 +86,14 @@ class TestSource extends DataSource
      *
      * @param Model $model
      * @param string $func
-     * @param array $params
-     * @return array
+     * @param array|string $params
+     * @return string
      */
-    public function calculate(Model $model, $func, $params = [])
-    {
+    public function calculate(
+        Model $model,
+        string $func,
+        array|string $params = [],
+    ): string {
         return $func;
     }
 }

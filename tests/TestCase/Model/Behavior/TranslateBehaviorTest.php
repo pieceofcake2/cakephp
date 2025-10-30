@@ -935,16 +935,16 @@ class TranslateBehaviorTest extends CakeTestCase
     {
         $this->loadFixtures('Translate', 'TranslatedItem');
 
-        $TestModel = new TranslatedItem();
-        $TestModel->locale = 'spa';
+        $testModel = new TranslatedItem();
+        $testModel->locale = 'spa';
         $oldData = ['slug' => 'fourth_translated', 'title' => 'Leyenda #4', 'translated_article_id' => 1];
-        $TestModel->create($oldData);
-        $TestModel->save();
-        $id = $TestModel->id;
+        $testModel->create($oldData);
+        $testModel->save();
+        $id = $testModel->id;
         $newData = ['id' => $id, 'content' => 'Contenido #4'];
-        $TestModel->create($newData);
-        $TestModel->save();
-        $result = $TestModel->read(null, $id);
+        $testModel->create($newData);
+        $testModel->save();
+        $result = $testModel->read(null, $id);
         $expected = ['TranslatedItem' => array_merge($oldData, $newData, ['locale' => 'spa'])];
         $this->assertEquals($expected, $result);
     }

@@ -17,23 +17,35 @@ class TestOtherSource extends DataSource
         return ['test_source'];
     }
 
-    public function create(Model $model, $fields = null, $values = [])
-    {
-        return compact('model', 'fields', 'values');
+    public function create(
+        Model $model,
+        ?array $fields = null,
+        ?array $values = null,
+    ): bool {
+        return true;
     }
 
-    public function read(Model $model, $queryData = [], $recursive = null)
-    {
+    public function read(
+        Model $model,
+        $queryData = [],
+        $recursive = null,
+    ): false|array {
         return compact('model', 'queryData');
     }
 
-    public function update(Model $model, $fields = [], $values = [], $conditions = null)
-    {
-        return compact('model', 'fields', 'values');
+    public function update(
+        Model $model,
+        ?array $fields = [],
+        ?array $values = [],
+        mixed $conditions = null,
+    ): bool {
+        return true;
     }
 
-    public function delete(Model $model, $id = null)
-    {
-        return compact('model', 'id');
+    public function delete(
+        Model $model,
+        mixed $conditions = null,
+    ): bool {
+        return true;
     }
 }

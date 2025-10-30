@@ -6,7 +6,7 @@ use Cake\Model\Datasource\DboSource;
 
 class DboDummy extends DboSource
 {
-    public function connect()
+    public function connect(): bool
     {
         return true;
     }
