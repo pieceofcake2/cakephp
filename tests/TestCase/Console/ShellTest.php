@@ -163,7 +163,7 @@ class ShellTest extends CakeTestCase
     /**
      * Fixtures used in this test case
      *
-     * @var array
+     * @var array<string>
      */
     public array $fixtures = [
         'core.post',

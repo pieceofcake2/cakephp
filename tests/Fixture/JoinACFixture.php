@@ -30,7 +30,7 @@ class JoinACFixture extends CakeTestFixture
     /**
      * name property
      *
-     * @var string
+     * @var string|null
      */
     public ?string $name = 'JoinAsJoinC';
 

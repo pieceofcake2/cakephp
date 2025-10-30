@@ -98,7 +98,7 @@ class View extends CakeObject
      * Name of the plugin.
      *
      * @link http://manual.cakephp.org/chapter/plugins
-     * @var string
+     * @var string|null
      */
     public ?string $plugin = null;
 

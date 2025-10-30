@@ -58,7 +58,7 @@ class ScaffoldMockControllerWithFields extends Controller
     /**
      * name property
      *
-     * @var string
+     * @var string|null
      */
     public ?string $name = 'ScaffoldMock';
 
@@ -93,7 +93,7 @@ class ScaffoldMockControllerWithError extends Controller
     /**
      * name property
      *
-     * @var string
+     * @var string|null
      */
     public ?string $name = 'ScaffoldMock';
 
@@ -123,6 +123,8 @@ class ScaffoldMockControllerWithError extends Controller
  */
 class TestScaffoldMock extends Scaffold
 {
+    protected ?CakeRequest $_params = null;
+
     /**
      * Overload _scaffold
      *
@@ -137,9 +139,9 @@ class TestScaffoldMock extends Scaffold
     /**
      * Get Params from the Controller.
      *
-     * @return CakeRequest
+     * @return CakeRequest|null
      */
-    public function getParams()
+    public function getParams(): ?CakeRequest
     {
         return $this->_params;
     }
@@ -162,7 +164,7 @@ class ScaffoldTest extends CakeTestCase
     /**
      * fixtures property
      *
-     * @var array
+     * @var array<string>
      */
     public array $fixtures = [
         'core.article',

@@ -36,7 +36,7 @@ class AclPerson extends CakeTestModel
     /**
      * useTable property
      *
-     * @var string
+     * @var string|bool|null
      */
     public string|bool|null $useTable = 'people';
 
@@ -101,14 +101,14 @@ class AclUser extends CakeTestModel
     /**
      * name property
      *
-     * @var string
+     * @var string|null
      */
     public ?string $name = 'User';
 
     /**
      * useTable property
      *
-     * @var string
+     * @var string|bool|null
      */
     public string|bool|null $useTable = 'users';
 
@@ -141,14 +141,14 @@ class AclPost extends CakeTestModel
     /**
      * name property
      *
-     * @var string
+     * @var string|null
      */
     public ?string $name = 'Post';
 
     /**
      * useTable property
      *
-     * @var string
+     * @var string|bool|null
      */
     public string|bool|null $useTable = 'posts';
 
@@ -195,7 +195,7 @@ class AclBehaviorTest extends CakeTestCase
     /**
      * fixtures property
      *
-     * @var array
+     * @var array<string>
      */
     public array $fixtures = [
         'core.person',

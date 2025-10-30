@@ -51,7 +51,7 @@ abstract class BaseCoverageReport
     /**
      * is the test a plugin test
      *
-     * @var string
+     * @var string|null
      */
     public ?string $pluginTest = null;
 

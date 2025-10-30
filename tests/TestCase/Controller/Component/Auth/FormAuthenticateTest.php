@@ -42,7 +42,7 @@ class FormAuthenticateTest extends CakeTestCase
     /**
      * Fixtrues
      *
-     * @var array
+     * @var array<string>
      */
     public array $fixtures = [
         'core.user',

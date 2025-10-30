@@ -41,7 +41,7 @@ class ContainableBehaviorTest extends CakeTestCase
     /**
      * Fixtures associated with this test case
      *
-     * @var array
+     * @var array<string>
      */
     public array $fixtures = [
         'core.article',

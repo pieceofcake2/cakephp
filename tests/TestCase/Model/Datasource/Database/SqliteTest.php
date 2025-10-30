@@ -92,7 +92,7 @@ class SqliteTest extends CakeTestCase
     /**
      * Fixtures
      *
-     * @var array
+     * @var array<string>
      */
     public array $fixtures = [
         'core.user',

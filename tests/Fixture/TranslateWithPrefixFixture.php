@@ -32,7 +32,7 @@ class TranslateWithPrefixFixture extends CakeTestFixture
     /**
      * table property
      *
-     * @var string
+     * @var string|null
      */
     public ?string $table = 'i18n_translate_with_prefixes';
 

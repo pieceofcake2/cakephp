@@ -36,7 +36,7 @@ class ClassRegisterModel extends CakeTestModel
     /**
      * useTable property
      *
-     * @var bool
+     * @var string|bool|null
      */
     public string|bool|null $useTable = false;
 }
@@ -82,7 +82,7 @@ class RegistryPluginAppModel extends ClassRegisterModel
     /**
      * tablePrefix property
      *
-     * @var string
+     * @var string|null
      */
     public ?string $tablePrefix = 'something_';
 }

@@ -15,7 +15,7 @@ class FixturizedTestCase extends CakeTestCase
     /**
      * Fixtures to use in this thes
      *
-     * @var array
+     * @var array<string>
      */
     public array $fixtures = [
         'core.category',

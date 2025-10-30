@@ -60,7 +60,7 @@ class XmlView extends View
     /**
      * The subdirectory. XML views are always in xml.
      *
-     * @var string
+     * @var string|null
      */
     public ?string $subDir = 'xml';
 

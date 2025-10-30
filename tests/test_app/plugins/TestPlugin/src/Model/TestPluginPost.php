@@ -28,14 +28,14 @@ class TestPluginPost extends TestPluginAppModel
     /**
      * Name property
      *
-     * @var string
+     * @var string|null
      */
     public ?string $name = 'Post';
 
     /**
      * useTable property
      *
-     * @var string
+     * @var string|bool|null
      */
     public string|bool|null $useTable = 'posts';
 
@@ -69,7 +69,7 @@ class TestPluginPost extends TestPluginAppModel
     /**
      * Translation domain to use for validation messages
      *
-     * @var string
+     * @var string|null
      */
     public ?string $validationDomain = 'test_plugin';
 }

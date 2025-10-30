@@ -69,7 +69,7 @@ class MysqlTest extends CakeTestCase
     /**
      * fixtures property
      *
-     * @var array
+     * @var array<string>
      */
     public array $fixtures = [
         'core.apple',

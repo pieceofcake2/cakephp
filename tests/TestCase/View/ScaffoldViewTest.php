@@ -63,7 +63,7 @@ class ScaffoldViewMockController extends Controller
     /**
      * name property
      *
-     * @var string
+     * @var string|null
      */
     public ?string $name = 'ScaffoldMock';
 
@@ -86,7 +86,7 @@ class ScaffoldViewTest extends CakeTestCase
     /**
      * fixtures property
      *
-     * @var array
+     * @var array<string>
      */
     public array $fixtures = [
         'core.article',

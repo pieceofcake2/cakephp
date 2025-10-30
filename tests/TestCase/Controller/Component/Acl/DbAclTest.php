@@ -62,14 +62,14 @@ class AroTwoTest extends AclNodeTwoTestBase
     /**
      * name property
      *
-     * @var string
+     * @var string|null
      */
     public ?string $name = 'AroTwoTest';
 
     /**
      * useTable property
      *
-     * @var string
+     * @var string|bool|null
      */
     public string|bool|null $useTable = 'aro_twos';
 
@@ -92,14 +92,14 @@ class AcoTwoTest extends AclNodeTwoTestBase
     /**
      * name property
      *
-     * @var string
+     * @var string|null
      */
     public ?string $name = 'AcoTwoTest';
 
     /**
      * useTable property
      *
-     * @var string
+     * @var string|bool|null
      */
     public string|bool|null $useTable = 'aco_twos';
 
@@ -122,14 +122,14 @@ class PermissionTwoTest extends Permission
     /**
      * name property
      *
-     * @var string
+     * @var string|null
      */
     public ?string $name = 'PermissionTwoTest';
 
     /**
      * useTable property
      *
-     * @var string
+     * @var string|bool|null
      */
     public string|bool|null $useTable = 'aros_aco_twos';
 
@@ -150,7 +150,7 @@ class PermissionTwoTest extends Permission
     /**
      * actsAs property
      *
-     * @var mixed
+     * @var array<string|array<string, array>>
      */
     public array $actsAs = [];
 }
@@ -190,9 +190,13 @@ class DbAclTest extends CakeTestCase
     /**
      * fixtures property
      *
-     * @var array
+     * @var array<string>
      */
-    public array $fixtures = ['core.aro_two', 'core.aco_two', 'core.aros_aco_two'];
+    public array $fixtures = [
+        'core.aro_two',
+        'core.aco_two',
+        'core.aros_aco_two',
+    ];
 
     /**
      * setUp method

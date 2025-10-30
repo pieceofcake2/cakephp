@@ -32,7 +32,7 @@ class SessionHandlerAdapter implements SessionHandlerInterface
      *
      * @return bool Success
      */
-    public function close()
+    public function close(): bool
     {
         return $this->cakeSessionHandler->close();
     }
@@ -43,7 +43,7 @@ class SessionHandlerAdapter implements SessionHandlerInterface
      * @param string $id The session ID
      * @return bool Success
      */
-    public function destroy(string $id)
+    public function destroy(string $id): bool
     {
         return $this->cakeSessionHandler->destroy($id);
     }
@@ -54,7 +54,7 @@ class SessionHandlerAdapter implements SessionHandlerInterface
      * @param int $max_lifetime Session max lifetime in seconds
      * @return int|bool Number of deleted sessions or success status
      */
-    public function gc(int $max_lifetime)
+    public function gc(int $max_lifetime): int|bool
     {
         return $this->cakeSessionHandler->gc($max_lifetime);
     }
@@ -66,7 +66,7 @@ class SessionHandlerAdapter implements SessionHandlerInterface
      * @param string $name The session name
      * @return bool Success
      */
-    public function open(string $path, string $name)
+    public function open(string $path, string $name): bool
     {
         //Cake interface ignores these parameters.
         return $this->cakeSessionHandler->open();
@@ -78,7 +78,7 @@ class SessionHandlerAdapter implements SessionHandlerInterface
      * @param string $id The session ID
      * @return string|false The session data or false on failure
      */
-    public function read(string $id)
+    public function read(string $id): string|false
     {
         return $this->cakeSessionHandler->read($id);
     }
@@ -90,7 +90,7 @@ class SessionHandlerAdapter implements SessionHandlerInterface
      * @param string $data The session data
      * @return bool Success
      */
-    public function write(string $id, string $data)
+    public function write(string $id, string $data): bool
     {
         return $this->cakeSessionHandler->write($id, $data);
     }

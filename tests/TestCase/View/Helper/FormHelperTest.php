@@ -62,7 +62,7 @@ class Contact extends CakeTestModel
     /**
      * useTable property
      *
-     * @var bool
+     * @var string|bool|null
      */
     public string|bool|null $useTable = false;
 
@@ -157,7 +157,7 @@ class ContactTagsContact extends CakeTestModel
     /**
      * useTable property
      *
-     * @var bool
+     * @var string|bool|null
      */
     public string|bool|null $useTable = false;
 
@@ -195,7 +195,7 @@ class ContactNonStandardPk extends Contact
     /**
      * primaryKey property
      *
-     * @var string
+     * @var string|null
      */
     public ?string $primaryKey = 'pk';
 
@@ -225,7 +225,7 @@ class ContactTag extends Model
     /**
      * useTable property
      *
-     * @var bool
+     * @var string|bool|null
      */
     public string|bool|null $useTable = false;
 
@@ -253,7 +253,7 @@ class UserForm extends CakeTestModel
     /**
      * useTable property
      *
-     * @var bool
+     * @var string|bool|null
      */
     public string|bool|null $useTable = false;
 
@@ -296,7 +296,7 @@ class OpenidUrl extends CakeTestModel
     /**
      * useTable property
      *
-     * @var bool
+     * @var string|bool|null
      */
     public string|bool|null $useTable = false;
 
@@ -353,7 +353,7 @@ class ValidateUser extends CakeTestModel
     /**
      * useTable property
      *
-     * @var bool
+     * @var string|bool|null
      */
     public string|bool|null $useTable = false;
 
@@ -408,7 +408,7 @@ class ValidateProfile extends CakeTestModel
     /**
      * useTable property
      *
-     * @var bool
+     * @var string|bool|null
      */
     public string|bool|null $useTable = false;
 
@@ -469,7 +469,7 @@ class ValidateItem extends CakeTestModel
     /**
      * useTable property
      *
-     * @var bool
+     * @var string|bool|null
      */
     public string|bool|null $useTable = false;
 
@@ -520,7 +520,7 @@ class TestMail extends CakeTestModel
     /**
      * useTable property
      *
-     * @var bool
+     * @var string|bool|null
      */
     public string|bool|null $useTable = false;
 }
@@ -537,7 +537,7 @@ class FormHelperTest extends CakeTestCase
     /**
      * Fixtures to be used
      *
-     * @var array
+     * @var array<string>
      */
     public array $fixtures = [
         'core.post',

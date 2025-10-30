@@ -234,7 +234,7 @@ class SchemaPost extends CakeTestModel
     /**
      * useTable property
      *
-     * @var string
+     * @var string|bool|null
      */
     public string|bool|null $useTable = 'posts';
 
@@ -264,7 +264,7 @@ class SchemaComment extends CakeTestModel
     /**
      * useTable property
      *
-     * @var string
+     * @var string|bool|null
      */
     public string|bool|null $useTable = 'comments';
 
@@ -287,7 +287,7 @@ class SchemaTag extends CakeTestModel
     /**
      * useTable property
      *
-     * @var string
+     * @var string|bool|null
      */
     public string|bool|null $useTable = 'tags';
 
@@ -310,7 +310,7 @@ class SchemaDatatype extends CakeTestModel
     /**
      * useTable property
      *
-     * @var string
+     * @var string|bool|null
      */
     public string|bool|null $useTable = 'datatypes';
 }
@@ -341,7 +341,7 @@ class SchemaCrossDatabase extends CakeTestModel
     /**
      * useTable property
      *
-     * @var string
+     * @var string|bool|null
      */
     public string|bool|null $useTable = 'cross_database';
 
@@ -439,14 +439,14 @@ class SchemaPrefixAuthUser extends CakeTestModel
     /**
      * table prefix
      *
-     * @var string
+     * @var string|null
      */
     public ?string $tablePrefix = 'auth_';
 
     /**
      * useTable
      *
-     * @var string
+     * @var string|bool|null
      */
     public string|bool|null $useTable = 'users';
 }
@@ -462,7 +462,7 @@ class CakeSchemaTest extends CakeTestCase
     /**
      * fixtures property
      *
-     * @var array
+     * @var array<string>
      */
     public array $fixtures = [
         'core.post',

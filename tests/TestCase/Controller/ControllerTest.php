@@ -79,7 +79,7 @@ class ControllerPost extends CakeTestModel
     /**
      * useTable property
      *
-     * @var string
+     * @var string|bool|null
      */
     public string|bool|null $useTable = 'posts';
 
@@ -88,7 +88,7 @@ class ControllerPost extends CakeTestModel
      *
      * @var array
      */
-    public $invalidFields = ['name' => 'error_msg'];
+    public array $invalidFields = ['name' => 'error_msg'];
 
     /**
      * lastQuery property
@@ -113,22 +113,22 @@ class ControllerPost extends CakeTestModel
     /**
      * find method
      *
-     * @param string $type
-     * @param array $options
+     * @param string|null $type
+     * @param array|null $query
      * @return array|int|false|null
      */
     public function find(
-        $type = 'first',
-        $options = [],
+        ?string $type = 'first',
+        ?array $query = [],
     ): array|int|false|null {
         if ($type === 'popular') {
             $conditions = [$this->name . '.' . $this->primaryKey . ' > ' => '1'];
-            $options = Hash::merge($options, compact('conditions'));
+            $query = Hash::merge($query, compact('conditions'));
 
-            return parent::find('all', $options);
+            return parent::find('all', $query);
         }
 
-        return parent::find($type, $options);
+        return parent::find($type, $query);
     }
 }
 class_alias(ControllerPost::class, 'App\\Model\\ControllerPost');
@@ -155,14 +155,14 @@ class ControllerComment extends CakeTestModel
     /**
      * name property
      *
-     * @var string
+     * @var string|null
      */
     public ?string $name = 'Comment';
 
     /**
      * useTable property
      *
-     * @var string
+     * @var string|bool|null
      */
     public string|bool|null $useTable = 'comments';
 
@@ -176,7 +176,7 @@ class ControllerComment extends CakeTestModel
     /**
      * alias property
      *
-     * @var string
+     * @var string|null
      */
     public ?string $alias = 'ControllerComment';
 }
@@ -193,14 +193,14 @@ class ControllerAlias extends CakeTestModel
     /**
      * alias property
      *
-     * @var string
+     * @var string|null
      */
     public ?string $alias = 'ControllerSomeAlias';
 
     /**
      * useTable property
      *
-     * @var string
+     * @var string|bool|null
      */
     public string|bool|null $useTable = 'posts';
 }
@@ -216,21 +216,21 @@ class NameTest extends CakeTestModel
     /**
      * name property
      *
-     * @var string
+     * @var string|null
      */
     public ?string $name = 'Name';
 
     /**
      * useTable property
      *
-     * @var string
+     * @var string|bool|null
      */
     public string|bool|null $useTable = 'comments';
 
     /**
      * alias property
      *
-     * @var string
+     * @var string|null
      */
     public ?string $alias = 'Name';
 }
@@ -442,7 +442,7 @@ class ControllerTest extends CakeTestCase
     /**
      * fixtures property
      *
-     * @var array
+     * @var array<string>
      */
     public array $fixtures = [
         'core.post',

@@ -28,7 +28,7 @@ class Comment extends AppModel
     /**
      * Table name
      *
-     * @var string
+     * @var string|bool|null
      */
     public string|bool|null $useTable = 'comments';
 }

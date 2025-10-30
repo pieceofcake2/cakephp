@@ -473,7 +473,7 @@ class TestCachedPagesController extends Controller
     /**
      * viewPath property
      *
-     * @var string
+     * @var string|null
      */
     public ?string $viewPath = 'Posts';
 

@@ -32,7 +32,7 @@ class SanitizeDataTest extends CakeTestModel
     /**
      * useTable property
      *
-     * @var string
+     * @var string|bool|null
      */
     public string|bool|null $useTable = 'data_tests';
 }
@@ -48,7 +48,7 @@ class SanitizeArticle extends CakeTestModel
     /**
      * useTable property
      *
-     * @var string
+     * @var string|bool|null
      */
     public string|bool|null $useTable = 'articles';
 }
@@ -71,7 +71,7 @@ class SanitizeTest extends CakeTestCase
     /**
      * fixtures property
      *
-     * @var array
+     * @var array<string>
      */
     public array $fixtures = [
         'core.data_test',

@@ -55,7 +55,7 @@ class Permission extends AppModel
     /**
      * No behaviors for this model
      *
-     * @var array
+     * @var array<string|array<string, array>>
      */
     public array $actsAs = [];
 

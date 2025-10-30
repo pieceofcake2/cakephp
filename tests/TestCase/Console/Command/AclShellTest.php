@@ -38,7 +38,7 @@ class AclShellTest extends CakeTestCase
     /**
      * Fixtures
      *
-     * @var array
+     * @var array<string>
      */
     public array $fixtures = [
         'core.aco',

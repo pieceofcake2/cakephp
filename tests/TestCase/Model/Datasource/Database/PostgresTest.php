@@ -85,7 +85,7 @@ class PostgresTestModel extends Model
     /**
      * useTable property
      *
-     * @var bool
+     * @var string|bool|null
      */
     public string|bool|null $useTable = false;
 
@@ -103,19 +103,19 @@ class PostgresTestModel extends Model
     /**
      * find method
      *
-     * @param mixed $conditions
-     * @param mixed $fields
+     * @param string|null $type
+     * @param array|null $query
      * @param mixed $order
      * @param mixed $recursive
      * @return array|int|false|null
      */
     public function find(
-        mixed $conditions = null,
-        mixed $fields = null,
+        ?string $type = null,
+        ?array $query = null,
         mixed $order = null,
         mixed $recursive = null,
     ): array|int|false|null {
-        return $conditions;
+        return $type;
     }
 
     /**
@@ -178,7 +178,7 @@ class PostgresClientTestModel extends Model
     /**
      * useTable property
      *
-     * @var bool
+     * @var string|bool|null
      */
     public string|bool|null $useTable = false;
 
@@ -218,7 +218,7 @@ class PostgresTest extends CakeTestCase
     /**
      * Fixtures
      *
-     * @var array
+     * @var array<string>
      */
     public array $fixtures = [
         'core.user',

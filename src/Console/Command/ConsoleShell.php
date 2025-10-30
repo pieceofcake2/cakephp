@@ -361,10 +361,11 @@ class ConsoleShell extends AppShell
         [$modelToCheck] = explode('->', $command);
 
         if ($this->_isValidModel($modelToCheck)) {
+            /** @var mixed $data */
             $data = null;
             $findCommand = "\$data = \$this->$command;";
-            // phpcs:ignore
-            @eval($findCommand);
+
+            @eval($findCommand);// phpcs:ignore
 
             if (is_array($data)) {
                 foreach ($data as $idx => $results) {

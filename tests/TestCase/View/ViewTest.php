@@ -48,7 +48,7 @@ class ViewPostsController extends Controller
     /**
      * name property
      *
-     * @var string
+     * @var string|null
      */
     public ?string $name = 'Posts';
 
@@ -329,7 +329,7 @@ class ViewTest extends CakeTestCase
     /**
      * Fixtures used in this test.
      *
-     * @var array
+     * @var array<string>
      */
     public array $fixtures = [
         'core.user',

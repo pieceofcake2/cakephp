@@ -88,7 +88,7 @@ class CakeSessionTest extends CakeTestCase
     /**
      * Fixtures used in the SessionTest
      *
-     * @var array
+     * @var array<string>
      */
     public array $fixtures = [
         'core.session',

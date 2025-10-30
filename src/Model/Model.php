@@ -72,7 +72,7 @@ class Model extends CakeObject implements CakeEventListener
     /**
      * Custom database table name, or null/false if no table association is desired.
      *
-     * @var string|false|null
+     * @var string|bool|null
      * @link https://book.cakephp.org/2.0/en/models/model-attributes.html#usetable
      */
     public string|bool|null $useTable = null;
@@ -82,7 +82,7 @@ class Model extends CakeObject implements CakeEventListener
      *
      * This field is also used in `find('list')` when called with no extra parameters in the fields list
      *
-     * @var string|false|null
+     * @var string|bool|null
      * @link https://book.cakephp.org/2.0/en/models/model-attributes.html#displayfield
      */
     public string|bool|null $displayField = null;
@@ -874,7 +874,12 @@ class Model extends CakeObject implements CakeEventListener
             return $result;
         }
 
-        return $this->getDataSource()->query($method, $params, $this);
+        $db = $this->getDataSource();
+        if (method_exists($db, 'query')) {
+            return $db->query($method, $params, $this);
+        }
+
+        return null;
     }
 
     /**
@@ -1166,7 +1171,7 @@ class Model extends CakeObject implements CakeEventListener
         $assoc =& $this->{$type}[$assocKey];
 
         foreach ($this->_associationKeys[$type] as $key) {
-            if (!isset($assoc[$key]) || $assoc[$key] === null) {
+            if (!isset($assoc[$key])) {
                 $assoc[$key] = match ($key) {
                     'foreignKey' => ($type === 'belongsTo' ? Inflector::underscore($assocKey) : Inflector::singularize($this->table)) . '_id',
                     'associationForeignKey' => (function () use ($class) {
@@ -1209,23 +1214,21 @@ class Model extends CakeObject implements CakeEventListener
         $this->setDataSource($this->useDbConfig);
         $db = ConnectionManager::getDataSource($this->useDbConfig);
 
-        if (method_exists($db, 'listSources')) {
-            $restore = $db->cacheSources;
-            $db->cacheSources = ($restore && $this->cacheSources);
-            $sources = $db->listSources();
-            $db->cacheSources = $restore;
+        $restore = $db->cacheSources;
+        $db->cacheSources = ($restore && $this->cacheSources);
+        $sources = $db->listSources();
+        $db->cacheSources = $restore;
 
-            if (is_array($sources) && !in_array(strtolower($this->tablePrefix . $tableName), array_map('strtolower', $sources))) {
-                throw new MissingTableException([
-                    'table' => $this->tablePrefix . $tableName,
-                    'class' => $this->alias,
-                    'ds' => $this->useDbConfig,
-                ]);
-            }
+        if (is_array($sources) && !in_array(strtolower($this->tablePrefix . $tableName), array_map('strtolower', $sources))) {
+            throw new MissingTableException([
+                'table' => $this->tablePrefix . $tableName,
+                'class' => $this->alias,
+                'ds' => $this->useDbConfig,
+            ]);
+        }
 
-            if ($sources) {
-                $this->_schema = null;
-            }
+        if ($sources) {
+            $this->_schema = null;
         }
 
         $this->table = $this->useTable = $tableName;
@@ -1443,9 +1446,7 @@ class Model extends CakeObject implements CakeEventListener
         if ($this->useTable !== false && (!is_array($this->_schema) || $field === true)) {
             $db = $this->getDataSource();
             $db->cacheSources = ($this->cacheSources && $db->cacheSources);
-            if (method_exists($db, 'describe')) {
-                $this->_schema = $db->describe($this);
-            }
+            $this->_schema = $db->describe($this);
         }
 
         if (!is_string($field)) {
@@ -1618,10 +1619,10 @@ class Model extends CakeObject implements CakeEventListener
      * @param array|bool|null $data Optional data array to assign to the model after it is created. If null or false,
      *   schema data defaults are not merged.
      * @param bool $filterKey If true, overwrites any primary key input with an empty value
-     * @return array The current Model::data; after merging $data and/or defaults from database
+     * @return array|null The current Model::data; after merging $data and/or defaults from database
      * @link https://book.cakephp.org/2.0/en/models/saving-your-data.html#model-create-array-data-array
      */
-    public function create(array|bool|null $data = [], bool $filterKey = false): array
+    public function create(array|bool|null $data = [], bool $filterKey = false): ?array
     {
         $defaults = [];
         $this->id = false;
@@ -2022,7 +2023,7 @@ class Model extends CakeObject implements CakeEventListener
             }
         }
 
-        if ($success && !empty($joined)) {
+        if ($success && !empty($joined) && $db instanceof DboSource) {
             $this->_saveMulti($joined, $this->id, $db);
         }
 
@@ -2407,6 +2408,7 @@ class Model extends CakeObject implements CakeEventListener
             return !empty($result);
         }
 
+        $validates = null;
         if ($options['validate'] === 'first') {
             $validates = $this->validateMany($data, $options);
             if ((!$validates && $options['atomic']) || (!$options['atomic'] && in_array(false, $validates, true))) {
@@ -3117,14 +3119,14 @@ class Model extends CakeObject implements CakeEventListener
      *
      * Note: find(count) has its own return values.
      *
-     * @param string $type Type of find operation (all / first / count / neighbors / list / threaded)
-     * @param array $query Option fields (conditions / fields / joins / limit / offset / order / page / group / callbacks)
+     * @param string|null $type Type of find operation (all / first / count / neighbors / list / threaded)
+     * @param array|null $query Option fields (conditions / fields / joins / limit / offset / order / page / group / callbacks)
      * @return array|int|false|null Array of records, int if the type is count, or Null on failure.
      * @link https://book.cakephp.org/2.0/en/models/retrieving-your-data.html
      */
     public function find(
-        string $type = 'first',
-        array $query = [],
+        ?string $type = 'first',
+        ?array $query = [],
     ): array|int|false|null {
         $this->findQueryType = $type;
         $this->id = $this->getID();
@@ -3382,7 +3384,7 @@ class Model extends CakeObject implements CakeEventListener
                 }
             }
 
-            if (!isset($query['recursive']) || $query['recursive'] === null) {
+            if (!isset($query['recursive'])) {
                 $query['recursive'] = -1;
             }
             [$query['list']['keyPath'], $query['list']['valuePath'], $query['list']['groupPath']] = $list;
@@ -3408,10 +3410,11 @@ class Model extends CakeObject implements CakeEventListener
      */
     protected function _findNeighbors(string $state, array $query, array $results = []): array
     {
-        extract($query);
+        $field = $query['field'] ?? null;
+        $value = $query['value'] ?? null;
+        $conditions = $query['conditions'] ?? [];
 
         if ($state === 'before') {
-            $conditions = (array)$conditions;
             if (isset($field) && isset($value)) {
                 if (!str_contains($field, '.')) {
                     $field = $this->alias . '.' . $field;
@@ -3421,7 +3424,7 @@ class Model extends CakeObject implements CakeEventListener
                 $value = $this->id;
             }
 
-            $query['conditions'] = array_merge($conditions, [$field . ' <' => $value]);
+            $query['conditions'] = array_merge((array)$conditions, [$field . ' <' => $value]);
             $query['order'] = $field . ' DESC';
             $query['limit'] = 1;
             $query['field'] = $field;
@@ -3711,6 +3714,10 @@ class Model extends CakeObject implements CakeEventListener
         }
 
         $db = $this->getDataSource();
+        if (!method_exists($db, 'name')) {
+            return null;
+        }
+
         if (str_starts_with($field, $db->name($alias) . '.')) {
             return $field;
         }

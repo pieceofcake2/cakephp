@@ -25,6 +25,7 @@ use Cake\Error\SocketException;
 use Cake\Log\CakeLog;
 use Cake\Network\Email\CakeEmail;
 use Cake\Network\Email\DebugTransport;
+use Cake\Network\Email\EmailConfigInterface;
 use Cake\TestSuite\CakeTestCase;
 use Cake\Utility\File;
 use TypeError;
@@ -99,19 +100,10 @@ class TestCakeEmail extends CakeEmail
     }
 }
 
-class EmailConfig
-{
-    public array $default = [];
-}
-
-if (!class_exists('EmailConfig')) {
-    class_alias(EmailConfig::class, 'EmailConfig');
-}
-
 /**
  * EmailConfig class
  */
-class TestEmailConfig extends EmailConfig
+class TestEmailConfig implements EmailConfigInterface
 {
     /**
      * default config

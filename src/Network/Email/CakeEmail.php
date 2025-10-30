@@ -347,9 +347,9 @@ class CakeEmail
     /**
      * An instance of the EmailConfig class can be set here
      *
-     * @var EmailConfig|null
+     * @var EmailConfigInterface|null
      */
-    protected ?EmailConfig $_configInstance = null;
+    protected ?EmailConfigInterface $_configInstance = null;
 
     /**
      * Constructor

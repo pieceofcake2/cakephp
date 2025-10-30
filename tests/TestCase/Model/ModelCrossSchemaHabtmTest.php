@@ -35,7 +35,7 @@ class ModelCrossSchemaHabtmTest extends BaseModelTest
     /**
      * Fixtures to be used
      *
-     * @var array
+     * @var array<string>
      */
     public array $fixtures = [
         'core.player',

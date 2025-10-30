@@ -145,7 +145,7 @@ class PaginatorComponent extends Component
     /**
      * Handles automatic pagination of model records.
      *
-     * @param Model|string|null $object Model to paginate (e.g: model instance, or 'Model', or 'Model.InnerModel')
+     * @param Model|array|string|null $object Model to paginate (e.g: model instance, or 'Model', or 'Model.InnerModel')
      * @param array|string|null $scope Additional find conditions to use while paginating
      * @param array $whitelist List of allowed fields for ordering. This allows you to prevent ordering
      *   on non-indexed, or undesirable columns. See PaginatorComponent::validateSort() for additional details
@@ -368,9 +368,11 @@ class PaginatorComponent extends Component
      *   that key's settings will be used for pagination instead of the general ones.
      * @return array Array of merged options.
      */
-    public function mergeOptions(string $alias)
+    public function mergeOptions(string $alias): array
     {
         $defaults = $this->getDefaults($alias);
+        $request = [];
+
         switch ($defaults['paramType']) {
             case 'named':
                 $request = $this->Controller->request->params['named'];
@@ -382,6 +384,7 @@ class PaginatorComponent extends Component
         if ($defaults['queryScope']) {
             $request = Hash::get($request, $defaults['queryScope'], []);
         }
+
         $request = array_intersect_key($request, array_flip($this->whitelist));
 
         return array_merge($defaults, $request);
@@ -397,7 +400,8 @@ class PaginatorComponent extends Component
      *     limit: int,
      *     maxLimit: int,
      *     paramType: string,
-     *     queryScope: mixed|null
+     *     queryScope: mixed|null,
+     *     0?: mixed
      * } An array of pagination defaults for a model, or the general settings.
      */
     public function getDefaults(string $alias): array

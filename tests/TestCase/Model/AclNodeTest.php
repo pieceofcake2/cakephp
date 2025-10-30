@@ -61,7 +61,7 @@ class DbAroTest extends DbAclNodeTestBase
     /**
      * useTable property
      *
-     * @var string
+     * @var string|bool|null
      */
     public string|bool|null $useTable = 'aros';
 
@@ -84,7 +84,7 @@ class DbAcoTest extends DbAclNodeTestBase
     /**
      * useTable property
      *
-     * @var string
+     * @var string|bool|null
      */
     public string|bool|null $useTable = 'acos';
 
@@ -107,7 +107,7 @@ class DbPermissionTest extends CakeTestModel
     /**
      * useTable property
      *
-     * @var string
+     * @var string|bool|null
      */
     public string|bool|null $useTable = 'aros_acos';
 
@@ -137,7 +137,7 @@ class DbAcoActionTest extends CakeTestModel
     /**
      * useTable property
      *
-     * @var string
+     * @var string|bool|null
      */
     public string|bool|null $useTable = 'aco_actions';
 
@@ -160,14 +160,14 @@ class DbAroUserTest extends CakeTestModel
     /**
      * name property
      *
-     * @var string
+     * @var string|null
      */
     public ?string $name = 'AuthUser';
 
     /**
      * useTable property
      *
-     * @var string
+     * @var string|bool|null
      */
     public string|bool|null $useTable = 'auth_users';
 
@@ -217,7 +217,7 @@ class AclNodeTest extends CakeTestCase
     /**
      * fixtures property
      *
-     * @var array
+     * @var array<string>
      */
     public array $fixtures = [
         'core.aro',

@@ -31,21 +31,21 @@ class I18nModel extends AppModel
     /**
      * Model name
      *
-     * @var string
+     * @var string|null
      */
     public ?string $name = 'I18nModel';
 
     /**
      * Table name
      *
-     * @var string
+     * @var string|bool|null
      */
     public string|bool|null $useTable = 'i18n';
 
     /**
      * Display field
      *
-     * @var string
+     * @var string|bool|null
      */
     public string|bool|null $displayField = 'field';
 }

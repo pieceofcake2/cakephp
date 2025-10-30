@@ -41,7 +41,7 @@ class HelperTestPost extends Model
     /**
      * useTable property
      *
-     * @var bool
+     * @var string|bool|null
      */
     public string|bool|null $useTable = false;
 
@@ -83,7 +83,7 @@ class HelperTestComment extends Model
     /**
      * useTable property
      *
-     * @var bool
+     * @var string|bool|null
      */
     public string|bool|null $useTable = false;
 
@@ -118,7 +118,7 @@ class HelperTestTag extends Model
     /**
      * useTable property
      *
-     * @var bool
+     * @var string|bool|null
      */
     public string|bool|null $useTable = false;
 
@@ -150,7 +150,7 @@ class HelperTestPostsTag extends Model
     /**
      * useTable property
      *
-     * @var bool
+     * @var string|bool|null
      */
     public string|bool|null $useTable = false;
 

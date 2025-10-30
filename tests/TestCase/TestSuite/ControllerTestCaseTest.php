@@ -122,7 +122,7 @@ class ControllerTestCaseTest extends CakeTestCase
     /**
      * fixtures property
      *
-     * @var array
+     * @var array<string>
      */
     public array $fixtures = [
         'core.post',

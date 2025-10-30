@@ -61,7 +61,7 @@ class JsonView extends View
      * JSON views are always located in the 'json' sub directory for
      * controllers' views.
      *
-     * @var string
+     * @var string|null
      */
     public ?string $subDir = 'json';
 

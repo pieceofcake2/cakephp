@@ -39,7 +39,7 @@ class XmlArticle extends CakeTestModel
     /**
      * name property
      *
-     * @var string
+     * @var string|null
      */
     public ?string $name = 'Article';
 
@@ -67,7 +67,7 @@ class XmlUser extends CakeTestModel
     /**
      * name property
      *
-     * @var string
+     * @var string|null
      */
     public ?string $name = 'User';
 
@@ -101,7 +101,7 @@ class XmlTest extends CakeTestCase
     /**
      * fixtures property
      *
-     * @var array
+     * @var array<string>
      */
     public array $fixtures = [
         'core.article',

@@ -26,7 +26,7 @@ class Aro extends AclNode
     /**
      * Model name
      *
-     * @var string
+     * @var string|null
      */
     public ?string $name = 'Aro';
 

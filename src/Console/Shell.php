@@ -92,7 +92,7 @@ class Shell extends CakeObject
     /**
      * The command (method/task) that is being run.
      *
-     * @var string
+     * @var string|null
      */
     public ?string $command = null;
 

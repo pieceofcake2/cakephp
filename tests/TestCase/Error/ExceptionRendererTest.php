@@ -66,7 +66,7 @@ class AuthBlueberryUser extends CakeTestModel
     /**
      * useTable property
      *
-     * @var string
+     * @var string|bool|null
      */
     public string|bool|null $useTable = false;
 }

@@ -150,7 +150,7 @@ class ModelValidator implements ArrayAccess, IteratorAggregate, Countable
             $validationErrors[$model->alias] = $model->validationErrors;
             $return[$model->alias] = false;
         }
-        $data = $model->data;
+        $data = $model->data ?: [];
         if (!empty($options['deep']) && isset($data[$model->alias])) {
             $recordData = $data[$model->alias];
             unset($data[$model->alias]);

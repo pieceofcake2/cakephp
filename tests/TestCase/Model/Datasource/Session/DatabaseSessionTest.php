@@ -48,7 +48,7 @@ class DatabaseSessionTest extends CakeTestCase
     /**
      * fixtures
      *
-     * @var array
+     * @var array<string>
      */
     public array $fixtures = [
         'core.session',

@@ -139,7 +139,7 @@ class SqlserverTestModel extends CakeTestModel
     /**
      * useTable property
      *
-     * @var bool
+     * @var string|bool|null
      */
     public string|bool|null $useTable = false;
 
@@ -183,19 +183,19 @@ class SqlserverTestModel extends CakeTestModel
     /**
      * find method
      *
-     * @param mixed $conditions
-     * @param mixed $fields
+     * @param string|null $type
+     * @param array|null $query
      * @param mixed $order
      * @param mixed $recursive
      * @return array|int|false|null
      */
     public function find(
-        $conditions = null,
-        $fields = null,
-        $order = null,
-        $recursive = null,
+        ?string $type = null,
+        ?array $query = null,
+        mixed $order = null,
+        mixed $recursive = null,
     ): array|int|false|null {
-        return $conditions;
+        return [$type];
     }
 }
 class_alias(SqlserverTestModel::class, 'App\\Model\\SqlserverTestModel');
@@ -210,7 +210,7 @@ class SqlserverClientTestModel extends CakeTestModel
     /**
      * useTable property
      *
-     * @var bool
+     * @var string|bool|null
      */
     public string|bool|null $useTable = false;
 
@@ -286,7 +286,7 @@ class SqlserverTest extends CakeTestCase
     /**
      * fixtures property
      *
-     * @var array
+     * @var array<string>
      */
     public array $fixtures = [
         'core.user',

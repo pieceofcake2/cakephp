@@ -73,7 +73,7 @@ class DatabaseSession implements CakeSessionHandlerInterface
      *
      * @return bool Success
      */
-    public function open()
+    public function open(): bool
     {
         return true;
     }
@@ -83,7 +83,7 @@ class DatabaseSession implements CakeSessionHandlerInterface
      *
      * @return bool Success
      */
-    public function close()
+    public function close(): bool
     {
         return true;
     }
@@ -91,10 +91,10 @@ class DatabaseSession implements CakeSessionHandlerInterface
     /**
      * Method used to read from a database session.
      *
-     * @param string|int $id The key of the value to read
-     * @return mixed The value of the key or false if it does not exist
+     * @param string $id The key of the value to read
+     * @return string The value of the key or false if it does not exist
      */
-    public function read($id)
+    public function read(string $id): string
     {
         $row = $this->_model->find('first', [
             'conditions' => [$this->_model->alias . '.' . $this->_model->primaryKey => $id],
@@ -117,11 +117,11 @@ class DatabaseSession implements CakeSessionHandlerInterface
      * Will retry, once, if the save triggers a PDOException which
      * can happen if a race condition is encountered
      *
-     * @param int $id ID that uniquely identifies session in database
+     * @param string $id ID that uniquely identifies session in database
      * @param mixed $data The value of the data to be saved.
      * @return bool True for successful write, false otherwise.
      */
-    public function write($id, $data)
+    public function write(string $id, mixed $data): bool
     {
         if (!$id) {
             return false;
@@ -145,10 +145,10 @@ class DatabaseSession implements CakeSessionHandlerInterface
     /**
      * Method called on the destruction of a database session.
      *
-     * @param int $id ID that uniquely identifies session in database
+     * @param string $id ID that uniquely identifies session in database
      * @return bool True for successful delete, false otherwise.
      */
-    public function destroy($id)
+    public function destroy(string $id): bool
     {
         return (bool)$this->_model->delete($id);
     }
@@ -156,10 +156,10 @@ class DatabaseSession implements CakeSessionHandlerInterface
     /**
      * Helper function called on gc for database sessions.
      *
-     * @param int $expires Timestamp (defaults to current time)
+     * @param int|null $expires Timestamp (defaults to current time)
      * @return bool Success
      */
-    public function gc($expires = null)
+    public function gc(?int $expires = null): bool
     {
         if (!$expires) {
             $expires = time();

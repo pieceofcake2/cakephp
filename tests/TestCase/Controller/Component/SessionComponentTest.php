@@ -90,7 +90,7 @@ class SessionComponentTest extends CakeTestCase
     /**
      * fixtures
      *
-     * @var string
+     * @var array<string>
      */
     public array $fixtures = [
         'core.session',

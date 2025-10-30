@@ -37,7 +37,7 @@ class RequestActionPost extends CakeTestModel
     /**
      * useTable property
      *
-     * @var string
+     * @var string|bool|null
      */
     public string|bool|null $useTable = 'posts';
 }
@@ -324,7 +324,7 @@ class CakeObjectTest extends CakeTestCase
     /**
      * fixtures
      *
-     * @var string
+     * @var array<string>
      */
     public array $fixtures = [
         'core.post',
