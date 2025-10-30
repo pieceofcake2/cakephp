@@ -22,7 +22,6 @@ namespace Cake\Test\TestCase\Controller;
 
 use Cake\Controller\Component;
 use Cake\Controller\Controller;
-use Cake\Core\CakeObject;
 use Cake\TestSuite\CakeTestCase;
 
 /**

@@ -9,7 +9,6 @@ use Cake\Utility\Inflector;
 use Exception;
 use PHPUnit\Framework\AssertionFailedError;
 use PHPUnit\Framework\Test;
-use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\TestResult;
 use PHPUnit\Framework\TestSuite;
 use SebastianBergmann\CodeCoverage\ProcessedCodeCoverageData;

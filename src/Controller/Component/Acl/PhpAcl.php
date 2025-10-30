@@ -22,7 +22,6 @@ use Cake\Configure\PhpReader;
 use Cake\Controller\Component;
 use Cake\Core\CakeObject;
 use Cake\Error\AclException;
-use Cake\Model\AclNode;
 use Cake\Model\Model;
 use Cake\Utility\Hash;
 use Cake\Utility\Inflector;

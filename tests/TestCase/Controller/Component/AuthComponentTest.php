@@ -27,7 +27,6 @@ use Cake\Controller\Component\SessionComponent;
 use Cake\Controller\ComponentCollection;
 use Cake\Controller\Controller;
 use Cake\Core\App;
-use Cake\Core\CakeObject;
 use Cake\Core\Configure;
 use Cake\Error\CakeException;
 use Cake\Error\ForbiddenException;

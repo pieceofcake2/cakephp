@@ -18,8 +18,6 @@
 
 namespace Cake\Test\TestCase\Network\Http;
 
-use Cake\Core\App;
-use Cake\Error\SocketException;
 use Cake\Network\Http\DigestAuthentication;
 use Cake\Network\Http\HttpSocket;
 use Cake\Network\Http\HttpSocketResponse;

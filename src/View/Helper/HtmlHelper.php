@@ -24,7 +24,6 @@ use AppHelper;
 use Cake\Core\App;
 use Cake\Core\Configure;
 use Cake\Error\ConfigureException;
-use Cake\Network\CakeRequest;
 use Cake\Network\CakeResponse;
 use Cake\Utility\File;
 use Cake\Utility\Inflector;

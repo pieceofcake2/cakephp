@@ -113,7 +113,7 @@ class PostgresTestModel extends Model
         mixed $conditions = null,
         mixed $fields = null,
         mixed $order = null,
-        mixed $recursive = null
+        mixed $recursive = null,
     ): array|int|false|null {
         return $conditions;
     }

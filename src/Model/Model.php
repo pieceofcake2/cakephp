@@ -1169,8 +1169,9 @@ class Model extends CakeObject implements CakeEventListener
             if (!isset($assoc[$key]) || $assoc[$key] === null) {
                 $assoc[$key] = match ($key) {
                     'foreignKey' => ($type === 'belongsTo' ? Inflector::underscore($assocKey) : Inflector::singularize($this->table)) . '_id',
-                    'associationForeignKey' => (function() use ($class) {
+                    'associationForeignKey' => (function () use ($class) {
                         $table = $this->{$class}->table;
+
                         return Inflector::singularize($table) . '_id';
                     })(),
                     'with' => (function () use (&$dynamicWith, $assoc) {

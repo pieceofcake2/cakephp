@@ -24,7 +24,6 @@ use Cake\Error\CakeException;
 use Cake\Utility\CakeTime;
 use Cake\Utility\Hash;
 use Cake\View\View;
-use DateTime;
 use DateTimeInterface;
 use DateTimeZone;
 

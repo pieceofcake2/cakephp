@@ -64,7 +64,6 @@ class CacheTestController extends Controller
  */
 class CacheHelperTest extends CakeTestCase
 {
-
     public ?Controller $Controller = null;
 
     /**

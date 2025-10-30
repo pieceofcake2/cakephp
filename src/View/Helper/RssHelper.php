@@ -23,7 +23,6 @@ namespace Cake\View\Helper;
 use AppHelper;
 use Cake\Core\App;
 use Cake\Utility\Xml;
-use DateTime;
 use DateTimeInterface;
 
 App::uses('AppHelper', 'View/Helper');
