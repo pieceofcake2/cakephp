@@ -391,12 +391,12 @@ class Postgres extends DboSource
      * @param Model|string $table A string or model class representing the table to be truncated
      * @param bool $reset true for resetting the sequence, false to leave it as is.
      *    and if 1, sequences are not modified
-     * @return bool|null SQL TRUNCATE TABLE statement, false if not applicable.
+     * @return PDOStatement|bool|null SQL TRUNCATE TABLE statement, false if not applicable.
      */
     public function truncate(
         Model|string $table,
         bool $reset = false,
-    ): bool|null {
+    ): PDOStatement|bool|null {
         $table = $this->fullTableName($table, false, false);
         if (!isset($this->_sequenceMap[$table])) {
             $cache = $this->cacheSources;

@@ -253,11 +253,11 @@ class Sqlite extends DboSource
      * primary key, where applicable.
      *
      * @param Model|string $table A string or model class representing the table to be truncated
-     * @return bool|null SQL TRUNCATE TABLE statement, false if not applicable.
+     * @return PDOStatement|bool|null SQL TRUNCATE TABLE statement, false if not applicable.
      */
     public function truncate(
         Model|string $table,
-    ): bool|null {
+    ): PDOStatement|bool|null {
         if (in_array('sqlite_sequence', $this->listSources())) {
             $this->_execute('DELETE FROM sqlite_sequence where name=' . $this->startQuote . $this->fullTableName($table, false, false) . $this->endQuote);
         }

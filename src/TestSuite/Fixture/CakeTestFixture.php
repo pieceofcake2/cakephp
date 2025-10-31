@@ -29,6 +29,7 @@ use Cake\Utility\ClassRegistry;
 use Cake\Utility\Hash;
 use Cake\Utility\Inflector;
 use Exception;
+use PDOStatement;
 
 /**
  * CakeTestFixture is responsible for building and destroying tables to be used
@@ -357,10 +358,11 @@ class CakeTestFixture
      * CakeFixture to trigger other events before / after truncate.
      *
      * @param DboSource $db A reference to a db instance
-     * @return bool|null
+     * @return PDOStatement|bool|null
      */
-    public function truncate(DboSource $db): bool|null
-    {
+    public function truncate(
+        DboSource $db,
+    ): PDOStatement|bool|null {
         $fullDebug = $db->fullDebug;
         $db->fullDebug = false;
         $return = $db->truncate($this->table);
