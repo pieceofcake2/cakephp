@@ -89,6 +89,11 @@ class ConsoleShell extends AppShell
     ];
 
     /**
+     * @var Dispatcher|null
+     */
+    public ?Dispatcher $Dispatcher = null;
+
+    /**
      * Override startup of the Shell
      *
      * @return void
@@ -545,9 +550,11 @@ class ConsoleShell extends AppShell
         Router::reload();
         extract(Router::getNamedExpressions());
 
-        if (!@include CONFIG . 'routes.php') { // phpcs:ignore Generic.PHP.NoSilencedErrors.Discouraged
+        // phpcs:ignore Generic.PHP.NoSilencedErrors.Discouraged
+        if (!@include CONFIG . 'routes.php') {
             return false;
         }
+
         CakePlugin::routes();
         Router::parse('/');
 
