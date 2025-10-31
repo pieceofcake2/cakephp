@@ -2651,7 +2651,7 @@ class ValidationRuleBehavior extends ModelBehavior
 {
     public function setup(
         Model $model,
-        array $config = []
+        array $config = [],
     ): void {
         $this->settings[$model->alias] = $config;
     }

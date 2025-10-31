@@ -432,7 +432,7 @@ class Test4Behavior extends ModelBehavior
 {
     public function setup(
         Model $model,
-        array $config = []
+        array $config = [],
     ): void {
         $model->bindModel(
             ['hasMany' => ['Comment']],

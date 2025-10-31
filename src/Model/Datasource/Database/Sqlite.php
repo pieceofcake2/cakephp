@@ -423,7 +423,7 @@ class Sqlite extends DboSource
      * @return string|null SQL limit/offset statement
      */
     public function limit(
-        array|string|int|null$limit,
+        array|string|int|null $limit,
         array|string|int|null $offset = null,
     ): ?string {
         if ($limit) {

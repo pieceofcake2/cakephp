@@ -18,7 +18,6 @@
 
 namespace Cake\Test\TestCase\Model\Datasource\Database;
 
-use ArrayIterator;
 use Cake\Core\App;
 use Cake\Model\ConnectionManager;
 use Cake\Model\Datasource\Database\Sqlserver;
@@ -234,7 +233,6 @@ class SqlserverClientTestModel extends CakeTestModel
     ];
 }
 class_alias(SqlserverClientTestModel::class, 'App\\Model\\SqlserverClientTestModel');
-
 
 /**
  * SqlserverTest class
@@ -500,6 +498,7 @@ class SqlserverTest extends CakeTestCase
                 if ($index >= count($tableData)) {
                     return false;
                 }
+
                 return $tableData[$index++];
             });
 

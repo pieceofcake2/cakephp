@@ -3215,7 +3215,6 @@ class DboSource extends DataSource
                         }
                     }
                 } elseif (is_array($value) && !empty($value) && !$valueInsert) {
-                    $keys = array_keys($value);
                     if (count($value) === 1 && !preg_match('/\s+(?:NOT|IN|\!=)$/', $key)) {
                         $data = $this->_quoteFields($key) . ' = (';
                         if ($quoteValues) {
@@ -3784,8 +3783,7 @@ class DboSource extends DataSource
     public function createSchema(
         CakeSchema $schema,
         ?string $tableName = null,
-    ): string
-    {
+    ): string {
         $out = '';
 
         foreach ($schema->tables as $curTable => $columns) {
