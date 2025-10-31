@@ -61,27 +61,29 @@ class IniReader implements ConfigReaderInterface
     /**
      * The path to read ini files from.
      *
-     * @var array
+     * @var string|null
      */
-    protected $_path;
+    protected ?string $_path = null;
 
     /**
      * The section to read, if null all sections will be read.
      *
-     * @var string
+     * @var string|null
      */
-    protected $_section;
+    protected ?string $_section = null;
 
     /**
      * Build and construct a new ini file parser. The parser can be used to read
      * ini files that are on the filesystem.
      *
-     * @param string $path Path to load ini config files from. Defaults to CONFIG
-     * @param string $section Only get one section, leave null to parse and fetch
+     * @param string|null $path Path to load ini config files from. Defaults to CONFIG
+     * @param string|null $section Only get one section, leave null to parse and fetch
      *     all sections in the ini file.
      */
-    public function __construct($path = null, $section = null)
-    {
+    public function __construct(
+        ?string $path = null,
+        ?string $section = null,
+    ) {
         if (!$path) {
             $path = CONFIG;
         }
@@ -100,7 +102,7 @@ class IniReader implements ConfigReaderInterface
      * @throws ConfigureException when files don't exist.
      *  Or when files contain '..' as this could lead to abusive reads.
      */
-    public function read($key)
+    public function read(string $key): array
     {
         if (str_contains($key, '..')) {
             throw new ConfigureException(__d('cake_dev', 'Cannot load configuration files with ../ in them.'));
@@ -135,7 +137,7 @@ class IniReader implements ConfigReaderInterface
      * @param array $values Values to be exploded.
      * @return array Array of values exploded
      */
-    protected function _parseNestedValues($values)
+    protected function _parseNestedValues(array $values): array
     {
         foreach ($values as $key => $value) {
             if ($value === '1') {
@@ -161,9 +163,9 @@ class IniReader implements ConfigReaderInterface
      * @param string $key The identifier to write to. If the key has a . it will be treated
      *  as a plugin prefix.
      * @param array $data The data to convert to ini file.
-     * @return int Bytes saved.
+     * @return int|false Bytes saved.
      */
-    public function dump($key, $data)
+    public function dump(string $key, array $data): int|false
     {
         $result = [];
         foreach ($data as $k => $value) {
@@ -195,7 +197,7 @@ class IniReader implements ConfigReaderInterface
      * @param mixed $val Value to export.
      * @return string String value for ini file.
      */
-    protected function _value($val)
+    protected function _value(mixed $val): string
     {
         if ($val === null) {
             return 'null';
@@ -217,7 +219,7 @@ class IniReader implements ConfigReaderInterface
      *  as a plugin prefix.
      * @return string Full file path
      */
-    protected function _getFilePath($key)
+    protected function _getFilePath(string $key): string
     {
         if (str_ends_with($key, '.ini.php')) {
             $key = substr($key, 0, -8);

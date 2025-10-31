@@ -46,7 +46,7 @@ abstract class CacheEngine
      * @param array $settings Associative array of parameters for the engine
      * @return bool True if the engine has been successfully initialized, false if not
      */
-    public function init($settings = [])
+    public function init(array $settings = []): bool
     {
         $settings += $this->settings + [
             'prefix' => 'cake_',
@@ -71,11 +71,12 @@ abstract class CacheEngine
      *
      * Permanently remove all expired and deleted data
      *
-     * @param int $expires [optional] An expires timestamp, invalidating all data before.
-     * @return void
+     * @param int|null $expires [optional] An expires timestamp, invalidating all data before.
+     * @return bool
      */
-    public function gc($expires = null)
+    public function gc(?int $expires = null): bool
     {
+        return true;
     }
 
     /**
@@ -86,7 +87,7 @@ abstract class CacheEngine
      * @param int $duration How long to cache for.
      * @return bool True if the data was successfully cached, false on failure
      */
-    abstract public function write($key, $value, $duration);
+    abstract public function write(string $key, mixed $value, int $duration): bool;
 
     /**
      * Write value for a key into cache if it doesn't already exist
@@ -96,7 +97,7 @@ abstract class CacheEngine
      * @param int $duration How long to cache for.
      * @return bool True if the data was successfully cached, false on failure
      */
-    abstract public function add($key, $value, $duration);
+    abstract public function add(string $key, mixed $value, int $duration): bool;
 
     /**
      * Read a key from the cache
@@ -104,7 +105,7 @@ abstract class CacheEngine
      * @param string $key Identifier for the data
      * @return mixed The cached data, or false if the data doesn't exist, has expired, or if there was an error fetching it
      */
-    abstract public function read($key);
+    abstract public function read(string $key): mixed;
 
     /**
      * Increment a number under the key and return incremented value
@@ -113,7 +114,7 @@ abstract class CacheEngine
      * @param int $offset How much to add
      * @return int|false New incremented value, false otherwise
      */
-    abstract public function increment(string $key, int $offset = 1);
+    abstract public function increment(string $key, int $offset = 1): int|false;
 
     /**
      * Decrement a number under the key and return decremented value
@@ -122,7 +123,7 @@ abstract class CacheEngine
      * @param int $offset How much to subtract
      * @return int|false New incremented value, false otherwise
      */
-    abstract public function decrement(string $key, int $offset = 1);
+    abstract public function decrement(string $key, int $offset = 1): int|false;
 
     /**
      * Delete a key from the cache
@@ -130,7 +131,7 @@ abstract class CacheEngine
      * @param string $key Identifier for the data
      * @return bool True if the value was successfully deleted, false if it didn't exist or couldn't be removed
      */
-    abstract public function delete(string $key);
+    abstract public function delete(string $key): bool;
 
     /**
      * Delete all keys from the cache
@@ -138,7 +139,7 @@ abstract class CacheEngine
      * @param bool $check if true will check expiration, otherwise delete all
      * @return bool True if the cache was successfully cleared, false otherwise
      */
-    abstract public function clear(bool $check);
+    abstract public function clear(bool $check): bool;
 
     /**
      * Clears all values belonging to a group. Is up to the implementing engine
@@ -157,7 +158,7 @@ abstract class CacheEngine
      *
      * @return array
      */
-    public function groups()
+    public function groups(): array
     {
         return $this->settings['groups'];
     }
@@ -167,7 +168,7 @@ abstract class CacheEngine
      *
      * @return array settings
      */
-    public function settings()
+    public function settings(): array
     {
         return $this->settings;
     }
@@ -175,10 +176,10 @@ abstract class CacheEngine
     /**
      * Generates a safe key for use with cache engine storage engines.
      *
-     * @param string $key the key passed over
-     * @return mixed string $key or false
+     * @param string|null $key the key passed over
+     * @return string|false string $key or false
      */
-    public function key($key)
+    public function key(?string $key): string|false
     {
         if (empty($key)) {
             return false;
@@ -189,7 +190,7 @@ abstract class CacheEngine
             $prefix = md5(implode('_', $this->groups()));
         }
 
-        $key = preg_replace('/[\s]+/', '_', strtolower(trim(str_replace([DS, '/', '.'], '_', strval($key)))));
+        $key = preg_replace('/\s+/', '_', strtolower(trim(str_replace([DS, '/', '.'], '_', $key))));
 
         return $prefix . $key;
     }

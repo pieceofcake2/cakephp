@@ -172,7 +172,7 @@ class SchemaShell extends AppShell
 
         Configure::write('Cache.disable', $cacheDisable);
 
-        if (!empty($this->params['exclude']) && !empty($content)) {
+        if (!empty($this->params['exclude'])) {
             $excluded = CakeText::tokenize($this->params['exclude']);
             foreach ($excluded as $table) {
                 unset($content['tables'][$table]);

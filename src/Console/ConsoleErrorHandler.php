@@ -34,9 +34,9 @@ class ConsoleErrorHandler
     /**
      * Standard error stream.
      *
-     * @var ConsoleOutput
+     * @var ConsoleOutput|null
      */
-    public static $stderr;
+    public static ?ConsoleOutput $stderr = null;
 
     /**
      * Get the stderr object for the console error handling.

@@ -147,8 +147,9 @@ class LegacyClassLoaderTest extends CakeTestCase
         $this->assertEquals(App::class, $classMap['App']);
 
         // 'Application' should not match App* pattern (lowercase after 'App')
+        LegacyClassLoader::autoload('Application');
         $this->assertFalse(
-            LegacyClassLoader::autoload('Application'),
+            class_exists('Application', false),
             'Application should not be treated as App* class',
         );
     }

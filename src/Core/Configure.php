@@ -42,7 +42,7 @@ class Configure
      *
      * @var array
      */
-    protected static $_values = [
+    protected static array $_values = [
         'debug' => 0,
     ];
 
@@ -52,7 +52,7 @@ class Configure
      * @var array
      * @see Configure::load()
      */
-    protected static $_readers = [];
+    protected static array $_readers = [];
 
     /**
      * Initializes configure and runs the bootstrap process.
@@ -68,7 +68,7 @@ class Configure
      * @param bool $boot Whether to do bootstrapping.
      * @return void
      */
-    public static function bootstrap($boot = true)
+    public static function bootstrap(bool $boot = true): void
     {
         if ($boot) {
             static::_appDefaults();
@@ -131,7 +131,7 @@ class Configure
      *
      * @return void
      */
-    protected static function _appDefaults()
+    protected static function _appDefaults(): void
     {
         static::write('App', (array)static::read('App') + [
             'base' => false,
@@ -160,14 +160,16 @@ class Configure
      * ));
      * ```
      *
-     * @param array|string $config The key to write, can be a dot notation value.
+     * @param array|string|bool $config The key to write, can be a dot notation value.
      * Alternatively can be an array containing key(s) and value(s).
      * @param mixed $value Value to set for var
      * @return bool True if write was successful
      * @link https://book.cakephp.org/2.0/en/development/configuration.html#Configure::write
      */
-    public static function write($config, $value = null)
-    {
+    public static function write(
+        array|string|bool $config,
+        mixed $value = null,
+    ): bool {
         if (!is_array($config)) {
             $config = [$config => $value];
         }
@@ -178,9 +180,9 @@ class Configure
 
         if (isset($config['debug']) && function_exists('ini_set')) {
             if (static::$_values['debug']) {
-                ini_set('display_errors', 1);
+                ini_set('display_errors', 1); // @phpstan-ignore-line
             } else {
-                ini_set('display_errors', 0);
+                ini_set('display_errors', 0); // @phpstan-ignore-line
             }
         }
 
@@ -201,7 +203,7 @@ class Configure
      * @return mixed value stored in configure, or null.
      * @link https://book.cakephp.org/2.0/en/development/configuration.html#Configure::read
      */
-    public static function read($var = null)
+    public static function read(?string $var = null): mixed
     {
         if ($var === null) {
             return static::$_values;
@@ -216,10 +218,10 @@ class Configure
      * This is primarily used during bootstrapping to move configuration data
      * out of configure into the various other classes in CakePHP.
      *
-     * @param string $var The key to read and remove.
-     * @return array|null
+     * @param string|null $var The key to read and remove.
+     * @return array|string|null
      */
-    public static function consume($var)
+    public static function consume(?string $var): array|string|null
     {
         $simple = !str_contains($var, '.');
         if ($simple && !isset(static::$_values[$var])) {
@@ -240,10 +242,10 @@ class Configure
     /**
      * Returns true if given variable is set in Configure.
      *
-     * @param string $var Variable name to check for
+     * @param string|null $var Variable name to check for
      * @return bool True if variable is there
      */
-    public static function check($var)
+    public static function check(?string $var): bool
     {
         if (empty($var)) {
             return false;
@@ -265,7 +267,7 @@ class Configure
      * @return void
      * @link https://book.cakephp.org/2.0/en/development/configuration.html#Configure::delete
      */
-    public static function delete($var)
+    public static function delete(string $var): void
     {
         static::$_values = Hash::remove(static::$_values, $var);
     }
@@ -284,7 +286,7 @@ class Configure
      * @param ConfigReaderInterface $reader The reader to append.
      * @return void
      */
-    public static function config($name, ConfigReaderInterface $reader)
+    public static function config(string $name, ConfigReaderInterface $reader): void
     {
         static::$_readers[$name] = $reader;
     }
@@ -293,9 +295,9 @@ class Configure
      * Gets the names of the configured reader objects.
      *
      * @param string|null $name Name to check. If null returns all configured reader names.
-     * @return array Array of the configured reader objects.
+     * @return array|bool Array of the configured reader objects.
      */
-    public static function configured($name = null)
+    public static function configured(?string $name = null): array|bool
     {
         if ($name) {
             return isset(static::$_readers[$name]);
@@ -311,7 +313,7 @@ class Configure
      * @param string $name Name of the reader to drop.
      * @return bool Success
      */
-    public static function drop($name)
+    public static function drop(string $name): bool
     {
         if (!isset(static::$_readers[$name])) {
             return false;
@@ -346,8 +348,11 @@ class Configure
      * @throws ConfigureException Will throw any exceptions the reader raises.
      * @link https://book.cakephp.org/2.0/en/development/configuration.html#Configure::load
      */
-    public static function load($key, $config = 'default', $merge = true)
-    {
+    public static function load(
+        string $key,
+        string $config = 'default',
+        bool $merge = true,
+    ): bool {
         $reader = static::_getReader($config);
         if (!$reader) {
             return false;
@@ -391,8 +396,11 @@ class Configure
      * @return bool success
      * @throws ConfigureException if the adapter does not implement a `dump` method.
      */
-    public static function dump($key, $config = 'default', $keys = [])
-    {
+    public static function dump(
+        string $key,
+        string $config = 'default',
+        array $keys = [],
+    ): bool {
         $reader = static::_getReader($config);
         if (!$reader) {
             throw new ConfigureException(__d('cake_dev', 'There is no "%s" adapter.', $config));
@@ -401,7 +409,7 @@ class Configure
             throw new ConfigureException(__d('cake_dev', 'The "%s" adapter, does not have a %s method.', $config, 'dump()'));
         }
         $values = static::$_values;
-        if (!empty($keys) && is_array($keys)) {
+        if (!empty($keys)) {
             $values = array_intersect_key($values, array_flip($keys));
         }
 
@@ -415,7 +423,7 @@ class Configure
      * @param string $config The name of the configured adapter
      * @return mixed Reader instance or false
      */
-    protected static function _getReader($config)
+    protected static function _getReader(string $config): mixed
     {
         if (!isset(static::$_readers[$config])) {
             if ($config !== 'default') {
@@ -434,7 +442,7 @@ class Configure
      *
      * @return string Current version of CakePHP
      */
-    public static function version()
+    public static function version(): string
     {
         if (!isset(static::$_values['Cake']['version'])) {
             $config = require CORE_ROOT . DS . 'config' . DS . 'config.php';
@@ -451,11 +459,14 @@ class Configure
      *
      * @param string $name The storage name for the saved configuration.
      * @param string $cacheConfig The cache configuration to save into. Defaults to 'default'
-     * @param array $data Either an array of data to store, or leave empty to store all values.
+     * @param array|null $data Either an array of data to store, or leave empty to store all values.
      * @return bool Success
      */
-    public static function store($name, $cacheConfig = 'default', $data = null)
-    {
+    public static function store(
+        string $name,
+        string $cacheConfig = 'default',
+        ?array $data = null,
+    ): bool {
         if ($data === null) {
             $data = static::$_values;
         }
@@ -471,8 +482,10 @@ class Configure
      * @param string $cacheConfig Name of the Cache configuration to read from.
      * @return bool Success.
      */
-    public static function restore($name, $cacheConfig = 'default')
-    {
+    public static function restore(
+        string $name,
+        string $cacheConfig = 'default',
+    ): bool {
         $values = Cache::read($name, $cacheConfig);
         if ($values) {
             return static::write($values);
@@ -486,7 +499,7 @@ class Configure
      *
      * @return bool Success.
      */
-    public static function clear()
+    public static function clear(): bool
     {
         static::$_values = [];
 
@@ -500,8 +513,10 @@ class Configure
      * @param array $exception The exception handling configuration.
      * @return void
      */
-    protected static function _setErrorHandlers($error, $exception)
-    {
+    protected static function _setErrorHandlers(
+        array $error,
+        array $exception,
+    ): void {
         $level = -1;
         if (isset($error['level'])) {
             error_reporting($error['level']);

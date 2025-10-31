@@ -53,9 +53,9 @@ class CacheSession implements CakeSessionHandlerInterface
      * Method used to read from a database session.
      *
      * @param string $id The key of the value to read
-     * @return mixed The value of the key or false if it does not exist
+     * @return string|false The value of the key or false if it does not exist
      */
-    public function read(string $id): mixed
+    public function read(string $id): string|false
     {
         $data = Cache::read($id, Configure::read('Session.handler.config'));
 
@@ -75,7 +75,7 @@ class CacheSession implements CakeSessionHandlerInterface
      */
     public function write(string $id, mixed $data): bool
     {
-        return (bool)Cache::write($id, $data, Configure::read('Session.handler.config'));
+        return Cache::write($id, $data, Configure::read('Session.handler.config'));
     }
 
     /**
@@ -86,7 +86,7 @@ class CacheSession implements CakeSessionHandlerInterface
      */
     public function destroy(string $id): bool
     {
-        return (bool)Cache::delete($id, Configure::read('Session.handler.config'));
+        return Cache::delete($id, Configure::read('Session.handler.config'));
     }
 
     /**
@@ -97,6 +97,6 @@ class CacheSession implements CakeSessionHandlerInterface
      */
     public function gc(?int $expires = null): bool
     {
-        return (bool)Cache::gc(Configure::read('Session.handler.config'), $expires);
+        return Cache::gc(Configure::read('Session.handler.config'), $expires);
     }
 }

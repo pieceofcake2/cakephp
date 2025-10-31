@@ -386,10 +386,10 @@ class Cache
      * @param string $key Identifier for the data
      * @param int $offset How much to add
      * @param string $config Optional string configuration name. Defaults to 'default'
-     * @return mixed new value, or false if the data doesn't exist, is not integer,
+     * @return bool new value, or false if the data doesn't exist, is not integer,
      *    or if there was an error fetching it.
      */
-    public static function increment(string $key, int $offset = 1, string $config = 'default'): mixed
+    public static function increment(string $key, int $offset = 1, string $config = 'default'): bool
     {
         $settings = static::settings($config);
 
@@ -401,7 +401,7 @@ class Cache
         }
         $key = static::$_engines[$config]->key($key);
 
-        if (!$key || !is_int($offset) || $offset < 0) {
+        if (!$key || $offset < 0) {
             return false;
         }
         $success = static::$_engines[$config]->increment($settings['prefix'] . $key, $offset);
@@ -416,10 +416,10 @@ class Cache
      * @param string $key Identifier for the data
      * @param int $offset How much to subtract
      * @param string $config Optional string configuration name. Defaults to 'default'
-     * @return mixed new value, or false if the data doesn't exist, is not integer,
+     * @return bool new value, or false if the data doesn't exist, is not integer,
      *   or if there was an error fetching it
      */
-    public static function decrement(string $key, int $offset = 1, string $config = 'default'): mixed
+    public static function decrement(string $key, int $offset = 1, string $config = 'default'): bool
     {
         $settings = static::settings($config);
 
@@ -431,7 +431,7 @@ class Cache
         }
         $key = static::$_engines[$config]->key($key);
 
-        if (!$key || !is_int($offset) || $offset < 0) {
+        if (!$key || $offset < 0) {
             return false;
         }
         $success = static::$_engines[$config]->decrement($settings['prefix'] . $key, $offset);
@@ -603,9 +603,10 @@ class Cache
     public static function remember(string $key, callable $callable, string $config = 'default'): mixed
     {
         $existing = static::read($key, $config);
-        if ($existing !== false) {
-            return $existing;
+        if ($existing) {
+            return true;
         }
+
         $results = call_user_func($callable);
         static::write($key, $results, $config);
 

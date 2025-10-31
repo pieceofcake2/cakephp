@@ -48,23 +48,23 @@ class ServerShell extends AppShell
     /**
      * server host
      *
-     * @var string
+     * @var string|null
      */
-    protected $_host = null;
+    protected ?string $_host = null;
 
     /**
      * listen port
      *
-     * @var string
+     * @var int|null
      */
-    protected $_port = null;
+    protected ?int $_port = null;
 
     /**
      * document root
      *
-     * @var string
+     * @var string|null
      */
-    protected $_documentRoot = null;
+    protected ?string $_documentRoot = null;
 
     /**
      * Override initialize of the Shell
@@ -116,7 +116,7 @@ class ServerShell extends AppShell
      *
      * @return void
      */
-    protected function _welcome()
+    protected function _welcome(): void
     {
         $this->out();
         $this->out(__d('cake_console', '<info>Welcome to CakePHP %s Console</info>', 'v' . Configure::version()));

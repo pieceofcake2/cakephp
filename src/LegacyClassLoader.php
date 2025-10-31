@@ -23,7 +23,7 @@ class LegacyClassLoader
      *
      * @var array
      */
-    private static $classMap = [
+    private static array $classMap = [
         'AbstractPasswordHasher' => 'Cake\Controller\Component\Auth\AbstractPasswordHasher',
         'AbstractTransport' => 'Cake\Network\Email\AbstractTransport',
         'AclBehavior' => 'Cake\Model\Behavior\AclBehavior',
@@ -236,13 +236,13 @@ class LegacyClassLoader
      * Autoload function for legacy class names
      *
      * @param string $class The class name to autoload
-     * @return bool True if the class was loaded, false otherwise
+     * @return void
      */
-    public static function autoload(string $class): bool
+    public static function autoload(string $class): void
     {
         // Skip if class is already namespaced
         if (str_contains($class, '\\')) {
-            return false;
+            return;
         }
 
         // Handle App* base classes (AppController, AppModel, AppHelper, AppShell)
@@ -252,18 +252,14 @@ class LegacyClassLoader
             if ($namespacedClass && class_exists($namespacedClass)) {
                 class_alias($namespacedClass, $class);
 
-                return true;
+                return;
             }
         }
 
         // Check if we have a mapping for this legacy class name
         if (isset(self::$classMap[$class])) {
             class_alias(self::$classMap[$class], $class);
-
-            return true;
         }
-
-        return false;
     }
 
     /**
@@ -355,7 +351,7 @@ class_alias('Cake\Error\XmlException', 'XmlException');
 
 // IDE helper - class aliases for code completion (never executed)
 // phpcs:disable
-if (false) {
+if (false) { // @phpstan-ignore-line
     class_alias('Cake\Controller\Component\Auth\AbstractPasswordHasher', 'AbstractPasswordHasher');
     class_alias('Cake\Network\Email\AbstractTransport', 'AbstractTransport');
     class_alias('Cake\Model\Behavior\AclBehavior', 'AclBehavior');

@@ -26,7 +26,7 @@ class TableShellHelper extends BaseShellHelper
      *
      * @var array
      */
-    protected $_defaultConfig = [
+    protected array $_defaultConfig = [
         'headers' => true,
         'rowSeparator' => false,
         'headerStyle' => 'info',
@@ -97,7 +97,7 @@ class TableShellHelper extends BaseShellHelper
      * @param array $rows The data to render out.
      * @return void
      */
-    public function output($rows)
+    public function output(array $rows): void
     {
         $config = $this->config();
         $widths = $this->_calculateWidths($rows);

@@ -34,9 +34,9 @@ class RedisEngine extends CacheEngine
     /**
      * Redis wrapper.
      *
-     * @var Redis
+     * @var Redis|null
      */
-    protected $_Redis = null;
+    protected ?Redis $_Redis = null;
 
     /**
      * Settings
@@ -61,7 +61,7 @@ class RedisEngine extends CacheEngine
      * @param array $settings array of setting for the engine
      * @return bool True if the engine has been successfully initialized, false if not
      */
-    public function init($settings = [])
+    public function init(array $settings = []): bool
     {
         if (!class_exists(Redis::class)) {
             return false;
@@ -76,7 +76,7 @@ class RedisEngine extends CacheEngine
             'timeout' => 0,
             'persistent' => true,
             'unix_socket' => false,
-            ], $settings),);
+            ], $settings));
 
         return $this->_connect();
     }
@@ -86,7 +86,7 @@ class RedisEngine extends CacheEngine
      *
      * @return bool True if Redis server was connected
      */
-    protected function _connect()
+    protected function _connect(): bool
     {
         try {
             $this->_Redis = new Redis();
@@ -119,7 +119,7 @@ class RedisEngine extends CacheEngine
      * @param int $duration How long to cache the data, in seconds
      * @return bool True if the data was successfully cached, false on failure
      */
-    public function write($key, $value, $duration)
+    public function write(string $key, mixed $value, int $duration): bool
     {
         if (!is_int($value)) {
             $value = serialize($value);
@@ -142,10 +142,10 @@ class RedisEngine extends CacheEngine
      * @param string $key Identifier for the data
      * @return mixed The cached data, or false if the data doesn't exist, has expired, or if there was an error fetching it
      */
-    public function read($key)
+    public function read(string $key): mixed
     {
         $value = $this->_Redis->get($key);
-        if (preg_match('/^[-]?\d+$/', $value)) {
+        if (preg_match('/^-?\d+$/', $value)) {
             return (int)$value;
         }
         if ($value !== false && is_string($value)) {
@@ -163,7 +163,7 @@ class RedisEngine extends CacheEngine
      * @return int|false New incremented value, false otherwise
      * @throws CacheException when you try to increment with compress = true
      */
-    public function increment(string $key, int $offset = 1)
+    public function increment(string $key, int $offset = 1): int|false
     {
         return (int)$this->_Redis->incrBy($key, $offset);
     }
@@ -176,7 +176,7 @@ class RedisEngine extends CacheEngine
      * @return int|false New decremented value, false otherwise
      * @throws CacheException when you try to decrement with compress = true
      */
-    public function decrement(string $key, int $offset = 1)
+    public function decrement(string $key, int $offset = 1): int|false
     {
         return (int)$this->_Redis->decrBy($key, $offset);
     }
@@ -187,7 +187,7 @@ class RedisEngine extends CacheEngine
      * @param string $key Identifier for the data
      * @return bool True if the value was successfully deleted, false if it didn't exist or couldn't be removed
      */
-    public function delete(string $key)
+    public function delete(string $key): bool
     {
         return $this->_Redis->delete($key) > 0;
     }
@@ -199,7 +199,7 @@ class RedisEngine extends CacheEngine
      *   true, no keys will be removed as cache will rely on redis TTL's.
      * @return bool True if the cache was successfully cleared, false otherwise
      */
-    public function clear(bool $check)
+    public function clear(bool $check): bool
     {
         if ($check) {
             return true;
@@ -217,7 +217,7 @@ class RedisEngine extends CacheEngine
      *
      * @return array
      */
-    public function groups()
+    public function groups(): array
     {
         $result = [];
         foreach ($this->settings['groups'] as $group) {
@@ -264,7 +264,7 @@ class RedisEngine extends CacheEngine
      * @return bool True if the data was successfully cached, false on failure.
      * @link https://github.com/phpredis/phpredis#setnx
      */
-    public function add($key, $value, $duration)
+    public function add(string $key, mixed $value, int $duration): bool
     {
         if (!is_int($value)) {
             $value = serialize($value);

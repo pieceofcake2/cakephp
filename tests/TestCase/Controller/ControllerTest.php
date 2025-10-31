@@ -1364,9 +1364,12 @@ class ControllerTest extends CakeTestCase
                 $this->assertInstanceOf('CakeEvent', $event);
                 $this->assertSame($controller, $event->subject());
                 $dispatchedEvents[] = $event->name();
+
+                return $event;
             });
 
-        $controller->expects($this->exactly(2))
+        $controller
+            ->expects($this->exactly(2))
             ->method('getEventManager')
             ->will($this->returnValue($eventManager));
         $controller->startupProcess();

@@ -27,38 +27,47 @@ use Cake\Cache\CacheEngine;
  */
 class TestAppCacheEngine extends CacheEngine
 {
-    public function write($key, $value, $duration)
+    public function write(string $key, mixed $value, int $duration): bool
     {
         if ($key === 'fail') {
             return false;
         }
+
+        return true;
     }
 
-    public function read($key)
+    public function read(string $key): mixed
     {
+        return true;
     }
 
-    public function increment($key, $offset = 1)
+    public function increment(string $key, int $offset = 1): int|false
     {
+        return 1;
     }
 
-    public function decrement($key, $offset = 1)
+    public function decrement(string $key, int $offset = 1): int|false
     {
+        return 0;
     }
 
-    public function delete($key)
+    public function delete(string $key): bool
     {
+        return true;
     }
 
-    public function clear($check)
+    public function clear(bool $check): bool
     {
+        return true;
     }
 
     public function clearGroup(string $group): bool
     {
+        return true;
     }
 
-    public function add($key, $value, $duration)
+    public function add(string $key, mixed $value, int $duration): bool
     {
+        return true;
     }
 }
