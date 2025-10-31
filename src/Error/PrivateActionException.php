@@ -16,14 +16,27 @@
 
 namespace Cake\Error;
 
+use Exception;
+
 /**
- * Constructor
+ * Private Action exception - used when a controller action
+ * starts with a  `_`.
  *
- * @param array|string $message Error message
- * @param int $code Error code
+ * @package       Cake.Error
  */
-public function __construct(array|string $message, int $code = 404)
+class PrivateActionException extends CakeException
 {
-    parent::__construct($message, $code);
-}
+    protected $_messageTemplate = 'Private Action %s::%s() is not directly accessible.';
+
+    /**
+     * Constructor
+     *
+     * @param array|string $message Error message
+     * @param int $code Error code
+     * @param Exception|null $previous Previous exception
+     */
+    public function __construct(array|string $message, int $code = 404, ?Exception $previous = null)
+    {
+        parent::__construct($message, $code, $previous);
+    }
 }

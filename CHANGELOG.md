@@ -2,6 +2,71 @@
 
 ## Unreleased
 
+### PHPStan Level 5 Compliance & Comprehensive Type Declarations ([PR #32](https://github.com/pieceofcake2/cakephp/pull/32))
+
+Achieved 100% PHPStan Level 5 compliance with comprehensive type declarations across the entire codebase. This represents a major milestone in type safety and static analysis coverage.
+
+#### PHPStan Level 5 Achievement
+- **Static Analysis**: PHPStan Level 5 now passes with zero errors (599 → 0)
+  - Added type declarations to 200+ methods across all core classes
+  - Fixed type coercion issues in transaction handling and return values
+  - Resolved contravariance issues in method signatures
+  - Fixed undefined variable and property errors throughout codebase
+
+#### Comprehensive Type Declarations
+
+**Model Layer:**
+- Model, I18nModel: Complete method signatures with return types
+- Behaviors: TreeBehavior (265 errors), TranslateBehavior, ContainableBehavior, AclBehavior
+- BehaviorCollection, ModelBehavior: Full type coverage
+- AclNode, Permission: Type declarations added
+
+**DataSource Layer:**
+- DboSource: Comprehensive type declarations for all methods
+- Database Drivers: Mysql, Postgres, Sqlite, Sqlserver with full type coverage
+- DataSource, CakeSession, ConnectionManager: Complete type declarations
+- Removed `extract()` usage in `buildColumn()` for better type safety
+
+**Controller Layer:**
+- Controller, Component: Base class type declarations
+- All Auth classes: Authenticators and Authorizers with full type coverage
+- Components: Acl (split PhpAcl into PhpAco/PhpAro classes), Security, RequestHandler, Flash
+- ComponentCollection, Scaffold: Type declarations added
+
+**Console Layer:**
+- Shell, ShellDispatcher: Complete method signatures
+- All Commands: AclShell, ApiShell, SchemaShell, I18nShell, TestShell, ConsoleShell
+- Tasks: ExtractTask with comprehensive type coverage
+- ConsoleOutput, ConsoleInput: Full type declarations
+
+**Core & Utilities:**
+- Configure: Type declarations and bug fixes
+- App, CakeObject: Type declarations
+- CakeEventManager, CakeEvent: Full type coverage
+- L10n, I18n, Multibyte: Complete type declarations
+- CakeText, Folder: Type declarations added
+- LegacyClassLoader: Changed `autoload()` return type to `void` (spl_autoload_register requirement)
+
+**Test Infrastructure:**
+- CakeTestFixture: Updated to match new type signatures
+- Replaced `SqlserverTestResultIterator` with proper PDOStatement mocks
+- Updated all test mocks to return correct types
+
+#### Code Quality Improvements
+- **Multibyte Optimization**: Simplified ASCII character conversion
+  - Removed unnecessary loops in `strtolower()` and `strtoupper()`
+  - Changed from 6-line loop to simple `ord(strtolower(chr($char)))`
+- **EmailConfig Interface**: Added type-safe email configuration
+  - New `EmailConfigInterface` for consistent email configuration
+  - Updated UPGRADE.md with migration guide
+- **Test Mock Improvements**: Enhanced type safety in test mocks
+  - All database transaction mocks now return proper boolean values
+  - Prevents null→false coercion issues with typed return values
+
+#### Breaking Changes
+- `EmailConfig` classes must now implement `EmailConfigInterface`
+- See UPGRADE.md for detailed migration instructions
+
 ### PHPStan Static Analysis & Comprehensive Type Declarations ([PR #31](https://github.com/pieceofcake2/cakephp/pull/31))
 
 Achieved 100% PHPStan level 0 compliance and added comprehensive property type declarations to all CakePHP 2.x core classes using Rector.
