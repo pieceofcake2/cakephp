@@ -44,14 +44,14 @@ class SchemaShellTestSchema extends CakeSchema
      *
      * @var string
      */
-    public $connection = 'test';
+    public string $connection = 'test';
 
     /**
      * comments property
      *
      * @var array
      */
-    public $comments = [
+    public array $comments = [
         'id' => ['type' => 'integer', 'null' => false, 'default' => 0, 'key' => 'primary'],
         'post_id' => ['type' => 'integer', 'null' => false, 'default' => 0],
         'user_id' => ['type' => 'integer', 'null' => false],
@@ -314,7 +314,7 @@ class SchemaShellTest extends CakeTestCase
         $this->Shell->Schema->expects($this->once())
             ->method('write')
             ->with(['schema data', 'file' => 'schema_0.php'])
-            ->willReturn(true);
+            ->willReturn('');
 
         $this->Shell->generate();
     }
@@ -375,7 +375,7 @@ class SchemaShellTest extends CakeTestCase
             ->expects($this->once())
             ->method('write')
             ->with(['schema data', 'file' => 'schema.php'])
-            ->willReturn(true);
+            ->willReturn('ok');
 
         $this->Shell->generate();
 
@@ -412,12 +412,12 @@ class SchemaShellTest extends CakeTestCase
         $contents = $this->file->read();
 
         $this->assertMatchesRegularExpression('/class TestPluginSchema/', $contents);
-        $this->assertMatchesRegularExpression('/public \$posts/', $contents);
-        $this->assertMatchesRegularExpression('/public \$auth_users/', $contents);
-        $this->assertMatchesRegularExpression('/public \$authors/', $contents);
-        $this->assertMatchesRegularExpression('/public \$test_plugin_comments/', $contents);
-        $this->assertDoesNotMatchRegularExpression('/public \$users/', $contents);
-        $this->assertDoesNotMatchRegularExpression('/public \$articles/', $contents);
+        $this->assertMatchesRegularExpression('/public array \$posts/', $contents);
+        $this->assertMatchesRegularExpression('/public array \$auth_users/', $contents);
+        $this->assertMatchesRegularExpression('/public array \$authors/', $contents);
+        $this->assertMatchesRegularExpression('/public array \$test_plugin_comments/', $contents);
+        $this->assertDoesNotMatchRegularExpression('/public array \$users/', $contents);
+        $this->assertDoesNotMatchRegularExpression('/public array \$articles/', $contents);
         CakePlugin::unload();
     }
 
@@ -449,10 +449,10 @@ class SchemaShellTest extends CakeTestCase
         $contents = $this->file->read();
 
         $this->assertMatchesRegularExpression('/class TestPluginSchema/', $contents);
-        $this->assertMatchesRegularExpression('/public \$test_plugin_comments/', $contents);
-        $this->assertDoesNotMatchRegularExpression('/public \$authors/', $contents);
-        $this->assertDoesNotMatchRegularExpression('/public \$auth_users/', $contents);
-        $this->assertDoesNotMatchRegularExpression('/public \$posts/', $contents);
+        $this->assertMatchesRegularExpression('/public array \$test_plugin_comments/', $contents);
+        $this->assertDoesNotMatchRegularExpression('/public array \$authors/', $contents);
+        $this->assertDoesNotMatchRegularExpression('/public array \$auth_users/', $contents);
+        $this->assertDoesNotMatchRegularExpression('/public array \$posts/', $contents);
         CakePlugin::unload();
     }
 
@@ -479,9 +479,9 @@ class SchemaShellTest extends CakeTestCase
         $this->file = new File(TMP . 'tests' . DS . 'schema.php');
         $contents = $this->file->read();
 
-        $this->assertStringNotContainsString('public $acos = array(', $contents);
-        $this->assertStringNotContainsString('public $aros = array(', $contents);
-        $this->assertStringContainsString('public $aros_acos = array(', $contents);
+        $this->assertStringNotContainsString('public array $acos = [', $contents);
+        $this->assertStringNotContainsString('public array $aros = [', $contents);
+        $this->assertStringContainsString('public array $aros_acos = [', $contents);
     }
 
     /**

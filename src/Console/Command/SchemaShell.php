@@ -209,7 +209,6 @@ class SchemaShell extends AppShell
 
         if ($this->Schema->write($content)) {
             $this->out(__d('cake_console', 'Schema file: %s generated', $content['file']));
-
             $this->_stop();
 
             return;

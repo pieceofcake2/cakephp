@@ -139,14 +139,14 @@ class EmailComponentTest extends CakeTestCase
      *
      * @var string
      */
-    public $name = 'Email';
+    public string $name = 'Email';
 
     /**
      * sentDate
      *
-     * @var string
+     * @var string|null
      */
-    public static $sentDate = null;
+    public static ?string $sentDate = null;
 
     /**
      * setUp method
@@ -178,7 +178,7 @@ class EmailComponentTest extends CakeTestCase
      *
      * @return void
      */
-    public function testSendFormats()
+    public function testSendFormats(): void
     {
         $this->Controller->EmailTest->to = 'postmaster@example.com';
         $this->Controller->EmailTest->from = 'noreply@example.com';

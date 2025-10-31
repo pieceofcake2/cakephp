@@ -25,9 +25,9 @@
  */
 class TestPluginAppSchema extends CakeSchema
 {
-    public $name = 'TestPluginApp';
+    public ?string $name = 'TestPluginApp';
 
-    public $test_plugin_acos = [
+    public array $test_plugin_acos = [
         'id' => ['type' => 'integer', 'null' => false, 'default' => null, 'length' => 10, 'key' => 'primary'],
         'parent_id' => ['type' => 'integer', 'null' => true, 'default' => null, 'length' => 10],
         'model' => ['type' => 'string', 'null' => true],
