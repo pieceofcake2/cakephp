@@ -41,93 +41,93 @@ class ExtractTask extends AppShell
     /**
      * Paths to use when looking for strings
      *
-     * @var string
+     * @var array
      */
-    protected $_paths = [];
+    protected array $_paths = [];
 
     /**
      * Files from where to extract
      *
      * @var array
      */
-    protected $_files = [];
+    protected array $_files = [];
 
     /**
      * Merge all domain and category strings into the default.pot file
      *
      * @var bool
      */
-    protected $_merge = false;
+    protected bool $_merge = false;
 
     /**
      * Current file being processed
      *
-     * @var string
+     * @var string|null
      */
-    protected $_file = null;
+    protected ?string $_file = null;
 
     /**
      * Contains all content waiting to be write
      *
-     * @var string
+     * @var array
      */
-    protected $_storage = [];
+    protected array $_storage = [];
 
     /**
      * Extracted tokens
      *
      * @var array
      */
-    protected $_tokens = [];
+    protected array $_tokens = [];
 
     /**
      * Extracted strings indexed by category, domain, msgid and context.
      *
      * @var array
      */
-    protected $_translations = [];
+    protected array $_translations = [];
 
     /**
      * Destination path
      *
-     * @var string
+     * @var string|null
      */
-    protected $_output = null;
+    protected ?string $_output = null;
 
     /**
      * An array of directories to exclude.
      *
      * @var array
      */
-    protected $_exclude = [];
+    protected array $_exclude = [];
 
     /**
      * Holds whether this call should extract model validation messages
      *
      * @var bool
      */
-    protected $_extractValidation = true;
+    protected bool $_extractValidation = true;
 
     /**
      * Holds the validation string domain to use for validation messages when extracting
      *
-     * @var bool
+     * @var string
      */
-    protected $_validationDomain = 'default';
+    protected string $_validationDomain = 'default';
 
     /**
      * Holds whether this call should extract the CakePHP Lib messages
      *
      * @var bool
      */
-    protected $_extractCore = false;
+    protected bool $_extractCore = false;
 
     /**
      * Method to interact with the User and get path selections.
      *
      * @return void
      */
-    protected function _getPaths()
+    protected function _getPaths(): void
     {
         $defaultPath = APP;
         while (true) {
@@ -165,7 +165,7 @@ class ExtractTask extends AppShell
      *
      * @return void
      */
-    public function execute()
+    public function execute(): void
     {
         if (!empty($this->params['exclude'])) {
             $this->_exclude = explode(',', str_replace('/', DS, $this->params['exclude']));
@@ -269,8 +269,12 @@ class ExtractTask extends AppShell
      * @param array $details The file and line references
      * @return void
      */
-    protected function _addTranslation($category, $domain, $msgid, $details = [])
-    {
+    protected function _addTranslation(
+        string $category,
+        string $domain,
+        string $msgid,
+        array $details = [],
+    ): void {
         $context = '';
         if (isset($details['msgctxt'])) {
             $context = $details['msgctxt'];
@@ -299,7 +303,7 @@ class ExtractTask extends AppShell
      *
      * @return void
      */
-    protected function _extract()
+    protected function _extract(): void
     {
         $this->out();
         $this->out();
@@ -359,12 +363,12 @@ class ExtractTask extends AppShell
             'default' => false,
             'help' => __d('cake_console', 'Ignores validation messages in the $validate property.' .
                 ' If this flag is not set and the command is run from the same app directory,' .
-                ' all messages in model validation rules will be extracted as tokens.',),
+                ' all messages in model validation rules will be extracted as tokens.'),
         ])->addOption('validation-domain', [
             'help' => __d('cake_console', 'If set to a value, the localization domain to be used for model validation messages.'),
         ])->addOption('exclude', [
             'help' => __d('cake_console', 'Comma separated list of directories to exclude.' .
-                ' Any path containing a path segment with the provided values will be skipped. E.g. test,vendors',),
+                ' Any path containing a path segment with the provided values will be skipped. E.g. test,vendors'),
         ])->addOption('overwrite', [
             'boolean' => true,
             'default' => false,
@@ -382,7 +386,7 @@ class ExtractTask extends AppShell
      *
      * @return void
      */
-    protected function _extractTokens()
+    protected function _extractTokens(): void
     {
         foreach ($this->_files as $file) {
             $this->_file = $file;
@@ -423,7 +427,7 @@ class ExtractTask extends AppShell
      * @param array $map Array containing what variables it will find (e.g: category, domain, singular, plural)
      * @return void
      */
-    protected function _parse($functionName, $map)
+    protected function _parse(string $functionName, array $map): void
     {
         $count = 0;
         $categories = ['LC_ALL', 'LC_COLLATE', 'LC_CTYPE', 'LC_MONETARY', 'LC_NUMERIC', 'LC_TIME', 'LC_MESSAGES'];
@@ -455,12 +459,15 @@ class ExtractTask extends AppShell
                 $strings = $this->_getStrings($position, $mapCount);
 
                 if ($mapCount === count($strings)) {
-                    extract(array_combine($map, $strings));
-                    $category ??= 6;
+                    $extract = array_combine($map, $strings);
+                    $category = $extract['category'] ?? 6;
+                    $singular = $extract['singular'] ?? '';
+                    $domain = $extract['domain'] ?? 'default';
+                    $context = $extract['context'] ?? null;
+                    $plural = $extract['plural'] ?? null;
+
                     $category = (int)$category;
                     $categoryName = $categories[$category];
-
-                    $domain ??= 'default';
                     $details = [
                         'file' => $this->_file,
                         'line' => $line,
@@ -489,7 +496,7 @@ class ExtractTask extends AppShell
      *
      * @return void
      */
-    protected function _extractValidationMessages()
+    protected function _extractValidationMessages(): void
     {
         if (!$this->_extractValidation) {
             return;
@@ -507,10 +514,10 @@ class ExtractTask extends AppShell
     /**
      * Extract validation messages from application or plugin models
      *
-     * @param string $plugin Plugin name or `null` to process application models
+     * @param string|null $plugin Plugin name or `null` to process application models
      * @return void
      */
-    protected function _extractPluginValidationMessages($plugin = null)
+    protected function _extractPluginValidationMessages(?string $plugin = null): void
     {
         // Load AppModel (namespace-aware)
         App::className('AppModel', 'Model');
@@ -574,14 +581,19 @@ class ExtractTask extends AppShell
      * to the translation map
      *
      * @param string $field the name of the field that is being processed
-     * @param array $rules the set of validation rules for the field
+     * @param array|null $rules the set of validation rules for the field
      * @param string $file the file name where this validation rule was found
      * @param string $domain default domain to bind the validations to
      * @param string $category the translation category
      * @return void
      */
-    protected function _processValidationRules($field, $rules, $file, $domain, $category = 'LC_MESSAGES')
-    {
+    protected function _processValidationRules(
+        string $field,
+        ?array $rules,
+        string $file,
+        string $domain,
+        string $category = 'LC_MESSAGES',
+    ): void {
         if (!is_array($rules)) {
             return;
         }
@@ -618,7 +630,7 @@ class ExtractTask extends AppShell
      *
      * @return void
      */
-    protected function _buildFiles()
+    protected function _buildFiles(): void
     {
         $paths = $this->_paths;
         $paths[] = realpath(APP) . DS;
@@ -646,11 +658,10 @@ class ExtractTask extends AppShell
                         if ($context) {
                             $sentence .= "msgctxt \"{$context}\"\n";
                         }
+                        $sentence .= "msgid \"{$msgid}\"\n";
                         if ($plural === false) {
-                            $sentence .= "msgid \"{$msgid}\"\n";
                             $sentence .= "msgstr \"\"\n\n";
                         } else {
-                            $sentence .= "msgid \"{$msgid}\"\n";
                             $sentence .= "msgid_plural \"{$plural}\"\n";
                             $sentence .= "msgstr[0] \"\"\n";
                             $sentence .= "msgstr[1] \"\"\n\n";
@@ -675,8 +686,12 @@ class ExtractTask extends AppShell
      * @param string $sentence The sentence to store.
      * @return void
      */
-    protected function _store($category, $domain, $header, $sentence)
-    {
+    protected function _store(
+        string $category,
+        string $domain,
+        string $header,
+        string $sentence,
+    ): void {
         if (!isset($this->_storage[$category])) {
             $this->_storage[$category] = [];
         }
@@ -695,7 +710,7 @@ class ExtractTask extends AppShell
      *
      * @return void
      */
-    protected function _writeFiles()
+    protected function _writeFiles(): void
     {
         $overwriteAll = false;
         if (!empty($this->params['overwrite'])) {
@@ -745,7 +760,7 @@ class ExtractTask extends AppShell
      *
      * @return string Translation template header
      */
-    protected function _writeHeader()
+    protected function _writeHeader(): string
     {
         $output = "# LANGUAGE translation of CakePHP Application\n";
         $output .= "# Copyright YEAR NAME <EMAIL@ADDRESS>\n";
@@ -772,10 +787,10 @@ class ExtractTask extends AppShell
      * @param int $target Number of strings to extract
      * @return array Strings extracted
      */
-    protected function _getStrings(&$position, $target)
+    protected function _getStrings(int &$position, int $target): array
     {
         $strings = [];
-        $count = count($strings);
+        $count = 0;
         while ($count < $target && ($this->_tokens[$position] === ',' || $this->_tokens[$position][0] == T_CONSTANT_ENCAPSED_STRING || $this->_tokens[$position][0] == T_LNUMBER)) {
             $count = count($strings);
             if ($this->_tokens[$position][0] == T_CONSTANT_ENCAPSED_STRING && $this->_tokens[$position + 1] === '.') {
@@ -804,7 +819,7 @@ class ExtractTask extends AppShell
      * @param string $string String to format
      * @return string Formatted string
      */
-    protected function _formatString($string)
+    protected function _formatString(string $string): string
     {
         $quote = substr($string, 0, 1);
         $string = substr($string, 1, -1);
@@ -827,8 +842,12 @@ class ExtractTask extends AppShell
      * @param int $count Count
      * @return void
      */
-    protected function _markerError($file, $line, $marker, $count)
-    {
+    protected function _markerError(
+        string $file,
+        int $line,
+        string $marker,
+        int $count,
+    ): void {
         $this->err(__d('cake_console', "Invalid marker content in %s:%s\n* %s(", $file, $line, $marker));
         $count += 2;
         $tokenCount = count($this->_tokens);
@@ -836,9 +855,9 @@ class ExtractTask extends AppShell
 
         while (($tokenCount - $count > 0) && $parenthesis) {
             if (is_array($this->_tokens[$count])) {
-                $this->err($this->_tokens[$count][1], false);
+                $this->err($this->_tokens[$count][1], 0);
             } else {
-                $this->err($this->_tokens[$count], false);
+                $this->err($this->_tokens[$count], 0);
                 if ($this->_tokens[$count] === '(') {
                     $parenthesis++;
                 }
@@ -849,7 +868,7 @@ class ExtractTask extends AppShell
             }
             $count++;
         }
-        $this->err("\n", true);
+        $this->err("\n", 1);
     }
 
     /**
@@ -863,7 +882,7 @@ class ExtractTask extends AppShell
         if (!empty($this->_exclude)) {
             $exclude = [];
             foreach ($this->_exclude as $e) {
-                if (DS !== '\\' && $e[0] !== DS) {
+                if (DIRECTORY_SEPARATOR !== '\\' && $e[0] !== DIRECTORY_SEPARATOR) {
                     $e = DS . $e;
                 }
                 $exclude[] = preg_quote($e, '/');
@@ -889,7 +908,7 @@ class ExtractTask extends AppShell
      *
      * @return bool
      */
-    protected function _isExtractingApp()
+    protected function _isExtractingApp(): bool
     {
         return $this->_paths === [APP];
     }
@@ -900,7 +919,7 @@ class ExtractTask extends AppShell
      * @param string $path Path to folder
      * @return bool true if it exists and is writable, false otherwise
      */
-    protected function _isPathUsable($path)
+    protected function _isPathUsable(string $path): bool
     {
         return is_dir($path) && is_writable($path);
     }

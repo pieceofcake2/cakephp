@@ -50,9 +50,7 @@ class CakeObject
      */
     public function toString(): string
     {
-        $class = static::class;
-
-        return $class;
+        return static::class;
     }
 
     /**
@@ -75,11 +73,14 @@ class CakeObject
      * @return mixed Boolean true or false on success/failure, or contents
      *    of rendered action if 'return' is set in $extra.
      */
-    public function requestAction(array|string|null $url, array $extra = []): mixed
-    {
+    public function requestAction(
+        array|string|null $url,
+        array $extra = [],
+    ): mixed {
         if (empty($url)) {
             return false;
         }
+
         if (($index = array_search('return', $extra)) !== false) {
             $extra['return'] = 0;
             $extra['autoRender'] = 1;
@@ -101,7 +102,7 @@ class CakeObject
         }
         if (is_string($url)) {
             $request = new CakeRequest($url);
-        } elseif (is_array($url)) {
+        } else {
             $params = $url + ['pass' => [], 'named' => [], 'base' => false];
             $params = $extra + $params;
             $request = new CakeRequest(Router::reverse($params));
@@ -135,7 +136,7 @@ class CakeObject
      * testing easier.
      *
      * @param string|int $status see http://php.net/exit for values
-     * @return never|int
+     * @return void
      */
     protected function _stop(string|int $status = 0): void
     {

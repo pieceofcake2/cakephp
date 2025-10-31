@@ -119,7 +119,7 @@ class Folder
      *
      * @var array
      */
-    protected array $_directories;
+    protected array $_directories = [];
 
     /**
      * Holds array of complete file paths.
@@ -278,11 +278,11 @@ class Folder
      * Returns an array of all matching files in and below current directory.
      *
      * @param string $pattern Preg_match pattern (Defaults to: .*)
-     * @param string|false $sort Whether results should be sorted.
+     * @param string|bool $sort Whether results should be sorted.
      * @return array Files matching $pattern
      * @link https://book.cakephp.org/2.0/en/core-utility-libraries/file-folder.html#Folder::findRecursive
      */
-    public function findRecursive(string $pattern = '.*', string|false $sort = false): array
+    public function findRecursive(string $pattern = '.*', string|bool $sort = false): array
     {
         if (!$this->pwd()) {
             return [];
@@ -298,10 +298,10 @@ class Folder
      * Private helper function for findRecursive.
      *
      * @param string $pattern Pattern to match against
-     * @param string|false $sort Whether results should be sorted.
+     * @param string|bool $sort Whether results should be sorted.
      * @return array Files matching pattern
      */
-    protected function _findRecursive(string $pattern, string|false $sort = false): array
+    protected function _findRecursive(string $pattern, string|bool $sort = false): array
     {
         [$dirs, $files] = $this->read($sort);
         $found = [];
@@ -640,13 +640,14 @@ class Folder
         if ($this->create($nextPathname, $mode)) {
             if (!file_exists($pathname)) {
                 $old = umask(0);
+                umask($old);
+
                 if (mkdir($pathname, $mode)) {
-                    umask($old);
                     $this->_messages[] = __d('cake_dev', '%s created', $pathname);
 
                     return true;
                 }
-                umask($old);
+
                 $this->_errors[] = __d('cake_dev', '%s NOT created', $pathname);
 
                 return false;

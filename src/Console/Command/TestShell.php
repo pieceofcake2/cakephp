@@ -38,9 +38,9 @@ class TestShell extends Shell
     /**
      * Dispatcher object for the run.
      *
-     * @var CakeTestSuiteDispatcher
+     * @var CakeTestSuiteDispatcher|null
      */
-    protected $_dispatcher = null;
+    protected ?CakeTestSuiteDispatcher $_dispatcher = null;
 
     /**
      * Gets the option parser instance and configures it.
@@ -183,7 +183,7 @@ class TestShell extends Shell
         $this->_dispatcher = new CakeTestSuiteDispatcher();
         $success = $this->_dispatcher->loadTestFramework();
         if (!$success) {
-            throw new Exception(__d('cake_dev', 'Please install PHPUnit framework v3.7 <info>(http://www.phpunit.de)</info>'));
+            throw new Exception(__d('cake_dev', 'Please install PHPUnit framework v3.7 <info>(https://www.phpunit.de)</info>'));
         }
     }
 
@@ -230,7 +230,7 @@ class TestShell extends Shell
      *
      * @return array Array of params for CakeTestDispatcher
      */
-    protected function _runnerOptions()
+    protected function _runnerOptions(): array
     {
         $options = [];
         $params = $this->params;
@@ -288,7 +288,7 @@ class TestShell extends Shell
      * @param array $options list of options as constructed by _runnerOptions()
      * @return void
      */
-    protected function _run($runnerArgs, $options = [])
+    protected function _run(array $runnerArgs, array $options = []): void
     {
         restore_error_handler();
         restore_error_handler();
@@ -302,7 +302,7 @@ class TestShell extends Shell
      *
      * @return void
      */
-    public function available()
+    public function available(): void
     {
         $params = $this->_parseArgs();
         $testCases = CakeTestLoader::generateTestList($params);
@@ -361,13 +361,16 @@ class TestShell extends Shell
      * Find the test case for the passed file. The file could itself be a test.
      *
      * @param string $file The file to map.
-     * @param string $category The test file category.
+     * @param string|null $category The test file category.
      * @param bool $throwOnMissingFile Whether or not to throw an exception.
-     * @return array array(type, case)
+     * @return string|false|null array(type, case)
      * @throws Exception
      */
-    protected function _mapFileToCase($file, $category, $throwOnMissingFile = true)
-    {
+    protected function _mapFileToCase(
+        string $file,
+        ?string $category,
+        bool $throwOnMissingFile = true,
+    ): string|false|null {
         if (!$category || (!str_ends_with($file, '.php'))) {
             return false;
         }
@@ -377,7 +380,7 @@ class TestShell extends Shell
             $file = $_file;
         }
 
-        $testFile = $testCase = null;
+        $testFile = null;
 
         // File path
         if (preg_match('@(Test|tests|tests_legacy)[\\\/]@', $file)) {
@@ -435,9 +438,8 @@ class TestShell extends Shell
 
         $testCase = substr($testFile, 0, -8);
         $testCase = str_replace(DS, '/', $testCase);
-        $testCase = preg_replace('@.*(?:Test/Case|tests/TestCase)/@', '', $testCase);
 
-        return $testCase;
+        return preg_replace('@.*(?:Test/Case|tests/TestCase)/@', '', $testCase);
     }
 
     /**
@@ -446,7 +448,7 @@ class TestShell extends Shell
      * @param string $file The file to map.
      * @return string
      */
-    protected function _mapFileToCategory($file)
+    protected function _mapFileToCategory(string $file): string
     {
         $_file = realpath($file);
         if ($_file) {

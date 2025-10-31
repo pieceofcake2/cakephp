@@ -38,37 +38,42 @@ class ConsoleShell extends AppShell
      *
      * @var array
      */
-    public $associations = ['hasOne', 'hasMany', 'belongsTo', 'hasAndBelongsToMany'];
+    public array $associations = [
+        'hasOne',
+        'hasMany',
+        'belongsTo',
+        'hasAndBelongsToMany',
+    ];
 
     /**
      * Chars that describe invalid commands
      *
      * @var array
      */
-    public $badCommandChars = ['$', ';'];
+    public array $badCommandChars = ['$', ';'];
 
     /**
      * Available models
      *
      * @var array
      */
-    public $models = [];
+    public array $models = [];
 
     /**
      * _finished
      *
      * This shell is perpetual, setting this property to true exits the process
      *
-     * @var mixed
+     * @var bool
      */
-    protected $_finished = false;
+    protected bool $_finished = false;
 
     /**
      * _methodPatterns
      *
-     * @var array
+     * @var array<string, string>
      */
-    protected $_methodPatterns = [
+    protected array $_methodPatterns = [
         'help' => '/^(help|\?)/',
         '_exit' => '/^(quit|exit)/',
         '_models' => '/^models/i',
@@ -212,7 +217,7 @@ class ConsoleShell extends AppShell
     public function main(?string $command = null): void
     {
         $this->_finished = false;
-        while (!$this->_finished) {
+        while (!$this->_finished) { // @phpstan-ignore-line
             if (empty($command)) {
                 $command = trim($this->in(''));
             }
@@ -235,7 +240,7 @@ class ConsoleShell extends AppShell
      * @param string|null $command The command to run.
      * @return string|false
      */
-    protected function _method(?string $command)
+    protected function _method(?string $command): string|false
     {
         foreach ($this->_methodPatterns as $method => $pattern) {
             if (preg_match($pattern, $command ?? '')) {
@@ -273,10 +278,10 @@ class ConsoleShell extends AppShell
     /**
      * Bind an association
      *
-     * @param mixed $command The command to run.
+     * @param string $command The command to run.
      * @return void
      */
-    protected function _bind($command): void
+    protected function _bind(string $command): void
     {
         preg_match($this->_methodPatterns[__FUNCTION__], $command, $tmp);
 
@@ -306,10 +311,10 @@ class ConsoleShell extends AppShell
     /**
      * Unbind an association
      *
-     * @param mixed $command The command to run.
+     * @param string $command The command to run.
      * @return void
      */
-    protected function _unbind($command): void
+    protected function _unbind(string $command): void
     {
         preg_match($this->_methodPatterns[__FUNCTION__], $command, $tmp);
 
@@ -349,10 +354,10 @@ class ConsoleShell extends AppShell
     /**
      * Perform a find
      *
-     * @param mixed $command The command to run.
+     * @param string $command The command to run.
      * @return void
      */
-    protected function _find($command): void
+    protected function _find(string $command): void
     {
         $command = strip_tags($command);
         $command = str_replace($this->badCommandChars, '', $command);
@@ -413,10 +418,10 @@ class ConsoleShell extends AppShell
     /**
      * Save a record
      *
-     * @param mixed $command The command to run.
+     * @param string $command The command to run.
      * @return void
      */
-    protected function _save($command)
+    protected function _save(string $command): void
     {
         // Validate the model we're trying to save here
         $command = strip_tags($command);
@@ -437,10 +442,10 @@ class ConsoleShell extends AppShell
     /**
      * Show the columns for a model
      *
-     * @param mixed $command The command to run.
+     * @param string $command The command to run.
      * @return void
      */
-    protected function _columns($command)
+    protected function _columns(string $command): void
     {
         preg_match($this->_methodPatterns[__FUNCTION__], $command, $tmp);
 
@@ -450,10 +455,10 @@ class ConsoleShell extends AppShell
             // Get the column info for this model
             $data = null;
             $fieldsCommand = "\$data = \$this->{$modelToCheck}->getColumnTypes();";
-            // phpcs:ignore
-            @eval($fieldsCommand);
 
-            if (is_array($data)) {
+            @eval($fieldsCommand); // phpcs:ignore
+
+            if (is_array($data)) { // @phpstan-ignore-line
                 foreach ($data as $field => $type) {
                     $this->out("\t{$field}: {$type}");
                 }
@@ -492,10 +497,10 @@ class ConsoleShell extends AppShell
     /**
      * Parse an array URL and show the equivalent URL as a string
      *
-     * @param mixed $command The command to run.
+     * @param string $command The command to run.
      * @return void
      */
-    protected function _routeToString($command): void
+    protected function _routeToString(string $command): void
     {
         preg_match($this->_methodPatterns[__FUNCTION__], $command, $tmp);
 
@@ -508,10 +513,10 @@ class ConsoleShell extends AppShell
     /**
      * Parse a string URL and show as an array
      *
-     * @param mixed $command The command to run.
+     * @param string $command The command to run.
      * @return void
      */
-    protected function _routeToArray($command): void
+    protected function _routeToArray(string $command): void
     {
         preg_match($this->_methodPatterns[__FUNCTION__], $command, $tmp);
 
@@ -524,7 +529,7 @@ class ConsoleShell extends AppShell
      * @param string $modelToCheck The model to check.
      * @return bool true if is an available model, false otherwise
      */
-    protected function _isValidModel($modelToCheck): bool
+    protected function _isValidModel(string $modelToCheck): bool
     {
         return in_array($modelToCheck, $this->models);
     }
@@ -539,8 +544,8 @@ class ConsoleShell extends AppShell
     {
         Router::reload();
         extract(Router::getNamedExpressions());
-        // phpcs:ignore Generic.PHP.NoSilencedErrors.Discouraged
-        if (!@include CONFIG . 'routes.php') {
+
+        if (!@include CONFIG . 'routes.php') { // phpcs:ignore Generic.PHP.NoSilencedErrors.Discouraged
             return false;
         }
         CakePlugin::routes();
