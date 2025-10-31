@@ -126,9 +126,9 @@ class ShellTestShell extends Shell
  */
 class TestMergeShell extends Shell
 {
-    public array $tasks = ['DbConfig', 'Fixture'];
+    public array|bool|null $tasks = ['DbConfig', 'Fixture'];
 
-    public array $uses = ['Comment'];
+    public array|bool|null $uses = ['Comment'];
 }
 
 /**

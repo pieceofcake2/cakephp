@@ -300,10 +300,10 @@ class CakeText
      * - `indentAt` 0 based index to start indenting at. Defaults to 0.
      *
      * @param string $text The text to format.
-     * @param array|int $options Array of options to use, or an integer to wrap the text to.
+     * @param array|string|int $options Array of options to use, or an integer to wrap the text to.
      * @return string Formatted text.
      */
-    public static function wrap(string $text, array|int $options = []): string
+    public static function wrap(string $text, array|string|int $options = []): string
     {
         if (is_numeric($options)) {
             $options = ['width' => $options];

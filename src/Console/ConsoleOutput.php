@@ -189,8 +189,10 @@ class ConsoleOutput
      * @param int $newlines Number of newlines to append
      * @return int|false|null Returns the number of bytes returned from writing to stdout.
      */
-    public function write(array|string|null $message, int $newlines = 1): int|false|null
-    {
+    public function write(
+        array|string|null $message,
+        int $newlines = 1,
+    ): int|false|null {
         if (is_array($message)) {
             $message = implode(static::LF, $message);
         }

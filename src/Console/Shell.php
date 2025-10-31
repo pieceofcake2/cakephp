@@ -17,6 +17,7 @@
 
 namespace Cake\Console;
 
+use Cake\Console\Helper\BaseShellHelper;
 use Cake\Core\App;
 use Cake\Core\CakeObject;
 use Cake\Core\CakePlugin;
@@ -121,10 +122,10 @@ class Shell extends CakeObject
     /**
      * Contains tasks to load and instantiate
      *
-     * @var array
+     * @var array|bool|null
      * @link https://book.cakephp.org/2.0/en/console-and-shells.html#Shell::$tasks
      */
-    public array $tasks = [];
+    public array|bool|null $tasks = [];
 
     /**
      * Contains the loaded tasks
@@ -136,10 +137,10 @@ class Shell extends CakeObject
     /**
      * Contains models to load and instantiate
      *
-     * @var array
+     * @var array|bool|null
      * @link https://book.cakephp.org/2.0/en/console-and-shells.html#Shell::$uses
      */
-    public array $uses = [];
+    public array|bool|null $uses = [];
 
     /**
      * This shell's primary model class name, the first model in the $uses property
@@ -151,7 +152,7 @@ class Shell extends CakeObject
     /**
      * Task Collection for the command, used to create Tasks.
      *
-     * @var TaskCollection
+     * @var TaskCollection|null
      */
     public ?TaskCollection $Tasks = null;
 
@@ -310,7 +311,7 @@ class Shell extends CakeObject
                 if ($name === $class) {
                     try {
                         return $this->loadModel($modelClass);
-                    } catch (MissingModelException $e) {
+                    } catch (MissingModelException) {
                     }
                 }
             }
@@ -322,13 +323,15 @@ class Shell extends CakeObject
     /**
      * Loads and instantiates models required by this shell.
      *
-     * @param string $modelClass Name of model class to load
-     * @param mixed $id Initial ID the instanced model class should have
+     * @param string|null $modelClass Name of model class to load
+     * @param string|int|null $id Initial ID the instanced model class should have
      * @return bool true when single model found and instance created, error returned if model not found.
      * @throws MissingModelException if the model class cannot be found.
      */
-    public function loadModel($modelClass = null, $id = null): bool
-    {
+    public function loadModel(
+        ?string $modelClass = null,
+        string|int|null $id = null,
+    ): bool {
         if ($modelClass === null) {
             $modelClass = $this->modelClass;
         }
@@ -358,7 +361,7 @@ class Shell extends CakeObject
      *
      * @return bool
      */
-    public function loadTasks()
+    public function loadTasks(): bool
     {
         if ($this->tasks === true || empty($this->tasks) || empty($this->Tasks)) {
             return true;
@@ -376,7 +379,7 @@ class Shell extends CakeObject
      * @return bool Success
      * @link https://book.cakephp.org/2.0/en/console-and-shells.html#Shell::hasTask
      */
-    public function hasTask($task)
+    public function hasTask(string $task): bool
     {
         return isset($this->_taskMap[Inflector::camelize($task)]);
     }
@@ -388,7 +391,7 @@ class Shell extends CakeObject
      * @return bool
      * @link https://book.cakephp.org/2.0/en/console-and-shells.html#Shell::hasMethod
      */
-    public function hasMethod(string $name)
+    public function hasMethod(string $name): bool
     {
         try {
             $method = new ReflectionMethod($this, $name);
@@ -424,10 +427,10 @@ class Shell extends CakeObject
      * `return $this->dispatchShell('schema', 'create', 'i18n', '--dry');`
      *
      * @param mixed ...$args Arguments to pass to the shell
-     * @return mixed The return of the other shell.
+     * @return bool The return of the other shell.
      * @link https://book.cakephp.org/2.0/en/console-and-shells.html#Shell::dispatchShell
      */
-    public function dispatchShell(...$args)
+    public function dispatchShell(mixed ...$args): bool
     {
         if (isset($args[0]) && is_string($args[0]) && count($args) === 1) {
             $args = explode(' ', $args[0]);
@@ -454,11 +457,13 @@ class Shell extends CakeObject
      * @param string $command The command name to run on this shell. If this argument is empty,
      *   and the shell has a `main()` method, that will be called instead.
      * @param array $argv Array of arguments to run the shell with. This array should be missing the shell name.
-     * @return int|bool
+     * @return int|bool|null
      * @link https://book.cakephp.org/2.0/en/console-and-shells.html#Shell::runCommand
      */
-    public function runCommand(string $command, $argv)
-    {
+    public function runCommand(
+        string $command,
+        array $argv,
+    ): int|bool|null {
         $isTask = $this->hasTask($command);
         $isMethod = $this->hasMethod($command);
         $isMain = $this->hasMethod('main');
@@ -526,7 +531,7 @@ class Shell extends CakeObject
      * @param string $command The command to get help for.
      * @return int|bool
      */
-    protected function _displayHelp($command)
+    protected function _displayHelp(string $command): int|bool
     {
         $format = 'text';
         if (!empty($this->args[0]) && $this->args[0] === 'xml') {
@@ -550,9 +555,8 @@ class Shell extends CakeObject
     public function getOptionParser(): ConsoleOptionParser
     {
         $name = ($this->plugin ? $this->plugin . '.' : '') . $this->name;
-        $parser = new ConsoleOptionParser($name);
 
-        return $parser;
+        return new ConsoleOptionParser($name);
     }
 
     /**
@@ -581,7 +585,7 @@ class Shell extends CakeObject
      * @param string $name The name of the parameter to get.
      * @return string|bool|null Value. Will return null if it doesn't exist.
      */
-    public function param($name)
+    public function param(string $name): string|bool|null
     {
         if (!isset($this->params[$name])) {
             return null;
@@ -594,13 +598,16 @@ class Shell extends CakeObject
      * Prompts the user for input, and returns it.
      *
      * @param string $prompt Prompt text.
-     * @param array|string $options Array or string of options.
-     * @param string $default Default input value.
-     * @return mixed Either the default value, or the user-provided input.
+     * @param array|string|null $options Array or string of options.
+     * @param string|null $default Default input value.
+     * @return string|int|null Either the default value, or the user-provided input.
      * @link https://book.cakephp.org/2.0/en/console-and-shells.html#Shell::in
      */
-    public function in($prompt, $options = null, $default = null)
-    {
+    public function in(
+        string $prompt,
+        array|string|null $options = null,
+        ?string $default = null,
+    ): string|int|null {
         if (!$this->interactive) {
             return $default;
         }
@@ -634,12 +641,15 @@ class Shell extends CakeObject
      * Prompts the user for input, and returns it.
      *
      * @param string $prompt Prompt text.
-     * @param array|string $options Array or string of options.
-     * @param string $default Default input value.
+     * @param array|string|null $options Array or string of options.
+     * @param string|null $default Default input value.
      * @return string|int the default value, or the user-provided input.
      */
-    protected function _getInput($prompt, $options, $default)
-    {
+    protected function _getInput(
+        string $prompt,
+        array|string|null $options,
+        ?string $default,
+    ): string|int {
         if (!is_array($options)) {
             $printOptions = '';
         } else {
@@ -660,7 +670,7 @@ class Shell extends CakeObject
         }
         $result = trim($result);
 
-        if ($default !== null && ($result === '' || $result === null)) {
+        if ($default !== null && $result === '') {
             return $default;
         }
 
@@ -683,7 +693,7 @@ class Shell extends CakeObject
      * @see CakeText::wrap()
      * @link https://book.cakephp.org/2.0/en/console-and-shells.html#Shell::wrapText
      */
-    public function wrapText($text, $options = [])
+    public function wrapText(string $text, array|string|int $options = []): string
     {
         return CakeText::wrap($text, $options);
     }
@@ -784,7 +794,7 @@ class Shell extends CakeObject
      * @return string
      * @link https://book.cakephp.org/2.0/en/console-and-shells.html#Shell::nl
      */
-    public function nl($multiplier = 1)
+    public function nl(int $multiplier = 1): string
     {
         return str_repeat(ConsoleOutput::LF, $multiplier);
     }
@@ -891,7 +901,7 @@ class Shell extends CakeObject
      * @return BaseShellHelper Instance of helper class
      * @throws RuntimeException If invalid class name is provided
      */
-    public function helper($name)
+    public function helper(string $name): BaseShellHelper
     {
         if (isset($this->_helpers[$name])) {
             return $this->_helpers[$name];
@@ -915,7 +925,7 @@ class Shell extends CakeObject
      *
      * @return bool Success
      */
-    protected function _checkUnitTest()
+    protected function _checkUnitTest(): bool
     {
         if (class_exists(TestCase::class)) {
             return true;
@@ -927,7 +937,7 @@ class Shell extends CakeObject
 
         if ($result) {
             $this->out();
-            $this->out(__d('cake_console', 'You can download PHPUnit from %s', 'http://phpunit.de'));
+            $this->out(__d('cake_console', 'You can download PHPUnit from %s', 'https://phpunit.de'));
         }
 
         return $result;
@@ -940,9 +950,9 @@ class Shell extends CakeObject
      * @return string short path
      * @link https://book.cakephp.org/2.0/en/console-and-shells.html#Shell::shortPath
      */
-    public function shortPath($file)
+    public function shortPath(string $file): string
     {
-        $shortPath = str_replace(ROOT, null, $file);
+        $shortPath = str_replace(ROOT, '', $file);
         $shortPath = str_replace('..' . DS, '', $shortPath);
 
         return str_replace(DS . DS, DS, $shortPath);
@@ -954,7 +964,7 @@ class Shell extends CakeObject
      * @param string $name Controller class name
      * @return string Path to controller
      */
-    protected function _controllerPath($name)
+    protected function _controllerPath(string $name): string
     {
         return Inflector::underscore($name);
     }
@@ -965,7 +975,7 @@ class Shell extends CakeObject
      * @param string $name Controller class name
      * @return string Controller plural name
      */
-    protected function _controllerName($name)
+    protected function _controllerName(string $name): string
     {
         return Inflector::pluralize(Inflector::camelize($name));
     }
@@ -976,7 +986,7 @@ class Shell extends CakeObject
      * @param string $name Name
      * @return string Camelized and singularized model name
      */
-    protected function _modelName($name)
+    protected function _modelName(string $name): string
     {
         return Inflector::camelize(Inflector::singularize($name));
     }
@@ -987,7 +997,7 @@ class Shell extends CakeObject
      * @param string $name Model class name
      * @return string Singular model key
      */
-    protected function _modelKey($name)
+    protected function _modelKey(string $name): string
     {
         return Inflector::underscore($name) . '_id';
     }
@@ -998,7 +1008,7 @@ class Shell extends CakeObject
      * @param string $key Foreign key
      * @return string Model name
      */
-    protected function _modelNameFromKey($key)
+    protected function _modelNameFromKey(string $key): string
     {
         return Inflector::camelize(str_replace('_id', '', $key));
     }
@@ -1009,7 +1019,7 @@ class Shell extends CakeObject
      * @param string $name The plural underscored value.
      * @return string name
      */
-    protected function _singularName($name)
+    protected function _singularName(string $name): string
     {
         return Inflector::variable(Inflector::singularize($name));
     }
@@ -1020,7 +1030,7 @@ class Shell extends CakeObject
      * @param string $name Name to use
      * @return string Plural name for views
      */
-    protected function _pluralName($name)
+    protected function _pluralName(string $name): string
     {
         return Inflector::variable(Inflector::pluralize($name));
     }
@@ -1031,7 +1041,7 @@ class Shell extends CakeObject
      * @param string $name Controller name
      * @return string Singular human name
      */
-    protected function _singularHumanName($name)
+    protected function _singularHumanName(string $name): string
     {
         return Inflector::humanize(Inflector::underscore(Inflector::singularize($name)));
     }
@@ -1042,7 +1052,7 @@ class Shell extends CakeObject
      * @param string $name Controller name
      * @return string Plural human name
      */
-    protected function _pluralHumanName($name)
+    protected function _pluralHumanName(string $name): string
     {
         return Inflector::humanize(Inflector::underscore($name));
     }
@@ -1053,7 +1063,7 @@ class Shell extends CakeObject
      * @param string $pluginName Name of the plugin you want ie. DebugKit
      * @return string path path to the correct plugin.
      */
-    protected function _pluginPath($pluginName)
+    protected function _pluginPath(string $pluginName): string
     {
         if (CakePlugin::loaded($pluginName)) {
             return CakePlugin::path($pluginName);
@@ -1120,7 +1130,7 @@ class Shell extends CakeObject
      * @param string $logger The name of the logger to check
      * @return bool
      */
-    protected function _loggerIsConfigured($logger): bool
+    protected function _loggerIsConfigured(string $logger): bool
     {
         $configured = CakeLog::configured();
 

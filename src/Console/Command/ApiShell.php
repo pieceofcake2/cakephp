@@ -41,7 +41,7 @@ class ApiShell extends AppShell
      *
      * @var array
      */
-    public $paths = [];
+    public array $paths = [];
 
     /**
      * Override initialize of the Shell
@@ -77,11 +77,7 @@ class ApiShell extends AppShell
 
         $type = strtolower($this->args[0]);
 
-        if (isset($this->paths[$type])) {
-            $path = $this->paths[$type];
-        } else {
-            $path = $this->paths['core'];
-        }
+        $path = $this->paths[$type] ?? $this->paths['core'];
 
         $count = count($this->args);
         if ($count > 1) {
@@ -90,6 +86,9 @@ class ApiShell extends AppShell
         } elseif ($count) {
             $file = $type;
             $class = Inflector::camelize($type);
+        } else {
+            $file = null;
+            $class = null;
         }
         $objects = App::objects('class', $path);
         if (in_array($class, $objects)) {
@@ -116,11 +115,12 @@ class ApiShell extends AppShell
                 $method = $parsed[$this->params['method']];
                 $this->out($class . '::' . $method['method'] . $method['parameters']);
                 $this->hr();
-                $this->out($method['comment'], true);
+                $this->out($method['comment'], 1);
             } else {
                 $this->out(ucwords($class));
                 $this->hr();
                 $i = 0;
+                $list = [];
                 foreach ($parsed as $method) {
                     $list[] = ++$i . '. ' . $method['method'] . $method['parameters'];
                 }
@@ -145,7 +145,7 @@ class ApiShell extends AppShell
                         $this->hr();
                         $this->out($class . '::' . $method['method'] . $method['parameters']);
                         $this->hr();
-                        $this->out($method['comment'], true);
+                        $this->out($method['comment'], 1);
                     }
                 }
             }
@@ -218,15 +218,19 @@ class ApiShell extends AppShell
      * signatures.
      *
      * @param string $path File path
-     * @param string $class Class name
+     * @param class-string $class Class name
      * @return array Methods and signatures indexed by method name
      */
-    protected function _parseClass($path, $class)
-    {
+    protected function _parseClass(
+        string $path,
+        string $class,
+    ): array {
         $parsed = [];
 
         if (!class_exists($class) && !include_once $path) {
             $this->err(__d('cake_console', '%s could not be found', $path));
+
+            return [];
         }
 
         $reflection = new ReflectionClass($class);

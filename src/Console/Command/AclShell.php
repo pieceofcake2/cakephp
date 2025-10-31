@@ -98,7 +98,7 @@ class AclShell extends AppShell
 
             require_once CONFIG . 'database.php';
 
-            if (!in_array($this->command, ['initdb'])) {
+            if ($this->command !== 'initdb') {
                 $collection = new ComponentCollection();
                 $this->Acl = new AclComponent($collection);
                 $controller = new Controller();
@@ -563,11 +563,14 @@ class AclShell extends AppShell
      * Takes an identifier determines its type and returns the result as used by other methods.
      *
      * @param string $identifier Identifier to parse
-     * @return mixed a string for aliases, and an array for model.foreignKey
+     * @return array{
+     *     model: string,
+     *     foreign_key: string
+     * }|string a string for aliases, and an array for model.foreignKey
      */
-    public function parseIdentifier(string $identifier): mixed
+    public function parseIdentifier(string $identifier): array|string
     {
-        if (preg_match('/^([\w]+)\.(.*)$/', $identifier, $matches)) {
+        if (preg_match('/^(\w+)\.(.*)$/', $identifier, $matches)) {
             return [
                 'model' => $matches[1],
                 'foreign_key' => $matches[2],
@@ -603,7 +606,13 @@ class AclShell extends AppShell
     /**
      * get params for standard Acl methods
      *
-     * @return array aro, aco, action
+     * @return array{
+     *     aro: array|string|int,
+     *     aco: array|string|int,
+     *     action: string,
+     *     aroName: string|int,
+     *     acoName: string|int
+     * } aro, aco, action
      */
     protected function _getParams(): array
     {
@@ -630,7 +639,12 @@ class AclShell extends AppShell
      * Build data parameters based on node type
      *
      * @param string|null $type Node type  (ARO/ACO)
-     * @return array Variables
+     * @return array{
+     *     secondary_id: string,
+     *     data_name: string,
+     *     table_name: string,
+     *     class: string
+     * } Variables
      */
     protected function _dataVars(?string $type = null): array
     {
