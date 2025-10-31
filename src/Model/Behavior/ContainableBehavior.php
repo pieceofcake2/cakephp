@@ -63,15 +63,15 @@ class ContainableBehavior extends ModelBehavior
      *   bindings. DEFAULTS TO: true
      *
      * @param Model $model Model using the behavior
-     * @param array $settings Settings to override for model.
+     * @param array $config Settings to override for model.
      * @return void
      */
-    public function setup(Model $model, $settings = [])
+    public function setup(Model $model, array $config = []): void
     {
         if (!isset($this->settings[$model->alias])) {
             $this->settings[$model->alias] = ['recursive' => true, 'notices' => true, 'autoFields' => true];
         }
-        $this->settings[$model->alias] = array_merge($this->settings[$model->alias], $settings);
+        $this->settings[$model->alias] = array_merge($this->settings[$model->alias], $config);
     }
 
     /**

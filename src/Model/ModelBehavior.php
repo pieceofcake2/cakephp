@@ -95,7 +95,7 @@ class ModelBehavior extends CakeObject
      * @param array $config Configuration settings for $model
      * @return void
      */
-    public function setup(Model $model, $config = [])
+    public function setup(Model $model, array $config = []): void
     {
     }
 

@@ -57,8 +57,10 @@ class TestBehavior extends ModelBehavior
      * @param array $config
      * @return void
      */
-    public function setup(Model $model, $config = [])
-    {
+    public function setup(
+        Model $model,
+        array $config = [],
+    ): void {
         parent::setup($model, $config);
         if (isset($config['mangle'])) {
             $config['mangle'] .= ' mangled';
@@ -90,6 +92,8 @@ class TestBehavior extends ModelBehavior
 
                 return $query;
         }
+
+        return null;
     }
 
     /**
@@ -426,8 +430,10 @@ class_alias(Test3Behavior::class, 'App\\Model\\Behavior\\Test3Behavior');
  */
 class Test4Behavior extends ModelBehavior
 {
-    public function setup(Model $model, $config = null)
-    {
+    public function setup(
+        Model $model,
+        array $config = []
+    ): void {
         $model->bindModel(
             ['hasMany' => ['Comment']],
         );
@@ -442,8 +448,10 @@ class_alias(Test4Behavior::class, 'App\\Model\\Behavior\\Test4Behavior');
  */
 class Test5Behavior extends ModelBehavior
 {
-    public function setup(Model $model, $config = null)
-    {
+    public function setup(
+        Model $model,
+        array $config = [],
+    ): void {
         $model->bindModel(
             ['belongsTo' => ['User']],
         );
@@ -458,8 +466,10 @@ class_alias(Test5Behavior::class, 'App\\Model\\Behavior\\Test5Behavior');
  */
 class Test6Behavior extends ModelBehavior
 {
-    public function setup(Model $model, $config = null)
-    {
+    public function setup(
+        Model $model,
+        array $config = [],
+    ): void {
         $model->bindModel(
             ['hasAndBelongsToMany' => ['Tag']],
         );
@@ -474,8 +484,10 @@ class_alias(Test6Behavior::class, 'App\\Model\\Behavior\\Test6Behavior');
  */
 class Test7Behavior extends ModelBehavior
 {
-    public function setup(Model $model, $config = null)
-    {
+    public function setup(
+        Model $model,
+        array $config = [],
+    ): void {
         $model->bindModel(
             ['hasOne' => ['Attachment']],
         );

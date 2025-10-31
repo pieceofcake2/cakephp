@@ -337,6 +337,7 @@ class AclNodeTest extends CakeTestCase
      */
     public function testNodeAliasParenting()
     {
+        /** @var DbAcoTest $Aco */
         $Aco = ClassRegistry::init('DbAcoTest');
         $db = $Aco->getDataSource();
         $db->truncate($Aco);

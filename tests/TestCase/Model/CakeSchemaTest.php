@@ -208,7 +208,7 @@ class TestAppSchema extends CakeSchema
      * @param mixed $version
      * @return void
      */
-    public function setup($version)
+    public function setup($version): void
     {
     }
 

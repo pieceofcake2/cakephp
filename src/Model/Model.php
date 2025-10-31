@@ -54,6 +54,7 @@ use SimpleXMLElement;
  *
  * @package       Cake.Model
  * @link          https://book.cakephp.org/2.0/en/models.html
+ * @property Model $VerifyParent
  */
 #[AllowDynamicProperties]
 class Model extends CakeObject implements CakeEventListener

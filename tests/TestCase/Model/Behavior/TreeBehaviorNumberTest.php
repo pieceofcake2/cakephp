@@ -66,6 +66,8 @@ class TreeBehaviorNumberTest extends CakeTestCase
         'core.person',
     ];
 
+    public ?NumberTree $Tree = null;
+
     /**
      * testInitialize method
      *

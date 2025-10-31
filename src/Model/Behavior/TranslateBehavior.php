@@ -91,7 +91,7 @@ class TranslateBehavior extends ModelBehavior
      * @param array $config Array of configuration information.
      * @return mixed
      */
-    public function setup(Model $model, $config = [])
+    public function setup(Model $model, array $config = []): void
     {
         $db = ConnectionManager::getDataSource($model->useDbConfig);
         if (!$db->connected) {
@@ -100,7 +100,7 @@ class TranslateBehavior extends ModelBehavior
                 E_USER_ERROR,
             );
 
-            return false;
+            return;
         }
 
         $this->settings[$model->alias] = [];
@@ -113,8 +113,7 @@ class TranslateBehavior extends ModelBehavior
             unset($config['joinType']);
         }
         $this->translateModel($model);
-
-        return $this->bindTranslation($model, $config, false);
+        $this->bindTranslation($model, $config, false);
     }
 
     /**

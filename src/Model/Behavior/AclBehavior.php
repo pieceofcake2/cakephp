@@ -49,7 +49,7 @@ class AclBehavior extends ModelBehavior
      * @param array $config Configuration options.
      * @return void
      */
-    public function setup(Model $model, $config = [])
+    public function setup(Model $model, array $config = []): void
     {
         if (isset($config[0])) {
             $config['type'] = $config[0];
@@ -80,8 +80,11 @@ class AclBehavior extends ModelBehavior
      * @return array
      * @link https://book.cakephp.org/2.0/en/core-libraries/behaviors/acl.html#node
      */
-    public function node(Model $model, $ref = null, $type = null)
-    {
+    public function node(
+        Model $model,
+        $ref = null,
+        $type = null,
+    ): array {
         if (empty($type)) {
             $type = $this->_typeMaps[$this->settings[$model->name]['type']];
             if (is_array($type)) {

@@ -307,7 +307,15 @@ class TreeBehaviorUuidTest extends CakeTestCase
         $this->Tree->initialize(2, 2);
 
         $result = $this->Tree->generateTreeList();
-        $expected = ['1. Root', '_1.1', '__1.1.1', '__1.1.2', '_1.2', '__1.2.1', '__1.2.2'];
+        $expected = [
+            '1. Root',
+            '_1.1',
+            '__1.1.1',
+            '__1.1.2',
+            '_1.2',
+            '__1.2.1',
+            '__1.2.2',
+        ];
         $this->assertSame($expected, array_values($result));
     }
 }
