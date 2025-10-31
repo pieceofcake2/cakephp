@@ -52,7 +52,7 @@ class SqlserverTestDb extends Sqlserver
      *
      * @var array
      */
-    public $executeResultsStack = [];
+    public array $executeResultsStack = [];
 
     /**
      * @var array|null
@@ -235,38 +235,6 @@ class SqlserverClientTestModel extends CakeTestModel
 }
 class_alias(SqlserverClientTestModel::class, 'App\\Model\\SqlserverClientTestModel');
 
-/**
- * SqlserverTestResultIterator class
- *
- * @package       Cake.Test.Case.Model.Datasource.Database
- */
-class SqlserverTestResultIterator extends ArrayIterator
-{
-    /**
-     * closeCursor method
-     *
-     * @return void
-     */
-    public function closeCursor()
-    {
-    }
-
-    /**
-     * fetch method
-     *
-     * @return void
-     */
-    public function fetch()
-    {
-        if (!$this->valid()) {
-            return null;
-        }
-        $current = $this->current();
-        $this->next();
-
-        return $current;
-    }
-}
 
 /**
  * SqlserverTest class
@@ -466,7 +434,7 @@ class SqlserverTest extends CakeTestCase
      */
     public function testDescribe()
     {
-        $SqlserverTableDescription = new SqlserverTestResultIterator([
+        $tableData = [
             (object)[
                 'Default' => '((0))',
                 'Field' => 'count',
@@ -519,8 +487,23 @@ class SqlserverTest extends CakeTestCase
                 'Null' => 'YES',
                 'Size' => '0',
             ],
-        ]);
-        $this->db->executeResultsStack = [$SqlserverTableDescription];
+        ];
+
+        $sqlserverTableDescription = $this->getMockBuilder(PDOStatement::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $index = 0;
+        $sqlserverTableDescription->expects($this->any())
+            ->method('fetch')
+            ->willReturnCallback(function () use ($tableData, &$index) {
+                if ($index >= count($tableData)) {
+                    return false;
+                }
+                return $tableData[$index++];
+            });
+
+        $this->db->executeResultsStack = [$sqlserverTableDescription];
         $dummyModel = $this->model;
         $result = $this->db->describe($dummyModel);
         $expected = [
