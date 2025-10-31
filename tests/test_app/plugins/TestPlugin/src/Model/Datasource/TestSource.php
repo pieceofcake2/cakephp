@@ -7,7 +7,7 @@ use Cake\Model\Model;
 
 class TestSource extends DataSource
 {
-    public function describe(string|Model $model)
+    public function describe(Model|string $model): array|false|null
     {
         return compact('model');
     }

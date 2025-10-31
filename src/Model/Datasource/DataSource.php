@@ -131,9 +131,9 @@ class DataSource extends CakeObject
      * Returns a Model description (metadata) or null if none found.
      *
      * @param Model|string $model The model to describe.
-     * @return array|null Array of Metadata for the $model
+     * @return array|false|null Array of Metadata for the $model
      */
-    public function describe(Model|string $model)
+    public function describe(Model|string $model): array|false|null
     {
         if ($this->cacheSources === false) {
             return null;
@@ -191,10 +191,10 @@ class DataSource extends CakeObject
     /**
      * Converts column types to basic types
      *
-     * @param string $real Real column type (i.e. "varchar(255)")
-     * @return string Abstract column type (i.e. "string")
+     * @param mixed $real Real column type (i.e. "varchar(255)")
+     * @return string|false Abstract column type (i.e. "string")
      */
-    public function column($real)
+    public function column(mixed $real): string|false
     {
         return false;
     }
@@ -286,9 +286,9 @@ class DataSource extends CakeObject
      * Returns the number of rows returned by last operation.
      *
      * @param mixed $source The source name.
-     * @return int Number of rows returned by last operation
+     * @return int|false Number of rows returned by last operation
      */
-    public function lastNumRows($source = null)
+    public function lastNumRows(mixed $source = null): int|false
     {
         return false;
     }
@@ -297,7 +297,7 @@ class DataSource extends CakeObject
      * Returns the number of rows affected by last query.
      *
      * @param mixed $source The source name.
-     * @return int Number of rows affected by last query.
+     * @return int|false Number of rows affected by last query.
      */
     public function lastAffected(mixed $source = null): int|false
     {
@@ -311,7 +311,7 @@ class DataSource extends CakeObject
      *
      * @return bool Whether or not the Datasources conditions for use are met.
      */
-    public function enabled()
+    public function enabled(): bool
     {
         return true;
     }
@@ -335,7 +335,7 @@ class DataSource extends CakeObject
      * @param mixed $data The description of the model, usually a string or array
      * @return mixed
      */
-    protected function _cacheDescription($object, $data = null)
+    protected function _cacheDescription(string $object, mixed $data = null): mixed
     {
         if ($this->cacheSources === false) {
             return null;
@@ -364,10 +364,15 @@ class DataSource extends CakeObject
      * @param string $association Name of association model being replaced.
      * @param Model $model Model instance.
      * @param array $stack The context stack.
-     * @return mixed String of query data with placeholders replaced, or false on failure.
+     * @return array|string|bool String of query data with placeholders replaced, or false on failure.
      */
-    public function insertQueryData($query, $data, $association, Model $model, $stack)
-    {
+    public function insertQueryData(
+        string $query,
+        array $data,
+        string $association,
+        Model $model,
+        array $stack,
+    ): array|string|bool {
         $keys = ['{$__cakeID__$}', '{$__cakeForeignKey__$}'];
 
         $modelAlias = $model->alias;
@@ -412,7 +417,7 @@ class DataSource extends CakeObject
                 } else {
                     $found = false;
                     foreach (array_reverse($stack) as $assocData) {
-                        if (is_string($assocData) && isset($data[$assocData]) && isset($data[$assocData][$insertKey])) {
+                        if (is_string($assocData) && isset($data[$assocData][$insertKey])) {
                             $val = $data[$assocData][$insertKey];
                             $found = true;
                             break;
@@ -469,7 +474,7 @@ class DataSource extends CakeObject
      *
      * @return string|null The schema name
      */
-    public function getSchemaName()
+    public function getSchemaName(): ?string
     {
         return null;
     }

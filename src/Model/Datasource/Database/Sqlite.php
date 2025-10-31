@@ -141,7 +141,7 @@ class Sqlite extends DboSource
      *
      * @return bool
      */
-    public function enabled()
+    public function enabled(): bool
     {
         return in_array('sqlite', PDO::getAvailableDrivers());
     }
@@ -149,8 +149,8 @@ class Sqlite extends DboSource
     /**
      * Returns an array of tables in the database. If there are no tables, an error is raised and the application exits.
      *
-     * @param mixed $data Unused.
-     * @return array Array of table names in the database
+     * @param array|null $data Unused.
+     * @return array|null Array of table names in the database
      */
     public function listSources(?array $data = null): ?array
     {
@@ -161,7 +161,7 @@ class Sqlite extends DboSource
 
         $result = $this->fetchAll("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name;", false);
 
-        if (!$result || empty($result)) {
+        if (empty($result)) {
             return [];
         }
 
@@ -178,9 +178,9 @@ class Sqlite extends DboSource
      * Returns an array of the fields in given table name.
      *
      * @param Model|string $model Either the model or table name you want described.
-     * @return array Fields in table. Keys are name and type
+     * @return array|false|null Fields in table. Keys are name and type
      */
-    public function describe(string|Model $model)
+    public function describe(Model|string $model): array|false|null
     {
         $table = $this->fullTableName($model, false, false);
         $cache = parent::describe($table);
@@ -268,10 +268,10 @@ class Sqlite extends DboSource
     /**
      * Converts database-layer column types to basic types
      *
-     * @param string $real Real database-layer column type (i.e. "varchar(255)")
-     * @return string Abstract column type (i.e. "string")
+     * @param mixed $real Real database-layer column type (i.e. "varchar(255)")
+     * @return string|false Abstract column type (i.e. "string")
      */
-    public function column($real)
+    public function column(mixed $real): string|false
     {
         if (is_array($real)) {
             $col = $real['name'];
@@ -375,9 +375,7 @@ class Sqlite extends DboSource
             $metaType = false;
             try {
                 $metaData = (array)$results->getColumnMeta($j);
-                if (!empty($metaData['sqlite:decl_type'])) {
-                    $metaType = trim($metaData['sqlite:decl_type']);
-                }
+                $metaType = trim($metaData['sqlite:decl_type'] ?? '') ?: false;
             } catch (Exception) {
             }
 
@@ -454,9 +452,8 @@ class Sqlite extends DboSource
      */
     public function buildColumn(array $column): ?string
     {
-        $name = $type = null;
-        $column += ['null' => true];
-        extract($column);
+        $name = $column['name'] ?? null;
+        $type = $column['type'] ?? null;
 
         if (empty($name) || empty($type)) {
             trigger_error(__d('cake_dev', 'Column name or type not defined in schema'), E_USER_WARNING);
@@ -493,7 +490,7 @@ class Sqlite extends DboSource
      * @param string $enc Database encoding
      * @return bool
      */
-    public function setEncoding($enc)
+    public function setEncoding(string $enc): bool
     {
         if (!in_array($enc, ['UTF-8', 'UTF-16', 'UTF-16le', 'UTF-16be'])) {
             return false;
@@ -505,9 +502,9 @@ class Sqlite extends DboSource
     /**
      * Gets the database encoding
      *
-     * @return string The database encoding
+     * @return array|false The database encoding
      */
-    public function getEncoding()
+    public function getEncoding(): array|false
     {
         return $this->fetchRow('PRAGMA encoding');
     }
@@ -537,7 +534,9 @@ class Sqlite extends DboSource
                 $out .= 'UNIQUE ';
             }
             if (is_array($value['column'])) {
-                $value['column'] = implode(', ', array_map([&$this, 'name'], $value['column']));
+                /** @var array<string> $_column */
+                $_column = array_map([&$this, 'name'], $value['column']);
+                $value['column'] = implode(', ', $_column);
             } else {
                 $value['column'] = $this->name($value['column']);
             }
@@ -574,7 +573,7 @@ class Sqlite extends DboSource
                 foreach ($keyInfo as $keyCol) {
                     if (!isset($index[$key['name']])) {
                         $col = [];
-                        if (preg_match('/autoindex/', $key['name'])) {
+                        if (str_contains($key['name'], 'autoindex')) {
                             $key['name'] = 'PRIMARY';
                         }
                         $index[$key['name']]['column'] = $keyCol[0]['name'];
@@ -597,14 +596,43 @@ class Sqlite extends DboSource
      * Overrides DboSource::renderStatement to handle schema generation with SQLite-style indexes
      *
      * @param string $type The type of statement being rendered.
-     * @param array $data The data to convert to SQL.
+     * @param array{
+     *     fields: string|null,
+     *     table: string|null,
+     *     alias: string|null,
+     *     joins?: string|null,
+     *     conditions?: string|null,
+     *     group?: string|null,
+     *     having?: string|null,
+     *     order?: string|null,
+     *     limit?: string|null,
+     *     lock?: string|null
+     * }|array{
+     *     fields: string|null,
+     *     table: string|null,
+     *     values?: string|null
+     * }|array{
+     *     fields: string|null,
+     *     table: string|null,
+     *     alias: string|null,
+     *     joins?: string|null,
+     *     conditions?: string|null
+     * }|array{
+     *     table: string|null,
+     *     columns?: mixed,
+     *     indexes?: mixed,
+     *     tableParameters?: mixed
+     * } $data The data to convert to SQL.
      * @return string|null
      */
     public function renderStatement(string $type, array $data): ?string
     {
         switch (strtolower($type)) {
             case 'schema':
-                extract($data);
+                $table = $data['table'] ?? '';
+                $columns = $data['columns'] ?? [];
+                $indexes = $data['indexes'] ?? [];
+
                 if (is_array($columns)) {
                     $columns = "\t" . implode(",\n\t", array_filter($columns));
                 }
@@ -634,7 +662,7 @@ class Sqlite extends DboSource
      * @param Model|string $table Name of the table to drop
      * @return string Drop table SQL statement
      */
-    protected function _dropTable($table): string
+    protected function _dropTable(Model|string $table): string
     {
         return 'DROP TABLE IF EXISTS ' . $this->fullTableName($table) . ';';
     }
@@ -644,7 +672,7 @@ class Sqlite extends DboSource
      *
      * @return string The schema name
      */
-    public function getSchemaName()
+    public function getSchemaName(): string
     {
         return 'main'; // Sqlite Datasource does not support multidb
     }

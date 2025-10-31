@@ -107,9 +107,21 @@ class Postgres extends DboSource
     /**
      * The set of valid SQL operations usable in a WHERE statement
      *
-     * @var array
+     * @var array<string>
      */
-    protected array $_sqlOps = ['like', 'ilike', 'or', 'not', 'in', 'between', '~', '~\*', '\!~', '\!~\*', 'similar to'];
+    protected array $_sqlOps = [
+        'like',
+        'ilike',
+        'or',
+        'not',
+        'in',
+        'between',
+        '~',
+        '~\*',
+        '\!~',
+        '\!~\*',
+        'similar to',
+    ];
 
     /**
      * Connects to the database using options in the given configuration array.
@@ -167,7 +179,7 @@ class Postgres extends DboSource
      *
      * @return bool
      */
-    public function enabled()
+    public function enabled(): bool
     {
         return in_array('pgsql', PDO::getAvailableDrivers());
     }
@@ -175,8 +187,8 @@ class Postgres extends DboSource
     /**
      * Returns an array of tables in the database. If there are no tables, an error is raised and the application exits.
      *
-     * @param mixed $data The sources to list.
-     * @return array Array of table names in the database
+     * @param array|null $data The sources to list.
+     * @return array|null Array of table names in the database
      */
     public function listSources(?array $data = null): ?array
     {
@@ -210,9 +222,9 @@ class Postgres extends DboSource
      * Returns an array of the fields in given table name.
      *
      * @param Model|string $model Name of database table to inspect
-     * @return array Fields in table. Keys are name and type
+     * @return array|false|null Fields in table. Keys are name and type
      */
-    public function describe(string|Model $model)
+    public function describe(Model|string $model): array|false|null
     {
         $table = $this->fullTableName($model, false, false);
         $fields = parent::describe($table);
@@ -264,7 +276,7 @@ class Postgres extends DboSource
                 }
                 $fields[$c->name] = [
                     'type' => $this->column($type),
-                    'null' => ($c->null === 'NO' ? false : true),
+                    'null' => $c->null !== 'NO',
                     'default' => $c->default ? preg_replace(
                         "/^'(.*)'$/",
                         '$1',
@@ -334,12 +346,12 @@ class Postgres extends DboSource
      *
      * @param mixed $source Name of the database table
      * @param string $field Name of the ID database field. Defaults to "id"
-     * @return mixed
+     * @return string|bool
      */
     public function lastInsertId(
         mixed $source = null,
         string $field = 'id',
-    ): mixed {
+    ): string|bool {
         $seq = $this->getSequence($source, $field);
 
         return $this->_connection->lastInsertId($seq);
@@ -405,7 +417,7 @@ class Postgres extends DboSource
             $this->cacheSources = $cache;
         }
         if ($this->execute('DELETE FROM ' . $this->fullTableName($table))) {
-            if (isset($this->_sequenceMap[$table]) && $reset != true) {
+            if (isset($this->_sequenceMap[$table]) && !$reset) {
                 foreach ($this->_sequenceMap[$table] as $sequence) {
                     $quoted = $this->name($sequence);
                     $this->_execute("ALTER SEQUENCE {$quoted} RESTART WITH 1");
@@ -503,10 +515,10 @@ class Postgres extends DboSource
      * Auxiliary function to quote matched `(Model.fields)` from a preg_replace_callback call
      * Quotes the fields in a function call.
      *
-     * @param string $match matched string
+     * @param array $match matched string
      * @return string quoted string
      */
-    protected function _quoteFunctionField($match)
+    protected function _quoteFunctionField(array $match): string
     {
         $prepend = '';
         if (str_contains($match[1], 'DISTINCT')) {
@@ -572,7 +584,7 @@ class Postgres extends DboSource
      *
      * @param mixed $compare Results of CakeSchema::compare()
      * @param string|null $table name of the table
-     * @return mixed
+     * @return string|false
      */
     public function alterSchema(mixed $compare, ?string $table = null): string|false
     {
@@ -690,7 +702,7 @@ class Postgres extends DboSource
      * @param array $indexes Indexes to add and drop
      * @return array Index alteration statements
      */
-    protected function _alterIndexes($table, $indexes)
+    protected function _alterIndexes(string $table, array $indexes): array
     {
         $alter = [];
         if (isset($indexes['drop'])) {
@@ -716,7 +728,9 @@ class Postgres extends DboSource
                     $out .= 'INDEX ';
                 }
                 if (is_array($value['column'])) {
-                    $out .= $name . ' ON ' . $table . ' (' . implode(', ', array_map([&$this, 'name'], $value['column'])) . ')';
+                    /** @var array<string> $_column */
+                    $_column = array_map([&$this, 'name'], $value['column']);
+                    $out .= $name . ' ON ' . $table . ' (' . implode(', ', $_column) . ')';
                 } else {
                     $out .= $name . ' ON ' . $table . ' (' . $this->name($value['column']) . ')';
                 }
@@ -760,10 +774,10 @@ class Postgres extends DboSource
     /**
      * Converts database-layer column types to basic types
      *
-     * @param string $real Real database-layer column type (i.e. "varchar(255)")
-     * @return string Abstract column type (i.e. "string")
+     * @param mixed $real Real database-layer column type (i.e. "varchar(255)")
+     * @return string|false Abstract column type (i.e. "string")
      */
-    public function column($real)
+    public function column(mixed $real): string|false
     {
         if (is_array($real)) {
             $col = $real['name'];
@@ -784,41 +798,28 @@ class Postgres extends DboSource
             'float', 'float4', 'float8', 'double', 'double precision', 'real',
         ];
 
-        switch (true) {
-            case in_array($col, ['date', 'time', 'inet', 'boolean']):
-                return $col;
-            case str_contains($col, 'timestamp'):
-                return 'datetime';
-            case str_starts_with($col, 'time'):
-                return 'time';
-            case $col === 'bigint':
-                return 'biginteger';
-            case $col === 'smallint':
-                return 'smallinteger';
-            case str_contains($col, 'int') && $col !== 'interval':
-                return 'integer';
-            case str_contains($col, 'char'):
-                return 'string';
-            case str_contains($col, 'uuid'):
-                return 'uuid';
-            case str_contains($col, 'text'):
-                return 'text';
-            case str_contains($col, 'bytea'):
-                return 'binary';
-            case $col === 'decimal' || $col === 'numeric':
-                return 'decimal';
-            case in_array($col, $floats):
-                return 'float';
-            default:
-                return 'text';
-        }
+        return match (true) {
+            in_array($col, ['date', 'time', 'inet', 'boolean']) => $col,
+            str_contains($col, 'timestamp') => 'datetime',
+            str_starts_with($col, 'time') => 'time',
+            $col === 'bigint' => 'biginteger',
+            $col === 'smallint' => 'smallinteger',
+            str_contains($col, 'int') && $col !== 'interval' => 'integer',
+            str_contains($col, 'char') => 'string',
+            str_contains($col, 'uuid') => 'uuid',
+            str_contains($col, 'text') => 'text',
+            str_contains($col, 'bytea') => 'binary',
+            $col === 'decimal' || $col === 'numeric' => 'decimal',
+            in_array($col, $floats) => 'float',
+            default => 'text',
+        };
     }
 
     /**
      * Gets the length of a database-native column description, or null if no length
      *
      * @param object|string $real Real database-layer column type (i.e. "varchar(255)")
-     * @return int An integer representing the length of the column
+     * @return string|int|null An integer representing the length of the column
      */
     public function length(object|string $real): string|int|null
     {
@@ -871,17 +872,11 @@ class Postgres extends DboSource
             foreach ($this->map as $index => $meta) {
                 [$table, $column, $type] = $meta;
 
-                switch ($type) {
-                    case 'bool':
-                        $resultRow[$table][$column] = $row[$index] === null ? null : $this->boolean($row[$index]);
-                        break;
-                    case 'binary':
-                    case 'bytea':
-                        $resultRow[$table][$column] = $row[$index] === null ? null : stream_get_contents($row[$index]);
-                        break;
-                    default:
-                        $resultRow[$table][$column] = $row[$index];
-                }
+                $resultRow[$table][$column] = match ($type) {
+                    'bool' => $row[$index] === null ? null : $this->boolean($row[$index]),
+                    'binary', 'bytea' => $row[$index] === null ? null : stream_get_contents($row[$index]),
+                    default => $row[$index],
+                };
             }
 
             return $resultRow;
@@ -900,22 +895,13 @@ class Postgres extends DboSource
      */
     public function boolean(mixed $data, bool $quote = false): string|bool
     {
-        switch (true) {
-            case $data === true || $data === false:
-                $result = $data;
-                break;
-            case $data === 't' || $data === 'f':
-                $result = ($data === 't');
-                break;
-            case $data === 'true' || $data === 'false':
-                $result = ($data === 'true');
-                break;
-            case $data === 'TRUE' || $data === 'FALSE':
-                $result = ($data === 'TRUE');
-                break;
-            default:
-                $result = (bool)$data;
-        }
+        $result = match (true) {
+            $data === true || $data === false => $data,
+            $data === 't' || $data === 'f' => ($data === 't'),
+            $data === 'true' || $data === 'false' => ($data === 'true'),
+            $data === 'TRUE' || $data === 'FALSE' => ($data === 'TRUE'),
+            default => (bool)$data,
+        };
 
         if ($quote) {
             return $result ? 'TRUE' : 'FALSE';
@@ -930,7 +916,7 @@ class Postgres extends DboSource
      * @param mixed $enc Database encoding
      * @return bool True on success, false on failure
      */
-    public function setEncoding($enc)
+    public function setEncoding(mixed $enc): bool
     {
         return $this->_execute('SET NAMES ' . $this->value($enc)) !== false;
     }
@@ -938,9 +924,9 @@ class Postgres extends DboSource
     /**
      * Gets the database encoding
      *
-     * @return string The database encoding
+     * @return string|false The database encoding
      */
-    public function getEncoding()
+    public function getEncoding(): string|false
     {
         $result = $this->_execute('SHOW client_encoding')->fetch();
         if ($result === false) {
@@ -1009,9 +995,6 @@ class Postgres extends DboSource
     public function buildIndex(array $indexes, ?string $table = null): array
     {
         $join = [];
-        if (!is_array($indexes)) {
-            return [];
-        }
         foreach ($indexes as $name => $value) {
             if ($name === 'PRIMARY') {
                 $out = 'PRIMARY KEY  (' . $this->name($value['column']) . ')';
@@ -1021,7 +1004,9 @@ class Postgres extends DboSource
                     $out .= 'UNIQUE ';
                 }
                 if (is_array($value['column'])) {
-                    $value['column'] = implode(', ', array_map([&$this, 'name'], $value['column']));
+                    /** @var array<string> $_column */
+                    $_column = array_map([&$this, 'name'], $value['column']);
+                    $value['column'] = implode(', ', $_column);
                 } else {
                     $value['column'] = $this->name($value['column']);
                 }
@@ -1039,7 +1024,7 @@ class Postgres extends DboSource
     public function value(mixed $data, ?string $column = null, bool $null = true): array|string
     {
         $value = parent::value($data, $column, $null);
-        if ($column === 'uuid' && is_scalar($data) && $data === '') {
+        if ($column === 'uuid' && $data === '') {
             return 'NULL';
         }
 
@@ -1050,17 +1035,45 @@ class Postgres extends DboSource
      * Overrides DboSource::renderStatement to handle schema generation with Postgres-style indexes
      *
      * @param string $type The query type.
-     * @param array $data The array of data to render.
+     * @param array{
+     *     fields: string|null,
+     *     table: string|null,
+     *     alias: string|null,
+     *     joins?: string|null,
+     *     conditions?: string|null,
+     *     group?: string|null,
+     *     having?: string|null,
+     *     order?: string|null,
+     *     limit?: string|null,
+     *     lock?: string|null
+     * }|array{
+     *     fields: string|null,
+     *     table: string|null,
+     *     values?: string|null
+     * }|array{
+     *     fields: string|null,
+     *     table: string|null,
+     *     alias: string|null,
+     *     joins?: string|null,
+     *     conditions?: string|null
+     * }|array{
+     *     table: string|null,
+     *     columns?: mixed,
+     *     indexes?: mixed,
+     *     tableParameters?: mixed
+     * } $data $data The array of data to render.
      * @return string|null
      */
     public function renderStatement(string $type, array $data): ?string
     {
         switch (strtolower($type)) {
             case 'schema':
-                extract($data);
+                $table = $data['table'] ?? null;
+                $columns = $data['columns'] ?? [];
+                $indexes = $data['indexes'] ?? [];
 
                 foreach ($indexes as $i => $index) {
-                    if (preg_match('/PRIMARY KEY/', $index)) {
+                    if (str_contains($index, 'PRIMARY KEY')) {
                         unset($indexes[$i]);
                         $columns[] = $index;
                         break;
@@ -1085,7 +1098,7 @@ class Postgres extends DboSource
      *
      * @return string The schema name
      */
-    public function getSchemaName()
+    public function getSchemaName(): string
     {
         return $this->config['schema'];
     }

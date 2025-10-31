@@ -67,7 +67,7 @@ class AclNode extends Model
      * @return array|false|null Node found in database
      * @throws CakeException when binding to a model that doesn't exist.
      */
-    public function node($ref = null)
+    public function node(Model|array|string|null $ref = null): array|false|null
     {
         /** @var DboSource $db */
         $db = $this->getDataSource();
@@ -136,16 +136,17 @@ class AclNode extends Model
             ) {
                 return false;
             }
-        } elseif (is_object($ref) && $ref instanceof Model) {
+        } elseif ($ref instanceof Model) {
             $ref = ['model' => $ref->name, 'foreign_key' => $ref->id];
-        } elseif (is_array($ref) && !(isset($ref['model']) && isset($ref['foreign_key']))) {
+        } elseif (!(isset($ref['model']) && isset($ref['foreign_key']))) {
             $name = key($ref);
             [, $alias] = pluginSplit($name);
 
+            /** @var Model $model */
             $model = ClassRegistry::init(['class' => $name, 'alias' => $alias]);
 
             if (empty($model)) {
-                throw new CakeException('cake_dev', "Model class '%s' not found in AclNode::node() when trying to bind %s object", $type, $this->alias);
+                throw new CakeException(__d('cake_dev', "Model class '%s' not found in AclNode::node() when trying to bind %s object", $type, $this->alias));
             }
 
             $tmpRef = null;

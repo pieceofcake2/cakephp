@@ -33,28 +33,28 @@ class L10n
      *
      * @var string
      */
-    public $language = 'English (United States)';
+    public string $language = 'English (United States)';
 
     /**
      * Locale search paths
      *
      * @var array
      */
-    public $languagePath = ['en_us', 'eng'];
+    public array $languagePath = ['en_us', 'eng'];
 
     /**
      * ISO 639-3 for current locale
      *
      * @var string
      */
-    public $lang = 'eng';
+    public string $lang = 'eng';
 
     /**
      * Locale
      *
      * @var string
      */
-    public $locale = 'en_us';
+    public string $locale = 'en_us';
 
     /**
      * Default language.
@@ -63,23 +63,23 @@ class L10n
      * as a fall back else if DEFAULT_LANGUAGE it defined it will be used.
      * Constant DEFAULT_LANGUAGE has been deprecated in 2.4
      *
-     * @var string
+     * @var string|null
      */
-    public $default = null;
+    public ?string $default = null;
 
     /**
      * Encoding used for current locale
      *
      * @var string
      */
-    public $charset = 'utf-8';
+    public string $charset = 'utf-8';
 
     /**
      * Text direction for current locale
      *
      * @var string
      */
-    public $direction = 'ltr';
+    public string $direction = 'ltr';
 
     /**
      * Maps ISO 639-3 to I10n::_l10nCatalog
@@ -89,7 +89,7 @@ class L10n
      *
      * @var array
      */
-    protected $_l10nMap = [
+    protected array $_l10nMap = [
         /* Afrikaans */ 'afr' => 'af',
         /* Albanian */ 'sqi' => 'sq',
         /* Albanian - bibliographic */ 'alb' => 'sq',
@@ -185,7 +185,7 @@ class L10n
      *
      * @var array
      */
-    protected $_l10nCatalog = [
+    protected array $_l10nCatalog = [
         'af' => ['language' => 'Afrikaans', 'locale' => 'afr', 'localeFallback' => 'afr', 'charset' => 'utf-8', 'direction' => 'ltr'],
         'ar' => ['language' => 'Arabic', 'locale' => 'ara', 'localeFallback' => 'ara', 'charset' => 'utf-8', 'direction' => 'rtl'],
         'ar-ae' => ['language' => 'Arabic (U.A.E.)', 'locale' => 'ar_ae', 'localeFallback' => 'ara', 'charset' => 'utf-8', 'direction' => 'rtl'],
@@ -364,10 +364,10 @@ class L10n
      * If $language is null it attempt to get settings from L10n::_autoLanguage(); if this fails
      * the method will get the settings from L10n::_setLanguage();
      *
-     * @param string $language Language (if null will use DEFAULT_LANGUAGE if defined)
+     * @param string|null $language Language (if null will use DEFAULT_LANGUAGE if defined)
      * @return mixed
      */
-    public function get($language = null)
+    public function get(?string $language = null): mixed
     {
         if ($language !== null) {
             return $this->_setLanguage($language);
@@ -384,10 +384,10 @@ class L10n
      * Sets the class vars to correct values for $language.
      * If $language is null it will use the L10n::$default if defined
      *
-     * @param string $language Language (if null will use L10n::$default if defined)
+     * @param string|null $language Language (if null will use L10n::$default if defined)
      * @return mixed
      */
-    protected function _setLanguage($language = null)
+    protected function _setLanguage(?string $language = null): mixed
     {
         $catalog = false;
         if ($language !== null) {
@@ -431,6 +431,8 @@ class L10n
         if ($language) {
             return $language;
         }
+
+        return null;
     }
 
     /**
@@ -438,7 +440,7 @@ class L10n
      *
      * @return bool Success
      */
-    protected function _autoLanguage()
+    protected function _autoLanguage(): bool
     {
         $_detectableLanguages = CakeRequest::acceptLanguage();
         foreach ($_detectableLanguages as $langKey) {
@@ -463,11 +465,11 @@ class L10n
     /**
      * Attempts to find locale for language, or language for locale
      *
-     * @param array|string $mixed 2/3 char string (language/locale), array of those strings, or null
-     * @return array|string|bool string language/locale, array of those values, whole map as an array,
+     * @param array|string|null $mixed 2/3 char string (language/locale), array of those strings, or null
+     * @return array|string|false string language/locale, array of those values, whole map as an array,
      *    or false when language/locale doesn't exist
      */
-    public function map($mixed = null)
+    public function map(array|string|null $mixed = null): array|string|false
     {
         if (is_array($mixed)) {
             $result = [];
@@ -493,11 +495,11 @@ class L10n
     /**
      * Attempts to find catalog record for requested language
      *
-     * @param array|string $language string requested language, array of requested languages, or null for whole catalog
+     * @param array|string|null $language string requested language, array of requested languages, or null for whole catalog
      * @return array|false array catalog record for requested language, array of catalog records, whole catalog,
      *    or false when language doesn't exist
      */
-    public function catalog($language = null)
+    public function catalog(array|string|null $language = null): array|false
     {
         if (is_array($language)) {
             $result = [];

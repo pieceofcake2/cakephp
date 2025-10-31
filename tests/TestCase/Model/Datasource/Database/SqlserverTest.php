@@ -125,9 +125,9 @@ class SqlserverTestDb extends Sqlserver
      * describe method
      *
      * @param string|Model $model
-     * @return array
+     * @return array|false|null
      */
-    public function describe(string|Model $model): array
+    public function describe(Model|string $model): array|false|null
     {
         return empty($this->describe) ? parent::describe($model) : $this->describe;
     }

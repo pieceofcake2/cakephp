@@ -21,6 +21,7 @@ namespace Cake\Model\Datasource\Database;
 use Cake\Error\CakeException;
 use Cake\Error\MissingConnectionException;
 use Cake\Model\Datasource\DboSource;
+use Cake\Model\Datasource\PDOExceptionWithQueryString;
 use Cake\Model\Model;
 use InvalidArgumentException;
 use Override;
@@ -71,9 +72,9 @@ class Sqlserver extends DboSource
     /**
      * Storing the last affected value
      *
-     * @var mixed
+     * @var int|false
      */
-    protected $_lastAffected = false;
+    protected int|false $_lastAffected = false;
 
     /**
      * Base configuration settings for MS SQL driver
@@ -115,7 +116,7 @@ class Sqlserver extends DboSource
         'boolean' => ['name' => 'bit'],
     ];
 
-    public $error = null;
+    public mixed $error = null;
 
     /**
      * Magic column name used to provide pagination support for SQLServer 2008
@@ -211,7 +212,7 @@ class Sqlserver extends DboSource
      *
      * @return bool
      */
-    public function enabled()
+    public function enabled(): bool
     {
         return in_array('sqlsrv', PDO::getAvailableDrivers());
     }
@@ -219,8 +220,8 @@ class Sqlserver extends DboSource
     /**
      * Returns an array of sources (tables) in the database.
      *
-     * @param mixed $data The names
-     * @return array Array of table names in the database
+     * @param array|null $data The names
+     * @return array|null Array of table names in the database
      */
     public function listSources(?array $data = null): ?array
     {
@@ -229,18 +230,15 @@ class Sqlserver extends DboSource
             return $cache;
         }
 
-        $schema = $this->getSchemaName() ?? false;
+        $schema = $this->getSchemaName();
 
         // Filter tables by current database catalog
         $result = $this->_execute('SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES' . ($schema ? " WHERE TABLE_SCHEMA = '" . $schema . "'" : ''));
-
         if (!$result) {
-            $result->closeCursor();
-
             return [];
         }
-        $tables = [];
 
+        $tables = [];
         while ($line = $result->fetch(PDO::FETCH_NUM)) {
             $tables[] = $line[0];
         }
@@ -255,10 +253,10 @@ class Sqlserver extends DboSource
      * Returns an array of the fields in given table name.
      *
      * @param Model|string $model Model object to describe, or a string table name.
-     * @return array Fields in table. Keys are name and type
+     * @return array|false|null Fields in table. Keys are name and type
      * @throws CakeException
      */
-    public function describe(string|Model $model): array
+    public function describe(Model|string $model): array|false|null
     {
         $table = $this->fullTableName($model, false, false);
         $fulltable = $this->fullTableName($model, false, true);
@@ -269,7 +267,7 @@ class Sqlserver extends DboSource
         }
 
         $fields = [];
-        $schema = is_object($model) ? $model->schemaName : $this->getSchemaName() ?? false;
+        $schema = is_object($model) ? $model->schemaName ?? false : $this->getSchemaName();
 
         $cols = $this->_execute(
             "SELECT
@@ -292,7 +290,7 @@ class Sqlserver extends DboSource
             $field = $column->Field;
             $fields[$field] = [
                 'type' => $this->column($column),
-                'null' => ($column->Null === 'YES' ? true : false),
+                'null' => $column->Null === 'YES',
                 'default' => $column->Default,
                 'length' => $this->length($column),
                 'key' => $column->Key == '1' ? 'primary' : false,
@@ -427,7 +425,7 @@ class Sqlserver extends DboSource
      * @param Model $model The model to insert into.
      * @param array|null $fields The fields to set.
      * @param array|null $values The values to set.
-     * @return array
+     * @return bool
      */
     public function create(
         Model $model,
@@ -522,9 +520,9 @@ class Sqlserver extends DboSource
      *
      * @param mixed $real Either the string value of the fields type.
      *    or the Result object from Sqlserver::describe()
-     * @return string Abstract column type (i.e. "string")
+     * @return string|false Abstract column type (i.e. "string")
      */
-    public function column($real)
+    public function column(mixed $real): string|false
     {
         $limit = null;
         $col = $real;
@@ -634,7 +632,7 @@ class Sqlserver extends DboSource
             } else {
                 $map = [0, $name];
             }
-            $map[] = $column['sqlsrv:decl_type'] === 'bit' ? 'boolean' : $column['native_type'];
+            $map[] = isset($column['sqlsrv:decl_type']) && $column['sqlsrv:decl_type'] === 'bit' ? 'boolean' : $column['native_type'];
             $this->map[$index++] = $map;
         }
     }
@@ -643,14 +641,50 @@ class Sqlserver extends DboSource
      * Builds final SQL statement
      *
      * @param string $type Query type
-     * @param array $data Query data
+     * @param array{
+     *     fields: string|null,
+     *     table: string|null,
+     *     alias: string|null,
+     *     joins?: string|null,
+     *     conditions?: string|null,
+     *     group?: string|null,
+     *     having?: string|null,
+     *     order?: string|null,
+     *     limit?: string|null,
+     *     lock?: string|null
+     * }|array{
+     *     fields: string|null,
+     *     table: string|null,
+     *     values?: string|null
+     * }|array{
+     *     fields: string|null,
+     *     table: string|null,
+     *     alias: string|null,
+     *     joins?: string|null,
+     *     conditions?: string|null
+     * }|array{
+     *     table: string|null,
+     *     columns?: mixed,
+     *     indexes?: mixed,
+     *     tableParameters?: mixed
+     * } $data Query data
      * @return string|null
      */
     public function renderStatement(string $type, array $data): ?string
     {
         switch (strtolower($type)) {
             case 'select':
-                extract($data);
+                $fields = $data['fields'] ?? '';
+                $table = $data['table'] ?? '';
+                $alias = $data['alias'] ?? '';
+                $joins = $data['joins'] ?? '';
+                $conditions = $data['conditions'] ?? '';
+                $group = $data['group'] ?? '';
+                $having = $data['having'] ?? '';
+                $order = $data['order'] ?? '';
+                $limit = $data['limit'] ?? '';
+                $lock = $data['lock'] ?? '';
+
                 $fields = trim($fields);
 
                 $having = !empty($having) ? " $having" : '';
@@ -691,10 +725,12 @@ class Sqlserver extends DboSource
 
                 return trim("SELECT {$limit} {$fields} FROM {$table} {$alias}{$lock} {$joins} {$conditions} {$group}{$having} {$order}");
             case 'schema':
-                extract($data);
+                $table = $data['table'] ?? '';
+                $columns = $data['columns'] ?? [];
+                $indexes = $data['indexes'] ?? [];
 
                 foreach ($indexes as $i => $index) {
-                    if (preg_match('/PRIMARY KEY/', $index)) {
+                    if (str_contains($index, 'PRIMARY KEY')) {
                         unset($indexes[$i]);
                         break;
                     }
@@ -728,13 +764,10 @@ class Sqlserver extends DboSource
             $column = $this->introspectType($data);
         }
 
-        switch ($column) {
-            case 'string':
-            case 'text':
-                return 'N' . $this->_connection->quote($data, PDO::PARAM_STR);
-            default:
-                return parent::value($data, $column, $null);
-        }
+        return match ($column) {
+            'string', 'text' => 'N' . $this->_connection->quote($data, PDO::PARAM_STR),
+            default => parent::value($data, $column, $null),
+        };
     }
 
     /**
@@ -789,17 +822,18 @@ class Sqlserver extends DboSource
      * Inserts multiple values into a table
      *
      * @param Model|string $table The table to insert into.
-     * @param array $fields The fields to set.
+     * @param array|string $fields The fields to set.
      * @param array $values The values to set.
      * @return bool
      */
-    public function insertMulti(Model|string $table, array $fields, array $values): bool
+    public function insertMulti(Model|string $table, array|string $fields, array $values): bool
     {
         $primaryKey = $this->_getPrimaryKey($table);
-        $hasPrimaryKey = $primaryKey && (
-            (is_array($fields) && in_array($primaryKey, $fields)
-            || (is_string($fields) && str_contains($fields, $this->startQuote . $primaryKey . $this->endQuote)))
-        );
+        $hasPrimaryKey = $primaryKey
+            && (
+                (is_array($fields) && in_array($primaryKey, $fields)
+                || (is_string($fields) && str_contains($fields, $this->startQuote . $primaryKey . $this->endQuote)))
+            );
 
         if ($hasPrimaryKey) {
             $this->_execute('SET IDENTITY_INSERT ' . $this->fullTableName($table) . ' ON');
@@ -859,7 +893,6 @@ class Sqlserver extends DboSource
     public function buildIndex(array $indexes, ?string $table = null): array
     {
         $join = [];
-
         foreach ($indexes as $name => $value) {
             if ($name === 'PRIMARY') {
                 $join[] = 'PRIMARY KEY (' . $this->name($value['column']) . ')';
@@ -867,7 +900,9 @@ class Sqlserver extends DboSource
                 $out = "ALTER TABLE {$table} ADD CONSTRAINT {$name} UNIQUE";
 
                 if (is_array($value['column'])) {
-                    $value['column'] = implode(', ', array_map([&$this, 'name'], $value['column']));
+                    /** @var array<string> $_column */
+                    $_column = array_map([&$this, 'name'], $value['column']);
+                    $value['column'] = implode(', ', $_column);
                 } else {
                     $value['column'] = $this->name($value['column']);
                 }
@@ -883,9 +918,9 @@ class Sqlserver extends DboSource
      * Makes sure it will return the primary key
      *
      * @param Model|string $model Model instance of table name
-     * @return string
+     * @return string|null
      */
-    protected function _getPrimaryKey($model)
+    protected function _getPrimaryKey(Model|string $model): ?string
     {
         $schema = $this->describe($model);
         foreach ($schema as $field => $props) {
@@ -906,12 +941,7 @@ class Sqlserver extends DboSource
      */
     public function lastAffected(mixed $source = null): int|false
     {
-        $affected = parent::lastAffected();
-        if ($affected === null && $this->_lastAffected !== false) {
-            return $this->_lastAffected;
-        }
-
-        return $affected;
+        return parent::lastAffected();
     }
 
     /**
@@ -920,7 +950,7 @@ class Sqlserver extends DboSource
      * @param string $sql SQL statement
      * @param array $params list of params to be bound to query (supported only in select)
      * @param array $prepareOptions Options to be used in the prepare statement
-     * @return mixed PDOStatement if query executes with no problem, true as the result of a successful, false on error
+     * @return PDOStatement|bool PDOStatement if query executes with no problem, true as the result of a successful, false on error
      * query returning no rows, such as a CREATE statement, false otherwise
      * @throws PDOException
      */
@@ -947,7 +977,9 @@ class Sqlserver extends DboSource
 
             return true;
         } catch (PDOException $e) {
+            $e = new PDOExceptionWithQueryString($e);
             $e->queryString = $sql;
+
             throw $e;
         }
     }
@@ -958,7 +990,7 @@ class Sqlserver extends DboSource
      * @param Model|string $table Name of the table to drop
      * @return string Drop table SQL statement
      */
-    protected function _dropTable($table): string
+    protected function _dropTable(Model|string $table): string
     {
         return "IF OBJECT_ID('" . $this->fullTableName($table, false) . "', 'U') IS NOT NULL DROP TABLE " . $this->fullTableName($table) . ';';
     }
@@ -968,7 +1000,7 @@ class Sqlserver extends DboSource
      *
      * @return string The schema name
      */
-    public function getSchemaName()
+    public function getSchemaName(): string
     {
         return $this->config['schema'] ?? 'dbo';
     }

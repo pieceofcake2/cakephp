@@ -22,6 +22,7 @@ parameters:
         - '#Constant MCRYPT_.* not found#'
         # Config classes (generated at runtime)
         - '#Class EmailConfig not found#'
+        - '# has unknown class DATABASE_CONFIG as its type.#'
     parallel:
         processTimeout: 300.0
         maximumNumberOfProcesses: 4

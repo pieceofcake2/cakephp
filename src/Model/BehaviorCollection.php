@@ -138,16 +138,13 @@ class BehaviorCollection extends ObjectCollection implements CakeEventListener
                 $this->_loaded[$alias] = new $class();
                 ClassRegistry::addObject($class, $this->_loaded[$alias]);
             }
-        } elseif (isset($this->_loaded[$alias]->settings) && isset($this->_loaded[$alias]->settings[$this->modelName])) {
-            if ($options !== null && $options !== false) {
-                $options = array_merge($this->_loaded[$alias]->settings[$this->modelName], $options);
-            } else {
-                $options = [];
-            }
+        } elseif (isset($this->_loaded[$alias]?->settings[$this->modelName])) {
+            $options = array_merge($this->_loaded[$alias]->settings[$this->modelName], $options);
         }
         if (empty($options)) {
             $options = [];
         }
+
         $this->_loaded[$alias]->settings['priority'] = $priority;
         $this->_loaded[$alias]->setup(ClassRegistry::getObject($this->modelName), $options);
 
@@ -190,7 +187,7 @@ class BehaviorCollection extends ObjectCollection implements CakeEventListener
      * @param string $name CamelCased name of the behavior to unload
      * @return void
      */
-    public function unload($name): void
+    public function unload(string $name): void
     {
         [, $name] = pluginSplit($name);
         if (isset($this->_loaded[$name])) {

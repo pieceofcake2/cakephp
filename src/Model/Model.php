@@ -499,7 +499,7 @@ class Model extends CakeObject implements CakeEventListener
      * );
      * ```
      *
-     * @var array<string|array<string, array>>
+     * @var array
      * @link https://book.cakephp.org/2.0/en/models/behaviors.html#using-behaviors
      */
     public array $actsAs = [];
@@ -681,6 +681,11 @@ class Model extends CakeObject implements CakeEventListener
      * @var ModelValidator|null
      */
     protected ?ModelValidator $_validator = null;
+
+    /**
+     * @var array|string|null
+     */
+    public array|string|null $locale = null;
 
     /**
      * Constructor. Binds the model's database table to the object.

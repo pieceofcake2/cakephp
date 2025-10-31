@@ -41,41 +41,41 @@ class ConnectionManager
     /**
      * Holds a loaded instance of the Connections object
      *
-     * @var DATABASE_CONFIG
+     * @var DATABASE_CONFIG|null
      */
-    public static $config = null;
+    public static ?DATABASE_CONFIG $config = null;
 
     /**
      * Holds instances DataSource objects
      *
      * @var array
      */
-    protected static $_dataSources = [];
+    protected static array $_dataSources = [];
 
     /**
      * Contains a list of all file and class names used in Connection settings
      *
      * @var array
      */
-    protected static $_connectionsEnum = [];
+    protected static array $_connectionsEnum = [];
 
     /**
      * Indicates if the init code for this class has already been executed
      *
      * @var bool
      */
-    protected static $_init = false;
+    protected static bool $_init = false;
 
     /**
      * Loads connections configuration.
      *
      * @return void
      */
-    protected static function _init()
+    protected static function _init(): void
     {
         try {
             require_once CONFIG . 'database.php';
-        } catch (Throwable $e) {
+        } catch (Throwable) {
         }
         if (class_exists(DATABASE_CONFIG::class)) {
             static::$config = new DATABASE_CONFIG();
@@ -153,7 +153,7 @@ class ConnectionManager
      *
      * @return array List of available connections
      */
-    public static function sourceList()
+    public static function sourceList(): array
     {
         if (empty(static::$_init)) {
             static::_init();
@@ -165,11 +165,11 @@ class ConnectionManager
     /**
      * Gets a DataSource name from an object reference.
      *
-     * @param DataSource $source DataSource object
+     * @param object $source DataSource object
      * @return string|null Datasource name, or null if source is not present
      *    in the ConnectionManager.
      */
-    public static function getSourceName($source)
+    public static function getSourceName(object $source): ?string
     {
         if (empty(static::$_init)) {
             static::_init();
@@ -239,7 +239,7 @@ class ConnectionManager
      * @return array An associative array of elements where the key is the connection name
      *    (as defined in Connections), and the value is an array with keys 'filename' and 'classname'.
      */
-    public static function enumConnectionObjects()
+    public static function enumConnectionObjects(): array
     {
         if (empty(static::$_init)) {
             static::_init();
@@ -251,11 +251,11 @@ class ConnectionManager
     /**
      * Dynamically creates a DataSource object at runtime, with the given name and settings
      *
-     * @param string $name The DataSource name
-     * @param array $config The DataSource configuration settings
+     * @param string|null $name The DataSource name
+     * @param array|null $config The DataSource configuration settings
      * @return DataSource|null A reference to the DataSource object, or null if creation failed
      */
-    public static function create($name = '', $config = [])
+    public static function create(?string $name = '', ?array $config = []): ?DataSource
     {
         if (empty(static::$_init)) {
             static::_init();
@@ -266,9 +266,8 @@ class ConnectionManager
         }
         static::$config->{$name} = $config;
         static::$_connectionsEnum[$name] = static::_connectionData($config);
-        $return = static::getDataSource($name);
 
-        return $return;
+        return static::getDataSource($name);
     }
 
     /**
@@ -277,7 +276,7 @@ class ConnectionManager
      * @param string $name the connection name as it was created
      * @return bool success if connection was removed, false if it does not exist
      */
-    public static function drop($name)
+    public static function drop(string $name): bool
     {
         if (empty(static::$_init)) {
             static::_init();
@@ -298,7 +297,7 @@ class ConnectionManager
      * @return void
      * @throws MissingDatasourceConfigException
      */
-    protected static function _getConnectionObject($name)
+    protected static function _getConnectionObject(string $name): void
     {
         if (!empty(static::$config->{$name})) {
             static::$_connectionsEnum[$name] = static::_connectionData(static::$config->{$name});
@@ -315,7 +314,7 @@ class ConnectionManager
      */
     protected static function _connectionData(array $config): array
     {
-        $package = $classname = $plugin = null;
+        $package = null;
 
         [$plugin, $classname] = pluginSplit($config['datasource']);
         if (str_contains($classname, '/')) {

@@ -73,9 +73,9 @@ class TestSource extends DataSource
      * Returns the schema for the datasource to enable create/update
      *
      * @param Model|string $model
-     * @return array
+     * @return array|false|null
      */
-    public function describe(Model|string $model)
+    public function describe(Model|string $model): array|false|null
     {
         return $this->_schema;
     }

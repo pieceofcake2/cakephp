@@ -2311,20 +2311,20 @@ class DboSource extends DataSource
      *     limit?: string|null,
      *     lock?: string|null
      * }|array{
-     *       fields: string|null,
-     *       table: string|null,
-     *      values?: string|null
+     *     fields: string|null,
+     *     table: string|null,
+     *     values?: string|null
      * }|array{
-     *      fields: string|null,
-     *      table: string|null,
-     *      alias: string|null,
-     *      joins?: string|null,
-     *      conditions?: string|null
+     *     fields: string|null,
+     *     table: string|null,
+     *     alias: string|null,
+     *     joins?: string|null,
+     *     conditions?: string|null
      * }|array{
-     *      table: string|null,
-     *      columns?: mixed,
-     *      indexes?: mixed,
-     *      tableParameters?: mixed
+     *     table: string|null,
+     *     columns?: mixed,
+     *     indexes?: mixed,
+     *     tableParameters?: mixed
      * } $data Array of data to insert into the query.
      * @return string|null Rendered SQL expression to be run, otherwise null.
      */
@@ -3101,14 +3101,14 @@ class DboSource extends DataSource
      * @param bool $quoteValues If true, values should be quoted
      * @param bool $where If true, "WHERE " will be prepended to the return value
      * @param Model|null $model A reference to the Model instance making the query
-     * @return string SQL fragment
+     * @return string|false SQL fragment
      */
     public function conditions(
         mixed $conditions,
         bool $quoteValues = true,
         bool $where = true,
         ?Model $model = null,
-    ): string {
+    ): string|false {
         $clause = '';
 
         if ($where) {
