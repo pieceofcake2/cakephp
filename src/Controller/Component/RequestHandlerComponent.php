@@ -53,50 +53,50 @@ class RequestHandlerComponent extends Component
      * @var string
      * @see RequestHandler::setAjax()
      */
-    public $ajaxLayout = 'ajax';
+    public string $ajaxLayout = 'ajax';
 
     /**
      * Determines whether or not callbacks will be fired on this component
      *
      * @var bool
      */
-    public $enabled = true;
+    public bool $enabled = true;
 
     /**
      * Holds the reference to Controller::$request
      *
-     * @var CakeRequest
+     * @var CakeRequest|null
      */
-    public $request;
+    public ?CakeRequest $request = null;
 
     /**
      * Holds the reference to Controller::$response
      *
-     * @var CakeResponse
+     * @var CakeResponse|null
      */
-    public $response;
+    public ?CakeResponse $response = null;
 
     /**
      * Contains the file extension parsed out by the Router
      *
-     * @var string
+     * @var string|null
      * @see Router::parseExtensions()
      */
-    public $ext = null;
+    public ?string $ext = null;
 
     /**
      * Array of parameters parsed from the URL.
      *
      * @var array|null
      */
-    public $params = null;
+    public ?array $params = null;
 
     /**
      * The template to use when rendering the given content type.
      *
-     * @var string
+     * @var string|null
      */
-    protected $_renderType = null;
+    protected ?string $_renderType = null;
 
     /**
      * A mapping between extensions and deserializers for request bodies of that type.
@@ -104,7 +104,7 @@ class RequestHandlerComponent extends Component
      *
      * @var array
      */
-    protected $_inputTypeMap = [
+    protected array $_inputTypeMap = [
         'json' => ['json_decode', true],
     ];
 
@@ -114,7 +114,7 @@ class RequestHandlerComponent extends Component
      *
      * @var array
      */
-    protected $_viewClassMap = [
+    protected array $_viewClassMap = [
         'json' => 'Json',
         'xml' => 'Xml',
     ];
@@ -125,7 +125,7 @@ class RequestHandlerComponent extends Component
      * @param ComponentCollection $collection ComponentCollection object.
      * @param array $settings Array of settings.
      */
-    public function __construct(ComponentCollection $collection, $settings = [])
+    public function __construct(ComponentCollection $collection, array $settings = [])
     {
         parent::__construct($collection, $settings + ['checkHttpCache' => true]);
         $this->addInputType('xml', [[$this, 'convertXml']]);
@@ -173,7 +173,7 @@ class RequestHandlerComponent extends Component
      *
      * @return void
      */
-    protected function _setExtension()
+    protected function _setExtension(): void
     {
         $accept = $this->request->parseAccept();
         if (empty($accept)) {
@@ -218,7 +218,7 @@ class RequestHandlerComponent extends Component
      * @param Controller $controller A reference to the controller
      * @return void
      */
-    public function startup(Controller $controller)
+    public function startup(Controller $controller): void
     {
         $controller->request->params['isAjax'] = $this->request->is('ajax');
         $isRecognized = (
@@ -249,7 +249,7 @@ class RequestHandlerComponent extends Component
      * @param string $xml XML string.
      * @return array Xml array data
      */
-    public function convertXml($xml)
+    public function convertXml(string $xml): array
     {
         try {
             $xml = Xml::build($xml, ['readFile' => false]);
@@ -325,10 +325,10 @@ class RequestHandlerComponent extends Component
     /**
      * Returns true if the current HTTP request is Ajax, false otherwise
      *
-     * @return bool True if call is Ajax
+     * @return mixed|bool True if call is Ajax
      * @deprecated 3.0.0 Use `$this->request->is('ajax')` instead.
      */
-    public function isAjax()
+    public function isAjax(): mixed
     {
         return $this->request->is('ajax');
     }
@@ -336,10 +336,10 @@ class RequestHandlerComponent extends Component
     /**
      * Returns true if the current HTTP request is coming from a Flash-based client
      *
-     * @return bool True if call is from Flash
+     * @return mixed|bool True if call is from Flash
      * @deprecated 3.0.0 Use `$this->request->is('flash')` instead.
      */
-    public function isFlash()
+    public function isFlash(): mixed
     {
         return $this->request->is('flash');
     }
@@ -347,10 +347,10 @@ class RequestHandlerComponent extends Component
     /**
      * Returns true if the current request is over HTTPS, false otherwise.
      *
-     * @return bool True if call is over HTTPS
+     * @return mixed|bool True if call is over HTTPS
      * @deprecated 3.0.0 Use `$this->request->is('ssl')` instead.
      */
-    public function isSSL()
+    public function isSSL(): mixed
     {
         return $this->request->is('ssl');
     }
@@ -358,9 +358,9 @@ class RequestHandlerComponent extends Component
     /**
      * Returns true if the current call accepts an XML response, false otherwise
      *
-     * @return bool True if client accepts an XML response
+     * @return mixed|bool True if client accepts an XML response
      */
-    public function isXml()
+    public function isXml(): mixed
     {
         return $this->prefers('xml');
     }
@@ -368,9 +368,9 @@ class RequestHandlerComponent extends Component
     /**
      * Returns true if the current call accepts an RSS response, false otherwise
      *
-     * @return bool True if client accepts an RSS response
+     * @return mixed|bool True if client accepts an RSS response
      */
-    public function isRss()
+    public function isRss(): mixed
     {
         return $this->prefers('rss');
     }
@@ -378,9 +378,9 @@ class RequestHandlerComponent extends Component
     /**
      * Returns true if the current call accepts an Atom response, false otherwise
      *
-     * @return bool True if client accepts an RSS response
+     * @return mixed|bool True if client accepts an RSS response
      */
-    public function isAtom()
+    public function isAtom(): mixed
     {
         return $this->prefers('atom');
     }
@@ -389,9 +389,9 @@ class RequestHandlerComponent extends Component
      * Returns true if user agent string matches a mobile web browser, or if the
      * client accepts WAP content.
      *
-     * @return bool True if user agent is a mobile web browser
+     * @return mixed|bool True if user agent is a mobile web browser
      */
-    public function isMobile()
+    public function isMobile(): mixed
     {
         return $this->request->is('mobile') || $this->accepts('wap');
     }
@@ -399,9 +399,9 @@ class RequestHandlerComponent extends Component
     /**
      * Returns true if the client accepts WAP content
      *
-     * @return bool
+     * @return mixed|bool
      */
-    public function isWap()
+    public function isWap(): mixed
     {
         return $this->prefers('wap');
     }
@@ -409,10 +409,10 @@ class RequestHandlerComponent extends Component
     /**
      * Returns true if the current call a POST request
      *
-     * @return bool True if call is a POST
+     * @return mixed|bool True if call is a POST
      * @deprecated 3.0.0 Use $this->request->is('post'); from your controller.
      */
-    public function isPost()
+    public function isPost(): mixed
     {
         return $this->request->is('post');
     }
@@ -423,7 +423,7 @@ class RequestHandlerComponent extends Component
      * @return bool True if call is a PUT
      * @deprecated 3.0.0 Use $this->request->is('put'); from your controller.
      */
-    public function isPut()
+    public function isPut(): bool
     {
         return $this->request->is('put');
     }
@@ -431,10 +431,10 @@ class RequestHandlerComponent extends Component
     /**
      * Returns true if the current call a GET request
      *
-     * @return bool True if call is a GET
+     * @return mixed|bool True if call is a GET
      * @deprecated 3.0.0 Use $this->request->is('get'); from your controller.
      */
-    public function isGet()
+    public function isGet(): mixed
     {
         return $this->request->is('get');
     }
@@ -442,10 +442,10 @@ class RequestHandlerComponent extends Component
     /**
      * Returns true if the current call a DELETE request
      *
-     * @return bool True if call is a DELETE
+     * @return mixed|bool True if call is a DELETE
      * @deprecated 3.0.0 Use $this->request->is('delete'); from your controller.
      */
-    public function isDelete()
+    public function isDelete(): mixed
     {
         return $this->request->is('delete');
     }
@@ -454,9 +454,9 @@ class RequestHandlerComponent extends Component
      * Gets Prototype version if call is Ajax, otherwise empty string.
      * The Prototype library sets a special "Prototype version" HTTP header.
      *
-     * @return string|bool When Ajax the prototype version of component making the call otherwise false
+     * @return string|false When Ajax the prototype version of component making the call otherwise false
      */
-    public function getAjaxVersion()
+    public function getAjaxVersion(): string|false
     {
         $httpX = env('HTTP_X_PROTOTYPE_VERSION');
 
@@ -470,12 +470,12 @@ class RequestHandlerComponent extends Component
      * startup method.
      *
      * @param string $name The name of the Content-type, i.e. "html", "xml", "css"
-     * @param array|string $type The Content-type or array of Content-types assigned to the name,
+     * @param array|string|null $type The Content-type or array of Content-types assigned to the name,
      *    i.e. "text/html", or "application/xml"
      * @return void
      * @deprecated 3.0.0 Use `$this->response->type()` instead.
      */
-    public function setContent($name, $type = null)
+    public function setContent(string $name, array|string|null $type = null): void
     {
         $this->response->type([$name => $type]);
     }
@@ -486,7 +486,7 @@ class RequestHandlerComponent extends Component
      * @return string Server address
      * @deprecated 3.0.0 Use $this->request->referer() from your controller instead
      */
-    public function getReferer()
+    public function getReferer(): string
     {
         return $this->request->referer(false);
     }
@@ -519,21 +519,22 @@ class RequestHandlerComponent extends Component
      *
      * Returns true if the client accepts xml.
      *
-     * @param array|string $type Can be null (or no parameter), a string type name, or an
+     * @param array|string|null $type Can be null (or no parameter), a string type name, or an
      *   array of types
-     * @return mixed If null or no parameter is passed, returns an array of content
+     * @return array|string|bool If null or no parameter is passed, returns an array of content
      *   types the client accepts. If a string is passed, returns true
      *   if the client accepts it. If an array is passed, returns true
      *   if the client accepts one or more elements in the array.
      * @see RequestHandlerComponent::setContent()
      */
-    public function accepts($type = null)
+    public function accepts(array|string|null $type = null): array|string|bool
     {
         $accepted = $this->request->accepts();
 
         if (!$type) {
             return $this->mapType($accepted);
         }
+
         if (is_array($type)) {
             foreach ($type as $t) {
                 $t = $this->mapAlias($t);
@@ -544,28 +545,25 @@ class RequestHandlerComponent extends Component
 
             return false;
         }
-        if (is_string($type)) {
-            return in_array($this->mapAlias($type), $accepted);
-        }
 
-        return false;
+        return in_array($this->mapAlias($type), $accepted);
     }
 
     /**
      * Determines the content type of the data the client has sent (i.e. in a POST request)
      *
-     * @param array|string $type Can be null (or no parameter), a string type name, or an array of types
+     * @param array|string|null $type Can be null (or no parameter), a string type name, or an array of types
      * @return mixed If a single type is supplied a boolean will be returned. If no type is provided
      *   The mapped value of CONTENT_TYPE will be returned. If an array is supplied the first type
      *   in the request content type will be returned.
      */
-    public function requestedWith($type = null)
+    public function requestedWith(array|string|null $type = null): mixed
     {
         if (
-            !$this->request->is('patch') &&
-            !$this->request->is('post') &&
-            !$this->request->is('put') &&
-            !$this->request->is('delete')
+            !$this->request->is('patch')
+            && !$this->request->is('post')
+            && !$this->request->is('put')
+            && !$this->request->is('delete')
         ) {
             return null;
         }
@@ -586,9 +584,8 @@ class RequestHandlerComponent extends Component
         if (!$type) {
             return $this->mapType($contentType);
         }
-        if (is_string($type)) {
-            return $type === $this->mapType($contentType);
-        }
+
+        return $type === $this->mapType($contentType);
     }
 
     /**
@@ -599,7 +596,7 @@ class RequestHandlerComponent extends Component
      * if provided, and secondarily by the list of content-types provided in
      * HTTP_ACCEPT.
      *
-     * @param array|string $type An optional array of 'friendly' content-type names, i.e.
+     * @param array|string|null $type An optional array of 'friendly' content-type names, i.e.
      *   'html', 'xml', 'js', etc.
      * @return mixed If $type is null or not provided, the first content-type in the
      *    list, based on preference, is returned. If a single type is provided
@@ -608,7 +605,7 @@ class RequestHandlerComponent extends Component
      *    If no type is provided the first preferred type is returned.
      * @see RequestHandlerComponent::setContent()
      */
-    public function prefers($type = null)
+    public function prefers(array|string|null $type = null): mixed
     {
         $acceptRaw = $this->request->parseAccept();
 
@@ -663,8 +660,11 @@ class RequestHandlerComponent extends Component
      * @see RequestHandlerComponent::setContent()
      * @see RequestHandlerComponent::respondAs()
      */
-    public function renderAs(Controller $controller, $type, $options = [])
-    {
+    public function renderAs(
+        Controller $controller,
+        string $type,
+        array $options = [],
+    ): void {
         $defaults = ['charset' => 'UTF-8'];
 
         if (Configure::read('App.encoding') !== null) {
@@ -674,8 +674,9 @@ class RequestHandlerComponent extends Component
 
         if ($type === 'ajax') {
             $controller->layout = $this->ajaxLayout;
+            $this->respondAs('html', $options);
 
-            return $this->respondAs('html', $options);
+            return;
         }
 
         $pluginDot = null;
@@ -731,7 +732,7 @@ class RequestHandlerComponent extends Component
      *    already been set by this method.
      * @see RequestHandlerComponent::setContent()
      */
-    public function respondAs($type, $options = [])
+    public function respondAs(array|string $type, array $options = []): bool
     {
         $defaults = ['index' => null, 'charset' => null, 'attachment' => false];
         $options = $options + $defaults;
@@ -771,10 +772,10 @@ class RequestHandlerComponent extends Component
     /**
      * Returns the current response type (Content-type header), or null if not alias exists
      *
-     * @return mixed A string content type alias, or raw content type if no alias map exists,
+     * @return array|string A string content type alias, or raw content type if no alias map exists,
      *  otherwise null
      */
-    public function responseType()
+    public function responseType(): array|string
     {
         return $this->mapType($this->response->type());
     }
@@ -783,10 +784,10 @@ class RequestHandlerComponent extends Component
      * Maps a content-type back to an alias
      *
      * @param array|string $cType Either a string content type to map, or an array of types.
-     * @return array|string Aliases for the types provided.
+     * @return array|string|null Aliases for the types provided.
      * @deprecated 3.0.0 Use $this->response->mapType() in your controller instead.
      */
-    public function mapType($cType)
+    public function mapType(array|string $cType): array|string|null
     {
         return $this->response->mapType($cType);
     }
@@ -798,7 +799,7 @@ class RequestHandlerComponent extends Component
      * @return array|string|null Null on an undefined alias. String value of the mapped alias type. If an
      *   alias maps to more than one content type, the first one will be returned.
      */
-    public function mapAlias($alias)
+    public function mapAlias(array|string $alias): array|string|null
     {
         if (is_array($alias)) {
             return array_map([$this, 'mapAlias'], $alias);
@@ -820,13 +821,13 @@ class RequestHandlerComponent extends Component
      * converted by RequestHandlerComponent during the startup() callback.
      *
      * @param string $type The type alias being converted, ie. json
-     * @param array $handler The handler array for the type. The first index should
+     * @param array|null $handler The handler array for the type. The first index should
      *    be the handling callback, all other arguments should be additional parameters
      *    for the handler.
      * @return void
      * @throws CakeException
      */
-    public function addInputType($type, $handler)
+    public function addInputType(string $type, ?array $handler): void
     {
         if (!is_array($handler) || !isset($handler[0]) || !is_callable($handler[0])) {
             throw new CakeException(__d('cake_dev', 'You must give a handler callback.'));
@@ -837,15 +838,18 @@ class RequestHandlerComponent extends Component
     /**
      * Getter/setter for viewClassMap
      *
-     * @param array|string $type The type string or array with format `array('type' => 'viewClass')` to map one or more
-     * @param array $viewClass The viewClass to be used for the type without `View` appended
+     * @param array|string|null $type The type string or array with format `array('type' => 'viewClass')` to map one or more
+     * @param array|string|null $viewClass The viewClass to be used for the type without `View` appended
      * @return array|string Returns viewClass when only string $type is set, else array with viewClassMap
      */
-    public function viewClassMap($type = null, $viewClass = null)
-    {
+    public function viewClassMap(
+        array|string|null $type = null,
+        array|string|null $viewClass = null,
+    ): array|string {
         if (!$viewClass && is_string($type) && isset($this->_viewClassMap[$type])) {
             return $this->_viewClassMap[$type];
         }
+
         if (is_string($type)) {
             $this->_viewClassMap[$type] = $viewClass;
         } elseif (is_array($type)) {

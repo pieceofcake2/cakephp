@@ -21,6 +21,7 @@
 namespace Cake\Controller;
 
 use AppController;
+use Cake\Controller\Component\RequestHandlerComponent;
 use Cake\Core\App;
 use Cake\Network\CakeRequest;
 use Cake\Network\CakeResponse;
@@ -58,7 +59,9 @@ class CakeErrorController extends AppController
             count(Router::extensions()) &&
             !$this->Components->attached('RequestHandler')
         ) {
-            $this->RequestHandler = $this->Components->load('RequestHandler');
+            /** @var RequestHandlerComponent $requestHandler */
+            $requestHandler = $this->Components->load('RequestHandler');
+            $this->RequestHandler = $requestHandler;
         }
         if ($this->Components->enabled('Auth')) {
             $this->Components->disable('Auth');

@@ -115,8 +115,8 @@ class AclComponent extends Component
      * Pass-thru function for ACL check instance. Check methods
      * are used to check whether or not an ARO can access an ACO
      *
-     * @param Model|array|string $aro ARO The requesting object identifier. See `AclNode::node()` for possible formats
-     * @param Model|array|string $aco ACO The controlled object identifier. See `AclNode::node()` for possible formats
+     * @param Model|array|string|null $aro ARO The requesting object identifier. See `AclNode::node()` for possible formats
+     * @param Model|array|string|null $aco ACO The controlled object identifier. See `AclNode::node()` for possible formats
      * @param string $action Action (defaults to *)
      * @return bool Success
      */
@@ -132,8 +132,8 @@ class AclComponent extends Component
      * Pass-thru function for ACL allow instance. Allow methods
      * are used to grant an ARO access to an ACO.
      *
-     * @param Model|array|string $aro ARO The requesting object identifier. See `AclNode::node()` for possible formats
-     * @param Model|array|string $aco ACO The controlled object identifier. See `AclNode::node()` for possible formats
+     * @param Model|array|string|null $aro ARO The requesting object identifier. See `AclNode::node()` for possible formats
+     * @param Model|array|string|null $aco ACO The controlled object identifier. See `AclNode::node()` for possible formats
      * @param array|string $action Action (defaults to *)
      * @return bool Success
      */
@@ -149,8 +149,8 @@ class AclComponent extends Component
      * Pass-thru function for ACL deny instance. Deny methods
      * are used to remove permission from an ARO to access an ACO.
      *
-     * @param Model|array|string $aro ARO The requesting object identifier. See `AclNode::node()` for possible formats
-     * @param Model|array|string $aco ACO The controlled object identifier. See `AclNode::node()` for possible formats
+     * @param Model|array|string|null $aro ARO The requesting object identifier. See `AclNode::node()` for possible formats
+     * @param Model|array|string|null $aco ACO The controlled object identifier. See `AclNode::node()` for possible formats
      * @param string $action Action (defaults to *)
      * @return bool Success
      */
@@ -166,8 +166,8 @@ class AclComponent extends Component
      * Pass-thru function for ACL inherit instance. Inherit methods
      * modify the permission for an ARO to be that of its parent object.
      *
-     * @param Model|array|string $aro ARO The requesting object identifier. See `AclNode::node()` for possible formats
-     * @param Model|array|string $aco ACO The controlled object identifier. See `AclNode::node()` for possible formats
+     * @param Model|array|string|null $aro ARO The requesting object identifier. See `AclNode::node()` for possible formats
+     * @param Model|array|string|null $aco ACO The controlled object identifier. See `AclNode::node()` for possible formats
      * @param string $action Action (defaults to *)
      * @return bool Success
      */
@@ -182,8 +182,8 @@ class AclComponent extends Component
     /**
      * Pass-thru function for ACL grant instance. An alias for AclComponent::allow()
      *
-     * @param Model|array|string $aro ARO The requesting object identifier. See `AclNode::node()` for possible formats
-     * @param Model|array|string $aco ACO The controlled object identifier. See `AclNode::node()` for possible formats
+     * @param Model|array|string|null $aro ARO The requesting object identifier. See `AclNode::node()` for possible formats
+     * @param Model|array|string|null $aco ACO The controlled object identifier. See `AclNode::node()` for possible formats
      * @param string $action Action (defaults to *)
      * @return bool Success
      * @deprecated 3.0.0 Will be removed in 3.0.
@@ -201,8 +201,8 @@ class AclComponent extends Component
     /**
      * Pass-thru function for ACL grant instance. An alias for AclComponent::deny()
      *
-     * @param Model|array|string $aro ARO The requesting object identifier. See `AclNode::node()` for possible formats
-     * @param Model|array|string $aco ACO The controlled object identifier. See `AclNode::node()` for possible formats
+     * @param Model|array|string|null $aro ARO The requesting object identifier. See `AclNode::node()` for possible formats
+     * @param Model|array|string|null $aco ACO The controlled object identifier. See `AclNode::node()` for possible formats
      * @param string $action Action (defaults to *)
      * @return bool Success
      * @deprecated 3.0.0 Will be removed in 3.0.

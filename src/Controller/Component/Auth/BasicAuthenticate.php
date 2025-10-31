@@ -61,7 +61,7 @@ class BasicAuthenticate extends BaseAuthenticate
      * @param ComponentCollection $collection The Component collection used on this request.
      * @param array $settings An array of settings.
      */
-    public function __construct(ComponentCollection $collection, $settings)
+    public function __construct(ComponentCollection $collection, array $settings)
     {
         parent::__construct($collection, $settings);
         if (empty($this->settings['realm'])) {
@@ -75,9 +75,9 @@ class BasicAuthenticate extends BaseAuthenticate
      *
      * @param CakeRequest $request The request to authenticate with.
      * @param CakeResponse $response The response to add headers to.
-     * @return mixed Either false on failure, or an array of user data on success.
+     * @return array|false Either false on failure, or an array of user data on success.
      */
-    public function authenticate(CakeRequest $request, CakeResponse $response)
+    public function authenticate(CakeRequest $request, CakeResponse $response): array|false
     {
         return $this->getUser($request);
     }
@@ -86,9 +86,9 @@ class BasicAuthenticate extends BaseAuthenticate
      * Get a user based on information in the request. Used by cookie-less auth for stateless clients.
      *
      * @param CakeRequest $request Request object.
-     * @return mixed Either false or an array of user information
+     * @return array|false Either false or an array of user information
      */
-    public function getUser(CakeRequest $request)
+    public function getUser(CakeRequest $request): array|false
     {
         $username = env('PHP_AUTH_USER');
         $pass = env('PHP_AUTH_PW');
@@ -111,10 +111,10 @@ class BasicAuthenticate extends BaseAuthenticate
      *
      * @param CakeRequest $request A request object.
      * @param CakeResponse $response A response object.
-     * @return void
+     * @return bool|null
      * @throws UnauthorizedException
      */
-    public function unauthenticated(CakeRequest $request, CakeResponse $response)
+    public function unauthenticated(CakeRequest $request, CakeResponse $response): ?bool
     {
         $Exception = new UnauthorizedException();
         $Exception->responseHeader([$this->loginHeaders()]);
@@ -126,7 +126,7 @@ class BasicAuthenticate extends BaseAuthenticate
      *
      * @return string Headers for logging in.
      */
-    public function loginHeaders()
+    public function loginHeaders(): string
     {
         return sprintf('WWW-Authenticate: Basic realm="%s"', $this->settings['realm']);
     }

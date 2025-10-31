@@ -42,9 +42,9 @@ class ComponentCollection extends ObjectCollection implements CakeEventListener
     /**
      * The controller that this collection was initialized with.
      *
-     * @var Controller
+     * @var Controller|null
      */
-    protected $_Controller = null;
+    protected ?Controller $_Controller = null;
 
     /**
      * Initializes all the Components for a controller.
@@ -101,14 +101,15 @@ class ComponentCollection extends ObjectCollection implements CakeEventListener
      * ```
      * All calls to the `Email` component would use `AliasedEmail` instead.
      *
-     * @template T of Component
-     * @param class-string<T>|string $name Component name to load
+     * @param class-string|string $name Component name to load
      * @param array $options Settings for the component.
-     * @return Component|T A component object, Either the existing loaded component or a new one.
+     * @return Component A component object, Either the existing loaded component or a new one.
      * @throws MissingComponentException when the component could not be found
      */
-    public function load(string $name, array $options = []): Component
-    {
+    public function load(
+        string $name,
+        array $options = [],
+    ): Component {
         if (isset($options['className'])) {
             $alias = $name;
             $name = $options['className'];

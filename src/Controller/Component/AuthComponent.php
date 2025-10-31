@@ -616,12 +616,12 @@ class AuthComponent extends Component
      * attached authorize objects.
      *
      * @param array $map Actions to map
-     * @return array
+     * @return array|null
      * @see BaseAuthorize::mapActions()
      * @link https://book.cakephp.org/2.0/en/core-libraries/components/authentication.html#mapping-actions-when-using-crudauthorize
      * @deprecated 3.0.0 Map actions using `actionMap` config key on authorize objects instead
      */
-    public function mapActions(array $map = []): array
+    public function mapActions(array $map = []): ?array
     {
         if (empty($this->_authorizeObjects)) {
             $this->constructAuthorize();
@@ -634,7 +634,7 @@ class AuthComponent extends Component
             return $mappedActions;
         }
 
-        return [];
+        return null;
     }
 
     /**

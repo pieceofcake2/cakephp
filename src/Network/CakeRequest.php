@@ -533,9 +533,9 @@ class CakeRequest implements ArrayAccess
      *
      * @param array<string>|string $type The type of request you want to check. If an array
      *   this method will return true if the request matches any type.
-     * @return bool Whether or not the request is the type you are checking.
+     * @return mixed|bool Whether or not the request is the type you are checking.
      */
-    public function is(array|string $type): bool
+    public function is(array|string $type): mixed
     {
         if (is_array($type)) {
             foreach ($type as $_type) {

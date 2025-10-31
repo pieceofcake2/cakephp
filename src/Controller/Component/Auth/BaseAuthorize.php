@@ -33,16 +33,16 @@ abstract class BaseAuthorize
     /**
      * Controller for the request.
      *
-     * @var Controller
+     * @var Controller|null
      */
-    protected $_Controller = null;
+    protected ?Controller $_Controller = null;
 
     /**
      * Component collection instance for getting more components.
      *
      * @var ComponentCollection
      */
-    protected $_Collection;
+    protected ComponentCollection $_Collection;
 
     /**
      * Settings for authorize objects.
@@ -54,7 +54,7 @@ abstract class BaseAuthorize
      *
      * @var array
      */
-    public $settings = [
+    public array $settings = [
         'actionPath' => null,
         'actionMap' => [
             'index' => 'read',
@@ -71,9 +71,9 @@ abstract class BaseAuthorize
      * Constructor
      *
      * @param ComponentCollection $collection The controller for this request.
-     * @param string $settings An array of settings. This class does not use any settings.
+     * @param array $settings An array of settings. This class does not use any settings.
      */
-    public function __construct(ComponentCollection $collection, $settings = [])
+    public function __construct(ComponentCollection $collection, array $settings = [])
     {
         $this->_Collection = $collection;
         $controller = $collection->getController();
@@ -88,21 +88,18 @@ abstract class BaseAuthorize
      * @param CakeRequest $request Request instance.
      * @return bool
      */
-    abstract public function authorize($user, CakeRequest $request);
+    abstract public function authorize(array $user, CakeRequest $request): bool;
 
     /**
      * Accessor to the controller object.
      *
-     * @param Controller $controller null to get, a controller to set.
-     * @return mixed
+     * @param Controller|null $controller null to get, a controller to set.
+     * @return Controller|bool|null
      * @throws CakeException
      */
-    public function controller(?Controller $controller = null)
+    public function controller(?Controller $controller = null): Controller|bool|null
     {
         if ($controller) {
-            if (!$controller instanceof Controller) {
-                throw new CakeException(__d('cake_dev', '$controller needs to be an instance of Controller'));
-            }
             $this->_Controller = $controller;
 
             return true;
@@ -119,8 +116,10 @@ abstract class BaseAuthorize
      * @param string $path Path format.
      * @return string the action path for the given request.
      */
-    public function action(CakeRequest $request, $path = '/:plugin/:controller/:action')
-    {
+    public function action(
+        CakeRequest $request,
+        string $path = '/:plugin/:controller/:action',
+    ): string {
         $plugin = empty($request['plugin']) ? null : Inflector::camelize($request['plugin']) . '/';
         $path = str_replace(
             [':controller', ':action', ':plugin/'],
@@ -160,10 +159,10 @@ abstract class BaseAuthorize
      * create a custom admin CRUD operation for administration functions similarly if needed.
      *
      * @param array $map Either an array of mappings, or undefined to get current values.
-     * @return mixed Either the current mappings or null when setting.
+     * @return array|null Either the current mappings or null when setting.
      * @see AuthComponent::mapActions()
      */
-    public function mapActions($map = [])
+    public function mapActions(array $map = []): ?array
     {
         if (empty($map)) {
             return $this->settings['actionMap'];
@@ -177,5 +176,7 @@ abstract class BaseAuthorize
                 $this->settings['actionMap'][$action] = $type;
             }
         }
+
+        return null;
     }
 }

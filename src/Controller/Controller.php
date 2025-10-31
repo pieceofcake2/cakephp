@@ -865,7 +865,7 @@ class Controller extends CakeObject implements CakeEventListener
      * @param array|string|int|null $status HTTP status code (eg: 301). Defaults to 302 when null is passed.
      * @param bool $exit If true, exit() will be called after the redirect
      * @return CakeResponse|null
-     * @triggers Controller.beforeRedirect $this, array($url, $status, $exit)
+     * @triggers Controller.beforeRedirect $this, [$url, $status, $exit]
      * @link https://book.cakephp.org/2.0/en/controllers.html#Controller::redirect
      */
     public function redirect(
@@ -893,7 +893,7 @@ class Controller extends CakeObject implements CakeEventListener
             $this->response->header('Location', Router::url($url, true));
         }
 
-        if (is_string($status)) {
+        if (is_string($status)) { // @phpstan-ignore-line
             $codes = array_flip($this->response->httpCodes());
             if (isset($codes[$status])) {
                 $status = $codes[$status];

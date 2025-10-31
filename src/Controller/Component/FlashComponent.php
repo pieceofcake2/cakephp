@@ -40,7 +40,7 @@ class FlashComponent extends Component
      *
      * @var array
      */
-    protected $_defaultConfig = [
+    protected array $_defaultConfig = [
         'key' => 'flash',
         'element' => 'default',
         'params' => [],
@@ -53,8 +53,9 @@ class FlashComponent extends Component
      * @param ComponentCollection $collection The ComponentCollection object
      * @param array $settings Settings passed via controller
      */
-    public function __construct(ComponentCollection $collection, $settings = [])
+    public function __construct(ComponentCollection $collection, array $settings = [])
     {
+        parent::__construct($collection, $settings);
         $this->_defaultConfig = Hash::merge($this->_defaultConfig, $settings);
     }
 
@@ -69,14 +70,14 @@ class FlashComponent extends Component
      * - `element` The element used to render the flash message. Default to 'default'.
      * - `params` An array of variables to make available when using an element
      *
-     * @param string $message Message to be flashed. If an instance
+     * @param Exception|string $message Message to be flashed. If an instance
      *   of Exception the exception message will be used and code will be set
      *   in params.
      * @param array $options An array of options.
      * @return void
      */
 
-    public function set($message, $options = [])
+    public function set(Exception|string $message, array $options = []): void
     {
         $options += $this->_defaultConfig;
 

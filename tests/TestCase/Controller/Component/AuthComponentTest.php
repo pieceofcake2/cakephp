@@ -78,9 +78,9 @@ class TestBaseAuthenticate extends BaseAuthenticate
      *
      * @param CakeRequest $request Request to get authentication information from.
      * @param CakeResponse $response A response object that can have headers added.
-     * @return mixed Either false on failure, or an array of user data on success.
+     * @return array|false Either false on failure, or an array of user data on success.
      */
-    public function authenticate(CakeRequest $request, CakeResponse $response)
+    public function authenticate(CakeRequest $request, CakeResponse $response): array|false
     {
         return [
             'id' => 1,

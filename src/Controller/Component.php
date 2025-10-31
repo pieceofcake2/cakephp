@@ -16,7 +16,10 @@
 
 namespace Cake\Controller;
 
+use Cake\Controller\Component\Acl\PhpAco;
+use Cake\Controller\Component\Acl\PhpAro;
 use Cake\Core\CakeObject;
+use Cake\Model\Model;
 
 /**
  * Base class for an individual Component. Components provide reusable bits of
@@ -68,6 +71,20 @@ class Component extends CakeObject
      * @var array
      */
     protected array $_componentMap = [];
+
+    /**
+     * Aro Object
+     *
+     * @var PhpAro|Model|null
+     */
+    public PhpAro|Model|null $Aro = null;
+
+    /**
+     * Aco Object
+     *
+     * @var PhpAco|Model|null
+     */
+    public PhpAco|Model|null $Aco = null;
 
     /**
      * Constructor
