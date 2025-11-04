@@ -28,14 +28,14 @@ abstract class AbstractPasswordHasher
      *
      * @var array
      */
-    protected $_config = [];
+    protected array $_config = [];
 
     /**
      * Constructor
      *
      * @param array $config Array of config.
      */
-    public function __construct($config = [])
+    public function __construct(array $config = [])
     {
         $this->config($config);
     }
@@ -43,10 +43,10 @@ abstract class AbstractPasswordHasher
     /**
      * Get/Set the config
      *
-     * @param array $config Sets config, if null returns existing config
+     * @param array|null $config Sets config, if null returns existing config
      * @return array Returns configs
      */
-    public function config($config = null)
+    public function config(?array $config = null)
     {
         if (is_array($config)) {
             $this->_config = array_merge($this->_config, $config);
@@ -58,19 +58,19 @@ abstract class AbstractPasswordHasher
     /**
      * Generates password hash.
      *
-     * @param array|string $password Plain text password to hash or array of data
+     * @param string $password Plain text password to hash or array of data
      *   required to generate password hash.
      * @return string Password hash
      */
-    abstract public function hash($password);
+    abstract public function hash(string $password): string;
 
     /**
      * Check hash. Generate hash from user provided password string or data array
      * and check against existing hash.
      *
-     * @param array|string $password Plain text password to hash or data array.
+     * @param string $password Plain text password to hash or data array.
      * @param string $hashedPassword Existing hashed password.
      * @return bool True if hashes match else false.
      */
-    abstract public function check($password, $hashedPassword);
+    abstract public function check(string $password, string $hashedPassword): bool;
 }

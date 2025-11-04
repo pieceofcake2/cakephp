@@ -48,11 +48,14 @@ class AclNode extends Model
      *
      * @param array|string|int|bool $id Set this ID for this model on startup,
      *   can also be an array of options, see above.
-     * @param string $table Name of database table to use.
-     * @param string $ds DataSource connection name.
+     * @param string|null $table Name of database table to use.
+     * @param string|null $ds DataSource connection name.
      */
-    public function __construct($id = false, $table = null, $ds = null)
-    {
+    public function __construct(
+        array|string|int|bool $id = false,
+        ?string $table = null,
+        ?string $ds = null,
+    ) {
         $config = Configure::read('Acl.database');
         if (isset($config)) {
             $this->useDbConfig = $config;
@@ -67,8 +70,9 @@ class AclNode extends Model
      * @return array|false|null Node found in database
      * @throws CakeException when binding to a model that doesn't exist.
      */
-    public function node(Model|array|string|null $ref = null): array|false|null
-    {
+    public function node(
+        Model|array|string|null $ref = null,
+    ): array|false|null {
         /** @var DboSource $db */
         $db = $this->getDataSource();
         $type = $this->alias;

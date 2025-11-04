@@ -1,5 +1,4 @@
 <?php
-// @codingStandardsIgnoreFile
 /**
  * Short description for file.
  *

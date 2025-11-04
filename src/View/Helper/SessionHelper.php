@@ -40,11 +40,11 @@ class SessionHelper extends AppHelper
      * In your view: `$this->Session->read('Controller.sessKey');`
      * Calling the method without a param will return all session vars
      *
-     * @param string $name the name of the session key you want to read
+     * @param string|null $name the name of the session key you want to read
      * @return mixed values from the session vars
      * @link https://book.cakephp.org/2.0/en/core-libraries/helpers/session.html#SessionHelper::read
      */
-    public function read($name = null)
+    public function read(?string $name = null): mixed
     {
         return CakeSession::read($name);
     }
@@ -54,10 +54,10 @@ class SessionHelper extends AppHelper
      *
      * In your view: `$this->Session->consume('Controller.sessKey');`
      *
-     * @param string $name the name of the session key you want to read
+     * @param string|null $name the name of the session key you want to read
      * @return mixed values from the session vars
      */
-    public function consume($name)
+    public function consume(?string $name): mixed
     {
         return CakeSession::consume($name);
     }
@@ -67,11 +67,11 @@ class SessionHelper extends AppHelper
      *
      * In your view: `$this->Session->check('Controller.sessKey');`
      *
-     * @param string $name Session key to check.
+     * @param string|null $name Session key to check.
      * @return bool
      * @link https://book.cakephp.org/2.0/en/core-libraries/helpers/session.html#SessionHelper::check
      */
-    public function check($name)
+    public function check(?string $name): bool
     {
         return CakeSession::check($name);
     }
@@ -81,10 +81,10 @@ class SessionHelper extends AppHelper
      *
      * In your view: `$this->Session->error();`
      *
-     * @return string last error
+     * @return string|false last error
      * @link https://book.cakephp.org/2.0/en/core-libraries/helpers/session.html#displaying-notifications-or-flash-messages
      */
-    public function error()
+    public function error(): string|false
     {
         return CakeSession::error();
     }
@@ -137,7 +137,7 @@ class SessionHelper extends AppHelper
      * @link https://book.cakephp.org/2.0/en/core-libraries/helpers/session.html#SessionHelper::flash
      * @deprecated 3.0.0 Since 2.7, use FlashHelper::render() instead.
      */
-    public function flash($key = 'flash', $attrs = [])
+    public function flash(string $key = 'flash', array $attrs = []): string
     {
         $out = false;
 
@@ -164,7 +164,7 @@ class SessionHelper extends AppHelper
      * @return bool
      * @link https://book.cakephp.org/2.0/en/core-libraries/helpers/session.html#SessionHelper::valid
      */
-    public function valid()
+    public function valid(): bool
     {
         return CakeSession::valid();
     }
@@ -175,7 +175,7 @@ class SessionHelper extends AppHelper
      * @param array $flash Flash message array
      * @return string
      */
-    protected function _render($flash)
+    protected function _render(array $flash): string
     {
         $message = $flash['message'];
         unset($flash['message']);

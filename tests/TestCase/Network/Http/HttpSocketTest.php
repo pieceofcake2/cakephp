@@ -74,7 +74,7 @@ class CustomResponse extends HttpSocketResponse
      *
      * @param string $message A message.
      */
-    public function __construct($message)
+    public function __construct(string $message)
     {
         $this->first10 = substr($message, 0, 10);
     }

@@ -4,6 +4,7 @@ namespace Cake\TestSuite\Reporter;
 
 use Cake\Core\App;
 use Cake\Core\Configure;
+use Cake\TestSuite\CakeTestLoader;
 use Cake\TestSuite\Coverage\HtmlCoverageReport;
 use Cake\Utility\Inflector;
 use Exception;
@@ -11,7 +12,9 @@ use PHPUnit\Framework\AssertionFailedError;
 use PHPUnit\Framework\Test;
 use PHPUnit\Framework\TestResult;
 use PHPUnit\Framework\TestSuite;
+use PHPUnit\Framework\Warning;
 use SebastianBergmann\CodeCoverage\ProcessedCodeCoverageData;
+use SebastianBergmann\Comparator\ComparisonFailure;
 use SebastianBergmann\Diff\Differ;
 use Throwable;
 
@@ -108,7 +111,7 @@ class CakeHtmlReporter extends CakeBaseReporter
      */
     public function testCaseList(): void
     {
-        $testCases = parent::testCaseList();
+        $testCases = CakeTestLoader::generateTestList($this->params);
         $core = $this->params['core'];
         $plugin = $this->params['plugin'];
 
@@ -224,7 +227,7 @@ class CakeHtmlReporter extends CakeBaseReporter
      * @param array $url Url hash to be converted
      * @return string Converted url query string
      */
-    protected function _queryString($url): string
+    protected function _queryString(array $url): string
     {
         $out = '?';
         $params = [];
@@ -255,13 +258,15 @@ class CakeHtmlReporter extends CakeBaseReporter
      * trail of the nesting test suites below the
      * top level test.
      *
-     * @param AssertionFailedError $message Failure object displayed in
+     * @param AssertionFailedError|Warning $message Failure object displayed in
      *   the context of the other tests.
      * @param Test $test The test case to paint a failure for.
      * @return void
      */
-    public function paintFail($message, Test $test): void
-    {
+    public function paintFail(
+        AssertionFailedError|Warning $message,
+        Test $test,
+    ): void {
         ob_start();
         $trace = $this->_getStackTrace($message);
         $className = $test::class;
@@ -271,7 +276,7 @@ class CakeHtmlReporter extends CakeBaseReporter
         $actualMsg = $expectedMsg = null;
         if (method_exists($message, 'getComparisonFailure')) {
             $failure = $message->getComparisonFailure();
-            if (is_object($failure)) {
+            if ($failure instanceof ComparisonFailure) {
                 $actualMsg = $failure->getActualAsString();
                 $expectedMsg = $failure->getExpectedAsString();
             }
@@ -311,7 +316,7 @@ class CakeHtmlReporter extends CakeBaseReporter
      * @param float|null $time time spent to run the test method
      * @return void
      */
-    public function paintPass(Test $test, $time = null): void
+    public function paintPass(Test $test, ?float $time = null): void
     {
         $name = method_exists($test, 'getName') ? $test->getName() : '';
 
@@ -329,11 +334,11 @@ class CakeHtmlReporter extends CakeBaseReporter
     /**
      * Paints a PHP exception.
      *
-     * @param Exception|Throwable $exception Exception to display.
+     * @param Throwable $exception Exception to display.
      * @param Test $test The test that failed.
      * @return void
      */
-    public function paintException(Exception|Throwable $exception, Test $test): void
+    public function paintException(Throwable $exception, Test $test): void
     {
         ob_start();
         $trace = $this->_getStackTrace($exception);
@@ -352,11 +357,11 @@ class CakeHtmlReporter extends CakeBaseReporter
     /**
      * Prints the message for skipping tests.
      *
-     * @param Exception|Throwable $message Text of skip condition.
+     * @param Throwable $message Text of skip condition.
      * @param Test $test the test method skipped
      * @return void
      */
-    public function paintSkip(Exception|Throwable $message, Test $test): void
+    public function paintSkip(Throwable $message, Test $test): void
     {
         $name = method_exists($test, 'getName') ? $test->getName() : '';
 
@@ -393,10 +398,10 @@ class CakeHtmlReporter extends CakeBaseReporter
     /**
      * Gets a formatted stack trace.
      *
-     * @param Exception|Throwable $e Exception to get a stack trace for.
+     * @param Throwable $e Exception to get a stack trace for.
      * @return string Generated stack trace.
      */
-    protected function _getStackTrace(Exception|Throwable $e): string
+    protected function _getStackTrace(Throwable $e): string
     {
         $trace = $e->getTrace();
         $out = [];

@@ -39,9 +39,7 @@ class JsEncodingObject
 {
     protected $_title = 'Old thing';
 
-    //@codingStandardsIgnoreStart
     private $__noshow = 'Never ever';
-    //@codingStandardsIgnoreEnd
 }
 
 /**

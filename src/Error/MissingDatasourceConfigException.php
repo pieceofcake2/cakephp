@@ -23,5 +23,5 @@ namespace Cake\Error;
  */
 class MissingDatasourceConfigException extends CakeException
 {
-    protected $_messageTemplate = 'The datasource configuration "%s" was not found in database.php';
+    protected string $_messageTemplate = 'The datasource configuration "%s" was not found in database.php';
 }

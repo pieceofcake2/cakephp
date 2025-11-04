@@ -53,27 +53,27 @@ class CakeFixtureInjector implements TestListener
         }
     }
 
-    public function addError(Test $test, Exception|Throwable $t, $time): void
+    public function addError(Test $test, Throwable $t, $time): void
     {
     }
 
-    public function addFailure(Test $test, AssertionFailedError $exception, $time): void
+    public function addFailure(Test $test, AssertionFailedError $e, $time): void
     {
     }
 
-    public function addIncompleteTest(Test $test, Throwable $exception, $time): void
+    public function addIncompleteTest(Test $test, Throwable $t, $time): void
     {
     }
 
-    public function addSkippedTest(Test $test, Throwable $exception, $time): void
+    public function addSkippedTest(Test $test, Throwable $t, $time): void
     {
     }
 
-    public function addRiskyTest(Test $test, Throwable $exception, $time): void
+    public function addRiskyTest(Test $test, Throwable $t, $time): void
     {
     }
 
-    public function addWarning(Test $test, Warning $exception, float $time): void
+    public function addWarning(Test $test, Warning $e, float $time): void
     {
     }
 }

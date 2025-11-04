@@ -90,7 +90,7 @@
     <rule ref="PSR1.Classes.ClassDeclaration.MultipleClasses">
         <exclude-pattern>src/Controller/Component/Acl/PhpAcl.php</exclude-pattern>
         <exclude-pattern>src/Error/exceptions.php</exclude-pattern>
-        <exclude-pattern>src/TestSuite/ControllerTestCase.ph</exclude-pattern>
+        <exclude-pattern>src/TestSuite/ControllerTestCase.php</exclude-pattern>
         <exclude-pattern>tests/TestCase/*</exclude-pattern>
     </rule>
 
@@ -111,23 +111,6 @@
         <exclude-pattern>tests/test_app/Console/Command/*</exclude-pattern>
         <exclude-pattern>tests/test_app/Plugin/*/Controller/*</exclude-pattern>
         <exclude-pattern>tests/test_app/Plugin/*/Console/Command/*</exclude-pattern>
-    </rule>
-
-    <!-- Allow @ error suppression in specific files where it's necessary -->
-    <rule ref="Generic.PHP.NoSilencedErrors.Discouraged">
-        <exclude-pattern>src/basics.php</exclude-pattern>
-        <exclude-pattern>src/functions.php</exclude-pattern>
-        <exclude-pattern>src/Cache/Engine/FileEngine.php</exclude-pattern>
-        <exclude-pattern>src/Console/Shell.php</exclude-pattern>
-        <exclude-pattern>src/Network/CakeResponse.php</exclude-pattern>
-        <exclude-pattern>src/Utility/Folder.php</exclude-pattern>
-        <exclude-pattern>src/View/Helper.php</exclude-pattern>
-        <exclude-pattern>src/View/View.php</exclude-pattern>
-        <exclude-pattern>tests/TestCase/Cache/CacheTest.php</exclude-pattern>
-        <exclude-pattern>tests/TestCase/Cache/Engine/MemcacheEngineTest.php</exclude-pattern>
-        <exclude-pattern>tests/TestCase/Cache/Engine/MemcachedEngineTest.php</exclude-pattern>
-        <exclude-pattern>tests/TestCase/Cache/Engine/RedisEngineTest.php</exclude-pattern>
-        <exclude-pattern>tests/TestCase/Error/ErrorHandlerTest.php</exclude-pattern>
     </rule>
 
     <!-- Allow non-PascalCase class names in database.php files (CakePHP2 convention) -->

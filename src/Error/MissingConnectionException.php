@@ -23,7 +23,7 @@ namespace Cake\Error;
  */
 class MissingConnectionException extends CakeException
 {
-    protected $_messageTemplate = 'Database connection "%s" is missing, or could not be created.';
+    protected string $_messageTemplate = 'Database connection "%s" is missing, or could not be created.';
 
     /**
      * Constructor
@@ -31,7 +31,7 @@ class MissingConnectionException extends CakeException
      * @param array|string $message The error message.
      * @param int $code The error code.
      */
-    public function __construct($message, $code = 500)
+    public function __construct(array|string $message, int $code = 500)
     {
         if (is_array($message)) {
             $message += ['enabled' => true];
@@ -39,6 +39,7 @@ class MissingConnectionException extends CakeException
         if (isset($message['message'])) {
             $this->_messageTemplate .= ' %s';
         }
+
         parent::__construct($message, $code);
     }
 }

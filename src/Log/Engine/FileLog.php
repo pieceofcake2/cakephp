@@ -36,7 +36,7 @@ class FileLog extends BaseLog
      * @var array
      * @see FileLog::__construct()
      */
-    protected $_defaults = [
+    protected array $_defaults = [
         'path' => LOGS,
         'file' => null,
         'types' => null,
@@ -49,23 +49,23 @@ class FileLog extends BaseLog
     /**
      * Path to save log files on.
      *
-     * @var string
+     * @var string|null
      */
-    protected $_path = null;
+    protected ?string $_path = null;
 
     /**
      * Log file name
      *
-     * @var string
+     * @var string|null
      */
-    protected $_file = null;
+    protected ?string $_file = null;
 
     /**
      * Max file size, used for log file rotation.
      *
-     * @var int
+     * @var int|null
      */
-    protected $_size = null;
+    protected ?int $_size = null;
 
     /**
      * Constructs a new File Logger.
@@ -87,7 +87,7 @@ class FileLog extends BaseLog
      *
      * @param array $config Options for the FileLog, see above.
      */
-    public function __construct($config = [])
+    public function __construct(array $config = [])
     {
         $config = Hash::merge($this->_defaults, $config);
         parent::__construct($config);
@@ -99,7 +99,7 @@ class FileLog extends BaseLog
      * @param array $config Engine configuration
      * @return array
      */
-    public function config($config = [])
+    public function config(array $config = []): array
     {
         parent::config($config);
 
@@ -169,7 +169,7 @@ class FileLog extends BaseLog
      * @param string $type The type of log.
      * @return string File name
      */
-    protected function _getFilename($type)
+    protected function _getFilename(string $type): string
     {
         $debugTypes = ['notice', 'info', 'debug'];
 
@@ -191,10 +191,10 @@ class FileLog extends BaseLog
      * Also if `rotate` count is reached oldest file is removed.
      *
      * @param string $filename Log file name
-     * @return mixed True if rotated successfully or false in case of error, otherwise null.
+     * @return bool|null True if rotated successfully or false in case of error, otherwise null.
      *   Void if file doesn't need to be rotated.
      */
-    protected function _rotateFile($filename)
+    protected function _rotateFile(string $filename): bool|null
     {
         $filepath = $this->_path . $filename;
         clearstatcache(true, $filepath);

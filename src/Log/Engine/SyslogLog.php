@@ -51,7 +51,7 @@ class SyslogLog extends BaseLog
      *
      * @var array
      */
-    protected $_defaults = [
+    protected array $_defaults = [
         'format' => '%s: %s',
         'flag' => LOG_ODELAY,
         'prefix' => '',
@@ -63,7 +63,7 @@ class SyslogLog extends BaseLog
      *
      * @var array
      */
-    protected $_priorityMap = [
+    protected array $_priorityMap = [
         'emergency' => LOG_EMERG,
         'alert' => LOG_ALERT,
         'critical' => LOG_CRIT,
@@ -79,7 +79,7 @@ class SyslogLog extends BaseLog
      *
      * @var bool
      */
-    protected $_open = false;
+    protected bool $_open = false;
 
     /**
      * Make sure the configuration contains the format parameter, by default it uses
@@ -87,7 +87,7 @@ class SyslogLog extends BaseLog
      *
      * @param array $config Options list.
      */
-    public function __construct($config = [])
+    public function __construct(array $config = [])
     {
         $config += $this->_defaults;
         parent::__construct($config);
@@ -134,7 +134,7 @@ class SyslogLog extends BaseLog
      * @param int $facility the stream or facility to log to
      * @return void
      */
-    protected function _open($ident, $options, $facility)
+    protected function _open(string $ident, int $options, int $facility): void
     {
         openlog($ident, $options, $facility);
     }
@@ -147,7 +147,7 @@ class SyslogLog extends BaseLog
      * @param string $message Message to log.
      * @return bool
      */
-    protected function _write($priority, $message)
+    protected function _write(int $priority, string $message): bool
     {
         return syslog($priority, $message);
     }

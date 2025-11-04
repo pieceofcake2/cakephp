@@ -39,7 +39,7 @@ class CakeException extends CakeBaseException
      *
      * @var string
      */
-    protected $_messageTemplate = '';
+    protected string $_messageTemplate = '';
 
     /**
      * Constructor.

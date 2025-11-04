@@ -23,5 +23,5 @@ namespace Cake\Error;
  */
 class MissingDispatcherFilterException extends CakeException
 {
-    protected $_messageTemplate = 'Dispatcher filter %s could not be found.';
+    protected string $_messageTemplate = 'Dispatcher filter %s could not be found.';
 }

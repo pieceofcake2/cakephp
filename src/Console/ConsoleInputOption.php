@@ -34,56 +34,62 @@ class ConsoleInputOption
      *
      * @var string
      */
-    protected $_name;
+    protected string $_name;
 
     /**
      * Short (1 character) alias for the option.
      *
-     * @var string
+     * @var string|null
      */
-    protected $_short;
+    protected ?string $_short = null;
 
     /**
      * Help text for the option.
      *
      * @var string
      */
-    protected $_help;
+    protected string $_help;
 
     /**
      * Is the option a boolean option. Boolean options do not consume a parameter.
      *
      * @var bool
      */
-    protected $_boolean;
+    protected bool $_boolean;
 
     /**
      * Default value for the option
      *
      * @var mixed
      */
-    protected $_default;
+    protected mixed $_default;
 
     /**
      * An array of choices for the option.
      *
      * @var array
      */
-    protected $_choices;
+    protected array $_choices;
 
     /**
      * Make a new Input Option
      *
-     * @param array|string $name The long name of the option, or an array with all the properties.
-     * @param string $short The short alias for this option
+     * @param array{name: string}|string $name The long name of the option, or an array with all the properties.
+     * @param string|null $short The short alias for this option
      * @param string $help The help text for this option
      * @param bool $boolean Whether this option is a boolean option. Boolean options don't consume extra tokens
-     * @param string $default The default value for this option.
+     * @param mixed $default The default value for this option.
      * @param array $choices Valid choices for this option.
      * @throws ConsoleException
      */
-    public function __construct($name, $short = null, $help = '', $boolean = false, $default = '', $choices = [])
-    {
+    public function __construct(
+        array|string $name,
+        ?string $short = null,
+        string $help = '',
+        bool $boolean = false,
+        mixed $default = '',
+        array $choices = [],
+    ) {
         if (is_array($name) && isset($name['name'])) {
             foreach ($name as $key => $value) {
                 $this->{'_' . $key} = $value;
@@ -96,6 +102,7 @@ class ConsoleInputOption
             $this->_default = $default;
             $this->_choices = $choices;
         }
+
         if (strlen($this->_short) > 1) {
             throw new ConsoleException(
                 __d('cake_console', 'Short option "%s" is invalid, short options must be one letter.', $this->_short),
@@ -173,7 +180,7 @@ class ConsoleInputOption
      *
      * @return mixed
      */
-    public function defaultValue()
+    public function defaultValue(): mixed
     {
         return $this->_default;
     }
@@ -183,7 +190,7 @@ class ConsoleInputOption
      *
      * @return bool
      */
-    public function isBoolean()
+    public function isBoolean(): bool
     {
         return (bool)$this->_boolean;
     }
@@ -195,7 +202,7 @@ class ConsoleInputOption
      * @return bool
      * @throws ConsoleException
      */
-    public function validChoice($value)
+    public function validChoice(string $value): bool
     {
         if (empty($this->_choices)) {
             return true;
@@ -221,7 +228,7 @@ class ConsoleInputOption
      * @param SimpleXmlElement $parent The parent element.
      * @return SimpleXmlElement The parent with this option appended.
      */
-    public function xml(SimpleXmlElement $parent)
+    public function xml(SimpleXmlElement $parent): SimpleXmlElement
     {
         $option = $parent->addChild('option');
         $option->addAttribute('name', '--' . $this->_name);

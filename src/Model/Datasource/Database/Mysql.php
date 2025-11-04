@@ -568,7 +568,7 @@ class Mysql extends DboSource
         $old = version_compare($this->getVersion(), '4.1', '<=');
         if ($table) {
             $indexes = $this->_execute('SHOW INDEX FROM ' . $table);
-            // @codingStandardsIgnoreStart
+
             // MySQL columns don't match the cakephp conventions.
             while ($idx = $indexes->fetch(PDO::FETCH_OBJ)) {
                 if ($old) {
@@ -597,7 +597,7 @@ class Mysql extends DboSource
                     $index[$idx->Key_name]['length'][$idx->Column_name] = $idx->Sub_part;
                 }
             }
-            // @codingStandardsIgnoreEnd
+
             $indexes->closeCursor();
         }
 

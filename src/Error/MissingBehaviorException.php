@@ -23,5 +23,5 @@ namespace Cake\Error;
  */
 class MissingBehaviorException extends CakeException
 {
-    protected $_messageTemplate = 'Behavior class %s could not be found.';
+    protected string $_messageTemplate = 'Behavior class %s could not be found.';
 }

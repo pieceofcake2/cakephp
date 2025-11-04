@@ -23,5 +23,5 @@ namespace Cake\Error;
  */
 class MissingPluginException extends CakeException
 {
-    protected $_messageTemplate = 'Plugin %s could not be found.';
+    protected string $_messageTemplate = 'Plugin %s could not be found.';
 }

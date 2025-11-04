@@ -565,7 +565,7 @@ class_alias(TimesheetsController::class, 'TestApp\\Controller\\TimesheetsControl
  */
 class TestFilterDispatcher extends DispatcherFilter
 {
-    public $priority = 10;
+    public int $priority = 10;
 
     /**
      * TestFilterDispatcher::beforeDispatch()

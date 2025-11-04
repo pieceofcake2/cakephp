@@ -585,8 +585,6 @@ class Model extends CakeObject implements CakeEventListener
      */
     protected array $_associations = ['belongsTo', 'hasOne', 'hasMany', 'hasAndBelongsToMany'];
 
-// @codingStandardsIgnoreStart
-
     /**
      * Holds model associations temporarily to allow for dynamic (un)binding.
      *

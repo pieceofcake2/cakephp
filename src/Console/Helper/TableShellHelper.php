@@ -38,7 +38,7 @@ class TableShellHelper extends BaseShellHelper
      * @param array $rows The rows on which the columns width will be calculated on.
      * @return array
      */
-    protected function _calculateWidths($rows)
+    protected function _calculateWidths(array $rows): array
     {
         $widths = [];
         foreach ($rows as $line) {
@@ -59,7 +59,7 @@ class TableShellHelper extends BaseShellHelper
      * @param array $widths The widths of each column to output.
      * @return void
      */
-    protected function _rowSeparator($widths)
+    protected function _rowSeparator(array $widths): void
     {
         $out = '';
         foreach ($widths as $column) {
@@ -77,7 +77,7 @@ class TableShellHelper extends BaseShellHelper
      * @param array $options Options to be passed.
      * @return void
      */
-    protected function _render($row, $widths, $options = [])
+    protected function _render(array $row, array $widths, array $options = []): void
     {
         $out = '';
         foreach ($row as $i => $column) {
@@ -94,19 +94,19 @@ class TableShellHelper extends BaseShellHelper
     /**
      * Output a table.
      *
-     * @param array $rows The data to render out.
+     * @param array $args The data to render out.
      * @return void
      */
-    public function output(array $rows): void
+    public function output(array $args): void
     {
         $config = $this->config();
-        $widths = $this->_calculateWidths($rows);
+        $widths = $this->_calculateWidths($args);
         $this->_rowSeparator($widths);
         if ($config['headers'] === true) {
-            $this->_render(array_shift($rows), $widths, ['style' => $config['headerStyle']]);
+            $this->_render(array_shift($args), $widths, ['style' => $config['headerStyle']]);
             $this->_rowSeparator($widths);
         }
-        foreach ($rows as $line) {
+        foreach ($args as $line) {
             $this->_render($line, $widths);
             if ($config['rowSeparator'] === true) {
                 $this->_rowSeparator($widths);
@@ -124,7 +124,7 @@ class TableShellHelper extends BaseShellHelper
      * @param string $style The style to be applied
      * @return string
      */
-    protected function _addStyle($text, $style)
+    protected function _addStyle(string $text, string $style): string
     {
         return '<' . $style . '>' . $text . '</' . $style . '>';
     }

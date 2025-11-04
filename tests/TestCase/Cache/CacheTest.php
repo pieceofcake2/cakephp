@@ -646,10 +646,8 @@ class CacheTest extends CakeTestCase
     public function testEngineSuccessMemcached()
     {
         $this->skipIf(!class_exists('Memcached'), 'Memcached is not installed or configured properly.');
-
-        // @codingStandardsIgnoreStart
+        // phpcs:ignore
         $socket = @fsockopen('127.0.0.1', 11211, $errno, $errstr, 1);
-        // @codingStandardsIgnoreEnd
         $this->skipIf(!$socket, 'Memcached is not running.');
         fclose($socket);
 

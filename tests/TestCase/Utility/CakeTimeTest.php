@@ -338,9 +338,8 @@ class CakeTimeTest extends CakeTestCase
             strtotime('+2 months +2 days'),
             ['end' => '1 month', 'format' => '%x'],
         );
-        // @codingStandardsIgnoreStart
+
         $this->assertEquals('on ' . strftime('%x', strtotime('+2 months +2 days')), $result);
-        // @codingStandardsIgnoreEnd
     }
 
     /**
@@ -1251,9 +1250,7 @@ class CakeTimeTest extends CakeTestCase
         $this->assertEquals($expected, $result);
 
         $result = $this->Time->i18nFormat($time, '%c');
-        // @codingStandardsIgnoreStart
         $expected = 'jue 14 ene 2010 13:59:28 ' . mb_convert_encoding(strftime('%Z', $time), 'UTF-8', 'ISO-8859-1');
-        // @codingStandardsIgnoreEnd
         $this->assertEquals($expected, $result);
 
         $result = $this->Time->i18nFormat($time, 'Time is %r, and date is %x');

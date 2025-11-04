@@ -23,5 +23,5 @@ namespace Cake\Error;
  */
 class MissingComponentException extends CakeException
 {
-    protected $_messageTemplate = 'Component class %s could not be found.';
+    protected string $_messageTemplate = 'Component class %s could not be found.';
 }

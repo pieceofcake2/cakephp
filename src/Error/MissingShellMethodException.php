@@ -23,5 +23,5 @@ namespace Cake\Error;
  */
 class MissingShellMethodException extends CakeException
 {
-    protected $_messageTemplate = "Unknown command %1\$s %2\$s.\nFor usage try `cake %1\$s --help`";
+    protected string $_messageTemplate = "Unknown command %1\$s %2\$s.\nFor usage try `cake %1\$s --help`";
 }

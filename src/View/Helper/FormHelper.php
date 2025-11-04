@@ -3203,9 +3203,8 @@ class FormHelper extends AppHelper
                     $data = $options['monthNames'];
                 } else {
                     for ($m = 1; $m <= 12; $m++) {
-                        // @codingStandardsIgnoreStart
+                        // phpcs:ignore
                         $data[sprintf('%02s', $m)] = strftime('%m', mktime(1, 1, 1, $m, 1, 1999));
-                        // @codingStandardsIgnoreEnd
                     }
                 }
                 break;

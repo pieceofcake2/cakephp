@@ -229,9 +229,7 @@ class FileEngine extends CacheEngine
         $path = $this->_File->getRealPath();
         $this->_File = null;
 
-        //@codingStandardsIgnoreStart
-        return @unlink($path);
-        //@codingStandardsIgnoreEnd
+        return @unlink($path); // phpcs:ignore
     }
 
     /**
@@ -324,9 +322,7 @@ class FileEngine extends CacheEngine
                 $filePath = $file->getRealPath();
                 $file = null;
 
-                //@codingStandardsIgnoreStart
-                @unlink($filePath);
-                //@codingStandardsIgnoreEnd
+                @unlink($filePath); // phpcs:ignore
             }
         }
     }
@@ -467,9 +463,7 @@ class FileEngine extends CacheEngine
             if ($object->isFile() && $containsGroup && $hasPrefix) {
                 $path = $object->getPathName();
                 $object = null;
-                //@codingStandardsIgnoreStart
-                @unlink($path);
-                //@codingStandardsIgnoreEnd
+                @unlink($path); // phpcs:ignore
             }
         }
 

@@ -23,5 +23,5 @@ namespace Cake\Error;
  */
 class MissingViewException extends CakeException
 {
-    protected $_messageTemplate = 'View file "%s" is missing.';
+    protected string $_messageTemplate = 'View file "%s" is missing.';
 }

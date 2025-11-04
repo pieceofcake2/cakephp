@@ -2181,14 +2181,18 @@ class SetTest extends CakeTestCase
         $result = Set::reverse($class);
         $this->assertEquals($expected, $result);
 
-        $expected = ['User' => ['psword' => 'whatever',
-                        'Icon' => ['id' => 851],
-                        'Profile' => ['name' => 'Some Name', 'address' => 'Some Address'],
-                        'Comment' => [
-                                ['id' => 1, 'article_id' => 1, 'user_id' => 1, 'comment' => 'First Comment for First Article', 'published' => 'Y', 'created' => '2007-03-18 10:47:23', 'updated' => '2007-03-18 10:49:31'],
-                                ['id' => 2, 'article_id' => 1, 'user_id' => 2, 'comment' => 'Second Comment for First Article', 'published' => 'Y', 'created' => '2007-03-18 10:47:23', 'updated' => '2007-03-18 10:49:31']]]];
+        $expected = [
+            'User' => [
+                'psword' => 'whatever',
+                'Icon' => ['id' => 851],
+                'Profile' => ['name' => 'Some Name', 'address' => 'Some Address'],
+                'Comment' => [
+                    ['id' => 1, 'article_id' => 1, 'user_id' => 1, 'comment' => 'First Comment for First Article', 'published' => 'Y', 'created' => '2007-03-18 10:47:23', 'updated' => '2007-03-18 10:49:31'],
+                    ['id' => 2, 'article_id' => 1, 'user_id' => 2, 'comment' => 'Second Comment for First Article', 'published' => 'Y', 'created' => '2007-03-18 10:47:23', 'updated' => '2007-03-18 10:49:31'],
+                ],
+            ],
+        ];
 
-        // @codingStandardsIgnoreStart
         $class = new stdClass();
         $class->User = new stdClass();
         $class->User->psword = 'whatever';
@@ -2214,7 +2218,7 @@ class SetTest extends CakeTestCase
         $comment2->published = 'Y';
         $comment2->created = '2007-03-18 10:47:23';
         $comment2->updated = '2007-03-18 10:49:31';
-        // @codingStandardsIgnoreEnd
+
         $class->User->Comment = [$comment, $comment2];
         $result = Set::reverse($class);
         $this->assertEquals($expected, $result);
@@ -2234,7 +2238,6 @@ class SetTest extends CakeTestCase
         ];
         $this->assertEquals($expected, $result);
 
-        // @codingStandardsIgnoreStart
         $class = new stdClass();
         $class->User = new stdClass();
         $class->User->id = 100;
@@ -2242,7 +2245,6 @@ class SetTest extends CakeTestCase
         $class->Profile = new stdClass();
         $class->Profile->name = 'Joe Mamma';
         $class->Profile->_name_ = 'Profile';
-        // @codingStandardsIgnoreEnd
 
         $result = Set::reverse($class);
         $expected = ['User' => ['id' => '100'], 'Profile' => ['name' => 'Joe Mamma']];
@@ -2475,7 +2477,6 @@ class SetTest extends CakeTestCase
         ];
         $mapped = Set::map($data);
 
-        // @codingStandardsIgnoreStart
         $expected = new stdClass();
         $expected->_name_ = 'IndexedPage';
         $expected->id = 2;
@@ -2485,7 +2486,6 @@ class SetTest extends CakeTestCase
         $expected->redirect = '';
         $expected->created = '1195055503';
         $expected->updated = '1195055503';
-        // @codingStandardsIgnoreEnd
         $this->assertEquals($expected, $mapped[1]);
 
         $ids = [];
@@ -2518,7 +2518,6 @@ class SetTest extends CakeTestCase
                 ],
             ]);
 
-        // @codingStandardsIgnoreStart
         $expected = new stdClass();
         $expected->_name_ = 'Post';
         $expected->id = '1';
@@ -2556,7 +2555,6 @@ class SetTest extends CakeTestCase
         $expected2->Author->updated = '2007-03-17 01:22:31';
         $expected2->Author->test = 'working';
         $expected2->Author->_name_ = 'Author';
-        // @codingStandardsIgnoreEnd
 
         $test = [];
         $test[0] = $expected;
@@ -2570,7 +2568,7 @@ class SetTest extends CakeTestCase
                 'Author' => ['id' => '1', 'user' => 'mariano', 'password' => '5f4dcc3b5aa765d61d8327deb882cf99', 'created' => '2007-03-17 01:16:23', 'updated' => '2007-03-17 01:18:31', 'test' => 'working'],
             ],
         );
-        // @codingStandardsIgnoreStart
+
         $expected = new stdClass();
         $expected->_name_ = 'Post';
         $expected->id = '1';
@@ -2589,7 +2587,7 @@ class SetTest extends CakeTestCase
         $expected->Author->updated = '2007-03-17 01:18:31';
         $expected->Author->test = 'working';
         $expected->Author->_name_ = 'Author';
-        // @codingStandardsIgnoreEnd
+
         $this->assertEquals($expected, $result);
 
         //Case where extra HABTM fields come back in a result
@@ -2630,7 +2628,6 @@ class SetTest extends CakeTestCase
 
         $result = Set::map($data);
 
-        // @codingStandardsIgnoreStart
         $expected = new stdClass();
         $expected->_name_ = 'User';
         $expected->id = 1;
@@ -2667,7 +2664,6 @@ class SetTest extends CakeTestCase
         $piece2->PiecesUser->_name_ = 'PiecesUser';
 
         $piece2->_name_ = 'Piece';
-        // @codingStandardsIgnoreEnd
 
         $expected->Piece = [$piece, $piece2];
 
@@ -2716,7 +2712,6 @@ class SetTest extends CakeTestCase
 
         $result = Set::map($data);
 
-        // @codingStandardsIgnoreStart
         $expected = new stdClass();
         $expected->_name_ = 'FooUser';
         $expected->id = 1;
@@ -2749,7 +2744,6 @@ class SetTest extends CakeTestCase
         $piece2->PiecesUser->piece_id = 2;
         $piece2->PiecesUser->user_id = 2;
         $piece2->PiecesUser->_name_ = 'FooPiecesUser';
-        // @codingStandardsIgnoreEnd
 
         $expected->Piece = [$piece, $piece2];
 

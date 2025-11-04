@@ -48,9 +48,8 @@ class RedisEngineTest extends CakeTestCase
         $this->_cacheDisable = Configure::read('Cache.disable');
         Configure::write('Cache.disable', false);
 
-        // @codingStandardsIgnoreStart
+        // phpcs:ignore
         $socket = @fsockopen('127.0.0.1', 6379, $errno, $errstr, 1);
-        // @codingStandardsIgnoreEnd
         $this->skipIf(!$socket, 'Redis is not running.');
         fclose($socket);
 

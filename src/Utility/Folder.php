@@ -491,9 +491,8 @@ class Folder
         }
 
         if ($recursive === false && is_dir($path)) {
-            //@codingStandardsIgnoreStart
+            // phpcs:ignore
             if (@chmod($path, intval($mode, 8))) {
-                //@codingStandardsIgnoreEnd
                 $this->_messages[] = __d('cake_dev', '%s changed to %s', $path, $mode);
 
                 return true;
@@ -722,17 +721,13 @@ class Folder
             foreach ($iterator as $item) {
                 $filePath = $item->getPathname();
                 if ($item->isFile() || $item->isLink()) {
-                    //@codingStandardsIgnoreStart
-                    if (@unlink($filePath)) {
-                        //@codingStandardsIgnoreEnd
+                    if (@unlink($filePath)) { // phpcs:ignore
                         $this->_messages[] = __d('cake_dev', '%s removed', $filePath);
                     } else {
                         $this->_errors[] = __d('cake_dev', '%s NOT removed', $filePath);
                     }
                 } elseif ($item->isDir() && !$item->isDot()) {
-                    //@codingStandardsIgnoreStart
-                    if (@rmdir($filePath)) {
-                        //@codingStandardsIgnoreEnd
+                    if (@rmdir($filePath)) { // phpcs:ignore
                         $this->_messages[] = __d('cake_dev', '%s removed', $filePath);
                     } else {
                         $this->_errors[] = __d('cake_dev', '%s NOT removed', $filePath);
@@ -809,9 +804,7 @@ class Folder
         }
 
         $exceptions = array_merge(['.', '..', '.svn'], $options['skip']);
-        //@codingStandardsIgnoreStart
-        if ($handle = @opendir($fromDir)) {
-            //@codingStandardsIgnoreEnd
+        if ($handle = @opendir($fromDir)) { // phpcs:ignore
             while (($item = readdir($handle)) !== false) {
                 $to = Folder::addPathElement($toDir, $item);
                 if (($options['scheme'] != Folder::SKIP || !is_dir($to)) && !in_array($item, $exceptions)) {

@@ -125,11 +125,10 @@ class MemcacheEngineTest extends CakeTestCase
 
         foreach ($servers as $server) {
             [$host, $port] = explode(':', $server);
-            //@codingStandardsIgnoreStart
-            if (!@$Memcache->connect($host, $port)) {
+
+            if (!@$Memcache->connect($host, $port)) { // phpcs:ignore
                 $available = false;
             }
-            //@codingStandardsIgnoreEnd
         }
 
         $this->skipIf(!$available, 'Need memcache servers at ' . implode(', ', $servers) . ' to run this test.');

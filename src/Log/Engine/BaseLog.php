@@ -32,14 +32,14 @@ abstract class BaseLog implements CakeLogInterface
      *
      * @var array
      */
-    protected $_config = [];
+    protected array $_config = [];
 
     /**
      * Constructor
      *
      * @param array $config Configuration array
      */
-    public function __construct($config = [])
+    public function __construct(array $config = [])
     {
         $this->config($config);
     }
@@ -55,7 +55,7 @@ abstract class BaseLog implements CakeLogInterface
      * @param array $config engine configuration
      * @return array
      */
-    public function config($config = [])
+    public function config(array $config = []): array
     {
         if (!empty($config)) {
             foreach (['types', 'scopes'] as $option) {

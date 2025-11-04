@@ -28,12 +28,17 @@ class FatalErrorException extends CakeException
      *
      * @param string $message The error message.
      * @param int $code The error code.
-     * @param string $file The file the error occurred in.
-     * @param int $line The line the error occurred on.
+     * @param string|null $file The file the error occurred in.
+     * @param int|null $line The line the error occurred on.
      */
-    public function __construct($message, $code = 500, $file = null, $line = null)
-    {
+    public function __construct(
+        array|string $message,
+        int $code = 500,
+        ?string $file = null,
+        ?int $line = null,
+    ) {
         parent::__construct($message, $code);
+
         if ($file) {
             $this->file = $file;
         }

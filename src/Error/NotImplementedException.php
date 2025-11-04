@@ -23,9 +23,7 @@ namespace Cake\Error;
  */
 class NotImplementedException extends CakeException
 {
-    protected $_messageTemplate = '%s is not implemented.';
-
-//@codingStandardsIgnoreStart
+    protected string $_messageTemplate = '%s is not implemented.';
 
     /**
      * Constructor
@@ -33,10 +31,8 @@ class NotImplementedException extends CakeException
      * @param array|string $message Error message
      * @param int $code Error code
      */
-    public function __construct($message, $code = 501)
+    public function __construct(array|string $message, int $code = 501)
     {
         parent::__construct($message, $code);
     }
-
-//@codingStandardsIgnoreEnd
 }

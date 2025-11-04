@@ -17,6 +17,7 @@ namespace Cake\Console\Command\Task;
 
 use AppShell;
 use Cake\Console\ConsoleOptionParser;
+use Cake\Console\Shell;
 use Cake\Console\TaskCollection;
 use Cake\Core\App;
 use Cake\Core\CakePlugin;
@@ -142,10 +143,10 @@ class CommandTask extends AppShell
     /**
      * Get Shell instance for the given command
      *
-     * @param mixed $commandName The command you want.
-     * @return mixed
+     * @param string|null $commandName The command you want.
+     * @return Shell|false
      */
-    public function getShell($commandName)
+    public function getShell(?string $commandName): Shell|false
     {
         [$pluginDot, $name] = pluginSplit($commandName, true);
 
@@ -178,16 +179,16 @@ class CommandTask extends AppShell
     /**
      * Get Shell instance for the given command
      *
-     * @param mixed $commandName The command to get options for.
+     * @param string|null $commandName The command to get options for.
      * @return array
      */
-    public function options($commandName)
+    public function options(?string $commandName): array
     {
-        $Shell = $this->getShell($commandName);
-        if (!$Shell) {
+        $shell = $this->getShell($commandName);
+        if (!$shell) {
             $parser = new ConsoleOptionParser();
         } else {
-            $parser = $Shell->getOptionParser();
+            $parser = $shell->getOptionParser();
         }
 
         $options = [];

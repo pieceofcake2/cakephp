@@ -26,7 +26,7 @@ use Exception;
  */
 class PrivateActionException extends CakeException
 {
-    protected $_messageTemplate = 'Private Action %s::%s() is not directly accessible.';
+    protected string $_messageTemplate = 'Private Action %s::%s() is not directly accessible.';
 
     /**
      * Constructor
