@@ -3,7 +3,6 @@
 namespace Cake\TestSuite\Fixture;
 
 use Cake\TestSuite\CakeTestCase;
-use Exception;
 use PHPUnit\Framework\AssertionFailedError;
 use PHPUnit\Framework\Test;
 use PHPUnit\Framework\TestListener;

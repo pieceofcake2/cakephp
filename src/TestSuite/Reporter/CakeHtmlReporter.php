@@ -7,7 +7,6 @@ use Cake\Core\Configure;
 use Cake\TestSuite\CakeTestLoader;
 use Cake\TestSuite\Coverage\HtmlCoverageReport;
 use Cake\Utility\Inflector;
-use Exception;
 use PHPUnit\Framework\AssertionFailedError;
 use PHPUnit\Framework\Test;
 use PHPUnit\Framework\TestResult;

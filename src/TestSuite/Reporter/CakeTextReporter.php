@@ -46,6 +46,11 @@ class CakeTextReporter extends CakeBaseReporter
         }
     }
 
+    /**
+     * Paints the end of the document.
+     *
+     * @return void
+     */
     public function paintDocumentEnd(): void
     {
     }
