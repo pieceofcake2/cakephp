@@ -48,7 +48,7 @@ class TreeBehaviorNumberTest extends CakeTestCase
      *
      * @var array
      */
-    public $settings = [
+    public array $settings = [
         'modelClass' => 'NumberTree',
         'leftField' => 'lft',
         'rightField' => 'rght',
@@ -59,9 +59,14 @@ class TreeBehaviorNumberTest extends CakeTestCase
     /**
      * fixtures property
      *
-     * @var array
+     * @var array<string>
      */
-    public $fixtures = ['core.number_tree', 'core.person'];
+    public array $fixtures = [
+        'core.number_tree',
+        'core.person',
+    ];
+
+    public ?NumberTree $Tree = null;
 
     /**
      * testInitialize method

@@ -39,9 +39,7 @@ class JsEncodingObject
 {
     protected $_title = 'Old thing';
 
-    //@codingStandardsIgnoreStart
     private $__noshow = 'Never ever';
-    //@codingStandardsIgnoreEnd
 }
 
 /**
@@ -51,7 +49,7 @@ class JsEncodingObject
  */
 class OptionEngineHelper extends JsBaseEngineHelper
 {
-    protected $_optionMap = [
+    protected array $_optionMap = [
         'request' => [
             'complete' => 'success',
             'request' => 'beforeSend',
@@ -75,55 +73,66 @@ class OptionEngineHelper extends JsBaseEngineHelper
      *
      * @param array $options
      * @param array $safe
-     * @return void
+     * @return string
      */
-    public function testParseOptions($options, $safe = [])
+    public function testParseOptions($options, $safe = []): string
     {
         return $this->_parseOptions($options, $safe);
     }
 
-    public function get($selector)
+    public function get(string $selector): self
     {
+        return $this;
     }
 
-    public function event($type, $callback, $options = [])
+    public function event(string $type, string $callback, array $options = []): string
     {
+        return '';
     }
 
-    public function domReady($functionBody)
+    public function domReady(string $functionBody): string
     {
+        return '';
     }
 
-    public function each($callback)
+    public function each(string $callback): string
     {
+        return '';
     }
 
-    public function effect($name, $options = [])
+    public function effect(string $name, array $options = []): string
     {
+        return '';
     }
 
-    public function request($url, $options = [])
+    public function request(array|string $url, array $options = []): string
     {
+        return '';
     }
 
-    public function drag($options = [])
+    public function drag(array $options = []): string
     {
+        return '';
     }
 
-    public function drop($options = [])
+    public function drop(array $options = []): string
     {
+        return '';
     }
 
-    public function sortable($options = [])
+    public function sortable(array $options = []): string
     {
+        return '';
     }
 
-    public function slider($options = [])
+    public function slider(array $options = []): string
     {
+        return '';
     }
 
-    public function serializeForm($options = [])
+    public function serializeForm(array $options = []): string
     {
+        return '';
     }
 }
 
@@ -147,6 +156,10 @@ class JsHelperTest extends CakeTestCase
      * @var string
      */
     public $cDataEnd = 'preg:/[^\]]*\]\]\>[\s\r\n]*/';
+
+    public ?View $View = null;
+
+    public ?JsHelper $Js = null;
 
     /**
      * setUp method
@@ -180,7 +193,8 @@ class JsHelperTest extends CakeTestCase
      */
     public function tearDown(): void
     {
-        unset($this->Js);
+        $this->View = null;
+        $this->Js = null;
 
         parent::tearDown();
     }
@@ -338,7 +352,7 @@ class JsHelperTest extends CakeTestCase
         $this->Js->buffer('two = 2;');
         $result = $this->Js->writeBuffer(['onDomReady' => false, 'cache' => false, 'clear' => false]);
         $expected = [
-            'script' => ['type' => 'text/javascript'],
+            'script' => [],
             $this->cDataStart,
             "one = 1;\ntwo = 2;",
             $this->cDataEnd,
@@ -362,11 +376,13 @@ class JsHelperTest extends CakeTestCase
      */
     public function testWriteBufferNotInline()
     {
-        $this->Js->set('foo', 1);
+        $this->Js
+            ->set('foo', 1);
 
-        $this->View->expects($this->once())
+        $this->View
+            ->expects($this->once())
             ->method('append')
-            ->with('script', $this->matchesRegularExpression('#<script type="text\/javascript">window.app \= \{"foo"\:1\}\;<\/script>#'));
+            ->with('script', $this->matchesRegularExpression('#<script>window.app \= \{"foo"\:1\}\;<\/script>#'));
 
         $this->Js->writeBuffer(['onDomReady' => false, 'inline' => false, 'safe' => false]);
     }
@@ -444,15 +460,17 @@ class JsHelperTest extends CakeTestCase
 
         $callSequence = [];
 
-        $this->Js->TestJsEngine->expects($this->once())
+        $this->Js->TestJsEngine
+            ->expects($this->once())
             ->method('get')
             ->willReturnCallback(function () use (&$callSequence) {
                 $callSequence[] = 'get';
 
-                return null;
+                return $this->Js->TestJsEngine;
             });
 
-        $this->Js->TestJsEngine->expects($this->once())
+        $this->Js->TestJsEngine
+            ->expects($this->once())
             ->method('request')
             ->with('/posts/view/1', $options)
             ->willReturnCallback(function () use (&$callSequence) {
@@ -461,13 +479,14 @@ class JsHelperTest extends CakeTestCase
                 return '--ajax code--';
             });
 
-        $this->Js->TestJsEngine->expects($this->once())
+        $this->Js->TestJsEngine
+            ->expects($this->once())
             ->method('event')
             ->with('click', '--ajax code--', $options + ['buffer' => null])
             ->willReturnCallback(function () use (&$callSequence) {
                 $callSequence[] = 'event';
 
-                return null;
+                return '';
             });
 
         $result = $this->Js->link('test link', '/posts/view/1', $options);
@@ -553,7 +572,7 @@ class JsHelperTest extends CakeTestCase
 
         $this->Js->TestJsEngine->expects($this->any())
             ->method('get')
-            ->willReturn(null);
+            ->willReturn($this->Js->TestJsEngine);
 
         $this->Js->TestJsEngine->expects($this->once())
             ->method('request')
@@ -582,7 +601,7 @@ class JsHelperTest extends CakeTestCase
             'a' => ['id' => 'preg:/link-\d+/', 'href' => '/posts/view/1'],
             'test link',
             '/a',
-            'script' => ['type' => 'text/javascript'],
+            'script' => [],
             $this->cDataStart,
             '-event handler-',
             $this->cDataEnd,
@@ -602,11 +621,15 @@ class JsHelperTest extends CakeTestCase
 
         $methodCalls = [];
 
-        $this->Js->TestJsEngine->expects($this->any())
+        $this->Js
+            ->TestJsEngine
+            ->expects($this->any())
             ->method('get')
-            ->willReturn(null);
+            ->willReturn($this->Js->TestJsEngine);
 
-        $this->Js->TestJsEngine->expects($this->once())
+        $this->Js
+            ->TestJsEngine
+            ->expects($this->once())
             ->method('request')
             ->with('/posts/view/1', ['update' => '#content'])
             ->willReturnCallback(function () use (&$methodCalls) {
@@ -615,7 +638,9 @@ class JsHelperTest extends CakeTestCase
                 return 'ajax code';
             });
 
-        $this->Js->TestJsEngine->expects($this->once())
+        $this->Js
+            ->TestJsEngine
+            ->expects($this->once())
             ->method('event')
             ->willReturnCallback(function () use (&$methodCalls) {
                 $methodCalls[] = 'event';
@@ -633,7 +658,7 @@ class JsHelperTest extends CakeTestCase
             'a' => ['id' => 'preg:/link-\d+/', 'href' => '/posts/view/1'],
             'test link',
             '/a',
-            'script' => ['type' => 'text/javascript'],
+            'script' => [],
             '-event handler-',
             '/script',
         ];
@@ -658,7 +683,7 @@ class JsHelperTest extends CakeTestCase
             ->willReturnCallback(function () use (&$callSequence) {
                 $callSequence[] = 'get';
 
-                return null;
+                return $this->Js->TestJsEngine;
             });
 
         $this->Js->TestJsEngine->expects($this->once())
@@ -682,13 +707,14 @@ class JsHelperTest extends CakeTestCase
             'method' => 'post', 'dataExpression' => true, 'buffer' => null,
         ];
 
-        $this->Js->TestJsEngine->expects($this->once())
+        $this->Js->TestJsEngine
+            ->expects($this->once())
             ->method('event')
             ->with('click', 'ajax-code', $params)
             ->willReturnCallback(function () use (&$callSequence) {
                 $callSequence[] = 'event';
 
-                return null;
+                return '';
             });
 
         $result = $this->Js->submit('Save', $options);
@@ -719,7 +745,7 @@ class JsHelperTest extends CakeTestCase
             ->willReturnCallback(function () use (&$callSequence) {
                 $callSequence[] = 'get';
 
-                return null;
+                return $this->Js->TestJsEngine;
             });
 
         $this->Js->TestJsEngine->expects($this->once())
@@ -737,7 +763,9 @@ class JsHelperTest extends CakeTestCase
             'dataExpression' => true,
         ];
 
-        $this->Js->TestJsEngine->expects($this->once())
+        $this->Js
+            ->TestJsEngine
+            ->expects($this->once())
             ->method('request')
             ->with('/custom/url', $requestParams)
             ->willReturnCallback(function () use (&$callSequence) {
@@ -751,13 +779,15 @@ class JsHelperTest extends CakeTestCase
             'method' => 'post', 'dataExpression' => true, 'buffer' => null,
         ];
 
-        $this->Js->TestJsEngine->expects($this->once())
+        $this->Js
+            ->TestJsEngine
+            ->expects($this->once())
             ->method('event')
             ->with('click', 'ajax-code', $params)
             ->willReturnCallback(function () use (&$callSequence) {
                 $callSequence[] = 'event';
 
-                return null;
+                return '';
             });
 
         $options = ['update' => '#content', 'id' => 'test-submit', 'url' => '/custom/url'];
@@ -790,7 +820,7 @@ class JsHelperTest extends CakeTestCase
             ->willReturnCallback(function () use (&$methodSequence) {
                 $methodSequence[] = 'get';
 
-                return null;
+                return $this->Js->TestJsEngine;
             });
 
         $this->Js->TestJsEngine->expects($this->once())
@@ -814,7 +844,9 @@ class JsHelperTest extends CakeTestCase
             'method' => 'post', 'dataExpression' => true, 'buffer' => false,
         ];
 
-        $this->Js->TestJsEngine->expects($this->once())
+        $this->Js
+            ->TestJsEngine
+            ->expects($this->once())
             ->method('event')
             ->with('click', 'ajax-code', $params)
             ->willReturnCallback(function () use (&$methodSequence) {
@@ -831,7 +863,7 @@ class JsHelperTest extends CakeTestCase
             'div' => ['class' => 'submit'],
             'input' => ['type' => 'submit', 'id' => $options['id'], 'value' => 'Save'],
             '/div',
-            'script' => ['type' => 'text/javascript'],
+            'script' => [],
             'event-handler',
             '/script',
         ];
@@ -917,6 +949,9 @@ class JsHelperTest extends CakeTestCase
  */
 class JsBaseEngineTest extends CakeTestCase
 {
+    public ?View $View = null;
+    public ?OptionEngineHelper $JsEngine = null;
+
     /**
      * setUp method
      *
@@ -937,7 +972,8 @@ class JsBaseEngineTest extends CakeTestCase
      */
     public function tearDown(): void
     {
-        unset($this->JsEngine);
+        $this->View = null;
+        $this->JsEngine = null;
 
         parent::tearDown();
     }

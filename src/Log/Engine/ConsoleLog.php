@@ -32,9 +32,9 @@ class ConsoleLog extends BaseLog
     /**
      * Output stream
      *
-     * @var ConsoleOutput
+     * @var ConsoleOutput|null
      */
-    protected $_output = null;
+    protected ?ConsoleOutput $_output = null;
 
     /**
      * Constructs a new Console Logger.
@@ -49,22 +49,14 @@ class ConsoleLog extends BaseLog
      * @param array $config Options for the FileLog, see above.
      * @throws CakeLogException
      */
-    public function __construct($config = [])
+    public function __construct(array $config = [])
     {
         parent::__construct($config);
-        if (
-            (DS === '\\' && !(bool)env('ANSICON') && env('ConEmuANSI') !== 'ON') ||
-            (function_exists('posix_isatty') && !posix_isatty($this->_output))
-        ) {
-            $outputAs = ConsoleOutput::PLAIN;
-        } else {
-            $outputAs = ConsoleOutput::COLOR;
-        }
+
         $config = Hash::merge([
             'stream' => 'php://stderr',
             'types' => null,
             'scopes' => [],
-            'outputAs' => $outputAs,
             ], $this->_config);
         $config = $this->config($config);
         if ($config['stream'] instanceof ConsoleOutput) {
@@ -74,7 +66,7 @@ class ConsoleLog extends BaseLog
         } else {
             throw new CakeLogException('`stream` not a ConsoleOutput nor string');
         }
-        $this->_output->outputAs($config['outputAs']);
+        $this->_config['outputAs'] = $this->_output->outputAs();
     }
 
     /**
@@ -82,12 +74,12 @@ class ConsoleLog extends BaseLog
      *
      * @param string $type The type of log you are making.
      * @param string $message The message you want to log.
-     * @return bool success of write.
+     * @return bool|null success of write.
      */
-    public function write($type, $message)
+    public function write(string $type, string $message): ?bool
     {
         $output = date('Y-m-d H:i:s') . ' ' . ucfirst($type) . ': ' . $message . "\n";
 
-        return $this->_output->write(sprintf('<%s>%s</%s>', $type, $output, $type), false);
+        return $this->_output->write(sprintf('<%s>%s</%s>', $type, $output, $type), 0);
     }
 }

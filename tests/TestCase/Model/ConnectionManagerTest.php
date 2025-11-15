@@ -38,7 +38,7 @@ use TestPlugin\Model\Datasource\TestSource;
  */
 class ConnectionManagerTest extends CakeTestCase
 {
-    protected $_appNamespace = null;
+    protected ?string $_appNamespace = null;
 
     /**
      * @return void

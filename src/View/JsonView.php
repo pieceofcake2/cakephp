@@ -61,7 +61,7 @@ class JsonView extends View
      * JSON views are always located in the 'json' sub directory for
      * controllers' views.
      *
-     * @var string
+     * @var string|null
      */
     public ?string $subDir = 'json';
 
@@ -103,11 +103,11 @@ class JsonView extends View
      *   - Setting it to a string value, uses the provided query string parameter for finding the
      *     JSONP callback name.
      *
-     * @param string $view The view being rendered.
-     * @param string $layout The layout being rendered.
-     * @return string The rendered view.
+     * @param string|false|null $view The view being rendered.
+     * @param string|false|null $layout The layout being rendered.
+     * @return string|null The rendered view.
      */
-    public function render($view = null, $layout = null)
+    public function render(string|false|null $view = null, string|false|null $layout = null): ?string
     {
         $return = null;
         if (isset($this->viewVars['_serialize'])) {

@@ -39,8 +39,10 @@ class Test2DispatcherFilter extends DispatcherFilter
         return $event->data['response'];
     }
 
-    public function afterDispatch(CakeEvent $event)
+    public function afterDispatch(CakeEvent $event): ?bool
     {
         $event->data['response']->statusCode(200);
+
+        return null;
     }
 }

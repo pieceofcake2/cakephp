@@ -23,5 +23,5 @@ namespace Cake\Error;
  */
 class MissingDatabaseException extends CakeException
 {
-    protected $_messageTemplate = 'Database connection "%s" could not be found.';
+    protected string $_messageTemplate = 'Database connection "%s" could not be found.';
 }

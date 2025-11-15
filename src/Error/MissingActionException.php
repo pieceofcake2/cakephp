@@ -24,9 +24,7 @@ namespace Cake\Error;
  */
 class MissingActionException extends CakeException
 {
-    protected $_messageTemplate = 'Action %s::%s() could not be found.';
-
-//@codingStandardsIgnoreStart
+    protected string $_messageTemplate = 'Action %s::%s() could not be found.';
 
     /**
      * Constructor
@@ -34,10 +32,8 @@ class MissingActionException extends CakeException
      * @param array|string $message Error message
      * @param int $code Error code
      */
-    public function __construct($message, $code = 404)
+    public function __construct(array|string $message, int $code = 404)
     {
         parent::__construct($message, $code);
     }
-
-//@codingStandardsIgnoreEnd
 }

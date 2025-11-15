@@ -32,11 +32,13 @@ use Cake\TestSuite\CakeTestCase;
  */
 class TestStringOutput extends ConsoleOutput
 {
-    public $output = '';
+    public string $output = '';
 
-    protected function _write($message)
+    protected function _write(string $message): int|false
     {
         $this->output .= $message;
+
+        return 0;
     }
 }
 
@@ -47,7 +49,7 @@ class TestStringOutput extends ConsoleOutput
  */
 class CommandListShellTest extends CakeTestCase
 {
-    protected $_appNamespace = null;
+    protected ?string $_appNamespace = null;
 
     /**
      * setUp method

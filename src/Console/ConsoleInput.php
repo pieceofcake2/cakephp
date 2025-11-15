@@ -41,14 +41,14 @@ class ConsoleInput
      *
      * @var bool
      */
-    protected $_canReadline;
+    protected bool $_canReadline;
 
     /**
      * Constructor
      *
      * @param string $handle The location of the stream to use as input.
      */
-    public function __construct($handle = 'php://stdin')
+    public function __construct(string $handle = 'php://stdin')
     {
         $this->_canReadline = extension_loaded('readline') && $handle === 'php://stdin' ? true : false;
         $this->_input = fopen($handle, 'r');
@@ -57,9 +57,9 @@ class ConsoleInput
     /**
      * Read a value from the stream
      *
-     * @return mixed The value of the stream
+     * @return string|false The value of the stream
      */
-    public function read()
+    public function read(): string|false
     {
         if ($this->_canReadline) {
             $line = readline('');
@@ -79,7 +79,7 @@ class ConsoleInput
      * @param int $timeout An optional time to wait for data
      * @return bool True for data available, false otherwise
      */
-    public function dataAvailable($timeout = 0)
+    public function dataAvailable(int $timeout = 0): bool
     {
         $readFds = [$this->_input];
         $writeFds = [];

@@ -40,30 +40,30 @@ class AclShell extends AppShell
     /**
      * Contains instance of AclComponent
      *
-     * @var AclComponent
+     * @var AclComponent|null
      */
-    public $Acl;
+    public ?AclComponent $Acl = null;
 
     /**
      * Contains arguments parsed from the command line.
      *
      * @var array
      */
-    public $args;
+    public array $args;
 
     /**
      * Contains database source to use
      *
      * @var string
      */
-    public $connection = 'default';
+    public string $connection = 'default';
 
     /**
      * Override startup of the Shell
      *
      * @return void
      */
-    public function startup()
+    public function startup(): void
     {
         parent::startup();
         if (isset($this->params['connection'])) {
@@ -81,8 +81,9 @@ class AclShell extends AppShell
             $out .= __d('cake_console', 'Current ACL Classname: %s', $class) . "\n";
             $out .= "--------------------------------------------------\n";
             $this->err($out);
+            $this->_stop(1);
 
-            return $this->_stop(1);
+            return;
         }
 
         if ($this->command) {
@@ -90,12 +91,14 @@ class AclShell extends AppShell
                 $this->err(__d('cake_console', 'Your database configuration was not found.'));
                 $this->err(__d('cake_console', 'Please create app/Config/database.php manually.'));
                 $this->err(__d('cake_console', 'You can use app/Config/database.php.default as a template.'));
+                $this->_stop(1);
 
-                return $this->_stop(1);
+                return;
             }
+
             require_once CONFIG . 'database.php';
 
-            if (!in_array($this->command, ['initdb'])) {
+            if ($this->command !== 'initdb') {
                 $collection = new ComponentCollection();
                 $this->Acl = new AclComponent($collection);
                 $controller = new Controller();
@@ -119,7 +122,7 @@ class AclShell extends AppShell
      *
      * @return void
      */
-    public function create()
+    public function create(): void
     {
         extract($this->_dataVars());
 
@@ -154,7 +157,7 @@ class AclShell extends AppShell
      *
      * @return void
      */
-    public function delete()
+    public function delete(): void
     {
         extract($this->_dataVars());
 
@@ -178,7 +181,7 @@ class AclShell extends AppShell
      *
      * @return void
      */
-    public function setParent()
+    public function setParent(): void
     {
         extract($this->_dataVars());
         $target = $this->parseIdentifier($this->args[1]);
@@ -203,7 +206,7 @@ class AclShell extends AppShell
      *
      * @return void
      */
-    public function getPath()
+    public function getPath(): void
     {
         extract($this->_dataVars());
         $identifier = $this->parseIdentifier($this->args[1]);
@@ -232,7 +235,7 @@ class AclShell extends AppShell
      * @param int $indent indent level.
      * @return void
      */
-    protected function _outputNode($class, $node, $indent)
+    protected function _outputNode(string $class, array $node, int $indent): void
     {
         $indent = str_repeat('  ', $indent);
         $data = $node[$class];
@@ -248,7 +251,7 @@ class AclShell extends AppShell
      *
      * @return void
      */
-    public function check()
+    public function check(): void
     {
         extract($this->_getParams());
 
@@ -264,7 +267,7 @@ class AclShell extends AppShell
      *
      * @return void
      */
-    public function grant()
+    public function grant(): void
     {
         extract($this->_getParams());
 
@@ -280,7 +283,7 @@ class AclShell extends AppShell
      *
      * @return void
      */
-    public function deny()
+    public function deny(): void
     {
         extract($this->_getParams());
 
@@ -296,7 +299,7 @@ class AclShell extends AppShell
      *
      * @return void
      */
-    public function inherit()
+    public function inherit(): void
     {
         extract($this->_getParams());
 
@@ -312,7 +315,7 @@ class AclShell extends AppShell
      *
      * @return void
      */
-    public function view()
+    public function view(): void
     {
         extract($this->_dataVars());
 
@@ -373,7 +376,7 @@ class AclShell extends AppShell
      *
      * @return mixed
      */
-    public function initdb()
+    public function initdb(): mixed
     {
         return $this->dispatchShell('schema create DbAcl');
     }
@@ -538,7 +541,7 @@ class AclShell extends AppShell
      *
      * @return bool Success
      */
-    public function nodeExists()
+    public function nodeExists(): bool
     {
         if (!isset($this->args[0]) || !isset($this->args[1])) {
             return false;
@@ -560,11 +563,14 @@ class AclShell extends AppShell
      * Takes an identifier determines its type and returns the result as used by other methods.
      *
      * @param string $identifier Identifier to parse
-     * @return mixed a string for aliases, and an array for model.foreignKey
+     * @return array{
+     *     model: string,
+     *     foreign_key: string
+     * }|string a string for aliases, and an array for model.foreignKey
      */
-    public function parseIdentifier($identifier)
+    public function parseIdentifier(string $identifier): array|string
     {
-        if (preg_match('/^([\w]+)\.(.*)$/', $identifier, $matches)) {
+        if (preg_match('/^(\w+)\.(.*)$/', $identifier, $matches)) {
             return [
                 'model' => $matches[1],
                 'foreign_key' => $matches[2],
@@ -580,9 +586,9 @@ class AclShell extends AppShell
      *
      * @param string $class Class type you want (Aro/Aco)
      * @param array|string|null $identifier A mixed identifier for finding the node, otherwise null.
-     * @return int Integer of NodeId. Will trigger an error if nothing is found.
+     * @return int|null Integer of NodeId. Will trigger an error if nothing is found.
      */
-    protected function _getNodeId($class, $identifier)
+    protected function _getNodeId(string $class, array|string|null $identifier): ?int
     {
         $node = $this->Acl->{$class}->node($identifier);
         if (empty($node)) {
@@ -600,9 +606,15 @@ class AclShell extends AppShell
     /**
      * get params for standard Acl methods
      *
-     * @return array aro, aco, action
+     * @return array{
+     *     aro: array|string|int,
+     *     aco: array|string|int,
+     *     action: string,
+     *     aroName: string|int,
+     *     acoName: string|int
+     * } aro, aco, action
      */
-    protected function _getParams()
+    protected function _getParams(): array
     {
         $aro = is_numeric($this->args[0]) ? (int)$this->args[0] : $this->args[0];
         $aco = is_numeric($this->args[1]) ? (int)$this->args[1] : $this->args[1];
@@ -626,10 +638,15 @@ class AclShell extends AppShell
     /**
      * Build data parameters based on node type
      *
-     * @param string $type Node type  (ARO/ACO)
-     * @return array Variables
+     * @param string|null $type Node type  (ARO/ACO)
+     * @return array{
+     *     secondary_id: string,
+     *     data_name: string,
+     *     table_name: string,
+     *     class: string
+     * } Variables
      */
-    protected function _dataVars($type = null)
+    protected function _dataVars(?string $type = null): array
     {
         if (!$type) {
             $type = $this->args[0];

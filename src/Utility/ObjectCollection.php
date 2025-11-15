@@ -14,7 +14,6 @@
 
 namespace Cake\Utility;
 
-use Cake\Core\CakeObject;
 use Cake\Error\CakeException;
 use Cake\Event\CakeEvent;
 
@@ -38,21 +37,21 @@ abstract class ObjectCollection
      *
      * @var array
      */
-    protected $_enabled = [];
+    protected array $_enabled = [];
 
     /**
      * A hash of loaded objects, indexed by name
      *
-     * @var array
+     * @var array<object>
      */
-    protected $_loaded = [];
+    protected array $_loaded = [];
 
     /**
      * Default object priority. A non zero integer.
      *
      * @var int
      */
-    public $defaultPriority = 10;
+    public int $defaultPriority = 10;
 
     /**
      * Loads a new object onto the collection. Can throw a variety of exceptions
@@ -62,9 +61,9 @@ abstract class ObjectCollection
      *
      * @param string $name Name of object to load.
      * @param array $options Array of configuration options for the object to be constructed.
-     * @return CakeObject the constructed object
+     * @return object|bool the constructed object
      */
-    abstract public function load($name, $options = []);
+    abstract public function load(string $name, array $options = []): object|bool;
 
     /**
      * Trigger a callback method on every object in the collection.
@@ -97,7 +96,7 @@ abstract class ObjectCollection
      * @return mixed Either the last result or all results if collectReturn is on.
      * @throws CakeException when modParams is used with an index that does not exist.
      */
-    public function trigger($callback, $params = [], $options = [])
+    public function trigger(CakeEvent|string $callback, array $params = [], array $options = []): mixed
     {
         if (empty($this->_enabled)) {
             return true;
@@ -159,7 +158,7 @@ abstract class ObjectCollection
      * @param string $name Name of property to read
      * @return mixed
      */
-    public function __get($name)
+    public function __get(string $name): mixed
     {
         return $this->_loaded[$name] ?? null;
     }
@@ -170,7 +169,7 @@ abstract class ObjectCollection
      * @param string $name Name of object being checked.
      * @return bool
      */
-    public function __isset($name)
+    public function __isset(string $name): bool
     {
         return isset($this->_loaded[$name]);
     }
@@ -182,7 +181,7 @@ abstract class ObjectCollection
      * @param bool $prioritize Prioritize enabled list after enabling object(s)
      * @return void
      */
-    public function enable($name, $prioritize = true)
+    public function enable(array|string $name, bool $prioritize = true): void
     {
         $enabled = false;
         foreach ((array)$name as $object) {
@@ -206,7 +205,7 @@ abstract class ObjectCollection
      *
      * @return array Prioritized list of object
      */
-    public function prioritize()
+    public function prioritize(): array
     {
         $i = 1;
         foreach ($this->_enabled as $name => $priority) {
@@ -227,7 +226,7 @@ abstract class ObjectCollection
      * @param int|null $priority Integer priority to set or null for default
      * @return void
      */
-    public function setPriority($name, $priority = null)
+    public function setPriority(array|string $name, ?int $priority = null): void
     {
         if (is_string($name)) {
             $name = [$name => $priority];
@@ -254,7 +253,7 @@ abstract class ObjectCollection
      * @param array|string $name CamelCased name of the objects(s) to disable (string or array)
      * @return void
      */
-    public function disable($name)
+    public function disable(array|string $name): void
     {
         foreach ((array)$name as $object) {
             [, $object] = pluginSplit($object);
@@ -265,12 +264,12 @@ abstract class ObjectCollection
     /**
      * Gets the list of currently-enabled objects, or, the current status of a single objects
      *
-     * @param string $name Optional. The name of the object to check the status of. If omitted,
+     * @param string|null $name Optional. The name of the object to check the status of. If omitted,
      *   returns an array of currently-enabled object
-     * @return mixed If $name is specified, returns the boolean status of the corresponding object.
+     * @return array|bool If $name is specified, returns the boolean status of the corresponding object.
      *   Otherwise, returns an array of all enabled objects.
      */
-    public function enabled($name = null)
+    public function enabled(?string $name = null): array|bool
     {
         if (!empty($name)) {
             [, $name] = pluginSplit($name);
@@ -284,13 +283,13 @@ abstract class ObjectCollection
     /**
      * Gets the list of attached objects, or, whether the given object is attached
      *
-     * @param string $name Optional. The name of the object to check the status of. If omitted,
+     * @param string|null $name Optional. The name of the object to check the status of. If omitted,
      *   returns an array of currently-attached objects
-     * @return mixed If $name is specified, returns the boolean status of the corresponding object.
+     * @return array|bool If $name is specified, returns the boolean status of the corresponding object.
      *    Otherwise, returns an array of all attached objects.
      * @deprecated 3.0.0 Will be removed in 3.0. Use loaded instead.
      */
-    public function attached($name = null)
+    public function attached(?string $name = null): array|bool
     {
         return $this->loaded($name);
     }
@@ -298,12 +297,12 @@ abstract class ObjectCollection
     /**
      * Gets the list of loaded objects, or, whether the given object is loaded
      *
-     * @param string $name Optional. The name of the object to check the status of. If omitted,
+     * @param string|null $name Optional. The name of the object to check the status of. If omitted,
      *   returns an array of currently-loaded objects
-     * @return mixed If $name is specified, returns the boolean status of the corresponding object.
+     * @return array|bool If $name is specified, returns the boolean status of the corresponding object.
      *    Otherwise, returns an array of all loaded objects.
      */
-    public function loaded($name = null)
+    public function loaded(?string $name = null): array|bool
     {
         if (!empty($name)) {
             [, $name] = pluginSplit($name);
@@ -320,7 +319,7 @@ abstract class ObjectCollection
      * @param string $name Name of the object to delete.
      * @return void
      */
-    public function unload($name)
+    public function unload(string $name): void
     {
         [, $name] = pluginSplit($name);
         unset($this->_loaded[$name], $this->_enabled[$name]);
@@ -329,11 +328,11 @@ abstract class ObjectCollection
     /**
      * Adds or overwrites an instantiated object to the collection
      *
-     * @param string $name Name of the object
-     * @param CakeObject $object The object to use
+     * @param string|null $name Name of the object
+     * @param object|null $object The object to use
      * @return array Loaded objects
      */
-    public function set($name = null, $object = null)
+    public function set(?string $name = null, ?object $object = null): array
     {
         if (!empty($name) && !empty($object)) {
             [, $name] = pluginSplit($name);
@@ -350,7 +349,7 @@ abstract class ObjectCollection
      * @param array $objects Array of child objects to normalize.
      * @return array Array of normalized objects.
      */
-    public static function normalizeObjectArray($objects)
+    public static function normalizeObjectArray(array $objects): array
     {
         $normal = [];
         foreach ($objects as $i => $objectName) {

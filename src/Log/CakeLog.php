@@ -79,9 +79,9 @@ class CakeLog
     /**
      * LogEngineCollection class
      *
-     * @var LogEngineCollection
+     * @var LogEngineCollection|null
      */
-    protected static $_Collection;
+    protected static ?LogEngineCollection $_Collection = null;
 
     /**
      * Default log levels as detailed in RFC 5424
@@ -92,7 +92,7 @@ class CakeLog
      *
      * @var array
      */
-    protected static $_defaultLevels = [
+    protected static array $_defaultLevels = [
         'emergency' => LOG_EMERG,
         'alert' => LOG_ALERT,
         'critical' => LOG_CRIT,
@@ -115,14 +115,14 @@ class CakeLog
      *
      * @var array
      */
-    protected static $_levelMap;
+    protected static array $_levelMap = [];
 
     /**
      * initialize ObjectCollection
      *
      * @return void
      */
-    protected static function _init()
+    protected static function _init(): void
     {
         static::$_levels = static::defaultLevels();
         static::$_Collection = new LogEngineCollection();
@@ -192,7 +192,7 @@ class CakeLog
      * @throws CakeLogException
      * @link https://book.cakephp.org/2.0/en/core-libraries/logging.html#creating-and-configuring-log-streams
      */
-    public static function config($key, $config)
+    public static function config(string $key, array $config): bool
     {
         if (!preg_match('/^[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*/', $key)) {
             throw new CakeLogException(__d('cake_dev', 'Invalid key name'));
@@ -423,7 +423,7 @@ class CakeLog
      * @return bool Success
      * @link https://book.cakephp.org/2.0/en/core-libraries/logging.html#writing-to-logs
      */
-    public static function write($type, $message, $scope = [])
+    public static function write(string|int $type, $message, $scope = []): bool
     {
         if (empty(static::$_Collection)) {
             static::_init();

@@ -40,7 +40,7 @@ class AclBehavior extends ModelBehavior
      *
      * @var array
      */
-    protected $_typeMaps = ['requester' => 'Aro', 'controlled' => 'Aco', 'both' => ['Aro', 'Aco']];
+    protected array $_typeMaps = ['requester' => 'Aro', 'controlled' => 'Aco', 'both' => ['Aro', 'Aco']];
 
     /**
      * Sets up the configuration for the model, and loads ACL models if they haven't been already
@@ -49,7 +49,7 @@ class AclBehavior extends ModelBehavior
      * @param array $config Configuration options.
      * @return void
      */
-    public function setup(Model $model, $config = [])
+    public function setup(Model $model, array $config = []): void
     {
         if (isset($config[0])) {
             $config['type'] = $config[0];
@@ -76,12 +76,15 @@ class AclBehavior extends ModelBehavior
      *
      * @param Model $model Model using this behavior.
      * @param Model|array|string $ref Array with 'model' and 'foreign_key', model object, or string value
-     * @param string $type Only needed when Acl is set up as 'both', specify 'Aro' or 'Aco' to get the correct node
+     * @param string|null $type Only needed when Acl is set up as 'both', specify 'Aro' or 'Aco' to get the correct node
      * @return array
      * @link https://book.cakephp.org/2.0/en/core-libraries/behaviors/acl.html#node
      */
-    public function node(Model $model, $ref = null, $type = null)
-    {
+    public function node(
+        Model $model,
+        Model|array|string|null $ref = null,
+        string|null $type = null,
+    ): array {
         if (empty($type)) {
             $type = $this->_typeMaps[$this->settings[$model->name]['type']];
             if (is_array($type)) {
@@ -112,7 +115,9 @@ class AclBehavior extends ModelBehavior
             $types = [$types];
         }
         foreach ($types as $type) {
-            $parent = $model->parentNode($type);
+            $parent = method_exists($model, 'parentNode')
+                ? $model->parentNode($type)
+                : null;
             if (!empty($parent)) {
                 $parent = $this->node($model, $parent, $type);
             }
@@ -145,7 +150,7 @@ class AclBehavior extends ModelBehavior
             $types = [$types];
         }
         foreach ($types as $type) {
-            $node = Hash::extract($this->node($model, null, $type), "0.{$type}.id");
+            $node = Hash::get($this->node($model, null, $type), "0.{$type}.id");
             if (!empty($node)) {
                 $model->{$type}->delete($node);
             }

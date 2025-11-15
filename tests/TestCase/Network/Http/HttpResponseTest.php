@@ -21,6 +21,7 @@ namespace Cake\Test\TestCase\Network\Http;
 use Cake\Error\SocketException;
 use Cake\Network\Http\HttpResponse;
 use Cake\TestSuite\CakeTestCase;
+use TypeError;
 
 /**
  * TestHttpResponse class
@@ -164,13 +165,11 @@ class HttpResponseTest extends CakeTestCase
      *
      * @return void
      */
-    public function testIsOk()
+    public function testIsOk(): void
     {
         $this->HttpResponse->code = 0;
         $this->assertFalse($this->HttpResponse->isOk());
         $this->HttpResponse->code = -1;
-        $this->assertFalse($this->HttpResponse->isOk());
-        $this->HttpResponse->code = 'what?';
         $this->assertFalse($this->HttpResponse->isOk());
         $this->HttpResponse->code = 200;
         $this->assertTrue($this->HttpResponse->isOk());
@@ -203,6 +202,19 @@ class HttpResponseTest extends CakeTestCase
     }
 
     /**
+     * testIsOkFail
+     *
+     * @return void
+     */
+    public function testIsOkFail(): void
+    {
+        $this->expectException(TypeError::class);
+
+        $this->HttpResponse->code = 'what?';
+        $this->assertFalse($this->HttpResponse->isOk());
+    }
+
+    /**
      * testIsRedirect
      *
      * @return void
@@ -215,28 +227,39 @@ class HttpResponseTest extends CakeTestCase
         $this->assertFalse($this->HttpResponse->isRedirect());
         $this->HttpResponse->code = 201;
         $this->assertFalse($this->HttpResponse->isRedirect());
+        $this->HttpResponse->code = 301;
+        $this->assertFalse($this->HttpResponse->isRedirect());
+        $this->HttpResponse->code = 302;
+        $this->assertFalse($this->HttpResponse->isRedirect());
+        $this->HttpResponse->code = 303;
+        $this->assertFalse($this->HttpResponse->isRedirect());
+        $this->HttpResponse->code = 307;
+        $this->assertFalse($this->HttpResponse->isRedirect());
+        $this->HttpResponse->code = 301;
+        $this->HttpResponse->headers['Location'] = 'http://somewhere/';
+        $this->assertTrue($this->HttpResponse->isRedirect());
+        $this->HttpResponse->code = 302;
+        $this->HttpResponse->headers['Location'] = 'http://somewhere/';
+        $this->assertTrue($this->HttpResponse->isRedirect());
+        $this->HttpResponse->code = 303;
+        $this->HttpResponse->headers['Location'] = 'http://somewhere/';
+        $this->assertTrue($this->HttpResponse->isRedirect());
+        $this->HttpResponse->code = 307;
+        $this->HttpResponse->headers['Location'] = 'http://somewhere/';
+        $this->assertTrue($this->HttpResponse->isRedirect());
+    }
+
+    /**
+     * testIsRedirectFail
+     *
+     * @return void
+     */
+    public function testIsRedirectFail()
+    {
+        $this->expectException(TypeError::class);
+
+        $this->assertFalse($this->HttpResponse->isRedirect());
         $this->HttpResponse->code = 'what?';
-        $this->assertFalse($this->HttpResponse->isRedirect());
-        $this->HttpResponse->code = 301;
-        $this->assertFalse($this->HttpResponse->isRedirect());
-        $this->HttpResponse->code = 302;
-        $this->assertFalse($this->HttpResponse->isRedirect());
-        $this->HttpResponse->code = 303;
-        $this->assertFalse($this->HttpResponse->isRedirect());
-        $this->HttpResponse->code = 307;
-        $this->assertFalse($this->HttpResponse->isRedirect());
-        $this->HttpResponse->code = 301;
-        $this->HttpResponse->headers['Location'] = 'http://somewhere/';
-        $this->assertTrue($this->HttpResponse->isRedirect());
-        $this->HttpResponse->code = 302;
-        $this->HttpResponse->headers['Location'] = 'http://somewhere/';
-        $this->assertTrue($this->HttpResponse->isRedirect());
-        $this->HttpResponse->code = 303;
-        $this->HttpResponse->headers['Location'] = 'http://somewhere/';
-        $this->assertTrue($this->HttpResponse->isRedirect());
-        $this->HttpResponse->code = 307;
-        $this->HttpResponse->headers['Location'] = 'http://somewhere/';
-        $this->assertTrue($this->HttpResponse->isRedirect());
     }
 
     /**

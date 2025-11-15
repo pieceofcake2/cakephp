@@ -24,6 +24,7 @@ use Cake\Error\MissingConnectionException;
 use Cake\Model\CakeSchema;
 use Cake\Model\ConnectionManager;
 use Cake\Model\Datasource\Database\Mysql;
+use Cake\Model\Datasource\DboSource;
 use Cake\Model\Model;
 use Cake\Test\TestCase\Model\Apple;
 use Cake\Test\TestCase\Model\Article;
@@ -63,25 +64,36 @@ class MysqlTest extends CakeTestCase
      *
      * @var bool
      */
-    public $autoFixtures = false;
+    public bool $autoFixtures = false;
 
     /**
      * fixtures property
      *
-     * @var array
+     * @var array<string>
      */
-    public $fixtures = [
-        'core.apple', 'core.article', 'core.articles_tag', 'core.attachment', 'core.comment',
-        'core.sample', 'core.tag', 'core.user', 'core.post', 'core.author', 'core.data_test',
-        'core.binary_test', 'core.inno', 'core.unsigned',
+    public array $fixtures = [
+        'core.apple',
+        'core.article',
+        'core.articles_tag',
+        'core.attachment',
+        'core.comment',
+        'core.sample',
+        'core.tag',
+        'core.user',
+        'core.post',
+        'core.author',
+        'core.data_test',
+        'core.binary_test',
+        'core.inno',
+        'core.unsigned',
     ];
 
     /**
      * The Dbo instance to be tested
      *
-     * @var DboSource
+     * @var DboSource|null
      */
-    public $Dbo = null;
+    public ?DboSource $Dbo = null;
 
     /**
      * @var bool|null
@@ -4049,7 +4061,7 @@ SQL;
      *
      * @return array
      */
-    public function buildColumnUnsignedProvider()
+    public function buildColumnUnsignedProvider(): array
     {
         return [
             // unsigned int

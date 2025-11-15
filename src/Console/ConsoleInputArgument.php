@@ -34,39 +34,43 @@ class ConsoleInputArgument
      *
      * @var string
      */
-    protected $_name;
+    protected string $_name;
 
     /**
      * Help string
      *
      * @var string
      */
-    protected $_help;
+    protected string $_help;
 
     /**
      * Is this option required?
      *
      * @var bool
      */
-    protected $_required;
+    protected bool $_required;
 
     /**
      * An array of valid choices for this argument.
      *
      * @var array
      */
-    protected $_choices;
+    protected array $_choices;
 
     /**
      * Make a new Input Argument
      *
-     * @param array|string $name The long name of the option, or an array with all the properties.
+     * @param array{name: string}|string $name The long name of the option, or an array with all the properties.
      * @param string $help The help text for this option
      * @param bool $required Whether this argument is required. Missing required args will trigger exceptions
      * @param array $choices Valid choices for this option.
      */
-    public function __construct($name, $help = '', $required = false, $choices = [])
-    {
+    public function __construct(
+        array|string $name,
+        string $help = '',
+        bool $required = false,
+        array $choices = [],
+    ) {
         if (is_array($name) && isset($name['name'])) {
             foreach ($name as $key => $value) {
                 $this->{'_' . $key} = $value;
@@ -82,9 +86,9 @@ class ConsoleInputArgument
     /**
      * Get the value of the name attribute.
      *
-     * @return string Value of this->_name.
+     * @return array|string Value of this->_name.
      */
-    public function name()
+    public function name(): array|string
     {
         return $this->_name;
     }
@@ -95,7 +99,7 @@ class ConsoleInputArgument
      * @param int $width The width to make the name of the option.
      * @return string
      */
-    public function help($width = 0)
+    public function help(int $width = 0): string
     {
         $name = $this->_name;
         if (strlen($name) < $width) {
@@ -148,11 +152,12 @@ class ConsoleInputArgument
      * @return bool
      * @throws ConsoleException
      */
-    public function validChoice($value)
+    public function validChoice(string $value): bool
     {
         if (empty($this->_choices)) {
             return true;
         }
+
         if (!in_array($value, $this->_choices)) {
             throw new ConsoleException(
                 __d(
@@ -174,12 +179,12 @@ class ConsoleInputArgument
      * @param SimpleXmlElement $parent The parent element.
      * @return SimpleXmlElement The parent with this argument appended.
      */
-    public function xml(SimpleXmlElement $parent)
+    public function xml(SimpleXmlElement $parent): SimpleXmlElement
     {
         $option = $parent->addChild('argument');
         $option->addAttribute('name', $this->_name);
         $option->addAttribute('help', $this->_help);
-        $option->addAttribute('required', (int)$this->isRequired());
+        $option->addAttribute('required', (string)(int)$this->isRequired());
         $choices = $option->addChild('choices');
         foreach ($this->_choices as $valid) {
             $choices->addChild('choice', $valid);

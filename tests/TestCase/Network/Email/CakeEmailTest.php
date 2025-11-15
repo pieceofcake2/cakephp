@@ -25,8 +25,10 @@ use Cake\Error\SocketException;
 use Cake\Log\CakeLog;
 use Cake\Network\Email\CakeEmail;
 use Cake\Network\Email\DebugTransport;
+use Cake\Network\Email\EmailConfigInterface;
 use Cake\TestSuite\CakeTestCase;
 use Cake\Utility\File;
+use TypeError;
 
 /**
  * Help to test CakeEmail
@@ -40,12 +42,12 @@ class TestCakeEmail extends CakeEmail
      *
      * @var string
      */
-    protected $_configClass = TestEmailConfig::class;
+    protected string $_configClass = TestEmailConfig::class;
 
     /**
      * Config
      */
-    protected $_config = [];
+    protected array $_config = [];
 
     /**
      * Wrap to protected method
@@ -101,14 +103,14 @@ class TestCakeEmail extends CakeEmail
 /**
  * EmailConfig class
  */
-class TestEmailConfig
+class TestEmailConfig implements EmailConfigInterface
 {
     /**
      * default config
      *
      * @var array
      */
-    public $default = [
+    public array $default = [
         'subject' => 'Default Subject',
     ];
 
@@ -117,7 +119,7 @@ class TestEmailConfig
      *
      * @var array
      */
-    public $test = [
+    public array $test = [
         'from' => ['some@example.com' => 'My website'],
         'to' => ['test@example.com' => 'Testname'],
         'subject' => 'Test mail subject',
@@ -131,7 +133,7 @@ class TestEmailConfig
      *
      * @var array
      */
-    public $test2 = [
+    public array $test2 = [
         'from' => ['some@example.com' => 'My website'],
         'to' => ['test@example.com' => 'Testname'],
         'subject' => 'Test mail subject',
@@ -156,7 +158,7 @@ class ExtendTransport
  */
 class CakeEmailTest extends CakeTestCase
 {
-    protected $_appNamespace = null;
+    protected ?string $_appNamespace = null;
 
     /**
      * setUp
@@ -827,7 +829,7 @@ class CakeEmailTest extends CakeTestCase
      */
     public function testInvalidHeaders($value)
     {
-        $this->expectException(SocketException::class);
+        $this->expectException(TypeError::class);
         $this->CakeEmail->setHeaders($value);
     }
 
@@ -839,7 +841,7 @@ class CakeEmailTest extends CakeTestCase
      */
     public function testInvalidAddHeaders($value)
     {
-        $this->expectException(SocketException::class);
+        $this->expectException(TypeError::class);
         $this->CakeEmail->addHeaders($value);
     }
 

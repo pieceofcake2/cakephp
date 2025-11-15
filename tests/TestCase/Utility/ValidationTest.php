@@ -34,10 +34,10 @@ class CustomValidator
     /**
      * Makes sure that a given $email address is valid and unique
      *
-     * @param string $check Email to check.
+     * @param string|null $check Email to check.
      * @return bool
      */
-    public static function customValidate($check)
+    public static function customValidate(?string $check): bool
     {
         return (bool)preg_match('/^[0-9]{3}$/', $check);
     }
@@ -55,10 +55,10 @@ class TestNlValidation
     /**
      * postal function, for testing postal pass through.
      *
-     * @param string $check
-     * @return void
+     * @param string|null $check
+     * @return bool
      */
-    public static function postal($check)
+    public static function postal(?string $check): bool
     {
         return true;
     }
@@ -66,9 +66,10 @@ class TestNlValidation
     /**
      * ssn function for testing ssn pass through
      *
-     * @return void
+     * @param string|null $check
+     * @return bool
      */
-    public static function ssn($check)
+    public static function ssn(?string $check): bool
     {
         return true;
     }
@@ -87,10 +88,10 @@ class TestDeValidation
     /**
      * phone function, for testing phone pass through.
      *
-     * @param string $check
-     * @return void
+     * @param string|null $check
+     * @return bool
      */
-    public static function phone($check)
+    public static function phone(?string $check): bool
     {
         return true;
     }
@@ -107,10 +108,10 @@ class ValidationStub extends Validation
     /**
      * Stub out is_uploaded_file check
      *
-     * @param string $path
-     * @return void
+     * @param string|null $path
+     * @return bool
      */
-    protected static function _isUploadedFile($path)
+    protected static function _isUploadedFile(?string $path): bool
     {
         return file_exists($path);
     }
@@ -123,6 +124,9 @@ class ValidationStub extends Validation
  */
 class ValidationTest extends CakeTestCase
 {
+    protected ?string $_appEncoding = null;
+    protected array $_appLocale = [];
+
     /**
      * setUp method
      *
@@ -134,7 +138,7 @@ class ValidationTest extends CakeTestCase
         $this->_appEncoding = Configure::read('App.encoding');
         $this->_appLocale = [];
         foreach ([LC_MONETARY, LC_NUMERIC, LC_TIME] as $category) {
-            $this->_appLocale[$category] = setlocale($category, 0);
+            $this->_appLocale[$category] = setlocale($category, '0');
             setlocale($category, 'en_US');
         }
     }
@@ -1668,7 +1672,7 @@ class ValidationTest extends CakeTestCase
      *
      * @return void
      */
-    public function testDecimalWithInvalidPlaces()
+    public function testDecimalWithInvalidPlaces(): void
     {
         $this->assertFalse(Validation::decimal('.27', 'string'));
         $this->assertFalse(Validation::decimal(1234.5678, (array)true));
@@ -1680,7 +1684,7 @@ class ValidationTest extends CakeTestCase
      *
      * @return void
      */
-    public function testDecimalCustomRegex()
+    public function testDecimalCustomRegex(): void
     {
         $this->assertTrue(Validation::decimal('1.54321', null, '/^[-+]?[0-9]+(\\.[0-9]+)?$/s'));
         $this->assertFalse(Validation::decimal('.54321', null, '/^[-+]?[0-9]+(\\.[0-9]+)?$/s'));
@@ -1691,7 +1695,7 @@ class ValidationTest extends CakeTestCase
      *
      * @return void
      */
-    public function testDecimalLocaleSet()
+    public function testDecimalLocaleSet(): void
     {
         $this->skipIf(DS === '\\', 'The locale is not supported in Windows and affects other tests.');
         $restore = setlocale(LC_NUMERIC, 0);
@@ -1711,7 +1715,7 @@ class ValidationTest extends CakeTestCase
      *
      * @return void
      */
-    public function testEmail()
+    public function testEmail(): void
     {
         $this->assertTrue(Validation::email('abc.efg@domain.com'));
         $this->assertTrue(Validation::email('efg@domain.com'));

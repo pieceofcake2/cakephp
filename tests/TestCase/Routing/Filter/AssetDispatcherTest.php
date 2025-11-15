@@ -288,6 +288,6 @@ class AssetDispatcherTest extends CakeTestCase
         $this->assertEquals($file, $result);
 
         $headers = $response->header();
-        $this->assertFalse($headers['Content-Length']);
+        $this->assertFalse($headers['Content-Length'] ?? false);
     }
 }

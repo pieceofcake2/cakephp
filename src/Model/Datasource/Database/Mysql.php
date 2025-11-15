@@ -162,7 +162,7 @@ class Mysql extends DboSource
      *
      * @var array
      */
-    protected $_charsets = [];
+    protected array $_charsets = [];
 
     /**
      * Server type.
@@ -189,7 +189,7 @@ class Mysql extends DboSource
      * @return bool True if the database could be connected, else false
      * @throws MissingConnectionException
      */
-    public function connect()
+    public function connect(): bool
     {
         $config = $this->config;
         $this->connected = false;
@@ -246,7 +246,7 @@ class Mysql extends DboSource
      *
      * @return bool
      */
-    public function enabled()
+    public function enabled(): bool
     {
         return in_array('mysql', PDO::getAvailableDrivers());
     }
@@ -254,8 +254,8 @@ class Mysql extends DboSource
     /**
      * Returns an array of sources (tables) in the database.
      *
-     * @param mixed $data List of tables.
-     * @return array Array of table names in the database
+     * @param array|null $data List of tables.
+     * @return array|null Array of table names in the database
      */
     public function listSources(?array $data = null): ?array
     {
@@ -266,8 +266,6 @@ class Mysql extends DboSource
         $result = $this->_execute('SHOW TABLES FROM ' . $this->name($this->config['database']));
 
         if (!$result) {
-            $result->closeCursor();
-
             return [];
         }
         $tables = [];
@@ -288,7 +286,7 @@ class Mysql extends DboSource
      * @param PDOStatement $results The results to format.
      * @return void
      */
-    public function resultSet($results)
+    public function resultSet(PDOStatement $results): void
     {
         $this->map = [];
         $numFields = $results->columnCount();
@@ -312,9 +310,9 @@ class Mysql extends DboSource
     /**
      * Fetches the next row from the current result set
      *
-     * @return mixed array with results fetched and mapped to column names or false if there is no results left to fetch
+     * @return array|false array with results fetched and mapped to column names or false if there is no results left to fetch
      */
-    public function fetchResult()
+    public function fetchResult(): array|false
     {
         if ($row = $this->_result->fetch(PDO::FETCH_NUM)) {
             $resultRow = [];
@@ -338,7 +336,7 @@ class Mysql extends DboSource
      *
      * @return string The database encoding
      */
-    public function getEncoding()
+    public function getEncoding(): string
     {
         return $this->_execute('SHOW VARIABLES LIKE ?', ['character_set_client'])->fetchObject()->Value;
     }
@@ -349,9 +347,9 @@ class Mysql extends DboSource
      * @param string $name Collation name
      * @return string|false Character set name
      */
-    public function getCharsetName($name)
+    public function getCharsetName(string $name): string|false
     {
-        if ((bool)version_compare($this->getVersion(), '5', '<')) {
+        if (version_compare($this->getVersion(), '5', '<')) {
             return false;
         }
         if (isset($this->_charsets[$name])) {
@@ -376,10 +374,10 @@ class Mysql extends DboSource
      * Returns an array of the fields in given table name.
      *
      * @param Model|string $model Name of database table to inspect or model instance
-     * @return array|bool Fields in table. Keys are name and type. Returns false if result is empty.
+     * @return array|false|null Fields in table. Keys are name and type. Returns false if result is empty.
      * @throws CakeException
      */
-    public function describe(string|Model $model)
+    public function describe(Model|string $model): array|false|null
     {
         $key = $this->fullTableName($model, false);
         $cache = parent::describe($key);
@@ -397,7 +395,7 @@ class Mysql extends DboSource
         while ($column = $cols->fetch(PDO::FETCH_OBJ)) {
             $fields[$column->Field] = [
                 'type' => $this->column($column->Type),
-                'null' => ($column->Null === 'YES' ? true : false),
+                'null' => $column->Null === 'YES',
                 'default' => $column->Default,
                 'length' => $this->length($column->Type),
             ];
@@ -441,13 +439,17 @@ class Mysql extends DboSource
      * Generates and executes an SQL UPDATE statement for given model, fields, and values.
      *
      * @param Model $model The model to update.
-     * @param array $fields The fields to update.
-     * @param array $values The values to set.
+     * @param array|null $fields The fields to update.
+     * @param array|null $values The values to set.
      * @param mixed $conditions The conditions to use.
      * @return bool
      */
-    public function update(Model $model, $fields = [], $values = null, $conditions = null)
-    {
+    public function update(
+        Model $model,
+        ?array $fields = [],
+        ?array $values = null,
+        mixed $conditions = null,
+    ): bool {
         if (!$this->_useAlias) {
             return parent::update($model, $fields, $values, $conditions);
         }
@@ -470,7 +472,6 @@ class Mysql extends DboSource
             }
         }
         $conditions = $this->conditions($this->defaultConditions($model, $conditions, $alias), true, true, $model);
-
         if ($conditions === false) {
             return false;
         }
@@ -491,8 +492,10 @@ class Mysql extends DboSource
      * @param mixed $conditions The conditions to use.
      * @return bool Success
      */
-    public function delete(Model $model, $conditions = null)
-    {
+    public function delete(
+        Model $model,
+        mixed $conditions = null,
+    ): bool {
         if (!$this->_useAlias) {
             return parent::delete($model, $conditions);
         }
@@ -509,9 +512,6 @@ class Mysql extends DboSource
         }
 
         $conditions = $this->conditions($this->defaultConditions($model, $conditions, $alias), true, true, $model);
-        if ($conditions === false) {
-            return false;
-        }
         if ($this->execute($this->renderStatement('delete', compact('alias', 'table', 'joins', 'conditions'))) === false) {
             $model->onError();
 
@@ -528,7 +528,7 @@ class Mysql extends DboSource
      * @param mixed $conditions The conditions to use.
      * @return bool Whether or not complex conditions are needed
      */
-    protected function _deleteNeedsComplexConditions(Model $model, $conditions)
+    protected function _deleteNeedsComplexConditions(Model $model, mixed $conditions): bool
     {
         $fields = array_keys($this->describe($model));
         foreach ((array)$conditions as $key => $value) {
@@ -550,7 +550,7 @@ class Mysql extends DboSource
      * @param string $enc Database encoding
      * @return bool
      */
-    public function setEncoding($enc)
+    public function setEncoding(string $enc): bool
     {
         return $this->_execute('SET NAMES ' . $enc) !== false;
     }
@@ -561,14 +561,14 @@ class Mysql extends DboSource
      * @param Model|string $model Name of model to inspect
      * @return array Fields in table. Keys are column and unique
      */
-    public function index($model)
+    public function index(Model|string $model): array
     {
         $index = [];
         $table = $this->fullTableName($model);
         $old = version_compare($this->getVersion(), '4.1', '<=');
         if ($table) {
             $indexes = $this->_execute('SHOW INDEX FROM ' . $table);
-            // @codingStandardsIgnoreStart
+
             // MySQL columns don't match the cakephp conventions.
             while ($idx = $indexes->fetch(PDO::FETCH_OBJ)) {
                 if ($old) {
@@ -597,7 +597,7 @@ class Mysql extends DboSource
                     $index[$idx->Key_name]['length'][$idx->Column_name] = $idx->Sub_part;
                 }
             }
-            // @codingStandardsIgnoreEnd
+
             $indexes->closeCursor();
         }
 
@@ -607,17 +607,16 @@ class Mysql extends DboSource
     /**
      * Generate a MySQL Alter Table syntax for the given Schema comparison
      *
-     * @param array $compare Result of a CakeSchema::compare()
-     * @param string $table The table name.
+     * @param mixed $compare Result of a CakeSchema::compare()
+     * @param string|null $table The table name.
      * @return string|false String of alter statements to make.
      */
-    public function alterSchema($compare, $table = null)
+    public function alterSchema(mixed $compare, ?string $table = null): string|false
     {
         if (!is_array($compare)) {
             return false;
         }
         $out = '';
-        $colList = [];
         foreach ($compare as $curTable => $types) {
             $indexes = $tableParameters = $colList = [];
             if (!$table || $table === $curTable) {
@@ -677,7 +676,7 @@ class Mysql extends DboSource
      * @param Model|string $table Name of the table to drop
      * @return string Drop table SQL statement
      */
-    protected function _dropTable($table): string
+    protected function _dropTable(Model|string $table): string
     {
         return 'DROP TABLE IF EXISTS ' . $this->fullTableName($table) . ';';
     }
@@ -689,7 +688,7 @@ class Mysql extends DboSource
      * @param array $parameters Parameters to add & drop.
      * @return array Array of table property alteration statements.
      */
-    protected function _alterTableParameters($table, $parameters)
+    protected function _alterTableParameters(string $table, array $parameters): array
     {
         if (isset($parameters['change'])) {
             return $this->buildTableParameters($parameters['change']);
@@ -730,14 +729,15 @@ class Mysql extends DboSource
                     $vals = [];
                     foreach ($value['column'] as $column) {
                         $name = $this->name($column);
-                        if (isset($value['length'])) {
-                            $name .= $this->_buildIndexSubPart($value['length'], $column);
-                        }
+                        $name .= $this->_buildIndexSubPart($value['length'], $column);
+
                         $vals[] = $name;
                     }
                     $out .= implode(', ', $vals);
                 } else {
-                    $out .= implode(', ', array_map([&$this, 'name'], $value['column']));
+                    /** @var array<string> $_column */
+                    $_column = array_map([&$this, 'name'], $value['column']);
+                    $out .= implode(', ', $_column);
                 }
             } else {
                 $out .= $this->name($value['column']);
@@ -759,7 +759,7 @@ class Mysql extends DboSource
      * @param array $indexes Indexes to add and drop
      * @return array Index alteration statements
      */
-    protected function _alterIndexes($table, $indexes)
+    protected function _alterIndexes(string $table, array $indexes): array
     {
         $alter = [];
         if (isset($indexes['drop'])) {
@@ -786,11 +786,11 @@ class Mysql extends DboSource
     /**
      * Format length for text indexes
      *
-     * @param array $lengths An array of lengths for a single index
+     * @param array|null $lengths An array of lengths for a single index
      * @param string $column The column for which to generate the index length
      * @return string Formatted length part of an index field
      */
-    protected function _buildIndexSubPart($lengths, $column)
+    protected function _buildIndexSubPart(?array $lengths, string $column): string
     {
         if ($lengths === null) {
             return '';
@@ -805,10 +805,10 @@ class Mysql extends DboSource
     /**
      * Returns a detailed array of sources (tables) in the database.
      *
-     * @param string $name Table name to get parameters
+     * @param string|null $name Table name to get parameters
      * @return array Array of table names in the database
      */
-    public function listDetailedSources($name = null)
+    public function listDetailedSources(?string $name = null): array
     {
         $condition = '';
         if (is_string($name)) {
@@ -817,8 +817,6 @@ class Mysql extends DboSource
         $result = $this->_connection->query('SHOW TABLE STATUS ' . $condition, PDO::FETCH_ASSOC);
 
         if (!$result) {
-            $result->closeCursor();
-
             return [];
         }
         $tables = [];
@@ -843,10 +841,10 @@ class Mysql extends DboSource
     /**
      * Converts database-layer column types to basic types
      *
-     * @param string $real Real database-layer column type (i.e. "varchar(255)")
-     * @return string Abstract column type (i.e. "string")
+     * @param mixed $real Real database-layer column type (i.e. "varchar(255)")
+     * @return string|false Abstract column type (i.e. "string")
      */
-    public function column($real)
+    public function column(mixed $real): string|false
     {
         if (is_array($real)) {
             $col = $real['name'];
@@ -858,6 +856,7 @@ class Mysql extends DboSource
         }
 
         $col = str_replace(')', '', $real);
+        $vals = '';
         $limit = $this->length($real);
         if (str_contains($col, '(')) {
             [$col, $vals] = explode('(', $col);
@@ -909,7 +908,7 @@ class Mysql extends DboSource
     /**
      * @inheritDoc
      */
-    public function value($data, ?string $column = null, bool $null = true): array|string
+    public function value(mixed $data, ?string $column = null, bool $null = true): array|string
     {
         $value = parent::value($data, $column, $null);
         if (is_numeric($value) && $column !== null && str_starts_with($column, 'set')) {
@@ -924,7 +923,7 @@ class Mysql extends DboSource
      *
      * @return string The schema name
      */
-    public function getSchemaName()
+    public function getSchemaName(): string
     {
         return $this->config['database'];
     }
@@ -944,7 +943,7 @@ class Mysql extends DboSource
      *
      * @return string Server type (MySQL, Aurora MySQL, or MariaDB)
      */
-    public function getServerType()
+    public function getServerType(): string
     {
         // Ensure version has been fetched to determine server type
         $this->getVersion();
@@ -957,7 +956,7 @@ class Mysql extends DboSource
      *
      * @return bool
      */
-    public function utf8mb4Supported()
+    public function utf8mb4Supported(): bool
     {
         // MariaDB 5.5+ supports utf8mb4
         if ($this->getServerType() === self::SERVER_TYPE_MARIADB) {
@@ -983,7 +982,7 @@ class Mysql extends DboSource
      *
      * @return bool
      */
-    public function integerDisplayWidthDeprecated()
+    public function integerDisplayWidthDeprecated(): bool
     {
         // Only applies to MySQL and Aurora MySQL 8.0.17+, not MariaDB
         if ($this->getServerType() === self::SERVER_TYPE_MARIADB) {
@@ -1008,7 +1007,7 @@ class Mysql extends DboSource
      * @param string $real Real database-layer column type (i.e. "varchar(255)")
      * @return bool True if column is unsigned, false otherwise
      */
-    protected function _unsigned($real)
+    protected function _unsigned(string $real): bool
     {
         return str_contains(strtolower($real), 'unsigned');
     }
@@ -1018,17 +1017,19 @@ class Mysql extends DboSource
      * multiple rows.
      *
      * @param Model|string $table The table being inserted into.
-     * @param array $fields The array of field/column names being inserted.
+     * @param array|string $fields The array of field/column names being inserted.
      * @param array $values The array of values to insert. The values should
      *   be an array of rows. Each row should have values keyed by the column name.
      *   Each row must have the values in the same order as $fields.
      * @return bool
      */
-    public function insertMulti(Model|string $table, array $fields, array $values): bool
+    public function insertMulti(Model|string $table, array|string $fields, array $values): bool
     {
         $table = $this->fullTableName($table);
-        $holder = implode(', ', array_fill(0, count($fields), '?'));
-        $fields = implode(', ', array_map([$this, 'name'], $fields));
+        /** @var array<string> $_fields */
+        $_fields = array_map([$this, 'name'], (array)$fields);
+        $holder = implode(', ', array_fill(0, count((array)$fields), '?'));
+        $fields = implode(', ', $_fields);
         $pdoMap = [
             'integer' => PDO::PARAM_INT,
             'float' => PDO::PARAM_STR,

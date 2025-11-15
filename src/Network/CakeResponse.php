@@ -23,6 +23,7 @@ use Cake\Error\CakeException;
 use Cake\Error\NotFoundException;
 use Cake\Utility\File;
 use DateTime;
+use DateTimeInterface;
 use DateTimeZone;
 
 /**
@@ -40,7 +41,7 @@ class CakeResponse
      *
      * @var array
      */
-    protected $_statusCodes = [
+    protected array $_statusCodes = [
         100 => 'Continue',
         101 => 'Switching Protocols',
         200 => 'OK',
@@ -89,7 +90,7 @@ class CakeResponse
      *
      * @var array
      */
-    protected $_mimeTypes = [
+    protected array $_mimeTypes = [
         'html' => ['text/html', '*/*'],
         'json' => 'application/json',
         'xml' => ['application/xml', 'text/xml'],
@@ -325,14 +326,14 @@ class CakeResponse
      *
      * @var string
      */
-    protected $_protocol = 'HTTP/1.1';
+    protected string $_protocol = 'HTTP/1.1';
 
     /**
      * Status code to send to the client
      *
      * @var int
      */
-    protected $_status = 200;
+    protected int $_status = 200;
 
     /**
      * Content type to send. This can be an 'extension' that will be transformed using the $_mimetypes array
@@ -340,42 +341,42 @@ class CakeResponse
      *
      * @var string
      */
-    protected $_contentType = 'text/html';
+    protected string $_contentType = 'text/html';
 
     /**
      * Buffer list of headers
      *
      * @var array
      */
-    protected $_headers = [];
+    protected array $_headers = [];
 
     /**
      * Buffer string for response message
      *
-     * @var string
+     * @var CakeRequest|array|string|bool|null
      */
-    protected $_body = null;
+    protected CakeRequest|array|string|bool|null $_body = null;
 
     /**
      * File object for file to be read out as response
      *
-     * @var File
+     * @var File|null
      */
-    protected $_file = null;
+    protected ?File $_file = null;
 
     /**
      * File range. Used for requesting ranges of files.
      *
-     * @var array
+     * @var array|null
      */
-    protected $_fileRange = null;
+    protected ?array $_fileRange = null;
 
     /**
      * The charset the response body is encoded with
      *
      * @var string
      */
-    protected $_charset = 'UTF-8';
+    protected string $_charset = 'UTF-8';
 
     /**
      * Holds all the cache directives that will be converted
@@ -383,14 +384,14 @@ class CakeResponse
      *
      * @var array
      */
-    protected $_cacheDirectives = [];
+    protected array $_cacheDirectives = [];
 
     /**
      * Holds cookies to be sent to the client
      *
      * @var array
      */
-    protected $_cookies = [];
+    protected array $_cookies = [];
 
     /**
      * Constructor
@@ -428,7 +429,7 @@ class CakeResponse
      *
      * @return void
      */
-    public function send()
+    public function send(): void
     {
         if (isset($this->_headers['Location']) && $this->_status === 200) {
             $this->statusCode(302);
@@ -460,7 +461,7 @@ class CakeResponse
      *
      * @return void
      */
-    protected function _setCookies()
+    protected function _setCookies(): void
     {
         foreach ($this->_cookies as $name => $c) {
             setcookie(
@@ -477,7 +478,7 @@ class CakeResponse
      *
      * @return void
      */
-    protected function _setContentType()
+    protected function _setContentType(): void
     {
         if (in_array($this->_status, [304, 204])) {
             return;
@@ -506,7 +507,7 @@ class CakeResponse
      *
      * @return void
      */
-    protected function _setContent()
+    protected function _setContent(): void
     {
         if (in_array($this->_status, [304, 204])) {
             $this->body('');
@@ -519,7 +520,7 @@ class CakeResponse
      *
      * @return void
      */
-    protected function _setContentLength()
+    protected function _setContentLength(): void
     {
         $shouldSetLength = !isset($this->_headers['Content-Length']) && !in_array($this->_status, range(301, 307));
         if (isset($this->_headers['Content-Length']) && $this->_headers['Content-Length'] === false) {
@@ -543,12 +544,12 @@ class CakeResponse
      * Will skip sending headers if headers have already been sent.
      *
      * @param string $name the header name
-     * @param string $value the header value
+     * @param string|null $value the header value
      * @return void
      */
-    protected function _sendHeader($name, $value = null)
+    protected function _sendHeader(string $name, ?string $value = null): void
     {
-        if (headers_sent($filename, $linenum)) {
+        if (headers_sent()) {
             return;
         }
         if ($value === null) {
@@ -561,10 +562,10 @@ class CakeResponse
     /**
      * Sends a content string to the client.
      *
-     * @param string $content string to send as response body
+     * @param string|null $content string to send as response body
      * @return void
      */
-    protected function _sendContent($content)
+    protected function _sendContent(?string $content): void
     {
         echo $content;
     }
@@ -590,13 +591,13 @@ class CakeResponse
      *  e.g `header('WWW-Authenticate: Negotiate'); header('WWW-Authenticate: Not-Negotiate');`
      * will have the same effect as only doing `header('WWW-Authenticate: Not-Negotiate');`
      *
-     * @param array|string $header An array of header strings or a single header string
+     * @param array|string|null $header An array of header strings or a single header string
      *  - an associative array of "header name" => "header value" is also accepted
      *  - an array of string headers is also accepted
-     * @param array|string $value The header value(s)
+     * @param array|string|int|null $value The header value(s)
      * @return array list of headers to be sent
      */
-    public function header($header = null, $value = null)
+    public function header(array|string|null $header = null, array|string|int|null $value = null): array
     {
         if ($header === null) {
             return $this->_headers;
@@ -624,7 +625,7 @@ class CakeResponse
      * @return string|null When setting the location null will be returned. When reading the location
      *    a string of the current location header value (if any) will be returned.
      */
-    public function location($url = null)
+    public function location(?string $url = null): ?string
     {
         if ($url === null) {
             $headers = $this->header();
@@ -640,27 +641,28 @@ class CakeResponse
      * Buffers the response message to be sent
      * if $content is null the current buffer is returned
      *
-     * @param string $content the string message to be sent
-     * @return string current message buffer if $content param is passed as null
+     * @param CakeRequest|array|string|bool|null $content the string message to be sent
+     * @return CakeRequest|array|string|bool|null current message buffer if $content param is passed as null
      */
-    public function body($content = null)
+    public function body(CakeRequest|array|string|bool|null $content = null): CakeRequest|array|string|bool|null
     {
         if ($content === null) {
             return $this->_body;
         }
+        $this->_body = $content;
 
-        return $this->_body = $content;
+        return $this->_body;
     }
 
     /**
      * Sets the HTTP status code to be sent
      * if $code is null the current code is returned
      *
-     * @param int $code the HTTP status code
+     * @param int|null $code the HTTP status code
      * @return int current status code
      * @throws CakeException When an unknown status code is reached.
      */
-    public function statusCode($code = null)
+    public function statusCode(?int $code = null): int
     {
         if ($code === null) {
             return $this->_status;
@@ -668,14 +670,15 @@ class CakeResponse
         if (!isset($this->_statusCodes[$code])) {
             throw new CakeException(__d('cake_dev', 'Unknown status code'));
         }
+        $this->_status = $code;
 
-        return $this->_status = $code;
+        return $this->_status;
     }
 
     /**
      * Queries & sets valid HTTP response codes & messages.
      *
-     * @param array|int $code If $code is an integer, then the corresponding code/message is
+     * @param array<int, string>|int|null $code If $code is an integer, then the corresponding code/message is
      *        returned if it exists, null if it does not exist. If $code is an array, then the
      *        keys are used as codes and the values as messages to add to the default HTTP
      *        codes. The codes must be integers greater than 99 and less than 1000. Keep in
@@ -698,12 +701,12 @@ class CakeResponse
      *        )); // throws an exception due to invalid codes
      *
      *        For more on HTTP status codes see: http://www.w3.org/Protocols/rfc2616/rfc2616-sec6.html#sec6.1
-     * @return array|true|null associative array of the HTTP codes as keys, and the message
+     * @return array<int, string>|bool|null associative array of the HTTP codes as keys, and the message
      *    strings as values, or null of the given $code does not exist. `true` if `$code` is
      *    an array of valid codes.
      * @throws CakeException If an attempt is made to add an invalid status code
      */
-    public function httpCodes($code = null)
+    public function httpCodes(array|int|null $code = null): array|bool|null
     {
         if (empty($code)) {
             return $this->_statusCodes;
@@ -750,7 +753,7 @@ class CakeResponse
      * @param array|string|null $contentType Content type key.
      * @return string|false current content type or false if supplied an invalid content type
      */
-    public function type($contentType = null)
+    public function type(array|string|null $contentType = null): string|false
     {
         if ($contentType === null) {
             return $this->_contentType;
@@ -769,8 +772,9 @@ class CakeResponse
         if (!str_contains($contentType, '/')) {
             return false;
         }
+        $this->_contentType = $contentType;
 
-        return $this->_contentType = $contentType;
+        return $this->_contentType;
     }
 
     /**
@@ -778,10 +782,10 @@ class CakeResponse
      *
      * e.g `getMimeType('pdf'); // returns 'application/pdf'`
      *
-     * @param string $alias the content type alias to map
-     * @return mixed string mapped mime type or false if $alias is not mapped
+     * @param string|null $alias the content type alias to map
+     * @return array|string|false string mapped mime type or false if $alias is not mapped
      */
-    public function getMimeType($alias)
+    public function getMimeType(?string $alias): array|string|false
     {
         return $this->_mimeTypes[$alias] ?? false;
     }
@@ -792,9 +796,9 @@ class CakeResponse
      * e.g `mapType('application/pdf'); // returns 'pdf'`
      *
      * @param array|string $ctype Either a string content type to map, or an array of types.
-     * @return mixed Aliases for the types provided.
+     * @return array|string|null Aliases for the types provided.
      */
-    public function mapType($ctype)
+    public function mapType(array|string $ctype): array|string|null
     {
         if (is_array($ctype)) {
             return array_map([$this, 'mapType'], $ctype);
@@ -813,16 +817,17 @@ class CakeResponse
      * Sets the response charset
      * if $charset is null the current charset is returned
      *
-     * @param string $charset Character set string.
+     * @param string|null $charset Character set string.
      * @return string current charset
      */
-    public function charset($charset = null)
+    public function charset(?string $charset = null): string
     {
         if ($charset === null) {
             return $this->_charset;
         }
+        $this->_charset = $charset;
 
-        return $this->_charset = $charset;
+        return $this->_charset;
     }
 
     /**
@@ -830,7 +835,7 @@ class CakeResponse
      *
      * @return void
      */
-    public function disableCache()
+    public function disableCache(): void
     {
         $this->header([
             'Expires' => 'Mon, 26 Jul 1997 05:00:00 GMT',
@@ -842,11 +847,11 @@ class CakeResponse
     /**
      * Sets the correct headers to instruct the client to cache the response.
      *
-     * @param string|int $since a valid time since the response text has not been modified
+     * @param string|int|null $since a valid time since the response text has not been modified
      * @param string|int $time a valid time for cache expiry
      * @return void
      */
-    public function cache($since, $time = '+1 day')
+    public function cache(string|int|null $since, string|int $time = '+1 day'): void
     {
         if (!is_int($time)) {
             $time = strtotime($time);
@@ -865,13 +870,13 @@ class CakeResponse
      * This method controls the `public` or `private` directive in the Cache-Control
      * header
      *
-     * @param bool $public If set to true, the Cache-Control header will be set as public
+     * @param bool|null $public If set to true, the Cache-Control header will be set as public
      *   if set to false, the response will be set to private
      *   if no value is provided, it will return whether the response is sharable or not
-     * @param int $time time in seconds after which the response should no longer be considered fresh
-     * @return bool
+     * @param int|null $time time in seconds after which the response should no longer be considered fresh
+     * @return bool|null
      */
-    public function sharable($public = null, $time = null)
+    public function sharable(?bool $public = null, ?int $time = null): ?bool
     {
         if ($public === null) {
             $public = array_key_exists('public', $this->_cacheDirectives);
@@ -880,9 +885,8 @@ class CakeResponse
             if (!$public && !$private && !$noCache) {
                 return null;
             }
-            $sharable = $public || !($private || $noCache);
 
-            return $sharable;
+            return $public || !($private || $noCache);
         }
         if ($public) {
             $this->_cacheDirectives['public'] = true;
@@ -897,7 +901,7 @@ class CakeResponse
             $this->_setCacheControl();
         }
 
-        return (bool)$public;
+        return $public;
     }
 
     /**
@@ -906,10 +910,10 @@ class CakeResponse
      * a good candidate to be fetched from a shared cache (like in a proxy server).
      * If called with no parameters, this function will return the current max-age value if any
      *
-     * @param int $seconds if null, the method will return the current s-maxage value
-     * @return int
+     * @param int|null $seconds if null, the method will return the current s-maxage value
+     * @return int|null
      */
-    public function sharedMaxAge($seconds = null)
+    public function sharedMaxAge(?int $seconds = null): ?int
     {
         if ($seconds !== null) {
             $this->_cacheDirectives['s-maxage'] = $seconds;
@@ -925,10 +929,10 @@ class CakeResponse
      * a good candidate to be fetched from the local (client) cache.
      * If called with no parameters, this function will return the current max-age value if any
      *
-     * @param int $seconds if null, the method will return the current max-age value
-     * @return int
+     * @param int|null $seconds if null, the method will return the current max-age value
+     * @return int|null
      */
-    public function maxAge($seconds = null)
+    public function maxAge(?int $seconds = null): ?int
     {
         if ($seconds !== null) {
             $this->_cacheDirectives['max-age'] = $seconds;
@@ -945,11 +949,11 @@ class CakeResponse
      * with the origin.
      * If called with no parameters, this function will return whether must-revalidate is present.
      *
-     * @param bool $enable If null returns whether directive is set, if boolean
+     * @param bool|null $enable If null returns whether directive is set, if boolean
      *   sets or unsets directive.
      * @return bool
      */
-    public function mustRevalidate($enable = null)
+    public function mustRevalidate(?bool $enable = null): bool
     {
         if ($enable !== null) {
             if ($enable) {
@@ -969,7 +973,7 @@ class CakeResponse
      *
      * @return void
      */
-    protected function _setCacheControl()
+    protected function _setCacheControl(): void
     {
         $control = '';
         foreach ($this->_cacheDirectives as $key => $val) {
@@ -990,10 +994,10 @@ class CakeResponse
      * `$response->expires(new DateTime('+1 day'))` Will set the expiration in next 24 hours
      * `$response->expires()` Will return the current expiration header value
      *
-     * @param DateTime|string $time Valid time string or DateTime object.
-     * @return string
+     * @param DateTimeInterface|string|int|null $time Valid time string or DateTime object.
+     * @return string|null
      */
-    public function expires($time = null)
+    public function expires(DateTimeInterface|string|int|null $time = null): ?string
     {
         if ($time !== null) {
             $date = $this->_getUTCDate($time);
@@ -1013,10 +1017,10 @@ class CakeResponse
      * `$response->modified(new DateTime('+1 day'))` Will set the modification date in the past 24 hours
      * `$response->modified()` Will return the current Last-Modified header value
      *
-     * @param DateTime|string $time Valid time string or DateTime object.
-     * @return string
+     * @param DateTimeInterface|string|int|null $time Valid time string or DateTime object.
+     * @return string|null
      */
-    public function modified($time = null)
+    public function modified(DateTimeInterface|string|int|null $time = null): ?string
     {
         if ($time !== null) {
             $date = $this->_getUTCDate($time);
@@ -1033,7 +1037,7 @@ class CakeResponse
      *
      * @return void
      */
-    public function notModified()
+    public function notModified(): void
     {
         $this->statusCode(304);
         $this->body('');
@@ -1057,11 +1061,11 @@ class CakeResponse
      * parameters are passed, then an array with the current Vary header
      * value is returned
      *
-     * @param array|string $cacheVariances a single Vary string or an array
+     * @param array|string|null $cacheVariances a single Vary string or an array
      *   containing the list for variances.
-     * @return array
+     * @return array|null
      */
-    public function vary($cacheVariances = null)
+    public function vary(array|string|null $cacheVariances = null): ?array
     {
         if ($cacheVariances !== null) {
             $cacheVariances = (array)$cacheVariances;
@@ -1090,12 +1094,12 @@ class CakeResponse
      *
      * If no parameters are passed, current Etag header is returned.
      *
-     * @param string $tag Tag to set.
+     * @param string|null $tag Tag to set.
      * @param bool $weak whether the response is semantically the same as
      *   other with the same hash or not
-     * @return string
+     * @return string|null
      */
-    public function etag($tag = null, $weak = false)
+    public function etag(?string $tag = null, bool $weak = false): ?string
     {
         if ($tag !== null) {
             $this->_headers['Etag'] = sprintf('%s"%s"', $weak ? 'W/' : null, $tag);
@@ -1108,19 +1112,22 @@ class CakeResponse
      * Returns a DateTime object initialized at the $time param and using UTC
      * as timezone
      *
-     * @param DateTime|string|int $time Valid time string or unix timestamp or DateTime object.
-     * @return DateTime
+     * @param DateTimeInterface|string|int|null $time Valid time string or unix timestamp or DateTime object.
+     * @return DateTimeInterface
      */
-    protected function _getUTCDate($time = null)
+    protected function _getUTCDate(DateTimeInterface|string|int|null $time = null): DateTimeInterface
     {
-        if ($time instanceof DateTime) {
+        if ($time instanceof DateTimeInterface) {
             $result = clone $time;
         } elseif (is_int($time)) {
             $result = new DateTime(date('Y-m-d H:i:s', $time));
         } else {
             $result = new DateTime($time);
         }
-        $result->setTimeZone(new DateTimeZone('UTC'));
+
+        if (method_exists($result, 'setTimezone')) {
+            $result->setTimeZone(new DateTimeZone('UTC'));
+        }
 
         return $result;
     }
@@ -1131,7 +1138,7 @@ class CakeResponse
      *
      * @return bool false if client does not accept compressed responses or no handler is available, true otherwise
      */
-    public function compress()
+    public function compress(): bool
     {
         $compressionEnabled = ini_get('zlib.output_compression') !== '1' &&
             extension_loaded('zlib') &&
@@ -1145,7 +1152,7 @@ class CakeResponse
      *
      * @return bool
      */
-    public function outputCompressed()
+    public function outputCompressed(): bool
     {
         return str_contains(env('HTTP_ACCEPT_ENCODING'), 'gzip')
             && (ini_get('zlib.output_compression') === '1' || in_array('ob_gzhandler', ob_list_handlers()));
@@ -1157,7 +1164,7 @@ class CakeResponse
      * @param string $filename the name of the file as the browser will download the response
      * @return void
      */
-    public function download($filename)
+    public function download(string $filename): void
     {
         $this->header('Content-Disposition', 'attachment; filename="' . $filename . '"');
     }
@@ -1166,10 +1173,10 @@ class CakeResponse
      * Sets the protocol to be used when sending the response. Defaults to HTTP/1.1
      * If called with no arguments, it will return the current configured protocol
      *
-     * @param string $protocol Protocol to be used for sending response.
+     * @param string|null $protocol Protocol to be used for sending response.
      * @return string protocol currently set
      */
-    public function protocol($protocol = null)
+    public function protocol(?string $protocol = null): string
     {
         if ($protocol !== null) {
             $this->_protocol = $protocol;
@@ -1182,13 +1189,13 @@ class CakeResponse
      * Sets the Content-Length header for the response
      * If called with no arguments returns the last Content-Length set
      *
-     * @param int $bytes Number of bytes
+     * @param int|false|null $bytes Number of bytes
      * @return int|null
      */
-    public function length($bytes = null)
+    public function length(int|false|null $bytes = null): ?int
     {
         if ($bytes !== null) {
-            $this->_headers['Content-Length'] = $bytes;
+            $this->_headers['Content-Length'] = $bytes > 0 ? $bytes : null;
         }
 
         return $this->_headers['Content-Length'] ?? null;
@@ -1207,7 +1214,7 @@ class CakeResponse
      * @param CakeRequest $request Request object
      * @return bool whether the response was marked as not modified or not.
      */
-    public function checkNotModified(CakeRequest $request)
+    public function checkNotModified(CakeRequest $request): bool
     {
         $ifNoneMatchHeader = $request->header('If-None-Match');
         $etags = [];
@@ -1243,7 +1250,7 @@ class CakeResponse
      *
      * @return string
      */
-    public function __toString()
+    public function __toString(): string
     {
         return (string)$this->_body;
     }
@@ -1283,11 +1290,11 @@ class CakeResponse
      *
      * `$this->cookie((array) $options)`
      *
-     * @param array|string $options Either null to get all cookies, string for a specific cookie
+     * @param array|string|null $options Either null to get all cookies, string for a specific cookie
      *  or array to set cookie.
      * @return mixed
      */
-    public function cookie($options = null)
+    public function cookie(array|string|null $options = null): mixed
     {
         if ($options === null) {
             return $this->_cookies;
@@ -1313,6 +1320,8 @@ class CakeResponse
         $options += $defaults;
 
         $this->_cookies[$options['name']] = $options;
+
+        return null;
     }
 
     /**
@@ -1341,8 +1350,12 @@ class CakeResponse
      * @param array|string $allowedHeaders List of HTTP headers allowed
      * @return void
      */
-    public function cors(CakeRequest $request, $allowedDomains, $allowedMethods = [], $allowedHeaders = [])
-    {
+    public function cors(
+        CakeRequest $request,
+        array|string $allowedDomains,
+        array|string $allowedMethods = [],
+        array|string $allowedHeaders = [],
+    ): void {
         $origin = $request->header('Origin');
         if (!$origin) {
             return;
@@ -1367,7 +1380,7 @@ class CakeResponse
      * @param bool $requestIsSSL Whether it's a SSL request.
      * @return array
      */
-    protected function _normalizeCorsDomains($domains, $requestIsSSL = false)
+    protected function _normalizeCorsDomains(array $domains, bool $requestIsSSL = false): array
     {
         $result = [];
         foreach ($domains as $domain) {
@@ -1400,7 +1413,7 @@ class CakeResponse
      * @return void
      * @throws NotFoundException
      */
-    public function file($path, $options = [])
+    public function file(string $path, array $options = []): void
     {
         $options += [
             'name' => null,
@@ -1436,7 +1449,7 @@ class CakeResponse
         if ($download) {
             $agent = env('HTTP_USER_AGENT');
 
-            if (preg_match('%Opera(/| )([0-9].[0-9]{1,2})%', $agent)) {
+            if (preg_match('%Opera[/ ]([0-9].[0-9]{1,2})%', $agent)) {
                 $contentType = 'application/octet-stream';
             } elseif (preg_match('/MSIE ([0-9].[0-9]{1,2})/', $agent)) {
                 $contentType = 'application/force-download';
@@ -1476,7 +1489,7 @@ class CakeResponse
      * @param string $httpRange The range to use.
      * @return void
      */
-    protected function _fileRange($file, $httpRange)
+    protected function _fileRange(File $file, string $httpRange): void
     {
         $fileSize = $file->size();
         $lastByte = $fileSize - 1;
@@ -1519,16 +1532,16 @@ class CakeResponse
      * Reads out a file, and echos the content to the client.
      *
      * @param File $file File object
-     * @param array $range The range to read out of the file.
+     * @param array{int|false, int|false}|null $range The range to read out of the file.
      * @return bool True is whole file is echoed successfully or false if client connection is lost in between
      */
-    protected function _sendFile($file, $range)
+    protected function _sendFile(File $file, ?array $range): bool
     {
         $compress = $this->outputCompressed();
         $file->open('rb');
 
         $end = $start = false;
-        if ($range && is_array($range)) {
+        if (is_array($range)) {
             [$start, $end] = $range;
         }
         if ($start !== false) {
@@ -1566,7 +1579,7 @@ class CakeResponse
      *
      * @return bool
      */
-    protected function _isActive()
+    protected function _isActive(): bool
     {
         return connection_status() === CONNECTION_NORMAL && !connection_aborted();
     }
@@ -1576,7 +1589,7 @@ class CakeResponse
      *
      * @return bool
      */
-    protected function _clearBuffer()
+    protected function _clearBuffer(): bool
     {
         if (ob_get_length()) {
             return ob_end_clean();
@@ -1590,13 +1603,11 @@ class CakeResponse
      *
      * @return void
      */
-    protected function _flushBuffer()
+    protected function _flushBuffer(): void
     {
-        //@codingStandardsIgnoreStart
-        @flush();
+        @flush(); // phpcs:ignore
         if (ob_get_level()) {
-            @ob_flush();
+            @ob_flush(); // phpcs:ignore
         }
-        //@codingStandardsIgnoreEnd
     }
 }

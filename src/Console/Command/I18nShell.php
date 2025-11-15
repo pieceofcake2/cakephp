@@ -18,6 +18,7 @@
 namespace Cake\Console\Command;
 
 use AppShell;
+use Cake\Console\Command\Task\ExtractTask;
 use Cake\Console\ConsoleOptionParser;
 use Cake\Core\App;
 
@@ -27,6 +28,7 @@ App::uses('AppShell', 'Console/Command');
  * Shell for I18N management.
  *
  * @package       Cake.Console.Command
+ * @property ExtractTask $Extract
  */
 class I18nShell extends AppShell
 {
@@ -35,34 +37,33 @@ class I18nShell extends AppShell
      *
      * @var string
      */
-    public $dataSource = 'default';
+    public string $dataSource = 'default';
 
     /**
      * Contains tasks to load and instantiate
      *
-     * @var array
+     * @var array|bool|null
      */
-    public $tasks = ['Extract'];
+    public array|bool|null $tasks = ['Extract'];
 
     /**
      * Override startup of the Shell
      *
-     * @return mixed
+     * @return void
      */
-    public function startup()
+    public function startup(): void
     {
         $this->_welcome();
         if (isset($this->params['datasource'])) {
             $this->dataSource = $this->params['datasource'];
         }
 
-        if ($this->command && !in_array($this->command, ['help'])) {
+        if ($this->command && $this->command !== 'help') {
             if (!config('database')) {
                 $this->err(__d('cake_console', 'Your database configuration was not found.'));
                 $this->err(__d('cake_console', 'Please create app/Config/database.php manually.'));
                 $this->err(__d('cake_console', 'You can use app/Config/database.php.default as a template.'));
-
-                return $this->_stop(1);
+                $this->_stop(1);
             }
         }
     }
@@ -108,7 +109,7 @@ class I18nShell extends AppShell
      *
      * @return void
      */
-    public function initdb()
+    public function initdb(): void
     {
         $this->dispatchShell('schema create i18n');
     }

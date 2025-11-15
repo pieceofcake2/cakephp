@@ -45,7 +45,7 @@ class FileEngine extends CacheEngine
     /**
      * Instance of SplFileObject class
      *
-     * @var SplFileObject
+     * @var SplFileObject|null
      */
     protected ?SplFileObject $_File = null;
 
@@ -67,7 +67,7 @@ class FileEngine extends CacheEngine
      *
      * @var bool
      */
-    protected $_init = true;
+    protected bool $_init = true;
 
     /**
      * Initialize the Cache Engine
@@ -78,7 +78,7 @@ class FileEngine extends CacheEngine
      * @param array $settings array of setting for the engine
      * @return bool True if the engine has been successfully initialized, false if not
      */
-    public function init($settings = [])
+    public function init(array $settings = []): bool
     {
         $settings += [
             'engine' => 'File',
@@ -91,7 +91,7 @@ class FileEngine extends CacheEngine
         ];
         parent::init($settings);
 
-        if (DS === '\\') {
+        if (DIRECTORY_SEPARATOR === '\\') {
             $this->settings['isWindows'] = true;
         }
         if (substr($this->settings['path'], -1) !== DS) {
@@ -107,10 +107,10 @@ class FileEngine extends CacheEngine
     /**
      * Garbage collection. Permanently remove all expired and deleted data
      *
-     * @param int $expires [optional] An expires timestamp, invalidating all data before.
+     * @param int|null $expires [optional] An expires timestamp, invalidating all data before.
      * @return bool True if garbage collection was successful, false on failure
      */
-    public function gc($expires = null)
+    public function gc(?int $expires = null): bool
     {
         return $this->clear(true);
     }
@@ -119,11 +119,11 @@ class FileEngine extends CacheEngine
      * Write data for key into cache
      *
      * @param string $key Identifier for the data
-     * @param mixed $data Data to be cached
+     * @param mixed $value Data to be cached
      * @param int $duration How long to cache the data, in seconds
      * @return bool True if the data was successfully cached, false on failure
      */
-    public function write($key, $data, $duration)
+    public function write(string $key, mixed $value, int $duration): bool
     {
         if (!$this->_init) {
             return false;
@@ -141,14 +141,14 @@ class FileEngine extends CacheEngine
 
         if (!empty($this->settings['serialize'])) {
             if ($this->settings['isWindows']) {
-                $data = str_replace('\\', '\\\\\\\\', serialize($data));
+                $value = str_replace('\\', '\\\\\\\\', serialize($value));
             } else {
-                $data = serialize($data);
+                $value = serialize($value);
             }
         }
 
         $expires = time() + $duration;
-        $contents = implode('', [$expires, $lineBreak, $data, $lineBreak]);
+        $contents = implode('', [$expires, $lineBreak, $value, $lineBreak]);
 
         if ($this->settings['lock']) {
             $this->_File->flock(LOCK_EX);
@@ -170,7 +170,7 @@ class FileEngine extends CacheEngine
      * @param string $key Identifier for the data
      * @return mixed The cached data, or false if the data doesn't exist, has expired, or if there was an error fetching it
      */
-    public function read($key)
+    public function read(string $key): mixed
     {
         if (!$this->_init || $this->_setKey($key) === false) {
             return false;
@@ -184,7 +184,7 @@ class FileEngine extends CacheEngine
         $time = time();
         $cachetime = (int)$this->_File->current();
 
-        if ($cachetime !== false && ($cachetime < $time || ($time + $this->settings['duration']) < $cachetime)) {
+        if ($cachetime < $time || ($time + $this->settings['duration']) < $cachetime) {
             if ($this->settings['lock']) {
                 $this->_File->flock(LOCK_UN);
             }
@@ -221,7 +221,7 @@ class FileEngine extends CacheEngine
      * @param string $key Identifier for the data
      * @return bool True if the value was successfully deleted, false if it didn't exist or couldn't be removed
      */
-    public function delete(string $key)
+    public function delete(string $key): bool
     {
         if ($this->_setKey($key) === false || !$this->_init) {
             return false;
@@ -229,9 +229,7 @@ class FileEngine extends CacheEngine
         $path = $this->_File->getRealPath();
         $this->_File = null;
 
-        //@codingStandardsIgnoreStart
-        return @unlink($path);
-        //@codingStandardsIgnoreEnd
+        return @unlink($path); // phpcs:ignore
     }
 
     /**
@@ -240,7 +238,7 @@ class FileEngine extends CacheEngine
      * @param bool $check Optional - only delete expired cache items
      * @return bool True if the cache was successfully cleared, false otherwise
      */
-    public function clear(bool $check)
+    public function clear(bool $check): bool
     {
         if (!$this->_init) {
             return false;
@@ -281,8 +279,11 @@ class FileEngine extends CacheEngine
      * @param int $threshold Any file not modified after this value will be deleted.
      * @return void
      */
-    protected function _clearDirectory($path, $now, $threshold)
-    {
+    protected function _clearDirectory(
+        string $path,
+        int $now,
+        int $threshold,
+    ): void {
         $prefixLength = strlen($this->settings['prefix']);
 
         if (!is_dir($path)) {
@@ -321,9 +322,7 @@ class FileEngine extends CacheEngine
                 $filePath = $file->getRealPath();
                 $file = null;
 
-                //@codingStandardsIgnoreStart
-                @unlink($filePath);
-                //@codingStandardsIgnoreEnd
+                @unlink($filePath); // phpcs:ignore
             }
         }
     }
@@ -336,7 +335,7 @@ class FileEngine extends CacheEngine
      * @return int|false
      * @throws CacheException
      */
-    public function decrement(string $key, int $offset = 1)
+    public function decrement(string $key, int $offset = 1): int|false
     {
         throw new CacheException(__d('cake_dev', 'Files cannot be atomically decremented.'));
     }
@@ -349,7 +348,7 @@ class FileEngine extends CacheEngine
      * @return int|false
      * @throws CacheException
      */
-    public function increment(string $key, int $offset = 1)
+    public function increment(string $key, int $offset = 1): int|false
     {
         throw new CacheException(__d('cake_dev', 'Files cannot be atomically incremented.'));
     }
@@ -362,7 +361,7 @@ class FileEngine extends CacheEngine
      * @param bool $createKey Whether the key should be created if it doesn't exists, or not
      * @return bool true if the cache key could be set, false otherwise
      */
-    protected function _setKey($key, $createKey = false)
+    protected function _setKey(string $key, bool $createKey = false): bool
     {
         $groups = null;
         if (!empty($this->_groupPrefix)) {
@@ -410,7 +409,7 @@ class FileEngine extends CacheEngine
      *
      * @return bool
      */
-    protected function _active()
+    protected function _active(): bool
     {
         $dir = new SplFileInfo($this->settings['path']);
         if (Configure::read('debug')) {
@@ -432,18 +431,16 @@ class FileEngine extends CacheEngine
     /**
      * Generates a safe key for use with cache engine storage engines.
      *
-     * @param string $key the key passed over
-     * @return mixed string $key or false
+     * @param string|null $key the key passed over
+     * @return string|false string $key or false
      */
-    public function key($key)
+    public function key(?string $key): string|false
     {
         if (empty($key)) {
             return false;
         }
 
-        $key = Inflector::underscore(str_replace([DS, '/', '.', '<', '>', '?', ':', '|', '*', '"'], '_', strval($key)));
-
-        return $key;
+        return Inflector::underscore(str_replace([DS, '/', '.', '<', '>', '?', ':', '|', '*', '"'], '_', $key));
     }
 
     /**
@@ -466,9 +463,7 @@ class FileEngine extends CacheEngine
             if ($object->isFile() && $containsGroup && $hasPrefix) {
                 $path = $object->getPathName();
                 $object = null;
-                //@codingStandardsIgnoreStart
-                @unlink($path);
-                //@codingStandardsIgnoreEnd
+                @unlink($path); // phpcs:ignore
             }
         }
 
@@ -484,7 +479,7 @@ class FileEngine extends CacheEngine
      * @param int $duration How long to cache the data, in seconds.
      * @return bool True if the data was successfully cached, false on failure.
      */
-    public function add($key, $value, $duration)
+    public function add(string $key, mixed $value, int $duration): bool
     {
         $cachedValue = $this->read($key);
         if ($cachedValue === false) {

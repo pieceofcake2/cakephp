@@ -25,6 +25,7 @@ use Cake\Error\AuthSecurityException;
 use Cake\Error\BadRequestException;
 use Cake\Error\SecurityException;
 use Cake\Network\CakeRequest;
+use Cake\Network\CakeResponse;
 use Cake\TestSuite\CakeTestCase;
 use Cake\Utility\Security;
 use ReflectionClass;
@@ -112,14 +113,17 @@ class SecurityTestController extends Controller
     /**
      * redirect method
      *
-     * @param array|string $url
-     * @param mixed $code
-     * @param mixed $exit
-     * @return void
+     * @param array|string|null $url
+     * @param array|string|int|null  $code
+     * @param bool $exit
+     * @return CakeResponse|null
      */
-    public function redirect($url, $status = null, $exit = true)
-    {
-        return $status;
+    public function redirect(
+        array|string|null $url,
+        array|string|int|null $status = null,
+        bool $exit = true,
+    ): ?CakeResponse {
+        return null;
     }
 
     /**
@@ -128,9 +132,13 @@ class SecurityTestController extends Controller
      * @param string $status
      * @return void
      */
-    public function header($status)
+    public function header(array|string|null $status): void
     {
-        $this->testHeaders[] = $status;
+        if (is_array($status)) {
+            $this->testHeaders += $status;
+        } elseif (is_string($status)) {
+            $this->testHeaders[] = $status;
+        }
     }
 }
 class_alias(SecurityTestController::class, 'App\\Controller\\SecurityTestController');

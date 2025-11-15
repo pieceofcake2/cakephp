@@ -41,9 +41,12 @@ class DigestAuthenticateTest extends CakeTestCase
     /**
      * Fixtures
      *
-     * @var array
+     * @var array<string>
      */
-    public $fixtures = ['core.user', 'core.auth_user'];
+    public array $fixtures = [
+        'core.user',
+        'core.auth_user',
+    ];
 
     /**
      * setup

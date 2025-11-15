@@ -39,9 +39,9 @@ class RequestHandlerTestController extends Controller
     /**
      * uses property
      *
-     * @var array||bool
+     * @var array|bool|null
      */
-    public array|bool $uses = [];
+    public array|bool|null $uses = [];
 
     /**
      * test method for ajax redirection
@@ -102,14 +102,16 @@ class RequestHandlerComponentTest extends CakeTestCase
      *
      * @var RequestHandlerTestController
      */
-    public $Controller;
+    public ?RequestHandlerTestController $Controller = null;
 
     /**
      * RequestHandler property
      *
      * @var RequestHandlerComponent
      */
-    public $RequestHandler;
+    public ?RequestHandlerComponent $RequestHandler = null;
+
+    public array $_extensions = [];
 
     /**
      * setUp method
@@ -144,7 +146,9 @@ class RequestHandlerComponentTest extends CakeTestCase
      */
     public function tearDown(): void
     {
-        unset($this->RequestHandler, $this->Controller);
+        $this->RequestHandler = null;
+        $this->Controller = null;
+
         if (!headers_sent()) {
             header('Content-type: text/html'); //reset content type.
         }
@@ -961,13 +965,13 @@ class RequestHandlerComponentTest extends CakeTestCase
             ['base' => '/officespace', 'here' => '/officespace/accounts/', 'webroot' => '/officespace/'],
         ]);
 
-        $RequestHandler = $this->getMock(RequestHandlerComponent::class, ['_stop'], [&$this->Controller->Components]);
-        $RequestHandler->response = $this->getMock(CakeResponse::class, ['_sendHeader']);
-        $RequestHandler->request = new CakeRequest('posts/index');
-        $RequestHandler->response = $this->getMock(CakeResponse::class, ['_sendHeader']);
+        $requestHandler = $this->getMock(RequestHandlerComponent::class, ['_stop'], [&$this->Controller->Components]);
+        $requestHandler->response = $this->getMock(CakeResponse::class, ['_sendHeader']);
+        $requestHandler->request = new CakeRequest('posts/index');
+        $requestHandler->response = $this->getMock(CakeResponse::class, ['_sendHeader']);
 
         ob_start();
-        $RequestHandler->beforeRedirect(
+        $requestHandler->beforeRedirect(
             $this->Controller,
             ['controller' => 'request_handler_test', 'action' => 'param_method', 'first', 'second'],
         );
@@ -985,17 +989,17 @@ class RequestHandlerComponentTest extends CakeTestCase
         $_SERVER['HTTP_X_REQUESTED_WITH'] = 'XMLHttpRequest';
 
         $controller = $this->getMock(Controller::class, ['header']);
-        $RequestHandler = $this->getMock(RequestHandlerComponent::class, ['_stop'], [&$this->Controller->Components]);
-        $RequestHandler->response = $this->getMock(CakeResponse::class, ['_sendHeader', 'statusCode']);
-        $RequestHandler->request = $this->getMock(CakeRequest::class);
-        $RequestHandler->request->expects($this->once())->method('is')
+        $requestHandler = $this->getMock(RequestHandlerComponent::class, ['_stop'], [&$this->Controller->Components]);
+        $requestHandler->response = $this->getMock(CakeResponse::class, ['_sendHeader', 'statusCode']);
+        $requestHandler->request = $this->getMock(CakeRequest::class);
+        $requestHandler->request->expects($this->once())->method('is')
             ->with('ajax')
             ->will($this->returnValue(true));
 
-        $RequestHandler->response->expects($this->once())->method('statusCode')->with(403);
+        $requestHandler->response->expects($this->once())->method('statusCode')->with(403);
 
         ob_start();
-        $RequestHandler->beforeRedirect($controller, 'request_handler_test/param_method/first/second', 403);
+        $requestHandler->beforeRedirect($controller, 'request_handler_test/param_method/first/second', 403);
         ob_get_clean();
     }
 
@@ -1016,11 +1020,11 @@ class RequestHandlerComponentTest extends CakeTestCase
     public function testCheckNotModifiedByEtagStar()
     {
         $_SERVER['HTTP_IF_NONE_MATCH'] = '*';
-        $RequestHandler = $this->getMock(RequestHandlerComponent::class, ['_stop'], [&$this->Controller->Components]);
-        $RequestHandler->response = $this->getMock(CakeResponse::class, ['notModified']);
-        $RequestHandler->response->etag('something');
-        $RequestHandler->response->expects($this->once())->method('notModified');
-        $this->assertFalse($RequestHandler->beforeRender($this->Controller));
+        $requestHandler = $this->getMock(RequestHandlerComponent::class, ['_stop'], [&$this->Controller->Components]);
+        $requestHandler->response = $this->getMock(CakeResponse::class, ['notModified']);
+        $requestHandler->response->etag('something');
+        $requestHandler->response->expects($this->once())->method('notModified');
+        $this->assertFalse($requestHandler->beforeRender($this->Controller));
     }
 
     /**
@@ -1031,11 +1035,11 @@ class RequestHandlerComponentTest extends CakeTestCase
     public function testCheckNotModifiedByEtagExact()
     {
         $_SERVER['HTTP_IF_NONE_MATCH'] = 'W/"something", "other"';
-        $RequestHandler = $this->getMock(RequestHandlerComponent::class, ['_stop'], [&$this->Controller->Components]);
-        $RequestHandler->response = $this->getMock(CakeResponse::class, ['notModified']);
-        $RequestHandler->response->etag('something', true);
-        $RequestHandler->response->expects($this->once())->method('notModified');
-        $this->assertFalse($RequestHandler->beforeRender($this->Controller));
+        $requestHandler = $this->getMock(RequestHandlerComponent::class, ['_stop'], [&$this->Controller->Components]);
+        $requestHandler->response = $this->getMock(CakeResponse::class, ['notModified']);
+        $requestHandler->response->etag('something', true);
+        $requestHandler->response->expects($this->once())->method('notModified');
+        $this->assertFalse($requestHandler->beforeRender($this->Controller));
     }
 
     /**
@@ -1047,12 +1051,12 @@ class RequestHandlerComponentTest extends CakeTestCase
     {
         $_SERVER['HTTP_IF_NONE_MATCH'] = 'W/"something", "other"';
         $_SERVER['HTTP_IF_MODIFIED_SINCE'] = '2012-01-01 00:00:00';
-        $RequestHandler = $this->getMock(RequestHandlerComponent::class, ['_stop'], [&$this->Controller->Components]);
-        $RequestHandler->response = $this->getMock(CakeResponse::class, ['notModified']);
-        $RequestHandler->response->etag('something', true);
-        $RequestHandler->response->modified('2012-01-01 00:00:00');
-        $RequestHandler->response->expects($this->once())->method('notModified');
-        $this->assertFalse($RequestHandler->beforeRender($this->Controller));
+        $requestHandler = $this->getMock(RequestHandlerComponent::class, ['_stop'], [&$this->Controller->Components]);
+        $requestHandler->response = $this->getMock(CakeResponse::class, ['notModified']);
+        $requestHandler->response->etag('something', true);
+        $requestHandler->response->modified('2012-01-01 00:00:00');
+        $requestHandler->response->expects($this->once())->method('notModified');
+        $this->assertFalse($requestHandler->beforeRender($this->Controller));
     }
 
     /**
@@ -1062,9 +1066,9 @@ class RequestHandlerComponentTest extends CakeTestCase
      */
     public function testCheckNotModifiedNoInfo()
     {
-        $RequestHandler = $this->getMock(RequestHandlerComponent::class, ['_stop'], [&$this->Controller->Components]);
-        $RequestHandler->response = $this->getMock(CakeResponse::class, ['notModified']);
-        $RequestHandler->response->expects($this->never())->method('notModified');
-        $this->assertNull($RequestHandler->beforeRender($this->Controller));
+        $requestHandler = $this->getMock(RequestHandlerComponent::class, ['_stop'], [&$this->Controller->Components]);
+        $requestHandler->response = $this->getMock(CakeResponse::class, ['notModified']);
+        $requestHandler->response->expects($this->never())->method('notModified');
+        $this->assertNull($requestHandler->beforeRender($this->Controller));
     }
 }

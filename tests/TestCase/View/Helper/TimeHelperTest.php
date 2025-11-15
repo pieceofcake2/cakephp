@@ -62,11 +62,13 @@ class_alias(CakeTimeMock::class, 'TestApp\\Utility\\CakeTimeMock');
  */
 class TimeHelperTest extends CakeTestCase
 {
-    protected $_appNamespace = null;
+    protected ?string $_appNamespace = null;
 
     public $Time = null;
 
     public $CakeTime = null;
+
+    public ?View $View = null;
 
     /**
      * setUp method
@@ -90,7 +92,7 @@ class TimeHelperTest extends CakeTestCase
      */
     public function tearDown(): void
     {
-        unset($this->View);
+        $this->View = null;
 
         Configure::write('App.namespace', $this->_appNamespace);
 
@@ -105,40 +107,75 @@ class TimeHelperTest extends CakeTestCase
     public function testTimeHelperProxyMethodCalls()
     {
         $methods = [
-            'convertSpecifiers', 'convert', 'serverOffset', 'fromString',
-            'nice', 'niceShort', 'daysAsSql', 'dayAsSql',
-            'isToday', 'isThisMonth', 'isThisYear', 'wasYesterday',
-            'isTomorrow', 'toQuarter', 'toUnix', 'toAtom', 'toRSS',
-            'wasWithinLast', 'gmt', 'format', 'i18nFormat',
+            'convertSpecifiers' => ['string'],
+            'convert' => [0, 0],
+            'serverOffset' => [],
+            'fromString' => [null],
+            'nice' => [null],
+            'niceShort' => [null],
+            'daysAsSql' => [null, null, 'string', null],
+            'dayAsSql' => [null, 'string', null],
+            'isToday' => [null, null],
+            'isFuture' => [null, null],
+            'isPast' => [null, null],
+            'isThisWeek' => [null, null],
+            'isThisMonth' => [null, null],
+            'isThisYear' => [null, null],
+            'wasYesterday' => [null, null],
+            'isTomorrow' => [null, null],
+            'toQuarter' => [null, false],
+            'toUnix' => [null, null],
+            'toServer' => [null, null],
+            'toAtom' => [null, null],
+            'toRSS' => [null, null],
+            'timeAgoInWords' => [null],
+            'wasWithinLast' => [0, null],
+            'gmt' => [null],
+            'format' => [0],
+            'i18nFormat' => [null],
         ];
 
-        $CakeTime = $this->getMock(CakeTimeMock::class, $methods);
-        $Time = new TimeHelperTestObject($this->View, ['engine' => 'CakeTimeMock']);
-        $Time->attach($CakeTime);
+        $cakeTime = $this->getMock(CakeTimeMock::class, array_keys($methods));
+        $time = new TimeHelperTestObject($this->View, ['engine' => 'CakeTimeMock']);
+        $time->attach($cakeTime);
 
         $calledMethods = [];
-        foreach ($methods as $method) {
-            $CakeTime->expects($this->once())
+        foreach (array_keys($methods) as $method) {
+            $cakeTime
+                ->expects($this->once())
                 ->method($method)
                 ->willReturnCallback(function () use ($method, &$calledMethods) {
                     $calledMethods[] = $method;
+
+                    if (in_array($method, ['convertSpecifiers', 'i18nFormat'], true)) {
+                        return 'string';
+                    }
+                    if (in_array($method, ['convert', 'serverOffset', 'fromString', 'gmt'], true)) {
+                        return 0;
+                    }
+                    if (in_array($method, ['wasWithinLast'], true)) {
+                        return true;
+                    }
+                    if (in_array($method, ['header'], true)) {
+                        return [];
+                    }
 
                     return null;
                 });
         }
 
-        foreach ($methods as $method) {
-            $Time->{$method}('who', 'what', 'when', 'where', 'how');
+        foreach ($methods as $method => $args) {
+            $time->{$method}(...$args);
         }
 
-        $this->assertEquals($methods, $calledMethods);
+        $this->assertEquals(array_keys($methods), $calledMethods);
 
-        $CakeTime = $this->getMock(CakeTimeMock::class, ['timeAgoInWords']);
-        $Time = new TimeHelperTestObject($this->View, ['engine' => 'CakeTimeMock']);
-        $Time->attach($CakeTime);
+        $cakeTime = $this->getMock(CakeTimeMock::class, ['timeAgoInWords']);
+        $time = new TimeHelperTestObject($this->View, ['engine' => 'CakeTimeMock']);
+        $time->attach($cakeTime);
 
         $timeAgoInWordsCalled = false;
-        $CakeTime->expects($this->once())
+        $cakeTime->expects($this->once())
             ->method('timeAgoInWords')
             ->willReturnCallback(function () use (&$timeAgoInWordsCalled) {
                 $timeAgoInWordsCalled = true;
@@ -146,7 +183,7 @@ class TimeHelperTest extends CakeTestCase
                 return null;
             });
 
-        $Time->timeAgoInWords('who', ['what']);
+        $time->timeAgoInWords('who', ['what']);
 
         $this->assertTrue($timeAgoInWordsCalled);
     }

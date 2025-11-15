@@ -25,6 +25,8 @@ use Cake\Core\CakePlugin;
 use Cake\TestSuite\CakeTestCase;
 use Cake\TestSuite\Coverage\HtmlCoverageReport;
 use Cake\TestSuite\Reporter\CakeHtmlReporter;
+use SebastianBergmann\CodeCoverage\ProcessedCodeCoverageData;
+use SebastianBergmann\CodeCoverage\RawCodeCoverageData;
 
 /**
  * HtmlCoverageReportTest
@@ -33,6 +35,8 @@ use Cake\TestSuite\Reporter\CakeHtmlReporter;
  */
 class HtmlCoverageReportTest extends CakeTestCase
 {
+    public ?HtmlCoverageReport $Coverage = null;
+
     /**
      * setUp
      *
@@ -51,7 +55,9 @@ class HtmlCoverageReportTest extends CakeTestCase
         CakePlugin::load(['TestPlugin']);
         $reporter = new CakeHtmlReporter();
         $reporter->params = ['app' => false, 'plugin' => false, 'group' => false];
-        $coverage = [];
+        $rawData = RawCodeCoverageData::fromXdebugWithPathCoverage([]);
+        $coverage = new ProcessedCodeCoverageData();
+        $coverage->initializeUnseenData($rawData);
         $this->Coverage = new HtmlCoverageReport($coverage, $reporter);
     }
 
@@ -63,7 +69,7 @@ class HtmlCoverageReportTest extends CakeTestCase
     public function tearDown(): void
     {
         CakePlugin::unload();
-        unset($this->Coverage);
+        $this->Coverage = null;
 
         parent::tearDown();
     }
@@ -96,17 +102,25 @@ class HtmlCoverageReportTest extends CakeTestCase
      */
     public function testFilterCoverageDataByPathRemovingElements()
     {
-        $data = [
+        $rawCodeCoverageData = RawCodeCoverageData::fromXdebugWithPathCoverage([
             CAKE . 'dispatcher.php' => [
-                10 => -1,
-                12 => 1,
+                'lines' => [
+                    10 => -1,
+                    12 => 1,
+                ],
+                'functions' => [],
             ],
             APP . 'app_model.php' => [
-                50 => 1,
-                52 => -1,
+                'lines' => [
+                    50 => 1,
+                    52 => -1,
+                ],
+                'functions' => [],
             ],
-        ];
-        $this->Coverage->setCoverage($data);
+        ]);
+        $coverage = new ProcessedCodeCoverageData();
+        $coverage->initializeUnseenData($rawCodeCoverageData);
+        $this->Coverage->setCoverage($coverage);
         $result = $this->Coverage->filterCoverageDataByPath(CAKE);
         $this->assertTrue(isset($result[CAKE . 'dispatcher.php']));
         $this->assertFalse(isset($result[APP . 'app_model.php']));

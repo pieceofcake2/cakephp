@@ -45,7 +45,7 @@ class TreeBehaviorAfterTest extends CakeTestCase
      *
      * @var array
      */
-    public $settings = [
+    public array $settings = [
         'modelClass' => 'AfterTree',
         'leftField' => 'lft',
         'rightField' => 'rght',
@@ -55,9 +55,11 @@ class TreeBehaviorAfterTest extends CakeTestCase
     /**
      * fixtures property
      *
-     * @var array
+     * @var array<string>
      */
-    public $fixtures = ['core.after_tree'];
+    public array $fixtures = [
+        'core.after_tree',
+    ];
 
     /**
      * Tests the afterSave callback in the model

@@ -39,14 +39,14 @@ class ContainableBehavior extends ModelBehavior
      *
      * @var array
      */
-    public $types = ['belongsTo', 'hasOne', 'hasMany', 'hasAndBelongsToMany'];
+    public array $types = ['belongsTo', 'hasOne', 'hasMany', 'hasAndBelongsToMany'];
 
     /**
      * Runtime configuration for this behavior
      *
      * @var array
      */
-    public $runtime = [];
+    public array $runtime = [];
 
     /**
      * Initiate behavior for the model using specified settings.
@@ -63,15 +63,15 @@ class ContainableBehavior extends ModelBehavior
      *   bindings. DEFAULTS TO: true
      *
      * @param Model $model Model using the behavior
-     * @param array $settings Settings to override for model.
+     * @param array $config Settings to override for model.
      * @return void
      */
-    public function setup(Model $model, $settings = [])
+    public function setup(Model $model, array $config = []): void
     {
         if (!isset($this->settings[$model->alias])) {
             $this->settings[$model->alias] = ['recursive' => true, 'notices' => true, 'autoFields' => true];
         }
-        $this->settings[$model->alias] = array_merge($this->settings[$model->alias], $settings);
+        $this->settings[$model->alias] = array_merge($this->settings[$model->alias], $config);
     }
 
     /**
@@ -93,9 +93,9 @@ class ContainableBehavior extends ModelBehavior
      *
      * @param Model $model Model using the behavior
      * @param array $query Query parameters as set by cake
-     * @return array
+     * @return array|bool|null
      */
-    public function beforeFind(Model $model, $query)
+    public function beforeFind(Model $model, array $query): array|bool|null
     {
         $reset = ($query['reset'] ?? true);
         $noContain = false;
@@ -160,7 +160,7 @@ class ContainableBehavior extends ModelBehavior
                         $instance->unbindModel([$type => $unbind], $reset);
                     }
                     foreach ($instance->{$type} as $assoc => $options) {
-                        if (isset($_model['keep'][$assoc]) && !empty($_model['keep'][$assoc])) {
+                        if (!empty($_model['keep'][$assoc])) {
                             if (isset($_model['keep'][$assoc]['fields'])) {
                                 $_model['keep'][$assoc]['fields'] = $this->fieldDependencies($containments['models'][$assoc]['instance'], $map, $_model['keep'][$assoc]['fields']);
                             }
@@ -251,7 +251,7 @@ class ContainableBehavior extends ModelBehavior
      * @param Model $model Model on which to reset bindings
      * @return void
      */
-    public function resetBindings(Model $model)
+    public function resetBindings(Model $model): void
     {
         if (!empty($model->__backOriginalAssociation)) {
             $model->__backAssociation = $model->__backOriginalAssociation;
@@ -273,17 +273,21 @@ class ContainableBehavior extends ModelBehavior
      * @param Model $model Model on which binding restriction is being applied
      * @param array $contain Parameters to use for restricting this model
      * @param array $containments Current set of containments
-     * @param bool $throwErrors Whether non-existent bindings show throw errors
+     * @param bool|null $throwErrors Whether non-existent bindings show throw errors
      * @return array Containments
      */
-    public function containments(Model $model, $contain, $containments = [], $throwErrors = null)
-    {
+    public function containments(
+        Model $model,
+        array $contain,
+        array $containments = [],
+        ?bool $throwErrors = null,
+    ): array {
         $options = ['className', 'joinTable', 'with', 'foreignKey', 'associationForeignKey', 'conditions', 'fields', 'order', 'limit', 'offset', 'unique', 'finderQuery'];
         $keep = [];
         if ($throwErrors === null) {
             $throwErrors = (empty($this->settings[$model->alias]) ? true : $this->settings[$model->alias]['notices']);
         }
-        foreach ((array)$contain as $name => $children) {
+        foreach ($contain as $name => $children) {
             if (is_numeric($name)) {
                 $name = $children;
                 $children = [];
@@ -340,7 +344,7 @@ class ContainableBehavior extends ModelBehavior
                 }
                 if ($optionKey && isset($children[$key])) {
                     if (!empty($keep[$name][$key]) && is_array($keep[$name][$key])) {
-                        $keep[$name][$key] = array_merge(($keep[$name][$key] ?? []), (array)$children[$key]);
+                        $keep[$name][$key] = array_merge($keep[$name][$key], (array)$children[$key]);
                     } else {
                         $keep[$name][$key] = $children[$key];
                     }
@@ -377,11 +381,14 @@ class ContainableBehavior extends ModelBehavior
      *
      * @param Model $model Model
      * @param array $map Map of relations for given model
-     * @param array|bool $fields If array, fields to initially load, if false use $Model as primary model
-     * @return array Fields
+     * @param array|string|false $fields If array, fields to initially load, if false use $Model as primary model
+     * @return array|string Fields
      */
-    public function fieldDependencies(Model $model, $map, $fields = [])
-    {
+    public function fieldDependencies(
+        Model $model,
+        array $map,
+        array|string|false $fields = [],
+    ): array|string {
         if ($fields === false) {
             $fields = [];
             foreach ($map as $parent => $children) {
@@ -401,6 +408,7 @@ class ContainableBehavior extends ModelBehavior
         if (empty($map[$model->alias])) {
             return $fields;
         }
+
         foreach ($map[$model->alias] as $type => $bindings) {
             foreach ($bindings as $dependency) {
                 $innerFields = [];
@@ -429,7 +437,7 @@ class ContainableBehavior extends ModelBehavior
      * @param array $containments Containments
      * @return array Built containments
      */
-    public function containmentsMap($containments)
+    public function containmentsMap(array $containments): array
     {
         $map = [];
         foreach ($containments['models'] as $name => $model) {

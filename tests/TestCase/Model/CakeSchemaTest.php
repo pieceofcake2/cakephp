@@ -43,14 +43,14 @@ class MyAppSchema extends CakeSchema
      *
      * @var string
      */
-    public $connection = 'test';
+    public string $connection = 'test';
 
     /**
      * comments property
      *
      * @var array
      */
-    public $comments = [
+    public array $comments = [
         'id' => ['type' => 'integer', 'null' => false, 'default' => 0, 'key' => 'primary'],
         'post_id' => ['type' => 'integer', 'null' => false, 'default' => 0],
         'user_id' => ['type' => 'integer', 'null' => false],
@@ -67,7 +67,7 @@ class MyAppSchema extends CakeSchema
      *
      * @var array
      */
-    public $posts = [
+    public array $posts = [
         'id' => ['type' => 'integer', 'null' => false, 'default' => 0, 'key' => 'primary'],
         'author_id' => ['type' => 'integer', 'null' => true, 'default' => ''],
         'title' => ['type' => 'string', 'null' => false, 'default' => 'Title'],
@@ -120,16 +120,16 @@ class TestAppSchema extends CakeSchema
     /**
      * name property
      *
-     * @var string
+     * @var string|null
      */
-    public $name = 'MyApp';
+    public ?string $name = 'MyApp';
 
     /**
      * comments property
      *
      * @var array
      */
-    public $comments = [
+    public array $comments = [
         'id' => ['type' => 'integer', 'null' => false, 'default' => 0, 'key' => 'primary'],
         'article_id' => ['type' => 'integer', 'null' => false],
         'user_id' => ['type' => 'integer', 'null' => false],
@@ -146,7 +146,7 @@ class TestAppSchema extends CakeSchema
      *
      * @var array
      */
-    public $posts = [
+    public array $posts = [
         'id' => ['type' => 'integer', 'null' => false, 'default' => 0, 'key' => 'primary'],
         'author_id' => ['type' => 'integer', 'null' => false],
         'title' => ['type' => 'string', 'null' => false],
@@ -163,7 +163,7 @@ class TestAppSchema extends CakeSchema
      *
      * @var array
      */
-    public $posts_tags = [
+    public array $posts_tags = [
         'post_id' => ['type' => 'integer', 'null' => false, 'key' => 'primary'],
         'tag_id' => ['type' => 'string', 'null' => false, 'key' => 'primary'],
         'indexes' => ['posts_tag' => ['column' => ['tag_id', 'post_id'], 'unique' => 1]],
@@ -175,7 +175,7 @@ class TestAppSchema extends CakeSchema
      *
      * @var array
      */
-    public $tags = [
+    public array $tags = [
         'id' => ['type' => 'integer', 'null' => false, 'default' => 0, 'key' => 'primary'],
         'tag' => ['type' => 'string', 'null' => false],
         'created' => ['type' => 'datetime', 'null' => true, 'default' => null],
@@ -189,7 +189,7 @@ class TestAppSchema extends CakeSchema
      *
      * @var array
      */
-    public $datatypes = [
+    public array $datatypes = [
         'id' => ['type' => 'integer', 'null' => false, 'default' => 0, 'key' => 'primary'],
         'float_field' => ['type' => 'float', 'null' => false, 'length' => '5,2', 'default' => ''],
         'decimal_field' => ['type' => 'decimal', 'length' => '6,3', 'default' => '0.000'],
@@ -208,7 +208,7 @@ class TestAppSchema extends CakeSchema
      * @param mixed $version
      * @return void
      */
-    public function setup($version)
+    public function setup($version): void
     {
     }
 
@@ -234,7 +234,7 @@ class SchemaPost extends CakeTestModel
     /**
      * useTable property
      *
-     * @var string
+     * @var string|bool|null
      */
     public string|bool|null $useTable = 'posts';
 
@@ -264,7 +264,7 @@ class SchemaComment extends CakeTestModel
     /**
      * useTable property
      *
-     * @var string
+     * @var string|bool|null
      */
     public string|bool|null $useTable = 'comments';
 
@@ -287,7 +287,7 @@ class SchemaTag extends CakeTestModel
     /**
      * useTable property
      *
-     * @var string
+     * @var string|bool|null
      */
     public string|bool|null $useTable = 'tags';
 
@@ -310,7 +310,7 @@ class SchemaDatatype extends CakeTestModel
     /**
      * useTable property
      *
-     * @var string
+     * @var string|bool|null
      */
     public string|bool|null $useTable = 'datatypes';
 }
@@ -341,7 +341,7 @@ class SchemaCrossDatabase extends CakeTestModel
     /**
      * useTable property
      *
-     * @var string
+     * @var string|bool|null
      */
     public string|bool|null $useTable = 'cross_database';
 
@@ -439,14 +439,14 @@ class SchemaPrefixAuthUser extends CakeTestModel
     /**
      * table prefix
      *
-     * @var string
+     * @var string|null
      */
     public ?string $tablePrefix = 'auth_';
 
     /**
      * useTable
      *
-     * @var string
+     * @var string|bool|null
      */
     public string|bool|null $useTable = 'users';
 }
@@ -462,12 +462,19 @@ class CakeSchemaTest extends CakeTestCase
     /**
      * fixtures property
      *
-     * @var array
+     * @var array<string>
      */
-    public $fixtures = [
-        'core.post', 'core.tag', 'core.posts_tag', 'core.test_plugin_comment',
-        'core.datatype', 'core.auth_user', 'core.author',
-        'core.test_plugin_article', 'core.user', 'core.comment',
+    public array $fixtures = [
+        'core.post',
+        'core.tag',
+        'core.posts_tag',
+        'core.test_plugin_comment',
+        'core.datatype',
+        'core.auth_user',
+        'core.author',
+        'core.test_plugin_article',
+        'core.user',
+        'core.comment',
         'core.prefix_test',
     ];
 
@@ -782,7 +789,7 @@ class CakeSchemaTest extends CakeTestCase
             'indexes' => ['PRIMARY' => ['column' => 'id', 'unique' => true]],
         ];
         $result = $this->Schema->generateTable('posts', $posts);
-        $this->assertMatchesRegularExpression('/public \$posts/', $result);
+        $this->assertMatchesRegularExpression('/public array \$posts/', $result);
 
         $posts = [
             'id' => ['type' => 'integer', 'null' => false, 'default' => 0, 'key' => 'primary'],
@@ -798,7 +805,7 @@ class CakeSchemaTest extends CakeTestCase
             ],
         ];
         $result = $this->Schema->generateTable('fields', $posts);
-        $this->assertMatchesRegularExpression('/public \$fields/', $result);
+        $this->assertMatchesRegularExpression('/public array \$fields/', $result);
         $this->assertMatchesRegularExpression('/\'type\' \=\> \'fulltext\'/', $result);
     }
 
@@ -1164,9 +1171,9 @@ class CakeSchemaTest extends CakeTestCase
      */
     public function testSchemaLoading()
     {
-        $Other = $this->Schema->load(['name' => 'MyOtherApp', 'path' => TMP . 'tests']);
-        $this->assertEquals('MyOtherApp', $Other->name);
-        $this->assertEquals($Other->tables, $this->Schema->tables);
+        $other = $this->Schema->load(['name' => 'MyOtherApp', 'path' => TMP . 'tests']);
+        $this->assertEquals('MyOtherApp', $other->name);
+        $this->assertEquals($other->tables, $this->Schema->tables);
     }
 
     /**

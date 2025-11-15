@@ -41,7 +41,7 @@ class Permission extends AppModel
     /**
      * Override default table name
      *
-     * @var string
+     * @var string|bool|null
      */
     public string|bool|null $useTable = 'aros_acos';
 
@@ -75,13 +75,16 @@ class Permission extends AppModel
     /**
      * Checks if the given $aro has access to action $action in $aco
      *
-     * @param string $aro ARO The requesting object identifier.
-     * @param string $aco ACO The controlled object identifier.
+     * @param Model|array|string $aro ARO The requesting object identifier.
+     * @param Model|array|string $aco ACO The controlled object identifier.
      * @param string $action Action (defaults to *)
      * @return bool Success (true if ARO has access to action in ACO, false otherwise)
      */
-    public function check($aro, $aco, $action = '*')
-    {
+    public function check(
+        Model|array|string|null $aro,
+        Model|array|string|null $aco,
+        string $action = '*',
+    ): bool {
         if (!$aro || !$aco) {
             return false;
         }
@@ -183,15 +186,19 @@ class Permission extends AppModel
     /**
      * Allow $aro to have access to action $actions in $aco
      *
-     * @param string $aro ARO The requesting object identifier.
-     * @param string $aco ACO The controlled object identifier.
-     * @param string $actions Action (defaults to *) Invalid permissions will result in an exception
+     * @param Model|array|string $aro ARO The requesting object identifier.
+     * @param Model|array|string $aco ACO The controlled object identifier.
+     * @param array|string $actions Action (defaults to *) Invalid permissions will result in an exception
      * @param int $value Value to indicate access type (1 to give access, -1 to deny, 0 to inherit)
      * @return bool Success
      * @throws AclException on Invalid permission key.
      */
-    public function allow($aro, $aco, $actions = '*', $value = 1)
-    {
+    public function allow(
+        Model|array|string|null $aro,
+        Model|array|string|null $aco,
+        array|string $actions = '*',
+        int $value = 1,
+    ): bool {
         $perms = $this->getAclLink($aro, $aco);
         $permKeys = $this->getAcoKeys($this->schema());
         $save = [];
@@ -236,12 +243,14 @@ class Permission extends AppModel
     /**
      * Get an array of access-control links between the given Aro and Aco
      *
-     * @param string $aro ARO The requesting object identifier.
-     * @param string $aco ACO The controlled object identifier.
-     * @return array Indexed array with: 'aro', 'aco' and 'link'
+     * @param Model|array|string  $aro ARO The requesting object identifier.
+     * @param Model|array|string  $aco ACO The controlled object identifier.
+     * @return array|false Indexed array with: 'aro', 'aco' and 'link'
      */
-    public function getAclLink($aro, $aco)
-    {
+    public function getAclLink(
+        Model|array|string|null $aro,
+        Model|array|string|null $aco,
+    ): array|false {
         $obj = [];
         $obj['Aro'] = $this->Aro->node($aro);
         $obj['Aco'] = $this->Aco->node($aco);
@@ -270,7 +279,7 @@ class Permission extends AppModel
      * @param array $keys Permission schema
      * @return array permission keys
      */
-    public function getAcoKeys($keys)
+    public function getAcoKeys($keys): array
     {
         $newKeys = [];
         $keys = array_keys($keys);

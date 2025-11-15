@@ -42,9 +42,13 @@ class BasicAuthenticateTest extends CakeTestCase
     /**
      * Fixtures
      *
-     * @var array
+     * @var array<string>
      */
-    public $fixtures = ['core.user', 'core.auth_user', 'core.article'];
+    public array $fixtures = [
+        'core.user',
+        'core.auth_user',
+        'core.article',
+    ];
 
     /**
      * setup

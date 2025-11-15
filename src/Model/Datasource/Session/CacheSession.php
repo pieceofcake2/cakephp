@@ -34,7 +34,7 @@ class CacheSession implements CakeSessionHandlerInterface
      *
      * @return bool Success
      */
-    public function open()
+    public function open(): bool
     {
         return true;
     }
@@ -44,7 +44,7 @@ class CacheSession implements CakeSessionHandlerInterface
      *
      * @return bool Success
      */
-    public function close()
+    public function close(): bool
     {
         return true;
     }
@@ -53,9 +53,9 @@ class CacheSession implements CakeSessionHandlerInterface
      * Method used to read from a database session.
      *
      * @param string $id The key of the value to read
-     * @return mixed The value of the key or false if it does not exist
+     * @return string|false The value of the key or false if it does not exist
      */
-    public function read($id)
+    public function read(string $id): string|false
     {
         $data = Cache::read($id, Configure::read('Session.handler.config'));
 
@@ -69,34 +69,34 @@ class CacheSession implements CakeSessionHandlerInterface
     /**
      * Helper function called on write for database sessions.
      *
-     * @param int $id ID that uniquely identifies session in database
+     * @param string $id ID that uniquely identifies session in database
      * @param mixed $data The value of the data to be saved.
      * @return bool True for successful write, false otherwise.
      */
-    public function write($id, $data)
+    public function write(string $id, mixed $data): bool
     {
-        return (bool)Cache::write($id, $data, Configure::read('Session.handler.config'));
+        return Cache::write($id, $data, Configure::read('Session.handler.config'));
     }
 
     /**
      * Method called on the destruction of a database session.
      *
-     * @param int $id ID that uniquely identifies session in cache
+     * @param string $id ID that uniquely identifies session in cache
      * @return bool True for successful delete, false otherwise.
      */
-    public function destroy($id)
+    public function destroy(string $id): bool
     {
-        return (bool)Cache::delete($id, Configure::read('Session.handler.config'));
+        return Cache::delete($id, Configure::read('Session.handler.config'));
     }
 
     /**
      * Helper function called on gc for cache sessions.
      *
-     * @param int $expires Timestamp (defaults to current time)
+     * @param int|null $expires Timestamp (defaults to current time)
      * @return bool Success
      */
-    public function gc($expires = null)
+    public function gc(?int $expires = null): bool
     {
-        return (bool)Cache::gc(Configure::read('Session.handler.config'), $expires);
+        return Cache::gc(Configure::read('Session.handler.config'), $expires);
     }
 }

@@ -30,6 +30,11 @@ use Cake\Utility\ObjectCollection;
 class LogEngineCollection extends ObjectCollection
 {
     /**
+     * @var array<CakeLogInterface>
+     */
+    protected array $_loaded = [];
+
+    /**
      * Loads/constructs a Log engine.
      *
      * @param string $name instance identifier
@@ -37,7 +42,7 @@ class LogEngineCollection extends ObjectCollection
      * @return CakeLogInterface BaseLog engine instance
      * @throws CakeLogException when logger class does not implement a write method
      */
-    public function load($name, $options = [])
+    public function load(string $name, array $options = []): CakeLogInterface
     {
         $enable = $options['enabled'] ?? true;
         $loggerName = $options['engine'];
@@ -62,10 +67,10 @@ class LogEngineCollection extends ObjectCollection
      * Checks that the logger class implements a write method as well.
      *
      * @param string $loggerName the plugin.className of the logger class you want to build.
-     * @return mixed boolean false on any failures, string of classname to use if search was successful.
+     * @return string|null null on any failures, string of classname to use if search was successful.
      * @throws CakeLogException
      */
-    protected static function _getLogger($loggerName)
+    protected static function _getLogger(string $loggerName): ?string
     {
         [$plugin, $name] = pluginSplit($loggerName, true);
         $originalLoggerName = $loggerName;

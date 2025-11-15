@@ -41,16 +41,16 @@ class HelperTestPost extends Model
     /**
      * useTable property
      *
-     * @var bool
+     * @var string|bool|null
      */
     public string|bool|null $useTable = false;
 
     /**
      * schema method
      *
-     * @return void
+     * @return array|null
      */
-    public function schema($field = false)
+    public function schema(string|bool $field = false): ?array
     {
         $this->_schema = [
             'id' => ['type' => 'integer', 'null' => false, 'default' => '', 'length' => '8'],
@@ -83,16 +83,16 @@ class HelperTestComment extends Model
     /**
      * useTable property
      *
-     * @var bool
+     * @var string|bool|null
      */
     public string|bool|null $useTable = false;
 
     /**
      * schema method
      *
-     * @return void
+     * @return array|null
      */
-    public function schema($field = false)
+    public function schema(string|bool $field = false): ?array
     {
         $this->_schema = [
             'id' => ['type' => 'integer', 'null' => false, 'default' => '', 'length' => '8'],
@@ -118,16 +118,16 @@ class HelperTestTag extends Model
     /**
      * useTable property
      *
-     * @var bool
+     * @var string|bool|null
      */
     public string|bool|null $useTable = false;
 
     /**
      * schema method
      *
-     * @return void
+     * @return array|null
      */
-    public function schema($field = false)
+    public function schema(string|bool $field = false): ?array
     {
         $this->_schema = [
             'id' => ['type' => 'integer', 'null' => false, 'default' => '', 'length' => '8'],
@@ -150,16 +150,16 @@ class HelperTestPostsTag extends Model
     /**
      * useTable property
      *
-     * @var bool
+     * @var string|bool|null
      */
     public string|bool|null $useTable = false;
 
     /**
      * schema method
      *
-     * @return array
+     * @return array|null
      */
-    public function schema($field = false)
+    public function schema(string|bool $field = false): ?array
     {
         $this->_schema = [
             'helper_test_post_id' => ['type' => 'integer', 'null' => false, 'default' => '', 'length' => '8'],
@@ -211,7 +211,7 @@ class TestHelper extends Helper
  */
 class HelperTest extends CakeTestCase
 {
-    protected $_appNamespace = null;
+    protected ?string $_appNamespace = null;
 
     /**
      * setUp method

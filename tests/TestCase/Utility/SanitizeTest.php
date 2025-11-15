@@ -32,7 +32,7 @@ class SanitizeDataTest extends CakeTestModel
     /**
      * useTable property
      *
-     * @var string
+     * @var string|bool|null
      */
     public string|bool|null $useTable = 'data_tests';
 }
@@ -48,7 +48,7 @@ class SanitizeArticle extends CakeTestModel
     /**
      * useTable property
      *
-     * @var string
+     * @var string|bool|null
      */
     public string|bool|null $useTable = 'articles';
 }
@@ -66,14 +66,17 @@ class SanitizeTest extends CakeTestCase
      *
      * @var bool
      */
-    public $autoFixtures = false;
+    public bool $autoFixtures = false;
 
     /**
      * fixtures property
      *
-     * @var array
+     * @var array<string>
      */
-    public $fixtures = ['core.data_test', 'core.article'];
+    public array $fixtures = [
+        'core.data_test',
+        'core.article',
+    ];
 
     /**
      * testEscapeAlphaNumeric method

@@ -24,6 +24,7 @@ namespace Cake\TestSuite\Coverage;
 use Cake\Core\CakePlugin;
 use Cake\TestSuite\Reporter\CakeBaseReporter;
 use Cake\Utility\Inflector;
+use SebastianBergmann\CodeCoverage\ProcessedCodeCoverageData;
 
 /**
  * Abstract class for common CoverageReport methods.
@@ -36,23 +37,23 @@ abstract class BaseCoverageReport
     /**
      * coverage data
      *
-     * @var string
+     * @var ProcessedCodeCoverageData
      */
-    protected $_rawCoverage;
+    protected ProcessedCodeCoverageData $_rawCoverage;
 
     /**
      * is the test an app test
      *
-     * @var string
+     * @var bool
      */
-    public $appTest = false;
+    public bool $appTest = false;
 
     /**
      * is the test a plugin test
      *
-     * @var string
+     * @var string|null
      */
-    public $pluginTest = false;
+    public ?string $pluginTest = null;
 
     /**
      * Array of test case file names. Used to do basename() matching with
@@ -60,15 +61,15 @@ abstract class BaseCoverageReport
      *
      * @var array
      */
-    protected $_testNames = [];
+    protected array $_testNames = [];
 
     /**
      * Constructor
      *
-     * @param array $coverage Array of coverage data from PHPUnit_Test_Result
+     * @param ProcessedCodeCoverageData $coverage Array of coverage data from PHPUnit_Test_Result
      * @param CakeBaseReporter $reporter A reporter to use for the coverage report.
      */
-    public function __construct($coverage, CakeBaseReporter $reporter)
+    public function __construct(ProcessedCodeCoverageData $coverage, CakeBaseReporter $reporter)
     {
         $this->_rawCoverage = $coverage;
         $this->_setParams($reporter);
@@ -93,10 +94,10 @@ abstract class BaseCoverageReport
     /**
      * Set the coverage data array
      *
-     * @param array $coverage Coverage data to use.
+     * @param ProcessedCodeCoverageData $coverage Coverage data to use.
      * @return void
      */
-    public function setCoverage($coverage)
+    public function setCoverage(ProcessedCodeCoverageData $coverage)
     {
         $this->_rawCoverage = $coverage;
     }
@@ -129,7 +130,7 @@ abstract class BaseCoverageReport
     public function filterCoverageDataByPath(string $path): array
     {
         $files = [];
-        foreach ($this->_rawCoverage as $fileName => $fileCoverage) {
+        foreach ($this->_rawCoverage->lineCoverage() as $fileName => $fileCoverage) {
             if (!str_starts_with($fileName, $path)) {
                 continue;
             }

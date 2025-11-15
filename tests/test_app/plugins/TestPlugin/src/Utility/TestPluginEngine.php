@@ -2,6 +2,8 @@
 
 namespace TestPlugin\Utility;
 
-class TestPluginEngine
+use Cake\Utility\CakeNumber;
+
+class TestPluginEngine extends CakeNumber
 {
 }

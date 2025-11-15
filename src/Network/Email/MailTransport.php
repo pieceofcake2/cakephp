@@ -34,7 +34,7 @@ class MailTransport extends AbstractTransport
      * @return array
      * @throws SocketException When mail cannot be sent.
      */
-    public function send(CakeEmail $email)
+    public function send(CakeEmail $email): array
     {
         // https://github.com/cakephp/cakephp/issues/2209
         // https://bugs.php.net/bug.php?id=47983
@@ -71,8 +71,13 @@ class MailTransport extends AbstractTransport
      * @throws SocketException if mail could not be sent
      * @return void
      */
-    protected function _mail(string $to, string $subject, string $message, array|string $headers = [], string $params = ''): void
-    {
+    protected function _mail(
+        string $to,
+        string $subject,
+        string $message,
+        array|string $headers = [],
+        string $params = '',
+    ): void {
         $errors = [];
         set_error_handler(function ($errno, $errstr, $errfile, $errline) use (&$errors) {
             $errors[] = [

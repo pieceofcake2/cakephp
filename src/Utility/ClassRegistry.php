@@ -43,28 +43,28 @@ class ClassRegistry
      *
      * @var array
      */
-    protected $_objects = [];
+    protected array $_objects = [];
 
     /**
      * Names of class names mapped to the object in the registry.
      *
      * @var array
      */
-    protected $_map = [];
+    protected array $_map = [];
 
     /**
      * Default constructor parameter settings, indexed by type
      *
      * @var array
      */
-    protected $_config = [];
+    protected array $_config = [];
 
     /**
      * Return a singleton instance of the ClassRegistry.
      *
      * @return ClassRegistry instance
      */
-    public static function getInstance()
+    public static function getInstance(): ClassRegistry
     {
         static $instance = [];
         if (!$instance) {
@@ -95,9 +95,9 @@ class ClassRegistry
      * ];
      * ```
      *
-     * @template T
-     * @param class-string<T>|array<array{
-     *      class: class-string,
+     * @template T of object
+     * @param class-string<T>|array<int, array{
+     *      class: class-string<T>,
      *      alias?: string,
      *      id?: int|string,
      *      table?: string|false,
@@ -121,14 +121,17 @@ class ClassRegistry
      * @return T|bool $class instance of ClassName.
      * @throws CakeException when you try to construct an interface or abstract class.
      */
-    public static function init($class, $strict = false)
-    {
+    public static function init(
+        array|string $class,
+        bool $strict = false,
+    ): object|bool {
         $_this = ClassRegistry::getInstance();
 
         if (is_array($class)) {
-            $objects = $class;
             if (!isset($class[0])) {
                 $objects = [$class];
+            } else {
+                $objects = $class;
             }
         } else {
             $objects = [['class' => $class]];
@@ -238,7 +241,7 @@ class ClassRegistry
             return true;
         }
 
-        return $instance;
+        return $instance ?? false;
     }
 
     /**
@@ -248,7 +251,7 @@ class ClassRegistry
      * @param object $object Object to store
      * @return bool True if the object was written, false if $key already exists
      */
-    public static function addObject($key, $object)
+    public static function addObject(string $key, object $object): bool
     {
         $_this = ClassRegistry::getInstance();
         $key = Inflector::underscore($key);
@@ -297,7 +300,7 @@ class ClassRegistry
      *
      * @return array Set of keys stored in registry
      */
-    public static function keys()
+    public static function keys(): array
     {
         return array_keys(ClassRegistry::getInstance()->_objects);
     }
@@ -305,7 +308,7 @@ class ClassRegistry
     /**
      * Return object which corresponds to given key.
      *
-     * @template T
+     * @template T of object
      * @param class-string<T> $key Key of object to look for
      * @return T|false Object stored in registry or boolean false if the object does not exist.
      */
@@ -330,12 +333,12 @@ class ClassRegistry
      * Sets the default constructor parameter for an object type
      *
      * @param array|string $type Type of object. If this parameter is omitted, defaults to "Model"
-     * @param array $param The parameter that will be passed to object constructors when objects
+     * @param array|null $param The parameter that will be passed to object constructors when objects
      *                      of $type are created
      * @return mixed Void if $param is being set. Otherwise, if only $type is passed, returns
      *               the previously-set value of $param, or null if not set.
      */
-    public static function config($type, $param = [])
+    public static function config(array|string $type, ?array $param = []): mixed
     {
         $_this = ClassRegistry::getInstance();
 
@@ -351,6 +354,8 @@ class ClassRegistry
             $param['testing'] = true;
         }
         $_this->_config[$type] = $param;
+
+        return null;
     }
 
     /**
@@ -359,9 +364,9 @@ class ClassRegistry
      * @param string $alias Alias to check.
      * @param string $class Class name.
      * @param string|null $actualClass
-     * @return object|bool Object stored in registry or `false` if the object does not exist.
+     * @return object|false Object stored in registry or `false` if the object does not exist.
      */
-    protected function &_duplicate($alias, $class, $actualClass = null)
+    protected function &_duplicate(string $alias, string $class, ?string $actualClass = null): object|false
     {
         $duplicate = false;
         if (static::isKeySet($alias)) {
@@ -382,7 +387,7 @@ class ClassRegistry
      * @param string $name Key that is being mapped
      * @return void
      */
-    public static function map($key, $name)
+    public static function map(string $key, string $name): void
     {
         $_this = ClassRegistry::getInstance();
         $key = Inflector::underscore($key);
@@ -397,7 +402,7 @@ class ClassRegistry
      *
      * @return array Keys of registry's map
      */
-    public static function mapKeys()
+    public static function mapKeys(): array
     {
         return array_keys(ClassRegistry::getInstance()->_map);
     }
@@ -408,7 +413,7 @@ class ClassRegistry
      * @param string $key Key to find in map
      * @return string|null Mapped value
      */
-    protected function _getMap($key): ?string
+    protected function _getMap(string $key): ?string
     {
         if (isset($this->_map[$key])) {
             return $this->_map[$key];
@@ -422,7 +427,7 @@ class ClassRegistry
      *
      * @return void
      */
-    public static function flush()
+    public static function flush(): void
     {
         $_this = ClassRegistry::getInstance();
         $_this->_objects = [];

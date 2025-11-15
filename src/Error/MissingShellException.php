@@ -23,5 +23,5 @@ namespace Cake\Error;
  */
 class MissingShellException extends CakeException
 {
-    protected $_messageTemplate = 'Shell class %s could not be found.';
+    protected string $_messageTemplate = 'Shell class %s could not be found.';
 }

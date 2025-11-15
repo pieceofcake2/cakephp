@@ -35,7 +35,7 @@ class TestSource extends DataSource
      *
      * @var array
      */
-    protected $_schema = [
+    protected ?array $_schema = [
         'id' => [
             'type' => 'integer',
             'null' => false,
@@ -73,9 +73,9 @@ class TestSource extends DataSource
      * Returns the schema for the datasource to enable create/update
      *
      * @param Model|string $model
-     * @return array
+     * @return array|false|null
      */
-    public function describe(Model|string $model)
+    public function describe(Model|string $model): array|false|null
     {
         return $this->_schema;
     }
@@ -86,11 +86,14 @@ class TestSource extends DataSource
      *
      * @param Model $model
      * @param string $func
-     * @param array $params
-     * @return array
+     * @param array|string $params
+     * @return string
      */
-    public function calculate(Model $model, $func, $params = [])
-    {
+    public function calculate(
+        Model $model,
+        string $func,
+        array|string $params = [],
+    ): string {
         return $func;
     }
 }

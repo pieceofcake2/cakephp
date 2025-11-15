@@ -20,6 +20,8 @@ namespace Cake\Console;
 use Cake\Core\Configure;
 use Cake\Error\ErrorHandler;
 use Cake\Log\CakeLog;
+use Exception;
+use ParseError;
 
 /**
  * Error Handler for Cake console. Does simple printing of the
@@ -32,9 +34,9 @@ class ConsoleErrorHandler
     /**
      * Standard error stream.
      *
-     * @var ConsoleOutput
+     * @var ConsoleOutput|null
      */
-    public static $stderr;
+    public static ?ConsoleOutput $stderr = null;
 
     /**
      * Get the stderr object for the console error handling.
@@ -53,7 +55,7 @@ class ConsoleErrorHandler
     /**
      * Handle an exception in the console environment. Prints a message to stderr.
      *
-     * @param Exception|ParserError $exception The exception to handle
+     * @param Exception|ParseError $exception The exception to handle
      * @return void
      */
     public function handleException($exception)
@@ -106,7 +108,7 @@ class ConsoleErrorHandler
      * @param int $code The exit code.
      * @return void
      */
-    protected function _stop($code = 0)
+    protected function _stop(string|int $code = 0): void
     {
         exit($code);
     }

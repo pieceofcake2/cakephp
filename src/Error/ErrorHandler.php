@@ -107,7 +107,7 @@ class ErrorHandler
      *
      * @var bool
      */
-    protected static $_bailExceptionRendering = false;
+    protected static bool $_bailExceptionRendering = false;
 
     /**
      * Set as the default exception handler by the CakePHP bootstrap process.
@@ -153,7 +153,7 @@ class ErrorHandler
      * @param Exception $exception Exception instance
      * @return string Formatted message
      */
-    protected static function _getMessage($exception)
+    protected static function _getMessage(Exception $exception): string
     {
         $message = sprintf(
             '[%s] %s',
@@ -292,7 +292,7 @@ class ErrorHandler
      * Map an error code into an Error word, and log location.
      *
      * @param int $code Error code to map
-     * @return list{string|null, int|null} Array of error word, and log location.
+     * @return array{string|null, int|null} Array of error word, and log location.
      */
     public static function mapErrorCode(int $code): array
     {
@@ -334,12 +334,17 @@ class ErrorHandler
      * @param string $error The error type (e.g. "Warning")
      * @param int $code Code of error
      * @param string $description Error description
-     * @param string|null $file File on which error occurred
-     * @param int|null $line Line that triggered the error
+     * @param string $file File on which error occurred
+     * @param int $line Line that triggered the error
      * @return string
      */
-    protected static function _getErrorMessage(string $error, int $code, string $description, string $file, int $line): string
-    {
+    protected static function _getErrorMessage(
+        string $error,
+        int $code,
+        string $description,
+        string $file,
+        int $line,
+    ): string {
         $errorConfig = Configure::read('Error');
         $message = $error . ' (' . $code . '): ' . $description . ' in [' . $file . ', line ' . $line . ']';
         if (!empty($errorConfig['trace'])) {

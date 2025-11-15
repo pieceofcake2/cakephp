@@ -46,7 +46,7 @@ class FormAuthenticate extends BaseAuthenticate
      * @param array $fields The fields to be checked.
      * @return bool False if the fields have not been supplied. True if they exist.
      */
-    protected function _checkFields(CakeRequest $request, $model, $fields)
+    protected function _checkFields(CakeRequest $request, string $model, array $fields): bool
     {
         if (empty($request->data[$model])) {
             return false;
@@ -68,9 +68,9 @@ class FormAuthenticate extends BaseAuthenticate
      *
      * @param CakeRequest $request The request that contains login information.
      * @param CakeResponse $response Unused response object.
-     * @return mixed False on login failure. An array of User data on success.
+     * @return array|false False on login failure. An array of User data on success.
      */
-    public function authenticate(CakeRequest $request, CakeResponse $response)
+    public function authenticate(CakeRequest $request, CakeResponse $response): array|false
     {
         $userModel = $this->settings['userModel'];
         [, $model] = pluginSplit($userModel);

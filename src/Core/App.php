@@ -103,7 +103,7 @@ class App
      *
      * @var array
      */
-    public static $types = [
+    public static array $types = [
         'class' => ['extends' => null, 'core' => true],
         'file' => ['extends' => null, 'core' => true],
         'model' => ['extends' => 'AppModel', 'core' => false],
@@ -123,56 +123,56 @@ class App
      *
      * @var array
      */
-    public static $search = [];
+    public static array $search = [];
 
     /**
      * Whether or not to return the file that is loaded.
      *
      * @var bool
      */
-    public static $return = false;
+    public static bool $return = false;
 
     /**
      * Holds key/value pairs of $type => file path.
      *
      * @var array
      */
-    protected static $_map = [];
+    protected static array $_map = [];
 
     /**
      * Holds and key => value array of object types.
      *
      * @var array
      */
-    protected static $_objects = [];
+    protected static array $_objects = [];
 
     /**
      * Holds the location of each class
      *
      * @var array
      */
-    protected static $_classMap = [];
+    protected static array $_classMap = [];
 
     /**
      * Holds the possible paths for each package name
      *
      * @var array
      */
-    protected static $_packages = [];
+    protected static array $_packages = [];
 
     /**
      * Holds the templates for each customizable package path in the application
      *
-     * @var array
+     * @var array|null
      */
-    protected static $_packageFormat = [];
+    protected static ?array $_packageFormat = [];
 
     /**
      * Maps an old style CakePHP class type to the corresponding package
      *
      * @var array
      */
-    public static $legacy = [
+    public static array $legacy = [
         'models' => 'Model',
         'behaviors' => 'Model/Behavior',
         'datasources' => 'Model/Datasource',
@@ -192,14 +192,14 @@ class App
      *
      * @var bool
      */
-    protected static $_cacheChange = false;
+    protected static bool $_cacheChange = false;
 
     /**
      * Indicates whether the object cache should be stored again because of an addition to it
      *
      * @var bool
      */
-    protected static $_objectCacheChange = false;
+    protected static bool $_objectCacheChange = false;
 
     /**
      * Indicates the the Application is in the bootstrapping process. Used to better cache
@@ -207,7 +207,7 @@ class App
      *
      * @var bool
      */
-    public static $bootstrapping = false;
+    public static bool $bootstrapping = false;
 
     /**
      * Used to read information stored path
@@ -219,11 +219,11 @@ class App
      * `App::path('Model/Datasource', 'MyPlugin'); will return the path for datasources under the 'MyPlugin' plugin`
      *
      * @param string $type type of path
-     * @param string $plugin name of plugin
+     * @param string|null $plugin name of plugin
      * @return array
      * @link https://book.cakephp.org/2.0/en/core-utility-libraries/app.html#App::path
      */
-    public static function path($type, $plugin = null)
+    public static function path(string $type, ?string $plugin = null): array
     {
         if (!empty(static::$legacy[$type])) {
             $type = static::$legacy[$type];
@@ -274,7 +274,7 @@ class App
      * @return array An array of packages and their associated paths.
      * @link https://book.cakephp.org/2.0/en/core-utility-libraries/app.html#App::paths
      */
-    public static function paths()
+    public static function paths(): array
     {
         return static::$_packages;
     }
@@ -302,7 +302,7 @@ class App
      * @return void
      * @link https://book.cakephp.org/2.0/en/core-utility-libraries/app.html#App::build
      */
-    public static function build($paths = [], $mode = App::PREPEND)
+    public static function build(array $paths = [], string|bool $mode = App::PREPEND): void
     {
         // Provides Backwards compatibility for old-style package names
         $legacyPaths = [];
@@ -393,7 +393,7 @@ class App
      * @link https://book.cakephp.org/2.0/en/core-utility-libraries/app.html#App::pluginPath
      * @deprecated 3.0.0 Use `CakePlugin::path()` instead.
      */
-    public static function pluginPath($plugin)
+    public static function pluginPath(string $plugin): string
     {
         return CakePlugin::path($plugin);
     }
@@ -409,7 +409,7 @@ class App
      * @return string full path to the theme.
      * @link https://book.cakephp.org/2.0/en/core-utility-libraries/app.html#App::themePath
      */
-    public static function themePath($theme)
+    public static function themePath(string $theme): string
     {
         $themeDir = 'Themed' . DS . Inflector::camelize($theme);
         foreach (static::$_packages['View'] as $path) {
@@ -432,7 +432,7 @@ class App
      * @return array full path to package
      * @link https://book.cakephp.org/2.0/en/core-utility-libraries/app.html#App::core
      */
-    public static function core($type)
+    public static function core(string $type): array
     {
         return [CAKE . str_replace('/', DS, $type) . DS];
     }
@@ -455,13 +455,16 @@ class App
      * are commonly used by version control systems.
      *
      * @param string $type Type of object, i.e. 'Model', 'Controller', 'View/Helper', 'file', 'class' or 'plugin'
-     * @param array|string $path Optional Scan only the path given. If null, paths for the chosen type will be used.
+     * @param array|string|null $path Optional Scan only the path given. If null, paths for the chosen type will be used.
      * @param bool $cache Set to false to rescan objects of the chosen type. Defaults to true.
      * @return mixed Either false on incorrect / miss. Or an array of found objects.
      * @link https://book.cakephp.org/2.0/en/core-utility-libraries/app.html#App::objects
      */
-    public static function objects($type, $path = null, $cache = true)
-    {
+    public static function objects(
+        string $type,
+        array|string|null $path = null,
+        bool $cache = true,
+    ): mixed {
         if (empty(static::$_objects) && $cache === true) {
             static::$_objects = (array)Cache::read('object_map', '_cake_core_');
         }
@@ -553,7 +556,7 @@ class App
      * @return void
      * @link https://book.cakephp.org/2.0/en/core-utility-libraries/app.html#App::uses
      */
-    public static function uses($className, $location)
+    public static function uses(string $className, string $location): void
     {
         static::$_classMap[$className] = $location;
     }
@@ -565,21 +568,21 @@ class App
      * if a class is name `MyCustomClass` the file name should be `MyCustomClass.php`
      *
      * @param string $className the name of the class to load
-     * @return bool
+     * @return void
      */
-    public static function load($className)
+    public static function load(string $className): void
     {
         if (str_contains($className, '\\')) {
-            return false;
+            return;
         }
         if (class_exists($className, false)) {
-            return true;
+            return;
         }
         if (!isset(static::$_classMap[$className])) {
-            return false;
+            return;
         }
         if (str_contains($className, '..')) {
-            return false;
+            return;
         }
 
         // Check if the namespaced version already exists via legacy class map
@@ -587,7 +590,7 @@ class App
             $legacyClassMap = LegacyClassLoader::getClassMap();
             if (isset($legacyClassMap[$className]) && class_exists($legacyClassMap[$className], false)) {
                 // Namespaced class exists, let legacy autoloader create the alias
-                return false;
+                return;
             }
         }
 
@@ -596,7 +599,9 @@ class App
 
         $file = static::_mapped($className, $plugin);
         if ($file) {
-            return include_once $file;
+            include_once $file;
+
+            return;
         }
         $paths = static::path($package, $plugin);
 
@@ -617,11 +622,11 @@ class App
             if (file_exists($file)) {
                 static::_map($file, $className, $plugin);
 
-                return include_once $file;
+                include_once $file;
+
+                return;
             }
         }
-
-        return false;
     }
 
     /**
@@ -631,7 +636,7 @@ class App
      * @return string|null Package name, or null if not declared
      * @link https://book.cakephp.org/2.0/en/core-utility-libraries/app.html#App::location
      */
-    public static function location($className)
+    public static function location(string $className): ?string
     {
         if (!empty(static::$_classMap[$className])) {
             return static::$_classMap[$className];
@@ -652,8 +657,11 @@ class App
      * @param string $suffix Class name suffix
      * @return class-string|null Namespaced class name, null if the class is not found.
      */
-    public static function className(string $class, string $type = '', string $suffix = ''): ?string
-    {
+    public static function className(
+        string $class,
+        string $type = '',
+        string $suffix = '',
+    ): ?string {
         if (str_contains($class, '\\')) {
             return class_exists($class) ? $class : null;
         }
@@ -822,7 +830,7 @@ class App
      * @param string $namespace Namespace.
      * @return bool
      */
-    protected static function _classExistsInBase($name, $namespace)
+    protected static function _classExistsInBase(string $name, string $namespace): bool
     {
         return class_exists($namespace . $name);
     }
@@ -831,22 +839,28 @@ class App
      * Finds classes based on $name or specific file(s) to search. Calling App::import() will
      * not construct any classes contained in the files. It will only find and require() the file.
      *
-     * @param array|string $type The type of Class if passed as a string, or all params can be passed as
+     * @param array|string|null $type The type of Class if passed as a string, or all params can be passed as
      *   a single array to $type.
-     * @param array|string $name Name of the Class or a unique name for the file
+     * @param array|string|null $name Name of the Class or a unique name for the file
      * @param array|bool $parent boolean true if Class Parent should be searched, accepts key => value
      *   array('parent' => $parent, 'file' => $file, 'search' => $search, 'ext' => '$ext');
      *   $ext allows setting the extension of the file name
      *   based on Inflector::underscore($name) . ".$ext";
      * @param array $search paths to search for files, array('path 1', 'path 2', 'path 3');
-     * @param string $file full name of the file to search for including extension
+     * @param string|null $file full name of the file to search for including extension
      * @param bool $return Return the loaded file, the file must have a return
      *   statement in it to work: return $variable;
-     * @return bool true if Class is already in memory or if file is found and loaded, false if not
+     * @return array|bool true if Class is already in memory or if file is found and loaded, false if not
      * @link https://book.cakephp.org/2.0/en/core-utility-libraries/app.html#including-files-with-app-import
      */
-    public static function import($type = null, $name = null, $parent = true, $search = [], $file = null, $return = false)
-    {
+    public static function import(
+        array|string|null $type = null,
+        array|string|null $name = null,
+        array|bool $parent = true,
+        array $search = [],
+        ?string $file = null,
+        bool $return = false,
+    ): array|bool {
         $ext = null;
 
         if (is_array($type)) {
@@ -903,14 +917,19 @@ class App
      * This is a compatibility wrapper around using App::uses() and automatic class loading
      *
      * @param string $name unique name of the file for identifying it inside the application
-     * @param string $plugin camel cased plugin name if any
+     * @param string|null $plugin camel cased plugin name if any
      * @param string $type name of the packed where the class is located
      * @param string $originalType type name as supplied initially by the user
      * @param bool $parent whether to load the class parent or not
      * @return bool true indicating the successful load and existence of the class
      */
-    protected static function _loadClass($name, $plugin, $type, $originalType, $parent)
-    {
+    protected static function _loadClass(
+        string $name,
+        ?string $plugin,
+        string $type,
+        string $originalType,
+        bool $parent,
+    ): bool {
         if ($type === 'Console/Command' && $name === 'Shell') {
             $type = 'Console';
         } elseif (isset(static::$types[$originalType]['suffix'])) {
@@ -950,28 +969,34 @@ class App
      * Helper function to include single files
      *
      * @param string $name unique name of the file for identifying it inside the application
-     * @param string $plugin camel cased plugin name if any
+     * @param string|null $plugin camel cased plugin name if any
      * @param array $search list of paths to search the file into
      * @param string $file filename if known, the $name param will be used otherwise
      * @param bool $return whether this function should return the contents of the file after being parsed by php or just a success notice
      * @return mixed if $return contents of the file after php parses it, boolean indicating success otherwise
      */
-    protected static function _loadFile($name, $plugin, $search, $file, $return)
-    {
+    protected static function _loadFile(
+        string $name,
+        ?string $plugin,
+        array $search,
+        string $file,
+        bool $return,
+    ): mixed {
         $mapped = static::_mapped($name, $plugin);
         if ($mapped) {
             $file = $mapped;
         } elseif (!empty($search)) {
+            $found = false;
             foreach ($search as $path) {
-                $found = false;
                 if (file_exists($path . $file)) {
                     $file = $path . $file;
                     $found = true;
                     break;
                 }
-                if (empty($found)) {
-                    $file = false;
-                }
+            }
+
+            if ($found === false) {
+                $file = false;
             }
         }
         if (!empty($file) && file_exists($file)) {
@@ -991,13 +1016,17 @@ class App
      * Helper function to load files from vendors folders
      *
      * @param string $name unique name of the file for identifying it inside the application
-     * @param string $plugin camel cased plugin name if any
-     * @param string $file file name if known
-     * @param string $ext file extension if known
+     * @param string|null $plugin camel cased plugin name if any
+     * @param string|null $file file name if known
+     * @param string|null $ext file extension if known
      * @return bool true if the file was loaded successfully, false otherwise
      */
-    protected static function _loadVendor($name, $plugin, $file, $ext)
-    {
+    protected static function _loadVendor(
+        string $name,
+        ?string $plugin,
+        ?string $file,
+        ?string $ext,
+    ): bool {
         if ($mapped = static::_mapped($name, $plugin)) {
             return (bool)include_once $mapped;
         }
@@ -1031,7 +1060,7 @@ class App
      *
      * @return void
      */
-    public static function init()
+    public static function init(): void
     {
         static::$_map += (array)Cache::read('file_map', '_cake_core_');
         register_shutdown_function(['App', 'shutdown']);
@@ -1042,11 +1071,14 @@ class App
      *
      * @param string $file full path to file
      * @param string $name unique name for this map
-     * @param string $plugin camelized if object is from a plugin, the name of the plugin
+     * @param string|null $plugin camelized if object is from a plugin, the name of the plugin
      * @return void
      */
-    protected static function _map($file, $name, $plugin = null)
-    {
+    protected static function _map(
+        string $file,
+        string $name,
+        ?string $plugin = null,
+    ): void {
         $key = $name;
         if ($plugin) {
             $key = 'plugin.' . $name;
@@ -1066,11 +1098,13 @@ class App
      * Returns a file's complete path.
      *
      * @param string $name unique name
-     * @param string $plugin camelized if object is from a plugin, the name of the plugin
+     * @param string|null $plugin camelized if object is from a plugin, the name of the plugin
      * @return mixed file path if found, false otherwise
      */
-    protected static function _mapped($name, $plugin = null)
-    {
+    protected static function _mapped(
+        string $name,
+        ?string $plugin = null,
+    ): mixed {
         $key = $name;
         if ($plugin) {
             $key = 'plugin.' . $name;
@@ -1084,7 +1118,7 @@ class App
      *
      * @return array templates for each customizable package path
      */
-    protected static function _packageFormat()
+    protected static function _packageFormat(): array
     {
         if (empty(static::$_packageFormat)) {
             static::$_packageFormat = [
@@ -1161,10 +1195,10 @@ class App
      * Increases the PHP "memory_limit" ini setting by the specified amount
      * in kilobytes
      *
-     * @param string $additionalKb Number in kilobytes
+     * @param int $additionalKb Number in kilobytes
      * @return void
      */
-    public static function increaseMemoryLimit($additionalKb)
+    public static function increaseMemoryLimit(int $additionalKb): void
     {
         $limit = ini_get('memory_limit');
         if (!is_string($limit) || !strlen($limit)) {
@@ -1172,7 +1206,7 @@ class App
         }
         $limit = trim($limit);
         $units = strtoupper(substr($limit, -1));
-        $current = substr($limit, 0, strlen($limit) - 1);
+        $current = (int)substr($limit, 0, strlen($limit) - 1);
         if ($units === 'M') {
             $current = $current * 1024;
             $units = 'K';
@@ -1195,7 +1229,7 @@ class App
      *
      * @return void
      */
-    public static function shutdown()
+    public static function shutdown(): void
     {
         $megabytes = Configure::read('Error.extraFatalErrorMemory');
         if ($megabytes === null) {
@@ -1219,7 +1253,7 @@ class App
      *
      * @return void
      */
-    protected static function _checkFatalError()
+    protected static function _checkFatalError(): void
     {
         $lastError = error_get_last();
         if (!is_array($lastError)) {

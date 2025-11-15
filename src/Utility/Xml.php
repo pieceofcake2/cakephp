@@ -93,15 +93,15 @@ class Xml
      *
      * If using array as input, you can pass `options` from Xml::fromArray.
      *
-     * @param array|string $input XML string, a path to a file, a URL or an array
-     * @param array $options The options to use
+     * @param mixed $input XML string, a path to a file, a URL or an array
+     * @param array|string $options The options to use
      * @return SimpleXMLElement|DOMDocument SimpleXMLElement or DOMDocument
      * @throws XmlException
      */
-    public static function build($input, $options = [])
+    public static function build(mixed $input, array|string $options = []): SimpleXMLElement|DOMDocument
     {
         if (!is_array($options)) {
-            $options = ['return' => (string)$options];
+            $options = ['return' => $options];
         }
         $defaults = [
             'return' => 'simplexml',
@@ -205,13 +205,13 @@ class Xml
      * `<root><tag id="1" value="defect">description</tag></root>`
      *
      * @param array $input Array with data
-     * @param array $options The options to use
+     * @param array|string $options The options to use
      * @return SimpleXMLElement|DOMDocument SimpleXMLElement or DOMDocument
      * @throws XmlException
      */
-    public static function fromArray($input, $options = [])
+    public static function fromArray(array $input, array|string $options = []): SimpleXMLElement|DOMDocument
     {
-        if (!is_array($input) || count($input) !== 1) {
+        if (count($input) !== 1) {
             throw new XmlException(__d('cake_dev', 'Invalid input.'));
         }
         $key = key($input);
@@ -220,7 +220,7 @@ class Xml
         }
 
         if (!is_array($options)) {
-            $options = ['format' => (string)$options];
+            $options = ['format' => $options];
         }
         $defaults = [
             'format' => 'tags',
@@ -249,13 +249,13 @@ class Xml
      * Recursive method to create childs from array
      *
      * @param DOMDocument $dom Handler to DOMDocument
-     * @param DOMElement $node Handler to DOMElement (child)
-     * @param array &$data Array of data to append to the $node.
+     * @param DOMDocument|DOMElement $node Handler to DOMElement (child)
+     * @param array|string &$data Array of data to append to the $node.
      * @param string $format Either 'attributes' or 'tags'. This determines where nested keys go.
      * @return void
      * @throws XmlException
      */
-    protected static function _fromArray($dom, $node, &$data, $format)
+    protected static function _fromArray(DOMDocument $dom, DOMDocument|DOMElement $node, array|string &$data, string $format): void
     {
         if (empty($data) || !is_array($data)) {
             return;
@@ -316,12 +316,27 @@ class Xml
     /**
      * Helper to _fromArray(). It will create childs of arrays
      *
-     * @param array $data Array with informations to create childs
+     * @param array{
+     *     dom: DOMDocument,
+     *     node: DOMDocument|DOMElement,
+     *     key: string,
+     *     value: mixed,
+     *     format: string
+     * } $data Array with informations to create childs
      * @return void
      */
-    protected static function _createChild($data)
+    protected static function _createChild(array $data): void
     {
-        extract($data);
+        /** @var DOMDocument $dom */
+        $dom = $data['dom'];
+        /** @var DOMDocument|DOMElement $node */
+        $node = $data['node'];
+        /** @var string $key */
+        $key = $data['key'];
+        $value = $data['value'];
+        /** @var string $format */
+        $format = $data['format'];
+
         $childNS = $childValue = null;
         if (is_array($value)) {
             if (isset($value['@'])) {

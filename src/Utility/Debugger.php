@@ -42,22 +42,22 @@ class Debugger
      *
      * @var array
      */
-    public $errors = [];
+    public array $errors = [];
 
     /**
      * The current output format.
      *
      * @var string
      */
-    protected $_outputFormat = 'js';
+    protected string $_outputFormat = 'js';
 
     /**
      * Templates used when generating trace or error strings. Can be global or indexed by the format
      * value used in $_outputFormat.
      *
-     * @var string
+     * @var array<string, array<string, mixed>>
      */
-    protected $_templates = [
+    protected array $_templates = [
         'log' => [
             'trace' => '{:reference} - {:path}, line {:line}',
             'error' => '{:error} ({:code}): {:description} in [{:file}, line {:line}]',
@@ -91,9 +91,9 @@ class Debugger
     /**
      * Holds current output data when outputFormat is false.
      *
-     * @var string
+     * @var array
      */
-    protected $_data = [];
+    protected array $_data = [];
 
     /**
      * Constructor.
@@ -103,7 +103,7 @@ class Debugger
         $docRef = ini_get('docref_root');
 
         if (empty($docRef) && function_exists('ini_set')) {
-            ini_set('docref_root', 'http://php.net/');
+            ini_set('docref_root', 'https://php.net/');
         }
         if (!defined('E_RECOVERABLE_ERROR')) {
             define('E_RECOVERABLE_ERROR', 4096);
@@ -154,10 +154,10 @@ class Debugger
     /**
      * Returns a reference to the Debugger singleton object instance.
      *
-     * @param string $class Debugger class name.
+     * @param string|null $class Debugger class name.
      * @return object
      */
-    public static function getInstance($class = null)
+    public static function getInstance(?string $class = null): object
     {
         static $instance = [];
         if (!empty($class)) {
@@ -183,7 +183,7 @@ class Debugger
      * @see Debugger::exportVar()
      * @link https://book.cakephp.org/2.0/en/development/debugging.html#Debugger::dump
      */
-    public static function dump($var, $depth = 3)
+    public static function dump(mixed $var, int $depth = 3): void
     {
         pr(static::exportVar($var, $depth));
     }
@@ -200,7 +200,7 @@ class Debugger
      * @return void
      * @link https://book.cakephp.org/2.0/en/development/debugging.html#Debugger::log
      */
-    public static function log($var, $level = LOG_DEBUG, $depth = 3)
+    public static function log(mixed $var, string|int $level = LOG_DEBUG, int $depth = 3): void
     {
         $source = static::trace(['start' => 1]) . "\n";
         CakeLog::write($level, "\n" . $source . static::exportVar($var, $depth));
@@ -213,11 +213,15 @@ class Debugger
      * @param string $description Error description
      * @param string $file File on which error occurred
      * @param int $line Line that triggered the error
-     * @return never|bool|null True if error was handled, otherwise null.
+     * @return bool|null True if error was handled, otherwise null.
      * @deprecated 3.0.0 Will be removed in 3.0. This function is superseded by Debugger::outputError().
      */
-    public static function showError(int $code, string $description, string $file, int $line)
-    {
+    public static function showError(
+        int $code,
+        string $description,
+        string $file,
+        int $line,
+    ): ?bool {
         $self = Debugger::getInstance();
 
         if (empty($file)) {
@@ -294,10 +298,10 @@ class Debugger
      * - `start` - The stack frame to start generating a trace from. Defaults to 0
      *
      * @param array $options Format for outputting stack trace
-     * @return mixed Formatted stack trace
+     * @return array|string Formatted stack trace
      * @link https://book.cakephp.org/2.0/en/development/debugging.html#Debugger::trace
      */
-    public static function trace($options = [])
+    public static function trace(array $options = []): array|string
     {
         $self = Debugger::getInstance();
         $defaults = [
@@ -350,11 +354,7 @@ class Debugger
             } elseif ($options['format'] === 'array') {
                 $back[] = $trace;
             } else {
-                if (isset($self->_templates[$options['format']]['traceLine'])) {
-                    $tpl = $self->_templates[$options['format']]['traceLine'];
-                } else {
-                    $tpl = $self->_templates['base']['traceLine'];
-                }
+                $tpl = $self->_templates[$options['format']]['traceLine'] ?? $self->_templates['base']['traceLine'];
                 $trace['path'] = static::trimPath($trace['file']);
                 $trace['reference'] = $reference;
                 unset($trace['object'], $trace['args']);
@@ -366,7 +366,12 @@ class Debugger
             return $back;
         }
 
-        return implode("\n", $back);
+        $out = [];
+        foreach ($back as $line) {
+            $out[] = implode("\n", (array)$line);
+        }
+
+        return implode("\n", $out);
     }
 
     /**
@@ -376,7 +381,7 @@ class Debugger
      * @param string $path Path to shorten
      * @return string Normalized path
      */
-    public static function trimPath($path)
+    public static function trimPath(string $path): string
     {
         if (!defined('CAKE_CORE_INCLUDE_PATH') || !defined('APP')) {
             return $path;
@@ -412,7 +417,7 @@ class Debugger
      * @see http://php.net/highlight_string
      * @link https://book.cakephp.org/2.0/en/development/debugging.html#Debugger::excerpt
      */
-    public static function excerpt($file, $line, $context = 2)
+    public static function excerpt(string $file, int $line, int $context = 2): array
     {
         $lines = [];
         if (!file_exists($file)) {
@@ -450,7 +455,7 @@ class Debugger
      * @param string $str the string to convert
      * @return string
      */
-    protected static function _highlight($str)
+    protected static function _highlight(string $str): string
     {
         if (function_exists('hphp_log') || function_exists('hphp_gettid')) {
             return htmlentities($str);
@@ -492,7 +497,7 @@ class Debugger
      * @return string Variable as a formatted string
      * @link https://book.cakephp.org/2.0/en/development/debugging.html#Debugger::exportVar
      */
-    public static function exportVar($var, $depth = 3)
+    public static function exportVar(mixed $var, int $depth = 3): string
     {
         return static::_export($var, $depth, 0);
     }
@@ -505,7 +510,7 @@ class Debugger
      * @param int $indent The current indentation level.
      * @return string The dumped variable.
      */
-    protected static function _export($var, $depth, $indent)
+    protected static function _export(mixed $var, int $depth, int $indent): string
     {
         switch (static::getType($var)) {
             case 'boolean':
@@ -549,7 +554,7 @@ class Debugger
      * @param int $indent The current indentation level.
      * @return string Exported array.
      */
-    protected static function _array(array $var, $depth, $indent)
+    protected static function _array(array $var, int $depth, int $indent): string
     {
         $secrets = [
             'password' => '*****',
@@ -591,13 +596,13 @@ class Debugger
     /**
      * Handles object to string conversion.
      *
-     * @param string $var Object to convert
+     * @param object $var Object to convert
      * @param int $depth The current depth, used for tracking recursion.
      * @param int $indent The current indentation level.
      * @return string
      * @see Debugger::exportVar()
      */
-    protected static function _object($var, $depth, $indent)
+    protected static function _object(object $var, int $depth, int $indent): string
     {
         $out = '';
         $props = [];
@@ -647,12 +652,12 @@ class Debugger
     /**
      * Get/Set the output format for Debugger error rendering.
      *
-     * @param string $format The format you want errors to be output as.
+     * @param string|false|null $format The format you want errors to be output as.
      *   Leave null to get the current format.
-     * @return mixed Returns null when setting. Returns the current format when getting.
+     * @return string|null Returns null when setting. Returns the current format when getting.
      * @throws CakeException when choosing a format that doesn't exist.
      */
-    public static function outputAs($format = null)
+    public static function outputAs(string|false|null $format = null): ?string
     {
         $self = Debugger::getInstance();
         if ($format === null) {
@@ -662,6 +667,8 @@ class Debugger
             throw new CakeException(__d('cake_dev', 'Invalid Debugger output format.'));
         }
         $self->_outputFormat = $format;
+
+        return null;
     }
 
     /**
@@ -703,7 +710,7 @@ class Debugger
      * @param array $strings Template strings, or a callback to be used for the output format.
      * @return array The resulting format string set.
      */
-    public static function addFormat($format, array $strings)
+    public static function addFormat(string $format, array $strings): array
     {
         $self = Debugger::getInstance();
         if (isset($self->_templates[$format])) {
@@ -726,15 +733,17 @@ class Debugger
      * Switches output format, updates format strings.
      * Can be used to switch the active output format:
      *
-     * @param string $format Format to use, including 'js' for JavaScript-enhanced HTML, 'html' for
+     * @param string|bool|null $format Format to use, including 'js' for JavaScript-enhanced HTML, 'html' for
      *    straight HTML output, or 'txt' for unformatted text.
-     * @param array $strings Template strings to be used for the output format.
-     * @return string
+     * @param array|null $strings Template strings to be used for the output format.
+     * @return array|string|null
      * @deprecated 3.0.0 Use Debugger::outputAs() and Debugger::addFormat(). Will be removed
      *   in 3.0
      */
-    public static function output($format = null, $strings = [])
-    {
+    public static function output(
+        string|bool|null $format = null,
+        ?array $strings = [],
+    ): array|string|null {
         $self = Debugger::getInstance();
         $data = null;
 
@@ -768,9 +777,9 @@ class Debugger
      *     line?: int,
      *     start?: int
      * } $data Data to output.
-     * @return mixed|void
+     * @return mixed
      */
-    public function outputError(array $data)
+    public function outputError(array $data): mixed
     {
         $defaults = [
             'level' => 0,
@@ -803,11 +812,11 @@ class Debugger
             case false:
                 $this->_data[] = compact('trace') + $data;
 
-                return;
+                return null;
             case 'log':
                 static::log(compact('trace') + $data);
 
-                return;
+                return null;
         }
 
         $data['trace'] = $trace;
@@ -840,6 +849,8 @@ class Debugger
             return call_user_func($tpl['callback'], $data, compact('links', 'info'));
         }
         echo CakeText::insert($tpl['error'], compact('links', 'info') + $data, $insertOpts);
+
+        return null;
     }
 
     /**
@@ -884,14 +895,14 @@ class Debugger
      *
      * @return void
      */
-    public static function checkSecurityKeys()
+    public static function checkSecurityKeys(): void
     {
         if (Configure::read('Security.salt') === 'DYhG93b0qyJfIxfs2guVoUubWwvniR2G0FgaC9mi') {
-            trigger_error(__d('cake_dev', 'Please change the value of %s in %s to a salt value specific to your application.', '\'Security.salt\'', CONFIG . 'core.php'), E_USER_NOTICE);
+            trigger_error(__d('cake_dev', 'Please change the value of %s in %s to a salt value specific to your application.', '\'Security.salt\'', CONFIG . 'core.php'));
         }
 
         if (Configure::read('Security.cipherSeed') === '76859309657453542496749683645') {
-            trigger_error(__d('cake_dev', 'Please change the value of %s in %s to a numeric (digits only) seed value specific to your application.', '\'Security.cipherSeed\'', CONFIG . 'core.php'), E_USER_NOTICE);
+            trigger_error(__d('cake_dev', 'Please change the value of %s in %s to a numeric (digits only) seed value specific to your application.', '\'Security.cipherSeed\'', CONFIG . 'core.php'));
         }
     }
 }

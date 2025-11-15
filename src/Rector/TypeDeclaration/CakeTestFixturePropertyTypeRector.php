@@ -113,7 +113,7 @@ final class CakeTestFixturePropertyTypeRector extends AbstractRector
     /**
      * Get PhpParser type node for property
      */
-    private function getPhpParserTypeForProperty(string $propertyName): Identifier|Name|NullableType|null
+    private function getPhpParserTypeForProperty(string $propertyName): Identifier|NullableType|null
     {
         return match ($propertyName) {
             'name', 'table', 'primaryKey' => new NullableType(new Identifier('string')),

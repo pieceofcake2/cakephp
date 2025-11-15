@@ -48,11 +48,9 @@ class CakeObject
      *
      * @return string The name of this class
      */
-    public function toString()
+    public function toString(): string
     {
-        $class = static::class;
-
-        return $class;
+        return static::class;
     }
 
     /**
@@ -68,18 +66,21 @@ class CakeObject
      * POST and GET data can be simulated in requestAction. Use `$extra['url']` for
      * GET data. The `$extra['data']` parameter allows POST data simulation.
      *
-     * @param array|string $url String or array-based URL. Unlike other URL arrays in CakePHP, this
+     * @param array|string|null $url String or array-based URL. Unlike other URL arrays in CakePHP, this
      *    URL will not automatically handle passed and named arguments in the $url parameter.
      * @param array $extra if array includes the key "return" it sets the AutoRender to true. Can
      *    also be used to submit GET/POST data, and named/passed arguments.
      * @return mixed Boolean true or false on success/failure, or contents
      *    of rendered action if 'return' is set in $extra.
      */
-    public function requestAction($url, $extra = [])
-    {
+    public function requestAction(
+        array|string|null $url,
+        array $extra = [],
+    ): mixed {
         if (empty($url)) {
             return false;
         }
+
         if (($index = array_search('return', $extra)) !== false) {
             $extra['return'] = 0;
             $extra['autoRender'] = 1;
@@ -101,7 +102,7 @@ class CakeObject
         }
         if (is_string($url)) {
             $request = new CakeRequest($url);
-        } elseif (is_array($url)) {
+        } else {
             $params = $url + ['pass' => [], 'named' => [], 'base' => false];
             $params = $extra + $params;
             $request = new CakeRequest(Router::reverse($params));
@@ -135,9 +136,9 @@ class CakeObject
      * testing easier.
      *
      * @param string|int $status see http://php.net/exit for values
-     * @return never|int
+     * @return void
      */
-    protected function _stop($status = 0)
+    protected function _stop(string|int $status = 0): void
     {
         exit($status);
     }
@@ -147,12 +148,12 @@ class CakeObject
      * for more information on writing to logs.
      *
      * @param mixed $msg Log message
-     * @param int $type Error type constant. Defined in app/Config/core.php.
+     * @param string|int $type Error type constant. Defined in app/Config/core.php.
      * @param array|string|null $scope The scope(s) a log message is being created in.
      *    See CakeLog::config() for more information on logging scopes.
      * @return bool Success of log write
      */
-    public function log($msg, $type = LOG_ERR, $scope = null)
+    public function log(mixed $msg, string|int $type = LOG_ERR, array|string|null $scope = null): bool
     {
         if (!is_string($msg)) {
             $msg = print_r($msg, true);

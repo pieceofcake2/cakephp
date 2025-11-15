@@ -20,6 +20,7 @@ use Cake\Core\App;
 use Cake\Core\CakeObject;
 use Cake\Core\CakePlugin;
 use Cake\Core\Configure;
+use Cake\Model\Model;
 use Cake\Network\CakeRequest;
 use Cake\Routing\Router;
 use Cake\Utility\ClassRegistry;
@@ -66,7 +67,7 @@ class Helper extends CakeObject
     /**
      * Request object
      *
-     * @var CakeRequest
+     * @var CakeRequest|null
      */
     public ?CakeRequest $request = null;
 
@@ -97,14 +98,14 @@ class Helper extends CakeObject
      *
      * @var mixed|null
      */
-    protected $_tainted = null;
+    protected mixed $_tainted = null;
 
     /**
      * Holds the cleaned content.
      *
      * @var mixed|null
      */
-    protected $_cleaned = null;
+    protected mixed $_cleaned = null;
 
     /**
      * The View instance this helper is attached to
@@ -216,9 +217,9 @@ class Helper extends CakeObject
      * Default Constructor
      *
      * @param View $view The View this helper is being attached to.
-     * @param array $settings Configuration settings for the helper.
+     * @param array|string $settings Configuration settings for the helper.
      */
-    public function __construct(View $view, $settings = [])
+    public function __construct(View $view, array|string $settings = [])
     {
         $this->_View = $view;
         $this->request = $view->request;
@@ -279,7 +280,7 @@ class Helper extends CakeObject
      * @return void
      * @deprecated 3.0.0 This method will be removed in 3.0
      */
-    public function __set(string $name, $value): void
+    public function __set(string $name, mixed $value): void
     {
         switch ($name) {
             case 'base':
@@ -331,7 +332,7 @@ class Helper extends CakeObject
             $file = trim($file, '/');
             $theme = $this->theme . '/';
 
-            if (DS === '\\') {
+            if (DIRECTORY_SEPARATOR === '\\') {
                 $file = str_replace('/', '\\', $file);
             }
 
@@ -464,17 +465,18 @@ class Helper extends CakeObject
      * from content. However, is not guaranteed to remove all possibilities. Escaping
      * content is the best way to prevent all possible attacks.
      *
-     * @param array|string $output Either an array of strings to clean or a single string to clean.
+     * @param array|string|null $output Either an array of strings to clean or a single string to clean.
      * @return array|string|null Cleaned content for output
      * @deprecated 3.0.0 This method will be removed in 3.0
      */
-    public function clean($output)
+    public function clean(array|string|null $output): array|string|null
     {
         $this->_reset();
         if (empty($output)) {
             return null;
         }
         if (is_array($output)) {
+            $return = [];
             foreach ($output as $key => $value) {
                 $return[$key] = $this->clean($value);
             }
@@ -513,8 +515,12 @@ class Helper extends CakeObject
      * @return string Composed attributes.
      * @deprecated 3.0.0 This method will be moved to HtmlHelper in 3.0
      */
-    protected function _parseAttributes(array|string|null $options, array $exclude = [], string $insertBefore = ' ', ?string $insertAfter = null): string
-    {
+    protected function _parseAttributes(
+        array|string|null $options,
+        array $exclude = [],
+        string $insertBefore = ' ',
+        ?string $insertAfter = null,
+    ): string {
         if (!is_string($options)) {
             $options = (array)$options + ['escape' => true];
 
@@ -761,13 +767,10 @@ class Helper extends CakeObject
             return $options;
         }
 
-        switch ($field) {
-            case '_method':
-                $name = $field;
-                break;
-            default:
-                $name = 'data[' . implode('][', $this->entity()) . ']';
-        }
+        $name = match ($field) {
+            '_method' => $field,
+            default => 'data[' . implode('][', $this->entity()) . ']',
+        };
 
         if (is_array($options)) {
             $options[$key] = $name;
@@ -788,8 +791,11 @@ class Helper extends CakeObject
      * @return array|string|null  If an array was given for $options, an array with $key set will be returned.
      *   If a string was supplied a string will be returned.
      */
-    public function value($options = [], $field = null, $key = 'value'): array|string|null
-    {
+    public function value(
+        array|string|null $options = [],
+        ?string $field = null,
+        string $key = 'value',
+    ): array|string|null {
         if ($options === null) {
             $options = [];
         } elseif (is_string($options)) {
@@ -817,6 +823,7 @@ class Helper extends CakeObject
             $result = $data[$habtmKey][$habtmKey];
         } elseif (empty($result) && isset($data[$habtmKey]) && is_array($data[$habtmKey])) {
             if (ClassRegistry::isKeySet($habtmKey)) {
+                /** @var Model $model */
                 $model = ClassRegistry::getObject($habtmKey);
                 $result = $this->_selectedArray($data[$habtmKey], $model->primaryKey);
             }
@@ -947,7 +954,7 @@ class Helper extends CakeObject
      * Overridden in subclasses.
      *
      * @param string $viewFile The file about to be rendered.
-     * @return mixed|void
+     * @return mixed
      */
     public function beforeRenderFile(string $viewFile)
     {
@@ -961,7 +968,7 @@ class Helper extends CakeObject
      *
      * @param string $viewFile The file just be rendered.
      * @param string $content The content that was rendered.
-     * @return mixed|void
+     * @return mixed
      */
     public function afterRenderFile(string $viewFile, string $content)
     {

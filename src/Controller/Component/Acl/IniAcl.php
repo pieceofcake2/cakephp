@@ -19,6 +19,7 @@ namespace Cake\Controller\Component\Acl;
 use Cake\Configure\IniReader;
 use Cake\Controller\Component;
 use Cake\Core\CakeObject;
+use Cake\Model\Model;
 use Cake\Utility\Hash;
 
 /**
@@ -32,9 +33,9 @@ class IniAcl extends CakeObject implements AclInterface
     /**
      * Array with configuration, parsed from ini file
      *
-     * @var array
+     * @var array|null
      */
-    public $config = null;
+    public ?array $config = null;
 
     /**
      * The Hash::extract() path to the user/aro identifier in the
@@ -43,7 +44,7 @@ class IniAcl extends CakeObject implements AclInterface
      *
      * @var string
      */
-    public $userPath = 'User.username';
+    public string $userPath = 'User.username';
 
     /**
      * Initialize method
@@ -51,46 +52,55 @@ class IniAcl extends CakeObject implements AclInterface
      * @param Component $component The AclComponent instance.
      * @return void
      */
-    public function initialize(Component $component)
+    public function initialize(Component $component): void
     {
     }
 
     /**
      * No op method, allow cannot be done with IniAcl
      *
-     * @param string $aro ARO The requesting object identifier.
-     * @param string $aco ACO The controlled object identifier.
-     * @param string $action Action (defaults to *)
+     * @param Model|array|string|null $aro ARO The requesting object identifier.
+     * @param Model|array|string|null $aco ACO The controlled object identifier.
+     * @param array|string $action Action (defaults to *)
      * @return bool Success
      */
-    public function allow($aro, $aco, $action = '*')
-    {
+    public function allow(
+        Model|array|string|null $aro,
+        Model|array|string|null $aco,
+        array|string $action = '*',
+    ): bool {
         return false;
     }
 
     /**
      * No op method, deny cannot be done with IniAcl
      *
-     * @param string $aro ARO The requesting object identifier.
-     * @param string $aco ACO The controlled object identifier.
+     * @param Model|array|string|null $aro ARO The requesting object identifier.
+     * @param Model|array|string|null $aco ACO The controlled object identifier.
      * @param string $action Action (defaults to *)
      * @return bool Success
      */
-    public function deny($aro, $aco, $action = '*')
-    {
+    public function deny(
+        Model|array|string|null $aro,
+        Model|array|string|null $aco,
+        string $action = '*',
+    ): bool {
         return false;
     }
 
     /**
      * No op method, inherit cannot be done with IniAcl
      *
-     * @param string $aro ARO The requesting object identifier.
-     * @param string $aco ACO The controlled object identifier.
+     * @param Model|array|string|null $aro ARO The requesting object identifier.
+     * @param Model|array|string|null $aco ACO The controlled object identifier.
      * @param string $action Action (defaults to *)
      * @return bool Success
      */
-    public function inherit($aro, $aco, $action = '*')
-    {
+    public function inherit(
+        Model|array|string|null $aro,
+        Model|array|string|null $aco,
+        string $action = '*',
+    ): bool {
         return false;
     }
 
@@ -99,13 +109,16 @@ class IniAcl extends CakeObject implements AclInterface
      * ACO (access control object).Looks at the acl.ini.php file for permissions
      * (see instructions in /config/acl.ini.php).
      *
-     * @param string $aro ARO
-     * @param string $aco ACO
+     * @param Model|array|string|null $aro ARO
+     * @param Model|array|string|null $aco ACO
      * @param string $action Action
      * @return bool Success
      */
-    public function check($aro, $aco, $action = null)
-    {
+    public function check(
+        Model|array|string|null $aro,
+        Model|array|string|null $aco,
+        string $action = '*',
+    ): bool {
         if (!$this->config) {
             $this->config = $this->readConfigFile(CONFIG . 'acl.ini.php');
         }
@@ -165,7 +178,7 @@ class IniAcl extends CakeObject implements AclInterface
      * @param string $filename File
      * @return array INI section structure
      */
-    public function readConfigFile($filename)
+    public function readConfigFile(string $filename): array
     {
         $iniFile = new IniReader(dirname($filename) . DS);
 
@@ -178,7 +191,7 @@ class IniAcl extends CakeObject implements AclInterface
      * @param array $array Array to trim
      * @return array Trimmed array
      */
-    public function arrayTrim($array)
+    public function arrayTrim(array $array): array
     {
         foreach ($array as $key => $value) {
             $array[$key] = trim($value);

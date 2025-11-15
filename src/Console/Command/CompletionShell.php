@@ -32,9 +32,9 @@ class CompletionShell extends AppShell
     /**
      * Contains tasks to load and instantiate
      *
-     * @var array
+     * @var array|bool|null
      */
-    public $tasks = ['Command'];
+    public array|bool|null $tasks = ['Command'];
 
     /**
      * Echo no header by overriding the startup method

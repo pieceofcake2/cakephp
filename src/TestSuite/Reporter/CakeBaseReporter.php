@@ -17,8 +17,6 @@
 
 namespace Cake\TestSuite\Reporter;
 
-use Cake\TestSuite\CakeTestLoader;
-use Exception;
 use PHPUnit\Framework\AssertionFailedError;
 use PHPUnit\Framework\Test;
 use PHPUnit\Framework\TestResult;
@@ -39,21 +37,21 @@ abstract class CakeBaseReporter implements ResultPrinter
      *
      * @var bool
      */
-    protected $_headerSent = false;
+    protected bool $_headerSent = false;
 
     /**
      * Array of request parameters. Usually parsed GET params.
      *
      * @var array
      */
-    public $params = [];
+    public array $params = [];
 
     /**
      * Character set for the output of test reporting.
      *
      * @var string
      */
-    protected $_characterSet;
+    protected string $_characterSet;
 
     /**
      * @var int
@@ -75,7 +73,7 @@ abstract class CakeBaseReporter implements ResultPrinter
      * @param string $charset The character set to output with. Defaults to UTF-8
      * @param array $params Array of request parameters the reporter should use. See above.
      */
-    public function __construct($charset = 'utf-8', $params = [])
+    public function __construct(string $charset = 'utf-8', array $params = [])
     {
         if (!$charset) {
             $charset = 'utf-8';
@@ -88,14 +86,9 @@ abstract class CakeBaseReporter implements ResultPrinter
      * Retrieves a list of test cases from the active Manager class,
      * displaying it in the correct format for the reporter subclass
      *
-     * @return mixed
+     * @return void
      */
-    public function testCaseList()
-    {
-        $testList = CakeTestLoader::generateTestList($this->params);
-
-        return $testList;
-    }
+    abstract public function testCaseList(): void;
 
     /**
      * Paints the start of the response from the test suite.
@@ -103,9 +96,7 @@ abstract class CakeBaseReporter implements ResultPrinter
      *
      * @return void
      */
-    public function paintDocumentStart()
-    {
-    }
+    abstract public function paintDocumentStart(): void;
 
     /**
      * Paints the end of the response from the test suite.
@@ -113,9 +104,7 @@ abstract class CakeBaseReporter implements ResultPrinter
      *
      * @return void
      */
-    public function paintDocumentEnd()
-    {
-    }
+    abstract public function paintDocumentEnd(): void;
 
     /**
      * Paint a list of test sets, core, app, and plugin test sets
@@ -123,7 +112,7 @@ abstract class CakeBaseReporter implements ResultPrinter
      *
      * @return void
      */
-    public function paintTestMenu()
+    public function paintTestMenu(): void
     {
     }
 
@@ -132,7 +121,7 @@ abstract class CakeBaseReporter implements ResultPrinter
      *
      * @return string The base URL for the request.
      */
-    public function baseUrl()
+    public function baseUrl(): string
     {
         if (!empty($_SERVER['PHP_SELF'])) {
             return $_SERVER['PHP_SELF'];
@@ -158,7 +147,7 @@ abstract class CakeBaseReporter implements ResultPrinter
      * @param TestResult $result The result object
      * @return void
      */
-    public function paintResult(TestResult $result)
+    public function paintResult(TestResult $result): void
     {
         $this->paintFooter($result);
     }
@@ -166,14 +155,14 @@ abstract class CakeBaseReporter implements ResultPrinter
     /**
      * An error occurred.
      *
-     * @param \PHPUnit\Framework\Test $test The test to add an error for.
-     * @param Exception|Throwable $e The exception object to add.
+     * @param Test $test The test to add an error for.
+     * @param Throwable $t The exception object to add.
      * @param float $time The current time.
      * @return void
      */
-    public function addError(Test $test, Exception|Throwable $e, $time): void
+    public function addError(Test $test, Throwable $t, float $time): void
     {
-        $this->paintException($e, $test);
+        $this->paintException($t, $test);
     }
 
     /**
@@ -184,7 +173,7 @@ abstract class CakeBaseReporter implements ResultPrinter
      * @param float $time The current time.
      * @return void
      */
-    public function addFailure(Test $test, AssertionFailedError $e, $time): void
+    public function addFailure(Test $test, AssertionFailedError $e, float $time): void
     {
         $this->paintFail($e, $test);
     }
@@ -193,26 +182,26 @@ abstract class CakeBaseReporter implements ResultPrinter
      * Incomplete test.
      *
      * @param Test $test The test that was incomplete.
-     * @param Exception|Throwable $e The incomplete exception
+     * @param Throwable $t The incomplete exception
      * @param float $time The current time.
      * @return void
      */
-    public function addIncompleteTest(Test $test, Exception|Throwable $e, $time): void
+    public function addIncompleteTest(Test $test, Throwable $t, float $time): void
     {
-        $this->paintSkip($e, $test);
+        $this->paintSkip($t, $test);
     }
 
     /**
      * Skipped test.
      *
      * @param Test $test The test that failed.
-     * @param Exception|Throwable $e The skip object.
+     * @param Throwable $t The skip object.
      * @param float $time The current time.
      * @return void
      */
-    public function addSkippedTest(Test $test, Exception|Throwable $e, $time): void
+    public function addSkippedTest(Test $test, Throwable $t, $time): void
     {
-        $this->paintSkip($e, $test);
+        $this->paintSkip($t, $test);
     }
 
     /**
@@ -243,7 +232,7 @@ abstract class CakeBaseReporter implements ResultPrinter
     /**
      * A test started.
      *
-     * @param \PHPUnit\Framework\Test $test The test that started.
+     * @param Test $test The test that started.
      * @return void
      */
     public function startTest(Test $test): void
@@ -253,14 +242,16 @@ abstract class CakeBaseReporter implements ResultPrinter
     /**
      * A test ended.
      *
-     * @param \PHPUnit\Framework\Test $test The test that ended
+     * @param Test $test The test that ended
      * @param float $time The current time.
      * @return void
      */
     public function endTest(Test $test, $time): void
     {
-        $this->numAssertions += $test->getNumAssertions();
-        if ($test->hasFailed()) {
+        if (method_exists($test, 'getNumAssertions')) {
+            $this->numAssertions += $test->getNumAssertions();
+        }
+        if (!method_exists($test, 'hasFailed') || $test->hasFailed()) {
             return;
         }
         $this->paintPass($test, $time);
@@ -281,8 +272,11 @@ abstract class CakeBaseReporter implements ResultPrinter
      * @param float $time
      * @return void
      */
-    public function addWarning(Test $test, Warning $e, float $time): void
-    {
+    public function addWarning(
+        Test $test,
+        Warning $e,
+        float $time,
+    ): void {
         $this->paintFail($e, $test);
     }
 
@@ -292,8 +286,11 @@ abstract class CakeBaseReporter implements ResultPrinter
      * @param float $time
      * @return void
      */
-    public function addRiskyTest(Test $test, Throwable $t, float $time): void
-    {
+    public function addRiskyTest(
+        Test $test,
+        Throwable $t,
+        float $time,
+    ): void {
     }
 
     /**
@@ -305,33 +302,47 @@ abstract class CakeBaseReporter implements ResultPrinter
      * @param TestResult $result
      * @return void
      */
-    abstract public function paintFooter(TestResult $result): void;
+    abstract public function paintFooter(
+        TestResult $result,
+    ): void;
 
     /**
      * @param Test $test
      * @param float|null $time
      * @return void
      */
-    abstract public function paintPass(Test $test, $time = null): void;
+    abstract public function paintPass(
+        Test $test,
+        ?float $time = null,
+    ): void;
 
     /**
-     * @param Exception|Throwable $message
+     * @param Throwable $message
      * @param Test $test
      * @return void
      */
-    abstract public function paintSkip(Exception|Throwable $message, Test $test): void;
+    abstract public function paintSkip(
+        Throwable $message,
+        Test $test,
+    ): void;
 
     /**
-     * @param Exception $exception
+     * @param Throwable $exception
      * @param Test $test
      * @return void
      */
-    abstract public function paintException(Exception $exception, Test $test): void;
+    abstract public function paintException(
+        Throwable $exception,
+        Test $test,
+    ): void;
 
     /**
-     * @param mixed $message
+     * @param AssertionFailedError|Warning $message
      * @param Test $test
      * @return void
      */
-    abstract public function paintFail($message, Test $test): void;
+    abstract public function paintFail(
+        AssertionFailedError|Warning $message,
+        Test $test,
+    ): void;
 }

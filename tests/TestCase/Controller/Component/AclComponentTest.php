@@ -25,6 +25,7 @@ use Cake\Core\Configure;
 use Cake\Error\CakeException;
 use Cake\TestSuite\CakeTestCase;
 use stdClass;
+use TypeError;
 
 /**
  * Test Case for AclComponent
@@ -95,7 +96,8 @@ class AclComponentTest extends CakeTestCase
      */
     public function testAdapterException()
     {
-        $this->expectException(CakeException::class);
+        $this->expectException(TypeError::class);
+
         $thing = new stdClass();
         $this->Acl->adapter($thing);
     }

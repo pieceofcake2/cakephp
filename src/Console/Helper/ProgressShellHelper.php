@@ -27,21 +27,21 @@ class ProgressShellHelper extends BaseShellHelper
      *
      * @var int
      */
-    protected $_progress = 0;
+    protected int $_progress = 0;
 
     /**
      * The total number of 'items' to progress through.
      *
      * @var int
      */
-    protected $_total = 0;
+    protected int $_total = 0;
 
     /**
      * The width of the bar.
      *
      * @var int
      */
-    protected $_width = 0;
+    protected int $_width = 0;
 
     /**
      * Output a progress bar.
@@ -57,7 +57,7 @@ class ProgressShellHelper extends BaseShellHelper
      * @return void
      * @throws RuntimeException
      */
-    public function output($args)
+    public function output(array $args): void
     {
         $args += ['callback' => null];
         if (isset($args[0])) {
@@ -85,7 +85,7 @@ class ProgressShellHelper extends BaseShellHelper
      * @param array $args The initialization data.
      * @return void
      */
-    public function init(array $args = [])
+    public function init(array $args = []): void
     {
         $args += ['total' => 100, 'width' => 80];
         $this->_progress = 0;
@@ -99,7 +99,7 @@ class ProgressShellHelper extends BaseShellHelper
      * @param int $num The amount of progress to advance by.
      * @return void
      */
-    public function increment($num = 1)
+    public function increment(int $num = 1): void
     {
         $this->_progress = min(max(0, $this->_progress + $num), $this->_total);
     }
@@ -109,7 +109,7 @@ class ProgressShellHelper extends BaseShellHelper
      *
      * @return void
      */
-    public function draw()
+    public function draw(): void
     {
         $numberLen = strlen(' 100%');
         $complete = round($this->_progress / $this->_total, 2, PHP_ROUND_HALF_UP);
@@ -118,7 +118,7 @@ class ProgressShellHelper extends BaseShellHelper
         if ($barLen > 1) {
             $bar = str_repeat('=', $barLen - 1) . '>';
         }
-        $pad = ceil($this->_width - $numberLen - $barLen);
+        $pad = (int)ceil($this->_width - $numberLen - $barLen);
         if ($pad > 0) {
             $bar .= str_repeat(' ', $pad);
         }

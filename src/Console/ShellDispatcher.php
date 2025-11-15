@@ -39,14 +39,14 @@ class ShellDispatcher
      *
      * @var array
      */
-    public $params = [];
+    public array $params = [];
 
     /**
      * Contains arguments parsed from the command line.
      *
      * @var array
      */
-    public $args = [];
+    public array $args = [];
 
     /**
      * Constructor
@@ -57,7 +57,7 @@ class ShellDispatcher
      * @param array $args the argv from PHP
      * @param bool $bootstrap Should the environment be bootstrapped.
      */
-    public function __construct($args = [], $bootstrap = true)
+    public function __construct(array $args = [], bool $bootstrap = true)
     {
         set_time_limit(0);
         $this->parseParams($args);
@@ -72,9 +72,9 @@ class ShellDispatcher
      * Run the dispatcher
      *
      * @param array $argv The argv from PHP
-     * @return never
+     * @return void
      */
-    public static function run($argv)
+    public static function run(array $argv): void
     {
         $dispatcher = new ShellDispatcher($argv);
         $dispatcher->_stop($dispatcher->dispatch() === false ? 1 : 0);
@@ -85,12 +85,12 @@ class ShellDispatcher
      *
      * @return void
      */
-    protected function _initConstants()
+    protected function _initConstants(): void
     {
         if (function_exists('ini_set')) {
-            ini_set('html_errors', false);
-            ini_set('implicit_flush', true);
-            ini_set('max_execution_time', 0);
+            ini_set('html_errors', false); // @phpstan-ignore-line
+            ini_set('implicit_flush', true); // @phpstan-ignore-line
+            ini_set('max_execution_time', 0); // @phpstan-ignore-line
         }
 
         if (!defined('CAKEPHP_SHELL')) {
@@ -106,7 +106,7 @@ class ShellDispatcher
      * @return void
      * @throws CakeException
      */
-    protected function _initEnvironment()
+    protected function _initEnvironment(): void
     {
         if (!$this->_bootstrap()) {
             $message = "Unable to load CakePHP core.\nMake sure " . DS . 'src' . DS . 'Cake exists in ' . CAKE_CORE_INCLUDE_PATH;
@@ -129,7 +129,7 @@ class ShellDispatcher
      *
      * @return bool Success.
      */
-    protected function _bootstrap()
+    protected function _bootstrap(): bool
     {
         if (!defined('ROOT')) {
             define('ROOT', $this->params['root']);
@@ -182,7 +182,7 @@ class ShellDispatcher
      *
      * @return void
      */
-    public function setErrorHandlers()
+    public function setErrorHandlers(): void
     {
         $error = Configure::read('Error');
         $exception = Configure::read('Exception');
@@ -208,7 +208,7 @@ class ShellDispatcher
      * @return bool
      * @throws MissingShellMethodException
      */
-    public function dispatch()
+    public function dispatch(): bool
     {
         $shiftArgs = $this->shiftArgs();
 
@@ -250,8 +250,9 @@ class ShellDispatcher
 
             if (method_exists($shell, 'main')) {
                 $shell->startup();
+                $shell->main();
 
-                return $shell->main();
+                return true;
             }
         }
 
@@ -264,10 +265,10 @@ class ShellDispatcher
      * All paths in the loaded shell paths are searched.
      *
      * @param string $shell Optionally the name of a plugin
-     * @return mixed An object
+     * @return object An object
      * @throws MissingShellException when errors are encountered.
      */
-    protected function _getShell($shell)
+    protected function _getShell(string $shell): object
     {
         [$plugin, $shell] = pluginSplit($shell, true);
 
@@ -292,10 +293,10 @@ class ShellDispatcher
             ]);
         }
 
-        $Shell = new $class();
-        $Shell->plugin = trim($plugin, '.');
+        $_shell = new $class();
+        $_shell->plugin = trim($plugin, '.');
 
-        return $Shell;
+        return $_shell;
     }
 
     /**
@@ -304,7 +305,7 @@ class ShellDispatcher
      * @param array $args Parameters to parse
      * @return void
      */
-    public function parseParams($args)
+    public function parseParams(array $args): void
     {
         $this->_parsePaths($args);
 
@@ -357,7 +358,7 @@ class ShellDispatcher
     /**
      * @return array
      */
-    protected function _getDefaults()
+    protected function _getDefaults(): array
     {
         if (InstalledVersions::isInstalled('pieceofcake2/app')) {
             $root = realpath(InstalledVersions::getInstallPath('pieceofcake2/app'));
@@ -388,7 +389,7 @@ class ShellDispatcher
      * @param string $path absolute or relative path.
      * @return bool
      */
-    protected function _isAbsolutePath($path)
+    protected function _isAbsolutePath(string $path): bool
     {
         return $path[0] === '/' || $this->_isWindowsPath($path);
     }
@@ -399,7 +400,7 @@ class ShellDispatcher
      * @param string $path absolute path.
      * @return bool
      */
-    protected function _isWindowsPath($path)
+    protected function _isWindowsPath(string $path): bool
     {
         return preg_match('/([a-z])(:)/i', $path) == 1;
     }
@@ -410,11 +411,10 @@ class ShellDispatcher
      * @param array $args The argv to parse.
      * @return void
      */
-    protected function _parsePaths($args)
+    protected function _parsePaths(array $args): void
     {
         $parsed = [];
         $keys = ['-working', '--working', '-app', '--app', '-root', '--root', '-webroot', '--webroot'];
-        $args = (array)$args;
         foreach ($keys as $key) {
             while (($index = array_search($key, $args)) !== false) {
                 $keyname = str_replace('-', '', $key);
@@ -432,7 +432,7 @@ class ShellDispatcher
      *
      * @return mixed Null if there are no arguments otherwise the shifted argument
      */
-    public function shiftArgs()
+    public function shiftArgs(): mixed
     {
         return array_shift($this->args);
     }
@@ -442,7 +442,7 @@ class ShellDispatcher
      *
      * @return void
      */
-    public function help()
+    public function help(): void
     {
         $this->args = array_merge(['command_list'], $this->args);
         $this->dispatch();
@@ -452,9 +452,9 @@ class ShellDispatcher
      * Stop execution of the current script
      *
      * @param string|int $status see http://php.net/exit for values
-     * @return never
+     * @return void
      */
-    protected function _stop($status = 0)
+    protected function _stop(string|int $status = 0): void
     {
         exit($status);
     }

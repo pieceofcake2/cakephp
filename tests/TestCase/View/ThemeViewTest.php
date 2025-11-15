@@ -37,7 +37,7 @@ class ThemePosts2Controller extends Controller
     /**
      * name property
      *
-     * @var string
+     * @var string|null
      */
     public ?string $name = 'ThemePosts';
 

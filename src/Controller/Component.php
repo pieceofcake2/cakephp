@@ -16,7 +16,10 @@
 
 namespace Cake\Controller;
 
+use Cake\Controller\Component\Acl\PhpAco;
+use Cake\Controller\Component\Acl\PhpAro;
 use Cake\Core\CakeObject;
+use Cake\Model\Model;
 
 /**
  * Base class for an individual Component. Components provide reusable bits of
@@ -70,6 +73,20 @@ class Component extends CakeObject
     protected array $_componentMap = [];
 
     /**
+     * Aro Object
+     *
+     * @var PhpAro|Model|null
+     */
+    public PhpAro|Model|null $Aro = null;
+
+    /**
+     * Aco Object
+     *
+     * @var PhpAco|Model|null
+     */
+    public PhpAco|Model|null $Aco = null;
+
+    /**
      * Constructor
      *
      * @param ComponentCollection $collection A ComponentCollection this component can use to lazy load its components
@@ -91,7 +108,7 @@ class Component extends CakeObject
      * @param string $name Name of component to get.
      * @return mixed A Component object or null.
      */
-    public function __get(string $name)
+    public function __get(string $name): mixed
     {
         if (isset($this->_componentMap[$name]) && !isset($this->{$name})) {
             $settings = (array)$this->_componentMap[$name]['settings'] + ['enabled' => false];
@@ -100,6 +117,8 @@ class Component extends CakeObject
         if (isset($this->{$name})) {
             return $this->{$name};
         }
+
+        return null;
     }
 
     /**
@@ -109,7 +128,7 @@ class Component extends CakeObject
      * @return void
      * @link https://book.cakephp.org/2.0/en/controllers/components.html#Component::initialize
      */
-    public function initialize(Controller $controller)
+    public function initialize(Controller $controller): void
     {
     }
 
@@ -161,13 +180,18 @@ class Component extends CakeObject
      * be used as the new URL to redirect to.
      *
      * @param Controller $controller Controller with components to beforeRedirect
-     * @param array|string $url Either the string or URL array that is being redirected to.
-     * @param int $status The status code of the redirect
+     * @param array|string|null $url Either the string or URL array that is being redirected to.
+     * @param array|int|null $status The status code of the redirect
      * @param bool $exit Will the script exit.
-     * @return array|null Either an array or null.
+     * @return array|string|false|null Either an array or null.
      * @link https://book.cakephp.org/2.0/en/controllers/components.html#Component::beforeRedirect
      */
-    public function beforeRedirect(Controller $controller, $url, $status = null, $exit = true)
-    {
+    public function beforeRedirect(
+        Controller $controller,
+        array|string|null $url,
+        array|int|null $status = null,
+        bool $exit = true,
+    ): array|string|false|null {
+        return null;
     }
 }

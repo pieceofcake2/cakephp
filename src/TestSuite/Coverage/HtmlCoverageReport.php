@@ -56,13 +56,13 @@ class HtmlCoverageReport extends BaseCoverageReport
         }
         $output = $this->coverageScript();
         $output .= <<<HTML
-		<h3>Code coverage results
-		<a href="#" onclick="coverage_toggle_all()" class="coverage-toggle">Toggle all files</a>
-		</h3>
-HTML;
-        foreach ($coverageData as $file => $coverageData) {
+        <h3>Code coverage results
+        <a href="#" onclick="coverage_toggle_all()" class="coverage-toggle">Toggle all files</a>
+        </h3>
+        HTML;
+        foreach ($coverageData as $file => $_coverageData) {
             $fileData = file($file);
-            $output .= $this->generateDiff($file, $fileData, $coverageData);
+            $output .= $this->generateDiff($file, $fileData, $_coverageData);
         }
 
         $percentCovered = 100;
@@ -189,32 +189,32 @@ HTML;
     public function coverageScript()
     {
         return <<<HTML
-		<script type="text/javascript">
-		function coverage_show_hide(selector) {
-			var element = document.getElementById(selector);
-			element.style.display = (element.style.display === 'none') ? '' : 'none';
-		}
-		function coverage_toggle_all() {
-			var divs = document.querySelectorAll('div.coverage-container');
-			var i = divs.length;
-			while (i--) {
-				if (divs[i] && divs[i].className.indexOf('primary') == -1) {
-					divs[i].style.display = (divs[i].style.display === 'none') ? '' : 'none';
-				}
-			}
-		}
-		</script>
-HTML;
+        <script>
+        function coverage_show_hide(selector) {
+            var element = document.getElementById(selector);
+            element.style.display = (element.style.display === 'none') ? '' : 'none';
+        }
+        function coverage_toggle_all() {
+            var divs = document.querySelectorAll('div.coverage-container');
+            var i = divs.length;
+            while (i--) {
+                if (divs[i] && divs[i].className.indexOf('primary') === -1) {
+                    divs[i].style.display = (divs[i].style.display === 'none') ? '' : 'none';
+                }
+            }
+        }
+        </script>
+        HTML;
     }
 
     /**
      * Generate an HTML snippet for coverage headers
      *
      * @param string $filename The file name being covered
-     * @param string $percent The percentage covered
+     * @param float|int $percent The percentage covered
      * @return string
      */
-    public function coverageHeader($filename, $percent)
+    public function coverageHeader(string $filename, float|int $percent): string
     {
         $hash = md5($filename);
         $filename = basename($filename);
@@ -223,15 +223,15 @@ HTML;
         $primary = $display === 'block' ? 'primary' : '';
 
         return <<<HTML
-	<div class="coverage-container $primary" style="display:$display;">
-	<h4>
-		<a href="#coverage-$filename-$hash" onclick="coverage_show_hide('coverage-$filename-$hash');">
-			$filename Code coverage: $percent%
-		</a>
-	</h4>
-	<div class="code-coverage-results" id="coverage-$filename-$hash" style="display:none;">
-	<pre>
-HTML;
+            <div class="coverage-container $primary" style="display:$display;">
+                <h4>
+                    <a href="#coverage-$filename-$hash" onclick="coverage_show_hide('coverage-$filename-$hash');">
+                        $filename Code coverage: $percent%
+                    </a>
+                </h4>
+                <div class="code-coverage-results" id="coverage-$filename-$hash" style="display:none;">
+                    <pre>
+        HTML;
     }
 
     /**

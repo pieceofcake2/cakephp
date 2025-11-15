@@ -76,7 +76,7 @@ class DigestAuthenticate extends BasicAuthenticate
      *
      * @var array
      */
-    public $settings = [
+    public array $settings = [
         'fields' => [
             'username' => 'username',
             'password' => 'password',
@@ -114,9 +114,9 @@ class DigestAuthenticate extends BasicAuthenticate
      * Get a user based on information in the request. Used by cookie-less auth for stateless clients.
      *
      * @param CakeRequest $request Request object.
-     * @return mixed Either false or an array of user information
+     * @return array|false Either false or an array of user information
      */
-    public function getUser(CakeRequest $request)
+    public function getUser(CakeRequest $request): array|false
     {
         $digest = $this->_getDigest();
         if (empty($digest)) {
@@ -144,7 +144,7 @@ class DigestAuthenticate extends BasicAuthenticate
      *
      * @return array|bool|null Array of digest information.
      */
-    protected function _getDigest()
+    protected function _getDigest(): array|bool|null
     {
         $digest = env('PHP_AUTH_DIGEST');
         if (empty($digest) && function_exists('apache_request_headers')) {
@@ -166,7 +166,7 @@ class DigestAuthenticate extends BasicAuthenticate
      * @param string $digest The raw digest authentication headers.
      * @return array|null An array of digest authentication headers
      */
-    public function parseAuthData($digest)
+    public function parseAuthData(string $digest): ?array
     {
         if (str_starts_with($digest, 'Digest ')) {
             $digest = substr($digest, 7);
@@ -194,7 +194,7 @@ class DigestAuthenticate extends BasicAuthenticate
      * @param string $password The digest hash password generated with DigestAuthenticate::password()
      * @return string Response hash
      */
-    public function generateResponseHash($digest, $password)
+    public function generateResponseHash(array $digest, string $password): string
     {
         return md5(
             $password .
@@ -211,8 +211,11 @@ class DigestAuthenticate extends BasicAuthenticate
      * @param string $realm The realm the password is for.
      * @return string the hashed password that can later be used with Digest authentication.
      */
-    public static function password($username, $password, $realm)
-    {
+    public static function password(
+        string $username,
+        string $password,
+        string $realm,
+    ): string {
         return md5($username . ':' . $realm . ':' . $password);
     }
 
@@ -221,7 +224,7 @@ class DigestAuthenticate extends BasicAuthenticate
      *
      * @return string Headers for logging in.
      */
-    public function loginHeaders()
+    public function loginHeaders(): string
     {
         $options = [
             'realm' => $this->settings['realm'],

@@ -22,6 +22,7 @@ use Cake\Core\App;
 use Cake\Core\Configure;
 use Cake\Model\CakeSchema;
 use Cake\Model\ConnectionManager;
+use Cake\Model\Datasource\DboSource;
 use Cake\Utility\CakeText;
 use Cake\Utility\File;
 use Cake\Utility\Folder;
@@ -60,7 +61,7 @@ class SchemaShell extends AppShell
      *
      * @return void
      */
-    public function startup()
+    public function startup(): void
     {
         $this->_welcome();
         $this->out('Cake Schema Shell');
@@ -134,7 +135,7 @@ class SchemaShell extends AppShell
      *
      * @return void
      */
-    public function generate()
+    public function generate(): void
     {
         $this->out(__d('cake_console', 'Generating Schema...'));
         $options = [];
@@ -171,7 +172,7 @@ class SchemaShell extends AppShell
 
         Configure::write('Cache.disable', $cacheDisable);
 
-        if (!empty($this->params['exclude']) && !empty($content)) {
+        if (!empty($this->params['exclude'])) {
             $excluded = CakeText::tokenize($this->params['exclude']);
             foreach ($excluded as $table) {
                 unset($content['tables'][$table]);
@@ -191,7 +192,7 @@ class SchemaShell extends AppShell
             $count = 0;
             if (!empty($result[1])) {
                 foreach ($result[1] as $file) {
-                    if (preg_match('/' . preg_quote($fileName) . '(?:[_\d]*)?\.php$/', $file)) {
+                    if (preg_match('/' . preg_quote($fileName, '/') . '(?:[_\d]*)?\.php$/', $file)) {
                         $count++;
                     }
                 }
@@ -208,7 +209,6 @@ class SchemaShell extends AppShell
 
         if ($this->Schema->write($content)) {
             $this->out(__d('cake_console', 'Schema file: %s generated', $content['file']));
-
             $this->_stop();
 
             return;
@@ -225,16 +225,17 @@ class SchemaShell extends AppShell
      * If -write contains a full path name the file will be saved there. If -write only
      * contains no DS, that will be used as the file name, in the same dir as the schema file.
      *
-     * @return string
+     * @return string|null
      */
-    public function dump()
+    public function dump(): ?string
     {
         $write = false;
         $schema = $this->Schema->load();
         if (!$schema) {
             $this->err(__d('cake_console', 'Schema could not be loaded'));
+            $this->_stop();
 
-            return $this->_stop();
+            return null;
         }
         if (!empty($this->params['write'])) {
             if ($this->params['write'] == 1) {
@@ -243,6 +244,7 @@ class SchemaShell extends AppShell
                 $write = $this->params['write'];
             }
         }
+        /** @var DboSource $db */
         $db = ConnectionManager::getDataSource($this->Schema->connection);
         $contents = "\n\n" . $db->dropSchema($schema) . "\n\n" . $db->createSchema($schema);
 
@@ -251,19 +253,21 @@ class SchemaShell extends AppShell
                 $write .= '.sql';
             }
             if (str_contains($write, DS)) {
-                $File = new File($write, true);
+                $file = new File($write, true);
             } else {
-                $File = new File($this->Schema->path . DS . $write, true);
+                $file = new File($this->Schema->path . DS . $write, true);
             }
 
-            if ($File->write($contents)) {
-                $this->out(__d('cake_console', 'SQL dump file created in %s', $File->pwd()));
+            if ($file->write($contents)) {
+                $this->out(__d('cake_console', 'SQL dump file created in %s', $file->pwd()));
+                $this->_stop();
 
-                return $this->_stop();
+                return null;
             }
             $this->err(__d('cake_console', 'SQL dump could not be created'));
+            $this->_stop();
 
-            return $this->_stop();
+            return null;
         }
         $this->out($contents);
 
@@ -275,7 +279,7 @@ class SchemaShell extends AppShell
      *
      * @return void
      */
-    public function create()
+    public function create(): void
     {
         [$schema, $table] = $this->_loadSchema();
         $this->_create($schema, $table);
@@ -286,7 +290,7 @@ class SchemaShell extends AppShell
      *
      * @return void
      */
-    public function update()
+    public function update(): void
     {
         [$schema, $table] = $this->_loadSchema();
         $this->_update($schema, $table);
@@ -295,9 +299,9 @@ class SchemaShell extends AppShell
     /**
      * Prepares the Schema objects for database operations.
      *
-     * @return array{CakeSchema, string|null}
+     * @return array{CakeSchema, string|null}|null
      */
-    protected function _loadSchema()
+    protected function _loadSchema(): ?array
     {
         $name = $plugin = null;
         if (!empty($this->params['name'])) {
@@ -328,8 +332,9 @@ class SchemaShell extends AppShell
             $this->err(__d('cake_console', '<error>Error</error>: The chosen schema could not be loaded. Attempted to load:'));
             $this->err(__d('cake_console', '- file: %s', $this->Schema->path . DS . $this->Schema->file));
             $this->err(__d('cake_console', '- name: %s', $this->Schema->name));
+            $this->_stop(2);
 
-            return $this->_stop(2);
+            return null;
         }
         $table = null;
         if (isset($this->args[1])) {
@@ -347,8 +352,9 @@ class SchemaShell extends AppShell
      * @param string|null $table The table name.
      * @return void
      */
-    protected function _create(CakeSchema $schema, ?string $table = null)
+    protected function _create(CakeSchema $schema, ?string $table = null): void
     {
+        /** @var DboSource $db */
         $db = ConnectionManager::getDataSource($this->Schema->connection);
 
         $drop = $create = [];
@@ -364,8 +370,9 @@ class SchemaShell extends AppShell
         }
         if (empty($drop) || empty($create)) {
             $this->out(__d('cake_console', 'Schema is up to date.'));
+            $this->_stop();
 
-            return $this->_stop();
+            return;
         }
 
         $this->out("\n" . __d('cake_console', 'The following table(s) will be dropped.'));
@@ -396,12 +403,13 @@ class SchemaShell extends AppShell
      * Update database with Schema object
      * Should be called via the run method
      *
-     * @param CakeSchema &$schema The schema instance
-     * @param string $table The table name.
+     * @param CakeSchema $schema The schema instance
+     * @param string|null $table The table name.
      * @return void
      */
-    protected function _update(&$schema, $table = null)
+    protected function _update(CakeSchema $schema, ?string $table = null): void
     {
+        /** @var DboSource $db */
         $db = ConnectionManager::getDataSource($this->Schema->connection);
 
         $this->out(__d('cake_console', 'Comparing Database to Schema...'));
@@ -416,10 +424,10 @@ class SchemaShell extends AppShell
 
         if (empty($table)) {
             foreach ($compare as $table => $changes) {
-                if (isset($compare[$table]['create'])) {
+                if (isset($changes['create'])) {
                     $contents[$table] = $db->createSchema($schema, $table);
                 } else {
-                    $contents[$table] = $db->alterSchema([$table => $compare[$table]], $table);
+                    $contents[$table] = $db->alterSchema([$table => $changes], $table);
                 }
             }
         } elseif (isset($compare[$table])) {
@@ -432,8 +440,9 @@ class SchemaShell extends AppShell
 
         if (empty($contents)) {
             $this->out(__d('cake_console', 'Schema is up to date.'));
+            $this->_stop();
 
-            return $this->_stop();
+            return;
         }
 
         $this->out("\n" . __d('cake_console', 'The following statements will run.'));
@@ -461,14 +470,18 @@ class SchemaShell extends AppShell
      * @param CakeSchema $schema The schema instance.
      * @return void
      */
-    protected function _run($contents, $event, CakeSchema $schema)
-    {
+    protected function _run(
+        array $contents,
+        string $event,
+        CakeSchema $schema,
+    ): void {
         if (empty($contents)) {
             $this->err(__d('cake_console', 'Sql could not be run'));
 
             return;
         }
         Configure::write('debug', 2);
+        /** @var DboSource $db */
         $db = ConnectionManager::getDataSource($this->Schema->connection);
 
         foreach ($contents as $table => $sql) {
@@ -480,8 +493,9 @@ class SchemaShell extends AppShell
                     $this->out($sql);
                 } else {
                     if (!$schema->before([$event => $table])) {
-                        return false;
+                        return;
                     }
+
                     $error = null;
                     try {
                         $db->execute($sql);

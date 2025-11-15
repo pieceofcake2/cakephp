@@ -48,16 +48,23 @@ class TranslateBehaviorTest extends CakeTestCase
      *
      * @var bool
      */
-    public $autoFixtures = false;
+    public bool $autoFixtures = false;
 
     /**
      * fixtures property
      *
-     * @var array
+     * @var array<string>
      */
-    public $fixtures = [
-        'core.translated_item', 'core.translate', 'core.translate_table',
-        'core.translated_article', 'core.translate_article', 'core.user', 'core.comment', 'core.tag', 'core.articles_tag',
+    public array $fixtures = [
+        'core.translated_item',
+        'core.translate',
+        'core.translate_table',
+        'core.translated_article',
+        'core.translate_article',
+        'core.user',
+        'core.comment',
+        'core.tag',
+        'core.articles_tag',
         'core.translate_with_prefix',
     ];
 
@@ -928,16 +935,16 @@ class TranslateBehaviorTest extends CakeTestCase
     {
         $this->loadFixtures('Translate', 'TranslatedItem');
 
-        $TestModel = new TranslatedItem();
-        $TestModel->locale = 'spa';
+        $testModel = new TranslatedItem();
+        $testModel->locale = 'spa';
         $oldData = ['slug' => 'fourth_translated', 'title' => 'Leyenda #4', 'translated_article_id' => 1];
-        $TestModel->create($oldData);
-        $TestModel->save();
-        $id = $TestModel->id;
+        $testModel->create($oldData);
+        $testModel->save();
+        $id = $testModel->id;
         $newData = ['id' => $id, 'content' => 'Contenido #4'];
-        $TestModel->create($newData);
-        $TestModel->save();
-        $result = $TestModel->read(null, $id);
+        $testModel->create($newData);
+        $testModel->save();
+        $result = $testModel->read(null, $id);
         $expected = ['TranslatedItem' => array_merge($oldData, $newData, ['locale' => 'spa'])];
         $this->assertEquals($expected, $result);
     }
@@ -1164,7 +1171,7 @@ class TranslateBehaviorTest extends CakeTestCase
         ]];
         $TestModel->create();
         $result = $TestModel->save($data);
-        $this->assertFalse(empty($result));
+        $this->assertNotEmpty($result);
     }
 
     /**

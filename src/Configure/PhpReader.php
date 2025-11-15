@@ -41,9 +41,9 @@ class PhpReader implements ConfigReaderInterface
     /**
      * Constructor for PHP Config file reading.
      *
-     * @param string $path The path to read config files from. Defaults to CONFIG
+     * @param string|null $path The path to read config files from. Defaults to CONFIG
      */
-    public function __construct($path = null)
+    public function __construct(?string $path = null)
     {
         if (!$path) {
             $path = CONFIG;
@@ -63,7 +63,7 @@ class PhpReader implements ConfigReaderInterface
      * @throws ConfigureException when files don't exist or they don't contain `$config`.
      *  Or when files contain '..' as this could lead to abusive reads.
      */
-    public function read($key)
+    public function read(string $key): array
     {
         if (str_contains($key, '..')) {
             throw new ConfigureException(__d('cake_dev', 'Cannot load configuration files with ../ in them.'));
@@ -89,9 +89,9 @@ class PhpReader implements ConfigReaderInterface
      * @param string $key The identifier to write to. If the key has a . it will be treated
      *  as a plugin prefix.
      * @param array $data Data to dump.
-     * @return int Bytes saved.
+     * @return int|false Bytes saved.
      */
-    public function dump($key, $data)
+    public function dump(string $key, array $data): int|false
     {
         $contents = '<?php' . "\n" . '$config = ' . var_export($data, true) . ';';
 
@@ -107,7 +107,7 @@ class PhpReader implements ConfigReaderInterface
      *  as a plugin prefix.
      * @return string Full file path
      */
-    protected function _getFilePath($key)
+    protected function _getFilePath(string $key): string
     {
         if (str_ends_with($key, '.php')) {
             $key = substr($key, 0, -4);

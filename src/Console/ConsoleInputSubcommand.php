@@ -33,32 +33,35 @@ class ConsoleInputSubcommand
      *
      * @var string
      */
-    protected $_name;
+    protected string $_name;
 
     /**
      * Help string for the subcommand
      *
      * @var string
      */
-    protected $_help;
+    protected string $_help;
 
     /**
      * The ConsoleOptionParser for this subcommand.
      *
-     * @var ConsoleOptionParser
+     * @var ConsoleOptionParser|array|null
      */
-    protected $_parser;
+    protected ConsoleOptionParser|array|null $_parser = null;
 
     /**
      * Make a new Subcommand
      *
-     * @param array|string $name The long name of the subcommand, or an array with all the properties.
+     * @param array{name: string}|string $name The long name of the subcommand, or an array with all the properties.
      * @param string $help The help text for this option
-     * @param ConsoleOptionParser|array $parser A parser for this subcommand. Either a ConsoleOptionParser, or an array that can be
+     * @param ConsoleOptionParser|array|null $parser A parser for this subcommand. Either a ConsoleOptionParser, or an array that can be
      *   used with ConsoleOptionParser::buildFromArray()
      */
-    public function __construct($name, $help = '', $parser = null)
-    {
+    public function __construct(
+        array|string $name,
+        string $help = '',
+        ConsoleOptionParser|array|null $parser = null,
+    ) {
         if (is_array($name) && isset($name['name'])) {
             foreach ($name as $key => $value) {
                 $this->{'_' . $key} = $value;
@@ -68,6 +71,7 @@ class ConsoleInputSubcommand
             $this->_help = $help;
             $this->_parser = $parser;
         }
+
         if (is_array($this->_parser)) {
             $this->_parser['command'] = $this->_name;
             $this->_parser = ConsoleOptionParser::buildFromArray($this->_parser);
@@ -77,9 +81,9 @@ class ConsoleInputSubcommand
     /**
      * Get the value of the name attribute.
      *
-     * @return string Value of this->_name.
+     * @return array|string Value of this->_name.
      */
-    public function name()
+    public function name(): array|string
     {
         return $this->_name;
     }
@@ -90,7 +94,7 @@ class ConsoleInputSubcommand
      * @param int $width The width to make the name of the subcommand.
      * @return string
      */
-    public function help($width = 0)
+    public function help(int $width = 0): string
     {
         $name = $this->_name;
         if (strlen($name) < $width) {
@@ -103,9 +107,9 @@ class ConsoleInputSubcommand
     /**
      * Get the usage value for this option
      *
-     * @return mixed Either false or a ConsoleOptionParser
+     * @return ConsoleOptionParser|false Either false or a ConsoleOptionParser
      */
-    public function parser()
+    public function parser(): ConsoleOptionParser|false
     {
         if ($this->_parser instanceof ConsoleOptionParser) {
             return $this->_parser;
@@ -120,7 +124,7 @@ class ConsoleInputSubcommand
      * @param SimpleXmlElement $parent The parent element.
      * @return SimpleXmlElement The parent with this subcommand appended.
      */
-    public function xml(SimpleXmlElement $parent)
+    public function xml(SimpleXmlElement $parent): SimpleXmlElement
     {
         $command = $parent->addChild('command');
         $command->addAttribute('name', $this->_name);

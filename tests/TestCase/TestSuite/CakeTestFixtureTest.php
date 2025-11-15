@@ -37,14 +37,14 @@ class CakeTestFixtureTestFixture extends CakeTestFixture
     /**
      * Name property
      *
-     * @var string
+     * @var string|null
      */
     public ?string $name = 'FixtureTest';
 
     /**
      * Table property
      *
-     * @var string
+     * @var string|null
      */
     public ?string $table = 'fixture_tests';
 
@@ -81,14 +81,14 @@ class StringsTestFixture extends CakeTestFixture
     /**
      * Name property
      *
-     * @var string
+     * @var string|null
      */
     public ?string $name = 'Strings';
 
     /**
      * Table property
      *
-     * @var string
+     * @var string|null
      */
     public ?string $table = 'strings';
 
@@ -126,14 +126,14 @@ class InvalidTestFixture extends CakeTestFixture
     /**
      * Name property
      *
-     * @var string
+     * @var string|null
      */
     public ?string $name = 'Invalid';
 
     /**
      * Table property
      *
-     * @var string
+     * @var string|null
      */
     public ?string $table = 'invalid';
 
@@ -170,7 +170,7 @@ class CakeTestFixtureImportFixture extends CakeTestFixture
     /**
      * Name property
      *
-     * @var string
+     * @var string|null
      */
     public ?string $name = 'ImportFixture';
 
@@ -192,7 +192,7 @@ class CakeTestFixtureDefaultImportFixture extends CakeTestFixture
     /**
      * Name property
      *
-     * @var string
+     * @var string|null
      */
     public ?string $name = 'ImportFixture';
 }

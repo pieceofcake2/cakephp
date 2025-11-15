@@ -14,6 +14,7 @@
 
 namespace Cake\Controller\Component\Auth;
 
+use Cake\Controller\Component\AclComponent;
 use Cake\Network\CakeRequest;
 
 /**
@@ -34,11 +35,12 @@ class ActionsAuthorize extends BaseAuthorize
      * @param CakeRequest $request The request needing authorization.
      * @return bool
      */
-    public function authorize($user, CakeRequest $request)
+    public function authorize(array $user, CakeRequest $request): bool
     {
-        $Acl = $this->_Collection->load('Acl');
+        /** @var AclComponent $acl */
+        $acl = $this->_Collection->load('Acl');
         $user = [$this->settings['userModel'] => $user];
 
-        return $Acl->check($user, $this->action($request));
+        return $acl->check($user, $this->action($request));
     }
 }

@@ -57,8 +57,10 @@ class TestBehavior extends ModelBehavior
      * @param array $config
      * @return void
      */
-    public function setup(Model $model, $config = [])
-    {
+    public function setup(
+        Model $model,
+        array $config = [],
+    ): void {
         parent::setup($model, $config);
         if (isset($config['mangle'])) {
             $config['mangle'] .= ' mangled';
@@ -71,9 +73,9 @@ class TestBehavior extends ModelBehavior
      *
      * @param Model $model
      * @param array $query
-     * @return array|bool
+     * @return array|bool|null
      */
-    public function beforeFind(Model $model, $query)
+    public function beforeFind(Model $model, array $query): array|bool|null
     {
         $settings = $this->settings[$model->alias];
         if (!isset($settings['beforeFind']) || $settings['beforeFind'] === 'off') {
@@ -90,6 +92,8 @@ class TestBehavior extends ModelBehavior
 
                 return $query;
         }
+
+        return null;
     }
 
     /**
@@ -100,7 +104,7 @@ class TestBehavior extends ModelBehavior
      * @param bool $primary
      * @return array|bool
      */
-    public function afterFind(Model $model, $results, $primary = false)
+    public function afterFind(Model $model, mixed $results, bool $primary = false): mixed
     {
         $settings = $this->settings[$model->alias];
         if (!isset($settings['afterFind']) || $settings['afterFind'] === 'off') {
@@ -116,6 +120,8 @@ class TestBehavior extends ModelBehavior
             case 'modify':
                 return Hash::extract($results, "{n}.{$model->alias}");
         }
+
+        return null;
     }
 
     /**
@@ -424,8 +430,10 @@ class_alias(Test3Behavior::class, 'App\\Model\\Behavior\\Test3Behavior');
  */
 class Test4Behavior extends ModelBehavior
 {
-    public function setup(Model $model, $config = null)
-    {
+    public function setup(
+        Model $model,
+        array $config = [],
+    ): void {
         $model->bindModel(
             ['hasMany' => ['Comment']],
         );
@@ -440,8 +448,10 @@ class_alias(Test4Behavior::class, 'App\\Model\\Behavior\\Test4Behavior');
  */
 class Test5Behavior extends ModelBehavior
 {
-    public function setup(Model $model, $config = null)
-    {
+    public function setup(
+        Model $model,
+        array $config = [],
+    ): void {
         $model->bindModel(
             ['belongsTo' => ['User']],
         );
@@ -456,8 +466,10 @@ class_alias(Test5Behavior::class, 'App\\Model\\Behavior\\Test5Behavior');
  */
 class Test6Behavior extends ModelBehavior
 {
-    public function setup(Model $model, $config = null)
-    {
+    public function setup(
+        Model $model,
+        array $config = [],
+    ): void {
         $model->bindModel(
             ['hasAndBelongsToMany' => ['Tag']],
         );
@@ -472,8 +484,10 @@ class_alias(Test6Behavior::class, 'App\\Model\\Behavior\\Test6Behavior');
  */
 class Test7Behavior extends ModelBehavior
 {
-    public function setup(Model $model, $config = null)
-    {
+    public function setup(
+        Model $model,
+        array $config = [],
+    ): void {
         $model->bindModel(
             ['hasOne' => ['Attachment']],
         );
@@ -494,7 +508,7 @@ class_alias(TestAliasBehavior::class, 'App\\Model\\Behavior\\TestAliasBehavior')
  */
 class FirstBehavior extends ModelBehavior
 {
-    public function beforeFind(Model $model, $query = [])
+    public function beforeFind(Model $model, array $query = []): array|bool|null
     {
         $model->called[] = static::class;
 
@@ -538,11 +552,18 @@ class BehaviorCollectionTest extends CakeTestCase
     /**
      * fixtures property
      *
-     * @var array
+     * @var array<string>
      */
-    public $fixtures = [
-        'core.apple', 'core.sample', 'core.article', 'core.user', 'core.comment',
-        'core.attachment', 'core.tag', 'core.articles_tag', 'core.translate',
+    public array $fixtures = [
+        'core.apple',
+        'core.sample',
+        'core.article',
+        'core.user',
+        'core.comment',
+        'core.attachment',
+        'core.tag',
+        'core.articles_tag',
+        'core.translate',
         'core.device',
     ];
 

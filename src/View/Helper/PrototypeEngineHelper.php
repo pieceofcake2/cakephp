@@ -45,7 +45,7 @@ class PrototypeEngineHelper extends JsBaseEngineHelper
      *
      * @var array
      */
-    protected $_optionMap = [
+    protected array $_optionMap = [
         'request' => [
             'async' => 'asynchronous',
             'data' => 'parameters',
@@ -83,7 +83,7 @@ class PrototypeEngineHelper extends JsBaseEngineHelper
      *
      * @var array
      */
-    protected $_callbackArguments = [
+    protected array $_callbackArguments = [
         'slider' => [
             'onSlide' => 'value',
             'onChange' => 'value',
@@ -118,7 +118,7 @@ class PrototypeEngineHelper extends JsBaseEngineHelper
      * @param string $selector The selector that is targeted
      * @return self
      */
-    public function get($selector)
+    public function get(string $selector): self
     {
         $this->_multiple = false;
         if ($selector === 'window' || $selector === 'document') {
@@ -150,7 +150,7 @@ class PrototypeEngineHelper extends JsBaseEngineHelper
      * @param array $options Options for the event.
      * @return string completed event handler
      */
-    public function event($type, $callback, $options = [])
+    public function event(string $type, string $callback, array $options = []): string
     {
         $defaults = ['wrap' => true, 'stop' => true];
         $options += $defaults;
@@ -173,7 +173,7 @@ class PrototypeEngineHelper extends JsBaseEngineHelper
      * @param string $functionBody The code to run on domReady
      * @return string completed domReady method
      */
-    public function domReady($functionBody)
+    public function domReady(string $functionBody): string
     {
         $this->selection = 'document';
 
@@ -186,7 +186,7 @@ class PrototypeEngineHelper extends JsBaseEngineHelper
      * @param string $callback The function body you wish to apply during the iteration.
      * @return string completed iteration
      */
-    public function each($callback)
+    public function each(string $callback): string
     {
         return $this->selection . '.each(function (item, index) {' . $callback . '});';
     }
@@ -201,7 +201,7 @@ class PrototypeEngineHelper extends JsBaseEngineHelper
      * @return string completed string with effect.
      * @see JsBaseEngineHelper::effect()
      */
-    public function effect($name, $options = [])
+    public function effect(string $name, array $options = []): string
     {
         $effect = '';
         $optionString = null;
@@ -245,7 +245,7 @@ class PrototypeEngineHelper extends JsBaseEngineHelper
      * @param array $options Options list.
      * @return string The completed ajax call.
      */
-    public function request($url, $options = [])
+    public function request(array|string $url, array $options = []): string
     {
         $url = html_entity_decode($this->url($url), ENT_COMPAT, Configure::read('App.encoding'));
         $url = '"' . $url . '"';
@@ -285,7 +285,7 @@ class PrototypeEngineHelper extends JsBaseEngineHelper
      * @return string Completed sortable script.
      * @see JsBaseEngineHelper::sortable() for options list.
      */
-    public function sortable($options = [])
+    public function sortable(array $options = []): string
     {
         $options = $this->_processOptions('sortable', $options);
         if (!empty($options)) {
@@ -304,7 +304,7 @@ class PrototypeEngineHelper extends JsBaseEngineHelper
      * @return string Completed draggable script.
      * @see JsBaseEngineHelper::draggable() for options list.
      */
-    public function drag($options = [])
+    public function drag(array $options = []): string
     {
         $options = $this->_processOptions('drag', $options);
         if (!empty($options)) {
@@ -326,7 +326,7 @@ class PrototypeEngineHelper extends JsBaseEngineHelper
      * @return string Completed droppable script.
      * @see JsBaseEngineHelper::droppable() for options list.
      */
-    public function drop($options = [])
+    public function drop(array $options = []): string
     {
         $options = $this->_processOptions('drop', $options);
         if (!empty($options)) {
@@ -345,7 +345,7 @@ class PrototypeEngineHelper extends JsBaseEngineHelper
      * @return string Completed slider script.
      * @see JsBaseEngineHelper::slider() for options list.
      */
-    public function slider($options = [])
+    public function slider(array $options = []): string
     {
         $slider = $this->selection;
         $this->get($options['handle']);
@@ -377,7 +377,7 @@ class PrototypeEngineHelper extends JsBaseEngineHelper
      * @return string Completed serializeForm() snippet
      * @see JsBaseEngineHelper::serializeForm()
      */
-    public function serializeForm($options = [])
+    public function serializeForm(array $options = []): string
     {
         $options += ['isForm' => false, 'inline' => false];
         $selection = $this->selection;

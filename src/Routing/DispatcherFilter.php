@@ -35,21 +35,21 @@ abstract class DispatcherFilter implements CakeEventListener
      *
      * @var int
      */
-    public $priority = 10;
+    public int $priority = 10;
 
     /**
      * Settings for this filter
      *
      * @var array
      */
-    public $settings = [];
+    public array $settings = [];
 
     /**
      * Constructor.
      *
      * @param array $settings Configuration settings for the filter.
      */
-    public function __construct($settings = [])
+    public function __construct(array $settings = [])
     {
         $this->settings = Hash::merge($this->settings, $settings);
     }
@@ -102,9 +102,10 @@ abstract class DispatcherFilter implements CakeEventListener
      *
      * @param CakeEvent $event container object having the `request` and  `response`
      *  keys in the data property.
-     * @return mixed boolean to stop the event dispatching or null to continue
+     * @return false|null false to stop the event dispatching or null to continue
      */
-    public function afterDispatch(CakeEvent $event)
+    public function afterDispatch(CakeEvent $event): ?bool
     {
+        return null;
     }
 }

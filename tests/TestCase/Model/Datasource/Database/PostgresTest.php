@@ -30,6 +30,7 @@ use Cake\TestSuite\CakeTestCase;
 use Cake\TestSuite\Fixture\CakeTestModel;
 use Cake\Utility\ClassRegistry;
 use PDO;
+use PDOStatement;
 use ReflectionClass;
 
 App::uses('AppModel', 'Model');
@@ -53,14 +54,19 @@ class DboPostgresTestDb extends Postgres
     /**
      * execute method
      *
-     * @param mixed $sql
-     * @return void
+     * @param string $sql
+     * @param array $params
+     * @param array $prepareOptions
+     * @return PDOStatement|bool
      */
-    protected function _execute($sql, $params = [], $prepareOptions = [])
-    {
+    protected function _execute(
+        string $sql,
+        array $params = [],
+        array $prepareOptions = [],
+    ): PDOStatement|bool {
         $this->simulated[] = $sql;
 
-        return null;
+        return false;
     }
 
     /**
@@ -85,7 +91,7 @@ class PostgresTestModel extends Model
     /**
      * useTable property
      *
-     * @var bool
+     * @var string|bool|null
      */
     public string|bool|null $useTable = false;
 
@@ -103,15 +109,19 @@ class PostgresTestModel extends Model
     /**
      * find method
      *
-     * @param mixed $conditions
-     * @param mixed $fields
+     * @param string|null $type
+     * @param array|null $query
      * @param mixed $order
      * @param mixed $recursive
-     * @return void
+     * @return array|int|false|null
      */
-    public function find($conditions = null, $fields = null, $order = null, $recursive = null)
-    {
-        return $conditions;
+    public function find(
+        ?string $type = null,
+        ?array $query = null,
+        mixed $order = null,
+        mixed $recursive = null,
+    ): array|int|false|null {
+        return $type;
     }
 
     /**
@@ -121,19 +131,23 @@ class PostgresTestModel extends Model
      * @param mixed $fields
      * @param mixed $order
      * @param mixed $recursive
-     * @return void
+     * @return mixed
      */
-    public function findAll($conditions = null, $fields = null, $order = null, $recursive = null)
-    {
+    public function findAll(
+        mixed $conditions = null,
+        mixed $fields = null,
+        mixed $order = null,
+        mixed $recursive = null,
+    ): mixed {
         return $conditions;
     }
 
     /**
      * schema method
      *
-     * @return void
+     * @return array|null
      */
-    public function schema($field = false)
+    public function schema(string|bool $field = false): ?array
     {
         return [
             'id' => ['type' => 'integer', 'null' => '', 'default' => '', 'length' => '8'],
@@ -170,16 +184,16 @@ class PostgresClientTestModel extends Model
     /**
      * useTable property
      *
-     * @var bool
+     * @var string|bool|null
      */
     public string|bool|null $useTable = false;
 
     /**
      * schema method
      *
-     * @return array
+     * @return array|null
      */
-    public function schema($field = false)
+    public function schema(string|bool $field = false): ?array
     {
         return [
             'id' => ['type' => 'integer', 'null' => '', 'default' => '', 'length' => '8', 'key' => 'primary'],
@@ -205,38 +219,47 @@ class PostgresTest extends CakeTestCase
      *
      * @var bool
      */
-    public $autoFixtures = false;
+    public bool $autoFixtures = false;
 
     /**
      * Fixtures
      *
-     * @var object
+     * @var array<string>
      */
-    public $fixtures = ['core.user', 'core.binary_test', 'core.comment', 'core.article',
-        'core.tag', 'core.articles_tag', 'core.attachment', 'core.person', 'core.post', 'core.author',
+    public array $fixtures = [
+        'core.user',
+        'core.binary_test',
+        'core.comment',
+        'core.article',
+        'core.tag',
+        'core.articles_tag',
+        'core.attachment',
+        'core.person',
+        'core.post',
+        'core.author',
         'core.datatype',
     ];
 
     /**
      * Actual DB connection used in testing
      *
-     * @var DboSource
+     * @var DboSource|null
      */
-    public $Dbo = null;
+    public ?DboSource $Dbo = null;
 
     /**
      * Simulated DB connection used in testing
      *
-     * @var DboSource
+     * @var DboSource|null
      */
-    public $Dbo2 = null;
+    public ?DboSource $Dbo2 = null;
 
     /**
      * Number locale before changing during testing
      *
-     * @var string
+     * @var string|null
      */
-    public $restoreLocaleNumeric = null;
+    public ?string $restoreLocaleNumeric = null;
 
     /**
      * Sets up a Dbo class instance for testing

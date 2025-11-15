@@ -60,7 +60,7 @@ class XmlView extends View
     /**
      * The subdirectory. XML views are always in xml.
      *
-     * @var string
+     * @var string|null
      */
     public ?string $subDir = 'xml';
 
@@ -99,11 +99,11 @@ class XmlView extends View
      * XML responses very easy. You can omit the '_serialize' parameter,
      * and use a normal view + layout as well.
      *
-     * @param string|bool|null $view The view being rendered.
-     * @param string|null $layout The layout being rendered.
+     * @param string|false|null $view The view being rendered.
+     * @param string|false|null $layout The layout being rendered.
      * @return string|null The rendered view.
      */
-    public function render($view = null, $layout = null)
+    public function render(string|false|null $view = null, string|false|null $layout = null): ?string
     {
         if (isset($this->viewVars['_serialize'])) {
             return $this->_serialize($this->viewVars['_serialize']);

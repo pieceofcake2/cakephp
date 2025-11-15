@@ -19,12 +19,10 @@ namespace Cake\View\Helper;
 use AppHelper;
 use Cake\Core\App;
 use Cake\Core\Configure;
-use Cake\Network\CakeRequest; // phpcs:ignore
+use Cake\Network\CakeRequest;
 use Cake\Utility\Inflector;
 use Cake\View\View;
 use Exception;
-
-// phpcs:ignore
 
 App::uses('AppHelper', 'View/Helper');
 
@@ -97,7 +95,7 @@ class CacheHelper extends AppHelper
      * @param string $layoutFile Layout file name.
      * @return void
      */
-    public function afterLayout($layoutFile): void
+    public function afterLayout(string $layoutFile): void
     {
         if ($this->_enabled()) {
             $this->_View->output = $this->cache($layoutFile, $this->_View->output);
@@ -131,7 +129,7 @@ class CacheHelper extends AppHelper
      * @link https://book.cakephp.org/2.0/en/core-libraries/helpers/cache.html
      * @throws Exception If debug mode is enabled and writing to cache file fails.
      */
-    public function cache($file, $out)
+    public function cache(string $file, string $out): string
     {
         $cacheTime = 0;
         $useCallbacks = false;
@@ -255,7 +253,7 @@ class CacheHelper extends AppHelper
      * @param string $content String to remove tags from.
      * @return string String with tags removed.
      */
-    protected function _stripTags($content)
+    protected function _stripTags(string $content): string
     {
         return preg_replace('#<!--/?nocache(\:\d{3})?-->#', '', $content);
     }
@@ -266,7 +264,7 @@ class CacheHelper extends AppHelper
      * @param string $cache Output to replace content in.
      * @return string with all replacements made to <!--nocache--><!--nocache-->
      */
-    protected function _parseOutput($cache)
+    protected function _parseOutput(string $cache): string
     {
         $count = 0;
         if (!empty($this->_match)) {
@@ -299,12 +297,12 @@ class CacheHelper extends AppHelper
      * Write a cached version of the file
      *
      * @param string $content view content to write to a cache file.
-     * @param string $timestamp Duration to set for cache file.
-     * @param bool|null $useCallbacks Whether to include statements in cached file which
+     * @param string|int $timestamp Duration to set for cache file.
+     * @param bool $useCallbacks Whether to include statements in cached file which
      *   run callbacks, otherwise null.
-     * @return bool success of caching view.
+     * @return mixed success of caching view.
      */
-    protected function _writeFile($content, $timestamp, $useCallbacks = false)
+    protected function _writeFile(string $content, string|int $timestamp, bool $useCallbacks = false): mixed
     {
         $now = time();
 

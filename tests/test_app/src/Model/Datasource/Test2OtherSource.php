@@ -7,7 +7,7 @@ use Cake\Model\Model;
 
 class Test2OtherSource extends DataSource
 {
-    public function describe($model)
+    public function describe(Model|string $model): array|false|null
     {
         return compact('model');
     }
@@ -17,23 +17,35 @@ class Test2OtherSource extends DataSource
         return ['test_source'];
     }
 
-    public function create(Model $model, $fields = null, $values = null)
-    {
-        return compact('model', 'fields', 'values');
+    public function create(
+        Model $model,
+        ?array $fields = null,
+        ?array $values = null,
+    ): bool {
+        return true;
     }
 
-    public function read(Model $model, $queryData = [], $recursive = null)
-    {
+    public function read(
+        Model $model,
+        array $queryData = [],
+        ?int $recursive = null,
+    ): array|false {
         return compact('model', 'queryData');
     }
 
-    public function update(Model $model, $fields = [], $values = [], $conditions = null)
-    {
-        return compact('model', 'fields', 'values');
+    public function update(
+        Model $model,
+        ?array $fields = [],
+        ?array $values = [],
+        mixed $conditions = null,
+    ): bool {
+        return true;
     }
 
-    public function delete(Model $model, $id = null)
-    {
-        return compact('model', 'id');
+    public function delete(
+        Model $model,
+        mixed $conditions = null,
+    ): bool {
+        return true;
     }
 }

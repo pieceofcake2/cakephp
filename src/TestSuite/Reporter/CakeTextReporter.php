@@ -17,12 +17,14 @@
 
 namespace Cake\TestSuite\Reporter;
 
+use Cake\TestSuite\CakeTestLoader;
 use Cake\TestSuite\Coverage\TextCoverageReport;
 use Cake\Utility\Inflector;
-use Exception;
 use PHPUnit\Framework\AssertionFailedError;
 use PHPUnit\Framework\Test;
 use PHPUnit\Framework\TestResult;
+use PHPUnit\Framework\Warning;
+use SebastianBergmann\CodeCoverage\ProcessedCodeCoverageData;
 use Throwable;
 
 /**
@@ -45,13 +47,22 @@ class CakeTextReporter extends CakeBaseReporter
     }
 
     /**
+     * Paints the end of the document.
+     *
+     * @return void
+     */
+    public function paintDocumentEnd(): void
+    {
+    }
+
+    /**
      * Paints a pass
      *
      * @param Test $test
      * @param float|null$time
      * @return void
      */
-    public function paintPass(Test $test, $time = null): void
+    public function paintPass(Test $test, ?float $time = null): void
     {
         echo '.';
     }
@@ -59,13 +70,15 @@ class CakeTextReporter extends CakeBaseReporter
     /**
      * Paints a failing test.
      *
-     * @param AssertionFailedError $message Failure object displayed in
+     * @param AssertionFailedError|Warning $message Failure object displayed in
      *   the context of the other tests.
      * @param Test $test
      * @return void
      */
-    public function paintFail($message, Test $test): void
-    {
+    public function paintFail(
+        AssertionFailedError|Warning $message,
+        Test $test,
+    ): void {
         $context = $message->getTrace();
         $realContext = $context[3];
         $context = $context[2];
@@ -103,9 +116,11 @@ class CakeTextReporter extends CakeBaseReporter
         echo 'Time: ' . $result->time() . " seconds\n";
         echo 'Peak memory: ' . number_format(memory_get_peak_usage()) . " bytes\n";
 
-        if (isset($this->params['codeCoverage']) && $this->params['codeCoverage']) {
-            $coverage = $result->getCodeCoverage()->getSummary();
-            $this->paintCoverage($coverage);
+        if ($this->params['codeCoverage'] ?? false) {
+            $report = $result->getCodeCoverage()?->getData();
+            if ($report) {
+                $this->paintCoverage($report);
+            }
         }
     }
 
@@ -123,11 +138,11 @@ class CakeTextReporter extends CakeBaseReporter
     /**
      * Paints a PHP exception.
      *
-     * @param Exception $exception
+     * @param Throwable $exception
      * @param Test $test
      * @return void
      */
-    public function paintException(Exception $exception, Test $test): void
+    public function paintException(Throwable $exception, Test $test): void
     {
         $message = 'Unexpected exception of type [' . $exception::class .
             '] with message [' . $exception->getMessage() .
@@ -139,11 +154,11 @@ class CakeTextReporter extends CakeBaseReporter
     /**
      * Prints the message for skipping tests.
      *
-     * @param Exception|Throwable $message Text of skip condition.
+     * @param Throwable $message Text of skip condition.
      * @param Test $test
      * @return void
      */
-    public function paintSkip(Exception|Throwable $message, Test $test): void
+    public function paintSkip(Throwable $message, Test $test): void
     {
         printf("Skip: %s\n", $message->getMessage());
     }
@@ -154,7 +169,7 @@ class CakeTextReporter extends CakeBaseReporter
      * @param string $message Text to show.
      * @return void
      */
-    public function paintFormattedMessage($message)
+    public function paintFormattedMessage(string $message): void
     {
         echo "$message\n";
         flush();
@@ -169,7 +184,7 @@ class CakeTextReporter extends CakeBaseReporter
      */
     public function testCaseList(): void
     {
-        $testCases = parent::testCaseList();
+        $testCases = CakeTestLoader::generateTestList($this->params);
         $app = $this->params['app'];
         $plugin = $this->params['plugin'];
 
@@ -196,10 +211,10 @@ class CakeTextReporter extends CakeBaseReporter
     /**
      * Generates a Text summary of the coverage data.
      *
-     * @param array $coverage Array of coverage data.
+     * @param ProcessedCodeCoverageData $coverage Array of coverage data.
      * @return void
      */
-    public function paintCoverage($coverage): void
+    public function paintCoverage(ProcessedCodeCoverageData $coverage): void
     {
         $reporter = new TextCoverageReport($coverage, $this);
         echo $reporter->report();

@@ -21,6 +21,7 @@
 namespace Cake\Controller;
 
 use AppController;
+use Cake\Controller\Component\RequestHandlerComponent;
 use Cake\Core\App;
 use Cake\Network\CakeRequest;
 use Cake\Network\CakeResponse;
@@ -40,25 +41,30 @@ class CakeErrorController extends AppController
     /**
      * Uses Property
      *
-     * @var array|bool
+     * @var array|bool|null
      */
-    public array|bool $uses = [];
+    public array|bool|null $uses = [];
 
     /**
      * Constructor
      *
-     * @param CakeRequest $request Request instance.
-     * @param CakeResponse $response Response instance.
+     * @param CakeRequest|null $request Request instance.
+     * @param CakeResponse|null $response Response instance.
      */
-    public function __construct($request = null, $response = null)
-    {
+    public function __construct(
+        ?CakeRequest $request = null,
+        ?CakeResponse $response = null,
+    ) {
         parent::__construct($request, $response);
+
         $this->constructClasses();
         if (
             count(Router::extensions()) &&
             !$this->Components->attached('RequestHandler')
         ) {
-            $this->RequestHandler = $this->Components->load('RequestHandler');
+            /** @var RequestHandlerComponent $requestHandler */
+            $requestHandler = $this->Components->load('RequestHandler');
+            $this->RequestHandler = $requestHandler;
         }
         if ($this->Components->enabled('Auth')) {
             $this->Components->disable('Auth');

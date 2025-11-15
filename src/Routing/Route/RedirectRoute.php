@@ -31,33 +31,36 @@ class RedirectRoute extends CakeRoute
     /**
      * A CakeResponse object
      *
-     * @var CakeResponse
+     * @var CakeResponse|null
      */
-    public $response = null;
+    public ?CakeResponse $response = null;
 
     /**
      * The location to redirect to. Either a string or a CakePHP array URL.
      *
-     * @var mixed
+     * @var array|string
      */
-    public $redirect;
+    public array|string $redirect;
 
     /**
      * Flag for disabling exit() when this route parses a URL.
      *
      * @var bool
      */
-    public $stop = true;
+    public bool $stop = true;
 
     /**
      * Constructor
      *
      * @param string $template Template string with parameter placeholders
-     * @param array $defaults Array of defaults for the route.
-     * @param array $options Array of additional options for the Route
+     * @param array|string|null $defaults Array of defaults for the route.
+     * @param array|string|null $options Array of additional options for the Route
      */
-    public function __construct($template, $defaults = [], $options = [])
-    {
+    public function __construct(
+        string $template,
+        array|string|null $defaults = [],
+        array|string|null $options = [],
+    ) {
         parent::__construct($template, $defaults, $options);
         $this->redirect = (array)$defaults;
     }
@@ -79,7 +82,7 @@ class RedirectRoute extends CakeRoute
             $this->response = new CakeResponse();
         }
         $redirect = $this->redirect;
-        if (count($this->redirect) === 1 && !isset($this->redirect['controller'])) {
+        if (count((array)$this->redirect) === 1 && !isset($this->redirect['controller'])) {
             $redirect = $this->redirect[0];
         }
         if (isset($this->options['persist']) && is_array($redirect)) {
@@ -109,9 +112,9 @@ class RedirectRoute extends CakeRoute
      * There is no reverse routing redirection routes
      *
      * @param array $url Array of parameters to convert to a string.
-     * @return mixed either false or a string URL.
+     * @return string|false either false or a string URL.
      */
-    public function match($url)
+    public function match(array $url): string|false
     {
         return false;
     }
@@ -123,7 +126,7 @@ class RedirectRoute extends CakeRoute
      * @param string|int $code See http://php.net/exit for values
      * @return void
      */
-    protected function _stop($code = 0): void
+    protected function _stop(string|int $code = 0): void
     {
         if ($this->stop) {
             exit($code);

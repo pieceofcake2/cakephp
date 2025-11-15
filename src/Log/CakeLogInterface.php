@@ -31,7 +31,7 @@ interface CakeLogInterface
      *
      * @param string $type Message type.
      * @param string $message Message to write.
-     * @return void
+     * @return bool|null
      */
-    public function write($type, $message);
+    public function write(string $type, string $message): ?bool;
 }

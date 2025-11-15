@@ -23,5 +23,5 @@ namespace Cake\Error;
  */
 class MissingTaskException extends CakeException
 {
-    protected $_messageTemplate = 'Task class %s could not be found.';
+    protected string $_messageTemplate = 'Task class %s could not be found.';
 }

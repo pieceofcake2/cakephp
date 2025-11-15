@@ -313,8 +313,11 @@ class TextHelper extends AppHelper
      * @see CakeText::truncate()
      * @link https://book.cakephp.org/2.0/en/core-libraries/helpers/text.html#TextHelper::truncate
      */
-    public function truncate(string $text, int $length = 100, array $options = []): string
-    {
+    public function truncate(
+        string $text,
+        int $length = 100,
+        array $options = [],
+    ): string {
         return $this->_engine->truncate($text, $length, $options);
     }
 

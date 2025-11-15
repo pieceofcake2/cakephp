@@ -297,9 +297,7 @@ class BasicsTest extends CakeTestCase
 
         $result = cache('basics_test');
         $this->assertEquals('simple cache write', $result);
-        if (file_exists(CACHE . 'basics_test')) {
-            unlink(CACHE . 'basics_test');
-        }
+        unlink(CACHE . 'basics_test');
 
         cache('basics_test', 'expired', '+1 second');
         sleep(2);
@@ -1048,11 +1046,11 @@ EXPECTED;
         $result = ob_get_clean();
         $expected = <<<EXPECTED
 
-########## DEBUG ##########
-'<div>this-is-a-test</div>'
-###########################
+            ########## DEBUG ##########
+            '<div>this-is-a-test</div>'
+            ###########################
 
-EXPECTED;
+            EXPECTED;
         $expected = sprintf($expected, str_replace([CORE_ROOT, ROOT], '', __FILE__), __LINE__ - 9);
         $this->assertEquals($expected, $result);
 

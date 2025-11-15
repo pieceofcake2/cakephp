@@ -50,7 +50,7 @@ class PagesController extends AppController
      *
      * @var array
      */
-    public array|bool $uses = [];
+    public array|bool|null $uses = [];
 
     /**
      * Displays a view

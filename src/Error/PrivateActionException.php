@@ -26,21 +26,17 @@ use Exception;
  */
 class PrivateActionException extends CakeException
 {
-    protected $_messageTemplate = 'Private Action %s::%s() is not directly accessible.';
-
-//@codingStandardsIgnoreStart
+    protected string $_messageTemplate = 'Private Action %s::%s() is not directly accessible.';
 
     /**
      * Constructor
      *
      * @param array|string $message Error message
      * @param int $code Error code
-     * @param \Exception|null $previous Previous exception
+     * @param Exception|null $previous Previous exception
      */
-    public function __construct($message, $code = 404, ?Exception $previous = null)
+    public function __construct(array|string $message, int $code = 404, ?Exception $previous = null)
     {
         parent::__construct($message, $code, $previous);
     }
-
-//@codingStandardsIgnoreEnd
 }

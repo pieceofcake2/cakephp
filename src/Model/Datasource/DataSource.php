@@ -84,11 +84,16 @@ class DataSource extends CakeObject
     public bool $cacheSources = true;
 
     /**
+     * @var array
+     */
+    public array $columns = [];
+
+    /**
      * Constructor.
      *
      * @param array $config Array of configuration information for the datasource.
      */
-    public function __construct($config = [])
+    public function __construct(array $config = [])
     {
         parent::__construct();
         $this->setConfig($config);
@@ -126,9 +131,9 @@ class DataSource extends CakeObject
      * Returns a Model description (metadata) or null if none found.
      *
      * @param Model|string $model The model to describe.
-     * @return array|null Array of Metadata for the $model
+     * @return array|false|null Array of Metadata for the $model
      */
-    public function describe(Model|string $model)
+    public function describe(Model|string $model): array|false|null
     {
         if ($this->cacheSources === false) {
             return null;
@@ -158,7 +163,7 @@ class DataSource extends CakeObject
      *
      * @return bool Returns true if a transaction is not in progress
      */
-    public function begin()
+    public function begin(): bool
     {
         return !$this->_transactionStarted;
     }
@@ -168,7 +173,7 @@ class DataSource extends CakeObject
      *
      * @return bool Returns true if a transaction is in progress
      */
-    public function commit()
+    public function commit(): bool
     {
         return $this->_transactionStarted;
     }
@@ -178,7 +183,7 @@ class DataSource extends CakeObject
      *
      * @return bool Returns true if a transaction is in progress
      */
-    public function rollback()
+    public function rollback(): bool
     {
         return $this->_transactionStarted;
     }
@@ -186,10 +191,10 @@ class DataSource extends CakeObject
     /**
      * Converts column types to basic types
      *
-     * @param string $real Real column type (i.e. "varchar(255)")
-     * @return string Abstract column type (i.e. "string")
+     * @param mixed $real Real column type (i.e. "varchar(255)")
+     * @return string|false Abstract column type (i.e. "string")
      */
-    public function column($real)
+    public function column(mixed $real): string|false
     {
         return false;
     }
@@ -200,12 +205,15 @@ class DataSource extends CakeObject
      * To-be-overridden in subclasses.
      *
      * @param Model $model The Model to be created.
-     * @param array $fields An Array of fields to be saved.
-     * @param array $values An Array of values to save.
+     * @param array|null $fields An Array of fields to be saved.
+     * @param array|null $values An Array of values to save.
      * @return bool success
      */
-    public function create(Model $model, $fields = null, $values = null)
-    {
+    public function create(
+        Model $model,
+        ?array $fields = null,
+        ?array $values = null,
+    ): bool {
         return false;
     }
 
@@ -216,11 +224,14 @@ class DataSource extends CakeObject
      *
      * @param Model $model The model being read.
      * @param array $queryData An array of query data used to find the data you want
-     * @param int $recursive Number of levels of association
-     * @return mixed
+     * @param int|null $recursive Number of levels of association
+     * @return array|false
      */
-    public function read(Model $model, $queryData = [], $recursive = null)
-    {
+    public function read(
+        Model $model,
+        array $queryData = [],
+        ?int $recursive = null,
+    ): array|false {
         return false;
     }
 
@@ -230,13 +241,17 @@ class DataSource extends CakeObject
      * To-be-overridden in subclasses.
      *
      * @param Model $model Instance of the model class being updated
-     * @param array $fields Array of fields to be updated
-     * @param array $values Array of values to be update $fields to.
+     * @param array|null $fields Array of fields to be updated
+     * @param array|null $values Array of values to be update $fields to.
      * @param mixed $conditions The array of conditions to use.
      * @return bool Success
      */
-    public function update(Model $model, $fields = null, $values = null, $conditions = null)
-    {
+    public function update(
+        Model $model,
+        ?array $fields = null,
+        ?array $values = null,
+        mixed $conditions = null,
+    ): bool {
         return false;
     }
 
@@ -249,8 +264,10 @@ class DataSource extends CakeObject
      * @param mixed $conditions The conditions to use for deleting.
      * @return bool Success
      */
-    public function delete(Model $model, $conditions = null)
-    {
+    public function delete(
+        Model $model,
+        mixed $conditions = null,
+    ): bool {
         return false;
     }
 
@@ -260,7 +277,7 @@ class DataSource extends CakeObject
      * @param mixed $source The source name.
      * @return mixed Last ID key generated in previous INSERT
      */
-    public function lastInsertId($source = null)
+    public function lastInsertId(mixed $source = null): mixed
     {
         return false;
     }
@@ -269,9 +286,9 @@ class DataSource extends CakeObject
      * Returns the number of rows returned by last operation.
      *
      * @param mixed $source The source name.
-     * @return int Number of rows returned by last operation
+     * @return int|false Number of rows returned by last operation
      */
-    public function lastNumRows($source = null)
+    public function lastNumRows(mixed $source = null): int|false
     {
         return false;
     }
@@ -280,9 +297,9 @@ class DataSource extends CakeObject
      * Returns the number of rows affected by last query.
      *
      * @param mixed $source The source name.
-     * @return int Number of rows affected by last query.
+     * @return int|false Number of rows affected by last query.
      */
-    public function lastAffected($source = null)
+    public function lastAffected(mixed $source = null): int|false
     {
         return false;
     }
@@ -294,7 +311,7 @@ class DataSource extends CakeObject
      *
      * @return bool Whether or not the Datasources conditions for use are met.
      */
-    public function enabled()
+    public function enabled(): bool
     {
         return true;
     }
@@ -306,7 +323,7 @@ class DataSource extends CakeObject
      * @param array $config The configuration array
      * @return void
      */
-    public function setConfig($config = [])
+    public function setConfig(array $config = []): void
     {
         $this->config = array_merge($this->_baseConfig, $this->config, $config);
     }
@@ -318,7 +335,7 @@ class DataSource extends CakeObject
      * @param mixed $data The description of the model, usually a string or array
      * @return mixed
      */
-    protected function _cacheDescription($object, $data = null)
+    protected function _cacheDescription(string $object, mixed $data = null): mixed
     {
         if ($this->cacheSources === false) {
             return null;
@@ -347,10 +364,15 @@ class DataSource extends CakeObject
      * @param string $association Name of association model being replaced.
      * @param Model $model Model instance.
      * @param array $stack The context stack.
-     * @return mixed String of query data with placeholders replaced, or false on failure.
+     * @return array|string|bool String of query data with placeholders replaced, or false on failure.
      */
-    public function insertQueryData($query, $data, $association, Model $model, $stack)
-    {
+    public function insertQueryData(
+        string $query,
+        array $data,
+        string $association,
+        Model $model,
+        array $stack,
+    ): array|string|bool {
         $keys = ['{$__cakeID__$}', '{$__cakeForeignKey__$}'];
 
         $modelAlias = $model->alias;
@@ -395,7 +417,7 @@ class DataSource extends CakeObject
                 } else {
                     $found = false;
                     foreach (array_reverse($stack) as $assocData) {
-                        if (is_string($assocData) && isset($data[$assocData]) && isset($data[$assocData][$insertKey])) {
+                        if (is_string($assocData) && isset($data[$assocData][$insertKey])) {
                             $val = $data[$assocData][$insertKey];
                             $found = true;
                             break;
@@ -428,7 +450,7 @@ class DataSource extends CakeObject
      * @param bool $null Column allows NULL values
      * @return array|string Quoted and escaped data
      */
-    public function value($data, ?string $column = null, bool $null = true): array|string
+    public function value(mixed $data, ?string $column = null, bool $null = true): array|string
     {
         return '';
     }
@@ -440,8 +462,10 @@ class DataSource extends CakeObject
      * @param string $key Key name to make
      * @return string Key name for model.
      */
-    public function resolveKey(Model $model, $key)
-    {
+    public function resolveKey(
+        Model $model,
+        string $key,
+    ): string {
         return $model->alias . $key;
     }
 
@@ -450,7 +474,7 @@ class DataSource extends CakeObject
      *
      * @return string|null The schema name
      */
-    public function getSchemaName()
+    public function getSchemaName(): ?string
     {
         return null;
     }
@@ -458,11 +482,11 @@ class DataSource extends CakeObject
     /**
      * Closes a connection. Override in subclasses.
      *
-     * @return bool
+     * @return void
      */
-    public function close()
+    public function close(): void
     {
-        return $this->connected = false;
+        $this->connected = false;
     }
 
     /**

@@ -31,7 +31,7 @@ class AcoAction extends AppModel
     /**
      * Model name
      *
-     * @var string
+     * @var string|null
      */
     public ?string $name = 'AcoAction';
 

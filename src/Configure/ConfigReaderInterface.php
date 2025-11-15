@@ -31,14 +31,14 @@ interface ConfigReaderInterface
      * @param string $key Key to read.
      * @return array An array of data to merge into the runtime configuration
      */
-    public function read($key);
+    public function read(string $key): array;
 
     /**
      * Dumps the configure data into source.
      *
      * @param string $key The identifier to write to.
      * @param array $data The data to dump.
-     * @return bool True on success or false on failure.
+     * @return int|false True on success or false on failure.
      */
-    public function dump($key, $data);
+    public function dump(string $key, array $data): int|false;
 }

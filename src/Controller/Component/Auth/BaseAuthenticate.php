@@ -18,6 +18,7 @@ use Cake\Controller\ComponentCollection;
 use Cake\Core\App;
 use Cake\Error\CakeException;
 use Cake\Event\CakeEventListener;
+use Cake\Model\Model;
 use Cake\Network\CakeRequest;
 use Cake\Network\CakeResponse;
 use Cake\Utility\ClassRegistry;
@@ -47,7 +48,7 @@ abstract class BaseAuthenticate implements CakeEventListener
      *
      * @var array
      */
-    public $settings = [
+    public array $settings = [
         'fields' => [
             'username' => 'username',
             'password' => 'password',
@@ -65,14 +66,14 @@ abstract class BaseAuthenticate implements CakeEventListener
      *
      * @var ComponentCollection
      */
-    protected $_Collection;
+    protected ComponentCollection $_Collection;
 
     /**
      * Password hasher instance.
      *
-     * @var AbstractPasswordHasher
+     * @var AbstractPasswordHasher|null
      */
-    protected $_passwordHasher;
+    protected ?AbstractPasswordHasher $_passwordHasher = null;
 
     /**
      * Implemented events
@@ -90,7 +91,7 @@ abstract class BaseAuthenticate implements CakeEventListener
      * @param ComponentCollection $collection The Component collection used on this request.
      * @param array $settings Array of settings to use.
      */
-    public function __construct(ComponentCollection $collection, $settings)
+    public function __construct(ComponentCollection $collection, array $settings)
     {
         $this->_Collection = $collection;
         $this->settings = Hash::merge($this->settings, $settings);
@@ -107,11 +108,13 @@ abstract class BaseAuthenticate implements CakeEventListener
      * helps mitigate timing attacks that are attempting to find valid usernames.
      *
      * @param array|string $username The username/identifier, or an array of find conditions.
-     * @param string $password The password, only used if $username param is string.
-     * @return array|bool Either false on failure, or an array of user data.
+     * @param string|null $password The password, only used if $username param is string.
+     * @return array|false Either false on failure, or an array of user data.
      */
-    protected function _findUser($username, $password = null)
-    {
+    protected function _findUser(
+        array|string $username,
+        ?string $password = null,
+    ): array|false {
         $userModel = $this->settings['userModel'];
         [, $model] = pluginSplit($userModel);
         $fields = $this->settings['fields'];
@@ -133,7 +136,9 @@ abstract class BaseAuthenticate implements CakeEventListener
             $userFields[] = $model . '.' . $fields['password'];
         }
 
-        $result = ClassRegistry::init($userModel)->find('first', [
+        /** @var Model $_model */
+        $_model = ClassRegistry::init($userModel);
+        $result = $_model->find('first', [
             'conditions' => $conditions,
             'recursive' => $this->settings['recursive'],
             'fields' => $userFields,
@@ -165,7 +170,7 @@ abstract class BaseAuthenticate implements CakeEventListener
      * @throws CakeException If password hasher class not found or
      *   it does not extend AbstractPasswordHasher
      */
-    public function passwordHasher()
+    public function passwordHasher(): AbstractPasswordHasher
     {
         if ($this->_passwordHasher) {
             return $this->_passwordHasher;
@@ -200,7 +205,7 @@ abstract class BaseAuthenticate implements CakeEventListener
      * @return string The hashed form of the password.
      * @deprecated 3.0.0 Since 2.4. Use a PasswordHasher class instead.
      */
-    protected function _password($password)
+    protected function _password(string $password): string
     {
         return Security::hash($password, null, true);
     }
@@ -210,9 +215,12 @@ abstract class BaseAuthenticate implements CakeEventListener
      *
      * @param CakeRequest $request Request to get authentication information from.
      * @param CakeResponse $response A response object that can have headers added.
-     * @return mixed Either false on failure, or an array of user data on success.
+     * @return array|false Either false on failure, or an array of user data on success.
      */
-    abstract public function authenticate(CakeRequest $request, CakeResponse $response);
+    abstract public function authenticate(
+        CakeRequest $request,
+        CakeResponse $response,
+    ): array|false;
 
     /**
      * Allows you to hook into AuthComponent::logout(),
@@ -221,10 +229,10 @@ abstract class BaseAuthenticate implements CakeEventListener
      * All attached authentication objects will have this method
      * called when a user logs out.
      *
-     * @param array $user The user about to be logged out.
+     * @param array|null $user The user about to be logged out.
      * @return void
      */
-    public function logout($user)
+    public function logout(?array $user): void
     {
     }
 
@@ -233,9 +241,9 @@ abstract class BaseAuthenticate implements CakeEventListener
      * systems like basic and digest auth.
      *
      * @param CakeRequest $request Request object.
-     * @return mixed Either false or an array of user information
+     * @return array|false Either false or an array of user information
      */
-    public function getUser(CakeRequest $request)
+    public function getUser(CakeRequest $request): array|false
     {
         return false;
     }
@@ -245,10 +253,11 @@ abstract class BaseAuthenticate implements CakeEventListener
      *
      * @param CakeRequest $request A request object.
      * @param CakeResponse $response A response object.
-     * @return mixed Either true to indicate the unauthenticated request has been
+     * @return bool|null Either true to indicate the unauthenticated request has been
      *  dealt with and no more action is required by AuthComponent or void (default).
      */
-    public function unauthenticated(CakeRequest $request, CakeResponse $response)
+    public function unauthenticated(CakeRequest $request, CakeResponse $response): ?bool
     {
+        return null;
     }
 }

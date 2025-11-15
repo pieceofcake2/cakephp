@@ -29,14 +29,14 @@ interface CakeSessionHandlerInterface
      *
      * @return bool Success
      */
-    public function open();
+    public function open(): bool;
 
     /**
      * Method called on close of a session.
      *
      * @return bool Success
      */
-    public function close();
+    public function close(): bool;
 
     /**
      * Method used to read from a session.
@@ -44,31 +44,31 @@ interface CakeSessionHandlerInterface
      * @param string $id The key of the value to read
      * @return mixed The value of the key or false if it does not exist
      */
-    public function read($id);
+    public function read(string $id): mixed;
 
     /**
      * Helper function called on write for sessions.
      *
-     * @param int $id ID that uniquely identifies session in database
+     * @param string $id ID that uniquely identifies session in database
      * @param mixed $data The value of the data to be saved.
      * @return bool True for successful write, false otherwise.
      */
-    public function write($id, $data);
+    public function write(string $id, mixed $data): bool;
 
     /**
      * Method called on the destruction of a session.
      *
-     * @param int $id ID that uniquely identifies session in database
-     * @return bool True for successful delete, false otherwise.
+     * @param string $id ID that uniquely identifies session in database
+     * @return int|bool True for successful delete, false otherwise.
      */
-    public function destroy($id);
+    public function destroy(string $id): int|bool;
 
     /**
      * Run the Garbage collection on the session storage. This method should vacuum all
      * expired or dead sessions.
      *
-     * @param int $expires Timestamp (defaults to current time)
+     * @param int|null $expires Timestamp (defaults to current time)
      * @return bool Success
      */
-    public function gc($expires = null);
+    public function gc(?int $expires = null): bool;
 }

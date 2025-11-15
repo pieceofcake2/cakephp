@@ -23,5 +23,5 @@ namespace Cake\Error;
  */
 class MissingModelException extends CakeException
 {
-    protected $_messageTemplate = 'Model %s could not be found.';
+    protected string $_messageTemplate = 'Model %s could not be found.';
 }

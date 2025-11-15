@@ -23,5 +23,5 @@ namespace Cake\Error;
  */
 class MissingLayoutException extends CakeException
 {
-    protected $_messageTemplate = 'Layout file "%s" is missing.';
+    protected string $_messageTemplate = 'Layout file "%s" is missing.';
 }

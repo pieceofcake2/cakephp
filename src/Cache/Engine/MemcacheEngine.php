@@ -68,7 +68,7 @@ class MemcacheEngine extends CacheEngine
      * @param array $settings array of setting for the engine
      * @return bool True if the engine has been successfully initialized, false if not
      */
-    public function init($settings = [])
+    public function init(array $settings = []): bool
     {
         if (!class_exists(Memcache::class)) {
             return false;
@@ -113,7 +113,7 @@ class MemcacheEngine extends CacheEngine
      * @param string $server The server address string.
      * @return array Array containing host, port
      */
-    protected function _parseServerString($server)
+    protected function _parseServerString(string $server): array
     {
         if (str_starts_with($server, 'unix://')) {
             return [$server, 0];
@@ -147,7 +147,7 @@ class MemcacheEngine extends CacheEngine
      * @return bool True if the data was successfully cached, false on failure
      * @see http://php.net/manual/en/memcache.set.php
      */
-    public function write($key, $value, $duration)
+    public function write(string $key, mixed $value, int $duration): bool
     {
         if ($duration > 30 * DAY) {
             $duration = 0;
@@ -162,7 +162,7 @@ class MemcacheEngine extends CacheEngine
      * @param string $key Identifier for the data
      * @return mixed The cached data, or false if the data doesn't exist, has expired, or if there was an error fetching it
      */
-    public function read($key)
+    public function read(string $key): mixed
     {
         return $this->_Memcache->get($key);
     }
@@ -175,11 +175,11 @@ class MemcacheEngine extends CacheEngine
      * @return int|false New incremented value, false otherwise
      * @throws CacheException when you try to increment with compress = true
      */
-    public function increment(string $key, int $offset = 1)
+    public function increment(string $key, int $offset = 1): int|false
     {
         if ($this->settings['compress']) {
             throw new CacheException(
-                __d('cake_dev', 'Method %s not implemented for compressed cache in %s', 'increment()', self::class),
+                __d('cake_dev', 'Method %s not implemented for compressed cache in %s', 'increment()', static::class),
             );
         }
 
@@ -194,11 +194,11 @@ class MemcacheEngine extends CacheEngine
      * @return int|false New decremented value, false otherwise
      * @throws CacheException when you try to decrement with compress = true
      */
-    public function decrement(string $key, int $offset = 1)
+    public function decrement(string $key, int $offset = 1): int|false
     {
         if ($this->settings['compress']) {
             throw new CacheException(
-                __d('cake_dev', 'Method %s not implemented for compressed cache in %s', 'decrement()', self::class),
+                __d('cake_dev', 'Method %s not implemented for compressed cache in %s', 'decrement()', static::class),
             );
         }
 
@@ -211,7 +211,7 @@ class MemcacheEngine extends CacheEngine
      * @param string $key Identifier for the data
      * @return bool True if the value was successfully deleted, false if it didn't exist or couldn't be removed
      */
-    public function delete(string $key)
+    public function delete(string $key): bool
     {
         return $this->_Memcache->delete($key);
     }
@@ -223,7 +223,7 @@ class MemcacheEngine extends CacheEngine
      *   on key TTL values.
      * @return bool True if the cache was successfully cleared, false otherwise
      */
-    public function clear(bool $check)
+    public function clear(bool $check): bool
     {
         if ($check) {
             return true;
@@ -257,7 +257,7 @@ class MemcacheEngine extends CacheEngine
      * @param int $port Server port
      * @return bool True if memcache server was connected
      */
-    public function connect($host, $port = 11211)
+    public function connect(string $host, int $port = 11211): bool
     {
         if ($this->_Memcache->getServerStatus($host, $port) === 0) {
             if ($this->_Memcache->connect($host, $port)) {
@@ -277,7 +277,7 @@ class MemcacheEngine extends CacheEngine
      *
      * @return array
      */
-    public function groups()
+    public function groups(): array
     {
         if (empty($this->_compiledGroupNames)) {
             foreach ($this->settings['groups'] as $group) {
@@ -289,7 +289,7 @@ class MemcacheEngine extends CacheEngine
         if (count($groups) !== count($this->settings['groups'])) {
             foreach ($this->_compiledGroupNames as $group) {
                 if (!isset($groups[$group])) {
-                    $this->_Memcache->set($group, 1, false, 0);
+                    $this->_Memcache->set($group, 1, 0, 0);
                     $groups[$group] = 1;
                 }
             }
@@ -329,7 +329,7 @@ class MemcacheEngine extends CacheEngine
      * @return bool True if the data was successfully cached, false on failure.
      * @link http://php.net/manual/en/memcache.add.php
      */
-    public function add($key, $value, $duration)
+    public function add(string $key, mixed $value, int $duration): bool
     {
         if ($duration > 30 * DAY) {
             $duration = 0;

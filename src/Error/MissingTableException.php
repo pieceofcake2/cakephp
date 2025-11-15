@@ -23,5 +23,5 @@ namespace Cake\Error;
  */
 class MissingTableException extends CakeException
 {
-    protected $_messageTemplate = 'Table %s for model %s was not found in datasource %s.';
+    protected string $_messageTemplate = 'Table %s for model %s was not found in datasource %s.';
 }

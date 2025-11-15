@@ -2,12 +2,13 @@ includes:
     - vendor/pieceofcake2/phpstan-cakephp2/extension.neon
 
 parameters:
-    level: 0
+    level: 5
     phpVersion: 80000
     paths:
         - src
     excludePaths:
         - src/Console/Templates/*
+        - src/TestSuite/templates/*
         - src/View/Scaffolds/*
     bootstrapFiles:
         - tests/bootstrap.php
@@ -15,10 +16,13 @@ parameters:
     ignoreErrors:
         # Ignore deprecated functions that are part of CakePHP 2.x
         - '#Function strftime\(\) is deprecated#'
+        # Ignore mcrypt constants (extension removed in PHP 7.2+)
         - '#Function mcrypt_.*\(\) is deprecated#'
         - '#Function mcrypt_.* not found#'
+        - '#Constant MCRYPT_.* not found#'
         # Config classes (generated at runtime)
         - '#Class EmailConfig not found#'
+        - '# has unknown class DATABASE_CONFIG as its type.#'
     parallel:
         processTimeout: 300.0
         maximumNumberOfProcesses: 4

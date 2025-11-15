@@ -42,7 +42,7 @@ require_once dirname(__DIR__) . DS . 'Model' . DS . 'models.php';
 class SecondaryPost extends Model
 {
     /**
-     * @var string
+     * @var string|bool|null
      */
     public string|bool|null $useTable = 'posts';
 
@@ -58,7 +58,7 @@ class SecondaryPost extends Model
 class ConstructorPost extends Model
 {
     /**
-     * @var string
+     * @var string|bool|null
      */
     public string|bool|null $useTable = 'posts';
 
@@ -76,14 +76,18 @@ class ConstructorPost extends Model
  */
 class CakeTestCaseTest extends CakeTestCase
 {
-    protected $_appNamespace = null;
+    protected ?string $_appNamespace = null;
 
     /**
      * fixtures property
      *
-     * @var array
+     * @var array<string>
      */
-    public $fixtures = ['core.post', 'core.author', 'core.test_plugin_comment'];
+    public array $fixtures = [
+        'core.post',
+        'core.author',
+        'core.test_plugin_comment',
+    ];
 
     /**
      * @return void

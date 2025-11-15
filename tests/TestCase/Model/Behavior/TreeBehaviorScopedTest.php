@@ -50,7 +50,7 @@ class TreeBehaviorScopedTest extends CakeTestCase
      *
      * @var array
      */
-    public $settings = [
+    public array $settings = [
         'modelClass' => 'FlagTree',
         'leftField' => 'lft',
         'rightField' => 'rght',
@@ -60,9 +60,15 @@ class TreeBehaviorScopedTest extends CakeTestCase
     /**
      * fixtures property
      *
-     * @var array
+     * @var array<string>
      */
-    public $fixtures = ['core.flag_tree', 'core.ad', 'core.campaign', 'core.translate', 'core.number_tree_two'];
+    public array $fixtures = [
+        'core.flag_tree',
+        'core.ad',
+        'core.campaign',
+        'core.translate',
+        'core.number_tree_two',
+    ];
 
     /**
      * testStringScope method

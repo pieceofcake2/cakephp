@@ -40,7 +40,7 @@ if (!defined('FULL_BASE_URL')) {
  */
 class RouterTest extends CakeTestCase
 {
-    protected $_appNamespace = null;
+    protected ?string $_appNamespace = null;
 
     /**
      * setUp method

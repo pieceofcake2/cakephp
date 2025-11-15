@@ -36,7 +36,7 @@ class CacheDispatcher extends DispatcherFilter
      *
      * @var int
      */
-    public $priority = 9;
+    public int $priority = 9;
 
     /**
      * Checks whether the response was cached and set the body accordingly.

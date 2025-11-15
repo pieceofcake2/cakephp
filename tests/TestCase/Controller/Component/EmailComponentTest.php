@@ -21,6 +21,7 @@
 namespace Cake\Test\TestCase\Controller\Component;
 
 use Cake\Controller\Component\EmailComponent;
+use Cake\Controller\Component\SessionComponent;
 use Cake\Controller\Controller;
 use Cake\Core\App;
 use Cake\Core\Configure;
@@ -67,9 +68,9 @@ class DebugCompTransport extends AbstractTransport
      * Send mail
      *
      * @params CakeEmail $email CakeEmail
-     * @return bool
+     * @return array
      */
-    public function send(CakeEmail $email)
+    public function send(CakeEmail $email): array
     {
         $email->addHeaders(['Date' => EmailComponentTest::$sentDate]);
         $headers = $email->getHeaders(array_fill_keys(['from', 'replyTo', 'readReceipt', 'returnPath', 'to', 'cc', 'bcc', 'subject'], true));
@@ -89,7 +90,7 @@ class DebugCompTransport extends AbstractTransport
 
         static::$lastEmail = $last;
 
-        return true;
+        return [$last];
     }
 }
 class_alias(DebugCompTransport::class, 'App\\Network\\Email\\DebugCompTransport');
@@ -98,15 +99,17 @@ class_alias(DebugCompTransport::class, 'App\\Network\\Email\\DebugCompTransport'
  * EmailTestController class
  *
  * @package       Cake.Test.Case.Controller.Component
+ * @property EmailTestComponent $EmailTest
+ * @property SessionComponent $Session
  */
 class EmailTestController extends Controller
 {
     /**
      * uses property
      *
-     * @var array||bool
+     * @var array|bool|null
      */
-    public array|bool $uses = [];
+    public array|bool|null $uses = [];
 
     /**
      * components property
@@ -136,14 +139,14 @@ class EmailComponentTest extends CakeTestCase
      *
      * @var string
      */
-    public $name = 'Email';
+    public string $name = 'Email';
 
     /**
      * sentDate
      *
-     * @var string
+     * @var string|null
      */
-    public static $sentDate = null;
+    public static ?string $sentDate = null;
 
     /**
      * setUp method
@@ -175,7 +178,7 @@ class EmailComponentTest extends CakeTestCase
      *
      * @return void
      */
-    public function testSendFormats()
+    public function testSendFormats(): void
     {
         $this->Controller->EmailTest->to = 'postmaster@example.com';
         $this->Controller->EmailTest->from = 'noreply@example.com';
@@ -207,12 +210,12 @@ MSGBLOC;
 
         $this->Controller->EmailTest->sendAs = 'text';
         $expected = str_replace('{CONTENTTYPE}', 'text/plain; charset=UTF-8', $message);
-        $this->assertTrue($this->Controller->EmailTest->send('This is the body of the message'));
+        $this->assertNotEmpty($this->Controller->EmailTest->send('This is the body of the message'));
         $this->assertTextEquals($expected, DebugCompTransport::$lastEmail);
 
         $this->Controller->EmailTest->sendAs = 'html';
         $expected = str_replace('{CONTENTTYPE}', 'text/html; charset=UTF-8', $message);
-        $this->assertTrue($this->Controller->EmailTest->send('This is the body of the message'));
+        $this->assertNotEmpty($this->Controller->EmailTest->send('This is the body of the message'));
         $this->assertTextEquals($expected, DebugCompTransport::$lastEmail);
     }
 
@@ -263,28 +266,28 @@ This email was sent using the CakePHP Framework, https://cakephp.org.
 TEXTBLOC;
 
         $html = <<<HTMLBLOC
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
+        <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
 
-<html>
-<head>
-	<title>Email Test</title>
-</head>
+        <html>
+        <head>
+        	<title>Email Test</title>
+        </head>
 
-<body>
-	<p> This is the body of the message</p><p> </p>
-	<p>This email was sent using the <a href="https://cakephp.org">CakePHP Framework</a></p>
-</body>
-</html>
-HTMLBLOC;
+        <body>
+        	<p> This is the body of the message</p><p> </p>
+        	<p>This email was sent using the <a href="https://cakephp.org">CakePHP Framework</a></p>
+        </body>
+        </html>
+        HTMLBLOC;
 
         $this->Controller->EmailTest->sendAs = 'text';
         $expected = '<pre>' . str_replace('{CONTENTTYPE}', 'text/plain; charset=UTF-8', $header) . $text . "\n" . '</pre>';
-        $this->assertTrue($this->Controller->EmailTest->send('This is the body of the message'));
+        $this->assertNotEmpty($this->Controller->EmailTest->send('This is the body of the message'));
         $this->assertTextEquals($expected, DebugCompTransport::$lastEmail);
 
         $this->Controller->EmailTest->sendAs = 'html';
         $expected = '<pre>' . str_replace('{CONTENTTYPE}', 'text/html; charset=UTF-8', $header) . $html . "\n" . '</pre>';
-        $this->assertTrue($this->Controller->EmailTest->send('This is the body of the message'));
+        $this->assertNotEmpty($this->Controller->EmailTest->send('This is the body of the message'));
         $this->assertTextEquals($expected, DebugCompTransport::$lastEmail);
 
         $this->Controller->EmailTest->sendAs = 'both';
@@ -303,31 +306,31 @@ HTMLBLOC;
 
         $expected = '<pre>' . $expected . '</pre>';
 
-        $this->assertTrue($this->Controller->EmailTest->send('This is the body of the message'));
+        $this->assertNotEmpty($this->Controller->EmailTest->send('This is the body of the message'));
         $this->assertTextEquals(
             $expected,
             preg_replace('/[a-z0-9]{32}/i', '{boundary}', DebugCompTransport::$lastEmail),
         );
 
         $html = <<<HTMLBLOC
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
+        <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01//EN">
 
-<html>
-<head>
-	<title>Email Test</title>
-</head>
+        <html>
+        <head>
+        	<title>Email Test</title>
+        </head>
 
-<body>
-	<p> This is the body of the message</p><p> </p>
-	<p>This email was sent using the CakePHP Framework</p>
-</body>
-</html>
+        <body>
+        	<p> This is the body of the message</p><p> </p>
+        	<p>This email was sent using the CakePHP Framework</p>
+        </body>
+        </html>
 
-HTMLBLOC;
+        HTMLBLOC;
 
         $this->Controller->EmailTest->sendAs = 'html';
         $expected = '<pre>' . str_replace('{CONTENTTYPE}', 'text/html; charset=UTF-8', $header) . $html . '</pre>';
-        $this->assertTrue($this->Controller->EmailTest->send('This is the body of the message', 'default', 'thin'));
+        $this->assertNotEmpty($this->Controller->EmailTest->send('This is the body of the message', 'default', 'thin'));
         $this->assertTextEquals($expected, DebugCompTransport::$lastEmail);
     }
 
@@ -371,7 +374,7 @@ HTMLBLOC;
         $this->Controller->EmailTest->template = null;
 
         $this->Controller->EmailTest->delivery = 'DebugComp';
-        $this->assertTrue($this->Controller->EmailTest->send(null));
+        $this->assertNotEmpty($this->Controller->EmailTest->send(null));
         $result = DebugCompTransport::$lastEmail;
 
         $this->assertMatchesRegularExpression('/To: test@example.com\n/', $result);
@@ -399,7 +402,7 @@ HTMLBLOC;
         $this->Controller->EmailTest->template = null;
 
         $this->Controller->EmailTest->delivery = 'DebugComp';
-        $this->assertTrue($this->Controller->EmailTest->send('This is the body of the message'));
+        $this->assertNotEmpty($this->Controller->EmailTest->send('This is the body of the message'));
         $result = DebugCompTransport::$lastEmail;
 
         $this->assertMatchesRegularExpression('/To: postmaster@example.com\n/', $result);
@@ -472,17 +475,17 @@ HTMLBLOC;
         $text = $html = "This is the body of the message\n";
 
         $this->Controller->EmailTest->sendAs = 'both';
-        $this->assertTrue($this->Controller->EmailTest->send('This is the body of the message'));
+        $this->assertNotEmpty($this->Controller->EmailTest->send('This is the body of the message'));
         $this->assertTextEquals($this->Controller->EmailTest->textMessage, $text);
         $this->assertTextEquals($this->Controller->EmailTest->htmlMessage, $html);
 
         $this->Controller->EmailTest->sendAs = 'text';
-        $this->assertTrue($this->Controller->EmailTest->send('This is the body of the message'));
+        $this->assertNotEmpty($this->Controller->EmailTest->send('This is the body of the message'));
         $this->assertTextEquals($this->Controller->EmailTest->textMessage, $text);
         $this->assertNull($this->Controller->EmailTest->htmlMessage);
 
         $this->Controller->EmailTest->sendAs = 'html';
-        $this->assertTrue($this->Controller->EmailTest->send('This is the body of the message'));
+        $this->assertNotEmpty($this->Controller->EmailTest->send('This is the body of the message'));
         $this->assertNull($this->Controller->EmailTest->textMessage);
         $this->assertTextEquals($this->Controller->EmailTest->htmlMessage, $html);
     }
@@ -536,17 +539,17 @@ TEXTBLOC;
 HTMLBLOC;
 
         $this->Controller->EmailTest->sendAs = 'both';
-        $this->assertTrue($this->Controller->EmailTest->send());
+        $this->assertNotEmpty($this->Controller->EmailTest->send());
         $this->assertTextEquals($this->Controller->EmailTest->textMessage, $text);
         $this->assertTextEquals($this->Controller->EmailTest->htmlMessage, $html);
 
         $this->Controller->EmailTest->sendAs = 'text';
-        $this->assertTrue($this->Controller->EmailTest->send());
+        $this->assertNotEmpty($this->Controller->EmailTest->send());
         $this->assertTextEquals($this->Controller->EmailTest->textMessage, $text);
         $this->assertNull($this->Controller->EmailTest->htmlMessage);
 
         $this->Controller->EmailTest->sendAs = 'html';
-        $this->assertTrue($this->Controller->EmailTest->send());
+        $this->assertNotEmpty($this->Controller->EmailTest->send());
         $this->assertNull($this->Controller->EmailTest->textMessage);
         $this->assertTextEquals($this->Controller->EmailTest->htmlMessage, $html);
     }
@@ -579,7 +582,7 @@ HTMLBLOC;
         $this->Controller->EmailTest->sendAs = 'text';
         $this->Controller->EmailTest->delivery = 'DebugComp';
 
-        $this->assertTrue($this->Controller->EmailTest->send());
+        $this->assertNotEmpty($this->Controller->EmailTest->send());
         $this->assertTrue((bool)strpos($this->Controller->EmailTest->textMessage, 'Right now: ' . date('Y-m-d\TH:i:s\Z', $timestamp)));
     }
 
@@ -598,7 +601,7 @@ HTMLBLOC;
         $this->Controller->EmailTest->delivery = 'DebugComp';
 
         $content = ['First line', 'Second line', 'Third line'];
-        $this->assertTrue($this->Controller->EmailTest->send($content));
+        $this->assertNotEmpty($this->Controller->EmailTest->send($content));
         $result = DebugCompTransport::$lastEmail;
 
         $this->assertMatchesRegularExpression('/To: postmaster@example.com\n/', $result);
@@ -627,7 +630,7 @@ HTMLBLOC;
         $this->Controller->EmailTest->template = null;
         $this->Controller->EmailTest->delivery = 'DebugComp';
 
-        $this->assertTrue($this->Controller->EmailTest->send('test message'));
+        $this->assertNotEmpty($this->Controller->EmailTest->send('test message'));
         $result = DebugCompTransport::$lastEmail;
         $this->assertMatchesRegularExpression('/Date: Today!\n/', $result);
     }
@@ -679,7 +682,7 @@ HTMLBLOC;
         $this->Controller->EmailTest->delivery = 'DebugComp';
 
         $this->Controller->EmailTest->sendAs = 'text';
-        $this->assertTrue($this->Controller->EmailTest->send('This is the body of the message'));
+        $this->assertNotEmpty($this->Controller->EmailTest->send('This is the body of the message'));
 
         $subject = '=?UTF-8?B?2YfYsNmHINix2LPYp9mE2Kkg2KjYudmG2YjYp9mGINi32YjZitmEINmF2LE=?=' . "\r\n" . ' =?UTF-8?B?2LPZhCDZhNmE2YXYs9iq2YTZhQ==?=';
 
@@ -710,17 +713,17 @@ HTMLBLOC;
         $subject = '=?UTF-8?B?2YfYsNmHINix2LPYp9mE2Kkg2KjYudmG2YjYp9mGINi32YjZitmEINmF2LE=?=' . "\r\n" . ' =?UTF-8?B?2LPZhCDZhNmE2YXYs9iq2YTZhQ==?=';
 
         $this->Controller->EmailTest->sendAs = 'text';
-        $this->assertTrue($this->Controller->EmailTest->send('This is the body of the message'));
+        $this->assertNotEmpty($this->Controller->EmailTest->send('This is the body of the message'));
         preg_match('/Subject: (.*)Header:/s', DebugCompTransport::$lastEmail, $matches);
         $this->assertEquals(trim($matches[1]), $subject);
 
         $this->Controller->EmailTest->sendAs = 'html';
-        $this->assertTrue($this->Controller->EmailTest->send('This is the body of the message'));
+        $this->assertNotEmpty($this->Controller->EmailTest->send('This is the body of the message'));
         preg_match('/Subject: (.*)Header:/s', DebugCompTransport::$lastEmail, $matches);
         $this->assertEquals(trim($matches[1]), $subject);
 
         $this->Controller->EmailTest->sendAs = 'both';
-        $this->assertTrue($this->Controller->EmailTest->send('This is the body of the message'));
+        $this->assertNotEmpty($this->Controller->EmailTest->send('This is the body of the message'));
         preg_match('/Subject: (.*)Header:/s', DebugCompTransport::$lastEmail, $matches);
         $this->assertEquals(trim($matches[1]), $subject);
     }
@@ -745,7 +748,7 @@ HTMLBLOC;
         $body = '<p>This is the body of the message</p>';
 
         $this->Controller->EmailTest->sendAs = 'text';
-        $this->assertTrue($this->Controller->EmailTest->send($body));
+        $this->assertNotEmpty($this->Controller->EmailTest->send($body));
         $msg = DebugCompTransport::$lastEmail;
         $this->assertMatchesRegularExpression('/' . preg_quote('Content-Disposition: attachment; filename="EmailComponentTest.php"') . '/', $msg);
         $this->assertMatchesRegularExpression('/' . preg_quote('Content-Disposition: attachment; filename="some-name.php"') . '/', $msg);
@@ -768,19 +771,19 @@ HTMLBLOC;
         $body = '<p>This is the body of the message</p>';
 
         $this->Controller->EmailTest->sendAs = 'html';
-        $this->assertTrue($this->Controller->EmailTest->send($body));
+        $this->assertNotEmpty($this->Controller->EmailTest->send($body));
         $msg = DebugCompTransport::$lastEmail;
         $this->assertDoesNotMatchRegularExpression('/text\/plain/', $msg);
         $this->assertMatchesRegularExpression('/text\/html/', $msg);
 
         $this->Controller->EmailTest->sendAs = 'text';
-        $this->assertTrue($this->Controller->EmailTest->send($body));
+        $this->assertNotEmpty($this->Controller->EmailTest->send($body));
         $msg = DebugCompTransport::$lastEmail;
         $this->assertMatchesRegularExpression('/text\/plain/', $msg);
         $this->assertDoesNotMatchRegularExpression('/text\/html/', $msg);
 
         $this->Controller->EmailTest->sendAs = 'both';
-        $this->assertTrue($this->Controller->EmailTest->send($body));
+        $this->assertNotEmpty($this->Controller->EmailTest->send($body));
         $msg = DebugCompTransport::$lastEmail;
 
         $this->assertMatchesRegularExpression('/text\/plain/', $msg);
@@ -804,7 +807,7 @@ HTMLBLOC;
         $body = '<p>This is the body of the message</p>';
 
         $this->Controller->EmailTest->sendAs = 'both';
-        $this->assertTrue($this->Controller->EmailTest->send($body));
+        $this->assertNotEmpty($this->Controller->EmailTest->send($body));
         $msg = DebugCompTransport::$lastEmail;
 
         $this->assertDoesNotMatchRegularExpression('/\n\nContent-Transfer-Encoding/', $msg);
@@ -880,7 +883,7 @@ HTMLBLOC;
         $this->Controller->EmailTest->delivery = 'DebugComp';
         $body = 'Body of message';
 
-        $this->assertTrue($this->Controller->EmailTest->send($body));
+        $this->assertNotEmpty($this->Controller->EmailTest->send($body));
         $result = DebugCompTransport::$lastEmail;
 
         $this->assertMatchesRegularExpression('/Body of message/', $result);
@@ -893,7 +896,8 @@ HTMLBLOC;
      */
     public function testStartup()
     {
-        $this->assertNull($this->Controller->EmailTest->startup($this->Controller));
+        $this->Controller->EmailTest->startup($this->Controller);
+        $this->addToAssertionCount(1);
     }
 
     /**
@@ -910,7 +914,7 @@ HTMLBLOC;
         $this->Controller->EmailTest->template = null;
 
         $this->Controller->EmailTest->delivery = 'DebugComp';
-        $this->assertTrue($this->Controller->EmailTest->send('This is the body of the message'));
+        $this->assertNotEmpty($this->Controller->EmailTest->send('This is the body of the message'));
         $result = DebugCompTransport::$lastEmail;
 
         $host = env('HTTP_HOST') ?: php_uname('n');
@@ -918,14 +922,14 @@ HTMLBLOC;
 
         $this->Controller->EmailTest->messageId = '<22091985.998877@example.com>';
 
-        $this->assertTrue($this->Controller->EmailTest->send('This is the body of the message'));
+        $this->assertNotEmpty($this->Controller->EmailTest->send('This is the body of the message'));
         $result = DebugCompTransport::$lastEmail;
 
         $this->assertMatchesRegularExpression('/Message-ID: <22091985.998877@example.com>\n/', $result);
 
         $this->Controller->EmailTest->messageId = false;
 
-        $this->assertTrue($this->Controller->EmailTest->send('This is the body of the message'));
+        $this->assertNotEmpty($this->Controller->EmailTest->send('This is the body of the message'));
         $result = DebugCompTransport::$lastEmail;
 
         $this->assertDoesNotMatchRegularExpression('/Message-ID:/', $result);
@@ -945,7 +949,7 @@ HTMLBLOC;
         $this->Controller->EmailTest->template = null;
 
         $this->Controller->EmailTest->delivery = 'DebugComp';
-        $this->assertTrue($this->Controller->EmailTest->send('This is the body of the message'));
+        $this->assertNotEmpty($this->Controller->EmailTest->send('This is the body of the message'));
         $result = DebugCompTransport::$lastEmail;
 
         $this->assertStringContainsString('From: =?UTF-8?B?VGXDn3Qg?= <test@example.com>', $result);

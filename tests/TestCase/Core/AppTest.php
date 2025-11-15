@@ -59,7 +59,7 @@ use TestPlugin\View\Helper\TestPluginAppHelper;
  */
 class AppTest extends CakeTestCase
 {
-    protected $_appNamespace = null;
+    protected ?string $_appNamespace = null;
 
     /**
      * @return void

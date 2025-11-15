@@ -37,44 +37,44 @@ class I18n
     /**
      * Instance of the L10n class for localization
      *
-     * @var L10n
+     * @var L10n|null
      */
-    public $l10n = null;
+    public ?L10n $l10n = null;
 
     /**
      * Default domain of translation
      *
      * @var string
      */
-    public static $defaultDomain = 'default';
+    public static string $defaultDomain = 'default';
 
     /**
      * Current domain of translation
      *
-     * @var string
+     * @var string|null
      */
-    public $domain = null;
+    public ?string $domain = null;
 
     /**
      * Current category of translation
      *
      * @var string
      */
-    public $category = 'LC_MESSAGES';
+    public string $category = 'LC_MESSAGES';
 
     /**
      * Current language used for translations
      *
-     * @var string
+     * @var string|null
      */
-    protected $_lang = null;
+    protected ?string $_lang = null;
 
     /**
      * Translation strings for a specific domain read from the .mo or .po files
      *
      * @var array
      */
-    protected $_domains = [];
+    protected array $_domains = [];
 
     /**
      * Set to true when I18N::_bindTextDomain() is called for the first time.
@@ -82,15 +82,21 @@ class I18n
      *
      * @var bool
      */
-    protected $_noLocale = false;
+    protected bool $_noLocale = false;
 
     /**
      * Translation categories
      *
      * @var array
      */
-    protected $_categories = [
-        'LC_ALL', 'LC_COLLATE', 'LC_CTYPE', 'LC_MONETARY', 'LC_NUMERIC', 'LC_TIME', 'LC_MESSAGES',
+    protected array $_categories = [
+        'LC_ALL',
+        'LC_COLLATE',
+        'LC_CTYPE',
+        'LC_MONETARY',
+        'LC_NUMERIC',
+        'LC_TIME',
+        'LC_MESSAGES',
     ];
 
     /**
@@ -158,9 +164,9 @@ class I18n
     /**
      * Escape string
      *
-     * @var string
+     * @var string|null
      */
-    protected $_escape = null;
+    protected ?string $_escape = null;
 
     /**
      * Constructor, use I18n::getInstance() to get the i18n translation object.
@@ -175,7 +181,7 @@ class I18n
      *
      * @return I18n
      */
-    public static function getInstance()
+    public static function getInstance(): I18n
     {
         static $instance = [];
         if (!$instance) {
@@ -190,26 +196,26 @@ class I18n
      * Returns a translated string based on current language and translation files stored in locale folder
      *
      * @param string $singular String to translate
-     * @param string $plural Plural string (if any)
-     * @param string $domain Domain The domain of the translation. Domains are often used by plugin translations.
+     * @param string|null $plural Plural string (if any)
+     * @param string|null $domain Domain The domain of the translation. Domains are often used by plugin translations.
      *    If null, the default domain will be used.
-     * @param string|int $category Category The integer value of the category to use.
-     * @param int $count Count Count is used with $plural to choose the correct plural form.
-     * @param string $language Language to translate string to.
+     * @param string|int|null $category Category The integer value of the category to use.
+     * @param int|null $count Count Count is used with $plural to choose the correct plural form.
+     * @param string|null $language Language to translate string to.
      *    If null it checks for language in session followed by Config.language configuration variable.
-     * @param string $context Context The context of the translation, e.g a verb or a noun.
-     * @return string translated string.
+     * @param string|null $context Context The context of the translation, e.g a verb or a noun.
+     * @return array|string translated string.
      * @throws CakeException When '' is provided as a domain.
      */
     public static function translate(
-        $singular,
-        $plural = null,
-        $domain = null,
-        $category = self::LC_MESSAGES,
-        $count = null,
-        $language = null,
-        $context = null,
-    ) {
+        string $singular,
+        ?string $plural = null,
+        ?string $domain = null,
+        string|int|null $category = self::LC_MESSAGES,
+        ?int $count = null,
+        ?string $language = null,
+        ?string $context = null,
+    ): array|string {
         $_this = I18n::getInstance();
 
         if (str_contains($singular, "\r\n")) {
@@ -273,31 +279,27 @@ class I18n
         }
 
         if (!empty($_this->_domains[$domain][$_this->_lang][$_this->category][$singular][$context])) {
-            if (
-                ($trans = $_this->_domains[$domain][$_this->_lang][$_this->category][$singular][$context]) ||
-                ($plurals) && ($trans = $_this->_domains[$domain][$_this->_lang][$_this->category][$plural][$context])
-            ) {
-                if (is_array($trans)) {
-                    if (isset($trans[$plurals])) {
-                        $trans = $trans[$plurals];
-                    } else {
-                        trigger_error(
-                            __d(
-                                'cake_dev',
-                                'Missing plural form translation for "%s" in "%s" domain, "%s" locale. ' .
-                                ' Check your po file for correct plurals and valid Plural-Forms header.',
-                                $singular,
-                                $domain,
-                                $_this->_lang,
-                            ),
-                            E_USER_WARNING,
-                        );
-                        $trans = $trans[0];
-                    }
+            $trans = $_this->_domains[$domain][$_this->_lang][$_this->category][$singular][$context];
+            if (is_array($trans)) {
+                if (isset($trans[$plurals])) {
+                    $trans = $trans[$plurals];
+                } else {
+                    trigger_error(
+                        __d(
+                            'cake_dev',
+                            'Missing plural form translation for "%s" in "%s" domain, "%s" locale. ' .
+                            ' Check your po file for correct plurals and valid Plural-Forms header.',
+                            $singular,
+                            $domain,
+                            $_this->_lang,
+                        ),
+                        E_USER_WARNING,
+                    );
+                    $trans = $trans[0];
                 }
-                if (strlen($trans)) {
-                    return $trans;
-                }
+            }
+            if (strlen($trans)) {
+                return $trans;
             }
         }
 
@@ -313,7 +315,7 @@ class I18n
      *
      * @return void
      */
-    public static function clear()
+    public static function clear(): void
     {
         $self = I18n::getInstance();
         $self->_domains = [];
@@ -324,7 +326,7 @@ class I18n
      *
      * @return array
      */
-    public static function domains()
+    public static function domains(): array
     {
         $self = I18n::getInstance();
 
@@ -334,13 +336,13 @@ class I18n
     /**
      * Attempts to find the plural form of a string.
      *
-     * @param string $header Type
+     * @param string|null $header Type
      * @param int $n Number
      * @return int plural match
      * @link http://localization-guide.readthedocs.org/en/latest/l10n/pluralforms.html
      * @link https://developer.mozilla.org/en-US/docs/Mozilla/Localization/Localization_and_Plurals#List_of_Plural_Rules
      */
-    protected function _pluralGuess($header, $n)
+    protected function _pluralGuess(?string $header, int $n): int
     {
         if (!is_string($header) || $header === 'nplurals=1;plural=0;' || !isset($header[0])) {
             return 0;
@@ -399,7 +401,7 @@ class I18n
      * @param string $domain Domain to bind
      * @return string Domain binded
      */
-    protected function _bindTextDomain($domain)
+    protected function _bindTextDomain(string $domain): string
     {
         $this->_noLocale = true;
         $core = true;
@@ -502,7 +504,7 @@ class I18n
             }
 
             if (isset($this->_domains[$domain][$this->_lang][$this->category]['%po-header']['plural-forms'])) {
-                $switch = preg_replace('/(?:[() {}\\[\\]^\\s*\\]]+)/', '', $this->_domains[$domain][$this->_lang][$this->category]['%po-header']['plural-forms']);
+                $switch = preg_replace('/[() {}\[\]^*]+/', '', $this->_domains[$domain][$this->_lang][$this->category]['%po-header']['plural-forms']);
                 $this->_domains[$domain][$this->_lang][$this->category]['%plural-c'] = $switch;
                 unset($this->_domains[$domain][$this->_lang][$this->category]['%po-header']);
             }
@@ -520,20 +522,24 @@ class I18n
      * Loads the binary .mo file and returns array of translations
      *
      * @param string $filename Binary .mo file to load
-     * @return mixed Array of translations on success or false on failure
+     * @return array|bool Array of translations on success or false on failure
      * @link https://www.gnu.org/software/gettext/manual/html_node/MO-Files.html
      */
-    public static function loadMo($filename)
+    public static function loadMo(string $filename): array|bool
     {
         $translations = false;
 
-        // @codingStandardsIgnoreStart
         // Binary files extracted makes non-standard local variables
         if ($data = file_get_contents($filename)) {
             $translations = [];
             $header = substr($data, 0, 20);
             $header = unpack('L1magic/L1version/L1count/L1o_msg/L1o_trn', $header);
-            extract($header);
+
+            $magic = $header['magic'] ?? null;
+            $version = $header['version'] ?? null;
+            $count = $header['count'] ?? null;
+            $o_msg = $header['o_msg'] ?? null;
+            $o_trn = $header['o_trn'] ?? null;
 
             if ((dechex($magic) === '950412de' || dechex($magic) === 'ffffffff950412de') && !$version) {
                 for ($n = 0; $n < $count; $n++) {
@@ -567,7 +573,6 @@ class I18n
                 }
             }
         }
-        // @codingStandardsIgnoreEnd
 
         return $translations;
     }
@@ -576,9 +581,9 @@ class I18n
      * Loads the text .po file and returns array of translations
      *
      * @param string $filename Text .po file to load
-     * @return mixed Array of translations on success or false on failure
+     * @return array|bool Array of translations on success or false on failure
      */
-    public static function loadPo($filename)
+    public static function loadPo(string $filename): array|bool
     {
         if (!$file = fopen($filename, 'r')) {
             return false;
@@ -658,9 +663,9 @@ class I18n
      * Parses a locale definition file following the POSIX standard
      *
      * @param string $filename Locale definition filename
-     * @return mixed Array of definitions on success or false on failure
+     * @return array|bool Array of definitions on success or false on failure
      */
-    public static function loadLocaleDefinition($filename)
+    public static function loadLocaleDefinition(string $filename): array|bool
     {
         if (!$file = fopen($filename, 'r')) {
             return false;
@@ -703,13 +708,14 @@ class I18n
             }
 
             $mustEscape = [$escape . ',', $escape . ';', $escape . '<', $escape . '>', $escape . $escape];
+            /** @var array<string> $replacements */
             $replacements = array_map('crc32', $mustEscape);
             $value = str_replace($mustEscape, $replacements, $value);
             $value = explode(';', $value);
             $_this->_escape = $escape;
             foreach ($value as $i => $val) {
                 $val = trim($val, '"');
-                $val = preg_replace_callback('/(?:<)?(.[^>]*)(?:>)?/', [&$_this, '_parseLiteralValue'], $val);
+                $val = preg_replace_callback('/<?(.[^>]*)>?/', [&$_this, '_parseLiteralValue'], $val);
                 $val = str_replace($replacements, $mustEscape, $val);
                 $value[$i] = $val;
             }
@@ -726,12 +732,14 @@ class I18n
     /**
      * Puts the parameters in raw translated strings
      *
-     * @param string $translated The raw translated string
+     * @param array|string $translated The raw translated string
      * @param array $args The arguments to put in the translation
-     * @return mixed Translated string with arguments
+     * @return array|string Translated string with arguments
      */
-    public static function insertArgs($translated, array $args): mixed
-    {
+    public static function insertArgs(
+        array|string $translated,
+        array $args,
+    ): array|string {
         $len = count($args);
         if ($len === 0 || ($len === 1 && $args[0] === null)) {
             return $translated;
@@ -749,10 +757,10 @@ class I18n
     /**
      * Auxiliary function to parse a symbol from a locale definition file
      *
-     * @param string $string Symbol to be parsed
+     * @param array|string $string Symbol to be parsed
      * @return string parsed symbol
      */
-    protected function _parseLiteralValue($string)
+    protected function _parseLiteralValue(array|string $string): string
     {
         $string = $string[1];
         if (substr($string, 0, 2) === $this->_escape . 'x') {
@@ -763,17 +771,23 @@ class I18n
         if (substr($string, 0, 2) === $this->_escape . 'd') {
             $delimiter = $this->_escape . 'd';
 
-            return implode('', array_map('chr', array_filter(explode($delimiter, $string))));
+            return implode('', array_map(function ($value) {
+                return chr((int)$value);
+            }, array_filter(explode($delimiter, $string))));
         }
         if ($string[0] === $this->_escape && isset($string[1]) && is_numeric($string[1])) {
             $delimiter = $this->_escape;
 
-            return implode('', array_map('chr', array_filter(explode($delimiter, $string))));
+            return implode('', array_map(function ($value) {
+                return chr((int)$value);
+            }, array_filter(explode($delimiter, $string))));
         }
         if (str_starts_with($string, 'U00')) {
             $delimiter = 'U00';
 
-            return implode('', array_map('chr', array_map('hexdec', array_filter(explode($delimiter, $string)))));
+            return implode('', array_map(function ($value) {
+                return chr((int)$value);
+            }, array_map('hexdec', array_filter(explode($delimiter, $string)))));
         }
         if (preg_match('/U([0-9a-fA-F]{4})/', $string, $match)) {
             return Multibyte::ascii([hexdec($match[1])]);
@@ -789,7 +803,7 @@ class I18n
      * @param string $domain Domain where format is stored
      * @return mixed translated format string if only value or array of translated strings for corresponding format.
      */
-    protected function _translateTime($format, $domain)
+    protected function _translateTime(string $format, string $domain): mixed
     {
         if (!empty($this->_domains[$domain][$this->_lang]['LC_TIME'][$format])) {
             if (($trans = $this->_domains[$domain][$this->_lang][$this->category][$format])) {

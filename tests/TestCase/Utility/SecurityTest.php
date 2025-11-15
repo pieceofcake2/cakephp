@@ -118,7 +118,7 @@ class SecurityTest extends CakeTestCase
         }
 
         $this->assertTrue($warningTriggered, 'Expected warning was not triggered');
-        $this->assertSame('Invalid salt: 1 for blowfish Please visit http://www.php.net/crypt and read the appropriate section for building blowfish salts.', $warningMessage);
+        $this->assertSame('Invalid salt: 1 for blowfish Please visit https://www.php.net/crypt and read the appropriate section for building blowfish salts.', $warningMessage);
     }
 
     /**
@@ -144,7 +144,7 @@ class SecurityTest extends CakeTestCase
         }
 
         $this->assertTrue($warningTriggered, 'Expected warning was not triggered');
-        $this->assertSame('Invalid salt: $1$lksdjoijfaoijs for blowfish Please visit http://www.php.net/crypt and read the appropriate section for building blowfish salts.', $warningMessage);
+        $this->assertSame('Invalid salt: $1$lksdjoijfaoijs for blowfish Please visit https://www.php.net/crypt and read the appropriate section for building blowfish salts.', $warningMessage);
     }
 
     /**
@@ -170,7 +170,7 @@ class SecurityTest extends CakeTestCase
         }
 
         $this->assertTrue($warningTriggered, 'Expected warning was not triggered');
-        $this->assertSame('Invalid salt: $2a$10$123 for blowfish Please visit http://www.php.net/crypt and read the appropriate section for building blowfish salts.', $warningMessage);
+        $this->assertSame('Invalid salt: $2a$10$123 for blowfish Please visit https://www.php.net/crypt and read the appropriate section for building blowfish salts.', $warningMessage);
     }
 
     /**

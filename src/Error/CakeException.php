@@ -16,6 +16,8 @@
 
 namespace Cake\Error;
 
+use Throwable;
+
 /**
  * CakeException is used a base class for CakePHP's internal exceptions.
  * In general framework errors are interpreted as 500 code errors.
@@ -37,7 +39,7 @@ class CakeException extends CakeBaseException
      *
      * @var string
      */
-    protected $_messageTemplate = '';
+    protected string $_messageTemplate = '';
 
     /**
      * Constructor.
@@ -48,14 +50,16 @@ class CakeException extends CakeBaseException
      * @param array|string $message Either the string of the error message, or an array of attributes
      *   that are made available in the view, and sprintf()'d into CakeException::$_messageTemplate
      * @param int $code The code of the error, is also the HTTP status code for the error.
+     * @param Throwable|null $previous
      */
-    public function __construct($message, $code = 500)
+    public function __construct(array|string $message, int $code = 500, ?Throwable $previous = null)
     {
         if (is_array($message)) {
             $this->_attributes = $message;
             $message = __d('cake_dev', $this->_messageTemplate, $message);
         }
-        parent::__construct($message, $code);
+
+        parent::__construct($message, $code, $previous);
     }
 
     /**

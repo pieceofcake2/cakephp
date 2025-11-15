@@ -110,7 +110,7 @@ class SessionComponent extends Component
      * @return bool true is session variable is set, false if not
      * @link https://book.cakephp.org/2.0/en/core-libraries/components/sessions.html#SessionComponent::check
      */
-    public function check($name)
+    public function check(string $name): bool
     {
         return CakeSession::check($name);
     }

@@ -43,11 +43,11 @@ class ControllerAuthorize extends BaseAuthorize
     /**
      * Get/set the controller this authorize object will be working with. Also checks that isAuthorized is implemented.
      *
-     * @param Controller $controller null to get, a controller to set.
-     * @return mixed
+     * @param Controller|null $controller null to get, a controller to set.
+     * @return Controller|bool
      * @throws CakeException
      */
-    public function controller(?Controller $controller = null)
+    public function controller(?Controller $controller = null): Controller|bool
     {
         if ($controller) {
             if (!method_exists($controller, 'isAuthorized')) {
@@ -65,8 +65,8 @@ class ControllerAuthorize extends BaseAuthorize
      * @param CakeRequest $request Request instance.
      * @return bool
      */
-    public function authorize($user, CakeRequest $request)
+    public function authorize(array $user, CakeRequest $request): bool
     {
-        return (bool)$this->_Controller->isAuthorized($user);
+        return method_exists($this->_Controller, 'isAuthorized') && $this->_Controller->isAuthorized($user);
     }
 }

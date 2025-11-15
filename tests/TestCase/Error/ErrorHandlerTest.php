@@ -45,7 +45,7 @@ class FaultyExceptionRenderer extends ExceptionRenderer
      * @return void
      * @throws Exception
      */
-    public function render()
+    public function render(): void
     {
         throw new Exception('Error from renderer.');
     }
@@ -58,7 +58,7 @@ class FaultyExceptionRenderer extends ExceptionRenderer
  */
 class ErrorHandlerTest extends CakeTestCase
 {
-    protected $_restoreError = false;
+    protected bool $_restoreError = false;
 
     /**
      * setup create a request object to get out of router later.
@@ -175,9 +175,7 @@ class ErrorHandlerTest extends CakeTestCase
         $this->_restoreError = true;
 
         ob_start();
-        //@codingStandardsIgnoreStart
-        @include 'invalid.file';
-        //@codingStandardsIgnoreEnd
+        @include 'invalid.file'; // phpcs:ignore
         $result = ob_get_clean();
         $this->assertTrue(empty($result));
     }

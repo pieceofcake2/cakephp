@@ -23,6 +23,7 @@ use Cake\Core\Configure;
 use Cake\Error\RouterException;
 use Cake\Network\CakeRequest;
 use Cake\Routing\Route\CakeRoute;
+use Cake\Routing\Route\RedirectRoute;
 use Cake\Utility\Hash;
 use Cake\Utility\Inflector;
 
@@ -52,14 +53,14 @@ class Router
      *
      * @var array
      */
-    public static $routes = [];
+    public static array $routes = [];
 
     /**
      * Have routes been loaded
      *
      * @var bool
      */
-    public static $initialized = false;
+    public static bool $initialized = false;
 
     /**
      * Contains the base string that will be applied to all generated URLs
@@ -67,7 +68,7 @@ class Router
      *
      * @var string
      */
-    protected static $_fullBaseUrl;
+    protected static string $_fullBaseUrl = '';
 
     /**
      * List of action prefixes used in connected routes.
@@ -75,14 +76,14 @@ class Router
      *
      * @var array
      */
-    protected static $_prefixes = [];
+    protected static array $_prefixes = [];
 
     /**
      * Directive for Router to parse out file extensions for mapping to Content-types.
      *
      * @var bool
      */
-    protected static $_parseExtensions = false;
+    protected static bool $_parseExtensions = false;
 
     /**
      * List of valid extensions to parse from a URL. If null, any extension is allowed.
@@ -136,9 +137,9 @@ class Router
     /**
      * Named expressions
      *
-     * @var array
+     * @var array<string, string>
      */
-    protected static $_namedExpressions = [
+    protected static array $_namedExpressions = [
         'Action' => Router::ACTION,
         'Year' => Router::YEAR,
         'Month' => Router::MONTH,
@@ -150,9 +151,11 @@ class Router
     /**
      * Stores all information necessary to decide what named arguments are parsed under what conditions.
      *
-     * @var string
+     * @var array{
+     *     default: array, greedyNamed: bool, separator: string, rules: mixed
+     * }
      */
-    protected static $_namedConfig = [
+    protected static array $_namedConfig = [
         'default' => ['page', 'fields', 'order', 'limit', 'recursive', 'sort', 'direction', 'step'],
         'greedyNamed' => true,
         'separator' => ':',
@@ -162,16 +165,16 @@ class Router
     /**
      * The route matching the URL of the current request
      *
-     * @var array
+     * @var array<CakeRoute>
      */
-    protected static $_currentRoute = [];
+    protected static array $_currentRoute = [];
 
     /**
      * Default HTTP request method => controller action map.
      *
-     * @var array
+     * @var array<array{action: string, method: string, id: bool}>
      */
-    protected static $_resourceMap = [
+    protected static array $_resourceMap = [
         ['action' => 'index', 'method' => 'GET', 'id' => false],
         ['action' => 'view', 'method' => 'GET', 'id' => true],
         ['action' => 'add', 'method' => 'POST', 'id' => false],
@@ -185,7 +188,7 @@ class Router
      *
      * @var array
      */
-    protected static $_resourceMapped = [];
+    protected static array $_resourceMapped = [];
 
     /**
      * Maintains the request object stack for the current request.
@@ -193,7 +196,7 @@ class Router
      *
      * @var array
      */
-    protected static $_requests = [];
+    protected static array $_requests = [];
 
     /**
      * Initial state is populated the first time reload() is called which is at the bottom
@@ -202,29 +205,31 @@ class Router
      *
      * @var array
      */
-    protected static $_initialState = [];
+    protected static array $_initialState = [];
 
     /**
      * Default route class to use
      *
      * @var string
      */
-    protected static $_routeClass = CakeRoute::class;
+    protected static string $_routeClass = CakeRoute::class;
 
     /**
      * Set the default route class to use or return the current one
      *
-     * @param string $routeClass The route class to set as default.
+     * @param string|null $routeClass The route class to set as default.
      * @return string|null The default route class.
      * @throws RouterException
      */
-    public static function defaultRouteClass($routeClass = null)
+    public static function defaultRouteClass(?string $routeClass = null): ?string
     {
         if ($routeClass === null) {
             return static::$_routeClass;
         }
 
         static::$_routeClass = static::_validateRouteClass($routeClass);
+
+        return static::$_routeClass;
     }
 
     /**
@@ -234,7 +239,7 @@ class Router
      * @return string
      * @throws RouterException
      */
-    protected static function _validateRouteClass($routeClass)
+    protected static function _validateRouteClass(string $routeClass): string
     {
         if (
             $routeClass !== 'CakeRoute' &&
@@ -251,7 +256,7 @@ class Router
      *
      * @return void
      */
-    protected static function _setPrefixes()
+    protected static function _setPrefixes(): void
     {
         $routing = Configure::read('Routing');
         if (!empty($routing['prefixes'])) {
@@ -265,7 +270,7 @@ class Router
      * @return array Named route elements
      * @see Router::$_namedExpressions
      */
-    public static function getNamedExpressions()
+    public static function getNamedExpressions(): array
     {
         return static::$_namedExpressions;
     }
@@ -273,16 +278,18 @@ class Router
     /**
      * Resource map getter & setter.
      *
-     * @param array $resourceMap Resource map
-     * @return mixed
+     * @param ?array $resourceMap Resource map
+     * @return array
      * @see Router::$_resourceMap
      */
-    public static function resourceMap($resourceMap = null)
+    public static function resourceMap(?array $resourceMap = null): array
     {
         if ($resourceMap === null) {
             return static::$_resourceMap;
         }
         static::$_resourceMap = $resourceMap;
+
+        return static::$_resourceMap;
     }
 
     /**
@@ -355,8 +362,11 @@ class Router
      * @return array Array of routes
      * @throws RouterException
      */
-    public static function connect($route, $defaults = [], $options = [])
-    {
+    public static function connect(
+        $route,
+        $defaults = [],
+        $options = [],
+    ): array {
         static::$initialized = true;
 
         foreach (static::$_prefixes as $prefix) {
@@ -390,7 +400,7 @@ class Router
             $routeClass = static::_validateRouteClass($routeClass);
             unset($options['routeClass']);
         }
-        if ($routeClass === 'RedirectRoute' && isset($defaults['redirect'])) {
+        if ($routeClass === RedirectRoute::class && isset($defaults['redirect'])) {
             $defaults = $defaults['redirect'];
         }
         static::$routes[] = new $routeClass($route, $defaults, $options);
@@ -631,9 +641,10 @@ class Router
         if (strlen($url) && !str_starts_with($url, '/')) {
             $url = '/' . $url;
         }
+        $result = [];
         if (str_contains($url, '?')) {
             [$url, $queryParameters] = explode('?', $url, 2);
-            parse_str($queryParameters, $queryParameters);
+            parse_str($queryParameters, $result);
         }
 
         extract(static::_parseExtension($url));
@@ -653,8 +664,8 @@ class Router
             $out['ext'] = $ext;
         }
 
-        if (!empty($queryParameters) && !isset($out['?'])) {
-            $out['?'] = $queryParameters;
+        if (!empty($result) && !isset($out['?'])) {
+            $out['?'] = $result;
         }
 
         return $out;
@@ -663,10 +674,10 @@ class Router
     /**
      * Parses a file extension out of a URL, if Router::parseExtensions() is enabled.
      *
-     * @param string $url URL.
-     * @return array Returns an array containing the altered URL and the parsed extension.
+     * @param string|null $url URL.
+     * @return array{ext: string|null, url: string|null} Returns an array containing the altered URL and the parsed extension.
      */
-    protected static function _parseExtension($url)
+    protected static function _parseExtension(?string $url): array
     {
         $ext = null;
 
@@ -864,7 +875,10 @@ class Router
      *   or an array specifying any of the following: 'controller', 'action',
      *   and/or 'plugin', in addition to named arguments (keyed array elements),
      *   and standard URL arguments (indexed array elements)
-     * @param array|bool $full If (bool) true, the full base URL will be prepended to the result.
+     * @param array{
+     *     escape?: bool,
+     *     full?: bool
+     * }|bool $full If (bool) true, the full base URL will be prepended to the result.
      *   If an array accepts the following keys
      *    - escape - used when making URLs embedded in html escapes query string '&'
      *    - full - if true the full base URL will be prepended.
@@ -876,13 +890,20 @@ class Router
             static::_loadRoutes();
         }
 
-        $params = ['plugin' => null, 'controller' => null, 'action' => 'index'];
-
         if (is_bool($full)) {
             $escape = false;
         } else {
-            extract($full + ['escape' => false, 'full' => false]);
+            $full += ['escape' => false, 'full' => false];
+
+            $escape = $full['escape'];
+            $full = $full['full'];
         }
+
+        $params = [
+            'plugin' => null,
+            'controller' => null,
+            'action' => 'index',
+        ];
 
         $path = ['base' => null];
         if (!empty(static::$_requests)) {
@@ -982,7 +1003,7 @@ class Router
                 $output .= Inflector::underscore($params['controller']) . '/' . $url;
             }
         }
-        $protocol = preg_match('#^[a-z][a-z0-9+\-.]*\://#i', $output);
+        $protocol = preg_match('#^[a-z][a-z0-9+\-.]*://#i', $output);
         if ($protocol === 0) {
             $output = str_replace('//', '/', $base . '/' . $output);
 
@@ -1215,7 +1236,7 @@ class Router
      * @param array|string $url URL to normalize Either an array or a string URL.
      * @return string Normalized URL
      */
-    public static function normalize($url = '/')
+    public static function normalize(array|string $url = '/'): string
     {
         if (is_array($url)) {
             $url = Router::url($url);
@@ -1233,7 +1254,7 @@ class Router
         while (str_contains($url, '//')) {
             $url = str_replace('//', '/', $url);
         }
-        $url = preg_replace('/(?:(\/$))/', '', $url);
+        $url = preg_replace('/(\/$)/', '', $url);
 
         if (empty($url)) {
             return '/';
@@ -1255,9 +1276,9 @@ class Router
     /**
      * Returns the route matching the current request (useful for requestAction traces)
      *
-     * @return CakeRoute Matching route object.
+     * @return CakeRoute|false Matching route object.
      */
-    public static function currentRoute()
+    public static function currentRoute(): CakeRoute|false
     {
         $count = count(static::$_currentRoute) - 1;
 
@@ -1268,13 +1289,13 @@ class Router
      * Removes the plugin name from the base URL.
      *
      * @param string $base Base URL
-     * @param string $plugin Plugin name
+     * @param string|null $plugin Plugin name
      * @return string base URL with plugin name removed if present
      */
-    public static function stripPlugin($base, $plugin = null)
+    public static function stripPlugin(string $base, ?string $plugin = null)
     {
         if ($plugin) {
-            $base = preg_replace('/(?:' . $plugin . ')/', '', $base);
+            $base = preg_replace('/' . preg_quote($plugin, '/') . '/', '', $base);
             $base = str_replace('//', '', $base);
             $pos1 = strrpos($base, '/');
             $char = strlen($base) - 1;
@@ -1359,12 +1380,12 @@ class Router
      *
      * @return void
      */
-    protected static function _loadRoutes()
+    protected static function _loadRoutes(): void
     {
         static::$initialized = true;
         include CONFIG . 'routes.php';
     }
 }
 
-//Save the initial state
+// Save the initial state
 Router::reload();

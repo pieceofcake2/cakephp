@@ -25,7 +25,7 @@ namespace TestPlugin\Controller;
  */
 class TestsController extends TestPluginAppController
 {
-    public array|bool $uses = [];
+    public array|bool|null $uses = [];
 
     public array $helpers = ['TestPlugin.OtherHelper', 'Html'];
 

@@ -48,16 +48,16 @@ class ViewPostsController extends Controller
     /**
      * name property
      *
-     * @var string
+     * @var string|null
      */
     public ?string $name = 'Posts';
 
     /**
      * uses property
      *
-     * @var array||bool
+     * @var array|bool|null
      */
-    public array|bool $uses = [];
+    public array|bool|null $uses = [];
 
     /**
      * index method
@@ -329,9 +329,12 @@ class ViewTest extends CakeTestCase
     /**
      * Fixtures used in this test.
      *
-     * @var array
+     * @var array<string>
      */
-    public $fixtures = ['core.user', 'core.post'];
+    public array $fixtures = [
+        'core.user',
+        'core.post',
+    ];
 
     /**
      * setUp method

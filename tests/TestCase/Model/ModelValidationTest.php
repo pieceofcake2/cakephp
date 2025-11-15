@@ -2649,13 +2649,17 @@ class ModelValidationTest extends BaseModelTest
  */
 class ValidationRuleBehavior extends ModelBehavior
 {
-    public function setup(Model $model, $config = [])
-    {
+    public function setup(
+        Model $model,
+        array $config = [],
+    ): void {
         $this->settings[$model->alias] = $config;
     }
 
-    public function beforeValidate(Model $model, array $options = []): ?bool
-    {
+    public function beforeValidate(
+        Model $model,
+        array $options = [],
+    ): ?bool {
         $fields = $this->settings[$model->alias]['fields'];
         foreach ($fields as $field) {
             $model->whitelist[] = $field;

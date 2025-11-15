@@ -18,7 +18,6 @@
 
 namespace Cake\Test\TestCase\Model\Datasource\Database;
 
-use ArrayIterator;
 use Cake\Core\App;
 use Cake\Model\ConnectionManager;
 use Cake\Model\Datasource\Database\Sqlserver;
@@ -27,6 +26,7 @@ use Cake\Model\Model;
 use Cake\TestSuite\CakeTestCase;
 use Cake\TestSuite\Fixture\CakeTestModel;
 use Cake\Utility\ClassRegistry;
+use PDOStatement;
 
 App::uses('AppModel', 'Model');
 
@@ -51,7 +51,7 @@ class SqlserverTestDb extends Sqlserver
      *
      * @var array
      */
-    public $executeResultsStack = [];
+    public array $executeResultsStack = [];
 
     /**
      * @var array|null
@@ -61,16 +61,19 @@ class SqlserverTestDb extends Sqlserver
     /**
      * execute method
      *
-     * @param mixed $sql
-     * @param mixed $params
-     * @param mixed $prepareOptions
-     * @return mixed
+     * @param string $sql
+     * @param array $params
+     * @param array $prepareOptions
+     * @return PDOStatement|bool
      */
-    protected function _execute($sql, $params = [], $prepareOptions = [])
-    {
+    protected function _execute(
+        string $sql,
+        array $params = [],
+        array $prepareOptions = [],
+    ): PDOStatement|bool {
         $this->simulated[] = $sql;
 
-        return empty($this->executeResultsStack) ? null : array_pop($this->executeResultsStack);
+        return empty($this->executeResultsStack) ? false : array_pop($this->executeResultsStack);
     }
 
     /**
@@ -80,8 +83,10 @@ class SqlserverTestDb extends Sqlserver
      * @param mixed $conditions
      * @return string
      */
-    protected function _matchRecords(Model $model, $conditions = null): string
-    {
+    protected function _matchRecords(
+        Model $model,
+        mixed $conditions = null,
+    ): string|false {
         return $this->conditions(['id' => [1, 2]]);
     }
 
@@ -120,9 +125,9 @@ class SqlserverTestDb extends Sqlserver
      * describe method
      *
      * @param string|Model $model
-     * @return array
+     * @return array|false|null
      */
-    public function describe(string|Model $model): array
+    public function describe(Model|string $model): array|false|null
     {
         return empty($this->describe) ? parent::describe($model) : $this->describe;
     }
@@ -139,7 +144,7 @@ class SqlserverTestModel extends CakeTestModel
     /**
      * useTable property
      *
-     * @var bool
+     * @var string|bool|null
      */
     public string|bool|null $useTable = false;
 
@@ -148,7 +153,7 @@ class SqlserverTestModel extends CakeTestModel
      *
      * @var array
      */
-    protected $_schema = [
+    protected ?array $_schema = [
         'id' => ['type' => 'integer', 'null' => '', 'default' => '', 'length' => '8', 'key' => 'primary'],
         'client_id' => ['type' => 'integer', 'null' => '', 'default' => '0', 'length' => '11'],
         'name' => ['type' => 'string', 'null' => '', 'default' => '', 'length' => '255'],
@@ -183,15 +188,19 @@ class SqlserverTestModel extends CakeTestModel
     /**
      * find method
      *
-     * @param mixed $conditions
-     * @param mixed $fields
+     * @param string|null $type
+     * @param array|null $query
      * @param mixed $order
      * @param mixed $recursive
-     * @return mixed
+     * @return array|int|false|null
      */
-    public function find($conditions = null, $fields = null, $order = null, $recursive = null)
-    {
-        return $conditions;
+    public function find(
+        ?string $type = null,
+        ?array $query = null,
+        mixed $order = null,
+        mixed $recursive = null,
+    ): array|int|false|null {
+        return [$type];
     }
 }
 class_alias(SqlserverTestModel::class, 'App\\Model\\SqlserverTestModel');
@@ -206,7 +215,7 @@ class SqlserverClientTestModel extends CakeTestModel
     /**
      * useTable property
      *
-     * @var bool
+     * @var string|bool|null
      */
     public string|bool|null $useTable = false;
 
@@ -215,7 +224,7 @@ class SqlserverClientTestModel extends CakeTestModel
      *
      * @var array
      */
-    protected $_schema = [
+    protected ?array $_schema = [
         'id' => ['type' => 'integer', 'null' => '', 'default' => '', 'length' => '8', 'key' => 'primary'],
         'name' => ['type' => 'string', 'null' => '', 'default' => '', 'length' => '255'],
         'email' => ['type' => 'string', 'null' => '1', 'default' => '', 'length' => '155'],
@@ -224,39 +233,6 @@ class SqlserverClientTestModel extends CakeTestModel
     ];
 }
 class_alias(SqlserverClientTestModel::class, 'App\\Model\\SqlserverClientTestModel');
-
-/**
- * SqlserverTestResultIterator class
- *
- * @package       Cake.Test.Case.Model.Datasource.Database
- */
-class SqlserverTestResultIterator extends ArrayIterator
-{
-    /**
-     * closeCursor method
-     *
-     * @return void
-     */
-    public function closeCursor()
-    {
-    }
-
-    /**
-     * fetch method
-     *
-     * @return void
-     */
-    public function fetch()
-    {
-        if (!$this->valid()) {
-            return null;
-        }
-        $current = $this->current();
-        $this->next();
-
-        return $current;
-    }
-}
 
 /**
  * SqlserverTest class
@@ -268,23 +244,28 @@ class SqlserverTest extends CakeTestCase
     /**
      * The Dbo instance to be tested
      *
-     * @var DboSource
+     * @var DboSource|null
      */
-    public $db = null;
+    public ?DboSource $db = null;
 
     /**
      * autoFixtures property
      *
      * @var bool
      */
-    public $autoFixtures = false;
+    public bool $autoFixtures = false;
 
     /**
      * fixtures property
      *
-     * @var array
+     * @var array<string>
      */
-    public $fixtures = ['core.user', 'core.category', 'core.author', 'core.post'];
+    public array $fixtures = [
+        'core.user',
+        'core.category',
+        'core.author',
+        'core.post',
+    ];
 
     /**
      * Sets up a Dbo class instance for testing
@@ -451,7 +432,7 @@ class SqlserverTest extends CakeTestCase
      */
     public function testDescribe()
     {
-        $SqlserverTableDescription = new SqlserverTestResultIterator([
+        $tableData = [
             (object)[
                 'Default' => '((0))',
                 'Field' => 'count',
@@ -504,8 +485,24 @@ class SqlserverTest extends CakeTestCase
                 'Null' => 'YES',
                 'Size' => '0',
             ],
-        ]);
-        $this->db->executeResultsStack = [$SqlserverTableDescription];
+        ];
+
+        $sqlserverTableDescription = $this->getMockBuilder(PDOStatement::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $index = 0;
+        $sqlserverTableDescription->expects($this->any())
+            ->method('fetch')
+            ->willReturnCallback(function () use ($tableData, &$index) {
+                if ($index >= count($tableData)) {
+                    return false;
+                }
+
+                return $tableData[$index++];
+            });
+
+        $this->db->executeResultsStack = [$sqlserverTableDescription];
         $dummyModel = $this->model;
         $result = $this->db->describe($dummyModel);
         $expected = [

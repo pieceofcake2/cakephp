@@ -136,12 +136,14 @@ class ConsoleOptionParser
     /**
      * Construct an OptionParser so you can define its behavior
      *
-     * @param string $command The command name this parser is for. The command name is used for generating help.
+     * @param string|null $command The command name this parser is for. The command name is used for generating help.
      * @param bool $defaultOptions Whether you want the verbose and quiet options set. Setting
      *  this to false will prevent the addition of `--verbose` & `--quiet` options.
      */
-    public function __construct($command = null, $defaultOptions = true)
-    {
+    public function __construct(
+        ?string $command = null,
+        bool $defaultOptions = true,
+    ) {
         $this->command($command);
 
         $this->addOption('help', [
@@ -298,10 +300,12 @@ class ConsoleOptionParser
      * @param ConsoleInputOption|string $name The long name you want to the value to be parsed out as when options are parsed.
      *   Will also accept an instance of ConsoleInputOption
      * @param array $options An array of parameters that define the behavior of the option
-     * @return self
+     * @return static
      */
-    public function addOption(ConsoleInputOption|string $name, array $options = [])
-    {
+    public function addOption(
+        ConsoleInputOption|string $name,
+        array $options = [],
+    ): static {
         if ($name instanceof ConsoleInputOption) {
             $option = $name;
             $name = $option->name();
@@ -340,11 +344,13 @@ class ConsoleOptionParser
      *
      * @param ConsoleInputArgument|string $name The name of the argument. Will also accept an instance of ConsoleInputArgument
      * @param array $params Parameters for the argument, see above.
-     * @return self
+     * @return static
      */
-    public function addArgument($name, $params = [])
-    {
-        if (is_object($name) && $name instanceof ConsoleInputArgument) {
+    public function addArgument(
+        ConsoleInputArgument|string $name,
+        array $params = [],
+    ): static {
+        if ($name instanceof ConsoleInputArgument) {
             $arg = $name;
             $index = count($this->_args);
         } else {
@@ -372,9 +378,9 @@ class ConsoleOptionParser
      *
      * @param array $args Array of arguments to add.
      * @see ConsoleOptionParser::addArgument()
-     * @return self
+     * @return static
      */
-    public function addArguments(array $args)
+    public function addArguments(array $args): static
     {
         foreach ($args as $name => $params) {
             $this->addArgument($name, $params);
@@ -389,9 +395,9 @@ class ConsoleOptionParser
      *
      * @param array $options Array of options to add.
      * @see ConsoleOptionParser::addOption()
-     * @return self
+     * @return static
      */
-    public function addOptions(array $options)
+    public function addOptions(array $options): static
     {
         foreach ($options as $name => $params) {
             $this->addOption($name, $params);
@@ -413,11 +419,13 @@ class ConsoleOptionParser
      *
      * @param ConsoleInputSubcommand|string $name Name of the subcommand. Will also accept an instance of ConsoleInputSubcommand
      * @param array $options Array of params, see above.
-     * @return self
+     * @return static
      */
-    public function addSubcommand($name, $options = [])
-    {
-        if (is_object($name) && $name instanceof ConsoleInputSubcommand) {
+    public function addSubcommand(
+        ConsoleInputSubcommand|string $name,
+        array $options = [],
+    ): static {
+        if ($name instanceof ConsoleInputSubcommand) {
             $command = $name;
             $name = $command->name();
         } else {
@@ -438,9 +446,9 @@ class ConsoleOptionParser
      * Remove a subcommand from the option parser.
      *
      * @param string $name The subcommand name to remove.
-     * @return self
+     * @return static
      */
-    public function removeSubcommand($name)
+    public function removeSubcommand(string $name): static
     {
         unset($this->_subcommands[$name]);
 
@@ -451,9 +459,9 @@ class ConsoleOptionParser
      * Add multiple subcommands at once.
      *
      * @param array $commands Array of subcommands.
-     * @return self
+     * @return static
      */
-    public function addSubcommands(array $commands)
+    public function addSubcommands(array $commands): static
     {
         foreach ($commands as $name => $params) {
             $this->addSubcommand($name, $params);
@@ -467,7 +475,7 @@ class ConsoleOptionParser
      *
      * @return array Array of argument descriptions
      */
-    public function arguments()
+    public function arguments(): array
     {
         return $this->_args;
     }
@@ -477,7 +485,7 @@ class ConsoleOptionParser
      *
      * @return array
      */
-    public function options()
+    public function options(): array
     {
         return $this->_options;
     }
@@ -487,7 +495,7 @@ class ConsoleOptionParser
      *
      * @return array
      */
-    public function subcommands()
+    public function subcommands(): array
     {
         return $this->_subcommands;
     }
@@ -503,8 +511,10 @@ class ConsoleOptionParser
      * @return array{array, array} array($params, $args)
      * @throws ConsoleException When an invalid parameter is encountered.
      */
-    public function parse(array $argv, ?string $command = null): array
-    {
+    public function parse(
+        array $argv,
+        ?string $command = null,
+    ): array {
         if (isset($this->_subcommands[$command]) && $this->_subcommands[$command]->parser()) {
             return $this->_subcommands[$command]->parser()->parse($argv);
         }
@@ -553,8 +563,11 @@ class ConsoleOptionParser
      * @param int $width The width to format user content to. Defaults to 72
      * @return string Generated help.
      */
-    public function help($subcommand = null, string|bool $format = 'text', int $width = 72): string
-    {
+    public function help(
+        ?string $subcommand = null,
+        string|bool $format = 'text',
+        int $width = 72,
+    ): string {
         if (
             $subcommand &&
             isset($this->_subcommands[$subcommand]) &&
@@ -584,8 +597,10 @@ class ConsoleOptionParser
      * @param array $params The params to append the parsed value into
      * @return array Params with $option added in.
      */
-    protected function _parseLongOption($option, $params)
-    {
+    protected function _parseLongOption(
+        string $option,
+        array $params,
+    ): array {
         $name = substr($option, 2);
         if (str_contains($name, '=')) {
             [$name, $value] = explode('=', $name, 2);
@@ -605,8 +620,10 @@ class ConsoleOptionParser
      * @return array Params with $option added in.
      * @throws ConsoleException When unknown short options are encountered.
      */
-    protected function _parseShortOption($option, $params)
-    {
+    protected function _parseShortOption(
+        string $option,
+        array $params,
+    ): array {
         $key = substr($option, 1);
         if (strlen($key) > 1) {
             $flags = str_split($key);
@@ -631,8 +648,10 @@ class ConsoleOptionParser
      * @return array Params with $option added in.
      * @throws ConsoleException
      */
-    protected function _parseOption($name, $params)
-    {
+    protected function _parseOption(
+        string $name,
+        array $params,
+    ): array {
         if (!isset($this->_options[$name])) {
             throw new ConsoleException(__d('cake_console', 'Unknown option `%s`', $name));
         }
@@ -663,7 +682,7 @@ class ConsoleOptionParser
      * @param string $name The name of the option.
      * @return bool
      */
-    protected function _optionExists($name)
+    protected function _optionExists(string $name): bool
     {
         if (str_starts_with($name, '--')) {
             return isset($this->_options[substr($name, 2)]);
@@ -684,8 +703,10 @@ class ConsoleOptionParser
      * @return array Args
      * @throws ConsoleException
      */
-    protected function _parseArg(string $argument, array $args): array
-    {
+    protected function _parseArg(
+        string $argument,
+        array $args,
+    ): array {
         if (empty($this->_args)) {
             $args[] = $argument;
 
@@ -709,7 +730,7 @@ class ConsoleOptionParser
      *
      * @return string next token or ''
      */
-    protected function _nextToken()
+    protected function _nextToken(): string
     {
         return $this->_tokens[0] ?? '';
     }

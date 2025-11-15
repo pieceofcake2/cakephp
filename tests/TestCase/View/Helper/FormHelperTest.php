@@ -46,9 +46,9 @@ class ContactTestController extends Controller
     /**
      * uses property
      *
-     * @var array||bool
+     * @var array|bool|null
      */
-    public array|bool $uses = [];
+    public array|bool|null $uses = [];
 }
 class_alias(ContactTestController::class, 'App\\Controller\\ContactTestController');
 
@@ -62,7 +62,7 @@ class Contact extends CakeTestModel
     /**
      * useTable property
      *
-     * @var bool
+     * @var string|bool|null
      */
     public string|bool|null $useTable = false;
 
@@ -71,7 +71,7 @@ class Contact extends CakeTestModel
      *
      * @var array
      */
-    protected $_schema = [
+    protected ?array $_schema = [
         'id' => ['type' => 'integer', 'null' => '', 'default' => '', 'length' => '8'],
         'name' => ['type' => 'string', 'null' => '', 'default' => '', 'length' => '255'],
         'email' => ['type' => 'string', 'null' => '', 'default' => '', 'length' => '255'],
@@ -157,7 +157,7 @@ class ContactTagsContact extends CakeTestModel
     /**
      * useTable property
      *
-     * @var bool
+     * @var string|bool|null
      */
     public string|bool|null $useTable = false;
 
@@ -166,7 +166,7 @@ class ContactTagsContact extends CakeTestModel
      *
      * @var array
      */
-    protected $_schema = [
+    protected ?array $_schema = [
         'contact_id' => ['type' => 'integer', 'null' => '', 'default' => '', 'length' => '8'],
         'contact_tag_id' => [
             'type' => 'integer', 'null' => '', 'default' => '', 'length' => '8',
@@ -195,16 +195,16 @@ class ContactNonStandardPk extends Contact
     /**
      * primaryKey property
      *
-     * @var string
+     * @var string|null
      */
     public ?string $primaryKey = 'pk';
 
     /**
      * schema method
      *
-     * @return void
+     * @return array|null
      */
-    public function schema($field = false)
+    public function schema(string|bool $field = false): ?array
     {
         $this->_schema = parent::schema();
         $this->_schema['pk'] = $this->_schema['id'];
@@ -225,7 +225,7 @@ class ContactTag extends Model
     /**
      * useTable property
      *
-     * @var bool
+     * @var string|bool|null
      */
     public string|bool|null $useTable = false;
 
@@ -234,7 +234,7 @@ class ContactTag extends Model
      *
      * @var array
      */
-    protected $_schema = [
+    protected ?array $_schema = [
         'id' => ['type' => 'integer', 'null' => false, 'default' => '', 'length' => '8'],
         'name' => ['type' => 'string', 'null' => false, 'default' => '', 'length' => '255'],
         'created' => ['type' => 'date', 'null' => true, 'default' => '', 'length' => ''],
@@ -253,7 +253,7 @@ class UserForm extends CakeTestModel
     /**
      * useTable property
      *
-     * @var bool
+     * @var string|bool|null
      */
     public string|bool|null $useTable = false;
 
@@ -273,7 +273,7 @@ class UserForm extends CakeTestModel
      *
      * @var array
      */
-    protected $_schema = [
+    protected ?array $_schema = [
         'id' => ['type' => 'integer', 'null' => '', 'default' => '', 'length' => '8'],
         'published' => ['type' => 'date', 'null' => true, 'default' => null, 'length' => null],
         'other' => ['type' => 'text', 'null' => true, 'default' => null, 'length' => null],
@@ -296,7 +296,7 @@ class OpenidUrl extends CakeTestModel
     /**
      * useTable property
      *
-     * @var bool
+     * @var string|bool|null
      */
     public string|bool|null $useTable = false;
 
@@ -321,7 +321,7 @@ class OpenidUrl extends CakeTestModel
      *
      * @var array
      */
-    protected $_schema = [
+    protected ?array $_schema = [
         'id' => ['type' => 'integer', 'null' => '', 'default' => '', 'length' => '8'],
         'user_form_id' => [
             'type' => 'user_form_id', 'null' => '', 'default' => '', 'length' => '8',
@@ -353,7 +353,7 @@ class ValidateUser extends CakeTestModel
     /**
      * useTable property
      *
-     * @var bool
+     * @var string|bool|null
      */
     public string|bool|null $useTable = false;
 
@@ -371,7 +371,7 @@ class ValidateUser extends CakeTestModel
      *
      * @var array
      */
-    protected $_schema = [
+    protected ?array $_schema = [
         'id' => ['type' => 'integer', 'null' => '', 'default' => '', 'length' => '8'],
         'name' => ['type' => 'string', 'null' => '', 'default' => '', 'length' => '255'],
         'email' => ['type' => 'string', 'null' => '', 'default' => '', 'length' => '255'],
@@ -408,7 +408,7 @@ class ValidateProfile extends CakeTestModel
     /**
      * useTable property
      *
-     * @var bool
+     * @var string|bool|null
      */
     public string|bool|null $useTable = false;
 
@@ -417,7 +417,7 @@ class ValidateProfile extends CakeTestModel
      *
      * @var array
      */
-    protected $_schema = [
+    protected ?array $_schema = [
         'id' => ['type' => 'integer', 'null' => '', 'default' => '', 'length' => '8'],
         'user_id' => ['type' => 'integer', 'null' => '', 'default' => '', 'length' => '8'],
         'full_name' => ['type' => 'string', 'null' => '', 'default' => '', 'length' => '255'],
@@ -469,7 +469,7 @@ class ValidateItem extends CakeTestModel
     /**
      * useTable property
      *
-     * @var bool
+     * @var string|bool|null
      */
     public string|bool|null $useTable = false;
 
@@ -478,7 +478,7 @@ class ValidateItem extends CakeTestModel
      *
      * @var array
      */
-    protected $_schema = [
+    protected ?array $_schema = [
         'id' => ['type' => 'integer', 'null' => '', 'default' => '', 'length' => '8'],
         'profile_id' => ['type' => 'integer', 'null' => '', 'default' => '', 'length' => '8'],
         'name' => ['type' => 'text', 'null' => '', 'default' => '', 'length' => '255'],
@@ -520,7 +520,7 @@ class TestMail extends CakeTestModel
     /**
      * useTable property
      *
-     * @var bool
+     * @var string|bool|null
      */
     public string|bool|null $useTable = false;
 }
@@ -537,16 +537,18 @@ class FormHelperTest extends CakeTestCase
     /**
      * Fixtures to be used
      *
-     * @var array
+     * @var array<string>
      */
-    public $fixtures = ['core.post'];
+    public array $fixtures = [
+        'core.post',
+    ];
 
     /**
      * Do not load the fixtures by default
      *
      * @var bool
      */
-    public $autoFixtures = false;
+    public bool $autoFixtures = false;
 
     /**
      * @var string|null

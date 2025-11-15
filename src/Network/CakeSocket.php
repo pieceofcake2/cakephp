@@ -59,12 +59,12 @@ class CakeSocket
      *
      * @var array
      */
-    public $config = [];
+    public array $config = [];
 
     /**
      * Reference to socket connection resource
      *
-     * @var resource
+     * @var resource|null
      */
     public $connection = null;
 
@@ -73,29 +73,28 @@ class CakeSocket
      *
      * @var bool
      */
-    public $connected = false;
+    public bool $connected = false;
 
     /**
      * This variable contains an array with the last error number (num) and string (str)
      *
      * @var array
      */
-    public $lastError = [];
+    public array $lastError = [];
 
     /**
      * True if the socket stream is encrypted after a CakeSocket::enableCrypto() call
      *
      * @var bool
      */
-    public $encrypted = false;
+    public bool $encrypted = false;
 
     /**
      * Contains all the encryption methods available
      *
      * @var array
      */
-    protected $_encryptMethods = [
-        // @codingStandardsIgnoreStart
+    protected array $_encryptMethods = [
         'sslv2_client' => STREAM_CRYPTO_METHOD_SSLv2_CLIENT,
         'sslv3_client' => STREAM_CRYPTO_METHOD_SSLv3_CLIENT,
         'sslv23_client' => STREAM_CRYPTO_METHOD_SSLv23_CLIENT,
@@ -104,7 +103,6 @@ class CakeSocket
         'sslv3_server' => STREAM_CRYPTO_METHOD_SSLv3_SERVER,
         'sslv23_server' => STREAM_CRYPTO_METHOD_SSLv23_SERVER,
         'tls_server' => STREAM_CRYPTO_METHOD_TLS_SERVER,
-        // @codingStandardsIgnoreEnd
     ];
 
     /**
@@ -113,7 +111,7 @@ class CakeSocket
      *
      * @var array
      */
-    protected $_connectionErrors = [];
+    protected array $_connectionErrors = [];
 
     /**
      * Constructor.
@@ -121,7 +119,7 @@ class CakeSocket
      * @param array $config Socket configuration, which will be merged with the base configuration
      * @see CakeSocket::$_baseConfig
      */
-    public function __construct($config = [])
+    public function __construct(array $config = [])
     {
         $this->config = array_merge($this->_baseConfig, $config);
 
@@ -141,7 +139,7 @@ class CakeSocket
      * @see https://github.com/php/php-src/commit/10bc5fd4c4c8e1dd57bd911b086e9872a56300a0
      * @return void
      */
-    protected function _addTlsVersions()
+    protected function _addTlsVersions(): void
     {
         $conditionalCrypto = [
             'tlsv1_1_client' => 'STREAM_CRYPTO_METHOD_TLSv1_1_CLIENT',
@@ -157,7 +155,6 @@ class CakeSocket
             }
         }
 
-        // @codingStandardsIgnoreStart
         if (isset($this->_encryptMethods['tlsv1_2_client'])) {
             $this->_encryptMethods['tls_client'] = STREAM_CRYPTO_METHOD_TLS_CLIENT | STREAM_CRYPTO_METHOD_TLSv1_1_CLIENT | STREAM_CRYPTO_METHOD_TLSv1_2_CLIENT;
         }
@@ -176,7 +173,6 @@ class CakeSocket
                 STREAM_CRYPTO_METHOD_TLSv1_2_SERVER |
                 STREAM_CRYPTO_METHOD_TLSv1_3_SERVER;
         }
-        // @codingStandardsIgnoreEnd
     }
 
     /**
@@ -185,7 +181,7 @@ class CakeSocket
      * @return bool Success
      * @throws SocketException
      */
-    public function connect()
+    public function connect(): bool
     {
         if ($this->connection) {
             $this->disconnect();
@@ -268,7 +264,7 @@ class CakeSocket
                     }
                 }
 
-                $this->enableCrypto($this->config['cryptoType'], 'client');
+                $this->enableCrypto($this->config['cryptoType']);
             }
         }
 
@@ -281,7 +277,7 @@ class CakeSocket
      * @param string $host The host name being connected to.
      * @return void
      */
-    protected function _setSslContext($host)
+    protected function _setSslContext(string $host): void
     {
         foreach ($this->config as $key => $value) {
             if (!str_starts_with($key, 'ssl_')) {
@@ -323,7 +319,7 @@ class CakeSocket
      * @param string $message Message.
      * @return void
      */
-    protected function _connectionErrorHandler($code, $message)
+    protected function _connectionErrorHandler(int $code, string $message): void
     {
         $this->_connectionErrors[] = $message;
     }
@@ -333,7 +329,7 @@ class CakeSocket
      *
      * @return array|null Null when there is no connection, an array when there is.
      */
-    public function context()
+    public function context(): ?array
     {
         if (!$this->connection) {
             return null;
@@ -345,9 +341,9 @@ class CakeSocket
     /**
      * Gets the host name of the current connection.
      *
-     * @return string Host name
+     * @return string|false Host name
      */
-    public function host()
+    public function host(): string|false
     {
         if (Validation::ip($this->config['host'])) {
             return gethostbyaddr($this->config['host']);
@@ -361,7 +357,7 @@ class CakeSocket
      *
      * @return string IP address
      */
-    public function address()
+    public function address(): string
     {
         if (Validation::ip($this->config['host'])) {
             return $this->config['host'];
@@ -373,9 +369,9 @@ class CakeSocket
     /**
      * Gets all IP addresses associated with the current connection.
      *
-     * @return array IP addresses
+     * @return array|false IP addresses
      */
-    public function addresses()
+    public function addresses(): array|false
     {
         if (Validation::ip($this->config['host'])) {
             return [$this->config['host']];
@@ -389,7 +385,7 @@ class CakeSocket
      *
      * @return string|null Last error
      */
-    public function lastError()
+    public function lastError(): ?string
     {
         if (!empty($this->lastError)) {
             return $this->lastError['num'] . ': ' . $this->lastError['str'];
@@ -405,7 +401,7 @@ class CakeSocket
      * @param string $errStr Error string
      * @return void
      */
-    public function setLastError($errNum, $errStr)
+    public function setLastError(?int $errNum, string $errStr): void
     {
         $this->lastError = ['num' => $errNum, 'str' => $errStr];
     }
@@ -414,9 +410,9 @@ class CakeSocket
      * Writes data to the socket.
      *
      * @param string $data The data to write to the socket
-     * @return bool Success
+     * @return int|false Success
      */
-    public function write($data)
+    public function write(string $data): int|false
     {
         if (!$this->connected) {
             if (!$this->connect()) {
@@ -439,9 +435,9 @@ class CakeSocket
      * established.
      *
      * @param int $length Optional buffer length to read; defaults to 1024
-     * @return mixed Socket data
+     * @return string|false Socket data
      */
-    public function read($length = 1024)
+    public function read(int $length = 1024): string|false
     {
         if (!$this->connected) {
             if (!$this->connect()) {
@@ -469,7 +465,7 @@ class CakeSocket
      *
      * @return bool Success
      */
-    public function disconnect()
+    public function disconnect(): bool
     {
         if (!is_resource($this->connection)) {
             $this->connected = false;
@@ -496,10 +492,10 @@ class CakeSocket
     /**
      * Resets the state of this Socket instance to it's initial state (before CakeObject::__construct got executed)
      *
-     * @param array $state Array with key and values to reset
+     * @param array|null $state Array with key and values to reset
      * @return bool True on success
      */
-    public function reset($state = null)
+    public function reset(?array $state = null): bool
     {
         if (empty($state)) {
             static $initalState = [];
@@ -527,8 +523,11 @@ class CakeSocket
      * @throws SocketException When attempting to enable SSL/TLS fails.
      * @see stream_socket_enable_crypto
      */
-    public function enableCrypto($type, $clientOrServer = 'client', $enable = true)
-    {
+    public function enableCrypto(
+        string $type,
+        string $clientOrServer = 'client',
+        bool $enable = true,
+    ): bool {
         if (!array_key_exists($type . '_' . $clientOrServer, $this->_encryptMethods)) {
             throw new InvalidArgumentException(__d('cake_dev', 'Invalid encryption scheme chosen'));
         }

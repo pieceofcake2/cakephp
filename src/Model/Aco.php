@@ -26,7 +26,7 @@ class Aco extends AclNode
     /**
      * Model name
      *
-     * @var string
+     * @var string|null
      */
     public ?string $name = 'Aco';
 

@@ -20,6 +20,7 @@ use Cake\Core\Configure;
 use Cake\Error\CakeException;
 use Cake\I18n\I18n;
 use Cake\Model\ConnectionManager;
+use Cake\Model\Datasource\DboSource;
 use Cake\Model\Model;
 use Cake\Model\ModelBehavior;
 use Cake\Utility\CakeText;
@@ -39,21 +40,21 @@ class TranslateBehavior extends ModelBehavior
      *
      * @var array
      */
-    public $runtime = [];
+    public array $runtime = [];
 
     /**
      * Stores the joinTable object for generating joins.
      *
      * @var object
      */
-    protected $_joinTable;
+    protected object $_joinTable;
 
     /**
      * Stores the runtime model for generating joins.
      *
      * @var Model
      */
-    protected $_runtimeModel;
+    protected Model $_runtimeModel;
 
     /**
      * Callback
@@ -89,9 +90,9 @@ class TranslateBehavior extends ModelBehavior
      *
      * @param Model $model Model the behavior is being attached to.
      * @param array $config Array of configuration information.
-     * @return mixed
+     * @return void
      */
-    public function setup(Model $model, $config = [])
+    public function setup(Model $model, array $config = []): void
     {
         $db = ConnectionManager::getDataSource($model->useDbConfig);
         if (!$db->connected) {
@@ -99,8 +100,6 @@ class TranslateBehavior extends ModelBehavior
                 __d('cake_dev', 'Datasource %s for TranslateBehavior of model %s is not connected', $model->useDbConfig, $model->alias),
                 E_USER_ERROR,
             );
-
-            return false;
         }
 
         $this->settings[$model->alias] = [];
@@ -113,8 +112,7 @@ class TranslateBehavior extends ModelBehavior
             unset($config['joinType']);
         }
         $this->translateModel($model);
-
-        return $this->bindTranslation($model, $config, false);
+        $this->bindTranslation($model, $config, false);
     }
 
     /**
@@ -123,7 +121,7 @@ class TranslateBehavior extends ModelBehavior
      * @param Model $model Model being detached.
      * @return void
      */
-    public function cleanup(Model $model)
+    public function cleanup(Model $model): void
     {
         $this->unbindTranslation($model);
         unset($this->settings[$model->alias]);
@@ -135,15 +133,17 @@ class TranslateBehavior extends ModelBehavior
      *
      * @param Model $model Model find is being run on.
      * @param array $query Array of Query parameters.
-     * @return array Modified query
+     * @return array|bool|null Modified query
      */
-    public function beforeFind(Model $model, $query)
+    public function beforeFind(Model $model, array $query): array|bool|null
     {
         $this->runtime[$model->alias]['virtualFields'] = $model->virtualFields;
         $locale = $this->_getLocale($model);
         if (empty($locale)) {
             return $query;
         }
+
+        /** @var DboSource $db */
         $db = $model->getDataSource();
         $RuntimeModel = $this->translateModel($model);
 
@@ -200,7 +200,7 @@ class TranslateBehavior extends ModelBehavior
      * @param array $query The query array to take fields from.
      * @return array The fields.
      */
-    protected function _getFields(Model $model, $query)
+    protected function _getFields(Model $model, array $query): array
     {
         $fields = array_merge(
             $this->settings[$model->alias],
@@ -237,7 +237,7 @@ class TranslateBehavior extends ModelBehavior
      * @param array $addFields The fields being joined.
      * @return array The modified query
      */
-    protected function _addAllJoins(Model $model, $query, $addFields)
+    protected function _addAllJoins(Model $model, array $query, array $addFields): array
     {
         $locale = $this->_getLocale($model);
         if ($addFields) {
@@ -264,9 +264,9 @@ class TranslateBehavior extends ModelBehavior
      * @param array $query The query array.
      * @return array The list of translated fields that are in the conditions.
      */
-    protected function _checkConditions(Model $model, $query)
+    protected function _checkConditions(Model $model, array $query): array
     {
-        if (empty($query['conditions']) || (!empty($query['conditions']) && !is_array($query['conditions']))) {
+        if (empty($query['conditions']) || !is_array($query['conditions'])) {
             return [];
         }
 
@@ -280,7 +280,7 @@ class TranslateBehavior extends ModelBehavior
      * @param array $conditions The conditions array.
      * @return array The list of condition fields.
      */
-    protected function _getConditionFields(Model $model, $conditions)
+    protected function _getConditionFields(Model $model, array $conditions): array
     {
         $conditionFields = [];
         foreach ($conditions as $col => $val) {
@@ -311,8 +311,14 @@ class TranslateBehavior extends ModelBehavior
      * @param array|string $locale The locale(s) having joins added.
      * @return array The modified query
      */
-    protected function _addJoin(Model $model, $query, $field, $aliasField, $locale)
-    {
+    protected function _addJoin(
+        Model $model,
+        array $query,
+        string $field,
+        string $aliasField,
+        array|string $locale,
+    ): array {
+        /** @var DboSource $db */
         $db = ConnectionManager::getDataSource($model->useDbConfig);
         $RuntimeModel = $this->_runtimeModel;
         $joinTable = $this->_joinTable;
@@ -367,7 +373,7 @@ class TranslateBehavior extends ModelBehavior
      * @param bool $primary Did the find originate on $model.
      * @return array Modified results
      */
-    public function afterFind(Model $model, $results, $primary = false)
+    public function afterFind(Model $model, mixed $results, bool $primary = false): mixed
     {
         $model->virtualFields = $this->runtime[$model->alias]['virtualFields'];
 
@@ -421,7 +427,7 @@ class TranslateBehavior extends ModelBehavior
      *
      * @param Model $model Model invalidFields was called on.
      * @param array $options Options passed from Model::save().
-     * @return bool
+     * @return bool|null
      * @see Model::save()
      */
     public function beforeValidate(Model $model, array $options = []): ?bool
@@ -524,11 +530,7 @@ class TranslateBehavior extends ModelBehavior
         if (!isset($this->runtime[$model->alias]['beforeValidate']) && !isset($this->runtime[$model->alias]['beforeSave'])) {
             return null;
         }
-        if (isset($this->runtime[$model->alias]['beforeValidate'])) {
-            $tempData = $this->runtime[$model->alias]['beforeValidate'];
-        } else {
-            $tempData = $this->runtime[$model->alias]['beforeSave'];
-        }
+        $tempData = $this->runtime[$model->alias]['beforeValidate'] ?? $this->runtime[$model->alias]['beforeSave'];
 
         unset($this->runtime[$model->alias]['beforeValidate'], $this->runtime[$model->alias]['beforeSave']);
         $conditions = ['model' => $model->name, 'foreign_key' => $model->id];
@@ -592,11 +594,11 @@ class TranslateBehavior extends ModelBehavior
      * @param array $data The sparse data that was provided.
      * @return array The fully populated data to save.
      */
-    protected function _prepareTranslations(Model $model, $data)
+    protected function _prepareTranslations(Model $model, array $data): array
     {
         $fields = array_merge($this->settings[$model->alias], $this->runtime[$model->alias]['fields']);
         $locales = [];
-        foreach ($data as $key => $value) {
+        foreach ($data as $value) {
             if (is_array($value)) {
                 $locales = array_merge($locales, array_keys($value));
             }
@@ -637,11 +639,11 @@ class TranslateBehavior extends ModelBehavior
      * Get selected locale for model
      *
      * @param Model $model Model the locale needs to be set/get on.
-     * @return mixed string or false
+     * @return array|string|null string or false
      */
-    protected function _getLocale(Model $model)
+    protected function _getLocale(Model $model): array|string|null
     {
-        if (!isset($model->locale) || $model->locale === null) {
+        if (!isset($model->locale)) {
             $I18n = I18n::getInstance();
             $I18n->l10n->get(Configure::read('Config.language'));
             $model->locale = $I18n->l10n->locale;
@@ -659,10 +661,10 @@ class TranslateBehavior extends ModelBehavior
      * @param Model $model Model to get a translatemodel for.
      * @return Model
      */
-    public function translateModel(Model $model)
+    public function translateModel(Model $model): Model
     {
         if (!isset($this->runtime[$model->alias]['model'])) {
-            if (!isset($model->translateModel) || empty($model->translateModel)) {
+            if (empty($model->translateModel)) {
                 $className = 'I18nModel';
             } else {
                 $className = $model->translateModel;
@@ -742,8 +744,6 @@ class TranslateBehavior extends ModelBehavior
                             __d('cake_dev', 'Association %s is already bound to model %s', $association, $model->alias),
                             E_USER_ERROR,
                         );
-
-                        return false;
                     }
                 }
                 $associations[$association] = array_merge($default, ['conditions' => [
@@ -767,7 +767,7 @@ class TranslateBehavior extends ModelBehavior
      * @param string $field The field to update.
      * @return void
      */
-    protected function _removeField(Model $model, $field)
+    protected function _removeField(Model $model, string $field): void
     {
         if (array_key_exists($field, $this->settings[$model->alias])) {
             unset($this->settings[$model->alias][$field]);
@@ -787,11 +787,11 @@ class TranslateBehavior extends ModelBehavior
      * fake field
      *
      * @param Model $model using this behavior of model
-     * @param array|string $fields string with field, or array(field1, field2=>AssocName, field3), or null for
+     * @param array|string|null $fields string with field, or array(field1, field2=>AssocName, field3), or null for
      *    unbind all original translations
      * @return bool
      */
-    public function unbindTranslation(Model $model, $fields = null)
+    public function unbindTranslation(Model $model, array|string|null $fields = null): bool
     {
         if (empty($fields) && empty($this->settings[$model->alias])) {
             return false;

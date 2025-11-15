@@ -20,8 +20,8 @@
 
 namespace Cake\Test\TestCase\Controller;
 
+use Cake\Controller\Component;
 use Cake\Controller\Controller;
-use Cake\Core\CakeObject;
 use Cake\TestSuite\CakeTestCase;
 
 /**
@@ -52,7 +52,7 @@ class_alias(MergeVarsAppController::class, 'App\\Controller\\MergeVarsAppControl
  *
  * @package       Cake.Test.Case.Controller
  */
-class MergeVarComponent extends CakeObject
+class MergeVarComponent extends Component
 {
 }
 class_alias(MergeVarComponent::class, 'App\\Controller\\Component\\MergeVarComponent');
@@ -68,9 +68,9 @@ class MergeVariablesController extends MergeVarsAppController
     /**
      * uses
      *
-     * @var array||bool
+     * @var array|bool|null
      */
-    public array|bool $uses = [];
+    public array|bool|null $uses = [];
 
     /**
      * parent for mergeVars
@@ -122,9 +122,9 @@ class MergePostsController extends MergeVarPluginAppController
     /**
      * uses
      *
-     * @var array||bool
+     * @var array|bool|null
      */
-    public array|bool $uses = [];
+    public array|bool|null $uses = [];
 }
 class_alias(MergePostsController::class, 'App\\Controller\\MergePostsController');
 
@@ -156,12 +156,12 @@ class ControllerMergeVarsTest extends CakeTestCase
      */
     public function testComponentMergingWithRedeclarations()
     {
-        $Controller = new MergeVariablesController();
-        $Controller->components['MergeVar'] = ['remote', 'redirect' => true];
-        $Controller->constructClasses();
+        $controller = new MergeVariablesController();
+        $controller->components['MergeVar'] = ['remote', 'redirect' => true];
+        $controller->constructClasses();
 
         $expected = ['MergeVar' => ['flag', 'otherFlag', 'redirect' => true, 'remote']];
-        $this->assertEquals($expected, $Controller->components, 'Merging of settings is wrong. %s');
+        $this->assertEquals($expected, $controller->components, 'Merging of settings is wrong. %s');
     }
 
     /**

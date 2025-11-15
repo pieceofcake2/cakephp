@@ -54,7 +54,7 @@ class ApcEngine extends CacheEngine
      * @return bool True if the engine has been successfully initialized, false if not
      * @see CacheEngine::__defaults
      */
-    public function init($settings = [])
+    public function init(array $settings = []): bool
     {
         if (!isset($settings['prefix'])) {
             $settings['prefix'] = Inflector::slug(APP_DIR) . '_';
@@ -78,7 +78,7 @@ class ApcEngine extends CacheEngine
      * @param int $duration How long to cache the data, in seconds
      * @return bool True if the data was successfully cached, false on failure
      */
-    public function write($key, $value, $duration)
+    public function write(string $key, mixed $value, int $duration): bool
     {
         $expires = 0;
         if ($duration) {
@@ -96,7 +96,7 @@ class ApcEngine extends CacheEngine
      * @param string $key Identifier for the data
      * @return mixed The cached data, or false if the data doesn't exist, has expired, or if there was an error fetching it
      */
-    public function read($key)
+    public function read(string $key): mixed
     {
         $time = time();
         $func = $this->_apcExtension . '_fetch';
@@ -115,7 +115,7 @@ class ApcEngine extends CacheEngine
      * @param int $offset How much to increment
      * @return int|false New incremented value, false otherwise
      */
-    public function increment(string $key, int $offset = 1)
+    public function increment(string $key, int $offset = 1): int|false
     {
         $func = $this->_apcExtension . '_inc';
 
@@ -129,7 +129,7 @@ class ApcEngine extends CacheEngine
      * @param int $offset How much to subtract
      * @return int|false New decremented value, false otherwise
      */
-    public function decrement(string $key, int $offset = 1)
+    public function decrement(string $key, int $offset = 1): int|false
     {
         $func = $this->_apcExtension . '_dec';
 
@@ -142,7 +142,7 @@ class ApcEngine extends CacheEngine
      * @param string $key Identifier for the data
      * @return bool True if the value was successfully deleted, false if it didn't exist or couldn't be removed
      */
-    public function delete(string $key)
+    public function delete(string $key): bool
     {
         $func = $this->_apcExtension . '_delete';
 
@@ -156,11 +156,12 @@ class ApcEngine extends CacheEngine
      *    from APC as they expired. This flag is really only used by FileEngine.
      * @return bool True Returns true.
      */
-    public function clear($check)
+    public function clear(bool $check): bool
     {
         if ($check) {
             return true;
         }
+
         $func = $this->_apcExtension . '_delete';
         if (class_exists(APCIterator::class, false)) {
             $iterator = new APCIterator(
@@ -189,7 +190,7 @@ class ApcEngine extends CacheEngine
      *
      * @return array
      */
-    public function groups()
+    public function groups(): array
     {
         if (empty($this->_compiledGroupNames)) {
             foreach ($this->settings['groups'] as $group) {
@@ -245,7 +246,7 @@ class ApcEngine extends CacheEngine
      * @return bool True if the data was successfully cached, false on failure.
      * @link http://php.net/manual/en/function.apc-add.php
      */
-    public function add($key, $value, $duration)
+    public function add(string $key, mixed $value, int $duration): bool
     {
         $expires = 0;
         if ($duration) {

@@ -51,9 +51,11 @@ if (!class_exists(AppController::class, false)) {
  */
 class DispatcherMockCakeResponse extends CakeResponse
 {
-    protected function _sendHeader($name, $value = null)
+    public string $header = '';
+
+    protected function _sendHeader(string $name, ?string $value = null): void
     {
-        return $name . ' ' . $value;
+        $this->header = $name . ' ' . $value;
     }
 }
 
@@ -78,8 +80,10 @@ class TestDispatcher extends Dispatcher
      * @param CakeRequest $request
      * @return CakeResponse
      */
-    protected function _invoke(Controller $controller, CakeRequest $request)
-    {
+    protected function _invoke(
+        Controller $controller,
+        CakeRequest $request,
+    ): CakeResponse {
         $this->controller = $controller;
 
         return parent::_invoke($controller, $request);
@@ -91,7 +95,7 @@ class TestDispatcher extends Dispatcher
      * @param CakeEvent $event
      * @return void
      */
-    public function filterTest($event)
+    public function filterTest(CakeEvent $event): void
     {
         $event->data['request']->params['eventName'] = $event->name();
     }
@@ -99,10 +103,10 @@ class TestDispatcher extends Dispatcher
     /**
      * Helper function to test single method attaching for dispatcher filters
      *
-     * @param CakeEvent
-     * @return void
+     * @param CakeEvent $event
+     * @return CakeResponse
      */
-    public function filterTest2($event)
+    public function filterTest2(CakeEvent $event): CakeResponse|false|null
     {
         $event->stopPropagation();
 
@@ -150,9 +154,9 @@ class MyPluginController extends MyPluginAppController
     /**
      * uses property
      *
-     * @var array||bool
+     * @var array|bool|null
      */
-    public array|bool $uses = [];
+    public array|bool|null $uses = [];
 
     /**
      * index method
@@ -199,17 +203,17 @@ class SomePagesController extends AppController
     /**
      * uses property
      *
-     * @var array||bool
+     * @var array|bool|null
      */
-    public array|bool $uses = [];
+    public array|bool|null $uses = [];
 
     /**
      * display method
      *
-     * @param string $page
-     * @return void
+     * @param string|null $page
+     * @return string|null
      */
-    public function display($page = null)
+    public function display(?string $page = null): ?string
     {
         return $page;
     }
@@ -217,9 +221,9 @@ class SomePagesController extends AppController
     /**
      * index method
      *
-     * @return void
+     * @return bool
      */
-    public function index()
+    public function index(): bool
     {
         return true;
     }
@@ -229,7 +233,7 @@ class SomePagesController extends AppController
      *
      * @return CakeResponse
      */
-    public function responseGenerator()
+    public function responseGenerator(): CakeResponse
     {
         return new CakeResponse(['body' => 'new response']);
     }
@@ -239,7 +243,7 @@ class SomePagesController extends AppController
      *
      * @return CakeResponse
      */
-    public function sendfile()
+    public function sendfile(): CakeResponse
     {
         $this->response->file(CORE_TESTS . DS . 'test_app' . DS . 'vendor' . DS . 'css' . DS . 'test_asset.css');
 
@@ -259,9 +263,9 @@ class OtherPagesController extends MyPluginAppController
     /**
      * uses property
      *
-     * @var array|bool
+     * @var array|bool|null
      */
-    public array|bool $uses = [];
+    public array|bool|null $uses = [];
 
     /**
      * display method
@@ -297,9 +301,9 @@ class TestDispatchPagesController extends AppController
     /**
      * uses property
      *
-     * @var array||bool
+     * @var array|bool|null
      */
-    public array|bool $uses = [];
+    public array|bool|null $uses = [];
 
     /**
      * admin_index method
@@ -343,9 +347,9 @@ class ArticlesTestController extends ArticlesTestAppController
     /**
      * uses property
      *
-     * @var array||bool
+     * @var array|bool|null
      */
-    public array|bool $uses = [];
+    public array|bool|null $uses = [];
 
     /**
      * admin_index method
@@ -379,9 +383,9 @@ class SomePostsController extends AppController
     /**
      * uses property
      *
-     * @var array||bool
+     * @var array|bool|null
      */
-    public array|bool $uses = [];
+    public array|bool|null $uses = [];
 
     /**
      * autoRender property
@@ -395,7 +399,7 @@ class SomePostsController extends AppController
      *
      * @return void
      */
-    public function beforeFilter()
+    public function beforeFilter(): void
     {
         if ($this->params['action'] === 'index') {
             $this->params['action'] = 'view';
@@ -437,9 +441,9 @@ class TestCachedPagesController extends Controller
     /**
      * uses property
      *
-     * @var array||bool
+     * @var array|bool|null
      */
-    public array|bool $uses = [];
+    public array|bool|null $uses = [];
 
     /**
      * helpers property
@@ -451,9 +455,9 @@ class TestCachedPagesController extends Controller
     /**
      * cacheAction property
      *
-     * @var array
+     * @var array|string|int|false
      */
-    public $cacheAction = [
+    public array|string|int|false $cacheAction = [
         'index' => '+2 sec',
         'test_nocache_tags' => '+2 sec',
         'view' => '+2 sec',
@@ -464,12 +468,12 @@ class TestCachedPagesController extends Controller
      *
      * @var string
      */
-    protected string $_responseClass = 'DispatcherMockCakeResponse';
+    protected string $_responseClass = DispatcherMockCakeResponse::class;
 
     /**
      * viewPath property
      *
-     * @var string
+     * @var string|null
      */
     public ?string $viewPath = 'Posts';
 
@@ -538,9 +542,9 @@ class TimesheetsController extends Controller
     /**
      * uses property
      *
-     * @var array|bool
+     * @var array|bool|null
      */
-    public array|bool $uses = [];
+    public array|bool|null $uses = [];
 
     /**
      * index method
@@ -561,7 +565,7 @@ class_alias(TimesheetsController::class, 'TestApp\\Controller\\TimesheetsControl
  */
 class TestFilterDispatcher extends DispatcherFilter
 {
-    public $priority = 10;
+    public int $priority = 10;
 
     /**
      * TestFilterDispatcher::beforeDispatch()
@@ -581,11 +585,12 @@ class TestFilterDispatcher extends DispatcherFilter
     /**
      * TestFilterDispatcher::afterDispatch()
      *
-     * @param mixed $event
-     * @return mixed boolean to stop the event dispatching or null to continue
+     * @param CakeEvent $event
+     * @return false|null false to stop the event dispatching or null to continue
      */
-    public function afterDispatch(CakeEvent $event)
+    public function afterDispatch(CakeEvent $event): ?bool
     {
+        return null;
     }
 }
 class_alias(TestFilterDispatcher::class, 'TestApp\\Routing\\Filter\\TestFilterDispatcher');
@@ -723,10 +728,10 @@ class DispatcherTest extends CakeTestCase
      */
     public function testParseParamsWithManySingleZeros()
     {
-        $Dispatcher = new Dispatcher();
+        $dispatcher = new Dispatcher();
         $test = new CakeRequest('/testcontroller/testaction/0/0/0/0/0/0');
-        $event = new CakeEvent('DispatcherTest', $Dispatcher, ['request' => $test]);
-        $Dispatcher->parseParams($event);
+        $event = new CakeEvent('DispatcherTest', $dispatcher, ['request' => $test]);
+        $dispatcher->parseParams($event);
 
         $this->assertMatchesRegularExpression('/\\A(?:0)\\z/', $test['pass'][0]);
         $this->assertMatchesRegularExpression('/\\A(?:0)\\z/', $test['pass'][1]);
@@ -770,12 +775,12 @@ class DispatcherTest extends CakeTestCase
         $event = new CakeEvent('DispatcherTest', $Dispatcher, ['request' => $test]);
         $Dispatcher->parseParams($event);
 
-        $this->assertMatchesRegularExpression('/\\A(?:01)\\z/', $test['pass'][0]);
-        $this->assertMatchesRegularExpression('/\\A(?:0403)\\z/', $test['pass'][1]);
-        $this->assertMatchesRegularExpression('/\\A(?:04010)\\z/', $test['pass'][2]);
-        $this->assertMatchesRegularExpression('/\\A(?:000002)\\z/', $test['pass'][3]);
-        $this->assertMatchesRegularExpression('/\\A(?:000030)\\z/', $test['pass'][4]);
-        $this->assertMatchesRegularExpression('/\\A(?:0000400)\\z/', $test['pass'][5]);
+        $this->assertMatchesRegularExpression('/\A01\z/', $test['pass'][0]);
+        $this->assertMatchesRegularExpression('/\A0403\z/', $test['pass'][1]);
+        $this->assertMatchesRegularExpression('/\A04010\z/', $test['pass'][2]);
+        $this->assertMatchesRegularExpression('/\A000002\z/', $test['pass'][3]);
+        $this->assertMatchesRegularExpression('/\A000030\z/', $test['pass'][4]);
+        $this->assertMatchesRegularExpression('/\A0000400\z/', $test['pass'][5]);
     }
 
     /**
@@ -1663,8 +1668,8 @@ class DispatcherTest extends CakeTestCase
         $result = ob_get_clean();
 
         $path = CORE_TESTS . DS . 'test_app' . DS . str_replace('/', DS, $file);
-        $file = file_get_contents($path);
-        $this->assertEquals($file, $result);
+        $_file = file_get_contents($path);
+        $this->assertEquals($_file, $result);
 
         $expected = filesize($path);
         $headers = $response->header();

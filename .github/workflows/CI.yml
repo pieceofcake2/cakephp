@@ -150,8 +150,10 @@ jobs:
       - name: Install Composer Packages
         run: composer install --prefer-dist --no-interaction --no-progress
 
-      - name: Copy database.php
-        run: cp ./tests/config/database.php ./vendor/pieceofcake2/app/config/
+      - name: Copy config
+        run: |
+          cp ./tests/config/database.php ./vendor/pieceofcake2/app/config/
+          cp ./tests/config/Schema/i18n.php ./vendor/pieceofcake2/app/config/Schema/
 
       - name: Make temporary directories writable
         run: |

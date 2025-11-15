@@ -23,5 +23,5 @@ namespace Cake\Error;
  */
 class MissingTestLoaderException extends CakeException
 {
-    protected $_messageTemplate = 'Test loader %s could not be found.';
+    protected string $_messageTemplate = 'Test loader %s could not be found.';
 }

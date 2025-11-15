@@ -47,7 +47,7 @@ class CookieComponentTestController extends Controller
      *
      * @return void
      */
-    public function beforeFilter()
+    public function beforeFilter(): void
     {
         $this->Cookie->name = 'CakeTestCookie';
         $this->Cookie->time = 10;

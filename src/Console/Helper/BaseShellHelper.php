@@ -24,28 +24,28 @@ abstract class BaseShellHelper
      *
      * @var array
      */
-    protected $_defaultConfig = [];
+    protected array $_defaultConfig = [];
 
     /**
      * ConsoleOutput instance.
      *
-     * @var ConsoleOutput
+     * @var ConsoleOutput|null
      */
-    protected $_consoleOutput;
+    protected ?ConsoleOutput $_consoleOutput = null;
 
     /**
      * Runtime config
      *
      * @var array
      */
-    protected $_config = [];
+    protected array $_config = [];
 
     /**
      * Whether the config property has already been configured with defaults
      *
      * @var bool
      */
-    protected $_configInitialized = false;
+    protected bool $_configInitialized = false;
 
     /**
      * Constructor.
@@ -62,10 +62,10 @@ abstract class BaseShellHelper
     /**
      * Initialize config & store config values
      *
-     * @param null $config Config values to set
-     * @return array|void
+     * @param array|null $config Config values to set
+     * @return array|null
      */
-    public function config($config = null)
+    public function config(?array $config = null): ?array
     {
         if ($config === null) {
             return $this->_config;
@@ -76,6 +76,8 @@ abstract class BaseShellHelper
         } else {
             $this->_config = array_merge($this->_config, $config);
         }
+
+        return null;
     }
 
     /**
@@ -84,5 +86,5 @@ abstract class BaseShellHelper
      * @param array $args The arguments for the helper.
      * @return void
      */
-    abstract public function output($args);
+    abstract public function output(array $args): void;
 }

@@ -9,32 +9,32 @@ use Cake\Model\Datasource\Session\CakeSessionHandlerInterface;
 
 class TestPluginSession implements CakeSessionHandlerInterface
 {
-    public function open()
+    public function open(): bool
     {
         return true;
     }
 
-    public function close()
+    public function close(): bool
     {
         return true;
     }
 
-    public function read($id)
+    public function read(string $id): mixed
     {
         return '';
     }
 
-    public function write($id, $data)
+    public function write(string $id, mixed $data): bool
     {
         return true;
     }
 
-    public function destroy($id)
+    public function destroy(string $id): bool|int
     {
         return true;
     }
 
-    public function gc($expires = null)
+    public function gc(?int $expires = null): bool
     {
         return true;
     }

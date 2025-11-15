@@ -64,6 +64,8 @@ class CacheTestController extends Controller
  */
 class CacheHelperTest extends CakeTestCase
 {
+    public ?Controller $Controller = null;
+
     /**
      * Checks if TMP/views is writable, and skips the case if it is not.
      *

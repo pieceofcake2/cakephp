@@ -36,9 +36,11 @@ class TestCompletionStringOutput extends ConsoleOutput
 {
     public $output = '';
 
-    protected function _write($message)
+    protected function _write(string $message): int|false
     {
         $this->output .= $message;
+
+        return 0;
     }
 }
 
@@ -49,7 +51,7 @@ class TestCompletionStringOutput extends ConsoleOutput
  */
 class CompletionShellTest extends CakeTestCase
 {
-    protected $_appNamespace = null;
+    protected ?string $_appNamespace = null;
 
     /**
      * setUp method

@@ -35,7 +35,7 @@ class CakeTestSuite extends TestSuite
      * @param string $directory The directory to add tests from.
      * @return void
      */
-    public function addTestDirectory($directory = '.')
+    public function addTestDirectory(string $directory = '.'): void
     {
         $Folder = new Folder($directory);
         [, $files] = $Folder->read(true, true, true);

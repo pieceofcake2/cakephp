@@ -28,5 +28,5 @@ class AuthSecurityException extends SecurityException
      *
      * @var string
      */
-    protected $_type = 'auth';
+    protected string $_type = 'auth';
 }

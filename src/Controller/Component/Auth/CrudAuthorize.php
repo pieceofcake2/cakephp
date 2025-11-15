@@ -14,6 +14,7 @@
 
 namespace Cake\Controller\Component\Auth;
 
+use Cake\Controller\Component\AclComponent;
 use Cake\Controller\ComponentCollection;
 use Cake\Network\CakeRequest;
 use Cake\Routing\Router;
@@ -39,9 +40,9 @@ class CrudAuthorize extends BaseAuthorize
      * Sets up additional actionMap values that match the configured `Routing.prefixes`.
      *
      * @param ComponentCollection $collection The component collection from the controller.
-     * @param string $settings An array of settings. This class does not use any settings.
+     * @param array $settings An array of settings. This class does not use any settings.
      */
-    public function __construct(ComponentCollection $collection, $settings = [])
+    public function __construct(ComponentCollection $collection, array $settings = [])
     {
         parent::__construct($collection, $settings);
         $this->_setPrefixMappings();
@@ -52,7 +53,7 @@ class CrudAuthorize extends BaseAuthorize
      *
      * @return void
      */
-    protected function _setPrefixMappings()
+    protected function _setPrefixMappings(): void
     {
         $crud = ['create', 'read', 'update', 'delete'];
         $map = array_combine($crud, $crud);
@@ -83,7 +84,7 @@ class CrudAuthorize extends BaseAuthorize
      * @param CakeRequest $request The request needing authorization.
      * @return bool
      */
-    public function authorize($user, CakeRequest $request)
+    public function authorize(array $user, CakeRequest $request): bool
     {
         if (!isset($this->settings['actionMap'][$request->params['action']])) {
             trigger_error(
@@ -99,9 +100,10 @@ class CrudAuthorize extends BaseAuthorize
             return false;
         }
         $user = [$this->settings['userModel'] => $user];
-        $Acl = $this->_Collection->load('Acl');
+        /** @var AclComponent $acl */
+        $acl = $this->_Collection->load('Acl');
 
-        return $Acl->check(
+        return $acl->check(
             $user,
             $this->action($request, ':controller'),
             $this->settings['actionMap'][$request->params['action']],

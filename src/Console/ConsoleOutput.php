@@ -87,21 +87,21 @@ class ConsoleOutput
      *
      * @var int
      */
-    protected $_lastWritten = 0;
+    protected int $_lastWritten = 0;
 
     /**
      * The current output type. Manipulated with ConsoleOutput::outputAs();
      *
      * @var int
      */
-    protected $_outputAs = self::COLOR;
+    protected int $_outputAs = self::COLOR;
 
     /**
      * text colors used in colored output.
      *
-     * @var array
+     * @var array<string, int>
      */
-    protected static $_foregroundColors = [
+    protected static array $_foregroundColors = [
         'black' => 30,
         'red' => 31,
         'green' => 32,
@@ -115,9 +115,9 @@ class ConsoleOutput
     /**
      * background colors used in colored output.
      *
-     * @var array
+     * @var array<string, int>
      */
-    protected static $_backgroundColors = [
+    protected static array $_backgroundColors = [
         'black' => 40,
         'red' => 41,
         'green' => 42,
@@ -131,9 +131,9 @@ class ConsoleOutput
     /**
      * formatting options for colored output
      *
-     * @var string
+     * @var array<string, int>
      */
-    protected static $_options = [
+    protected static array $_options = [
         'bold' => 1,
         'underline' => 4,
         'blink' => 5,
@@ -144,9 +144,9 @@ class ConsoleOutput
      * Styles that are available as tags in console output.
      * You can modify these styles with ConsoleOutput::styles()
      *
-     * @var array
+     * @var array<string, array{text: string, underline?: bool}>
      */
-    protected static $_styles = [
+    protected static array $_styles = [
         'emergency' => ['text' => 'red', 'underline' => true],
         'alert' => ['text' => 'red', 'underline' => true],
         'critical' => ['text' => 'red', 'underline' => true],
@@ -168,14 +168,14 @@ class ConsoleOutput
      *
      * @param string $stream The identifier of the stream to write output to.
      */
-    public function __construct($stream = 'php://stdout')
+    public function __construct(string $stream = 'php://stdout')
     {
         $this->_output = fopen($stream, 'w');
 
         if (
-            (DS === '\\' && !(bool)env('ANSICON') && env('ConEmuANSI') !== 'ON') ||
-            $stream === 'php://output' ||
-            (function_exists('posix_isatty') && !posix_isatty($this->_output))
+            (DIRECTORY_SEPARATOR === '\\' && !env('ANSICON') && env('ConEmuANSI') !== 'ON')
+            || $stream === 'php://output'
+            || (function_exists('posix_isatty') && !posix_isatty($this->_output))
         ) {
             $this->_outputAs = static::PLAIN;
         }
@@ -185,12 +185,14 @@ class ConsoleOutput
      * Outputs a single or multiple messages to stdout. If no parameters
      * are passed, outputs just a newline.
      *
-     * @param array|string $message A string or an array of strings to output
+     * @param array|string|null $message A string or an array of strings to output
      * @param int $newlines Number of newlines to append
-     * @return int Returns the number of bytes returned from writing to stdout.
+     * @return int|false|null Returns the number of bytes returned from writing to stdout.
      */
-    public function write($message, $newlines = 1)
-    {
+    public function write(
+        array|string|null $message,
+        int $newlines = 1,
+    ): int|false|null {
         if (is_array($message)) {
             $message = implode(static::LF, $message);
         }
@@ -212,7 +214,7 @@ class ConsoleOutput
      *    length of the last message output.
      * @return void
      */
-    public function overwrite($message, $newlines = 1, $size = null)
+    public function overwrite(array|string $message, int $newlines = 1, ?int $size = null): void
     {
         $size = $size ?: $this->_lastWritten;
         // Output backspaces.
@@ -234,7 +236,7 @@ class ConsoleOutput
      * @param string $text Text with styling tags.
      * @return string String with color codes added.
      */
-    public function styleText($text)
+    public function styleText(string $text): string
     {
         if ($this->_outputAs == static::RAW) {
             return $text;
@@ -258,7 +260,7 @@ class ConsoleOutput
      * @param array $matches An array of matches to replace.
      * @return string
      */
-    protected function _replaceTags($matches)
+    protected function _replaceTags(array $matches): string
     {
         $style = $this->styles($matches['tag']);
         if (empty($style)) {
@@ -286,9 +288,9 @@ class ConsoleOutput
      * Writes a message to the output stream.
      *
      * @param string $message Message to write.
-     * @return bool success
+     * @return int|false success
      */
-    protected function _write($message)
+    protected function _write(string $message): int|false
     {
         $this->_lastWritten = fwrite($this->_output, $message);
 
@@ -314,13 +316,13 @@ class ConsoleOutput
      *
      * `$this->output->styles('annoy', false);`
      *
-     * @param string $style The style to get or create.
-     * @param array $definition The array definition of the style to change or create a style
+     * @param string|null $style The style to get or create.
+     * @param array|false|null $definition The array definition of the style to change or create a style
      *   or false to remove a style.
      * @return mixed If you are getting styles, the style or null will be returned. If you are creating/modifying
      *   styles true will be returned.
      */
-    public function styles($style = null, $definition = null)
+    public function styles(?string $style = null, array|false|null $definition = null): mixed
     {
         if ($style === null && $definition === null) {
             return static::$_styles;
@@ -341,15 +343,17 @@ class ConsoleOutput
     /**
      * Get/Set the output type to use. The output type how formatting tags are treated.
      *
-     * @param int $type The output type to use. Should be one of the class constants.
-     * @return mixed Either null or the value if getting.
+     * @param int|null $type The output type to use. Should be one of the class constants.
+     * @return int|null Either null or the value if getting.
      */
-    public function outputAs($type = null)
+    public function outputAs(?int $type = null): ?int
     {
         if ($type === null) {
             return $this->_outputAs;
         }
         $this->_outputAs = $type;
+
+        return null;
     }
 
     /**

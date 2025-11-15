@@ -36,9 +36,9 @@ class SessionTestController extends Controller
     /**
      * uses property
      *
-     * @var array||bool
+     * @var array|bool|null
      */
-    public array|bool $uses = [];
+    public array|bool|null $uses = [];
 
     /**
      * sessionId method
@@ -62,9 +62,9 @@ class OrangeSessionTestController extends Controller
     /**
      * uses property
      *
-     * @var array||bool
+     * @var array|bool|null
      */
-    public array|bool $uses = [];
+    public array|bool|null $uses = [];
 
     /**
      * sessionId method
@@ -90,9 +90,11 @@ class SessionComponentTest extends CakeTestCase
     /**
      * fixtures
      *
-     * @var string
+     * @var array<string>
      */
-    public $fixtures = ['core.session'];
+    public array $fixtures = [
+        'core.session',
+    ];
 
     /**
      * test case startup

@@ -41,13 +41,24 @@ class ContainableBehaviorTest extends CakeTestCase
     /**
      * Fixtures associated with this test case
      *
-     * @var array
+     * @var array<string>
      */
-    public $fixtures = [
-        'core.article', 'core.article_featured', 'core.article_featureds_tags',
-        'core.articles_tag', 'core.attachment', 'core.category',
-        'core.comment', 'core.featured', 'core.tag', 'core.user',
-        'core.join_a', 'core.join_b', 'core.join_c', 'core.join_a_c', 'core.join_a_b',
+    public array $fixtures = [
+        'core.article',
+        'core.article_featured',
+        'core.article_featureds_tags',
+        'core.articles_tag',
+        'core.attachment',
+        'core.category',
+        'core.comment',
+        'core.featured',
+        'core.tag',
+        'core.user',
+        'core.join_a',
+        'core.join_b',
+        'core.join_c',
+        'core.join_a_c',
+        'core.join_a_b',
     ];
 
     /**

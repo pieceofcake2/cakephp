@@ -47,7 +47,7 @@ class JqueryEngineHelper extends JsBaseEngineHelper
      *
      * @var array
      */
-    protected $_optionMap = [
+    protected array $_optionMap = [
         'request' => [
             'type' => 'dataType',
             'before' => 'beforeSend',
@@ -73,9 +73,9 @@ class JqueryEngineHelper extends JsBaseEngineHelper
     /**
      * Callback arguments lists
      *
-     * @var string
+     * @var array
      */
-    protected $_callbackArguments = [
+    protected array $_callbackArguments = [
         'slider' => [
             'start' => 'event, ui',
             'slide' => 'event, ui',
@@ -153,7 +153,7 @@ class JqueryEngineHelper extends JsBaseEngineHelper
      * @param string $selector The selector that is targeted
      * @return self
      */
-    public function get($selector)
+    public function get(string $selector): self
     {
         if ($selector === 'window' || $selector === 'document') {
             $this->selection = $this->jQueryObject . '(' . $selector . ')';
@@ -177,7 +177,7 @@ class JqueryEngineHelper extends JsBaseEngineHelper
      * @param array $options Options for the event.
      * @return string completed event handler
      */
-    public function event($type, $callback, $options = [])
+    public function event(string $type, string $callback, array $options = []): string
     {
         $defaults = ['wrap' => true, 'stop' => true];
         $options += $defaults;
@@ -204,7 +204,7 @@ class JqueryEngineHelper extends JsBaseEngineHelper
      * @param string $functionBody The code to run on domReady
      * @return string completed domReady method
      */
-    public function domReady($functionBody)
+    public function domReady(string $functionBody): string
     {
         return $this->jQueryObject . '(document).ready(function () {' . $functionBody . '});';
     }
@@ -215,7 +215,7 @@ class JqueryEngineHelper extends JsBaseEngineHelper
      * @param string $callback The function body you wish to apply during the iteration.
      * @return string completed iteration
      */
-    public function each($callback)
+    public function each(string $callback): string
     {
         return $this->selection . '.each(function () {' . $callback . '});';
     }
@@ -228,7 +228,7 @@ class JqueryEngineHelper extends JsBaseEngineHelper
      * @return string completed string with effect.
      * @see JsBaseEngineHelper::effect()
      */
-    public function effect($name, $options = [])
+    public function effect(string $name, array $options = []): string
     {
         $speed = null;
         if (isset($options['speed']) && in_array($options['speed'], ['fast', 'slow'])) {
@@ -263,7 +263,7 @@ class JqueryEngineHelper extends JsBaseEngineHelper
      * @return string The completed ajax call.
      * @see JsBaseEngineHelper::request() for options list.
      */
-    public function request($url, $options = [])
+    public function request(array|string $url, array $options = []): string
     {
         $url = html_entity_decode($this->url($url), ENT_COMPAT, Configure::read('App.encoding'));
         $options = $this->_mapOptions('request', $options);
@@ -305,7 +305,7 @@ class JqueryEngineHelper extends JsBaseEngineHelper
      * @return string Completed sortable script.
      * @see JsBaseEngineHelper::sortable() for options list.
      */
-    public function sortable($options = [])
+    public function sortable(array $options = []): string
     {
         $template = '%s.sortable({%s});';
 
@@ -321,7 +321,7 @@ class JqueryEngineHelper extends JsBaseEngineHelper
      * @return string Completed Draggable script.
      * @see JsBaseEngineHelper::drag() for options list.
      */
-    public function drag($options = [])
+    public function drag(array $options = []): string
     {
         $template = '%s.draggable({%s});';
 
@@ -337,7 +337,7 @@ class JqueryEngineHelper extends JsBaseEngineHelper
      * @return string Completed Droppable script.
      * @see JsBaseEngineHelper::drop() for options list.
      */
-    public function drop($options = [])
+    public function drop(array $options = []): string
     {
         $template = '%s.droppable({%s});';
 
@@ -353,7 +353,7 @@ class JqueryEngineHelper extends JsBaseEngineHelper
      * @return string Completed Slider script.
      * @see JsBaseEngineHelper::slider() for options list.
      */
-    public function slider($options = [])
+    public function slider(array $options = []): string
     {
         $callbacks = ['start', 'change', 'slide', 'stop'];
         $template = '%s.slider({%s});';
@@ -369,7 +369,7 @@ class JqueryEngineHelper extends JsBaseEngineHelper
      * @return string completed form serialization script.
      * @see JsBaseEngineHelper::serializeForm() for option list.
      */
-    public function serializeForm($options = [])
+    public function serializeForm(array $options = []): string
     {
         $options += ['isForm' => false, 'inline' => false];
         $selector = $this->selection;

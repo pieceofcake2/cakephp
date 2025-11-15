@@ -23,5 +23,5 @@ namespace Cake\Error;
  */
 class MissingDatasourceException extends CakeException
 {
-    protected $_messageTemplate = 'Datasource class %s could not be found. %s';
+    protected string $_messageTemplate = 'Datasource class %s could not be found. %s';
 }
