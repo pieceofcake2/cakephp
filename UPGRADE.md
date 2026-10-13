@@ -25,6 +25,13 @@ Before migrating to this fork, ensure:
 - No action required if you pass `'readFile' => false` to disable remote loading; this now works as documented.
 - If you relied on `Xml::build()` fetching an `https://` URL with `'readFile' => false`, either remove the option (default is `true`) or fetch the document yourself (e.g. with `HttpSocket`) and pass the XML string.
 
+### Test Case Listing Supports the `tests/TestCase` Layout ([PR #35](https://github.com/pieceofcake2/cakephp/pull/35))
+
+- `CakeTestLoader::generateTestList()` now finds test cases in `tests/TestCase` for the app and plugins, falling back to the legacy `Test/Case` layout. Previously the list was empty for the modern layout, so `cake test app` / `cake test <Plugin>` without a test case name and the web test runner showed no test cases.
+
+**Migration:**
+- No action required.
+
 ## Breaking Changes
 
 ### Post-Installation Steps

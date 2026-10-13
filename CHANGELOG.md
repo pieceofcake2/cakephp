@@ -6,6 +6,10 @@
 
 - **Xml**: `Xml::build()` no longer fetches `https://` URLs when `'readFile' => false` (operator precedence bug that allowed SSRF)
 
+### CakeTestLoader Modern Layout ([PR #35](https://github.com/pieceofcake2/cakephp/pull/35))
+
+- **CakeTestLoader**: List test cases from `tests/TestCase` (app and plugins), falling back to `Test/Case`, so `cake test app` without a test case and the web test runner no longer show an empty list for the modern layout
+
 ## v2.12.2 (2026-10-14)
 
 ### PHP 8.6 Support
