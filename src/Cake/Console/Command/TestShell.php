@@ -173,7 +173,10 @@ class TestShell extends Shell
         $this->_dispatcher = new CakeTestSuiteDispatcher();
         $success = $this->_dispatcher->loadTestFramework();
         if (!$success) {
+            // @codeCoverageIgnoreStart
+            // Only reachable when PHPUnit is not installed, which cannot happen in a PHPUnit run.
             throw new Exception(__d('cake_dev', 'Please install PHPUnit framework v9.6 <info>(composer require --dev phpunit/phpunit:^9.6)</info>'));
+            // @codeCoverageIgnoreEnd
         }
     }
 
