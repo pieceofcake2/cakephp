@@ -412,7 +412,7 @@ Configure::write('Security.useOpenSsl', true);
 
 public $components = [
     'Cookie' => [
-        'type' => 'aes'
+        'type' => 'aes'  // or 'rijndael' (requires the mcrypt extension)
     ]
 ];
 
