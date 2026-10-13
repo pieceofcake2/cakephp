@@ -1,5 +1,12 @@
 ## CHANGELOG
 
+## Unreleased
+
+### Documentation Fixes ([PR #39](https://github.com/pieceofcake2/cakephp/pull/39))
+
+- **README.md**: Use `^2.12` in the Composer install example
+- **UPGRADE.md**: Show the SQL Server `schema` setting as a string per connection (the driver does not accept an array mapping)
+
 ## v2.12.2 (2026-10-14)
 
 ### PHP 8.6 Support
