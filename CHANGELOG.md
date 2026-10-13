@@ -1,5 +1,11 @@
 ## CHANGELOG
 
+## Unreleased
+
+### TestShell PHPUnit Version Message ([PR #38](https://github.com/pieceofcake2/cakephp/pull/38))
+
+- **TestShell**: Ask for PHPUnit 9.6 (instead of v3.7) when PHPUnit cannot be loaded
+
 ## v2.12.2 (2026-10-14)
 
 ### PHP 8.6 Support
