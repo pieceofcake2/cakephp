@@ -1,5 +1,11 @@
 ## CHANGELOG
 
+## v2.12.1 (2026-10-14)
+
+### Bug Fixes
+
+- **ControllerTestCase**: Fix the `@method` annotation of `testAction()` so that IDEs can resolve its parameters and return type
+
 ## v2.12.0 (2025-10-09)
 
 ### Composer Autoloading Migration ([PR #22](https://github.com/pieceofcake2/cakephp/pull/22))
