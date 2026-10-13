@@ -83,17 +83,38 @@ class CakeTestLoader implements TestSuiteLoader
             if (!CakePlugin::loaded($params['plugin'])) {
                 try {
                     CakePlugin::load($params['plugin']);
-                    $result = CakePlugin::path($params['plugin']) . 'Test' . DS . 'Case';
+                    $result = static::_pluginTestPath(CakePlugin::path($params['plugin']));
                 } catch (MissingPluginException) {
                 }
             } else {
-                $result = CakePlugin::path($params['plugin']) . 'Test' . DS . 'Case';
+                $result = static::_pluginTestPath(CakePlugin::path($params['plugin']));
             }
         } elseif (!empty($params['app'])) {
-            $result = TESTS . 'Case';
+            if (is_dir(TESTS . 'TestCase')) {
+                $result = TESTS . 'TestCase';
+            } else {
+                $result = TESTS . 'Case';
+            }
         }
 
         return $result;
+    }
+
+    /**
+     * Gets the test case directory of a plugin.
+     *
+     * Prefers the modern `tests/TestCase` layout and falls back to the legacy `Test/Case` layout.
+     *
+     * @param string $pluginPath The plugin path, with a trailing directory separator.
+     * @return string
+     */
+    protected static function _pluginTestPath(string $pluginPath): string
+    {
+        if (is_dir($pluginPath . 'tests' . DS . 'TestCase')) {
+            return $pluginPath . 'tests' . DS . 'TestCase';
+        }
+
+        return $pluginPath . 'Test' . DS . 'Case';
     }
 
     /**

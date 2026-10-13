@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### CakeTestLoader Modern Layout ([PR #35](https://github.com/pieceofcake2/cakephp/pull/35))
+
+- **CakeTestLoader**: List test cases from `tests/TestCase` (app and plugins), falling back to `Test/Case`, so `cake test app` without a test case and the web test runner no longer show an empty list for the modern layout
+
 ### TestShell PHPUnit Version Message ([PR #38](https://github.com/pieceofcake2/cakephp/pull/38))
 
 - **TestShell**: Ask for PHPUnit 9.6 (instead of v3.7) when PHPUnit cannot be loaded
