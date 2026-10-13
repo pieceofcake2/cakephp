@@ -15,6 +15,17 @@ Before migrating to this fork, ensure:
 4. **Upgrade PHP**: Update your PHP version to 8.0 or newer
 5. **Test Thoroughly**: Run your application's test suite to ensure compatibility
 
+## Unreleased
+
+### CookieComponent Honors the `'type'` Setting ([PR #34](https://github.com/pieceofcake2/cakephp/pull/34))
+
+- `CookieComponent` now applies the `'type'` setting given in `$components` (e.g. `'Cookie' => ['type' => 'aes']`). Previously the setting was silently ignored and cookies were encrypted with the insecure default `'cipher'` type.
+
+**Migration:**
+- If your controllers set `'type'` in `$components`, cookies will now be written with that type, and cookies already written with `'cipher'` can no longer be decrypted. Plan the switch like any other encryption type change.
+- When using `'aes'`, set `Configure::write('Security.useOpenSsl', true);` (mcrypt is not available on PHP 8).
+- An invalid `'type'` setting now triggers an `E_USER_WARNING` and falls back to `'cipher'`, as `CookieComponent::type()` does.
+
 ## Breaking Changes
 
 ### Post-Installation Steps
@@ -396,15 +407,23 @@ public $components = [
 ];
 
 // NEW (recommended)
+// config/core.php: 'aes' needs OpenSSL on PHP 7.2+ (the mcrypt extension was removed)
+Configure::write('Security.useOpenSsl', true);
+
 public $components = [
     'Cookie' => [
-        'type' => 'aes'  // or 'rijndael'
+        'type' => 'aes'
     ]
 ];
 
 // Or dynamically in your controller
 $this->Cookie->type('aes');
 ```
+
+> [!NOTE]
+> The `'type'` setting in `$components` is honored since the fix in [PR #34](https://github.com/pieceofcake2/cakephp/pull/34). In v2.12.2 and earlier it was silently ignored, so use `$this->Cookie->type('aes')` (e.g. in `beforeFilter()`) there.
+>
+> `'aes'` uses OpenSSL only when `Security.useOpenSsl` is `true`; otherwise it calls mcrypt functions and fails on PHP 8. `'rijndael'` always requires the mcrypt extension, so it is not an option on PHP 8.
 
 > [!IMPORTANT]
 > Changing encryption type will invalidate existing cookies. Plan your migration strategy accordingly (e.g., support both types during transition period).
