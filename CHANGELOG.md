@@ -1,5 +1,14 @@
 ## CHANGELOG
 
+## v2.12.2 (2026-10-14)
+
+### PHP 8.6 Support
+
+- **Session handlers**: Support `session.use_strict_mode`, which is enabled by default since PHP 8.6
+  - `SessionHandlerAdapter` implements `SessionIdInterface` and `SessionUpdateTimestampHandlerInterface` (PHP 8.6 deprecates session handlers without `create_sid()`, `validateId()` and `updateTimestamp()`)
+  - `CacheSession::destroy()` and `DatabaseSession::destroy()` succeed for sessions that were never written, as with PHP's files handler
+- **CI**: Add PHP 8.6 to the test matrix as an allowed failure until it is released, and update GitHub Actions to the latest major versions
+
 ## v2.12.1 (2026-10-14)
 
 ### Bug Fixes
