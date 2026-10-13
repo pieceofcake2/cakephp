@@ -107,7 +107,8 @@ class ApplicationControllerTest extends ControllerTestCase
      */
     public function testRedirect()
     {
-        $sessionId = 'o7k64tlhil9pakp89j6d8ovlqk';
+        // PHP 8.6 only accepts session IDs of 32 hexadecimal characters
+        $sessionId = '0123456789abcdef0123456789abcdef';
 
         $level = ob_get_level();
         $this->testAction('/trans_session_id/next?CAKEPHP=' . $sessionId, [
