@@ -150,8 +150,6 @@ class CookieComponentTest extends CakeTestCase
         $encrypted = base64_decode(substr($cookie['value'], strlen('Q2FrZQ==.')));
         $this->assertSame('value', Security::decrypt($encrypted, $key));
         $this->assertSame('value', $Cookie->read('Testing'));
-
-        Configure::delete('Security.useOpenSsl');
     }
 
     /**

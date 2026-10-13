@@ -5,6 +5,7 @@
 ### CookieComponent `'type'` Setting ([PR #34](https://github.com/pieceofcake2/cakephp/pull/34))
 
 - **CookieComponent**: Honor the `'type'` setting (e.g. `'Cookie' => ['type' => 'aes']`), which was previously ignored so cookies were always encrypted with the default `'cipher'` type
+- **Behavior change**: Applications that already set `'type'` in `$components` now write cookies with that type, so cookies written before the upgrade (with `'cipher'`) can no longer be read. See UPGRADE.md
 
 ## v2.12.2 (2026-10-14)
 

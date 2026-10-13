@@ -407,9 +407,6 @@ public $components = [
 ];
 
 // NEW (recommended)
-// config/core.php: use OpenSSL for 'aes' (mcrypt is not bundled with PHP 7.2+)
-Configure::write('Security.useOpenSsl', true);
-
 public $components = [
     'Cookie' => [
         'type' => 'aes'  // or 'rijndael' (requires the mcrypt extension)
@@ -418,6 +415,12 @@ public $components = [
 
 // Or dynamically in your controller
 $this->Cookie->type('aes');
+```
+
+Without the mcrypt extension (not bundled with PHP 7.2+), enable OpenSSL for `'aes'` in `config/core.php`:
+
+```php
+Configure::write('Security.useOpenSsl', true);
 ```
 
 > [!NOTE]
