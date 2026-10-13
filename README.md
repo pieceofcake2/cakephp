@@ -55,7 +55,7 @@ Install via Composer:
 ```json
 {
     "require": {
-        "pieceofcake2/cakephp": "^2.10"
+        "pieceofcake2/cakephp": "^2.12"
     }
 }
 ```

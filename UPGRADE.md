@@ -273,19 +273,32 @@ CakePlugin::load('Upgrade');
 
 #### Configuration Format
 
-- **Schema-based configuration**: Use schema mapping instead of multiple databases
+- **Schema-based configuration**: Each connection can use a schema (`schema`, a string; defaults to `dbo`), so several connections can share one database instead of using multiple databases
   ```php
   // Old approach (still works)
-  'database' => 'cakephp_test2'
+  public $test2 = [
+      'datasource' => 'Database/Sqlserver',
+      'database' => 'cakephp_test2',
+      // ...
+  ];
 
-  // New recommended approach
-  'database' => 'cakephp_test',
-  'schema' => [
-      'default' => 'dbo',
-      'test2' => 'test2',
-      'test_database_three' => 'test3',
-  ]
+  // New recommended approach: same database, one schema per connection
+  public $test = [
+      'datasource' => 'Database/Sqlserver',
+      'database' => 'cakephp_test',
+      'schema' => 'dbo', // default when omitted
+      // ...
+  ];
+  public $test2 = [
+      'datasource' => 'Database/Sqlserver',
+      'database' => 'cakephp_test',
+      'schema' => 'test2',
+      // ...
+  ];
   ```
+
+> [!NOTE]
+> `schema` must be a string. The array form used in this repository's `tests/config/database.php` is resolved to a string per connection by that file's constructor; the driver itself does not accept an array.
 
 - **Connection options**: SSL/TLS options now in `options` array
   ```php
@@ -303,7 +316,7 @@ CakePlugin::load('Upgrade');
 - `insertMulti()` - Now returns `bool` instead of `void`
 
 **Migration:**
-- Update SQL Server configuration to use schema mapping (optional but recommended)
+- Optionally set `schema` per connection to share one database between connections
 - Move SSL/TLS options to `options` array if using inline DSN
 - If extending Sqlserver class, update method signatures to match
 
