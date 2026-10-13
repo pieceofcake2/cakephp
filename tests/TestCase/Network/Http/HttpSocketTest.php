@@ -1854,11 +1854,16 @@ class HttpSocketTest extends CakeTestCase
         $this->skipIf(!extension_loaded('openssl'), 'OpenSSL is not enabled cannot test SSL.');
         $socket = new HttpSocket();
         try {
-            $socket->get('https://tv.eurosport.com/');
+            // badssl.com provides hosts with intentionally invalid certificates for testing
+            $socket->get('https://self-signed.badssl.com/');
             $this->markTestSkipped('Found valid certificate, was expecting invalid certificate.');
         } catch (SocketException $e) {
             $message = $e->getMessage();
             $this->skipIf(str_contains($message, 'Invalid HTTP'), 'Invalid HTTP Response received, skipping.');
+            $this->skipIf(
+                str_contains($message, 'getaddrinfo') || str_contains($message, 'timed out'),
+                'Network is unavailable, skipping.',
+            );
             $this->assertStringContainsString('Failed to enable crypto', $message);
         }
     }
