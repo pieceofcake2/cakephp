@@ -7,6 +7,10 @@
 - **CookieComponent**: Honor the `'type'` setting (e.g. `'Cookie' => ['type' => 'aes']`), which was previously ignored so cookies were always encrypted with the default `'cipher'` type
 - **Behavior change**: Applications that already set `'type'` in `$components` now write cookies with that type, so cookies written before the upgrade (with `'cipher'`) can no longer be read. See UPGRADE.md
 
+### CakeTestLoader Modern Layout ([PR #35](https://github.com/pieceofcake2/cakephp/pull/35))
+
+- **CakeTestLoader**: List test cases from `tests/TestCase` (app and plugins), falling back to `Test/Case`, so `cake test app` without a test case and the web test runner no longer show an empty list for the modern layout
+
 ## v2.12.2 (2026-10-14)
 
 ### PHP 8.6 Support
