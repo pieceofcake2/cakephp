@@ -15,6 +15,16 @@ Before migrating to this fork, ensure:
 4. **Upgrade PHP**: Update your PHP version to 8.0 or newer
 5. **Test Thoroughly**: Run your application's test suite to ensure compatibility
 
+## Unreleased
+
+### ServerShell Default Port Changed to 8765 ([PR #37](https://github.com/pieceofcake2/cakephp/pull/37))
+
+- `cake server` now listens on port `8765` by default (as in CakePHP 3 and later) instead of `80`, which requires root privileges on most systems.
+- `ServerShell::DEFAULT_PORT` is now `8765`.
+
+**Migration:**
+- To keep using port 80, pass it explicitly: `bin/cake server -p 80`.
+
 ## Breaking Changes
 
 ### Post-Installation Steps

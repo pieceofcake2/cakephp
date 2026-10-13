@@ -1,5 +1,11 @@
 ## CHANGELOG
 
+## Unreleased
+
+### ServerShell Default Port ([PR #37](https://github.com/pieceofcake2/cakephp/pull/37))
+
+- **ServerShell**: Change the default port of `cake server` from `80` (requires root) to `8765`, and show the default host and port in the help
+
 ## v2.12.2 (2026-10-14)
 
 ### PHP 8.6 Support
