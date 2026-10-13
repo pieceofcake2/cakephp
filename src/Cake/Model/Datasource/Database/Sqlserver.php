@@ -143,7 +143,7 @@ class Sqlserver extends DboSource
             throw new InvalidArgumentException('Config setting "persistent" cannot be set to true, as the Sqlserver PDO driver does not support PDO::ATTR_PERSISTENT');
         }
 
-        $flags = $config['flags'] ?? [] + [
+        $flags = ($config['flags'] ?? []) + [
             PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
         ];
 
