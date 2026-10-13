@@ -81,7 +81,11 @@ class CacheSession implements CakeSessionHandlerInterface
      */
     public function destroy($id)
     {
-        return (bool)Cache::delete($id, Configure::read('Session.handler.config'));
+        $config = Configure::read('Session.handler.config');
+
+        // Destroying a session that was never written is not an error, as with PHP's files handler.
+        // With session.use_strict_mode (the default since PHP 8.6), a new session may be destroyed before it is written.
+        return Cache::delete($id, $config) || Cache::read($id, $config) === false;
     }
 
     /**

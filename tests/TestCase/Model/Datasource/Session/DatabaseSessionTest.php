@@ -167,6 +167,16 @@ class DatabaseSessionTest extends CakeTestCase
     }
 
     /**
+     * test destroying a session that was never written
+     *
+     * @return void
+     */
+    public function testDestroyNotWrittenSession()
+    {
+        $this->assertTrue($this->storage->destroy('not_written'));
+    }
+
+    /**
      * test the garbage collector
      *
      * @return void
