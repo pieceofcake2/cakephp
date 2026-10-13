@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### CakeTestLoader Modern Layout ([PR #35](https://github.com/pieceofcake2/cakephp/pull/35))
+
+- **CakeTestLoader**: List test cases from `tests/TestCase` (app and plugins), falling back to `Test/Case`, so `cake test app` without a test case and the web test runner no longer show an empty list for the modern layout
+
 ### ServerShell Default Port ([PR #37](https://github.com/pieceofcake2/cakephp/pull/37))
 
 - **ServerShell**: Change the default port of `cake server` from `80` (requires root) to `8765`, and show the default host and port in the help
