@@ -1,5 +1,11 @@
 ## CHANGELOG
 
+## Unreleased
+
+### Sqlserver Default PDO Flags ([PR #36](https://github.com/pieceofcake2/cakephp/pull/36))
+
+- **Sqlserver**: Fix operator precedence in `connect()` so `PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION` is merged into the `'flags'` setting
+
 ## v2.12.2 (2026-10-14)
 
 ### PHP 8.6 Support
