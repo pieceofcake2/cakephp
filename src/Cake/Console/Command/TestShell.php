@@ -173,7 +173,7 @@ class TestShell extends Shell
         $this->_dispatcher = new CakeTestSuiteDispatcher();
         $success = $this->_dispatcher->loadTestFramework();
         if (!$success) {
-            throw new Exception(__d('cake_dev', 'Please install PHPUnit framework v3.7 <info>(http://www.phpunit.de)</info>'));
+            throw new Exception(__d('cake_dev', 'Please install PHPUnit framework v9.6 <info>(composer require --dev phpunit/phpunit:^9.6)</info>'));
         }
     }
 
