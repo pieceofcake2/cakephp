@@ -104,7 +104,7 @@ class SessionHandlerAdapter implements SessionHandlerInterface, SessionIdInterfa
      *
      * @return string The new session ID
      */
-    public function create_sid(): string
+    public function create_sid(): string // phpcs:ignore PSR1.Methods.CamelCapsMethodName.NotCamelCaps -- defined by SessionIdInterface
     {
         return bin2hex(random_bytes(16));
     }
