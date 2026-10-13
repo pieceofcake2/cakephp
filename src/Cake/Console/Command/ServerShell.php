@@ -143,6 +143,9 @@ class ServerShell extends AppShell
     /**
      * Runs the built-in server command.
      *
+     * Not covered by tests, because it starts a real server process.
+     *
+     * @codeCoverageIgnore
      * @param string $command The command to run.
      * @return void
      */
