@@ -1,5 +1,11 @@
 ## CHANGELOG
 
+## Unreleased
+
+### Xml::build() SSRF Fix ([PR #33](https://github.com/pieceofcake2/cakephp/pull/33))
+
+- **Xml**: `Xml::build()` no longer fetches `https://` URLs when `'readFile' => false` (operator precedence bug that allowed SSRF)
+
 ## v2.12.2 (2026-10-14)
 
 ### PHP 8.6 Support
