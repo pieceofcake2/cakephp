@@ -89,4 +89,18 @@ class SessionHandlerAdapter implements SessionHandlerInterface
     {
         return $this->cakeSessionHandler->write($id, $data);
     }
+
+    /**
+     * Create a new session ID
+     *
+     * PHP 8.6 deprecates SessionHandlerInterface implementations without create_sid()
+     * (required in PHP 9.0). Generates an ID in the same format as PHP's default
+     * (32 hexadecimal characters). session_create_id() is not used to avoid recursion.
+     *
+     * @return string The new session ID
+     */
+    public function create_sid(): string
+    {
+        return bin2hex(random_bytes(16));
+    }
 }
