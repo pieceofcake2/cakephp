@@ -15,7 +15,7 @@ use SessionHandlerInterface;
  *
  * @package       Cake.Model.Datasource
  */
-class SessionHandlerAdapter implements SessionHandlerInterface
+class SessionHandlerAdapter implements SessionHandlerInterface, SessionIdInterface, SessionUpdateTimestampHandlerInterface
 {
     /**
      * Constructor
@@ -98,14 +98,41 @@ class SessionHandlerAdapter implements SessionHandlerInterface
     /**
      * Create a new session ID
      *
-     * PHP 8.6 deprecates SessionHandlerInterface implementations without create_sid()
-     * (required in PHP 9.0). Generates an ID in the same format as PHP's default
-     * (32 hexadecimal characters). session_create_id() is not used to avoid recursion.
+     * PHP 8.6 deprecates session handlers without create_sid() (required in PHP 9.0).
+     * Generates an ID in the same format as PHP's default (32 hexadecimal characters).
+     * session_create_id() is not used because it would call this method recursively.
      *
      * @return string The new session ID
      */
     public function create_sid(): string
     {
         return bin2hex(random_bytes(16));
+    }
+
+    /**
+     * Validate that a session with the ID exists
+     *
+     * Called only when session.use_strict_mode is enabled (the default since PHP 8.6).
+     *
+     * @param string $id The session ID
+     * @return bool Whether the session exists
+     */
+    public function validateId(string $id): bool
+    {
+        $data = $this->read($id);
+
+        return is_string($data) && $data !== '';
+    }
+
+    /**
+     * Update the timestamp of the session
+     *
+     * @param string $id The session ID
+     * @param string $data The session data
+     * @return bool Success
+     */
+    public function updateTimestamp(string $id, string $data): bool
+    {
+        return (bool)$this->write($id, $data);
     }
 }

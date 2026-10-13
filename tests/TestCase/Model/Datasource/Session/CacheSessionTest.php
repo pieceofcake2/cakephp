@@ -131,4 +131,14 @@ class CacheSessionTest extends CakeTestCase
 
         $this->assertFalse(Cache::read('test_one', 'session_test'), 'Value stuck around.');
     }
+
+    /**
+     * test destroying a session that was never written
+     *
+     * @return void
+     */
+    public function testDestroyNotWrittenSession()
+    {
+        $this->assertTrue($this->storage->destroy('not_written'));
+    }
 }

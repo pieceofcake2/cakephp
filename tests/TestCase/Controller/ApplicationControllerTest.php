@@ -107,8 +107,7 @@ class ApplicationControllerTest extends ControllerTestCase
      */
     public function testRedirect()
     {
-        // PHP 8.6 only accepts session IDs of 32 hexadecimal characters
-        $sessionId = '0123456789abcdef0123456789abcdef';
+        $sessionId = 'o7k64tlhil9pakp89j6d8ovlqk';
 
         $level = ob_get_level();
         $this->testAction('/trans_session_id/next?CAKEPHP=' . $sessionId, [
@@ -119,7 +118,12 @@ class ApplicationControllerTest extends ControllerTestCase
             ob_end_clean();
         }
 
-        $this->assertStringContainsString('/trans_session_id/next_step?CAKEPHP=' . $sessionId, $this->headers['Location']);
+        // With session.use_strict_mode (the default since PHP 8.6), an unknown session ID is
+        // replaced with a new one, so check that the ID actually used is passed to the redirect
+        if (!ini_get('session.use_strict_mode')) {
+            $this->assertSame($sessionId, CakeSession::id());
+        }
+        $this->assertStringContainsString('/trans_session_id/next_step?CAKEPHP=' . CakeSession::id(), $this->headers['Location']);
 
         $expectedConfig = [
             'cookie' => 'CAKEPHP',

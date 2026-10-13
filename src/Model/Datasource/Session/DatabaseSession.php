@@ -150,6 +150,12 @@ class DatabaseSession implements CakeSessionHandlerInterface
      */
     public function destroy(string $id): bool
     {
+        // Destroying a session that was never written is not an error, as with PHP's files handler.
+        // With session.use_strict_mode (the default since PHP 8.6), a new session may be destroyed before it is written.
+        if (!$this->_model->exists($id)) {
+            return true;
+        }
+
         return (bool)$this->_model->delete($id);
     }
 
