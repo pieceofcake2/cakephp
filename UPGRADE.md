@@ -17,6 +17,13 @@ Before migrating to this fork, ensure:
 
 ## Unreleased
 
+### Test Case Listing Supports the `tests/TestCase` Layout ([PR #35](https://github.com/pieceofcake2/cakephp/pull/35))
+
+- `CakeTestLoader::generateTestList()` now finds test cases in `tests/TestCase` for the app and plugins, falling back to the legacy `Test/Case` layout. Previously the list was empty for the modern layout, so `cake test app` / `cake test <Plugin>` without a test case name and the web test runner showed no test cases.
+
+**Migration:**
+- No action required.
+
 ### SQL Server Driver Sets `PDO::ATTR_ERRMODE` by Default ([PR #36](https://github.com/pieceofcake2/cakephp/pull/36))
 
 - `Sqlserver::connect()` now merges `PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION` into the `'flags'` setting as the other drivers do. Because of an operator precedence bug, the default was never applied.
