@@ -17,6 +17,8 @@ jobs:
     name: PHPUnit
 
     runs-on: ubuntu-latest
+    # Allow failures on unreleased PHP versions
+    continue-on-error: ${{ matrix.php-version == '8.6' }}
 
     strategy:
       fail-fast: false
@@ -28,6 +30,7 @@ jobs:
           - '8.3'
           - '8.4'
           - '8.5'
+          - '8.6'
         db-type:
           - mysql
           - mysql80
