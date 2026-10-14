@@ -15,27 +15,38 @@
  */
 
 $pluginDot = empty($plugin) ? null : $plugin . '.';
+$path = $this->element('dev_error_file_path', array('package' => 'View/Helper', 'plugin' => $plugin ?? null, 'file' => $class . '.php'));
+
+$this->assign('title', __d('cake_dev', 'Missing Helper'));
+$this->assign('templateName', 'missing_helper.ctp');
+
+$this->start('subheading');
 ?>
-<h2><?php echo __d('cake_dev', 'Missing Helper'); ?></h2>
-<p class="error">
-	<strong><?php echo __d('cake_dev', 'Error'); ?>: </strong>
-	<?php echo __d('cake_dev', '%s could not be found.', '<em>' . h($pluginDot . $class) . '</em>'); ?>
-</p>
-<p class="error">
-	<strong><?php echo __d('cake_dev', 'Error'); ?>: </strong>
-	<?php echo __d('cake_dev', 'Create the class %s below in file: %s', '<em>' . h($class) . '</em>', (empty($plugin) ? APP_DIR . DS : CakePlugin::path($plugin)) . 'View' . DS . 'Helper' . DS . h($class) . '.php'); ?>
-</p>
-<pre>
-&lt;?php
-class <?php echo h($class); ?> extends AppHelper {
+<strong><?php echo __d('cake_dev', 'Error'); ?></strong>
+<?php echo __d('cake_dev', '%s could not be found.', '<em>' . h($pluginDot . $class) . '</em>'); ?>
+<?php echo $this->element('dev_error_plugin_class'); ?>
+<?php $this->end(); ?>
 
-}
-</pre>
-<p class="notice">
-	<strong><?php echo __d('cake_dev', 'Notice'); ?>: </strong>
-	<?php echo __d('cake_dev', 'If you want to customize this error message, create %s', APP_DIR . DS . 'View' . DS . 'Errors' . DS . 'missing_helper.ctp'); ?>
+<?php $this->start('file'); ?>
+<p class="error">
+	<strong><?php echo __d('cake_dev', 'Suggestion'); ?></strong>
+	<?php echo __d('cake_dev', 'Create the class %s below in file: %s', '<em>' . h($class) . '</em>', $path); ?>
 </p>
-
 <?php
-echo $this->element('exception_stack_trace');
+$code = <<<PHP
+<?php
+App::uses('AppHelper', 'View/Helper');
+
+class {$class} extends AppHelper
+{
+}
+PHP;
 ?>
+<div class="code-dump"><button type="button" class="code-copy"><?php echo __d('cake_dev', 'Copy'); ?></button><?php highlight_string($code); ?></div>
+<?php $this->end(); ?>
+<?php
+if (Configure::read('debug') > 0 && !$this->request->is('ajax')) :
+	$this->layout = 'dev_error';
+else :
+	echo $this->element('dev_error_content');
+endif;

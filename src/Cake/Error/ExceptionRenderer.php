@@ -328,7 +328,9 @@ class ExceptionRenderer
         $this->controller->helpers = ['Form', 'Html', 'Session'];
 
         $view = new View($this->controller);
-        $this->controller->response->body($view->render($template, 'error'));
+        // The layout is taken from the controller ('error'), so error templates can still
+        // switch to the 'dev_error' layout in debug mode.
+        $this->controller->response->body($view->render($template));
         $this->controller->response->type('html');
         $this->controller->response->send();
     }

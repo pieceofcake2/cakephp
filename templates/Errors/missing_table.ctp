@@ -13,17 +13,26 @@
  * @since         CakePHP(tm) v 0.10.0.1076
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
-?>
-<h2><?php echo __d('cake_dev', 'Missing Database Table'); ?></h2>
-<p class="error">
-	<strong><?php echo __d('cake_dev', 'Error'); ?>: </strong>
-	<?php echo __d('cake_dev', 'Table %1$s for model %2$s was not found in datasource %3$s.', '<em>' . h($table) . '</em>', '<em>' . h($class) . '</em>', '<em>' . h($ds) . '</em>'); ?>
-</p>
-<p class="notice">
-	<strong><?php echo __d('cake_dev', 'Notice'); ?>: </strong>
-	<?php echo __d('cake_dev', 'If you want to customize this error message, create %s', APP_DIR . DS . 'View' . DS . 'Errors' . DS . 'missing_table.ctp'); ?>
-</p>
 
-<?php
-echo $this->element('exception_stack_trace');
+$modelFile = $this->element('dev_error_file_path', array('package' => 'Model', 'plugin' => null, 'file' => $class . '.php'));
+
+$this->assign('title', __d('cake_dev', 'Missing Database Table'));
+$this->assign('templateName', 'missing_table.ctp');
+
+$this->start('subheading');
 ?>
+<strong><?php echo __d('cake_dev', 'Error'); ?></strong>
+<?php echo __d('cake_dev', 'Table %1$s for model %2$s was not found in datasource %3$s.', '<em>' . h($table) . '</em>', '<em>' . h($class) . '</em>', '<em>' . h($ds) . '</em>'); ?>
+<?php $this->end(); ?>
+
+<?php $this->start('file'); ?>
+<p>
+	<?php echo __d('cake_dev', 'Create the table, or set %1$s / %2$s in the model if it uses another table or datasource: %3$s', '<code>$useTable</code>', '<code>$useDbConfig</code>', $modelFile); ?>
+</p>
+<?php $this->end(); ?>
+<?php
+if (Configure::read('debug') > 0 && !$this->request->is('ajax')) :
+	$this->layout = 'dev_error';
+else :
+	echo $this->element('dev_error_content');
+endif;

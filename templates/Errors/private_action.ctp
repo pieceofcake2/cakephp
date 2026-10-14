@@ -13,17 +13,24 @@
  * @since         CakePHP(tm) v 0.10.0.1076
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
-?>
-<h2><?php echo __d('cake_dev', 'Private Method in %s', $controller); ?></h2>
-<p class="error">
-	<strong><?php echo __d('cake_dev', 'Error'); ?>: </strong>
-	<?php echo __d('cake_dev', '%s%s cannot be accessed directly.', '<em>' . h($controller) . '::</em>', '<em>' . h($action) . '()</em>'); ?>
-</p>
-<p class="notice">
-	<strong><?php echo __d('cake_dev', 'Notice'); ?>: </strong>
-	<?php echo __d('cake_dev', 'If you want to customize this error message, create %s', APP_DIR . DS . 'View' . DS . 'Errors' . DS . 'private_action.ctp'); ?>
-</p>
 
-<?php
-echo $this->element('exception_stack_trace');
+$this->assign('title', __d('cake_dev', 'Private Method in %s', h($controller)));
+$this->assign('templateName', 'private_action.ctp');
+
+$this->start('subheading');
 ?>
+<strong><?php echo __d('cake_dev', 'Error'); ?></strong>
+<?php echo __d('cake_dev', '%s%s cannot be accessed directly.', '<em>' . h($controller) . '::</em>', '<em>' . h($action) . '()</em>'); ?>
+<?php $this->end(); ?>
+
+<?php $this->start('file'); ?>
+<p>
+	<?php echo __d('cake_dev', 'Only public methods of %s whose names do not start with an underscore or a routing prefix can be requested as actions. Methods inherited from %s cannot be requested either.', '<em>' . h($controller) . '</em>', '<em>Controller</em>'); ?>
+</p>
+<?php $this->end(); ?>
+<?php
+if (Configure::read('debug') > 0 && !$this->request->is('ajax')) :
+	$this->layout = 'dev_error';
+else :
+	echo $this->element('dev_error_content');
+endif;

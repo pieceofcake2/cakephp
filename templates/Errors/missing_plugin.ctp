@@ -13,33 +13,45 @@
  * @since         CakePHP(tm) v 2.0
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
+
+$pluginDir = $this->element('dev_error_file_path', array('package' => 'Plugin', 'plugin' => null, 'file' => ''));
+$bootstrapFile = defined('CONFIG') ? CONFIG . 'bootstrap.php' : APP . 'Config' . DS . 'bootstrap.php';
+if (defined('ROOT') && strpos($bootstrapFile, ROOT . DS) === 0) {
+	$bootstrapFile = substr($bootstrapFile, strlen(ROOT . DS));
+}
+
+$this->assign('title', __d('cake_dev', 'Missing Plugin'));
+$this->assign('templateName', 'missing_plugin.ctp');
+
+$this->start('subheading');
 ?>
-<h2><?php echo __d('cake_dev', 'Missing Plugin'); ?></h2>
-<p class="error">
-	<strong><?php echo __d('cake_dev', 'Error'); ?>: </strong>
-	<?php echo __d('cake_dev', 'The application is trying to load a file from the %s plugin', '<em>' . h($plugin) . '</em>'); ?>
-</p>
-<p class="error">
-	<strong><?php echo __d('cake_dev', 'Error'); ?>: </strong>
-	<?php echo __d('cake_dev', 'Make sure your plugin %s is in the %s directory and was loaded', $plugin, APP_DIR . DS . 'Plugin'); ?>
-</p>
-<pre>
-&lt;?php
-CakePlugin::load('<?php echo h($plugin); ?>');
+<strong><?php echo __d('cake_dev', 'Error'); ?></strong>
+<?php echo __d('cake_dev', 'The application is trying to load a file from the %s plugin', '<em>' . h($plugin) . '</em>'); ?>
+<br>
+<br>
+<?php echo __d('cake_dev', 'Make sure your plugin %s is in the %s directory and was loaded', '<em>' . h($plugin) . '</em>', $pluginDir); ?>
+<?php $this->end(); ?>
 
-</pre>
-<p class="notice">
-	<strong><?php echo __d('cake_dev', 'Loading all plugins'); ?>: </strong>
-	<?php echo __d('cake_dev', 'If you wish to load all plugins at once, use the following line in your %s file', APP_DIR . DS . 'Config' . DS . 'bootstrap.php'); ?>
+<?php $this->start('file'); ?>
+<p class="error">
+	<strong><?php echo __d('cake_dev', 'Suggestion'); ?></strong>
+	<?php echo __d('cake_dev', 'Load the plugin in your %s file', h($bootstrapFile)); ?>
 </p>
-<pre>
-CakePlugin::loadAll();
-</pre>
-<p class="notice">
-	<strong><?php echo __d('cake_dev', 'Notice'); ?>: </strong>
-	<?php echo __d('cake_dev', 'If you want to customize this error message, create %s', APP_DIR . DS . 'View' . DS . 'Errors' . DS . 'missing_plugin.ctp'); ?>
-</p>
-
 <?php
-echo $this->element('exception_stack_trace');
+$code = <<<PHP
+<?php
+// {$bootstrapFile}
+CakePlugin::load('{$plugin}');
+
+// or, to load all plugins at once:
+CakePlugin::loadAll();
+PHP;
 ?>
+<div class="code-dump"><button type="button" class="code-copy"><?php echo __d('cake_dev', 'Copy'); ?></button><?php highlight_string($code); ?></div>
+<?php $this->end(); ?>
+<?php
+if (Configure::read('debug') > 0 && !$this->request->is('ajax')) :
+	$this->layout = 'dev_error';
+else :
+	echo $this->element('dev_error_content');
+endif;

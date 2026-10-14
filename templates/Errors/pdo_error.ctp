@@ -13,26 +13,33 @@
  * @since         CakePHP(tm) v 0.10.0.1076
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
+
+$this->assign('title', __d('cake_dev', 'Database Error'));
+$this->assign('templateName', 'pdo_error.ctp');
+
+$this->start('subheading');
 ?>
-<h2><?php echo __d('cake_dev', 'Database Error'); ?></h2>
-<p class="error">
-	<strong><?php echo __d('cake_dev', 'Error'); ?>: </strong>
-	<?php echo $message; ?>
-</p>
+<strong><?php echo __d('cake_dev', 'Error'); ?></strong>
+<?php echo $message; ?>
+<?php $this->end(); ?>
+
+<?php $this->start('file'); ?>
 <?php if (!empty($error->queryString)) : ?>
 	<p class="notice">
 		<strong><?php echo __d('cake_dev', 'SQL Query'); ?>: </strong>
-		<?php echo h($error->queryString); ?>
 	</p>
+	<pre><?php echo h($error->queryString); ?></pre>
 <?php endif; ?>
 <?php if (!empty($error->params)) : ?>
+	<p class="notice">
 		<strong><?php echo __d('cake_dev', 'SQL Query Params'); ?>: </strong>
-		<?php echo Debugger::dump($error->params); ?>
+	</p>
+	<pre><?php echo h(Debugger::exportVar($error->params)); ?></pre>
 <?php endif; ?>
-<p class="notice">
-	<strong><?php echo __d('cake_dev', 'Notice'); ?>: </strong>
-	<?php echo __d('cake_dev', 'If you want to customize this error message, create %s', APP_DIR . DS . 'View' . DS . 'Errors' . DS . 'pdo_error.ctp'); ?>
-</p>
+<?php $this->end(); ?>
 <?php
-echo $this->element('exception_stack_trace');
-?>
+if (Configure::read('debug') > 0 && !$this->request->is('ajax')) :
+	$this->layout = 'dev_error';
+else :
+	echo $this->element('dev_error_content');
+endif;

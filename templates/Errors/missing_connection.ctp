@@ -13,28 +13,31 @@
  * @since         CakePHP(tm) v 0.10.0.1076
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
+
+$this->assign('title', __d('cake_dev', 'Missing Database Connection'));
+$this->assign('templateName', 'missing_connection.ctp');
+
+$this->start('subheading');
 ?>
-<h2><?php echo __d('cake_dev', 'Missing Database Connection'); ?></h2>
+<strong><?php echo __d('cake_dev', 'Error'); ?></strong>
+<?php echo __d('cake_dev', 'A Database connection using "%s" was missing or unable to connect.', h($class)); ?>
+<?php if (isset($message)) : ?>
+	<br>
+	<?php echo __d('cake_dev', 'The database server returned this error: %s', h($message)); ?>
+<?php endif; ?>
+<?php $this->end(); ?>
+
+<?php $this->start('file'); ?>
+<?php if (isset($enabled) && !$enabled) : ?>
 <p class="error">
-	<strong><?php echo __d('cake_dev', 'Error'); ?>: </strong>
-	<?php echo __d('cake_dev', 'A Database connection using "%s" was missing or unable to connect.', h($class)); ?>
-	<br />
-	<?php
-	if (isset($message)):
-		echo __d('cake_dev', 'The database server returned this error: %s', h($message));
-	endif;
-	?>
-</p>
-<?php if (!$enabled) : ?>
-<p class="error">
-	<strong><?php echo __d('cake_dev', 'Error'); ?>: </strong>
+	<strong><?php echo __d('cake_dev', 'Error'); ?></strong>
 	<?php echo __d('cake_dev', '%s driver is NOT enabled', h($class)); ?>
 </p>
 <?php endif; ?>
-<p class="notice">
-	<strong><?php echo __d('cake_dev', 'Notice'); ?>: </strong>
-	<?php echo __d('cake_dev', 'If you want to customize this error message, create %s', APP_DIR . DS . 'View' . DS . 'Errors' . DS . basename(__FILE__)); ?>
-</p>
-
+<?php $this->end(); ?>
 <?php
-echo $this->element('exception_stack_trace');
+if (Configure::read('debug') > 0 && !$this->request->is('ajax')) :
+	$this->layout = 'dev_error';
+else :
+	echo $this->element('dev_error_content');
+endif;

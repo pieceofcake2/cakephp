@@ -13,34 +13,36 @@
  * @since         CakePHP(tm) v 0.10.0.1076
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
-?>
-<h2><?php echo __d('cake_dev', 'Missing Layout'); ?></h2>
-<p class="error">
-	<strong><?php echo __d('cake_dev', 'Error'); ?>: </strong>
-	<?php echo __d('cake_dev', 'The layout file %s can not be found or does not exist.', '<em>' . h($file) . '</em>'); ?>
-</p>
 
+$this->assign('title', __d('cake_dev', 'Missing Layout'));
+$this->assign('templateName', 'missing_layout.ctp');
+
+$this->start('subheading');
+?>
+<strong><?php echo __d('cake_dev', 'Error'); ?></strong>
+<?php echo __d('cake_dev', 'The layout file %s can not be found or does not exist.', '<em>' . h($file) . '</em>'); ?>
+<?php $this->end(); ?>
+
+<?php $this->start('file'); ?>
 <p>
 	<?php echo __d('cake_dev', 'Confirm you have created the file: %s', h($file)); ?>
-	in one of the following paths:
+	<?php echo __d('cake_dev', 'in one of the following paths:'); ?>
 </p>
 <ul>
 <?php
 	$paths = $this->_paths($this->plugin);
-	foreach ($paths as $path):
-		if (strpos($path, CORE_PATH) !== false) {
+	foreach ($paths as $path) :
+		if (strpos($path, CORE_PATH) !== false || strpos($path, CORE_ROOT . DS . 'templates' . DS) === 0) {
 			continue;
 		}
 		echo sprintf('<li>%s%s</li>', h($path), h($file));
 	endforeach;
 ?>
 </ul>
-
-<p class="notice">
-	<strong><?php echo __d('cake_dev', 'Notice'); ?>: </strong>
-	<?php echo __d('cake_dev', 'If you want to customize this error message, create %s', APP_DIR . DS . 'View' . DS . 'Errors' . DS . 'missing_layout.ctp'); ?>
-</p>
-
+<?php $this->end(); ?>
 <?php
-echo $this->element('exception_stack_trace');
-?>
+if (Configure::read('debug') > 0 && !$this->request->is('ajax')) :
+	$this->layout = 'dev_error';
+else :
+	echo $this->element('dev_error_content');
+endif;

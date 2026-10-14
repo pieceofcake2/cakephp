@@ -14,30 +14,39 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+$plugin = empty($this->request->params['plugin']) ? null : Inflector::camelize($this->request->params['plugin']);
+$path = $this->element('dev_error_file_path', array('package' => 'Controller', 'plugin' => $plugin, 'file' => $controller . '.php'));
+
+$this->assign('title', __d('cake_dev', 'Missing Method in %s', h($controller)));
+$this->assign('templateName', 'missing_action.ctp');
+
+$this->start('subheading');
 ?>
-<h2><?php echo __d('cake_dev', 'Missing Method in %s', h($controller)); ?></h2> <p class="error">
-	<strong><?php echo __d('cake_dev', 'Error'); ?>: </strong>
-	<?php echo __d('cake_dev', 'The action %1$s is not defined in controller %2$s', '<em>' . h($action) . '</em>', '<em>' . h($controller) . '</em>'); ?>
-</p>
+<strong><?php echo __d('cake_dev', 'Error'); ?></strong>
+<?php echo __d('cake_dev', 'The action %1$s is not defined in controller %2$s', '<em>' . h($action) . '</em>', '<em>' . h($controller) . '</em>'); ?>
+<?php $this->end(); ?>
+
+<?php $this->start('file'); ?>
 <p class="error">
-	<strong><?php echo __d('cake_dev', 'Error'); ?>: </strong>
-	<?php echo __d('cake_dev', 'Create %1$s%2$s in file: %3$s.', '<em>' . h($controller) . '::</em>', '<em>' . h($action) . '()</em>', APP_DIR . DS . 'Controller' . DS . h($controller) . '.php'); ?>
-</p>
-<pre>
-&lt;?php
-class <?php echo h($controller); ?> extends AppController {
-
-<strong>
-	public function <?php echo h($action); ?>() {
-
-	}
-</strong>
-}
-</pre>
-<p class="notice">
-	<strong><?php echo __d('cake_dev', 'Notice'); ?>: </strong>
-	<?php echo __d('cake_dev', 'If you want to customize this error message, create %s', APP_DIR . DS . 'View' . DS . 'Errors' . DS . 'missing_action.ctp'); ?>
+	<strong><?php echo __d('cake_dev', 'Suggestion'); ?></strong>
+	<?php echo __d('cake_dev', 'Create %1$s%2$s in file: %3$s.', '<em>' . h($controller) . '::</em>', '<em>' . h($action) . '()</em>', $path); ?>
 </p>
 <?php
-echo $this->element('exception_stack_trace');
+$code = <<<PHP
+<?php
+class {$controller} extends AppController
+{
+    public function {$action}()
+    {
+    }
+}
+PHP;
 ?>
+<div class="code-dump"><button type="button" class="code-copy"><?php echo __d('cake_dev', 'Copy'); ?></button><?php highlight_string($code); ?></div>
+<?php $this->end(); ?>
+<?php
+if (Configure::read('debug') > 0 && !$this->request->is('ajax')) :
+	$this->layout = 'dev_error';
+else :
+	echo $this->element('dev_error_content');
+endif;

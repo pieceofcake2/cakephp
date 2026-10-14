@@ -534,7 +534,7 @@ class ExceptionRendererTest extends CakeTestCase
         $ExceptionRenderer->render();
         $result = ob_get_clean();
 
-        $this->assertMatchesRegularExpression('/<h2>Missing Controller<\/h2>/', $result);
+        $this->assertMatchesRegularExpression('/<h1 class="header-title">\s*<span>Missing Controller<\/span>/', $result);
         $this->assertMatchesRegularExpression('/<em>PostsController<\/em>/', $result);
     }
 
@@ -549,7 +549,7 @@ class ExceptionRendererTest extends CakeTestCase
             [
                 new MissingActionException(['controller' => 'PostsController', 'action' => 'index']),
                 [
-                    '/<h2>Missing Method in PostsController<\/h2>/',
+                    '/<h1 class="header-title">\s*<span>Missing Method in PostsController<\/span>/',
                     '/<em>PostsController::<\/em><em>index\(\)<\/em>/',
                 ],
                 404,
@@ -557,7 +557,7 @@ class ExceptionRendererTest extends CakeTestCase
             [
                 new PrivateActionException(['controller' => 'PostsController', 'action' => '_secretSauce']),
                 [
-                    '/<h2>Private Method in PostsController<\/h2>/',
+                    '/<h1 class="header-title">\s*<span>Private Method in PostsController<\/span>/',
                     '/<em>PostsController::<\/em><em>_secretSauce\(\)<\/em>/',
                 ],
                 404,
@@ -565,7 +565,7 @@ class ExceptionRendererTest extends CakeTestCase
             [
                 new MissingTableException(['table' => 'articles', 'class' => 'Article', 'ds' => 'test']),
                 [
-                    '/<h2>Missing Database Table<\/h2>/',
+                    '/<h1 class="header-title">\s*<span>Missing Database Table<\/span>/',
                     '/Table <em>articles<\/em> for model <em>Article<\/em> was not found in datasource <em>test<\/em>/',
                 ],
                 500,
@@ -573,7 +573,7 @@ class ExceptionRendererTest extends CakeTestCase
             [
                 new MissingDatabaseException(['connection' => 'default']),
                 [
-                    '/<h2>Missing Database Connection<\/h2>/',
+                    '/<h1 class="header-title">\s*<span>Missing Database Connection<\/span>/',
                     '/Confirm you have created the file/',
                 ],
                 500,
@@ -596,7 +596,7 @@ class ExceptionRendererTest extends CakeTestCase
             [
                 new MissingConnectionException(['class' => 'Mysql']),
                 [
-                    '/<h2>Missing Database Connection<\/h2>/',
+                    '/<h1 class="header-title">\s*<span>Missing Database Connection<\/span>/',
                     '/A Database connection using "Mysql" was missing or unable to connect./',
                 ],
                 500,
@@ -604,7 +604,7 @@ class ExceptionRendererTest extends CakeTestCase
             [
                 new MissingConnectionException(['class' => 'Mysql', 'enabled' => false]),
                 [
-                    '/<h2>Missing Database Connection<\/h2>/',
+                    '/<h1 class="header-title">\s*<span>Missing Database Connection<\/span>/',
                     '/A Database connection using "Mysql" was missing or unable to connect./',
                     '/Mysql driver is NOT enabled/',
                 ],
@@ -613,7 +613,7 @@ class ExceptionRendererTest extends CakeTestCase
             [
                 new MissingDatasourceConfigException(['config' => 'default']),
                 [
-                    '/<h2>Missing Datasource Configuration<\/h2>/',
+                    '/<h1 class="header-title">\s*<span>Missing Datasource Configuration<\/span>/',
                     '/The datasource configuration <em>default<\/em> was not found in database.php/',
                 ],
                 500,
@@ -621,7 +621,7 @@ class ExceptionRendererTest extends CakeTestCase
             [
                 new MissingDatasourceException(['class' => 'MyDatasource', 'plugin' => 'MyPlugin']),
                 [
-                    '/<h2>Missing Datasource<\/h2>/',
+                    '/<h1 class="header-title">\s*<span>Missing Datasource<\/span>/',
                     '/Datasource class <em>MyPlugin.MyDatasource<\/em> could not be found/',
                 ],
                 500,
@@ -629,7 +629,7 @@ class ExceptionRendererTest extends CakeTestCase
             [
                 new MissingHelperException(['class' => 'MyCustomHelper']),
                 [
-                    '/<h2>Missing Helper<\/h2>/',
+                    '/<h1 class="header-title">\s*<span>Missing Helper<\/span>/',
                     '/<em>MyCustomHelper<\/em> could not be found./',
                     '/Create the class <em>MyCustomHelper<\/em> below in file:/',
                     '/(\/|\\\)MyCustomHelper.php/',
@@ -639,7 +639,7 @@ class ExceptionRendererTest extends CakeTestCase
             [
                 new MissingBehaviorException(['class' => 'MyCustomBehavior']),
                 [
-                    '/<h2>Missing Behavior<\/h2>/',
+                    '/<h1 class="header-title">\s*<span>Missing Behavior<\/span>/',
                     '/Create the class <em>MyCustomBehavior<\/em> below in file:/',
                     '/(\/|\\\)MyCustomBehavior.php/',
                 ],
@@ -648,7 +648,7 @@ class ExceptionRendererTest extends CakeTestCase
             [
                 new MissingComponentException(['class' => 'SideboxComponent']),
                 [
-                    '/<h2>Missing Component<\/h2>/',
+                    '/<h1 class="header-title">\s*<span>Missing Component<\/span>/',
                     '/Create the class <em>SideboxComponent<\/em> below in file:/',
                     '/(\/|\\\)SideboxComponent.php/',
                 ],
@@ -908,10 +908,10 @@ class ExceptionRendererTest extends CakeTestCase
         $ExceptionRenderer->render();
         $result = ob_get_clean();
 
-        $this->assertStringContainsString('<h2>Database Error</h2>', $result);
+        $this->assertMatchesRegularExpression('/<h1 class="header-title">\s*<span>Database Error<\/span>/', $result);
         $this->assertStringContainsString('There was an error in the SQL query', $result);
         $this->assertStringContainsString(h('SELECT * from poo_query < 5 and :seven'), $result);
-        $this->assertStringContainsString("'seven' => (int) 7", $result);
+        $this->assertStringContainsString(h("'seven' => (int) 7"), $result);
     }
 
     /**
@@ -955,5 +955,286 @@ class ExceptionRendererTest extends CakeTestCase
         $this->assertSame(404, $exception->getCode());
         $this->assertSame('Private Action PostsController::_secretSauce() is not directly accessible.', $exception->getMessage());
         $this->assertSame(['controller' => 'PostsController', 'action' => '_secretSauce'], $exception->getAttributes());
+    }
+
+    /**
+     * Renders an exception and returns the output.
+     *
+     * @param Throwable $exception The exception to render.
+     * @return string
+     */
+    protected function _render($exception)
+    {
+        $ExceptionRenderer = $this->_mockResponse(new ExceptionRenderer($exception));
+
+        ob_start();
+        $ExceptionRenderer->render();
+
+        return ob_get_clean();
+    }
+
+    /**
+     * Use only the core error templates and layouts.
+     *
+     * @return void
+     */
+    protected function _useCoreTemplates()
+    {
+        App::build([
+            'View' => [TMP . 'no_app_templates' . DS],
+        ], App::RESET);
+    }
+
+    /**
+     * Test that the core error templates use the dev_error layout in debug mode.
+     *
+     * @return void
+     */
+    public function testDevErrorLayoutInDebugMode()
+    {
+        $result = $this->_render(new MissingControllerException(['class' => 'PostsController']));
+
+        $this->assertStringContainsString('<title>Error: Missing Controller</title>', $result);
+        $this->assertMatchesRegularExpression('/<span class="header-type">MissingControllerException<\/span>/', $result);
+        $this->assertStringContainsString('<p class="error-subheading">', $result);
+        $this->assertStringContainsString('class="code-dump"', $result);
+        $this->assertStringContainsString('class="stack-frames"', $result);
+        $this->assertStringContainsString('class="toggle-vendor-frames"', $result);
+        $this->assertStringContainsString('Errors' . DS . 'missing_controller.ctp', $result);
+        $this->assertStringNotContainsString('CakePHP: the rapid development php framework', $result, 'The app layout should not be used.');
+        $this->assertStringNotContainsString('<h2>Missing Controller</h2>', $result);
+    }
+
+    /**
+     * Test that the suggested code and paths use the application layout.
+     *
+     * @return void
+     */
+    public function testDevErrorSuggestedFile()
+    {
+        $result = $this->_render(new MissingHelperException(['class' => 'MyCustomHelper']));
+        $path = substr(App::path('View/Helper')[0] . 'MyCustomHelper.php', strlen(ROOT . DS));
+        $this->assertStringContainsString('below in file: ' . h($path), $result);
+        // highlight_string() uses &nbsp; before PHP 8.3
+        $text = str_replace("\xC2\xA0", ' ', html_entity_decode(strip_tags($result), ENT_QUOTES, 'UTF-8'));
+        $this->assertStringContainsString('class MyCustomHelper extends AppHelper', $text);
+
+        $result = $this->_render(new MissingComponentException(['class' => 'SideboxComponent', 'plugin' => 'NotLoadedPlugin']));
+        $this->assertStringContainsString('<em>NotLoadedPlugin.SideboxComponent</em> could not be found.', $result);
+        $this->assertStringContainsString('Make sure your plugin <em>NotLoadedPlugin</em> is in the', $result);
+        $this->assertStringContainsString('NotLoadedPlugin' . DS . 'Controller' . DS . 'Component' . DS . 'SideboxComponent.php', $result);
+    }
+
+    /**
+     * Test that values from the exception are escaped in the dev_error pages.
+     *
+     * @return void
+     */
+    public function testDevErrorEscaping()
+    {
+        $result = $this->_render(new MissingActionException([
+            'controller' => 'PostsController',
+            'action' => '<script>alert(1)</script>',
+        ]));
+        $this->assertStringNotContainsString('<script>alert(1)</script>', $result);
+        $this->assertStringContainsString('&lt;script&gt;alert(1)&lt;/script&gt;', $result);
+    }
+
+    /**
+     * Test that previous exceptions are shown in the stack trace.
+     *
+     * @return void
+     */
+    public function testDevErrorPreviousException()
+    {
+        $this->_useCoreTemplates();
+        $previous = new InvalidArgumentException('inner <problem>');
+        $result = $this->_render(new RuntimeException('outer problem', 500, $previous));
+
+        $this->assertStringContainsString('<title>Error: outer problem</title>', $result);
+        $this->assertStringContainsString('<span class="header-type">RuntimeException</span>', $result);
+        $this->assertStringContainsString('Caused by', $result);
+        $this->assertStringContainsString('<span class="stack-exception-message">inner &lt;problem&gt;</span>', $result);
+        $this->assertStringContainsString('<span class="stack-exception-type">InvalidArgumentException</span>', $result);
+        $this->assertStringContainsString(Debugger::trimPath(__FILE__), $result);
+        $this->assertStringContainsString('<span class="code-highlight">', $result);
+    }
+
+    /**
+     * Test the core error400 and error500 templates in debug mode.
+     *
+     * @return void
+     */
+    public function testDevErrorCoreError400And500()
+    {
+        $this->_useCoreTemplates();
+
+        $result = $this->_render(new NotFoundException('Nothing to see'));
+        $this->assertStringContainsString('<title>Error: Nothing to see</title>', $result);
+        $this->assertStringContainsString('<span class="header-type">NotFoundException</span>', $result);
+        $this->assertStringContainsString('was not found on this server', $result);
+        $this->assertStringContainsString('class="stack-frames"', $result);
+
+        $result = $this->_render(new Error('Call to a member function on null'));
+        $this->assertStringContainsString('<title>Error: Call to a member function on null</title>', $result);
+        $this->assertStringContainsString('<span class="header-type">Error</span>', $result);
+        $this->assertStringContainsString('Error in', $result);
+    }
+
+    /**
+     * Test that production mode does not use the dev_error layout.
+     *
+     * @return void
+     */
+    public function testNoDevErrorLayoutInProduction()
+    {
+        Configure::write('debug', 0);
+        $this->_useCoreTemplates();
+
+        $result = $this->_render(new NotFoundException('Nothing to see'));
+        $this->assertStringContainsString('<h2>Nothing to see</h2>', $result);
+        $this->assertStringContainsString('CakePHP: the rapid development php framework', $result);
+        $this->assertStringNotContainsString('header-title', $result);
+        $this->assertStringNotContainsString('Stack Trace', $result);
+
+        $result = $this->_render(new MissingControllerException(['class' => 'PostsController']));
+        $this->assertStringContainsString('<h2>Not Found</h2>', $result);
+        $this->assertStringNotContainsString('header-title', $result);
+        $this->assertStringNotContainsString('PostsController', $result);
+
+        $result = $this->_render(new RuntimeException('Secret details'));
+        $this->assertStringContainsString('<h2>An Internal Error Has Occurred.</h2>', $result);
+        $this->assertStringNotContainsString('header-title', $result);
+        $this->assertStringNotContainsString('Secret details', $result);
+    }
+
+    /**
+     * Test that error templates of the application keep the layout of the application.
+     *
+     * @return void
+     */
+    public function testAppErrorTemplateKeepsLayout()
+    {
+        $result = $this->_render(new NotFoundException('Custom message'));
+        $this->assertStringContainsString('<h2>Custom message</h2>', $result);
+        $this->assertStringContainsString('CakePHP: the rapid development php framework', $result);
+        $this->assertStringContainsString('class="cake-stack-trace"', $result);
+        $this->assertStringNotContainsString('header-title', $result);
+    }
+
+    /**
+     * Test that a dev_error layout in the application overrides the core one.
+     *
+     * @return void
+     */
+    public function testAppDevErrorLayoutOverride()
+    {
+        $path = TMP . 'dev_error_override' . DS;
+        $Folder = new Folder($path . 'Layouts', true);
+        file_put_contents($path . 'Layouts' . DS . 'dev_error.ctp', "app dev_error layout\n<?php echo \$this->fetch('title'); ?>");
+        App::build([
+            'View' => [$path, CORE_TESTS . DS . 'test_app' . DS . 'View' . DS],
+        ], App::RESET);
+
+        try {
+            $result = $this->_render(new MissingControllerException(['class' => 'PostsController']));
+        } finally {
+            $Folder->delete($path);
+        }
+        $this->assertStringContainsString('app dev_error layout', $result);
+        $this->assertStringContainsString('Missing Controller', $result);
+        $this->assertStringNotContainsString('header-title', $result);
+    }
+
+    /**
+     * Test that a dev_error layout in the theme overrides the core one.
+     *
+     * @return void
+     */
+    public function testThemeDevErrorLayoutOverride()
+    {
+        $ExceptionRenderer = $this->_mockResponse(new ExceptionRenderer(new MissingControllerException(['class' => 'PostsController'])));
+        $ExceptionRenderer->controller->theme = 'TestTheme';
+
+        ob_start();
+        $ExceptionRenderer->render();
+        $result = ob_get_clean();
+
+        $this->assertStringContainsString('test_theme dev_error layout', $result);
+        $this->assertStringContainsString('Missing Controller', $result);
+        $this->assertStringNotContainsString('header-title', $result);
+    }
+
+    /**
+     * Test that AJAX requests keep their layout and get the error inline.
+     *
+     * @return void
+     */
+    public function testDevErrorNotUsedForAjax()
+    {
+        $_SERVER['HTTP_X_REQUESTED_WITH'] = 'XMLHttpRequest';
+        try {
+            $result = $this->_render(new MissingControllerException(['class' => 'PostsController']));
+            $this->_useCoreTemplates();
+            $error400 = $this->_render(new NotFoundException('Nothing to see'));
+        } finally {
+            unset($_SERVER['HTTP_X_REQUESTED_WITH']);
+        }
+        $this->assertStringContainsString('<h2>Missing Controller</h2>', $result);
+        $this->assertStringContainsString('<em>PostsController</em> could not be found.', $result);
+        $this->assertStringContainsString('class="cake-stack-trace"', $result);
+        $this->assertStringNotContainsString('header-title', $result);
+
+        $this->assertStringContainsString('<h2>Nothing to see</h2>', $error400);
+        $this->assertStringNotContainsString('header-title', $error400);
+    }
+
+    /**
+     * Test that the safe rendering of error pages can use the dev_error layout.
+     *
+     * @return void
+     */
+    public function testOutputMessageSafeUsesDevErrorLayout()
+    {
+        $this->_useCoreTemplates();
+        $exception = new MissingHelperException(['class' => 'Fail']);
+        $ExceptionRenderer = new ExceptionRenderer($exception);
+
+        $ExceptionRenderer->controller = $this->getMock('Controller', ['render']);
+        $ExceptionRenderer->controller->request = new CakeRequest('/', false);
+        $ExceptionRenderer->controller->expects($this->once())
+            ->method('render')
+            ->with('missingHelper')
+            ->will($this->throwException($exception));
+
+        $response = $this->getMock('CakeResponse');
+        $response->expects($this->once())
+            ->method('body')
+            ->with($this->logicalAnd(
+                $this->stringContains('<span class="header-type">MissingHelperException</span>'),
+                $this->stringContains('Helper class Fail'),
+            ));
+
+        $ExceptionRenderer->controller->response = $response;
+        $ExceptionRenderer->render();
+        $this->assertSame('error', $ExceptionRenderer->controller->layout);
+
+        Configure::write('debug', 0);
+        $ExceptionRenderer = new ExceptionRenderer(new NotFoundException('Missing'));
+        $ExceptionRenderer->controller = $this->getMock('Controller', ['render']);
+        $ExceptionRenderer->controller->request = new CakeRequest('/', false);
+        $ExceptionRenderer->controller->expects($this->once())
+            ->method('render')
+            ->will($this->throwException(new MissingHelperException(['class' => 'Fail'])));
+
+        $response = $this->getMock('CakeResponse');
+        $response->expects($this->once())
+            ->method('body')
+            ->with($this->logicalAnd(
+                $this->stringContains('An Internal Error Has Occurred.'),
+                $this->logicalNot($this->stringContains('header-title')),
+            ));
+        $ExceptionRenderer->controller->response = $response;
+        $ExceptionRenderer->render();
     }
 }

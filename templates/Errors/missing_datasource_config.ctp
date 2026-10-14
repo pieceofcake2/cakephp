@@ -13,17 +13,46 @@
  * @since         CakePHP(tm) v 2.0
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
-?>
-<h2><?php echo __d('cake_dev', 'Missing Datasource Configuration'); ?></h2>
-<p class="error">
-	<strong><?php echo __d('cake_dev', 'Error'); ?>: </strong>
-	<?php echo __d('cake_dev', 'The datasource configuration %1$s was not found in database.php.', '<em>' . h($config) . '</em>'); ?>
-</p>
-<p class="notice">
-	<strong><?php echo __d('cake_dev', 'Notice'); ?>: </strong>
-	<?php echo __d('cake_dev', 'If you want to customize this error message, create %s', APP_DIR . DS . 'View' . DS . 'Errors' . DS . 'missing_datasource_config.ctp'); ?>
-</p>
 
-<?php
-echo $this->element('exception_stack_trace');
+$configFile = defined('CONFIG') ? CONFIG . 'database.php' : APP . 'Config' . DS . 'database.php';
+if (defined('ROOT') && strpos($configFile, ROOT . DS) === 0) {
+	$configFile = substr($configFile, strlen(ROOT . DS));
+}
+
+$this->assign('title', __d('cake_dev', 'Missing Datasource Configuration'));
+$this->assign('templateName', 'missing_datasource_config.ctp');
+
+$this->start('subheading');
 ?>
+<strong><?php echo __d('cake_dev', 'Error'); ?></strong>
+<?php echo __d('cake_dev', 'The datasource configuration %1$s was not found in database.php.', '<em>' . h($config) . '</em>'); ?>
+<?php $this->end(); ?>
+
+<?php $this->start('file'); ?>
+<p class="error">
+	<strong><?php echo __d('cake_dev', 'Suggestion'); ?></strong>
+	<?php echo __d('cake_dev', 'Add the %s configuration to the %s class in file: %s', '<em>' . h($config) . '</em>', '<em>DATABASE_CONFIG</em>', h($configFile)); ?>
+</p>
+<?php
+$code = <<<PHP
+<?php
+class DATABASE_CONFIG
+{
+    public \${$config} = [
+        'datasource' => 'Database/Mysql',
+        'host' => 'localhost',
+        'login' => 'user',
+        'password' => 'password',
+        'database' => 'database_name',
+    ];
+}
+PHP;
+?>
+<div class="code-dump"><button type="button" class="code-copy"><?php echo __d('cake_dev', 'Copy'); ?></button><?php highlight_string($code); ?></div>
+<?php $this->end(); ?>
+<?php
+if (Configure::read('debug') > 0 && !$this->request->is('ajax')) :
+	$this->layout = 'dev_error';
+else :
+	echo $this->element('dev_error_content');
+endif;

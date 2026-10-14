@@ -15,20 +15,29 @@
  */
 
 $pluginDot = empty($plugin) ? null : $plugin . '.';
-?>
-<h2><?php echo __d('cake_dev', 'Missing Datasource'); ?></h2>
-<p class="error">
-	<strong><?php echo __d('cake_dev', 'Error'); ?>: </strong>
-	<?php echo __d('cake_dev', 'Datasource class %s could not be found.', '<em>' . h($pluginDot . $class) . '</em>'); ?>
-	<?php if (isset($message)): ?>
-		<?php echo h($message); ?>
-	<?php endif; ?>
-</p>
-<p class="notice">
-	<strong><?php echo __d('cake_dev', 'Notice'); ?>: </strong>
-	<?php echo __d('cake_dev', 'If you want to customize this error message, create %s', APP_DIR . DS . 'View' . DS . 'Errors' . DS . 'missing_datasource.ctp'); ?>
-</p>
+$path = $this->element('dev_error_file_path', array('package' => 'Model/Datasource', 'plugin' => $plugin ?? null, 'file' => $class . '.php'));
 
-<?php
-echo $this->element('exception_stack_trace');
+$this->assign('title', __d('cake_dev', 'Missing Datasource'));
+$this->assign('templateName', 'missing_datasource.ctp');
+
+$this->start('subheading');
 ?>
+<strong><?php echo __d('cake_dev', 'Error'); ?></strong>
+<?php echo __d('cake_dev', 'Datasource class %s could not be found.', '<em>' . h($pluginDot . $class) . '</em>'); ?>
+<?php if (isset($message)) : ?>
+	<?php echo h($message); ?>
+<?php endif; ?>
+<?php echo $this->element('dev_error_plugin_class'); ?>
+<?php $this->end(); ?>
+
+<?php $this->start('file'); ?>
+<p>
+	<?php echo __d('cake_dev', 'Check the %s setting of the datasource configuration, or create the class in file: %s', '<em>datasource</em>', '<em>' . $path . '</em>'); ?>
+</p>
+<?php $this->end(); ?>
+<?php
+if (Configure::read('debug') > 0 && !$this->request->is('ajax')) :
+	$this->layout = 'dev_error';
+else :
+	echo $this->element('dev_error_content');
+endif;
