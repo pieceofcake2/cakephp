@@ -2708,4 +2708,17 @@ class ValidationTest extends CakeTestCase
         $options = [];
         $this->assertTrue(ValidationStub::uploadedFile($file, $options), 'Wrong order');
     }
+
+    /**
+     * Test that the deep Luhn check rejects non-digit characters and accepts integers.
+     *
+     * @return void
+     */
+    public function testLuhnDeepNonDigits()
+    {
+        $this->assertFalse(Validation::luhn('4111a11111111111', true));
+        $this->assertFalse(Validation::luhn('4111-1111-1111-1111', true));
+        $this->assertTrue(Validation::luhn(4111111111111111, true));
+        $this->assertFalse(Validation::luhn(4111111111111112, true));
+    }
 }
