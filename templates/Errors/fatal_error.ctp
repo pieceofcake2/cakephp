@@ -34,7 +34,15 @@ $this->start('subheading');
 <?php
 $this->start('file');
 if (extension_loaded('xdebug')) :
-	xdebug_print_function_stack();
+	// Xdebug 3 only prints the function stack in develop mode, and triggers a warning otherwise.
+	if (function_exists('xdebug_info')) :
+		$xdebugDevelop = in_array('develop', (array)xdebug_info('mode'), true);
+	else :
+		$xdebugDevelop = version_compare((string)phpversion('xdebug'), '3.0.0', '<') || strpos((string)ini_get('xdebug.mode'), 'develop') !== false;
+	endif;
+	if ($xdebugDevelop) :
+		xdebug_print_function_stack();
+	endif;
 endif;
 $this->end();
 if (Configure::read('debug') > 0 && !$this->request->is('ajax')) :
