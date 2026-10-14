@@ -1,6 +1,9 @@
 ## CHANGELOG
 
-## Unreleased
+## v2.12.4 (2026-10-14)
+
+> [!NOTE]
+> No behavior changes. This release adds the `IntegrationTestTrait` / `EmailTrait` backport for request-level controller tests (see [UPGRADE.md](UPGRADE.md#v2124)) and fixes docblock types and flaky tests.
 
 ### Integration Testing Backport ([PR #51](https://github.com/pieceofcake2/cakephp/pull/51))
 
