@@ -453,8 +453,9 @@ class Debugger
         }
         $highlight = highlight_string($str, true);
         if ($added) {
+            // PHP 8.3+ keeps the line break as is instead of converting it to <br />.
             $highlight = str_replace(
-                '&lt;?php&nbsp;<br />',
+                ['&lt;?php&nbsp;<br />', "&lt;?php \n"],
                 '',
                 $highlight,
             );

@@ -105,6 +105,24 @@ class DebuggerTest extends CakeTestCase
     }
 
     /**
+     * Test that the PHP open tag added for highlighting is not part of the excerpt.
+     *
+     * @return void
+     */
+    public function testExcerptWithoutAddedOpenTag()
+    {
+        $line = __LINE__;
+        // Debugger::excerpt() takes a zero based line number, so this highlights the line above.
+        $result = Debugger::excerpt(__FILE__, $line - 1, 1);
+        $this->assertCount(3, $result);
+        foreach ($result as $code) {
+            $this->assertStringNotContainsString('&lt;?php', $code);
+        }
+        $this->assertStringContainsString('<span class="code-highlight">', $result[2]);
+        $this->assertStringContainsString('__LINE__', strip_tags($result[2]));
+    }
+
+    /**
      * testOutput method
      *
      * @return void
