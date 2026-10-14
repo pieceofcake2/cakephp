@@ -543,6 +543,107 @@ class SmtpTransportTest extends CakeTestCase
     }
 
     /**
+     * Test that line breaks in header names and values can not inject headers.
+     *
+     * @return void
+     */
+    public function testSendDataStripsLineBreaksFromHeaders()
+    {
+        $email = $this->getMock('CakeEmail', ['message'], [], 'SmtpCakeEmail');
+        $email->from('noreply@cakephp.org', 'CakePHP Test');
+        $email->to('cake@cakephp.org', 'CakePHP');
+        $email->messageID('<4d9946cf-0a44-4907-88fe-1d0ccbdd56cb@localhost>');
+        $email->subject('Testing SMTP');
+        $date = date(DATE_RFC2822);
+        $email->setHeaders([
+            'X-Mailer' => SmtpCakeEmail::EMAIL_CLIENT,
+            'Date' => $date,
+            'X-Crlf' => "one\r\nBcc: crlf@example.com",
+            'X-Lf' => "two\nBcc: lf@example.com",
+            'X-Cr' => "three\rBcc: cr@example.com",
+            'X-Body' => "four\r\n\r\nInjected body",
+            'X-Blank' => "five\r\n \r\nBcc: blank@example.com",
+            'X-Folded' => "six\r\n seven\n\teight",
+            "X-Name\r\nBcc: name@example.com" => 'nine',
+        ]);
+        $email->expects($this->once())->method('message')->will($this->returnValue(['First Line', '']));
+
+        $data = "From: CakePHP Test <noreply@cakephp.org>\r\n";
+        $data .= "To: CakePHP <cake@cakephp.org>\r\n";
+        $data .= "X-Mailer: CakePHP Email\r\n";
+        $data .= 'Date: ' . $date . "\r\n";
+        $data .= "X-Crlf: oneBcc: crlf@example.com\r\n";
+        $data .= "X-Lf: twoBcc: lf@example.com\r\n";
+        $data .= "X-Cr: threeBcc: cr@example.com\r\n";
+        $data .= "X-Body: fourInjected body\r\n";
+        $data .= "X-Blank: five Bcc: blank@example.com\r\n";
+        $data .= "X-Folded: six\r\n seven\r\n\teight\r\n";
+        $data .= "X-NameBcc: name@example.com: nine\r\n";
+        $data .= "Message-ID: <4d9946cf-0a44-4907-88fe-1d0ccbdd56cb@localhost>\r\n";
+        $data .= "Subject: Testing SMTP\r\n";
+        $data .= "MIME-Version: 1.0\r\n";
+        $data .= "Content-Type: text/plain; charset=UTF-8\r\n";
+        $data .= "Content-Transfer-Encoding: 8bit\r\n";
+        $data .= "\r\n";
+        $data .= "First Line\r\n";
+        $data .= "\r\n";
+        $data .= "\r\n\r\n.\r\n";
+
+        $this->socket->expects($this->exactly(2))
+            ->method('write')
+            ->withConsecutive(
+                ["DATA\r\n"],
+                [$data],
+            );
+
+        $this->socket->expects($this->exactly(2))
+            ->method('read')
+            ->willReturnOnConsecutiveCalls(
+                "354 OK\r\n",
+                "250 OK\r\n",
+            );
+
+        $this->SmtpTransport->sendData($email);
+    }
+
+    /**
+     * Test that folded (MIME encoded) header values are kept intact.
+     *
+     * @return void
+     */
+    public function testSendDataKeepsFoldedHeaders()
+    {
+        $email = $this->getMock('CakeEmail', ['message'], [], 'SmtpCakeEmail');
+        $email->from('noreply@cakephp.org', 'CakePHP Test');
+        $email->to('cake@cakephp.org', 'CakePHP');
+        $email->messageID('<4d9946cf-0a44-4907-88fe-1d0ccbdd56cb@localhost>');
+        $longNonAscii = 'Foø Bår Béz Foø Bår Béz Foø Bår Béz Foø Bår Béz';
+        $email->subject($longNonAscii);
+        $date = date(DATE_RFC2822);
+        $email->setHeaders(['Date' => $date]);
+        $email->expects($this->once())->method('message')->will($this->returnValue(['First Line', '']));
+
+        $subject = $email->subject();
+        $this->assertStringContainsString("\r\n ", $subject, 'Subject is expected to be folded.');
+
+        $this->socket->expects($this->exactly(2))
+            ->method('write')
+            ->withConsecutive(
+                ["DATA\r\n"],
+                [$this->stringContains("\r\nSubject: " . $subject . "\r\n")],
+            );
+
+        $this->socket->expects($this->exactly(2))
+            ->method('read')
+            ->willReturnOnConsecutiveCalls(
+                "354 OK\r\n",
+                "250 OK\r\n",
+            );
+
+        $this->SmtpTransport->sendData($email);
+    }
+
+    /**
      * testQuit method
      *
      * @return void

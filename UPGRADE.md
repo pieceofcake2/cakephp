@@ -15,7 +15,16 @@ Before migrating to this fork, ensure:
 4. **Upgrade PHP**: Update your PHP version to 8.0 or newer
 5. **Test Thoroughly**: Run your application's test suite to ensure compatibility
 
-## Unreleased
+## v2.12.5
+
+### Security Fixes
+
+This release fixes three vulnerabilities. Most applications only need to update.
+
+- **Email headers** ([GHSA-4f9q-3c4x-52cv](https://github.com/pieceofcake2/cakephp/security/advisories/GHSA-4f9q-3c4x-52cv)): `SmtpTransport` and `MailTransport` remove line breaks from header names and values. If you relied on putting raw line breaks in a header value to add headers, use `CakeEmail::setHeaders()` / `addHeaders()` with one entry per header instead.
+- **View, layout and element names** ([GHSA-w2mh-x92p-5p95](https://github.com/pieceofcake2/cakephp/security/advisories/GHSA-w2mh-x92p-5p95)): a name containing `..` must resolve to a file inside the view paths (`App::path('View')`, plugin and theme view paths). Files outside them are treated as missing: `element()` behaves as for a missing element, `elementExists()` returns `false`, and views and layouts throw `MissingViewException` / `MissingLayoutException`. Move templates you load from elsewhere into a view path.
+- **Login redirect** ([GHSA-x4p9-p4cx-gxwx](https://github.com/pieceofcake2/cakephp/security/advisories/GHSA-x4p9-p4cx-gxwx)): `AuthComponent::redirectUrl()` turns a protocol-relative URL stored in the session into a local path. No change is needed.
+
 
 ### Invalid ORDER BY Directions Are Deprecated ([PR #54](https://github.com/pieceofcake2/cakephp/pull/54))
 

@@ -89,4 +89,50 @@ class MailTransportTest extends CakeTestCase
         $this->assertStringContainsString('Subject: ', $result['headers']);
         $this->assertStringContainsString('To: ', $result['headers']);
     }
+
+    /**
+     * Test that bare CR and LF bytes are removed from headers.
+     *
+     * @return void
+     */
+    public function testSendStripsLineBreaksFromHeaders()
+    {
+        $email = $this->getMock('CakeEmail', ['message'], []);
+        $email->from('noreply@cakephp.org', 'CakePHP Test');
+        $email->to('cake@cakephp.org', 'CakePHP');
+        $email->messageID('<4d9946cf-0a44-4907-88fe-1d0ccbdd56cb@localhost>');
+        $email->subject('Testing');
+        $date = date(DATE_RFC2822);
+        $email->setHeaders([
+            'X-Mailer' => 'CakePHP Email',
+            'Date' => $date,
+            'X-Crlf' => "one\r\nBcc: crlf@example.com",
+            'X-Lf' => "two\nBcc: lf@example.com",
+            'X-Cr' => "three\rBcc: cr@example.com",
+        ]);
+        $email->expects($this->any())->method('message')
+            ->will($this->returnValue(['First Line', '']));
+
+        $data = 'From: CakePHP Test <noreply@cakephp.org>' . "\r\n";
+        $data .= 'X-Mailer: CakePHP Email' . "\r\n";
+        $data .= 'Date: ' . $date . "\r\n";
+        $data .= 'X-Crlf: oneBcc: crlf@example.com' . "\r\n";
+        $data .= 'X-Lf: twoBcc: lf@example.com' . "\r\n";
+        $data .= 'X-Cr: threeBcc: cr@example.com' . "\r\n";
+        $data .= 'Message-ID: <4d9946cf-0a44-4907-88fe-1d0ccbdd56cb@localhost>' . "\r\n";
+        $data .= 'MIME-Version: 1.0' . "\r\n";
+        $data .= 'Content-Type: text/plain; charset=UTF-8' . "\r\n";
+        $data .= 'Content-Transfer-Encoding: 8bit';
+
+        $this->MailTransport->expects($this->once())->method('_mail')
+            ->with(
+                'CakePHP <cake@cakephp.org>',
+                'Testing',
+                implode("\r\n", ['First Line', '']),
+                $data,
+                '-f',
+            );
+
+        $this->MailTransport->send($email);
+    }
 }

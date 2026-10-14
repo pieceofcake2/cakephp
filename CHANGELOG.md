@@ -1,6 +1,21 @@
 ## CHANGELOG
 
-## Unreleased
+## v2.12.5 (2026-10-15)
+
+> [!IMPORTANT]
+> This release fixes three security vulnerabilities. Upgrade as soon as possible. See [UPGRADE.md](UPGRADE.md#v2125):
+> - Email header injection in `SmtpTransport` / `MailTransport` ([GHSA-4f9q-3c4x-52cv](https://github.com/pieceofcake2/cakephp/security/advisories/GHSA-4f9q-3c4x-52cv))
+> - Path traversal in view, layout and element names ([GHSA-w2mh-x92p-5p95](https://github.com/pieceofcake2/cakephp/security/advisories/GHSA-w2mh-x92p-5p95))
+> - Open redirect after login in `AuthComponent` ([GHSA-x4p9-p4cx-gxwx](https://github.com/pieceofcake2/cakephp/security/advisories/GHSA-x4p9-p4cx-gxwx))
+>
+> Invalid `ORDER BY` directions now trigger an `E_USER_DEPRECATED` error; the generated SQL is unchanged.
+
+### Security Fixes
+
+- **SmtpTransport** / **MailTransport**: Strip CR and LF from email header names and values (folded header lines are kept), so header values built from user input can no longer inject headers or start the body ([GHSA-4f9q-3c4x-52cv](https://github.com/pieceofcake2/cakephp/security/advisories/GHSA-4f9q-3c4x-52cv), the CakePHP 2 equivalent of CVE-2026-77634)
+- **View**: View, layout and element file names containing `..` must resolve inside the view paths; files outside them are treated as missing ([GHSA-w2mh-x92p-5p95](https://github.com/pieceofcake2/cakephp/security/advisories/GHSA-w2mh-x92p-5p95), the CakePHP 2 equivalent of CVE-2026-48820)
+- **AuthComponent**: `redirectUrl()` collapses protocol-relative URLs (`//host`, `/\host`, `\\host`) stored in `Auth.redirect` to a local path, so a crafted request URL can no longer redirect to another site after login ([GHSA-x4p9-p4cx-gxwx](https://github.com/pieceofcake2/cakephp/security/advisories/GHSA-x4p9-p4cx-gxwx))
+
 
 ### Deprecation: invalid ORDER BY directions ([PR #54](https://github.com/pieceofcake2/cakephp/pull/54))
 
