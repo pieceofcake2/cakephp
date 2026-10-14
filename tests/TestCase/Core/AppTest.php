@@ -683,6 +683,9 @@ class AppTest extends CakeTestCase
 
         $file = App::import('File', 'AnotherNewName', false, [CAKE], 'config.php');
         $this->assertFalse($file);
+
+        $file = App::import('File', 'SecondPathName', false, [CAKE, CORE_ROOT . DS . 'config' . DS], 'config.php');
+        $this->assertTrue($file, 'The file should be found in a search path other than the first one.');
     }
 
     /**

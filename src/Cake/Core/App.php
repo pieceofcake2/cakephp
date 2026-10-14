@@ -733,16 +733,16 @@ class App
         if ($mapped) {
             $file = $mapped;
         } elseif (!empty($search)) {
+            $found = false;
             foreach ($search as $path) {
-                $found = false;
                 if (file_exists($path . $file)) {
                     $file = $path . $file;
                     $found = true;
                     break;
                 }
-                if (empty($found)) {
-                    $file = false;
-                }
+            }
+            if (!$found) {
+                $file = false;
             }
         }
         if (!empty($file) && file_exists($file)) {
