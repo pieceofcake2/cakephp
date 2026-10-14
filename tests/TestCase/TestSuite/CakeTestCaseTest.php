@@ -17,6 +17,9 @@
  * @since         CakePHP v 1.2.0.4487
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
+
+use PHPUnit\Framework\AssertionFailedError;
+
 /**
  * Secondary Post stub class.
  */
@@ -531,5 +534,26 @@ class CakeTestCaseTest extends CakeTestCase
         $this->expectException(MissingModelException::class);
         $this->expectExceptionMessage('Model IDoNotExist could not be found');
         $this->getMockForModel('IDoNotExist');
+    }
+
+    /**
+     * Test that assertTags() outputs the remaining string and the expectations when
+     * $fullDebug is enabled and the assertion fails.
+     *
+     * @return void
+     */
+    public function testAssertTagsFullDebug()
+    {
+        $failed = false;
+        ob_start();
+        try {
+            $this->assertTags('<p>unexpected-content</p>', ['div' => true], true);
+        } catch (AssertionFailedError $e) {
+            $failed = true;
+        }
+        $output = ob_get_clean();
+
+        $this->assertTrue($failed);
+        $this->assertStringContainsString('unexpected-content', $output);
     }
 }

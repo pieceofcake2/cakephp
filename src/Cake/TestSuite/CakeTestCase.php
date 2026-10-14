@@ -514,17 +514,15 @@ abstract class CakeTestCase extends TestCase
                 }
             }
             if (!$matches) {
-                $this->assertTrue(false, sprintf('Item #%d / regex #%d failed: %s', $itemNum, $i, $description));
                 if ($fullDebug) {
                     debug($string, true);
                     debug($regex, true);
                 }
-
-                return false;
+                $this->fail(sprintf('Item #%d / regex #%d failed: %s', $itemNum, $i, $description));
             }
         }
 
-        $this->assertTrue(true, '%s');
+        $this->addToAssertionCount(1);
 
         return true;
     }
@@ -554,7 +552,7 @@ abstract class CakeTestCase extends TestCase
                 }
             }
             if ($matches === false) {
-                $this->assertTrue(false, 'Attribute did not match. Was expecting ' . $explains[$j]);
+                $this->fail('Attribute did not match. Was expecting ' . $explains[$j]);
             }
             $len = count($asserts);
         } while ($len > 0);
