@@ -46,6 +46,10 @@ App::uses('AppHelper', 'View/Helper');
  * @property      TextHelper $Text
  * @property      TimeHelper $Time
  * @property      ViewBlock $Blocks
+ * @property-read string $action The current action name, read from the request through __get()
+ * @property string $__viewFile Path of the view file being evaluated by _evaluate()
+ * @property string $output Deprecated, use View::fetch('content') and View::assign('content', ...) instead
+ * @property string|false $modelScope Unused, reset by FormHelper::end()
  */
 class View extends CakeObject
 {
@@ -422,6 +426,8 @@ class View extends CakeObject
             $file = $plugin . 'Elements' . DS . $name . $this->ext;
             trigger_error(__d('cake_dev', 'Element Not Found: %s', $file), E_USER_NOTICE);
         }
+
+        return null;
     }
 
     /**
@@ -584,6 +590,8 @@ class View extends CakeObject
 
             return substr($out, strlen($match[0]));
         }
+
+        return null;
     }
 
     /**
@@ -897,13 +905,14 @@ class View extends CakeObject
      *
      * @param string $name Name of the attribute to set.
      * @param mixed $value Value of the attribute to set.
-     * @return mixed
+     * @return void
      */
     public function __set($name, $value)
     {
         switch ($name) {
             case 'output':
-                return $this->Blocks->set('content', $value);
+                $this->Blocks->set('content', $value);
+                break;
             default:
                 $this->{$name} = $value;
         }

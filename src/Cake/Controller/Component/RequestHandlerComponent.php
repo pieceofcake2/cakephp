@@ -299,6 +299,8 @@ class RequestHandlerComponent extends Component
         if ($this->settings['checkHttpCache'] && $this->response->checkNotModified($this->request)) {
             return false;
         }
+
+        return null;
     }
 
     /**

@@ -131,6 +131,7 @@ class ClassRegistry
         }
         $count = count($objects);
         $availableDs = null;
+        $instance = null;
 
         foreach ($objects as $settings) {
             if (is_numeric($settings)) {
@@ -386,6 +387,8 @@ class ClassRegistry
         if (isset($this->_map[$key])) {
             return $this->_map[$key];
         }
+
+        return null;
     }
 
     /**

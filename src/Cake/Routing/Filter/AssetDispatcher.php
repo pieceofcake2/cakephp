@@ -108,6 +108,8 @@ class AssetDispatcher extends DispatcherFilter
 
             return $response;
         }
+
+        return null;
     }
 
     /**
@@ -136,6 +138,8 @@ class AssetDispatcher extends DispatcherFilter
 
             return $pluginWebroot . $fileFragment;
         }
+
+        return null;
     }
 
     /**

@@ -189,7 +189,7 @@ class CakeNumber
      * Formats a number into a currency format.
      *
      * @param float $value A floating point number
-     * @param int $options If integer then places, if string then before, if (,.-) then use it
+     * @param array|string|int|false $options If integer then places, if string then before, if (,.-) then use it
      *   or array with places and before keys
      * @return string formatted number
      * @link https://book.cakephp.org/2.0/en/core-libraries/helpers/number.html#NumberHelper::format

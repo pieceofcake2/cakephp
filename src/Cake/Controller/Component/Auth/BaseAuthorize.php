@@ -62,7 +62,7 @@ abstract class BaseAuthorize
      * Constructor
      *
      * @param ComponentCollection $collection The controller for this request.
-     * @param string $settings An array of settings. This class does not use any settings.
+     * @param array $settings An array of settings. This class does not use any settings.
      */
     public function __construct(ComponentCollection $collection, $settings = [])
     {

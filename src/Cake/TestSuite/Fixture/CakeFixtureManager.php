@@ -235,7 +235,7 @@ class CakeFixtureManager
             return;
         }
         $fixtures = $test->fixtures;
-        if (empty($fixtures) || !$test->autoFixtures) {
+        if (!$test->autoFixtures) {
             return;
         }
 

@@ -567,6 +567,8 @@ class ConsoleOptionParser
         } elseif ($format === 'xml') {
             return $formatter->xml();
         }
+
+        return null;
     }
 
     /**
@@ -694,6 +696,8 @@ class ConsoleOptionParser
 
             return $args;
         }
+
+        return null;
     }
 
     /**

@@ -253,7 +253,7 @@ abstract class CakeBaseReporter implements ResultPrinter
     /**
      * A test ended.
      *
-     * @param \PHPUnit\Framework\Test $test The test that ended
+     * @param \PHPUnit\Framework\TestCase $test The test that ended
      * @param float $time The current time.
      * @return void
      */

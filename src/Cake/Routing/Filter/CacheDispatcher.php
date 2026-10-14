@@ -68,5 +68,7 @@ class CacheDispatcher extends DispatcherFilter
                 return $event->data['response'];
             }
         }
+
+        return null;
     }
 }

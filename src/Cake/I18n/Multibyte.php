@@ -261,12 +261,7 @@ class Multibyte
             $char = $utf8Map[$i];
 
             if ($char < 128) {
-                $str = strtolower(chr($char));
-                $strlen = strlen($str);
-                for ($ii = 0; $ii < $strlen; $ii++) {
-                    $lower = ord(substr($str, $ii, 1));
-                }
-                $lowerCase[] = $lower;
+                $lowerCase[] = ord(strtolower(chr($char)));
                 $matched = true;
             } else {
                 $matched = false;
@@ -308,12 +303,7 @@ class Multibyte
             $char = $utf8Map[$i];
 
             if ($char < 128) {
-                $str = strtoupper(chr($char));
-                $strlen = strlen($str);
-                for ($ii = 0; $ii < $strlen; $ii++) {
-                    $upper = ord(substr($str, $ii, 1));
-                }
-                $upperCase[] = $upper;
+                $upperCase[] = ord(strtoupper(chr($char)));
                 $matched = true;
             } else {
                 $matched = false;

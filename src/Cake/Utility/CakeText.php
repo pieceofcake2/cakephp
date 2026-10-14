@@ -409,7 +409,7 @@ class CakeText
             'regex' => '|%s|iu',
         ];
         $options += $defaults;
-        extract($options);
+        ['format' => $format, 'html' => $html] = $options;
 
         if (is_array($phrase)) {
             $replace = [];
@@ -470,7 +470,7 @@ class CakeText
             'ellipsis' => '...', 'exact' => true,
         ];
         $options += $defaults;
-        extract($options);
+        ['ellipsis' => $ellipsis, 'exact' => $exact] = $options;
 
         if (mb_strlen($text) <= $length) {
             return $text;
@@ -514,7 +514,7 @@ class CakeText
             $defaults['ellipsis'] = "\xe2\x80\xa6";
         }
         $options += $defaults;
-        extract($options);
+        ['ellipsis' => $ellipsis, 'exact' => $exact, 'html' => $html] = $options;
 
         if ($html) {
             if (mb_strlen(preg_replace('/<.*?>/', '', $text)) <= $length) {

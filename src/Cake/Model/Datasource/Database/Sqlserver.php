@@ -622,7 +622,16 @@ class Sqlserver extends DboSource
     {
         switch (strtolower($type)) {
             case 'select':
-                extract($data);
+                $table = $data['table'] ?? null;
+                $alias = $data['alias'] ?? null;
+                $fields = $data['fields'] ?? null;
+                $joins = $data['joins'] ?? null;
+                $conditions = $data['conditions'] ?? null;
+                $group = $data['group'] ?? null;
+                $having = $data['having'] ?? null;
+                $order = $data['order'] ?? null;
+                $limit = $data['limit'] ?? null;
+                $lock = $data['lock'] ?? null;
                 $fields = trim($fields);
 
                 $having = !empty($having) ? " $having" : '';
@@ -663,7 +672,9 @@ class Sqlserver extends DboSource
 
                 return trim("SELECT {$limit} {$fields} FROM {$table} {$alias}{$lock} {$joins} {$conditions} {$group}{$having} {$order}");
             case 'schema':
-                extract($data);
+                $table = $data['table'] ?? null;
+                $columns = $data['columns'] ?? null;
+                $indexes = $data['indexes'] ?? null;
 
                 foreach ($indexes as $i => $index) {
                     if (preg_match('/PRIMARY KEY/', $index)) {

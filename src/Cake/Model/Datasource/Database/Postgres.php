@@ -1036,7 +1036,9 @@ class Postgres extends DboSource
     {
         switch (strtolower($type)) {
             case 'schema':
-                extract($data);
+                $table = $data['table'] ?? null;
+                $columns = $data['columns'] ?? null;
+                $indexes = $data['indexes'] ?? null;
 
                 foreach ($indexes as $i => $index) {
                     if (preg_match('/PRIMARY KEY/', $index)) {

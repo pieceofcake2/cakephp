@@ -28,6 +28,8 @@
  *
  * @package       Cake.Model
  * @link          https://book.cakephp.org/2.0/en/models.html
+ * @property string|array|null $locale Locale(s) used by TranslateBehavior
+ * @method array|string|int|null parentNode(string $type) Implemented by models using AclBehavior, returns the parent node
  */
 #[AllowDynamicProperties]
 class Model extends CakeObject implements CakeEventListener
@@ -694,14 +696,18 @@ class Model extends CakeObject implements CakeEventListener
     {
         parent::__construct();
 
+        $plugin = $name = $alias = null;
         if (is_array($id)) {
-            extract(array_merge(
+            [
+                'id' => $id, 'table' => $table, 'ds' => $ds,
+                'name' => $name, 'alias' => $alias, 'plugin' => $plugin,
+            ] = array_merge(
                 [
                     'id' => $this->id, 'table' => $this->useTable, 'ds' => $this->useDbConfig,
                     'name' => $this->name, 'alias' => $this->alias, 'plugin' => $this->plugin,
                 ],
                 $id,
-            ));
+            );
         }
 
         if ($this->plugin === null) {
@@ -834,6 +840,7 @@ class Model extends CakeObject implements CakeEventListener
     public function __isset($name)
     {
         $className = false;
+        $assocKey = null;
 
         foreach ($this->_associations as $type) {
             if (isset($name, $this->{$type}[$name])) {
@@ -1079,14 +1086,15 @@ class Model extends CakeObject implements CakeEventListener
             }
 
             $model = ['class' => $plugin . $className, 'alias' => $assoc];
-            $this->{$assoc} = ClassRegistry::init($model);
+            $AssocModel = ClassRegistry::init($model);
+            $this->{$assoc} = $AssocModel;
 
-            if ($plugin) {
-                ClassRegistry::addObject($plugin . $className, $this->{$assoc});
+            if ($plugin && is_object($AssocModel)) {
+                ClassRegistry::addObject($plugin . $className, $AssocModel);
             }
 
-            if ($assoc) {
-                $this->tableToModel[$this->{$assoc}->table] = $assoc;
+            if ($assoc && is_object($AssocModel)) {
+                $this->tableToModel[$AssocModel->table] = $assoc;
             }
         }
     }
@@ -1695,6 +1703,8 @@ class Model extends CakeObject implements CakeEventListener
         if (isset($data[0]) && count($data[0]) > 0) {
             return array_shift($data[0]);
         }
+
+        return null;
     }
 
     /**
@@ -2370,6 +2380,7 @@ class Model extends CakeObject implements CakeEventListener
 
         try {
             $return = [];
+            $validates = false;
             foreach ($data as $key => $record) {
                 $validates = $this->create(null) !== null;
                 $saved = false;
@@ -3110,6 +3121,8 @@ class Model extends CakeObject implements CakeEventListener
         if ($this->findMethods[$type] === true) {
             return $this->{'_find' . ucfirst($type)}('after', $query, $results);
         }
+
+        return null;
     }
 
     /**
@@ -3335,7 +3348,9 @@ class Model extends CakeObject implements CakeEventListener
      */
     protected function _findNeighbors($state, $query, $results = [])
     {
-        extract($query);
+        $conditions = $query['conditions'] ?? null;
+        $field = $query['field'] ?? null;
+        $value = $query['value'] ?? null;
 
         if ($state === 'before') {
             $conditions = (array)$conditions;
@@ -3852,6 +3867,8 @@ class Model extends CakeObject implements CakeEventListener
             __d('cake_dev', 'Invalid join model settings in %s. The association parameter has the wrong type, expecting a string or array, but was passed type: %s', $this->alias, gettype($assoc)),
             E_USER_WARNING,
         );
+
+        return null;
     }
 
     /**

@@ -23,6 +23,7 @@ use PHPUnit\Framework\TestCase;
  * CakeTestCase class
  *
  * @package       Cake.TestSuite
+ * @property DataSource|null $db The default test datasource, set by CakeFixtureManager::fixturize()
  */
 #[\AllowDynamicProperties]
 abstract class CakeTestCase extends TestCase
@@ -392,7 +393,7 @@ abstract class CakeTestCase extends TestCase
      *
      * @param string $string An HTML/XHTML/XML string
      * @param array $expected An array, see above
-     * @param string $fullDebug Whether or not more verbose output should be used.
+     * @param bool $fullDebug Whether or not more verbose output should be used.
      * @return bool
      */
     public function assertTags($string, $expected, $fullDebug = false)
@@ -540,6 +541,7 @@ abstract class CakeTestCase extends TestCase
         $asserts = $assertions['attrs'];
         $explains = $assertions['explains'];
         $len = count($asserts);
+        $j = 0;
         do {
             $matches = false;
             foreach ($asserts as $j => $assert) {

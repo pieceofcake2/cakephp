@@ -72,7 +72,7 @@ class TimeHelper extends AppHelper
     {
         switch ($name) {
             case 'niceFormat':
-                $this->_engine->{$name} = $value;
+                $this->_engine->__set($name, $value);
                 break;
             default:
                 $this->{$name} = $value;
@@ -111,7 +111,7 @@ class TimeHelper extends AppHelper
         }
         $magicGet = ['niceFormat'];
         if (in_array($name, $magicGet)) {
-            return $this->_engine->{$name};
+            return $this->_engine->__get($name);
         }
 
         return null;

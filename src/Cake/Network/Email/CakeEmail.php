@@ -1331,13 +1331,12 @@ class CakeEmail
      * @param array|string $message String with message or array with variables to be used in render
      * @param array|string $transportConfig String to use config from EmailConfig or array with configs
      * @param bool $send Send the email or just return the instance pre-configured
-     * @return self Instance of CakeEmail
+     * @return static Instance of CakeEmail
      * @throws SocketException
      */
     public static function deliver($to = null, $subject = null, $message = null, $transportConfig = 'fast', $send = true)
     {
         $class = static::class;
-        /** @var CakeEmail $instance */
         $instance = new $class($transportConfig);
         if ($to !== null) {
             $instance->to($to);

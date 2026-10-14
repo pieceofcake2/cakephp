@@ -329,6 +329,8 @@ class CakeTestFixture
 
             return true;
         }
+
+        return null;
     }
 
     /**

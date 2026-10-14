@@ -103,6 +103,8 @@ class XmlView extends View
         if ($view !== false && $this->_getViewFileName($view)) {
             return parent::render($view, false);
         }
+
+        return null;
     }
 
     /**

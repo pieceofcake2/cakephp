@@ -151,7 +151,7 @@ class Sqlite extends DboSource
 
         $result = $this->fetchAll("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name;", false);
 
-        if (!$result || empty($result)) {
+        if (!$result) {
             return [];
         }
 
@@ -436,9 +436,9 @@ class Sqlite extends DboSource
      */
     public function buildColumn($column)
     {
-        $name = $type = null;
         $column += ['null' => true];
-        extract($column);
+        $name = $column['name'] ?? null;
+        $type = $column['type'] ?? null;
 
         if (empty($name) || empty($type)) {
             trigger_error(__d('cake_dev', 'Column name or type not defined in schema'), E_USER_WARNING);
@@ -586,7 +586,9 @@ class Sqlite extends DboSource
     {
         switch (strtolower($type)) {
             case 'schema':
-                extract($data);
+                $table = $data['table'] ?? null;
+                $columns = $data['columns'] ?? null;
+                $indexes = $data['indexes'] ?? null;
                 if (is_array($columns)) {
                     $columns = "\t" . implode(",\n\t", array_filter($columns));
                 }
@@ -613,7 +615,7 @@ class Sqlite extends DboSource
     /**
      * Generate a "drop table" statement for the given table
      *
-     * @param type $table Name of the table to drop
+     * @param string $table Name of the table to drop
      * @return string Drop table SQL statement
      */
     protected function _dropTable($table)

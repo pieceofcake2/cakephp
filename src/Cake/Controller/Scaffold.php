@@ -392,6 +392,8 @@ class Scaffold
             return $this->controller->redirect($this->redirect);
         }
         $this->controller->flash($message, $this->redirect);
+
+        return null;
     }
 
     /**

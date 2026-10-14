@@ -335,6 +335,8 @@ class Hash
                 $_list =& $_list[$key];
             }
         }
+
+        return null;
     }
 
     /**
@@ -439,6 +441,7 @@ class Hash
         if ($groupPath !== null) {
             $group = static::extract($data, $groupPath);
             if (!empty($group)) {
+                $out = [];
                 $c = count($keys);
                 for ($i = 0; $i < $c; $i++) {
                     if (!isset($group[$i])) {
@@ -452,9 +455,6 @@ class Hash
 
                 return $out;
             }
-        }
-        if (empty($vals)) {
-            return [];
         }
 
         return array_combine($keys, $vals);

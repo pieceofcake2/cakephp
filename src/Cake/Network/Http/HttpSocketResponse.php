@@ -290,6 +290,7 @@ class HttpSocketResponse implements ArrayAccess
         $lines = explode("\r\n", $header);
 
         $header = [];
+        $field = $value = null;
         foreach ($lines as $line) {
             if (strlen($line) === 0) {
                 continue;

@@ -125,7 +125,7 @@ class NumberHelper extends AppHelper
      * Formats a number into a currency format.
      *
      * @param float $number A floating point number
-     * @param int $options If integer then places, if string then before, if (,.-) then use it
+     * @param array|string|int|false $options If integer then places, if string then before, if (,.-) then use it
      *   or array with places and before keys
      * @return string formatted number
      * @see CakeNumber::format()
@@ -174,7 +174,7 @@ class NumberHelper extends AppHelper
      */
     public function addFormat($formatName, $options)
     {
-        return $this->_engine->addFormat($formatName, $options);
+        $this->_engine->addFormat($formatName, $options);
     }
 
     /**

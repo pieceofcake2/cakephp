@@ -64,6 +64,7 @@
  *
  * @package       Cake.Controller.Component
  * @link https://book.cakephp.org/2.0/en/core-libraries/components/pagination.html
+ * @property Controller $Controller The controller the component is attached to, set in the constructor
  */
 class PaginatorComponent extends Component
 {

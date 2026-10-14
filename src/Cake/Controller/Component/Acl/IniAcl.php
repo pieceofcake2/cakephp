@@ -58,6 +58,7 @@ class IniAcl extends CakeObject implements AclInterface
      */
     public function allow($aro, $aco, $action = '*')
     {
+        return null;
     }
 
     /**
@@ -70,6 +71,7 @@ class IniAcl extends CakeObject implements AclInterface
      */
     public function deny($aro, $aco, $action = '*')
     {
+        return null;
     }
 
     /**
@@ -82,6 +84,7 @@ class IniAcl extends CakeObject implements AclInterface
      */
     public function inherit($aro, $aco, $action = '*')
     {
+        return null;
     }
 
     /**

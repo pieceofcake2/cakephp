@@ -121,16 +121,18 @@ class PhpAcl extends CakeObject implements AclInterface
     }
 
     /**
-     * No op method, allow cannot be done with PhpAcl
+     * Allow ARO access to ACO. The change is only applied to the in-memory permission tree.
      *
      * @param string $aro ARO The requesting object identifier.
      * @param string $aco ACO The controlled object identifier.
      * @param string $action Action (defaults to *)
-     * @return bool Success
+     * @return null PhpAcl does not report success
      */
     public function allow($aro, $aco, $action = '*')
     {
-        return $this->Aco->access($this->Aro->resolve($aro), $aco, $action, 'allow');
+        $this->Aco->access($this->Aro->resolve($aro), $aco, $action, 'allow');
+
+        return null;
     }
 
     /**
@@ -139,11 +141,13 @@ class PhpAcl extends CakeObject implements AclInterface
      * @param string $aro ARO The requesting object identifier.
      * @param string $aco ACO The controlled object identifier.
      * @param string $action Action (defaults to *)
-     * @return bool Success
+     * @return null PhpAcl does not report success
      */
     public function deny($aro, $aco, $action = '*')
     {
-        return $this->Aco->access($this->Aro->resolve($aro), $aco, $action, 'deny');
+        $this->Aco->access($this->Aro->resolve($aro), $aco, $action, 'deny');
+
+        return null;
     }
 
     /**

@@ -21,9 +21,26 @@
  *
  * DataSources are the link between models and the source of data that models represent.
  *
+ * The magic members documented below are not part of the base class. They are implemented by DboSource
+ * and are called by Model, behaviors and shells on the datasource returned by Model::getDataSource(),
+ * so custom datasources have to implement them to support the corresponding features.
+ *
  * @link          https://book.cakephp.org/2.0/en/models/datasources.html#basic-api-for-datasources
  * @package       Cake.Model.Datasource
- * @method string value(mixed $data, string|null $column = null) Quotes a value for use in a query, implemented by DboSource. Used by insertQueryData().
+ * @property string $alias The SQL alias keyword, e.g. "AS "
+ * @property array $columns Database-specific column type definitions
+ * @property string|null $configKeyName The name of the connection configuration, set by ConnectionManager
+ * @method string value(mixed $data, string|null $column = null) Quotes a value for use in a query. Used by insertQueryData().
+ * @method array|string name(mixed $data) Quotes database identifiers
+ * @method stdClass identifier(string $identifier) Returns an object representing a database identifier
+ * @method string|null calculate(Model $Model, string $func, array $params = []) Returns an SQL calculation, i.e. COUNT() or MAX()
+ * @method mixed query(mixed ...$args) Executes an SQL query or a magic findBy call
+ * @method mixed execute(string $sql, array $options = [], array $params = []) Executes an SQL statement
+ * @method array index(Model|string $model) Returns the indexes of a table
+ * @method array readTableParameters(string $name) Returns the table parameters of a table
+ * @method string createSchema(CakeSchema $schema, string|null $tableName = null) Generates the SQL to create the schema
+ * @method string dropSchema(CakeSchema $schema, string|null $table = null) Generates the SQL to drop the schema
+ * @method string|false alterSchema(mixed $compare, string|null $table = null) Generates the SQL to alter the schema
  */
 class DataSource extends CakeObject
 {

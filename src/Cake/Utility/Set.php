@@ -157,7 +157,7 @@ class Set
                 } elseif (is_array($value)) {
                     if ($primary === true) {
                         // @codingStandardsIgnoreStart Legacy junk
-                        if (!isset($out->_name_)) {
+                        if (is_object($out) && !isset($out->_name_)) {
                             $out->_name_ = $key;
                         }
                         // @codingStandardsIgnoreEnd
@@ -250,7 +250,7 @@ class Set
         }
 
         for ($i = 0; $i < $count; $i++) {
-            $extracted[] = Set::extract($data, $keys[$i]);
+            $extracted[$i] = Set::extract($data, $keys[$i]);
         }
         $out = [];
         $data = $extracted;
@@ -849,6 +849,7 @@ class Set
             return [];
         }
 
+        $vals = [];
         if (!empty($path2) && is_array($path2)) {
             $format = array_shift($path2);
             $vals = Set::format($data, $format, $path2);
@@ -864,6 +865,7 @@ class Set
         if ($groupPath) {
             $group = Set::extract($data, $groupPath);
             if (!empty($group)) {
+                $out = [];
                 $c = count($keys);
                 for ($i = 0; $i < $c; $i++) {
                     if (!isset($group[$i])) {
@@ -1141,7 +1143,7 @@ class Set
      *
      * @param array $input an array
      * @param array|string $path string or array of array keys
-     * @return the value at the specified position or null if it doesn't exist
+     * @return mixed The value at the specified position or null if it doesn't exist
      */
     public static function get($input, $path = null)
     {

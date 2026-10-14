@@ -22,6 +22,7 @@
  * Creates DBO-descendant objects from a given db connection configuration
  *
  * @package       Cake.Model.Datasource
+ * @property array $columns Database-specific column type definitions, declared by each driver
  */
 class DboSource extends DataSource
 {
@@ -149,7 +150,7 @@ class DboSource extends DataSource
     /**
      * A reference to the physical connection of this DataSource
      *
-     * @var array
+     * @var PDO|null
      */
     protected $_connection = null;
 
@@ -816,7 +817,7 @@ class DboSource extends DataSource
 
                 $Model = ClassRegistry::getObject($alias);
 
-                if ($Model->isVirtualField($virtual)) {
+                if ($Model && $Model->isVirtualField($virtual)) {
                     $result[$alias][$virtual] = $value;
                     unset($result[0][$field]);
                 }
@@ -1091,7 +1092,7 @@ class DboSource extends DataSource
         }
         if (PHP_SAPI !== 'cli') {
             $controller = null;
-            $View = new View($controller, false);
+            $View = new View($controller);
             $View->set('sqlLogs', [$this->configKeyName => $log]);
             echo $View->element('sql_dump', ['_forced_from_dbo_' => true]);
         } else {
@@ -1181,6 +1182,7 @@ class DboSource extends DataSource
     public function create(Model $Model, $fields = null, $values = null)
     {
         $id = null;
+        $valueInsert = $fieldInsert = [];
 
         if (!$fields) {
             unset($fields, $values);
@@ -1464,6 +1466,8 @@ class DboSource extends DataSource
             throw new CakeException(__d('cake_dev', 'Error in Model %s', $Model::class));
         }
 
+        $with = $foreignKey = $habtmFieldsCount = null;
+        $prefetched = false;
         if ($type === 'hasMany' && empty($assocData['limit']) && !empty($assocData['foreignKey'])) {
             // 'hasMany' associations with no limit set.
 
@@ -1765,7 +1769,7 @@ class DboSource extends DataSource
                     }
                 } else {
                     if (is_array($merge[0][$association])) {
-                        $mergeAssocTmp = [];
+                        $dataAssocTmp = $mergeAssocTmp = [];
                         foreach ($dataAssociation as $k => $v) {
                             if (!is_array($v)) {
                                 $dataAssocTmp[$k] = $v;
@@ -1806,7 +1810,7 @@ class DboSource extends DataSource
                         unset($insert[$association]);
                     }
 
-                    if (empty($dataAssociation) || (isset($dataAssociation) && !in_array($insert, $dataAssociation, true))) {
+                    if (empty($dataAssociation) || !in_array($insert, $dataAssociation, true)) {
                         $dataAssociation[] = $insert;
                     }
                 }
@@ -2184,7 +2188,20 @@ class DboSource extends DataSource
      */
     public function renderStatement($type, $data)
     {
-        extract($data);
+        $table = $data['table'] ?? null;
+        $alias = $data['alias'] ?? null;
+        $fields = $data['fields'] ?? null;
+        $joins = $data['joins'] ?? null;
+        $conditions = $data['conditions'] ?? null;
+        $group = $data['group'] ?? null;
+        $having = $data['having'] ?? null;
+        $order = $data['order'] ?? null;
+        $limit = $data['limit'] ?? null;
+        $lock = $data['lock'] ?? null;
+        $values = $data['values'] ?? null;
+        $columns = $data['columns'] ?? null;
+        $indexes = $data['indexes'] ?? null;
+        $tableParameters = $data['tableParameters'] ?? null;
         $aliases = null;
 
         switch (strtolower($type)) {
@@ -2223,6 +2240,8 @@ class DboSource extends DataSource
             case 'alter':
                 return null;
         }
+
+        return null;
     }
 
     /**
@@ -2506,6 +2525,8 @@ class DboSource extends DataSource
 
                 return strtoupper($func) . '(' . $arg . ') AS ' . $this->name($params[1]);
         }
+
+        return null;
     }
 
     /**
@@ -3554,6 +3575,7 @@ class DboSource extends DataSource
      */
     public function resetSequence($table, $column)
     {
+        return null;
     }
 
     /**
@@ -3674,7 +3696,7 @@ class DboSource extends DataSource
     /**
      * Generate a "drop table" statement for a single table
      *
-     * @param type $table Name of the table to drop
+     * @param string $table Name of the table to drop
      * @return string Drop table SQL statement
      */
     protected function _dropTable($table)
@@ -3691,8 +3713,8 @@ class DboSource extends DataSource
      */
     public function buildColumn($column)
     {
-        $name = $type = null;
-        extract(array_merge(['null' => true], $column));
+        $name = $column['name'] ?? null;
+        $type = $column['type'] ?? null;
 
         if (empty($name) || empty($type)) {
             trigger_error(__d('cake_dev', 'Column name or type not defined in schema'), E_USER_WARNING);

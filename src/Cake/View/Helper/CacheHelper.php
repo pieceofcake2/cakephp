@@ -74,6 +74,8 @@ class CacheHelper extends AppHelper
         if ($this->_enabled()) {
             return $this->_parseContent($viewFile, $output);
         }
+
+        return null;
     }
 
     /**

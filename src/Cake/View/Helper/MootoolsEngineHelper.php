@@ -26,6 +26,7 @@
  * - Drag, Drag.Move
  *
  * @package       Cake.View.Helper
+ * @property bool $_multipleSelection Whether the current selection matches multiple elements
  */
 class MootoolsEngineHelper extends JsBaseEngineHelper
 {

@@ -250,7 +250,7 @@ class ShellDispatcher
      * All paths in the loaded shell paths are searched.
      *
      * @param string $shell Optionally the name of a plugin
-     * @return mixed An object
+     * @return object An object
      * @throws MissingShellException when errors are encountered.
      */
     protected function _getShell($shell)

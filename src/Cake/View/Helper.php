@@ -813,7 +813,9 @@ class Helper extends CakeObject
         } elseif (empty($result) && isset($data[$habtmKey]) && is_array($data[$habtmKey])) {
             if (ClassRegistry::isKeySet($habtmKey)) {
                 $model = ClassRegistry::getObject($habtmKey);
-                $result = $this->_selectedArray($data[$habtmKey], $model->primaryKey);
+                if ($model) {
+                    $result = $this->_selectedArray($data[$habtmKey], $model->primaryKey);
+                }
             }
         }
 

@@ -2,7 +2,7 @@ includes:
     - vendor/pieceofcake2/phpstan-cakephp2/extension.neon
 
 parameters:
-    level: 0
+    level: 2
     phpVersion: 80000
     paths:
         - src/Cake
@@ -17,6 +17,14 @@ parameters:
         -
             message: '#^(Function mcrypt_\w+ not found|Constant MCRYPT_\w+ not found)\.#'
             path: src/Cake/Utility/Security.php
+        # DATABASE_CONFIG is defined by the application in app/Config/database.php at runtime.
+        -
+            message: '#^Property ConnectionManager::\$config has unknown class DATABASE_CONFIG as its type\.$#'
+            path: src/Cake/Model/ConnectionManager.php
+        # EmailConfig is defined by the application in app/Config/email.php at runtime.
+        -
+            message: '#^Property CakeEmail::\$_configInstance has unknown class EmailConfig as its type\.$#'
+            path: src/Cake/Network/Email/CakeEmail.php
     parallel:
         processTimeout: 300.0
         maximumNumberOfProcesses: 4

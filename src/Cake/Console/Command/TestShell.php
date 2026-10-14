@@ -28,7 +28,7 @@ class TestShell extends Shell
     /**
      * Dispatcher object for the run.
      *
-     * @var CakeTestDispatcher
+     * @var CakeTestSuiteDispatcher|null
      */
     protected $_dispatcher = null;
 

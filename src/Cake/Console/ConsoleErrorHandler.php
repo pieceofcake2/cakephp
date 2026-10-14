@@ -47,7 +47,7 @@ class ConsoleErrorHandler
     /**
      * Handle an exception in the console environment. Prints a message to stderr.
      *
-     * @param Exception|ParserError $exception The exception to handle
+     * @param Throwable $exception The exception to handle
      * @return void
      */
     public function handleException($exception)

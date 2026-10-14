@@ -251,9 +251,9 @@ class CakeHtmlReporter extends CakeBaseReporter
      * trail of the nesting test suites below the
      * top level test.
      *
-     * @param PHPUnit_Framework_AssertionFailedError $message Failure object displayed in
+     * @param \PHPUnit\Framework\AssertionFailedError|\PHPUnit\Framework\Warning $message Failure object displayed in
      *   the context of the other tests.
-     * @param mixed $test The test case to paint a failure for.
+     * @param \PHPUnit\Framework\TestCase $test The test case to paint a failure for.
      * @return void
      */
     public function paintFail($message, $test)
@@ -302,7 +302,7 @@ class CakeHtmlReporter extends CakeBaseReporter
      * trail of the nesting test suites below the
      * top level test.
      *
-     * @param \PHPUnit\Framework\Test $test Test method that just passed
+     * @param \PHPUnit\Framework\TestCase $test Test method that just passed
      * @param float $time time spent to run the test method
      * @return void
      */
@@ -345,7 +345,7 @@ class CakeHtmlReporter extends CakeBaseReporter
     /**
      * Prints the message for skipping tests.
      *
-     * @param string $message Text of skip condition.
+     * @param Throwable $message The skip or incomplete exception.
      * @param TestCase $test the test method skipped
      * @return void
      */

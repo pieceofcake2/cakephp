@@ -28,6 +28,7 @@ App::uses('AppHelper', 'View/Helper');
  * @package       Cake.View.Helper
  * @property      HtmlHelper $Html
  * @link https://book.cakephp.org/2.0/en/core-libraries/helpers/paginator.html
+ * @property string|null $_defaultModel The default model of the paged sets, see defaultModel()
  */
 class PaginatorHelper extends AppHelper
 {
@@ -797,7 +798,11 @@ class PaginatorHelper extends AppHelper
             return '';
         }
 
-        extract($options);
+        [
+            'tag' => $tag, 'before' => $before, 'after' => $after, 'class' => $class,
+            'modulus' => $modulus, 'separator' => $separator, 'first' => $first, 'last' => $last,
+            'ellipsis' => $ellipsis, 'currentClass' => $currentClass, 'currentTag' => $currentTag,
+        ] = $options;
         unset(
             $options['tag'],
             $options['before'],
@@ -945,7 +950,7 @@ class PaginatorHelper extends AppHelper
         if ($params['pageCount'] <= 1) {
             return '';
         }
-        extract($options);
+        ['tag' => $tag, 'after' => $after, 'separator' => $separator, 'ellipsis' => $ellipsis, 'class' => $class] = $options;
         unset($options['tag'], $options['after'], $options['separator'], $options['ellipsis'], $options['class']);
 
         $out = '';
@@ -1011,7 +1016,7 @@ class PaginatorHelper extends AppHelper
             return '';
         }
 
-        extract($options);
+        ['tag' => $tag, 'before' => $before, 'separator' => $separator, 'ellipsis' => $ellipsis, 'class' => $class] = $options;
         unset($options['tag'], $options['before'], $options['separator'], $options['ellipsis'], $options['class']);
 
         $out = '';
@@ -1086,5 +1091,7 @@ class PaginatorHelper extends AppHelper
             $options['block'] = __FUNCTION__;
         }
         $this->_View->append($options['block'], $out);
+
+        return null;
     }
 }

@@ -96,6 +96,8 @@ class RedirectRoute extends CakeRoute
         $this->response->statusCode($status);
         $this->response->send();
         $this->_stop();
+
+        return null;
     }
 
     /**

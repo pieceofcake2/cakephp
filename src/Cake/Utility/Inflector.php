@@ -267,8 +267,8 @@ class Inflector
      *
      * @param string $type Inflection type
      * @param string $key Original value
-     * @param string $value Inflected value
-     * @return string Inflected value, from cache
+     * @param string|false $value Inflected value
+     * @return string|false Inflected value, from cache
      */
     protected static function _cache($type, $key, $value = false)
     {
@@ -414,6 +414,8 @@ class Inflector
                 return static::$_cache['pluralize'][$word];
             }
         }
+
+        return null;
     }
 
     /**

@@ -306,6 +306,8 @@ class HtmlHelper extends AppHelper
             return $out;
         }
         $this->_View->append($options['block'], $out);
+
+        return null;
     }
 
     /**
@@ -509,6 +511,8 @@ class HtmlHelper extends AppHelper
             return $out;
         }
         $this->_View->append($options['block'], $out);
+
+        return null;
     }
 
     /**
@@ -1073,7 +1077,7 @@ class HtmlHelper extends AppHelper
         if (isset($options['escape'])) {
             $text = h($text);
         }
-        if ($class && !empty($class)) {
+        if ($class) {
             $options['class'] = $class;
         }
         $tag = 'para';

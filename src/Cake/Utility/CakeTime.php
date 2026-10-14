@@ -95,7 +95,7 @@ class CakeTime
      * Used by TimeHelper to modify static variables in CakeTime
      *
      * @param string $name Variable name
-     * @param mixes $value Variable value
+     * @param mixed $value Variable value
      * @return void
      */
     public function __set($name, $value)
@@ -647,6 +647,8 @@ class CakeTime
             case 4:
                 return [$year . '-10-01', $year . '-12-31'];
         }
+
+        return null;
     }
 
     /**
@@ -874,8 +876,8 @@ class CakeTime
 
         // If more than a week, then take into account the length of months
         if ($diff >= 604800) {
-            [$future['H'], $future['i'], $future['s'], $future['d'], $future['m'], $future['Y']] = explode('/', date('H/i/s/d/m/Y', $endTime));
-            [$past['H'], $past['i'], $past['s'], $past['d'], $past['m'], $past['Y']] = explode('/', date('H/i/s/d/m/Y', $startTime));
+            $future = ['d' => idate('d', $endTime), 'm' => idate('m', $endTime), 'Y' => idate('Y', $endTime)];
+            $past = ['d' => idate('d', $startTime), 'm' => idate('m', $startTime), 'Y' => idate('Y', $startTime)];
 
             $years = $future['Y'] - $past['Y'];
             $months = $future['m'] + (12 * $years) - $past['m'];
@@ -891,8 +893,8 @@ class CakeTime
             if ($future['d'] >= $past['d']) {
                 $days = $future['d'] - $past['d'];
             } else {
-                $daysInPastMonth = date('t', $startTime);
-                $daysInFutureMonth = date('t', mktime(0, 0, 0, $future['m'] - 1, 1, $future['Y']));
+                $daysInPastMonth = idate('t', $startTime);
+                $daysInFutureMonth = idate('t', mktime(0, 0, 0, $future['m'] - 1, 1, $future['Y']));
 
                 if ($isFuture) {
                     $days = $daysInFutureMonth - $past['d'] + $future['d'];

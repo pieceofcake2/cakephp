@@ -931,7 +931,7 @@ class App
      * Increases the PHP "memory_limit" ini setting by the specified amount
      * in kilobytes
      *
-     * @param string $additionalKb Number in kilobytes
+     * @param int $additionalKb Number in kilobytes
      * @return void
      */
     public static function increaseMemoryLimit($additionalKb)
@@ -943,6 +943,9 @@ class App
         $limit = trim($limit);
         $units = strtoupper(substr($limit, -1));
         $current = substr($limit, 0, strlen($limit) - 1);
+        if (!is_numeric($current)) {
+            return;
+        }
         if ($units === 'M') {
             $current = $current * 1024;
             $units = 'K';

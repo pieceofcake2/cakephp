@@ -259,7 +259,7 @@ abstract class ControllerTestCase extends CakeTestCase
         }
 
         $_SERVER['REQUEST_URI'] = $url;
-        /** @var CakeRequest|MockObject $request */
+        /** @var CakeRequest|\PHPUnit\Framework\MockObject\MockObject $request */
         $request = $this->getMock('CakeRequest', ['_readInput']);
 
         if (is_string($options['data'])) {
@@ -276,8 +276,9 @@ abstract class ControllerTestCase extends CakeTestCase
         }
         $Dispatch->loadRoutes = $this->loadRoutes;
         $Dispatch->parseParams(new CakeEvent('ControllerTestCase', $Dispatch, ['request' => $request]));
-        if (!isset($request->params['controller']) && Router::currentRoute()) {
-            $this->headers = Router::currentRoute()->response->header();
+        $currentRoute = Router::currentRoute();
+        if (!isset($request->params['controller']) && $currentRoute instanceof RedirectRoute) {
+            $this->headers = $currentRoute->response->header();
 
             return null;
         }
@@ -322,7 +323,7 @@ abstract class ControllerTestCase extends CakeTestCase
     /**
      * Creates the test dispatcher class
      *
-     * @return Dispatcher
+     * @return ControllerTestDispatcher
      */
     protected function _createDispatcher()
     {
@@ -373,12 +374,12 @@ abstract class ControllerTestCase extends CakeTestCase
         ], (array)$mocks);
 
         [$plugin, $name] = pluginSplit($controller);
-        /** @var Controller|MockObject $controllerObj */
+        /** @var Controller|\PHPUnit\Framework\MockObject\MockObject $controllerObj */
         $controllerObj = $this->getMock($name . 'Controller', $mocks['methods'], [], '', false);
         $controllerObj->name = $name;
-        /** @var CakeRequest|MockObject $request */
+        /** @var CakeRequest|\PHPUnit\Framework\MockObject\MockObject $request */
         $request = $this->getMock('CakeRequest');
-        /** @var CakeResponse|MockObject $response */
+        /** @var CakeResponse|\PHPUnit\Framework\MockObject\MockObject $response */
         $response = $this->getMock($this->_responseClass, ['_sendHeader']);
         $controllerObj->__construct($request, $response);
         $controllerObj->Components->setController($controllerObj);
@@ -419,7 +420,7 @@ abstract class ControllerTestCase extends CakeTestCase
                     'class' => $componentClass,
                 ]);
             }
-            /** @var Component|MockObject $componentObj */
+            /** @var Component|\PHPUnit\Framework\MockObject\MockObject $componentObj */
             $componentObj = $this->getMock($componentClass, $methods, [$controllerObj->Components, $config]);
             $controllerObj->Components->set($alias, $componentObj);
             $controllerObj->Components->enable($alias);

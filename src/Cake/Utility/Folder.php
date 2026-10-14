@@ -120,7 +120,7 @@ class Folder
     /**
      * Constructor.
      *
-     * @param string $path Path to folder
+     * @param string|false $path Path to folder
      * @param bool $create Create folder if not found
      * @param int|bool $mode Mode (CHMOD) to apply to created folder, false to ignore
      * @link https://book.cakephp.org/2.0/en/core-utility-libraries/file-folder.html#Folder
@@ -455,7 +455,7 @@ class Folder
      * Change the mode on a directory structure recursively. This includes changing the mode on files as well.
      *
      * @param string $path The path to chmod.
-     * @param int $mode Octal value, e.g. 0755.
+     * @param int|false $mode Octal value, e.g. 0755.
      * @param bool $recursive Chmod recursively, set to false to only change the current directory.
      * @param array $exceptions Array of files, directories to skip.
      * @return bool Success.
@@ -587,7 +587,7 @@ class Folder
      * @param string $pathname The directory structure to create. Either an absolute or relative
      *   path. If the path is relative and exists in the process' cwd it will not be created.
      *   Otherwise relative paths will be prefixed with the current pwd().
-     * @param int $mode octal value 0755
+     * @param int|false $mode octal value 0755
      * @return bool Returns TRUE on success, FALSE on failure
      * @link https://book.cakephp.org/2.0/en/core-utility-libraries/file-folder.html#Folder::create
      */

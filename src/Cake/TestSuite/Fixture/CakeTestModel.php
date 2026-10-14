@@ -30,7 +30,7 @@ class CakeTestModel extends Model
      * incorrect order when no order has been defined in the finds.
      * Postgres can return the results in any order it considers appropriate if none is specified
      *
-     * @param array|string|int $id Set this ID for this model on startup, can also be an array of options, see above.
+     * @param array|string|int|false $id Set this ID for this model on startup, can also be an array of options, see above.
      * @param string $table Name of database table to use.
      * @param string $ds DataSource connection name.
      */

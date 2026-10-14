@@ -82,6 +82,7 @@ abstract class DispatcherFilter implements CakeEventListener
      */
     public function beforeDispatch(CakeEvent $event)
     {
+        return null;
     }
 
     /**

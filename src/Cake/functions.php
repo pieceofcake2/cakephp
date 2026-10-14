@@ -404,7 +404,7 @@ if (!function_exists('cache')) {
      *
      * @param string $path File path within /tmp to save the file.
      * @param mixed $data The data to save to the temporary file.
-     * @param string|null $expires A valid strtotime string when the data expires.
+     * @param string|int $expires A valid strtotime string when the data expires.
      * @param string $target The target of the cached data; either 'cache' or 'public'.
      * @return mixed The contents of the temporary file.
      * @deprecated 3.0.0 Will be removed in 3.0. Please use Cache::write() instead.

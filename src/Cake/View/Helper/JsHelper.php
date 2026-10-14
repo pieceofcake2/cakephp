@@ -27,6 +27,12 @@ App::uses('AppHelper', 'View/Helper');
  * @package       Cake.View.Helper
  * @property      HtmlHelper $Html
  * @property      FormHelper $Form
+ * @method string|null object(array $data = [], array $options = []) Proxied to the engine helper, see JsBaseEngineHelper::object()
+ * @method $this get(string $selector) Proxied to the engine helper, see JsBaseEngineHelper::get()
+ * @method string|null confirmReturn(string $message) Proxied to the engine helper, see JsBaseEngineHelper::confirmReturn()
+ * @method string|null request(array|string $url, array $options = []) Proxied to the engine helper, see JsBaseEngineHelper::request()
+ * @method string|null event(string $type, string $callback, array $options = []) Proxied to the engine helper, see JsBaseEngineHelper::event()
+ * @method string|null serializeForm(array $options = []) Proxied to the engine helper, see JsBaseEngineHelper::serializeForm()
  */
 class JsHelper extends AppHelper
 {
@@ -411,6 +417,7 @@ class JsHelper extends AppHelper
         unset($options['buffer'], $options['safe']);
 
         $requestString .= $this->request($url, $options);
+        $event = null;
         if (!empty($requestString)) {
             $event = $this->event('click', $requestString, $options + ['buffer' => $buffer]);
         }

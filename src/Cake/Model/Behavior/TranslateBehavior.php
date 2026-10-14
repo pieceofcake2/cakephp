@@ -479,6 +479,8 @@ class TranslateBehavior extends ModelBehavior
             }
         }
         $this->runtime[$Model->alias]['beforeSave'] = $tempData;
+
+        return null;
     }
 
     /**
@@ -567,6 +569,8 @@ class TranslateBehavior extends ModelBehavior
                 }
             }
         }
+
+        return null;
     }
 
     /**

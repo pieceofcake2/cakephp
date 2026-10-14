@@ -161,5 +161,7 @@ class CompletionShell extends AppShell
         if ($options) {
             return $this->out(implode(' ', $options));
         }
+
+        return null;
     }
 }

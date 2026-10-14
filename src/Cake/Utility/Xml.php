@@ -314,7 +314,7 @@ class Xml
      */
     protected static function _createChild($data)
     {
-        extract($data);
+        ['dom' => $dom, 'node' => $node, 'key' => $key, 'value' => $value, 'format' => $format] = $data;
         $childNS = $childValue = null;
         if (is_array($value)) {
             if (isset($value['@'])) {

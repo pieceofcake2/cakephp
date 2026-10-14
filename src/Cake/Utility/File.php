@@ -147,10 +147,10 @@ class File
     /**
      * Return the contents of this file as a string.
      *
-     * @param string $bytes where to start
+     * @param int|false $bytes Number of bytes to read, false to read the whole file
      * @param string $mode A `fread` compatible mode.
      * @param bool $force If true then the file will be re-opened even if its already opened, otherwise it won't
-     * @return mixed string on success, false on failure
+     * @return string|false string on success, false on failure
      * @link https://book.cakephp.org/2.0/en/core-utility-libraries/file-folder.html#File::read
      */
     public function read($bytes = false, $mode = 'rb', $force = false)
@@ -258,7 +258,7 @@ class File
      * Append given data string to this file.
      *
      * @param string $data Data to write
-     * @param string $force Force the file to open
+     * @param bool $force Force the file to open
      * @return bool Success
      * @link https://book.cakephp.org/2.0/en/core-utility-libraries/file-folder.html#File::append
      */

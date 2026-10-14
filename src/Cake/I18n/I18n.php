@@ -518,7 +518,7 @@ class I18n
             $translations = [];
             $header = substr($data, 0, 20);
             $header = unpack('L1magic/L1version/L1count/L1o_msg/L1o_trn', $header);
-            extract($header);
+            ['magic' => $magic, 'version' => $version, 'count' => $count, 'o_msg' => $o_msg, 'o_trn' => $o_trn] = $header;
 
             if ((dechex($magic) === '950412de' || dechex($magic) === 'ffffffff950412de') && !$version) {
                 for ($n = 0; $n < $count; $n++) {

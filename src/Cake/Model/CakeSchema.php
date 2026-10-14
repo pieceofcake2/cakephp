@@ -281,9 +281,10 @@ class CakeSchema extends CakeObject
                     continue;
                 }
                 foreach ($Object->hasAndBelongsToMany as $assocData) {
-                    if (isset($assocData['with'])) {
-                        $class = $assocData['with'];
+                    if (!isset($assocData['with'])) {
+                        continue;
                     }
+                    $class = $assocData['with'];
                     if (!is_object($Object->$class)) {
                         continue;
                     }
@@ -622,7 +623,7 @@ class CakeSchema extends CakeObject
     /**
      * Formats Schema columns from Model Object.
      *
-     * @param array &$Obj model object.
+     * @param Model &$Obj model object.
      * @return array Formatted columns.
      */
     protected function _columns(&$Obj)
