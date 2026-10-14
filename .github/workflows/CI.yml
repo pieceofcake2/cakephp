@@ -4,9 +4,17 @@ on:
   push:
     branches:
       - '2.x'
+    paths-ignore:
+      - '**.md'
   pull_request:
     branches:
-      - '*'
+      - '**'
+    paths-ignore:
+      - '**.md'
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
 
 permissions:
   contents: read
