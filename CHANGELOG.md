@@ -1,27 +1,6 @@
 ## CHANGELOG
 
-## v2.12.5 (2026-10-15)
-
-> [!IMPORTANT]
-> This release fixes three security vulnerabilities. Upgrade as soon as possible. See [UPGRADE.md](UPGRADE.md#v2125):
-> - Email header injection in `SmtpTransport` / `MailTransport` ([GHSA-4f9q-3c4x-52cv](https://github.com/pieceofcake2/cakephp/security/advisories/GHSA-4f9q-3c4x-52cv))
-> - Path traversal in view, layout and element names ([GHSA-w2mh-x92p-5p95](https://github.com/pieceofcake2/cakephp/security/advisories/GHSA-w2mh-x92p-5p95))
-> - Open redirect after login in `AuthComponent` ([GHSA-x4p9-p4cx-gxwx](https://github.com/pieceofcake2/cakephp/security/advisories/GHSA-x4p9-p4cx-gxwx))
->
-> Invalid `ORDER BY` directions now trigger an `E_USER_DEPRECATED` error; the generated SQL is unchanged.
-
-### Security Fixes
-
-- **SmtpTransport** / **MailTransport**: Strip CR and LF from email header names and values (folded header lines are kept), so header values built from user input can no longer inject headers or start the body ([GHSA-4f9q-3c4x-52cv](https://github.com/pieceofcake2/cakephp/security/advisories/GHSA-4f9q-3c4x-52cv), the CakePHP 2 equivalent of CVE-2026-77634)
-- **View**: View, layout and element file names containing `..` must resolve inside the view paths; files outside them are treated as missing ([GHSA-w2mh-x92p-5p95](https://github.com/pieceofcake2/cakephp/security/advisories/GHSA-w2mh-x92p-5p95), the CakePHP 2 equivalent of CVE-2026-48820)
-- **AuthComponent**: `redirectUrl()` collapses protocol-relative URLs (`//host`, `/\host`, `\\host`) stored in `Auth.redirect` to a local path, so a crafted request URL can no longer redirect to another site after login ([GHSA-x4p9-p4cx-gxwx](https://github.com/pieceofcake2/cakephp/security/advisories/GHSA-x4p9-p4cx-gxwx))
-
-
-### Deprecation: invalid ORDER BY directions ([PR #54](https://github.com/pieceofcake2/cakephp/pull/54))
-
-- **DboSource::order()**: The sort direction is now checked. Valid directions are `ASC` or `DESC`, optionally followed by `NULLS FIRST` / `NULLS LAST`, matched case-insensitively and with any surrounding whitespace (`'asc'`, `' Desc '`, `'desc  nulls  last'`). This applies to array values (`['Post.title' => 'desc']`), the `$direction` argument and a direction written after the field in a string key (`'Post.title DESC'`)
-- Any other direction (for example `"='test' DESC"`, `'ASC; ...'`, `'DESC LIMIT 1'`, `'NULLS FIRST'`, or a non-string value) triggers an `E_USER_DEPRECATED` error. The generated SQL is exactly the same as before; invalid directions will throw an `InvalidArgumentException` in a future version (see [UPGRADE.md](UPGRADE.md#unreleased))
-- Field / expression handling is unchanged, and `DboSource::expression()` objects are used verbatim without the check
+## Unreleased
 
 ### PHPStan Level 5 (docblocks only) ([PR #56](https://github.com/pieceofcake2/cakephp/pull/56))
 
@@ -44,6 +23,29 @@
 - **Validation**: The deep `luhn()` check returns `false` for values with non-digit characters instead of throwing a `TypeError`, and accepts integers
 - **Mysql** / **Sqlserver**: `listSources()` and `Mysql::listDetailedSources()` return an empty list when the query fails instead of calling `closeCursor()` on `false`
 - **TestSuite**: `assertTags()` prints the `$fullDebug` output before the assertion fails; `ConsoleOutputStub::write()` returns the number of bytes written like `ConsoleOutput::write()`; `CakeHtmlReporter` / `CakeTextReporter` code coverage output works with php-code-coverage 9
+
+## v2.12.5 (2026-10-15)
+
+> [!IMPORTANT]
+> This release fixes three security vulnerabilities. Upgrade as soon as possible. See [UPGRADE.md](UPGRADE.md#v2125):
+> - Email header injection in `SmtpTransport` / `MailTransport` ([GHSA-4f9q-3c4x-52cv](https://github.com/pieceofcake2/cakephp/security/advisories/GHSA-4f9q-3c4x-52cv))
+> - Path traversal in view, layout and element names ([GHSA-w2mh-x92p-5p95](https://github.com/pieceofcake2/cakephp/security/advisories/GHSA-w2mh-x92p-5p95))
+> - Open redirect after login in `AuthComponent` ([GHSA-x4p9-p4cx-gxwx](https://github.com/pieceofcake2/cakephp/security/advisories/GHSA-x4p9-p4cx-gxwx))
+>
+> Invalid `ORDER BY` directions now trigger an `E_USER_DEPRECATED` error; the generated SQL is unchanged.
+
+### Security Fixes
+
+- **SmtpTransport** / **MailTransport**: Strip CR and LF from email header names and values (folded header lines are kept), so header values built from user input can no longer inject headers or start the body ([GHSA-4f9q-3c4x-52cv](https://github.com/pieceofcake2/cakephp/security/advisories/GHSA-4f9q-3c4x-52cv), the CakePHP 2 equivalent of CVE-2026-77634)
+- **View**: View, layout and element file names containing `..` must resolve inside the view paths; files outside them are treated as missing ([GHSA-w2mh-x92p-5p95](https://github.com/pieceofcake2/cakephp/security/advisories/GHSA-w2mh-x92p-5p95), the CakePHP 2 equivalent of CVE-2026-48820)
+- **AuthComponent**: `redirectUrl()` collapses protocol-relative URLs (`//host`, `/\host`, `\\host`) stored in `Auth.redirect` to a local path, so a crafted request URL can no longer redirect to another site after login ([GHSA-x4p9-p4cx-gxwx](https://github.com/pieceofcake2/cakephp/security/advisories/GHSA-x4p9-p4cx-gxwx))
+
+
+### Deprecation: invalid ORDER BY directions ([PR #54](https://github.com/pieceofcake2/cakephp/pull/54))
+
+- **DboSource::order()**: The sort direction is now checked. Valid directions are `ASC` or `DESC`, optionally followed by `NULLS FIRST` / `NULLS LAST`, matched case-insensitively and with any surrounding whitespace (`'asc'`, `' Desc '`, `'desc  nulls  last'`). This applies to array values (`['Post.title' => 'desc']`), the `$direction` argument and a direction written after the field in a string key (`'Post.title DESC'`)
+- Any other direction (for example `"='test' DESC"`, `'ASC; ...'`, `'DESC LIMIT 1'`, `'NULLS FIRST'`, or a non-string value) triggers an `E_USER_DEPRECATED` error. The generated SQL is exactly the same as before; invalid directions will throw an `InvalidArgumentException` in a future version (see [UPGRADE.md](UPGRADE.md#unreleased))
+- Field / expression handling is unchanged, and `DboSource::expression()` objects are used verbatim without the check
 
 ## v2.12.4 (2026-10-14)
 
