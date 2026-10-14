@@ -132,6 +132,17 @@ class CakeTimeTest extends CakeTestCase
     public function testTimeAgoInWords($input, $expected)
     {
         $result = $this->Time->timeAgoInWords($input);
+        if (preg_match('/^(\d+) seconds ago$/', $expected, $matches)) {
+            // The relative input and "now" are read from the clock separately, so allow a one-second tick.
+            $seconds = (int)$matches[1];
+            $this->assertContains($result, [
+                ($seconds - 1) . ' seconds ago',
+                $expected,
+                ($seconds + 1) . ' seconds ago',
+            ]);
+
+            return;
+        }
         $this->assertEquals($expected, $result);
     }
 
@@ -862,14 +873,14 @@ class CakeTimeTest extends CakeTestCase
      */
     public function testWasWithinLast()
     {
-        $this->assertTrue($this->Time->wasWithinLast('1 day', '-1 day'));
-        $this->assertTrue($this->Time->wasWithinLast('1 week', '-1 week'));
-        $this->assertTrue($this->Time->wasWithinLast('1 year', '-1 year'));
-        $this->assertTrue($this->Time->wasWithinLast('1 second', '-1 second'));
-        $this->assertTrue($this->Time->wasWithinLast('1 minute', '-1 minute'));
-        $this->assertTrue($this->Time->wasWithinLast('1 year', '-1 year'));
-        $this->assertTrue($this->Time->wasWithinLast('1 month', '-1 month'));
-        $this->assertTrue($this->Time->wasWithinLast('1 day', '-1 day'));
+        $this->assertTrue($this->Time->wasWithinLast('1 day', '-1 day +1 second'));
+        $this->assertTrue($this->Time->wasWithinLast('1 week', '-1 week +1 second'));
+        $this->assertTrue($this->Time->wasWithinLast('1 year', '-1 year +1 second'));
+        $this->assertTrue($this->Time->wasWithinLast('1 second', '-1 second +1 second'));
+        $this->assertTrue($this->Time->wasWithinLast('1 minute', '-1 minute +1 second'));
+        $this->assertTrue($this->Time->wasWithinLast('1 year', '-1 year +1 second'));
+        $this->assertTrue($this->Time->wasWithinLast('1 month', '-1 month +1 second'));
+        $this->assertTrue($this->Time->wasWithinLast('1 day', '-1 day +1 second'));
 
         $this->assertTrue($this->Time->wasWithinLast('1 week', '-1 day'));
         $this->assertTrue($this->Time->wasWithinLast('2 week', '-1 week'));

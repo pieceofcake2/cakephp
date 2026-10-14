@@ -36,14 +36,14 @@ class AclComponent extends Component
     /**
      * Aro object.
      *
-     * @var string
+     * @var Aro|PhpAro|null
      */
     public $Aro;
 
     /**
      * Aco object
      *
-     * @var string
+     * @var Aco|PhpAco|null
      */
     public $Aco;
 

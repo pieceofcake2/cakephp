@@ -11,6 +11,13 @@
   - Opt-in: nothing is loaded unless the application calls it (e.g. at the top of `config/core.php`)
 - **CakeDotenvException**: New exception thrown when a `.env` file cannot be read or parsed (with file name and line number)
 
+### Docblock Types ([PR #49](https://github.com/pieceofcake2/cakephp/pull/49))
+
+- **ErrorHandler** / **ExceptionRenderer**: Document the `$exception` parameters of `handleException()`, `_getMessage()`, `_log()`, `ExceptionRenderer::__construct()` and `_getController()` as `Throwable`, matching what `set_exception_handler()` passes on PHP 8 (no behavior change)
+- **View**: Document `$subDir` as `string|null` (its default is `null`)
+- **AclComponent**: Document `$Aro` / `$Aco` as the ACL adapter's node objects (`Aro|PhpAro|null` / `Aco|PhpAco|null`) instead of `string`
+- **Tests**: Fix flaky `testConfigurationConflict` in `MemcacheEngineTest` / `MemcachedEngineTest` (one-second expiry granularity), and `CakeTimeTest::testWasWithinLast` / `testTimeAgoInWords` (the clock can tick between the relative input and "now")
+
 ## v2.12.3 (2026-10-14)
 
 > [!IMPORTANT]
@@ -623,7 +630,6 @@
 	- `preg_match` where `$subject = null` in CakeRoute.php
 	- `strtoupper` in DboSource.php
 	- Check history for details ☝️
-
 
 ### 2021-12-20
 

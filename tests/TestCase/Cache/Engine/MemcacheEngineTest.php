@@ -347,7 +347,7 @@ class MemcacheEngineTest extends CakeTestCase
     {
         Cache::config('long_memcache', [
             'engine' => 'Memcache',
-            'duration' => '+2 seconds',
+            'duration' => '+3 seconds',
             'servers' => ['127.0.0.1:11211'],
         ]);
         Cache::config('short_memcache', [
@@ -366,7 +366,7 @@ class MemcacheEngineTest extends CakeTestCase
         sleep(1);
         $this->assertEquals('yay', Cache::read('duration_test', 'long_memcache'), 'Value was not read %s');
 
-        sleep(2);
+        sleep(3);
         $this->assertFalse(Cache::read('short_duration_test', 'short_memcache'), 'Cache was not invalidated %s');
         $this->assertFalse(Cache::read('duration_test', 'long_memcache'), 'Value did not expire %s');
 
