@@ -3263,9 +3263,33 @@ class DboSource extends DataSource
     /**
      * Returns an ORDER BY clause as a string.
      *
-     * @param array|string $keys Field reference, as a key (i.e. Post.title)
-     * @param string $direction Direction (ASC or DESC)
-     * @param Model $Model Model reference (used to look for virtual field)
+     * Accepted shapes for `$keys`:
+     *
+     * - `'Post.title'`, `'Post.title DESC'`, `'title DESC, id ASC'`
+     * - `['Post.title' => 'DESC', 'Post.id' => 'asc']`
+     * - `['Post.title DESC', 'Post.id']` (numeric keys use `$direction`)
+     * - nested arrays of the above
+     * - objects returned by DboSource::expression(), which are used verbatim
+     *
+     * The field / expression part of an order key is treated as trusted SQL:
+     * it is quoted where possible but otherwise not escaped, so it must never
+     * contain user input.
+     *
+     * A sort direction (the array value, `$direction`, or a direction written
+     * after the field in a string key) should be `ASC` or `DESC`, optionally
+     * followed by `NULLS FIRST` or `NULLS LAST`, matched case-insensitively and
+     * with any surrounding whitespace (for example `'asc'`, `' Desc '` or
+     * `'desc nulls last'`). Never pass user input as a direction without
+     * restricting it to these values first.
+     *
+     * Deprecated: any other direction (for example `"='test' DESC"`,
+     * `'ASC; ...'`, `'NULLS FIRST'` or a non-string value) triggers an
+     * `E_USER_DEPRECATED` error. The generated SQL is unchanged for now, but
+     * invalid directions will throw an InvalidArgumentException in a future version.
+     *
+     * @param object|array|string|null $keys Field reference, as a key (i.e. Post.title)
+     * @param string $direction Direction (ASC or DESC, optionally followed by NULLS FIRST / NULLS LAST)
+     * @param Model|null $Model Model reference (used to look for virtual field)
      * @return string ORDER BY clause
      */
     public function order($keys, $direction = 'ASC', ?Model $Model = null)
@@ -3306,9 +3330,15 @@ class DboSource extends DataSource
                 continue;
             }
 
+            if (is_string($key)) {
+                $this->_checkOrderKeyDirection($key);
+            }
+
             if (preg_match('/\\x20(ASC|DESC).*/i', $key, $_dir)) {
                 $dir = $_dir[0];
                 $key = preg_replace('/\\x20(ASC|DESC).*/i', '', $key);
+            } else {
+                $this->_checkOrderDirection($dir);
             }
 
             $key = trim($key);
@@ -3343,6 +3373,139 @@ class DboSource extends DataSource
         }
 
         return '';
+    }
+
+    /**
+     * Checks a sort direction used by DboSource::order().
+     *
+     * Valid directions are `ASC` or `DESC`, optionally followed by `NULLS FIRST`
+     * or `NULLS LAST`, case-insensitive and with any amount of surrounding /
+     * separating whitespace. Empty directions are allowed. Any other direction
+     * triggers an `E_USER_DEPRECATED` error; it will throw in a future version.
+     *
+     * @param mixed $direction The direction to check.
+     * @return bool Whether the direction is valid.
+     */
+    protected function _checkOrderDirection($direction)
+    {
+        if ($direction === null || $direction === false || $direction === '') {
+            return true;
+        }
+        if (!is_string($direction)) {
+            $this->_deprecatedOrderDirection(sprintf('of type "%s"', get_debug_type($direction)));
+
+            return false;
+        }
+        if (trim($direction) === '' || preg_match('/^\s*(ASC|DESC)(\s+NULLS\s+(FIRST|LAST))?\s*$/iD', $direction)) {
+            return true;
+        }
+        $this->_deprecatedOrderDirection(sprintf('"%s"', trim($direction)));
+
+        return false;
+    }
+
+    /**
+     * Checks the direction written after the field in a string order key, such as
+     * `Post.title DESC` or `FIELD(Post.id, 1, 2) ASC, Post.title DESC`.
+     *
+     * An `ASC` / `DESC` that is followed by anything other than `NULLS FIRST` /
+     * `NULLS LAST` (outside of parentheses and quoted literals) triggers an
+     * `E_USER_DEPRECATED` error; it will throw in a future version.
+     *
+     * @param string $key The order key.
+     * @return bool Whether the key has no invalid direction.
+     */
+    protected function _checkOrderKeyDirection($key)
+    {
+        $valid = true;
+        $parts = str_contains($key, ',') ? $this->_splitOrderList($key) : [$key];
+        foreach ($parts as $part) {
+            if (preg_match('/\s(ASC|DESC)(\s+NULLS\s+(FIRST|LAST))?\s*$/i', $part, $match)) {
+                $part = substr($part, 0, -strlen($match[0]));
+            }
+            if (preg_match('/\s(ASC|DESC)\b.*/is', $this->_stripOrderLiterals($part), $match)) {
+                $this->_deprecatedOrderDirection(sprintf('"%s"', trim($match[0])));
+                $valid = false;
+            }
+        }
+
+        return $valid;
+    }
+
+    /**
+     * Triggers the deprecation error for an invalid sort direction.
+     *
+     * @param string $direction Description of the invalid direction.
+     * @return void
+     */
+    protected function _deprecatedOrderDirection($direction)
+    {
+        trigger_error(sprintf(
+            'Invalid ORDER BY direction %s. Allowed directions are ASC or DESC, optionally followed by '
+            . 'NULLS FIRST or NULLS LAST; move any expression into the order key and never pass user input '
+            . 'as a direction. Invalid directions will throw an InvalidArgumentException in a future version.',
+            $direction,
+        ), E_USER_DEPRECATED);
+    }
+
+    /**
+     * Splits a comma separated ORDER BY list on the commas that are outside of
+     * parentheses and quoted literals. Used to check the directions only.
+     *
+     * @param string $list The order list, e.g. `FIELD(id, 1, 2) ASC, title DESC`.
+     * @return array<string> The trimmed list items.
+     */
+    protected function _splitOrderList($list)
+    {
+        $parts = [];
+        $current = '';
+        $depth = 0;
+        $quote = null;
+        $length = strlen($list);
+        for ($i = 0; $i < $length; $i++) {
+            $char = $list[$i];
+            if ($quote !== null) {
+                if ($char === '\\' && $i + 1 < $length) {
+                    $current .= $char . $list[++$i];
+                    continue;
+                }
+                if ($char === $quote) {
+                    $quote = null;
+                }
+            } elseif ($char === "'" || $char === '"' || $char === '`') {
+                $quote = $char;
+            } elseif ($char === '(') {
+                $depth++;
+            } elseif ($char === ')') {
+                $depth = max(0, $depth - 1);
+            } elseif ($char === ',' && $depth === 0) {
+                $parts[] = trim($current);
+                $current = '';
+                continue;
+            }
+            $current .= $char;
+        }
+        $parts[] = trim($current);
+
+        return array_values(array_filter($parts, 'strlen'));
+    }
+
+    /**
+     * Removes quoted literals and parenthesized groups from an ORDER BY key, so
+     * that words such as `asc` or `desc` inside a literal, a function call or a
+     * subquery are not taken as a sort direction.
+     *
+     * @param string $key The order key.
+     * @return string The key without quoted literals and parenthesized groups.
+     */
+    protected function _stripOrderLiterals($key)
+    {
+        $key = (string)preg_replace('/\'(?:[^\'\\\\]|\\\\.|\'\')*\'|"(?:[^"\\\\]|\\\\.)*"|`[^`]*`/s', "''", $key);
+        do {
+            $key = (string)preg_replace('/\([^()]*\)/', '0', $key, -1, $count);
+        } while ($count > 0);
+
+        return $key;
     }
 
     /**

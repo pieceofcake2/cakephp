@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+### Deprecation: invalid ORDER BY directions ([PR #54](https://github.com/pieceofcake2/cakephp/pull/54))
+
+- **DboSource::order()**: The sort direction is now checked. Valid directions are `ASC` or `DESC`, optionally followed by `NULLS FIRST` / `NULLS LAST`, matched case-insensitively and with any surrounding whitespace (`'asc'`, `' Desc '`, `'desc  nulls  last'`). This applies to array values (`['Post.title' => 'desc']`), the `$direction` argument and a direction written after the field in a string key (`'Post.title DESC'`)
+- Any other direction (for example `"='test' DESC"`, `'ASC; ...'`, `'DESC LIMIT 1'`, `'NULLS FIRST'`, or a non-string value) triggers an `E_USER_DEPRECATED` error. The generated SQL is exactly the same as before; invalid directions will throw an `InvalidArgumentException` in a future version (see [UPGRADE.md](UPGRADE.md#unreleased))
+- Field / expression handling is unchanged, and `DboSource::expression()` objects are used verbatim without the check
+
 ### PHPStan Level 5 (docblocks only) ([PR #56](https://github.com/pieceofcake2/cakephp/pull/56))
 
 - **PHPStan**: `src/Cake` (including `TestSuite`) now passes PHPStan level 5 with `pieceofcake2/phpstan-cakephp2` ^0.2.4, without a baseline. CI runs PHPStan on every pull request

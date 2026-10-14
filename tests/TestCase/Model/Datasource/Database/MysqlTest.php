@@ -3663,8 +3663,11 @@ SQL;
         $expected = ' ORDER BY `Dealer`.`id` = 7 desc, `Dealer`.`id` = 3 desc, `Dealer`.`title` asc';
         $this->assertEquals($expected, $result);
 
-        $result = $this->Dbo->order(['Page.name' => "='test' DESC"]);
+        $result = $this->_orderCollectingDeprecations([['Page.name' => "='test' DESC"]], $errors);
         $this->assertMatchesRegularExpression("/^\s*ORDER BY\s+`Page`\.`name`\s*='test'\s+DESC\s*$/", $result);
+        $this->assertSame(" ORDER BY `Page`.`name` ='test' DESC", $result);
+        $this->assertCount(1, $errors);
+        $this->assertStringContainsString('Invalid ORDER BY direction "=\'test\' DESC"', $errors[0]);
 
         $result = $this->Dbo->order("Page.name = 'view' DESC");
         $this->assertMatchesRegularExpression("/^\s*ORDER BY\s+`Page`\.`name`\s*=\s*'view'\s+DESC\s*$/", $result);
@@ -3695,6 +3698,86 @@ SQL;
         $result = $this->Dbo->order(['Property.sale_price IS NULL']);
         $expected = ' ORDER BY `Property`.`sale_price` IS NULL ASC';
         $this->assertEquals($expected, $result);
+    }
+
+    /**
+     * Calls order() and collects the E_USER_DEPRECATED errors it triggers.
+     *
+     * @param array $args The order() arguments.
+     * @param array $errors The collected deprecation messages.
+     * @return string The ORDER BY clause.
+     */
+    protected function _orderCollectingDeprecations(array $args, &$errors)
+    {
+        $errors = [];
+        set_error_handler(function ($errno, $errstr) use (&$errors) {
+            $errors[] = $errstr;
+
+            return true;
+        }, E_USER_DEPRECATED);
+        try {
+            return $this->Dbo->order(...$args);
+        } finally {
+            restore_error_handler();
+        }
+    }
+
+    /**
+     * Valid sort directions do not trigger a deprecation; invalid ones do and
+     * still generate the same SQL as before.
+     *
+     * @return void
+     */
+    public function testOrderDirectionDeprecation()
+    {
+        $result = $this->_orderCollectingDeprecations([['Post.title' => ' Desc ', 'Post.id' => 'asc']], $errors);
+        $this->assertSame(' ORDER BY `Post`.`title` Desc, `Post`.`id` asc', $result);
+        $this->assertSame([], $errors);
+
+        $result = $this->_orderCollectingDeprecations(['FIELD(Post.id, 3, 1, 2) ASC, Post.title DESC'], $errors);
+        $this->assertSame(' ORDER BY FIELD(`Post`.`id`, 3, 1, 2) ASC, Post.title DESC', $result);
+        $this->assertSame([], $errors);
+
+        $result = $this->_orderCollectingDeprecations([$this->Dbo->expression('RAND()')], $errors);
+        $this->assertSame(' ORDER BY RAND()', $result);
+        $this->assertSame([], $errors);
+
+        $invalid = ["='test' DESC", 'ASC; DROP TABLE posts', 'DESC, (SELECT 1)', 'ASC --', 'ASC UNION SELECT 1', 'NULLS FIRST', 'ASCENDING'];
+        foreach ($invalid as $direction) {
+            $result = $this->_orderCollectingDeprecations([['Post.title' => $direction]], $errors);
+            $this->assertSame(' ORDER BY `Post`.`title` ' . $direction, $result);
+            $this->assertCount(1, $errors, $direction);
+            $this->assertStringContainsString('Invalid ORDER BY direction', $errors[0]);
+        }
+
+        $result = $this->_orderCollectingDeprecations(['Post.title ASC; DROP TABLE posts'], $errors);
+        $this->assertSame(' ORDER BY `Post`.`title` ASC; DROP TABLE posts', $result);
+        $this->assertCount(1, $errors);
+    }
+
+    /**
+     * find() with a valid sort direction does not trigger a deprecation.
+     *
+     * @return void
+     */
+    public function testFindWithOrderDirection()
+    {
+        $this->loadFixtures('Article');
+        $Article = ClassRegistry::init('Article');
+
+        $errors = [];
+        set_error_handler(function ($errno, $errstr) use (&$errors) {
+            $errors[] = $errstr;
+
+            return true;
+        }, E_USER_DEPRECATED);
+        try {
+            $result = $Article->find('list', ['fields' => ['id', 'id'], 'order' => ['Article.id' => ' desc ']]);
+        } finally {
+            restore_error_handler();
+        }
+        $this->assertSame([3, 2, 1], array_map('intval', array_values($result)));
+        $this->assertSame([], $errors);
     }
 
     /**

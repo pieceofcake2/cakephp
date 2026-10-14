@@ -288,6 +288,210 @@ class DboSourceTest extends CakeTestCase
     }
 
     /**
+     * Calls DboSource::order() and collects the E_USER_DEPRECATED errors it triggers.
+     *
+     * @param array $args The order() arguments.
+     * @param array $errors The collected deprecation messages.
+     * @return string The ORDER BY clause.
+     */
+    protected function _orderCollectingDeprecations(array $args, &$errors)
+    {
+        $errors = [];
+        set_error_handler(function ($errno, $errstr) use (&$errors) {
+            $errors[] = $errstr;
+
+            return true;
+        }, E_USER_DEPRECATED);
+        try {
+            return $this->testDb->order(...$args);
+        } finally {
+            restore_error_handler();
+        }
+    }
+
+    /**
+     * Valid sort directions and order shapes, with the SQL generated before the
+     * direction checks were added (origin 2.x).
+     *
+     * @return array<array{array, string}>
+     */
+    public static function validOrderDirectionProvider()
+    {
+        return [
+            [[['Post.title' => 'ASC']], ' ORDER BY `Post`.`title` ASC'],
+            [[['Post.title' => 'desc']], ' ORDER BY `Post`.`title` desc'],
+            [[['Post.title' => 'Desc']], ' ORDER BY `Post`.`title` Desc'],
+            [[['Post.title' => ' DESC ']], ' ORDER BY `Post`.`title` DESC'],
+            [[['Post.title' => "\tdesc\n"]], ' ORDER BY `Post`.`title` desc'],
+            [[['Post.title' => 'ASC NULLS FIRST']], ' ORDER BY `Post`.`title` ASC NULLS FIRST'],
+            [[['Post.title' => 'DESC NULLS LAST']], ' ORDER BY `Post`.`title` DESC NULLS LAST'],
+            [[['Post.title' => 'asc nulls first']], ' ORDER BY `Post`.`title` asc nulls first'],
+            [[['Post.title' => 'desc  nulls  last']], ' ORDER BY `Post`.`title` desc  nulls  last'],
+            [[['Post.title' => ' Desc Nulls Last ']], ' ORDER BY `Post`.`title` Desc Nulls Last'],
+            [['Post.title desc  nulls  last'], ' ORDER BY `Post`.`title` desc  nulls  last'],
+            [['Post.title ASC NULLS FIRST, Post.id DESC'], ' ORDER BY `Post`.`title` ASC NULLS FIRST, `Post`.`id` DESC'],
+            [['Post.title  DESC '], ' ORDER BY `Post`.`title` DESC'],
+            [[['Post.title']], ' ORDER BY `Post`.`title` ASC'],
+            [['Post.title', 'desc nulls first'], ' ORDER BY `Post`.`title` desc nulls first'],
+            [['Post.title', ''], ' ORDER BY `Post`.`title` '],
+            [['Post.title', null], ' ORDER BY `Post`.`title` '],
+            [[[['Post.title' => 'desc'], ['Post.id DESC NULLS LAST']]], ' ORDER BY `Post`.`title` desc, `Post`.`id` DESC NULLS LAST'],
+            [[['Post.title DESC' => 'ASC']], ' ORDER BY `Post`.`title` DESC'],
+            [['RAND()'], ' ORDER BY RAND() ASC'],
+            [[['RAND()' => 'desc']], ' ORDER BY RAND() desc'],
+            [['FIELD(Post.id, 3, 1, 2)'], ' ORDER BY FIELD(`Post`.`id`, 3, 1, 2) ASC'],
+            [['FIELD(Post.id, 3, 1, 2) ASC, Post.title DESC'], ' ORDER BY FIELD(`Post`.`id`, 3, 1, 2) ASC, Post.title DESC'],
+            [['FIELD(Post.id, 1, 2), Post.title'], ' ORDER BY FIELD(`Post`.`id`, 1, 2), `Post`.`title` ASC'],
+            [['CONCAT(Post.title, \' desc, asc\') DESC'], ' ORDER BY CONCAT(`Post`.`title`, \' desc, asc\') DESC'],
+            [['Post.status = \'asc desc\' DESC'], ' ORDER BY `Post`.`status` = \'asc desc\' DESC'],
+            [[['Page.name = \'test\'' => 'DESC']], ' ORDER BY `Page`.`name` = \'test\' DESC'],
+            [['(SELECT MAX(Comment.id) FROM comments AS Comment WHERE Comment.post_id = Post.id ORDER BY Comment.id DESC LIMIT 1) DESC'], ' ORDER BY (SELECT MAX(`Comment`.`id`) FROM comments AS Comment WHERE `Comment`.`post_id` = `Post`.`id` ORDER BY `Comment`.`id` DESC LIMIT 1) DESC'],
+            [[['CASE WHEN Post.published = 1 THEN 0 ELSE 1 END' => 'asc nulls last']], ' ORDER BY CASE WHEN `Post`.`published` = 1 THEN 0 ELSE 1 END asc nulls last'],
+            [['Dealer.id = 7 desc, Dealer.id = 3 desc, Dealer.title asc'], ' ORDER BY `Dealer`.`id` = 7 desc, `Dealer`.`id` = 3 desc, `Dealer`.`title` asc'],
+        ];
+    }
+
+    /**
+     * Invalid sort directions, with the SQL generated before the direction
+     * checks were added (origin 2.x), which is still generated.
+     *
+     * @return array<array{array, string}>
+     */
+    public static function invalidOrderDirectionProvider()
+    {
+        return [
+            [[['Page.name' => '=\'test\' DESC']], ' ORDER BY `Page`.`name` =\'test\' DESC'],
+            [[['Post.title' => 'ASC; DROP TABLE posts']], ' ORDER BY `Post`.`title` ASC; DROP TABLE posts'],
+            [[['Post.title' => 'DESC, (SELECT 1)']], ' ORDER BY `Post`.`title` DESC, (SELECT 1)'],
+            [[['Post.title' => 'ASC --']], ' ORDER BY `Post`.`title` ASC --'],
+            [[['Post.title' => 'DESC /* x */']], ' ORDER BY `Post`.`title` DESC /* x */'],
+            [[['Post.title' => 'ASC UNION SELECT 1']], ' ORDER BY `Post`.`title` ASC UNION SELECT 1'],
+            [[['Post.title' => 'DESC LIMIT 1']], ' ORDER BY `Post`.`title` DESC LIMIT 1'],
+            [[['Post.title' => 'ASC NULLS FIRST; SELECT 1']], ' ORDER BY `Post`.`title` ASC NULLS FIRST; SELECT 1'],
+            [[['Post.title' => 'NULLS FIRST']], ' ORDER BY `Post`.`title` NULLS FIRST'],
+            [[['Post.title' => 'ASC NULLS']], ' ORDER BY `Post`.`title` ASC NULLS'],
+            [[['Post.title' => 'ASC NULLS MIDDLE']], ' ORDER BY `Post`.`title` ASC NULLS MIDDLE'],
+            [[['Post.title' => 'ASCENDING']], ' ORDER BY `Post`.`title` ASCENDING'],
+            [[['Post.title' => 'up']], ' ORDER BY `Post`.`title` up'],
+            [[['Post.title' => '1']], ' ORDER BY `Post`.`title` 1'],
+            [[['Post.title' => true]], ' ORDER BY `Post`.`title` 1'],
+            [[['Post.title' => 1]], ' ORDER BY `Post`.`title` 1'],
+            [[['Post.title'], 'DESC; SELECT 1'], ' ORDER BY `Post`.`title` DESC; SELECT 1'],
+            [['Post.title', 'NULLS LAST'], ' ORDER BY `Post`.`title` NULLS LAST'],
+            [['Post.title ASC; DROP TABLE posts'], ' ORDER BY `Post`.`title` ASC; DROP TABLE posts'],
+            [['Post.title ASC --'], ' ORDER BY `Post`.`title` ASC --'],
+            [['Post.title DESC /* x */'], ' ORDER BY `Post`.`title` DESC /* x */'],
+            [['Post.title ASC UNION SELECT 1'], ' ORDER BY `Post`.`title` ASC UNION SELECT 1'],
+            [['Post.title DESC LIMIT 1'], ' ORDER BY `Post`.`title` DESC LIMIT 1'],
+            [['Post.title ASC NULLS FIRST; SELECT 1'], ' ORDER BY `Post`.`title` ASC NULLS FIRST; SELECT 1'],
+            [['Post.title ASC; DELETE FROM posts WHERE 1 = 1 DESC'], ' ORDER BY `Post`.`title` ASC; DELETE FROM posts WHERE 1 = 1 DESC'],
+            [['Post.title ASC UNION (SELECT password FROM users) DESC'], ' ORDER BY `Post`.`title` ASC UNION (SELECT password FROM users) DESC'],
+            [["Post.title\tDESC; SELECT 1"], " ORDER BY `Post`.`title`\tDESC; SELECT 1 ASC"],
+            [[['Post.title DESC; SELECT 1' => 'ASC']], ' ORDER BY `Post`.`title` DESC; SELECT 1'],
+            [['FIELD(Post.id, 1, 2) ASC; SELECT 1, Post.title DESC'], ' ORDER BY FIELD(`Post`.`id`, 1, 2) ASC; SELECT 1, Post.title DESC'],
+        ];
+    }
+
+    /**
+     * Valid directions do not trigger a deprecation and the SQL is unchanged.
+     *
+     * @dataProvider validOrderDirectionProvider
+     * @param array $args The order() arguments.
+     * @param string $expected The expected SQL.
+     * @return void
+     */
+    public function testOrderValidDirection(array $args, $expected)
+    {
+        $result = $this->_orderCollectingDeprecations($args, $errors);
+        $this->assertSame($expected, $result);
+        $this->assertSame([], $errors);
+    }
+
+    /**
+     * Invalid directions trigger a deprecation and the SQL is unchanged.
+     *
+     * @dataProvider invalidOrderDirectionProvider
+     * @param array $args The order() arguments.
+     * @param string $expected The expected SQL.
+     * @return void
+     */
+    public function testOrderInvalidDirectionDeprecated(array $args, $expected)
+    {
+        $result = $this->_orderCollectingDeprecations($args, $errors);
+        $this->assertSame($expected, $result);
+        $this->assertCount(1, $errors);
+        $this->assertStringStartsWith('Invalid ORDER BY direction ', $errors[0]);
+        $this->assertStringContainsString('Allowed directions are ASC or DESC, optionally followed by NULLS FIRST or NULLS LAST', $errors[0]);
+        $this->assertStringContainsString('will throw an InvalidArgumentException in a future version', $errors[0]);
+    }
+
+    /**
+     * The deprecation message names the invalid direction.
+     *
+     * @return void
+     */
+    public function testOrderInvalidDirectionMessage()
+    {
+        $this->_orderCollectingDeprecations([['Post.title' => ' ASC; DROP TABLE posts ']], $errors);
+        $this->assertStringStartsWith('Invalid ORDER BY direction "ASC; DROP TABLE posts".', $errors[0]);
+
+        $this->_orderCollectingDeprecations([['Post.title' => true]], $errors);
+        $this->assertStringStartsWith('Invalid ORDER BY direction of type "bool".', $errors[0]);
+
+        $this->_orderCollectingDeprecations(['Post.title DESC LIMIT 1'], $errors);
+        $this->assertStringStartsWith('Invalid ORDER BY direction "DESC LIMIT 1".', $errors[0]);
+
+        $this->_orderCollectingDeprecations([['Post.title' => 'up', 'Post.id' => 'down']], $errors);
+        $this->assertCount(2, $errors);
+    }
+
+    /**
+     * Expression objects, empty orders and virtual fields are not checked and unchanged.
+     *
+     * @return void
+     */
+    public function testOrderDirectionUncheckedShapes()
+    {
+        $expression = $this->testDb->expression('FIELD(id, 1, 2) DESC NULLS LAST; anything');
+        $this->assertSame(' ORDER BY FIELD(id, 1, 2) DESC NULLS LAST; anything', $this->_orderCollectingDeprecations([$expression], $errors));
+        $this->assertSame([], $errors);
+
+        $this->assertSame(
+            ' ORDER BY FIELD(id, 1, 2) DESC NULLS LAST; anything, `Post`.`id` desc',
+            $this->_orderCollectingDeprecations([[$expression, 'Post.id' => 'desc']], $errors),
+        );
+        $this->assertSame([], $errors);
+
+        foreach ([null, '', [], ['Post.title' => null], ['Post.title' => '']] as $order) {
+            $this->assertSame('', $this->_orderCollectingDeprecations([$order], $errors));
+            $this->assertSame([], $errors);
+        }
+
+        $Article = ClassRegistry::init('Article');
+        $Article->virtualFields = ['two' => '1 + 1'];
+        $this->assertSame(' ORDER BY (1 + 1) desc', $this->_orderCollectingDeprecations([['two' => 'desc'], 'ASC', $Article], $errors));
+        $this->assertSame([], $errors);
+        $this->assertSame(' ORDER BY (1 + 1) DESC; SELECT 1', $this->_orderCollectingDeprecations([['Article.two' => 'DESC; SELECT 1'], 'ASC', $Article], $errors));
+        $this->assertCount(1, $errors);
+    }
+
+    /**
+     * Sort directions produced by PaginatorComponent::validateSort() never trigger the deprecation.
+     *
+     * @return void
+     */
+    public function testOrderPaginatorDirections()
+    {
+        foreach (['asc', 'desc'] as $direction) {
+            $this->assertSame(
+                ' ORDER BY `Post`.`title` ' . $direction,
+                $this->_orderCollectingDeprecations([['Post.title' => $direction]], $errors),
+            );
+            $this->assertSame([], $errors);
+        }
+    }
+
+    /**
      * testMergeAssociations method
      *
      * @return void

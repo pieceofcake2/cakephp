@@ -17,7 +17,7 @@ The original CakePHP 2.x branch [reached End of Life in June 2021](https://baker
 > **Do not use CakePHP 2.x for new projects!** This fork is only for maintaining existing legacy applications.
 > For new projects, please use [CakePHP 5.x](https://cakephp.org/) which has modern PHP support, better performance, and active development.
 
-[CakePHP 2 Book](https://pieceofcake2.github.io/docs/) | [CHANGELOG](CHANGELOG.md) | [UPGRADE](UPGRADE.md)
+[Website](https://pieceofcake2.github.io/) | [CakePHP 2 Book](https://pieceofcake2.github.io/docs/) | [CHANGELOG](CHANGELOG.md) | [UPGRADE](UPGRADE.md)
 
 ## Requirements & Compatibility
 
@@ -38,7 +38,7 @@ The original CakePHP 2.x branch [reached End of Life in June 2021](https://baker
   - **Important**: The `mb_encode_mimeheader()` function is **not available** in the Symfony polyfill
   - If `mbstring` extension is not loaded, CakePHP will automatically use `Multibyte::mimeEncode()` as a fallback for email header encoding
   - However, **we strongly recommend installing the `mbstring` extension** for better compatibility and performance
-- `intl` - Internationalization support (optional, uses Symfony polyfill as fallback)
+- `intl` - Internationalization support (**required**: `php81_bc/strftime`, used in place of the deprecated `strftime()`, requires it)
 - `openssl` - OpenSSL support (optional, required for SSL/TLS connections and encryption)
 - `mcrypt` - Mcrypt support (optional, deprecated in PHP 7.1+, only for legacy AES encryption)
 
