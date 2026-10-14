@@ -78,17 +78,15 @@ class TranslateBehavior extends ModelBehavior
      * @param Model $Model Model the behavior is being attached to.
      * @param array $config Array of configuration information.
      * @return mixed
+     * @throws CakeException When the datasource of the model is not connected.
      */
     public function setup(Model $Model, $config = [])
     {
         $db = ConnectionManager::getDataSource($Model->useDbConfig);
         if (!$db->connected) {
-            trigger_error(
+            throw new CakeException(
                 __d('cake_dev', 'Datasource %s for TranslateBehavior of model %s is not connected', $Model->useDbConfig, $Model->alias),
-                E_USER_ERROR,
             );
-
-            return false;
         }
 
         $this->settings[$Model->alias] = [];
@@ -679,7 +677,7 @@ class TranslateBehavior extends ModelBehavior
      *   if false the field will be added for all future queries.
      * @return bool
      * @throws CakeException when attempting to bind a translating called name. This is not allowed
-     *   as it shadows Model::$name.
+     *   as it shadows Model::$name, or when the association is already bound to the model.
      */
     public function bindTranslation(Model $Model, $fields, $reset = true)
     {
@@ -725,12 +723,9 @@ class TranslateBehavior extends ModelBehavior
 
                 foreach (['hasOne', 'hasMany', 'belongsTo', 'hasAndBelongsToMany'] as $type) {
                     if (isset($Model->{$type}[$association]) || isset($Model->__backAssociation[$type][$association])) {
-                        trigger_error(
+                        throw new CakeException(
                             __d('cake_dev', 'Association %s is already bound to model %s', $association, $Model->alias),
-                            E_USER_ERROR,
                         );
-
-                        return false;
                     }
                 }
                 $associations[$association] = array_merge($default, ['conditions' => [

@@ -32,8 +32,9 @@ if (isset($GLOBALS['_composer_autoload_path'])) {
     } elseif (file_exists($rootInstall)) {
         require_once $rootInstall;
     } else {
-        trigger_error('Composer autoload file not found. ' .
-            'Please run "composer install" to generate the autoload file.', E_USER_ERROR);
+        fwrite(STDERR, 'Composer autoload file not found. ' .
+            'Please run "composer install" to generate the autoload file.' . PHP_EOL);
+        exit(1);
     }
 }
 

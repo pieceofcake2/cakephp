@@ -288,6 +288,20 @@ class ConsoleOutputTest extends CakeTestCase
     }
 
     /**
+     * Test that a stream which cannot be checked for a terminal gets plain output without a warning.
+     *
+     * @return void
+     */
+    public function testOutputAsPlainForInMemoryStream()
+    {
+        $output = new ConsoleOutput('php://memory');
+        $this->assertSame(ConsoleOutput::PLAIN, $output->outputAs());
+
+        $output = new ConsoleOutput('php://temp');
+        $this->assertSame(ConsoleOutput::PLAIN, $output->outputAs());
+    }
+
+    /**
      * test plain output only strips tags used for formatting.
      *
      * @return void

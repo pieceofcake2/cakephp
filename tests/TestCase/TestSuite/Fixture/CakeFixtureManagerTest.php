@@ -31,6 +31,8 @@ class CakeFixtureManagerTest extends CakeTestCase
     public function setUp(): void
     {
         parent::setUp();
+        // The fixture class is only loaded by the fixture manager, so it is missing when this test runs on its own.
+        require_once CORE_TESTS . DS . 'Fixture' . DS . 'UuidFixture.php';
         $this->fixtureManager = new CakeFixtureManager();
     }
 
@@ -53,11 +55,27 @@ class CakeFixtureManagerTest extends CakeTestCase
      */
     public function testLoadTruncatesTable()
     {
-        $MockFixture = $this->getMock('UuidFixture', ['truncate']);
+        $MockFixture = $this->getMock('UuidFixture', ['truncate', 'insert']);
+        // The table name is derived from the class name, which is the mock class name here.
+        $MockFixture->table = 'uuids';
         $MockFixture
             ->expects($this->once())
             ->method('truncate')
             ->will($this->returnValue(true));
+        $MockFixture
+            ->expects($this->once())
+            ->method('insert')
+            ->will($this->returnValue(true));
+
+        // The table has to exist for it to be truncated instead of created.
+        $db = ConnectionManager::getDataSource($MockFixture->useDbConfig);
+        $cacheSources = $db->cacheSources;
+        $db->cacheSources = false;
+        $Fixture = null;
+        if (!in_array($db->config['prefix'] . $MockFixture->table, (array)$db->listSources())) {
+            $Fixture = new UuidFixture();
+            $Fixture->create($db);
+        }
 
         $fixtureManager = $this->fixtureManager;
         $fixtureManagerReflection = new ReflectionClass($fixtureManager);
@@ -71,7 +89,14 @@ class CakeFixtureManagerTest extends CakeTestCase
         $TestCase->autoFixtures = true;
         $TestCase->dropTables = false;
 
-        $fixtureManager->load($TestCase);
+        try {
+            $fixtureManager->load($TestCase);
+        } finally {
+            if ($Fixture) {
+                $Fixture->drop($db);
+            }
+            $db->cacheSources = $cacheSources;
+        }
     }
 
     /**
@@ -82,6 +107,8 @@ class CakeFixtureManagerTest extends CakeTestCase
     public function testLoadSingleTruncatesTable()
     {
         $MockFixture = $this->getMock('UuidFixture', ['truncate']);
+        // The table name is derived from the class name, which is the mock class name here.
+        $MockFixture->table = 'uuids';
         $MockFixture
             ->expects($this->once())
             ->method('truncate')
@@ -95,9 +122,11 @@ class CakeFixtureManagerTest extends CakeTestCase
         $fixtureMapProperty->setValue($fixtureManager, ['UuidFixture' => $MockFixture]);
 
         $dboMethods = array_diff(get_class_methods('DboSource'), ['enabled']);
-        $dboMethods[] = 'connect';
         $db = $this->getMock('DboSource', $dboMethods);
         $db->config['prefix'] = '';
+        $db->expects($this->any())
+            ->method('listSources')
+            ->will($this->returnValue([$MockFixture->table]));
 
         $fixtureManager->loadSingle('Uuid', $db, false);
     }

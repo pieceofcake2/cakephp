@@ -1425,6 +1425,43 @@ class TranslateBehaviorTest extends CakeTestCase
     }
 
     /**
+     * Test that an exception is raised when the association name is already bound to the model.
+     *
+     * @return void
+     */
+    public function testExceptionOnAlreadyBoundAssociation()
+    {
+        $this->loadFixtures('Translate', 'TranslatedItem');
+        $TestModel = new TranslatedItem();
+        $TestModel->bindModel(['hasMany' => ['BodyTranslation' => ['className' => 'TranslateTestModel']]], false);
+
+        $this->expectException(CakeException::class);
+        $this->expectExceptionMessage('Association BodyTranslation is already bound to model TranslatedItem');
+        $TestModel->bindTranslation(['body' => 'BodyTranslation']);
+    }
+
+    /**
+     * Test that an exception is raised when the datasource of the model is not connected.
+     *
+     * @return void
+     */
+    public function testExceptionOnNotConnectedDatasource()
+    {
+        $this->loadFixtures('Translate', 'TranslatedItem');
+        $TestModel = new TranslatedItem();
+        ConnectionManager::create('translate_not_connected', ['datasource' => 'Test2Source']);
+        $TestModel->useDbConfig = 'translate_not_connected';
+
+        try {
+            $this->expectException(CakeException::class);
+            $this->expectExceptionMessage('Datasource translate_not_connected for TranslateBehavior of model TranslatedItem is not connected');
+            $TestModel->Behaviors->Translate->setup($TestModel);
+        } finally {
+            ConnectionManager::drop('translate_not_connected');
+        }
+    }
+
+    /**
      * Test that translations can be bound and unbound dynamically.
      *
      * @return void
