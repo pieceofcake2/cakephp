@@ -70,7 +70,9 @@ class AclShell extends AppShell
             $out .= "--------------------------------------------------\n";
             $this->err($out);
 
-            return $this->_stop(1);
+            $this->_stop(1);
+
+            return;
         }
 
         if ($this->command) {
@@ -79,7 +81,9 @@ class AclShell extends AppShell
                 $this->err(__d('cake_console', 'Please create app/Config/database.php manually.'));
                 $this->err(__d('cake_console', 'You can use app/Config/database.php.default as a template.'));
 
-                return $this->_stop(1);
+                $this->_stop(1);
+
+                return;
             }
             require_once CONFIG . 'database.php';
 

@@ -56,7 +56,9 @@ class I18nShell extends AppShell
                 $this->err(__d('cake_console', 'Please create app/Config/database.php manually.'));
                 $this->err(__d('cake_console', 'You can use app/Config/database.php.default as a template.'));
 
-                return $this->_stop(1);
+                $this->_stop(1);
+
+                return;
             }
         }
     }
@@ -87,7 +89,9 @@ class I18nShell extends AppShell
                 $this->out($this->OptionParser->help());
                 break;
             case 'q':
-                return $this->_stop();
+                $this->_stop();
+
+                return;
             default:
                 $this->out(__d('cake_console', 'You have made an invalid selection. Please choose a command to execute by entering E, I, H, or Q.'));
         }

@@ -299,7 +299,7 @@ class Hash
      * @param array $data The data to operate on.
      * @param array $path The path to work on.
      * @param mixed $values The values to insert when doing inserts.
-     * @return array data.
+     * @return array|null data.
      */
     protected static function _simpleOp($op, $data, $path, $values = null)
     {

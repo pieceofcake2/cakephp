@@ -32,6 +32,9 @@
  * ```
  *
  * @package       Cake.Controller.Component.Acl
+ * @property Permission $Permission
+ * @property Aro $Aro
+ * @property Aco $Aco
  */
 class DbAcl extends CakeObject implements AclInterface
 {

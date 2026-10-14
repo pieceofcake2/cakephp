@@ -292,7 +292,7 @@ class RequestHandlerComponent extends Component
      * "304 Not Modified" header.
      *
      * @param Controller $controller Controller instance.
-     * @return bool False if the render process should be aborted.
+     * @return bool|null False if the render process should be aborted.
      */
     public function beforeRender(Controller $controller)
     {

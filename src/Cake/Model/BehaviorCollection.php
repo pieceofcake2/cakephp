@@ -206,7 +206,7 @@ class BehaviorCollection extends ObjectCollection implements CakeEventListener
      */
     public function detach($name)
     {
-        return $this->unload($name);
+        $this->unload($name);
     }
 
     /**

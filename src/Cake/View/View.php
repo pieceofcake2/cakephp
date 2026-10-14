@@ -390,7 +390,7 @@ class View extends CakeObject
      * - `callbacks` - Set to true to fire beforeRender and afterRender helper callbacks for this element.
      *   Defaults to false.
      * - `ignoreMissing` - Used to allow missing elements. Set to true to not trigger notices.
-     * @return string Rendered Element
+     * @return string|null Rendered Element
      */
     public function element($name, $data = [], $options = [])
     {
@@ -558,7 +558,7 @@ class View extends CakeObject
      *
      * @param string $filename the cache file to include
      * @param string $timeStart the page render start time
-     * @return bool Success of rendering the cached file.
+     * @return string|false|null Success of rendering the cached file.
      */
     public function renderCache($filename, $timeStart)
     {

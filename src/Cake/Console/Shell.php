@@ -21,6 +21,7 @@ use PHPUnit\Framework\TestCase;
  * Base class for command-line utilities for automating programmer chores.
  *
  * @package       Cake.Console
+ * @method mixed main() Default entry point of the shell, implemented by subclasses.
  */
 class Shell extends CakeObject
 {
@@ -276,7 +277,7 @@ class Shell extends CakeObject
      * Lazy loads models using the loadModel() method if declared in $uses
      *
      * @param string $name The name of the model to look for.
-     * @return void
+     * @return bool
      */
     public function __isset($name)
     {
@@ -288,6 +289,8 @@ class Shell extends CakeObject
                 }
             }
         }
+
+        return false;
     }
 
     /**
@@ -693,7 +696,7 @@ class Shell extends CakeObject
      * @param array|string $message The message to output.
      * @param int $newlines Number of newlines to append.
      * @param int $size The number of bytes to overwrite. Defaults to the length of the last message output.
-     * @return int|bool Returns the number of bytes returned from writing to stdout.
+     * @return void
      */
     public function overwrite($message, $newlines = 1, $size = null)
     {

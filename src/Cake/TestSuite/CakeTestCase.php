@@ -212,14 +212,14 @@ abstract class CakeTestCase extends TestCase
      * @param string $expected The expected value.
      * @param string $result The actual value.
      * @param string $message The message to use for failure.
-     * @return bool
+     * @return void
      */
     public function assertTextNotEquals($expected, $result, $message = '')
     {
         $expected = str_replace(["\r\n", "\r"], "\n", $expected);
         $result = str_replace(["\r\n", "\r"], "\n", $result);
 
-        return $this->assertNotEquals($expected, $result, $message);
+        $this->assertNotEquals($expected, $result, $message);
     }
 
     /**
@@ -229,14 +229,14 @@ abstract class CakeTestCase extends TestCase
      * @param string $expected The expected value.
      * @param string $result The actual value.
      * @param string $message message The message to use for failure.
-     * @return bool
+     * @return void
      */
     public function assertTextEquals($expected, $result, $message = '')
     {
         $expected = str_replace(["\r\n", "\r"], "\n", $expected);
         $result = str_replace(["\r\n", "\r"], "\n", $result);
 
-        return $this->assertEquals($expected, $result, $message);
+        $this->assertEquals($expected, $result, $message);
     }
 
     /**
@@ -246,14 +246,14 @@ abstract class CakeTestCase extends TestCase
      * @param string $prefix The prefix to check for.
      * @param string $string The string to search in.
      * @param string $message The message to use for failure.
-     * @return bool
+     * @return void
      */
     public function assertTextStartsWith($prefix, $string, $message = '')
     {
         $prefix = str_replace(["\r\n", "\r"], "\n", $prefix);
         $string = str_replace(["\r\n", "\r"], "\n", $string);
 
-        return $this->assertStringStartsWith($prefix, $string, $message);
+        $this->assertStringStartsWith($prefix, $string, $message);
     }
 
     /**
@@ -263,14 +263,14 @@ abstract class CakeTestCase extends TestCase
      * @param string $prefix The prefix to not find.
      * @param string $string The string to search.
      * @param string $message The message to use for failure.
-     * @return bool
+     * @return void
      */
     public function assertTextStartsNotWith($prefix, $string, $message = '')
     {
         $prefix = str_replace(["\r\n", "\r"], "\n", $prefix);
         $string = str_replace(["\r\n", "\r"], "\n", $string);
 
-        return $this->assertStringStartsNotWith($prefix, $string, $message);
+        $this->assertStringStartsNotWith($prefix, $string, $message);
     }
 
     /**
@@ -280,14 +280,14 @@ abstract class CakeTestCase extends TestCase
      * @param string $suffix The suffix to find.
      * @param string $string The string to search.
      * @param string $message The message to use for failure.
-     * @return bool
+     * @return void
      */
     public function assertTextEndsWith($suffix, $string, $message = '')
     {
         $suffix = str_replace(["\r\n", "\r"], "\n", $suffix);
         $string = str_replace(["\r\n", "\r"], "\n", $string);
 
-        return $this->assertStringEndsWith($suffix, $string, $message);
+        $this->assertStringEndsWith($suffix, $string, $message);
     }
 
     /**
@@ -297,14 +297,14 @@ abstract class CakeTestCase extends TestCase
      * @param string $suffix The suffix to not find.
      * @param string $string The string to search.
      * @param string $message The message to use for failure.
-     * @return bool
+     * @return void
      */
     public function assertTextEndsNotWith($suffix, $string, $message = '')
     {
         $suffix = str_replace(["\r\n", "\r"], "\n", $suffix);
         $string = str_replace(["\r\n", "\r"], "\n", $string);
 
-        return $this->assertStringEndsNotWith($suffix, $string, $message);
+        $this->assertStringEndsNotWith($suffix, $string, $message);
     }
 
     /**
@@ -315,17 +315,19 @@ abstract class CakeTestCase extends TestCase
      * @param string $haystack The string to search through.
      * @param string $message The message to display on failure.
      * @param bool $ignoreCase Whether or not the search should be case-sensitive.
-     * @return bool
+     * @return void
      */
     public function assertTextContains($needle, $haystack, $message = '', $ignoreCase = false)
     {
         $needle = str_replace(["\r\n", "\r"], "\n", $needle);
         $haystack = str_replace(["\r\n", "\r"], "\n", $haystack);
         if ($ignoreCase) {
-            return $this->assertStringContainsStringIgnoringCase($needle, $haystack, $message);
+            $this->assertStringContainsStringIgnoringCase($needle, $haystack, $message);
+
+            return;
         }
 
-        return $this->assertStringContainsString($needle, $haystack, $message);
+        $this->assertStringContainsString($needle, $haystack, $message);
     }
 
     /**
@@ -336,17 +338,19 @@ abstract class CakeTestCase extends TestCase
      * @param string $haystack The string to search through.
      * @param string $message The message to display on failure.
      * @param bool $ignoreCase Whether or not the search should be case-sensitive.
-     * @return bool
+     * @return void
      */
     public function assertTextNotContains($needle, $haystack, $message = '', $ignoreCase = false)
     {
         $needle = str_replace(["\r\n", "\r"], "\n", $needle);
         $haystack = str_replace(["\r\n", "\r"], "\n", $haystack);
         if ($ignoreCase) {
-            return $this->assertStringNotContainsStringIgnoringCase($needle, $haystack, $message);
+            $this->assertStringNotContainsStringIgnoringCase($needle, $haystack, $message);
+
+            return;
         }
 
-        return $this->assertStringNotContainsString($needle, $haystack, $message);
+        $this->assertStringNotContainsString($needle, $haystack, $message);
     }
 
     /**
@@ -529,7 +533,7 @@ abstract class CakeTestCase extends TestCase
      *
      * @param array $assertions Assertions to run.
      * @param string $string The HTML string to check.
-     * @return void
+     * @return string|false
      */
     protected function _assertAttributes($assertions, $string)
     {
@@ -569,7 +573,7 @@ abstract class CakeTestCase extends TestCase
      */
     protected static function assertEqual($result, $expected, $message = '')
     {
-        return static::assertEquals($expected, $result, $message);
+        static::assertEquals($expected, $result, $message);
     }
 
     /**
@@ -583,7 +587,7 @@ abstract class CakeTestCase extends TestCase
      */
     protected static function assertNotEqual($result, $expected, $message = '')
     {
-        return static::assertNotEquals($expected, $result, $message);
+        static::assertNotEquals($expected, $result, $message);
     }
 
     /**
@@ -597,7 +601,7 @@ abstract class CakeTestCase extends TestCase
      */
     protected static function assertPattern($pattern, $string, $message = '')
     {
-        return static::assertMatchesRegularExpression($pattern, $string, $message);
+        static::assertMatchesRegularExpression($pattern, $string, $message);
     }
 
     /**
@@ -611,7 +615,7 @@ abstract class CakeTestCase extends TestCase
      */
     protected static function assertIdentical($actual, $expected, $message = '')
     {
-        return static::assertSame($expected, $actual, $message);
+        static::assertSame($expected, $actual, $message);
     }
 
     /**
@@ -625,7 +629,7 @@ abstract class CakeTestCase extends TestCase
      */
     protected static function assertNotIdentical($actual, $expected, $message = '')
     {
-        return static::assertNotSame($expected, $actual, $message);
+        static::assertNotSame($expected, $actual, $message);
     }
 
     /**
@@ -639,7 +643,7 @@ abstract class CakeTestCase extends TestCase
      */
     protected static function assertNoPattern($pattern, $string, $message = '')
     {
-        return static::assertDoesNotMatchRegularExpression($pattern, $string, $message);
+        static::assertDoesNotMatchRegularExpression($pattern, $string, $message);
     }
 
     /**
@@ -663,7 +667,7 @@ abstract class CakeTestCase extends TestCase
      */
     protected static function assertReference(&$first, &$second, $message = '')
     {
-        return static::assertSame($first, $second, $message);
+        static::assertSame($first, $second, $message);
     }
 
     /**
@@ -677,7 +681,7 @@ abstract class CakeTestCase extends TestCase
      */
     protected static function assertIsA($object, $type, $message = '')
     {
-        return static::assertInstanceOf($type, $object, $message);
+        static::assertInstanceOf($type, $object, $message);
     }
 
     /**
@@ -694,7 +698,7 @@ abstract class CakeTestCase extends TestCase
         $upper = $result + $margin;
         $lower = $result - $margin;
 
-        return static::assertTrue((($expected <= $upper) && ($expected >= $lower)), $message);
+        static::assertTrue((($expected <= $upper) && ($expected >= $lower)), $message);
     }
 
     /**

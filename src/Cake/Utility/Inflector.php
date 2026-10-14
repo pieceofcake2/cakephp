@@ -371,7 +371,7 @@ class Inflector
      * Return $word in plural form.
      *
      * @param string $word Word in singular
-     * @return string Word in plural
+     * @return string|null Word in plural
      * @link https://book.cakephp.org/2.0/en/core-utility-libraries/inflector.html#Inflector::pluralize
      */
     public static function pluralize($word)

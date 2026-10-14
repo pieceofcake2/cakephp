@@ -23,6 +23,7 @@
  *
  * @link          https://book.cakephp.org/2.0/en/models/datasources.html#basic-api-for-datasources
  * @package       Cake.Model.Datasource
+ * @method string value(mixed $data, string|null $column = null) Quotes a value for use in a query, implemented by DboSource. Used by insertQueryData().
  */
 class DataSource extends CakeObject
 {

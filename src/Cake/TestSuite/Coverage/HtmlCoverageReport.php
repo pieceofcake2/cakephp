@@ -229,7 +229,7 @@ HTML;
     /**
      * Generate an HTML snippet for coverage footers
      *
-     * @return void
+     * @return string
      */
     public function coverageFooter()
     {

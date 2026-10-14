@@ -33,7 +33,7 @@ class CacheDispatcher extends DispatcherFilter
      * Checks whether the response was cached and set the body accordingly.
      *
      * @param CakeEvent $event containing the request and response object
-     * @return CakeResponse with cached content if found, null otherwise
+     * @return CakeResponse|null with cached content if found, null otherwise
      */
     public function beforeDispatch(CakeEvent $event)
     {

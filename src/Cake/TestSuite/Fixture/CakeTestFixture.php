@@ -283,7 +283,7 @@ class CakeTestFixture
      * of this fixture could be executed successfully.
      *
      * @param DboSource $db An instance of the database into which the records will be inserted
-     * @return bool on success or if there are no records to insert, or false on failure
+     * @return bool|null on success or if there are no records to insert, or false on failure
      * @throws CakeException if counts of values and fields do not match.
      */
     public function insert($db)

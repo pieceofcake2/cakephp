@@ -99,7 +99,9 @@ class ApiShell extends AppShell
                 if (!isset($parsed[$this->params['method']])) {
                     $this->err(__d('cake_console', '%s::%s() could not be found', $class, $this->params['method']));
 
-                    return $this->_stop();
+                    $this->_stop();
+
+                    return;
                 }
                 $method = $parsed[$this->params['method']];
                 $this->out($class . '::' . $method['method'] . $method['parameters']);
@@ -119,7 +121,9 @@ class ApiShell extends AppShell
                     if ($number === 'q') {
                         $this->out(__d('cake_console', 'Done'));
 
-                        return $this->_stop();
+                        $this->_stop();
+
+                        return;
                     }
 
                     if ($number === 'l') {

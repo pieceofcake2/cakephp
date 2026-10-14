@@ -328,7 +328,9 @@ class Scaffold
                 $this->controller->set($varName, $this->ScaffoldModel->{$assocName}->find('list'));
             }
 
-            return $this->_scaffoldForm($formAction);
+            $this->_scaffoldForm($formAction);
+
+            return null;
         } elseif ($this->controller->scaffoldError($action) === false) {
             return $this->_scaffoldError();
         }

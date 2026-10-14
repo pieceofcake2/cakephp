@@ -452,7 +452,7 @@ class TranslateBehavior extends ModelBehavior
      * is disabled.
      *
      * @param Model $Model Model using this behavior.
-     * @return bool true.
+     * @return bool|null true.
      */
     protected function _setRuntimeData(Model $Model)
     {
@@ -504,7 +504,7 @@ class TranslateBehavior extends ModelBehavior
      * @param Model $Model Model the callback is called on
      * @param bool $created Whether or not the save created a record.
      * @param array $options Options passed from Model::save().
-     * @return bool true.
+     * @return bool|null true.
      */
     public function afterSave(Model $Model, $created, $options = [])
     {

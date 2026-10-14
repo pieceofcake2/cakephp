@@ -22,6 +22,7 @@
  * A DboSource adapter for SQLite 3 using PDO
  *
  * @package       Cake.Model.Datasource.Database
+ * @property PDOStatement $results The statement last passed to resultSet()
  */
 class Sqlite extends DboSource
 {

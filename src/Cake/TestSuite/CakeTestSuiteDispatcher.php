@@ -96,15 +96,13 @@ class CakeTestSuiteDispatcher
         $this->_parseParams();
 
         if ($this->params['case']) {
-            $value = $this->_runTestCase();
+            $this->_runTestCase();
         } else {
-            $value = $this->_testCaseList();
+            $this->_testCaseList();
         }
 
         $output = ob_get_clean();
         echo $output;
-
-        return $value;
     }
 
     /**

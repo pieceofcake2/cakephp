@@ -93,7 +93,7 @@ class XmlView extends View
      *
      * @param string $view The view being rendered.
      * @param string $layout The layout being rendered.
-     * @return string The rendered view.
+     * @return string|null The rendered view.
      */
     public function render($view = null, $layout = null)
     {

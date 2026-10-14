@@ -24,6 +24,8 @@
  *
  * @link http://www.php.net/manual/en/ref.pdo-sqlsrv.php
  * @package       Cake.Model.Datasource.Database
+ * @property null $_results Reset when a non-SELECT statement fails in _execute()
+ * @property string|null $error Error message of the last failed non-SELECT statement
  */
 class Sqlserver extends DboSource
 {
@@ -920,11 +922,7 @@ class Sqlserver extends DboSource
 
             return true;
         } catch (PDOException $e) {
-            if (isset($query->queryString)) {
-                $e->queryString = $query->queryString;
-            } else {
-                $e->queryString = $sql;
-            }
+            $e->queryString = $sql;
             throw $e;
         }
     }

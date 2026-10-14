@@ -26,6 +26,12 @@ use PHPUnit\TextUI\ResultPrinter;
  * CakeBaseReporter contains common reporting features used in the CakePHP Test suite
  *
  * @package       Cake.TestSuite.Reporter
+ * @method mixed paintHeader() Paints the start of the response, implemented by subclasses.
+ * @method void paintFooter(TestResult $result) Paints the end of the test run, implemented by subclasses.
+ * @method void paintPass(Test $test, float|null $time = null) Paints a passing test, implemented by subclasses.
+ * @method void paintFail(AssertionFailedError|Warning $message, Test $test) Paints a failing test, implemented by subclasses.
+ * @method void paintException(Throwable $message, Test $test) Paints an error, implemented by subclasses.
+ * @method void paintSkip(Throwable $message, Test $test) Paints a skipped or incomplete test, implemented by subclasses.
  */
 abstract class CakeBaseReporter implements ResultPrinter
 {

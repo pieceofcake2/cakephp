@@ -248,7 +248,7 @@ class HtmlHelper extends AppHelper
      * @param array|string $url The address of the external resource or string for content attribute
      * @param array $options Other attributes for the generated tag. If the type attribute is html,
      *    rss, atom, or icon, the mime-type is returned.
-     * @return string A completed `<link />` element.
+     * @return string|null A completed `<link />` element.
      * @link https://book.cakephp.org/2.0/en/core-libraries/helpers/html.html#HtmlHelper::meta
      */
     public function meta($type, $url = null, $options = [])
@@ -430,7 +430,7 @@ class HtmlHelper extends AppHelper
      *   CSS stylesheets. If `$path` is prefixed with '/', the path will be relative to the webroot
      *   of your application. Otherwise, the path will be relative to your CSS path, usually webroot/css.
      * @param array $options Array of options and HTML arguments.
-     * @return string CSS `<link />` or `<style />` tag, depending on the type of link.
+     * @return string|null CSS `<link />` or `<style />` tag, depending on the type of link.
      * @link https://book.cakephp.org/2.0/en/core-libraries/helpers/html.html#HtmlHelper::css
      */
     public function css($path, $options = [])

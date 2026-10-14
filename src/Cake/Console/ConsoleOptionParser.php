@@ -548,7 +548,7 @@ class ConsoleOptionParser
      *    That subcommands help will be shown instead.
      * @param string $format Define the output format, can be text or xml
      * @param int $width The width to format user content to. Defaults to 72
-     * @return string Generated help.
+     * @return string|null Generated help.
      */
     public function help($subcommand = null, $format = 'text', $width = 72)
     {
@@ -674,7 +674,7 @@ class ConsoleOptionParser
      *
      * @param string $argument The argument to append
      * @param array $args The array of parsed args to append to.
-     * @return array Args
+     * @return array|null Args
      * @throws ConsoleException
      */
     protected function _parseArg($argument, $args)

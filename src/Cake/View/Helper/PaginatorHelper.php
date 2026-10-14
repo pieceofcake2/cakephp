@@ -802,7 +802,6 @@ class PaginatorHelper extends AppHelper
             $options['tag'],
             $options['before'],
             $options['after'],
-            $options['model'],
             $options['modulus'],
             $options['separator'],
             $options['first'],
@@ -947,7 +946,7 @@ class PaginatorHelper extends AppHelper
             return '';
         }
         extract($options);
-        unset($options['tag'], $options['after'], $options['model'], $options['separator'], $options['ellipsis'], $options['class']);
+        unset($options['tag'], $options['after'], $options['separator'], $options['ellipsis'], $options['class']);
 
         $out = '';
 
@@ -1013,7 +1012,7 @@ class PaginatorHelper extends AppHelper
         }
 
         extract($options);
-        unset($options['tag'], $options['before'], $options['model'], $options['separator'], $options['ellipsis'], $options['class']);
+        unset($options['tag'], $options['before'], $options['separator'], $options['ellipsis'], $options['class']);
 
         $out = '';
         $lower = $params['pageCount'] - (int)$last + 1;

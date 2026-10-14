@@ -62,7 +62,7 @@ class RedirectRoute extends CakeRoute
      * redirection
      *
      * @param string $url The URL to parse
-     * @return bool False on failure
+     * @return bool|null False on failure
      */
     public function parse($url)
     {

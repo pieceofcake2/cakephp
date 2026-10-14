@@ -75,7 +75,7 @@ class AssetDispatcher extends DispatcherFilter
      * filter if any is configured
      *
      * @param CakeEvent $event containing the request and response object
-     * @return CakeResponse if the client is requesting a recognized asset, null otherwise
+     * @return CakeResponse|null if the client is requesting a recognized asset, null otherwise
      */
     protected function _filterAsset(CakeEvent $event)
     {
@@ -114,7 +114,7 @@ class AssetDispatcher extends DispatcherFilter
      * Builds asset file path based off url
      *
      * @param string $url URL
-     * @return string Absolute path for asset file
+     * @return string|null Absolute path for asset file
      */
     protected function _getAssetFile($url)
     {

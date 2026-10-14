@@ -78,7 +78,7 @@ abstract class DispatcherFilter implements CakeEventListener
      *
      * @param CakeEvent $event container object having the `request`, `response` and `additionalParams`
      *  keys in the data property.
-     * @return CakeResponse|bool
+     * @return CakeResponse|bool|null
      */
     public function beforeDispatch(CakeEvent $event)
     {

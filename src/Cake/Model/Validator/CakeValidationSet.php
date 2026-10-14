@@ -164,7 +164,7 @@ class CakeValidationSet implements ArrayAccess, IteratorAggregate, Countable
      * Gets a rule for a given name if exists
      *
      * @param string $name Field name.
-     * @return CakeValidationRule
+     * @return CakeValidationRule|null
      */
     public function getRule($name)
     {

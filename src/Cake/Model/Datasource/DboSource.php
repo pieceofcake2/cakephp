@@ -599,7 +599,7 @@ class DboSource extends DataSource
     /**
      * DataSource Query abstraction
      *
-     * @return resource Result resource identifier.
+     * @return mixed Resultset array, the result of a magic findBy/findAllBy call, or false/null on failure
      */
     public function query()
     {
@@ -1500,7 +1500,9 @@ class DboSource extends DataSource
             }
 
             // Merge
-            return $this->_mergeHasMany($resultSet, $assocResultSet, $association, $Model);
+            $this->_mergeHasMany($resultSet, $assocResultSet, $association, $Model);
+
+            return null;
         } elseif ($type === 'hasAndBelongsToMany') {
             // 'hasAndBelongsToMany' associations.
 
@@ -2470,7 +2472,7 @@ class DboSource extends DataSource
      * @param Model $Model The model to get a calculated field for.
      * @param string $func Lowercase name of SQL function, i.e. 'count' or 'max'
      * @param array $params Function parameters (any values must be quoted manually)
-     * @return string An SQL calculation function
+     * @return string|null An SQL calculation function
      */
     public function calculate(Model $Model, $func, $params = [])
     {
@@ -3548,7 +3550,7 @@ class DboSource extends DataSource
      *
      * @param string $table The name of the table to update.
      * @param string $column The column to use when resetting the sequence value.
-     * @return bool Success.
+     * @return bool|null Success.
      */
     public function resetSequence($table, $column)
     {

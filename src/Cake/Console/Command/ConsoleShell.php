@@ -351,6 +351,7 @@ class ConsoleShell extends AppShell
         [$modelToCheck] = explode('->', $command);
 
         if ($this->_isValidModel($modelToCheck)) {
+            $data = null;
             $findCommand = "\$data = \$this->$command;";
             //@codingStandardsIgnoreStart
             @eval($findCommand);
@@ -438,6 +439,7 @@ class ConsoleShell extends AppShell
 
         if ($this->_isValidModel($modelToCheck)) {
             // Get the column info for this model
+            $data = null;
             $fieldsCommand = "\$data = \$this->{$modelToCheck}->getColumnTypes();";
             //@codingStandardsIgnoreStart
             @eval($fieldsCommand);
@@ -461,7 +463,9 @@ class ConsoleShell extends AppShell
     protected function _routesReload()
     {
         if (!$this->_loadRoutes()) {
-            return $this->err(__d('cake_console', 'There was an error loading the routes config. Please check that the file exists and is free of parse errors.'));
+            $this->err(__d('cake_console', 'There was an error loading the routes config. Please check that the file exists and is free of parse errors.'));
+
+            return;
         }
         $this->out(__d('cake_console', 'Routes configuration reloaded, %d routes connected', count(Router::$routes)));
     }

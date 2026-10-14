@@ -86,7 +86,7 @@ class TreeBehavior extends ModelBehavior
      * @param Model $Model Model using this behavior.
      * @param bool $created indicates whether the node just saved was created or updated
      * @param array $options Options passed from Model::save().
-     * @return bool true on success, false on failure
+     * @return bool|null true on success, false on failure
      */
     public function afterSave(Model $Model, $created, $options = [])
     {

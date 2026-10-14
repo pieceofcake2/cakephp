@@ -42,7 +42,7 @@ class CompletionShell extends AppShell
     /**
      * Not called by the autocomplete shell - this is for curious users
      *
-     * @return void
+     * @return int|bool
      */
     public function main()
     {
@@ -52,7 +52,7 @@ class CompletionShell extends AppShell
     /**
      * list commands
      *
-     * @return void
+     * @return int|bool|null
      */
     public function commands()
     {
@@ -64,7 +64,7 @@ class CompletionShell extends AppShell
     /**
      * list options for the named command
      *
-     * @return void
+     * @return int|bool|null
      */
     public function options()
     {
@@ -80,7 +80,7 @@ class CompletionShell extends AppShell
     /**
      * list subcommands for the named command
      *
-     * @return void
+     * @return int|bool|null
      */
     public function subCommands()
     {
@@ -96,7 +96,7 @@ class CompletionShell extends AppShell
     /**
      * Guess autocomplete from the whole argument string
      *
-     * @return void
+     * @return int|bool|null
      */
     public function fuzzy()
     {
@@ -154,7 +154,7 @@ class CompletionShell extends AppShell
      * Emit results as a string, space delimited
      *
      * @param array $options The options to output
-     * @return void
+     * @return int|bool|null
      */
     protected function _output($options = [])
     {

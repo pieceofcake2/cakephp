@@ -27,6 +27,7 @@
  *
  * @package       Cake.Model
  * @link          https://book.cakephp.org/2.0/en/data-validation.html
+ * @property array $validationErrors Reset by _validationList(); validation errors are stored in Model::$validationErrors
  */
 #[\AllowDynamicProperties]
 class ModelValidator implements ArrayAccess, IteratorAggregate, Countable
