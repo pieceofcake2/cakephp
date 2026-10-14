@@ -1745,6 +1745,54 @@ class AuthComponentTest extends CakeTestCase
     }
 
     /**
+     * Test that protocol-relative redirect URLs stored in the session can not redirect off-site.
+     *
+     * @return void
+     */
+    public function testRedirectUrlProtocolRelative()
+    {
+        $this->Auth->loginAction = ['controller' => 'users', 'action' => 'login'];
+        $this->Auth->loginRedirect = ['controller' => 'users', 'action' => 'home'];
+
+        $cases = [
+            '//evil.example.com/posts/add' => '/evil.example.com/posts/add',
+            '///evil.example.com' => '/evil.example.com',
+            '/\\evil.example.com' => '/evil.example.com',
+            '\\\\evil.example.com' => '/evil.example.com',
+            '\\/evil.example.com' => '/evil.example.com',
+            '/posts/add' => '/posts/add',
+        ];
+        foreach ($cases as $stored => $expected) {
+            $this->Auth->Session->write('Auth.redirect', $stored);
+            $result = $this->Auth->redirectUrl();
+            $this->assertSame($expected, $result, 'Stored value: ' . $stored);
+            $this->assertStringStartsWith(Router::fullBaseUrl() . '/', Router::url($result, true));
+        }
+    }
+
+    /**
+     * Test that a request URL starting with `//` does not lead to an off-site redirect after login.
+     *
+     * @return void
+     */
+    public function testUnauthenticatedProtocolRelativeHere()
+    {
+        $_SERVER['HTTP_REFERER'] = false;
+        $url = '/auth_test/add';
+        $this->Auth->request->addParams(Router::parse($url));
+        $this->Auth->request->url = 'auth_test/add';
+        $this->Auth->request->here = '//evil.example.com/auth_test/add';
+        $this->Auth->Session->delete('Auth');
+
+        $this->Auth->loginAction = ['controller' => 'users', 'action' => 'login'];
+        $this->Auth->startup($this->Controller);
+        $this->assertSame('//evil.example.com/auth_test/add', $this->Auth->Session->read('Auth.redirect'));
+
+        $result = $this->Auth->redirectUrl();
+        $this->assertSame('/evil.example.com/auth_test/add', $result);
+    }
+
+    /**
      * Test that redirectUrl() returns '/' if loginRedirect is empty
      * and Auth.redirect is the login page.
      *

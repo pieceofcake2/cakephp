@@ -158,6 +158,9 @@ The following security vulnerabilities have been reported in the original CakePH
 | [CVE-2015-8379](https://nvd.nist.gov/vuln/detail/CVE-2015-8379) | CSRF protection bypass via _method parameter | ✅ Fixed in [c0fb45e](https://github.com/pieceofcake2/cakephp/commit/c0fb45e79), tests in [PR #6](https://github.com/pieceofcake2/cakephp/pull/6) |
 | [CVE-2020-15400](https://nvd.nist.gov/vuln/detail/CVE-2020-15400) | CSRF token fixation (exploitable with XSS) | ✅ Fixed in [PR #5](https://github.com/pieceofcake2/cakephp/pull/5) |
 | [GHSA-wgww-24w3-wfqp](https://github.com/pieceofcake2/cakephp/security/advisories/GHSA-wgww-24w3-wfqp) | SSRF: `Xml::build()` fetches `https://` URLs even with `'readFile' => false` | ✅ Fixed in [PR #33](https://github.com/pieceofcake2/cakephp/pull/33) |
+| [GHSA-4f9q-3c4x-52cv](https://github.com/pieceofcake2/cakephp/security/advisories/GHSA-4f9q-3c4x-52cv) | Email header injection in `SmtpTransport` / `MailTransport` (CakePHP 2 equivalent of CVE-2026-77634) | ✅ Fixed in v2.12.5 |
+| [GHSA-w2mh-x92p-5p95](https://github.com/pieceofcake2/cakephp/security/advisories/GHSA-w2mh-x92p-5p95) | Path traversal in view, layout and element names (CakePHP 2 equivalent of CVE-2026-48820) | ✅ Fixed in v2.12.5 |
+| [GHSA-x4p9-p4cx-gxwx](https://github.com/pieceofcake2/cakephp/security/advisories/GHSA-x4p9-p4cx-gxwx) | Open redirect after login via protocol-relative `Auth.redirect` | ✅ Fixed in v2.12.5 |
 
 > [!NOTE]
 > - **CVE-2015-8379**: The fix has been fully applied with comprehensive test coverage for `_method` parameter handling and custom HTTP methods.

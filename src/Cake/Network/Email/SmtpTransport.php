@@ -273,6 +273,31 @@ class SmtpTransport extends AbstractTransport
     }
 
     /**
+     * Removes line breaks from header names and values to prevent header injection.
+     *
+     * Line breaks that are part of a folded header (a line break followed by
+     * whitespace and more content, as produced by MIME header encoding) are kept
+     * and normalized to CRLF. Any other CR or LF byte is removed.
+     *
+     * @param array $headers Headers in format key => value
+     * @return array
+     */
+    protected function _sanitizeHeaders($headers)
+    {
+        $sanitized = [];
+        foreach ($headers as $key => $value) {
+            $key = str_replace(["\r", "\n"], '', (string)$key);
+            if (is_string($value)) {
+                $value = preg_replace('/(?:\r\n|\r|\n)(?![ \t]+\S)/', '', $value);
+                $value = preg_replace('/\r\n|\r|\n/', "\r\n", $value);
+            }
+            $sanitized[$key] = $value;
+        }
+
+        return $sanitized;
+    }
+
+    /**
      * Prepares the message body.
      *
      * @param CakeEmail $email CakeEmail
@@ -322,7 +347,7 @@ class SmtpTransport extends AbstractTransport
     {
         $this->_smtpSend('DATA', '354');
 
-        $headers = $this->_headersToString($this->_prepareMessageHeaders($email));
+        $headers = $this->_headersToString($this->_sanitizeHeaders($this->_prepareMessageHeaders($email)));
         $message = $this->_prepareMessage($email);
 
         $this->_smtpSend($headers . "\r\n\r\n" . $message . "\r\n\r\n\r\n.");

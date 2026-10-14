@@ -39,11 +39,11 @@ class MailTransport extends AbstractTransport
         $to = $headers['To'];
         unset($headers['To']);
         foreach ($headers as $key => $header) {
-            $headers[$key] = str_replace("\r\n", '', $header);
+            $headers[$key] = str_replace(["\r\n", "\r", "\n"], '', $header);
         }
         $headers = $this->_headersToString($headers, $eol);
-        $subject = str_replace("\r\n", '', $email->subject());
-        $to = str_replace("\r\n", '', $to);
+        $subject = str_replace(["\r\n", "\r", "\n"], '', $email->subject());
+        $to = str_replace(["\r\n", "\r", "\n"], '', $to);
 
         $message = implode($eol, $email->message());
 

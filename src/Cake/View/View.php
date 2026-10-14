@@ -1074,7 +1074,10 @@ class View extends CakeObject
         foreach ($exts as $ext) {
             foreach ($paths as $path) {
                 if (file_exists($path . $name . $ext)) {
-                    return $path . $name . $ext;
+                    $file = $this->_checkFilePath($path . $name . $ext, $plugin);
+                    if ($file !== false) {
+                        return $file;
+                    }
                 }
             }
         }
@@ -1130,7 +1133,10 @@ class View extends CakeObject
         foreach ($exts as $ext) {
             foreach ($paths as $path) {
                 if (file_exists($path . $file . $ext)) {
-                    return $path . $file . $ext;
+                    $layoutFile = $this->_checkFilePath($path . $file . $ext, $plugin);
+                    if ($layoutFile !== false) {
+                        return $layoutFile;
+                    }
                 }
             }
         }
@@ -1167,8 +1173,46 @@ class View extends CakeObject
         foreach ($exts as $ext) {
             foreach ($paths as $path) {
                 if (file_exists($path . 'Elements' . DS . $name . $ext)) {
-                    return $path . 'Elements' . DS . $name . $ext;
+                    $file = $this->_checkFilePath($path . 'Elements' . DS . $name . $ext, $plugin);
+                    if ($file !== false) {
+                        return $file;
+                    }
                 }
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Check that a resolved template file is inside one of the view paths.
+     *
+     * Template, layout and element names containing `..` can resolve to files
+     * outside of the view paths. Such files are rejected so that names built from
+     * user-supplied data can not be used to render arbitrary files on the server.
+     * Files whose path does not contain `..` are returned unchanged.
+     *
+     * @param string $file The resolved file path.
+     * @param string|null $plugin The plugin name used to look up the view paths.
+     * @return string|false The file path, or false when it is outside of the view paths.
+     */
+    protected function _checkFilePath($file, $plugin = null)
+    {
+        if (!str_contains($file, '..')) {
+            return $file;
+        }
+        $absolute = realpath($file);
+        if ($absolute === false) {
+            return false;
+        }
+        foreach ($this->_paths($plugin) as $path) {
+            $realPath = realpath($path);
+            if ($realPath === false) {
+                continue;
+            }
+            $realPath = rtrim($realPath, DS) . DS;
+            if (str_starts_with($absolute, $realPath)) {
+                return $file;
             }
         }
 
