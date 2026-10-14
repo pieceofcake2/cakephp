@@ -15,6 +15,21 @@ Before migrating to this fork, ensure:
 4. **Upgrade PHP**: Update your PHP version to 8.0 or newer
 5. **Test Thoroughly**: Run your application's test suite to ensure compatibility
 
+## Unreleased
+
+### Exceptions Instead of E_USER_ERROR ([PR #58](https://github.com/pieceofcake2/cakephp/pull/58))
+
+Triggering `E_USER_ERROR` is deprecated as of PHP 8.4, so these errors are now exceptions with the same message. Execution already stopped at these points, so most applications need no change.
+
+- `Configure::bootstrap()` throws `ConfigureException` when the application `core.php` or `bootstrap.php` cannot be included. The console prints the message as `Error: ...` and exits with code 1.
+- `TranslateBehavior` throws `CakeException` when the model's datasource is not connected (`setup()`) or when `bindTranslation()` is given an association name that is already bound to the model.
+
+If you had a custom error handler that caught these `E_USER_ERROR` errors and continued, catch the exceptions instead.
+
+### ConsoleLog Color Detection ([PR #58](https://github.com/pieceofcake2/cakephp/pull/58))
+
+`ConsoleLog` now decides between colored and plain output by checking whether its `stream` is a terminal, not STDIN. Logging to a file or pipe gets plain output; logging to `php://stderr` on a terminal is colored even when STDIN is redirected. Set `'outputAs' => ConsoleOutput::COLOR` (or `PLAIN` / `RAW`) in the log configuration to choose the format yourself.
+
 ## v2.12.5
 
 ### Security Fixes

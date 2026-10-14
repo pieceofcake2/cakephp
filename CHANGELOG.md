@@ -1,5 +1,19 @@
 ## CHANGELOG
 
+## Unreleased
+
+> [!NOTE]
+> Code that triggered an `E_USER_ERROR` (deprecated as of PHP 8.4) now throws an exception with the same message, and `ConsoleLog` decides colored output by its own stream. See [UPGRADE.md](UPGRADE.md#unreleased).
+
+### Bug Fixes ([PR #58](https://github.com/pieceofcake2/cakephp/pull/58))
+
+- **E_USER_ERROR**: `Configure::bootstrap()` throws `ConfigureException` when the application `core.php` or `bootstrap.php` is missing, and `TranslateBehavior` throws `CakeException` when its datasource is not connected or the translation association is already bound to the model, instead of triggering `E_USER_ERROR` (deprecated as of PHP 8.4). The messages are unchanged
+- **ShellDispatcher**: A missing application `core.php` is printed as `Error: ...` with exit code 1 instead of an uncaught exception
+- **bin/cake**: A missing Composer autoloader is printed to STDERR with exit code 1 instead of triggering `E_USER_ERROR`
+- **ConsoleLog**: Colored or plain output is decided by the configured `stream` instead of STDIN, so logging to a file or pipe from a terminal no longer writes ANSI escape codes. Plain output is still forced on Windows consoles without ANSI support, and an explicit `outputAs` setting is kept
+- **ConsoleOutput**: Uses `stream_isatty()` to detect a terminal, so streams that cannot be checked (e.g. `php://memory`, `php://temp`) get plain output without a `posix_isatty()` warning
+- **Tests**: `AllTestSuiteTest` includes the `TestSuite/Fixture` and `TestSuite/Stub` tests, which never ran before; `CakeFixtureManagerTest` passes when run on its own
+
 ## v2.12.5 (2026-10-15)
 
 > [!IMPORTANT]
