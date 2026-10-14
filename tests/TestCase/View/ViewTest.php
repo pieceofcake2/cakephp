@@ -762,6 +762,58 @@ class ViewTest extends CakeTestCase
     }
 
     /**
+     * Test that element names can not resolve to files outside of the view paths.
+     *
+     * @return void
+     */
+    public function testElementOutsideViewPaths()
+    {
+        $outside = CORE_TESTS . DS . 'test_app' . DS . 'Console' . DS . 'Templates' . DS . 'test' . DS . 'views' . DS . 'admin_edit.ctp';
+        $this->assertFileExists($outside);
+
+        $this->assertFalse($this->View->elementExists('../../Console/Templates/test/views/admin_edit'));
+        $this->assertFalse($this->View->elementExists('..' . DS . '..' . DS . 'Console' . DS . 'Templates' . DS . 'test' . DS . 'views' . DS . 'admin_edit'));
+        $this->assertFalse($this->View->elementExists('TestPlugin.../../../../Console/Templates/test/views/admin_edit'));
+
+        $this->assertTrue($this->View->elementExists('../Elements/test_element'), 'Paths inside the view paths are allowed.');
+        $this->assertEquals('this is the test element', $this->View->element('../Elements/test_element'));
+    }
+
+    /**
+     * Test that view and layout names can not resolve to files outside of the view paths.
+     *
+     * @return void
+     */
+    public function testViewAndLayoutOutsideViewPaths()
+    {
+        $this->Controller->plugin = null;
+        $this->Controller->name = 'Pages';
+        $this->Controller->viewPath = 'Pages';
+        $this->Controller->action = 'display';
+
+        $View = new TestView($this->Controller);
+
+        $expected = CORE_TESTS . DS . 'test_app' . DS . 'View' . DS . 'Pages' . DS . '..' . DS . 'Posts' . DS . 'index.ctp';
+        $this->assertEquals($expected, $View->getViewFileName('/Pages/../Posts/index'), 'Paths inside the view paths are allowed.');
+
+        foreach (['../../Console/Templates/test/views/admin_edit', '/../Console/Templates/test/views/admin_edit'] as $name) {
+            try {
+                $View->getViewFileName($name);
+                $this->fail('Expected MissingViewException for ' . $name);
+            } catch (MissingViewException $e) {
+                $this->assertStringContainsString('admin_edit', $e->getMessage());
+            }
+        }
+
+        try {
+            $View->getLayoutFileName('../../Console/Templates/test/views/admin_edit');
+            $this->fail('Expected MissingLayoutException');
+        } catch (MissingLayoutException $e) {
+            $this->assertStringContainsString('admin_edit', $e->getMessage());
+        }
+    }
+
+    /**
      * Test element method
      *
      * @return void
