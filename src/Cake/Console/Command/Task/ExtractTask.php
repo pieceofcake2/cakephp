@@ -443,12 +443,15 @@ class ExtractTask extends AppShell
                 $strings = $this->_getStrings($position, $mapCount);
 
                 if ($mapCount === count($strings)) {
-                    extract(array_combine($map, $strings));
-                    $category ??= 6;
+                    $parsed = array_combine($map, $strings);
+                    $singular = $parsed['singular'];
+                    $plural = $parsed['plural'] ?? null;
+                    $context = $parsed['context'] ?? null;
+                    $category = $parsed['category'] ?? 6;
                     $category = (int)$category;
                     $categoryName = $categories[$category];
 
-                    $domain ??= 'default';
+                    $domain = $parsed['domain'] ?? 'default';
                     $details = [
                         'file' => $this->_file,
                         'line' => $line,
