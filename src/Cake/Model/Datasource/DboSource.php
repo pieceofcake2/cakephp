@@ -3487,7 +3487,7 @@ class DboSource extends DataSource
         }
         $parts[] = trim($current);
 
-        return array_values(array_filter($parts, 'strlen'));
+        return array_values(array_filter($parts, static fn($part) => $part !== ''));
     }
 
     /**
