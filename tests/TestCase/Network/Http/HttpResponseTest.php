@@ -638,4 +638,14 @@ class HttpResponseTest extends CakeTestCase
         $this->assertSame(['first', 'second'], $this->HttpResponse->getHeader('X-Value'));
         $this->assertSame('chunked', $this->HttpResponse->getHeader('Transfer-Encoding'));
     }
+
+    /**
+     * Test that the deprecated HttpResponse class is an alias of HttpSocketResponse.
+     *
+     * @return void
+     */
+    public function testDeprecatedHttpResponseClass()
+    {
+        $this->assertInstanceOf('HttpSocketResponse', new HttpResponse());
+    }
 }

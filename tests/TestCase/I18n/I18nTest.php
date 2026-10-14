@@ -2251,4 +2251,39 @@ class I18nTest extends CakeTestCase
 
         return $plurals;
     }
+
+    /**
+     * Test that a missing plural form triggers a warning and falls back to the first form.
+     *
+     * @return void
+     */
+    public function testMissingPluralForm()
+    {
+        I18n::translate('dummy', null, 'missing_plural_test');
+        $I18n = I18n::getInstance();
+        $domainsProperty = new ReflectionProperty('I18n', '_domains');
+        $domainsProperty->setAccessible(true);
+        $langProperty = new ReflectionProperty('I18n', '_lang');
+        $langProperty->setAccessible(true);
+        $domains = $domainsProperty->getValue($I18n);
+        $domains['missing_plural_test'][$langProperty->getValue($I18n)]['LC_MESSAGES']['apple'][''] = ['one apple'];
+        $domainsProperty->setValue($I18n, $domains);
+
+        $warnings = [];
+        set_error_handler(function ($errno, $errstr) use (&$warnings) {
+            $warnings[] = $errstr;
+
+            return true;
+        }, E_USER_WARNING);
+        try {
+            $result = I18n::translate('apple', 'apples', 'missing_plural_test', I18n::LC_MESSAGES, 2);
+        } finally {
+            restore_error_handler();
+            I18n::clear();
+        }
+
+        $this->assertSame('one apple', $result);
+        $this->assertCount(1, $warnings);
+        $this->assertStringContainsString('Missing plural form translation for "apple"', $warnings[0]);
+    }
 }

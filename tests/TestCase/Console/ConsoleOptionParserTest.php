@@ -708,4 +708,16 @@ TEXT;
         $this->assertSame(['name' => 'other', 'help' => false], $result[0]);
         $this->assertSame(['arg'], $result[1]);
     }
+
+    /**
+     * Test that help() returns null for an unknown format.
+     *
+     * @return void
+     */
+    public function testHelpUnknownFormat()
+    {
+        $parser = new ConsoleOptionParser('mycommand', false);
+
+        $this->assertNull($parser->help(null, 'html'));
+    }
 }

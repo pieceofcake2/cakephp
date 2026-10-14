@@ -2305,4 +2305,16 @@ class DboSourceTest extends CakeTestCase
             'lock' => true,
         ]);
     }
+
+    /**
+     * Test that renderStatement() and calculate() return null for unknown types and functions.
+     *
+     * @return void
+     */
+    public function testUnknownStatementAndCalculation()
+    {
+        $this->assertNull($this->testDb->renderStatement('unknown', ['table' => 'articles']));
+        $this->assertNull($this->testDb->renderStatement('alter', ['table' => 'articles']));
+        $this->assertNull($this->testDb->calculate($this->Model, 'unknown', ['id']));
+    }
 }

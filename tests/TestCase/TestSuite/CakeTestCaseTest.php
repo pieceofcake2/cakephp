@@ -569,4 +569,23 @@ class CakeTestCaseTest extends CakeTestCase
         $this->assertSame(5, $stub->write('hello'));
         $this->assertSame(0, $stub->write('hello', 2));
     }
+
+    /**
+     * Test the case-insensitive text assertions and the 1.x compatibility wrappers.
+     *
+     * @return void
+     */
+    public function testCompatibilityAssertions()
+    {
+        $this->assertTextContains('FOO', "foo\r\nbar", '', true);
+        $this->assertTextNotContains('BAZ', "foo\r\nbar", '', true);
+        $this->assertEqual(1, '1');
+        $this->assertNotEqual(1, 2);
+        $this->assertIdentical(1, 1);
+        $this->assertNotIdentical(1, '1');
+        $this->assertNoPattern('/baz/', 'foo bar');
+        $first = $second = 'value';
+        $this->assertReference($first, $first);
+        $this->assertIsA($this, 'CakeTestCase');
+    }
 }

@@ -65,4 +65,18 @@ class IniAclTest extends CakeTestCase
         ];
         $this->assertTrue($Ini->check($user, 'posts'));
     }
+
+    /**
+     * Test that allow(), deny() and inherit() are not supported and return null.
+     *
+     * @return void
+     */
+    public function testUnsupportedMethods()
+    {
+        $Ini = new IniAcl();
+
+        $this->assertNull($Ini->allow('admin', 'posts'));
+        $this->assertNull($Ini->deny('admin', 'posts'));
+        $this->assertNull($Ini->inherit('admin', 'posts'));
+    }
 }

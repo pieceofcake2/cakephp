@@ -265,4 +265,17 @@ class XmlViewTest extends CakeTestCase
         $this->assertSame('application/xml', $Response->type());
         $this->assertInstanceOf('HelperCollection', $View->Helpers);
     }
+
+    /**
+     * Test that render() without _serialize and without a view returns null.
+     *
+     * @return void
+     */
+    public function testRenderWithoutViewAndSerialize()
+    {
+        $Controller = new Controller(new CakeRequest(), new CakeResponse());
+        $View = new XmlView($Controller);
+
+        $this->assertNull($View->render(false));
+    }
 }

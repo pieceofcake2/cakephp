@@ -662,4 +662,17 @@ class InflectorTest extends CakeTestCase
         $this->assertEquals(Inflector::singularize('Alcoois'), 'Alcool');
         $this->assertEquals(Inflector::singularize('Atlas'), 'Atlas');
     }
+
+    /**
+     * Test that pluralize() returns null when no plural rule matches.
+     *
+     * @return void
+     */
+    public function testPluralizeWithoutMatchingRule()
+    {
+        Inflector::rules('plural', ['rules' => ['/^(ox)$/i' => '\1en'], 'irregular' => ['person' => 'people'], 'uninflected' => ['sheep']], true);
+
+        $this->assertSame('oxen', Inflector::pluralize('ox'));
+        $this->assertNull(Inflector::pluralize('cat'));
+    }
 }

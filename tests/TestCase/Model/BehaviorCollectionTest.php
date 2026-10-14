@@ -1320,4 +1320,19 @@ class BehaviorCollectionTest extends CakeTestCase
         ];
         $this->assertEquals($expected, $model->called);
     }
+
+    /**
+     * Test that the deprecated detach() unloads a behavior.
+     *
+     * @return void
+     */
+    public function testDetach()
+    {
+        $Apple = new Apple();
+        $Apple->Behaviors->load('Test');
+        $this->assertEquals(['Test'], $Apple->Behaviors->loaded());
+
+        $Apple->Behaviors->detach('Test');
+        $this->assertEquals([], $Apple->Behaviors->loaded());
+    }
 }

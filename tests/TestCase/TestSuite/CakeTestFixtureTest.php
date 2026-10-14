@@ -674,4 +674,20 @@ class CakeTestFixtureTest extends CakeTestCase
         $this->assertSame([], $deprecations);
         $this->assertFalse(property_exists($test, 'fixtureManager'));
     }
+
+    /**
+     * Test that CakeFixtureManager::load() does not load fixtures when autoFixtures is disabled.
+     *
+     * @return void
+     */
+    public function testFixtureManagerLoadWithoutAutoFixtures()
+    {
+        $manager = $this->getMock('CakeFixtureManager', ['loadSingle', '_setupTable']);
+        $manager->expects($this->never())->method('_setupTable');
+        $TestCase = $this->getMock('CakeTestCase');
+        $TestCase->fixtures = ['core.apple'];
+        $TestCase->autoFixtures = false;
+
+        $manager->load($TestCase);
+    }
 }

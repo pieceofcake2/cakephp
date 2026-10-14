@@ -1332,6 +1332,18 @@ class ViewTest extends CakeTestCase
         if (file_exists($path)) {
             unlink($path);
         }
+
+        $f = fopen($path, 'w+');
+        fwrite($f, 'cache text without a cachetime marker');
+        fclose($f);
+        ob_start();
+        $result = $View->renderCache($path, '+1 second');
+        ob_end_clean();
+        $this->assertNull($result, 'A cache file without a cachetime marker is not used.');
+
+        if (file_exists($path)) {
+            unlink($path);
+        }
     }
 
     /**
