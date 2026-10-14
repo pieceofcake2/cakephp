@@ -1,5 +1,29 @@
 ## CHANGELOG
 
+## Unreleased
+
+### PHPStan Level 5 (docblocks only) ([PR #56](https://github.com/pieceofcake2/cakephp/pull/56))
+
+- **PHPStan**: `src/Cake` (including `TestSuite`) now passes PHPStan level 5 with `pieceofcake2/phpstan-cakephp2` ^0.2.4, without a baseline. CI runs PHPStan on every pull request
+- **No signature changes**: Only docblocks were corrected (`@param`, `@return`, `@var`, `@property`, `@method`, `@param-out`, `@phpstan-impure`). No native parameter, return or property types were added, and no public or protected method or property signature changed, so subclasses in applications and plugins keep working. The only declaration changes are the properties listed below, which were previously created dynamically
+- **Internal clean-ups without behavior change**: `extract()` calls were replaced by explicit variables, variables that were only set on some code paths are initialised, `return voidMethod()` statements were split, always-true/false conditions were removed, and internal functions receive values of the documented type (e.g. `ini_set()` values as strings)
+
+### Bug Fixes ([PR #56](https://github.com/pieceofcake2/cakephp/pull/56))
+
+- **Dynamic properties**: Declare `ConsoleOptionParser::$_tokens`, `HelpFormatter::$_parser`, `Scaffold::$redirect` / `$modelClass` / `$modelKey` / `$ScaffoldModel` / `$scaffoldActions`, `MemcachedEngine::$_compiledGroupNames`, `CakeFixtureManager::$_processed`, `CakeTestFixture::$Schema`, `CakeTestSuiteCommand::$_params` and `ControllerTestDispatcher::$response`, which were created dynamically (deprecated as of PHP 8.2). `CakeFixtureInjector` no longer adds `$fixtureManager` to plain PHPUnit test cases, and `Sqlserver::_execute()` throws `PDOExceptionWithQueryString` instead of adding `$queryString` to a `PDOException`
+- **Null arguments**: `ConsoleLog`, `CakeText::toList()` and `Shell::shortPath()` no longer pass `null` to internal functions (deprecated as of PHP 8.1)
+- **HttpSocketResponse**: Trailer headers after a chunked body no longer cause a fatal error (call to the undefined `_buildHeader()`); they are merged into the response headers
+- **App**: `App::import()` with several search paths no longer stops looking after the first path (it could include a directory instead of the file)
+- **ExtractTask**: A literal count argument of `__dcn()` / `__dxcn()` no longer overwrites the parser position, which skipped the following calls
+- **PaginatorComponent**: `mergeOptions()` ignores the request parameters for an unknown `paramType` instead of throwing a `TypeError`
+- **FlashComponent**: The constructor calls `Component::__construct()`, so `$settings` is set
+- **PrivateActionException**: The previous exception passed to the constructor is kept
+- **AclNode**: The "Model class not found" exception of `node()` has a formatted message
+- **CakeNumber**: `fromReadableSize()` treats a non-numeric value with a unit (e.g. `'XMB'`) as invalid (returns `$default` or throws) instead of throwing a `TypeError`
+- **Validation**: The deep `luhn()` check returns `false` for values with non-digit characters instead of throwing a `TypeError`, and accepts integers
+- **Mysql** / **Sqlserver**: `listSources()` and `Mysql::listDetailedSources()` return an empty list when the query fails instead of calling `closeCursor()` on `false`
+- **TestSuite**: `assertTags()` prints the `$fullDebug` output before the assertion fails; `ConsoleOutputStub::write()` returns the number of bytes written like `ConsoleOutput::write()`; `CakeHtmlReporter` / `CakeTextReporter` code coverage output works with php-code-coverage 9
+
 ## v2.12.4 (2026-10-14)
 
 > [!NOTE]
