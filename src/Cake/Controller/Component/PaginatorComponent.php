@@ -209,6 +209,7 @@ class PaginatorComponent extends Component
         // The cast behavior is undefined for values outside int range, but must remain
         // consistent with previous PHP versions for page number validation
         set_error_handler(function () {
+            return true;
         }, E_WARNING);
         if ((int)$page < 1) {
             $page = 1;

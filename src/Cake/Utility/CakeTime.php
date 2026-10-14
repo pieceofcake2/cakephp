@@ -130,7 +130,7 @@ class CakeTime
      *
      * @param string $format Format with specifiers for strftime function.
      *    Accepts the special specifier %S which mimics the modifier S for date()
-     * @param string $time UNIX timestamp
+     * @param int|string|false|null $time UNIX timestamp
      * @return string Windows safe and date() function compatible format for strftime
      * @link https://book.cakephp.org/2.0/en/core-libraries/helpers/time.html#TimeHelper::convertSpecifiers
      */
@@ -249,7 +249,7 @@ class CakeTime
     /**
      * Converts given time (in server's time zone) to user's local time, given his/her timezone.
      *
-     * @param int $serverTime Server's timestamp.
+     * @param int|string $serverTime Server's timestamp.
      * @param DateTimeZone|string $timezone User's timezone string or DateTimeZone object.
      * @return int User's timezone timestamp.
      * @link https://book.cakephp.org/2.0/en/core-libraries/helpers/time.html#TimeHelper::convert
@@ -748,7 +748,7 @@ class CakeTime
         if ($userOffset != 0) {
             $hours = (int)floor(abs($userOffset));
             $minutes = (int)(fmod(abs($userOffset), $hours) * 60);
-            $timezone = ($userOffset < 0 ? '-' : '+') . str_pad($hours, 2, '0', STR_PAD_LEFT) . str_pad($minutes, 2, '0', STR_PAD_LEFT);
+            $timezone = ($userOffset < 0 ? '-' : '+') . sprintf('%02d%02d', $hours, $minutes);
         }
 
         return date('D, d M Y H:i:s', $date) . ' ' . $timezone;
@@ -949,29 +949,29 @@ class CakeTime
             $accuracy = $accuracies['minute'];
         }
 
-        $accuracyNum = str_replace(['year', 'month', 'week', 'day', 'hour', 'minute', 'second'], [1, 2, 3, 4, 5, 6, 7], $accuracy);
+        $accuracyNum = str_replace(['year', 'month', 'week', 'day', 'hour', 'minute', 'second'], ['1', '2', '3', '4', '5', '6', '7'], $accuracy);
 
         $relativeDate = [];
         if ($accuracyNum >= 1 && $years > 0) {
-            $relativeDate[] = __dn('cake', '%d year', '%d years', $years, $years);
+            $relativeDate[] = __dn('cake', '%d year', '%d years', (int)$years, $years);
         }
         if ($accuracyNum >= 2 && $months > 0) {
-            $relativeDate[] = __dn('cake', '%d month', '%d months', $months, $months);
+            $relativeDate[] = __dn('cake', '%d month', '%d months', (int)$months, $months);
         }
         if ($accuracyNum >= 3 && $weeks > 0) {
-            $relativeDate[] = __dn('cake', '%d week', '%d weeks', $weeks, $weeks);
+            $relativeDate[] = __dn('cake', '%d week', '%d weeks', (int)$weeks, $weeks);
         }
         if ($accuracyNum >= 4 && $days > 0) {
-            $relativeDate[] = __dn('cake', '%d day', '%d days', $days, $days);
+            $relativeDate[] = __dn('cake', '%d day', '%d days', (int)$days, $days);
         }
         if ($accuracyNum >= 5 && $hours > 0) {
-            $relativeDate[] = __dn('cake', '%d hour', '%d hours', $hours, $hours);
+            $relativeDate[] = __dn('cake', '%d hour', '%d hours', (int)$hours, $hours);
         }
         if ($accuracyNum >= 6 && $minutes > 0) {
-            $relativeDate[] = __dn('cake', '%d minute', '%d minutes', $minutes, $minutes);
+            $relativeDate[] = __dn('cake', '%d minute', '%d minutes', (int)$minutes, $minutes);
         }
         if ($accuracyNum >= 7 && $seconds > 0) {
-            $relativeDate[] = __dn('cake', '%d second', '%d seconds', $seconds, $seconds);
+            $relativeDate[] = __dn('cake', '%d second', '%d seconds', (int)$seconds, $seconds);
         }
         $relativeDate = implode(', ', $relativeDate);
 

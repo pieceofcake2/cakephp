@@ -188,7 +188,7 @@ class CakeNumber
     /**
      * Formats a number into a currency format.
      *
-     * @param float $value A floating point number
+     * @param float|string $value A floating point number
      * @param array|string|int|false $options If integer then places, if string then before, if (,.-) then use it
      *   or array with places and before keys
      * @return string formatted number
@@ -269,7 +269,7 @@ class CakeNumber
     /**
      * Alternative number_format() to accommodate multibyte decimals and thousands < PHP 5.4
      *
-     * @param float $value Value to format.
+     * @param float|string $value Value to format.
      * @param int $places Decimal places to use.
      * @param string $decimals Decimal position string.
      * @param string $thousands Thousands separator string.

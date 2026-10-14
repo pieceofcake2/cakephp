@@ -272,7 +272,7 @@ class CakeRoute
      * The local and global configuration for named parameters will be used.
      *
      * @param string $args A string with the passed & named params. eg. /1/page:2
-     * @param string $context The current route context, which should contain controller/action keys.
+     * @param array $context The current route context, which should contain controller/action keys.
      * @return array Array of ($pass, $named)
      */
     protected function _parseArgs($args, $context)
@@ -341,7 +341,7 @@ class CakeRoute
      *
      * @param string $val The value of the named parameter
      * @param array $rule The rule(s) to apply, can also be a match string
-     * @param string $context An array with additional context information (controller / action)
+     * @param array $context An array with additional context information (controller / action)
      * @return bool
      */
     protected function _matchNamed($val, $rule, $context)

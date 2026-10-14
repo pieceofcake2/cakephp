@@ -237,7 +237,7 @@ class Cache
      *
      * `Cache::set(null, 'my_config');`
      *
-     * @param array|string $settings Optional string for simple name-value pair or array
+     * @param array|string|null $settings Optional string for simple name-value pair or array
      * @param string $value Optional for a simple name-value pair
      * @param string $config The configuration name you are changing. Defaults to 'default'
      * @return array|false Array of settings.

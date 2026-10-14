@@ -167,9 +167,9 @@ class Configure
 
         if (isset($config['debug']) && function_exists('ini_set')) {
             if (static::$_values['debug']) {
-                ini_set('display_errors', 1);
+                ini_set('display_errors', '1');
             } else {
-                ini_set('display_errors', 0);
+                ini_set('display_errors', '0');
             }
         }
 

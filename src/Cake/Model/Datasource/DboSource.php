@@ -350,7 +350,7 @@ class DboSource extends DataSource
     /**
      * Returns a quoted and escaped string of $data for use in an SQL statement.
      *
-     * @param string $data String to be prepared for use in an SQL statement
+     * @param mixed $data String to be prepared for use in an SQL statement
      * @param string $column The column datatype into which this data will be inserted.
      * @param bool $null Column allows NULL values
      * @return array|string Quoted and escaped data
@@ -1007,7 +1007,7 @@ class DboSource extends DataSource
                 $matches[1] . '(' . $this->name($matches[2]) . ')',
             );
         }
-        if (preg_match('/^([\w-]+(\.[\w-]+|\(.*\))*)\s+' . preg_quote($this->alias) . '\s*([\w-]+)$/i', $data, $matches)) {
+        if (preg_match('/^([\w-]+(\.[\w-]+|\(.*\))*)\s+' . preg_quote($this->alias, '/') . '\s*([\w-]+)$/i', $data, $matches)) {
             return $this->cacheMethod(
                 __FUNCTION__,
                 $cacheKey,
@@ -2710,7 +2710,7 @@ class DboSource extends DataSource
      * were provided either null or false will be returned based on what was input.
      *
      * @param Model $Model The model to get conditions for.
-     * @param array|string|bool $conditions Array of conditions, conditions string, null or false. If an array of conditions,
+     * @param array|string|bool|null $conditions Array of conditions, conditions string, null or false. If an array of conditions,
      *   or string conditions those conditions will be returned. With other values the model's existence will be checked.
      *   If the model doesn't exist a null or false will be returned depending on the input value.
      * @param bool $useAlias Use model aliases rather than table names when generating conditions
@@ -3036,27 +3036,19 @@ class DboSource extends DataSource
                         }
                     }
                 } elseif (is_array($value) && !empty($value) && !$valueInsert) {
-                    $keys = array_keys($value);
-                    if ($keys === array_values($keys)) {
-                        if (count($value) === 1 && !preg_match('/\s+(?:NOT|IN|\!=)$/', $key)) {
-                            $data = $this->_quoteFields($key) . ' = (';
-                            if ($quoteValues) {
-                                if ($Model !== null) {
-                                    $columnType = $Model->getColumnType($key);
-                                }
-                                $data .= implode(', ', $this->value($value, $columnType));
+                    // Array values are always expanded into a list for the key. The previous check
+                    // `array_keys($value) === array_values(array_keys($value))` was always true.
+                    if (count($value) === 1 && !preg_match('/\s+(?:NOT|IN|\!=)$/', $key)) {
+                        $data = $this->_quoteFields($key) . ' = (';
+                        if ($quoteValues) {
+                            if ($Model !== null) {
+                                $columnType = $Model->getColumnType($key);
                             }
-                            $data .= ')';
-                        } else {
-                            $data = $this->_parseKey($key, $value, $Model);
+                            $data .= implode(', ', $this->value($value, $columnType));
                         }
+                        $data .= ')';
                     } else {
-                        $ret = $this->conditionKeysToString($value, $quoteValues, $Model);
-                        if (count($ret) > 1) {
-                            $data = '(' . implode(') AND (', $ret) . ')';
-                        } elseif (isset($ret[0])) {
-                            $data = $ret[0];
-                        }
+                        $data = $this->_parseKey($key, $value, $Model);
                     }
                 } elseif (is_numeric($key) && !empty($value)) {
                     $data = $this->_quoteFields($value);
@@ -3187,7 +3179,7 @@ class DboSource extends DataSource
     /**
      * Quotes Model.fields
      *
-     * @param string $conditions The conditions to quote.
+     * @param mixed $conditions The conditions to quote.
      * @return string or false if no match
      */
     protected function _quoteFields($conditions)
@@ -3253,6 +3245,7 @@ class DboSource extends DataSource
             // The sprintf %u format behavior is undefined for values outside int range, but must remain
             // consistent with previous PHP versions for query generation
             set_error_handler(function () {
+                return true;
             }, E_WARNING);
             if ($offset) {
                 $rt .= sprintf(' %u,', $offset);

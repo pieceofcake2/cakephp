@@ -30,6 +30,8 @@
  * @property string $alias The SQL alias keyword, e.g. "AS "
  * @property array $columns Database-specific column type definitions
  * @property string|null $configKeyName The name of the connection configuration, set by ConnectionManager
+ * @property bool $fullDebug Whether to log queries with their full information
+ * @property bool $useNestedTransactions Whether to use nested transactions, if supported
  * @method string value(mixed $data, string|null $column = null) Quotes a value for use in a query. Used by insertQueryData().
  * @method array|string name(mixed $data) Quotes database identifiers
  * @method stdClass identifier(string $identifier) Returns an object representing a database identifier
@@ -41,6 +43,9 @@
  * @method string createSchema(CakeSchema $schema, string|null $tableName = null) Generates the SQL to create the schema
  * @method string dropSchema(CakeSchema $schema, string|null $table = null) Generates the SQL to drop the schema
  * @method string|false alterSchema(mixed $compare, string|null $table = null) Generates the SQL to alter the schema
+ * @method bool insertMulti(string $table, array $fields, array $values) Inserts multiple rows into a table
+ * @method bool truncate(Model|string $table) Deletes all the records in a table and resets the count of the auto-incrementing primary key
+ * @method bool|null resetSequence(string $table, string $column) Resets a sequence based key
  */
 class DataSource extends CakeObject
 {

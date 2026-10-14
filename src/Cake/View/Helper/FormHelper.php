@@ -33,7 +33,6 @@ App::uses('AppHelper', 'View/Helper');
  * @method string number(string $fieldName, array $options = []) Creates a number input, see FormHelper::__call()
  * @method string search(string $fieldName, array $options = []) Creates a search input, see FormHelper::__call()
  * @method string tel(string $fieldName, array $options = []) Creates a tel input, see FormHelper::__call()
- * @method string url(string $fieldName, array $options = []) Creates a url input, see FormHelper::__call()
  */
 class FormHelper extends AppHelper
 {
@@ -1849,7 +1848,7 @@ class FormHelper extends AppHelper
     /**
      * Creates a hidden input field.
      *
-     * @param string $fieldName Name of a field, in the form of "Modelname.fieldname"
+     * @param string|null $fieldName Name of a field, in the form of "Modelname.fieldname"
      * @param array $options Array of HTML attributes.
      * @return string A generated hidden input
      * @link https://book.cakephp.org/2.0/en/core-libraries/helpers/form.html#FormHelper::hidden
@@ -2690,8 +2689,8 @@ class FormHelper extends AppHelper
      *   matching the field name will override this value. If no default is provided `time()` will be used.
      *
      * @param string $fieldName Prefix name for the SELECT element
-     * @param string $dateFormat DMY, MDY, YMD, or null to not generate date inputs.
-     * @param string $timeFormat 12, 24, or null to not generate time inputs.
+     * @param string|null $dateFormat DMY, MDY, YMD, or null to not generate date inputs.
+     * @param string|null $timeFormat 12, 24, or null to not generate time inputs.
      * @param array $attributes Array of Attributes
      * @return string Generated set of select boxes for the date and time formats chosen.
      * @link https://book.cakephp.org/2.0/en/core-libraries/helpers/form.html#FormHelper::dateTime
@@ -2851,7 +2850,7 @@ class FormHelper extends AppHelper
      * Parse the value for a datetime selected value
      *
      * @param array|string $value The selected value.
-     * @param int $timeFormat The time format
+     * @param int|string|null $timeFormat The time format
      * @return array Array of selected value.
      */
     protected function _getDateTimeValue($value, $timeFormat)

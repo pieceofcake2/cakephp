@@ -764,7 +764,7 @@ class App
      * @param string $name unique name of the file for identifying it inside the application
      * @param string $plugin camel cased plugin name if any
      * @param string $file file name if known
-     * @param string $ext file extension if known
+     * @param string|null $ext file extension if known
      * @return bool true if the file was loaded successfully, false otherwise
      */
     protected static function _loadVendor($name, $plugin, $file, $ext)

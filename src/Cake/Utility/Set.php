@@ -125,8 +125,8 @@ class Set
      * structure
      *
      * @param array &$array Array to map
-     * @param string $class Class name
-     * @param bool $primary whether to assign first array key as the _name_
+     * @param string|bool $class Class name
+     * @param bool|string $primary whether to assign first array key as the _name_
      * @return mixed Mapped object
      */
     protected static function _map(&$array, $class, $primary = false)
@@ -316,8 +316,8 @@ class Set
      * real-world testing. Please report Bugs as you find them. Suggestions for additional features to
      * implement are also very welcome!
      *
-     * @param string $path An absolute XPath 2.0 path
-     * @param array $data An array of data to extract from
+     * @param array|string $path An absolute XPath 2.0 path
+     * @param array|string|null $data An array of data to extract from
      * @param array $options Currently only supports 'flatten' which can be disabled for higher XPath-ness
      * @return mixed An array of matched items or the content of a single selected item or null in any of these cases: $path or $data are null, no items found.
      * @link https://book.cakephp.org/2.0/en/core-utility-libraries/set.html#Set::extract
@@ -890,7 +890,7 @@ class Set
     /**
      * Converts an object into an array.
      *
-     * @param object $object Object to reverse
+     * @param object|array $object Object to reverse
      * @return array Array representation of given object
      * @link https://book.cakephp.org/2.0/en/core-utility-libraries/set.html#Set::reverse
      */

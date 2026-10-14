@@ -415,6 +415,7 @@ class Sqlite extends DboSource
             // The sprintf %u format behavior is undefined for values outside int range, but must remain
             // consistent with previous PHP versions for query generation
             set_error_handler(function () {
+                return true;
             }, E_WARNING);
             $rt = sprintf(' LIMIT %u', $limit);
             if ($offset) {

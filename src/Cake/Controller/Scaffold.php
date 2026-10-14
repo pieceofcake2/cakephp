@@ -226,7 +226,7 @@ class Scaffold
     /**
      * Renders index action of scaffolded model.
      *
-     * @param array $params Parameters for scaffolding
+     * @param CakeRequest $params Parameters for scaffolding
      * @return mixed A rendered view listing rows from Models database table
      */
     protected function _scaffoldIndex($params)

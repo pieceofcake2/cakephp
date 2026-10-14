@@ -58,7 +58,7 @@ abstract class BaseShellHelper
     /**
      * Initialize config & store config values
      *
-     * @param null $config Config values to set
+     * @param array|null $config Config values to set
      * @return array|void
      */
     public function config($config = null)

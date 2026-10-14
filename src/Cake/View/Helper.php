@@ -292,7 +292,7 @@ class Helper extends CakeObject
      * @param array|string $url Either a relative string url like `/products/view/23` or
      *    an array of URL parameters. Using an array for URLs will allow you to leverage
      *    the reverse routing features of CakePHP.
-     * @param bool $full If true, the full base URL will be prepended to the result
+     * @param array|bool $full If true, the full base URL will be prepended to the result
      * @return string Full translated URL with base path.
      * @link https://book.cakephp.org/2.0/en/views/helpers.html
      */
@@ -583,7 +583,7 @@ class Helper extends CakeObject
     /**
      * Sets this helper's model and field properties to the dot-separated value-pair in $entity.
      *
-     * @param string $entity A field name, like "ModelName.fieldName" or "ModelName.ID.fieldName"
+     * @param string|null $entity A field name, like "ModelName.fieldName" or "ModelName.ID.fieldName"
      * @param bool $setScope Sets the view scope to the model specified in $tagValue
      * @return void
      */

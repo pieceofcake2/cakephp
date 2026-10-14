@@ -584,7 +584,7 @@ class CakeResponse
      * @param array|string $header An array of header strings or a single header string
      *  - an associative array of "header name" => "header value" is also accepted
      *  - an array of string headers is also accepted
-     * @param array|string $value The header value(s)
+     * @param array|string|int|false|null $value The header value(s)
      * @return array list of headers to be sent
      */
     public function header($header = null, $value = null)
@@ -981,7 +981,7 @@ class CakeResponse
      * `$response->expires(new DateTime('+1 day'))` Will set the expiration in next 24 hours
      * `$response->expires()` Will return the current expiration header value
      *
-     * @param DateTime|string $time Valid time string or DateTime object.
+     * @param DateTime|string|int|false|null $time Valid time string or DateTime object.
      * @return string
      */
     public function expires($time = null)
@@ -1173,7 +1173,7 @@ class CakeResponse
      * Sets the Content-Length header for the response
      * If called with no arguments returns the last Content-Length set
      *
-     * @param int $bytes Number of bytes
+     * @param int|false|null $bytes Number of bytes
      * @return int|null
      */
     public function length($bytes = null)

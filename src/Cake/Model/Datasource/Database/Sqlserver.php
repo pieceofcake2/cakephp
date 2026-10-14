@@ -476,7 +476,7 @@ class Sqlserver extends DboSource
     {
         if ($limit) {
             $rt = '';
-            if (!strpos(strtolower($limit), 'top') || str_starts_with(strtolower($limit), 'top')) {
+            if (!strpos(strtolower((string)$limit), 'top') || str_starts_with(strtolower((string)$limit), 'top')) {
                 $rt = ' TOP';
             }
             $rt .= sprintf(' %u', $limit);

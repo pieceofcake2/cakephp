@@ -106,7 +106,7 @@ class ApiShell extends AppShell
                 $method = $parsed[$this->params['method']];
                 $this->out($class . '::' . $method['method'] . $method['parameters']);
                 $this->hr();
-                $this->out($method['comment'], true);
+                $this->out($method['comment'], 1);
             } else {
                 $this->out(ucwords($class));
                 $this->hr();
@@ -135,7 +135,7 @@ class ApiShell extends AppShell
                         $this->hr();
                         $this->out($class . '::' . $method['method'] . $method['parameters']);
                         $this->hr();
-                        $this->out($method['comment'], true);
+                        $this->out($method['comment'], 1);
                     }
                 }
             }

@@ -291,7 +291,7 @@ class PhpAco
      *
      * @param string $aro ARO string
      * @param string $aco ACO string
-     * @param string $action Action string
+     * @param string|null $action Action string
      * @param string $type access type
      * @return void
      */

@@ -461,7 +461,7 @@ class View extends CakeObject
      * the view will be located along the regular view path cascade.
      *
      * @param string|false $view Name of view file to use.
-     * @param string $layout Layout to use.
+     * @param string|false|null $layout Layout to use.
      * @return string|null Rendered content or null if content already rendered and returned earlier.
      * @triggers View.beforeRender $this, array($viewFileName)
      * @triggers View.afterRender $this, array($viewFileName)
@@ -563,7 +563,7 @@ class View extends CakeObject
      * render cached view files.
      *
      * @param string $filename the cache file to include
-     * @param string $timeStart the page render start time
+     * @param string|float $timeStart the page render start time
      * @return string|false|null Success of rendering the cached file.
      */
     public function renderCache($filename, $timeStart)
@@ -1232,7 +1232,7 @@ class View extends CakeObject
      * Checks if an element is cached and returns the cached data if present
      *
      * @param string $name Element name
-     * @param string $data Data
+     * @param array $data Data
      * @param array $options Element options
      * @return string|null
      */

@@ -731,7 +731,7 @@ class SecurityComponent extends Component
      * @param array $dataFields Fields array, containing the POST data fields
      * @param array $expectedFields Fields array, containing the expected fields we should have in POST
      * @param string $intKeyMessage Message string if unexpected found in data fields indexed by int (not protected)
-     * @param string $stringKeyMessage Message string if tampered found in data fields indexed by string (protected)
+     * @param string|null $stringKeyMessage Message string if tampered found in data fields indexed by string (protected)
      * @param string $missingMessage Message string if missing field
      * @return array Messages
      */

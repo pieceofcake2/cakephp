@@ -186,7 +186,7 @@ class HttpSocket extends CakeSocket
      *
      * `$http->configAuth();`
      *
-     * @param string $method Authentication method (ie. Basic, Digest). If empty, disable authentication
+     * @param string|false|null $method Authentication method (ie. Basic, Digest). If empty, disable authentication
      * @param array|string $user Username for authentication. Can be an array with settings to authentication class
      * @param string $pass Password for authentication
      * @return void

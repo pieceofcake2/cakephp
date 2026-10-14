@@ -423,7 +423,7 @@ class PaginatorHelper extends AppHelper
      * - `escape` Whether you want the contents html entity encoded, defaults to true
      * - `model` The model to use, defaults to PaginatorHelper::defaultModel()
      *
-     * @param string $title Title for the link.
+     * @param string|int|float $title Title for the link.
      * @param array|string $url URL for the action. See Router::url()
      * @param array $options Options for the link. See #options for list of keys.
      * @return string A link with pagination parameters.
@@ -637,7 +637,7 @@ class PaginatorHelper extends AppHelper
      * Does $model have $page in its range?
      *
      * @param string $model Model name to get parameters for.
-     * @param int $page Page number you are checking.
+     * @param int|string $page Page number you are checking.
      * @return bool Whether model has $page
      */
     protected function _hasPage($model, $page)
@@ -734,12 +734,13 @@ class PaginatorHelper extends AppHelper
                     '%end%' => $end,
                     '%model%' => strtolower(Inflector::humanize(Inflector::tableize($options['model']))),
                 ];
-                $out = str_replace(array_keys($map), array_values($map), $options['format']);
+                $replacements = array_map('strval', array_values($map));
+                $out = str_replace(array_keys($map), $replacements, $options['format']);
 
                 $newKeys = [
                     '{:page}', '{:pages}', '{:current}', '{:count}', '{:start}', '{:end}', '{:model}',
                 ];
-                $out = str_replace($newKeys, array_values($map), $out);
+                $out = str_replace($newKeys, $replacements, $out);
         }
 
         return $out;

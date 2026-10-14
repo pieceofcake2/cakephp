@@ -803,9 +803,9 @@ class ExtractTask extends AppShell
 
         while (($tokenCount - $count > 0) && $parenthesis) {
             if (is_array($this->_tokens[$count])) {
-                $this->err($this->_tokens[$count][1], false);
+                $this->err($this->_tokens[$count][1], 0);
             } else {
-                $this->err($this->_tokens[$count], false);
+                $this->err($this->_tokens[$count], 0);
                 if ($this->_tokens[$count] === '(') {
                     $parenthesis++;
                 }
@@ -816,7 +816,7 @@ class ExtractTask extends AppShell
             }
             $count++;
         }
-        $this->err("\n", true);
+        $this->err("\n", 1);
     }
 
     /**

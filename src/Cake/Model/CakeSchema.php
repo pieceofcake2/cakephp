@@ -754,7 +754,7 @@ class CakeSchema extends CakeObject
      */
     protected function _noPrefixTable($prefix, $table)
     {
-        return preg_replace('/^' . preg_quote($prefix) . '/', '', $table);
+        return preg_replace('/^' . preg_quote($prefix, '/') . '/', '', $table);
     }
 
     /**

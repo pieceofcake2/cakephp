@@ -156,7 +156,7 @@ class CakeTestFixture
                 $this->fields[$model->primaryKey]['key'] = 'primary';
                 $this->table = $db->fullTableName($model, false, false);
                 $this->primaryKey = $model->primaryKey;
-                ClassRegistry::config(['ds' => 'test']);
+                ClassRegistry::config('Model', ['ds' => 'test']);
                 ClassRegistry::flush();
             } elseif (isset($import['table'])) {
                 $model = new Model(null, $import['table'], $import['connection']);
@@ -206,7 +206,7 @@ class CakeTestFixture
     /**
      * Run before all tests execute, should return SQL statement to create table for this fixture could be executed successfully.
      *
-     * @param DboSource $db An instance of the database object used to create the fixture table
+     * @param DataSource $db An instance of the database object used to create the fixture table
      * @return bool True on success, false on failure
      */
     public function create($db)
@@ -259,7 +259,7 @@ class CakeTestFixture
     /**
      * Run after all tests executed, should return SQL statement to drop table for this fixture.
      *
-     * @param DboSource $db An instance of the database object used to create the fixture table
+     * @param DataSource $db An instance of the database object used to create the fixture table
      * @return bool True on success, false on failure
      */
     public function drop($db)
@@ -282,7 +282,7 @@ class CakeTestFixture
      * Run before each tests is executed, should return a set of SQL statements to insert records for the table
      * of this fixture could be executed successfully.
      *
-     * @param DboSource $db An instance of the database into which the records will be inserted
+     * @param DataSource $db An instance of the database into which the records will be inserted
      * @return bool|null on success or if there are no records to insert, or false on failure
      * @throws CakeException if counts of values and fields do not match.
      */
@@ -337,7 +337,7 @@ class CakeTestFixture
      * Truncates the current fixture. Can be overwritten by classes extending
      * CakeFixture to trigger other events before / after truncate.
      *
-     * @param DboSource $db A reference to a db instance
+     * @param DataSource $db A reference to a db instance
      * @return bool
      */
     public function truncate($db)

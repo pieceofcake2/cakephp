@@ -282,7 +282,7 @@ class MemcacheEngine extends CacheEngine
         if (count($groups) !== count($this->settings['groups'])) {
             foreach ($this->_compiledGroupNames as $group) {
                 if (!isset($groups[$group])) {
-                    $this->_Memcache->set($group, 1, false, 0);
+                    $this->_Memcache->set($group, 1, 0, 0);
                     $groups[$group] = 1;
                 }
             }

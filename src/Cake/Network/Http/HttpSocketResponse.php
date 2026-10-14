@@ -269,7 +269,7 @@ class HttpSocketResponse implements ArrayAccess
     /**
      * Parses an array based header.
      *
-     * @param array $header Header as an indexed array (field => value)
+     * @param array|string $header Header as an indexed array (field => value)
      * @return array|bool Parsed header
      */
     protected function _parseHeader($header)

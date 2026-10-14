@@ -76,9 +76,9 @@ class ShellDispatcher
     protected function _initConstants()
     {
         if (function_exists('ini_set')) {
-            ini_set('html_errors', false);
-            ini_set('implicit_flush', true);
-            ini_set('max_execution_time', 0);
+            ini_set('html_errors', '');
+            ini_set('implicit_flush', '1');
+            ini_set('max_execution_time', '0');
         }
 
         if (!defined('CAKEPHP_SHELL')) {

@@ -989,7 +989,7 @@ class HtmlHelper extends AppHelper
      * - `escape` Whether or not the contents should be html_entity escaped.
      *
      * @param string $name Tag name.
-     * @param string $text String content that will appear inside the div element.
+     * @param string|int|null $text String content that will appear inside the div element.
      *   If null, only a start tag will be printed
      * @param array $options Additional HTML attributes of the DIV tag, see above.
      * @return string The formatted tag element

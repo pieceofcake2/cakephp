@@ -67,7 +67,7 @@ class CakeFixtureManager
     public function fixturize($test)
     {
         if (!$this->_initialized) {
-            ClassRegistry::config(['ds' => 'test', 'testing' => true]);
+            ClassRegistry::config('Model', ['ds' => 'test', 'testing' => true]);
         }
         if (empty($test->fixtures) || !empty($this->_processed[$test::class])) {
             $test->db = $this->_db;

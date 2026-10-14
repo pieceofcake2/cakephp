@@ -182,7 +182,7 @@ class I18n
      * @param string $plural Plural string (if any)
      * @param string $domain Domain The domain of the translation. Domains are often used by plugin translations.
      *    If null, the default domain will be used.
-     * @param string|int $category Category The integer value of the category to use.
+     * @param int|string|null $category Category The integer value of the category to use.
      * @param int $count Count Count is used with $plural to choose the correct plural form.
      * @param string $language Language to translate string to.
      *    If null it checks for language in session followed by Config.language configuration variable.
@@ -684,7 +684,7 @@ class I18n
             }
 
             $mustEscape = [$escape . ',', $escape . ';', $escape . '<', $escape . '>', $escape . $escape];
-            $replacements = array_map('crc32', $mustEscape);
+            $replacements = array_map(static fn($value) => (string)crc32($value), $mustEscape);
             $value = str_replace($mustEscape, $replacements, $value);
             $value = explode(';', $value);
             $_this->_escape = $escape;
@@ -744,12 +744,12 @@ class I18n
         if (substr($string, 0, 2) === $this->_escape . 'd') {
             $delimiter = $this->_escape . 'd';
 
-            return implode('', array_map('chr', array_filter(explode($delimiter, $string))));
+            return implode('', array_map(static fn($code) => chr((int)$code), array_filter(explode($delimiter, $string))));
         }
         if ($string[0] === $this->_escape && isset($string[1]) && is_numeric($string[1])) {
             $delimiter = $this->_escape;
 
-            return implode('', array_map('chr', array_filter(explode($delimiter, $string))));
+            return implode('', array_map(static fn($code) => chr((int)$code), array_filter(explode($delimiter, $string))));
         }
         if (str_starts_with($string, 'U00')) {
             $delimiter = 'U00';

@@ -687,7 +687,7 @@ class Model extends CakeObject implements CakeEventListener
      * Would create a model attached to the posts table on connection2. Dynamic model creation is useful
      * when you want a model object that contains no associations or attached behaviors.
      *
-     * @param array|string|int|bool $id Set this ID for this model on startup,
+     * @param array|string|int|bool|null $id Set this ID for this model on startup,
      * can also be an array of options, see above.
      * @param string|false $table Name of database table to use.
      * @param string $ds DataSource connection name.
@@ -1582,7 +1582,7 @@ class Model extends CakeObject implements CakeEventListener
      * for those fields that are not defined in $data, and clearing previous validation errors.
      * Especially helpful for saving data in loops.
      *
-     * @param array|bool $data Optional data array to assign to the model after it is created. If null or false,
+     * @param array|bool|null $data Optional data array to assign to the model after it is created. If null or false,
      *   schema data defaults are not merged.
      * @param bool $filterKey If true, overwrites any primary key input with an empty value
      * @return array The current Model::data; after merging $data and/or defaults from database

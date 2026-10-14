@@ -392,7 +392,7 @@ class TreeBehavior extends ModelBehavior
      * @param array|string $fields Either a single string of a field name, or an array of field names
      * @param string $order SQL ORDER BY conditions (e.g. "price DESC" or "name ASC") defaults to the tree order
      * @param int $limit SQL LIMIT clause, for calculating items per page.
-     * @param int $page Page number, for accessing paged data
+     * @param int|null $page Page number, for accessing paged data
      * @param int $recursive The number of levels deep to fetch associated records
      * @return array Array of child nodes
      * @link https://book.cakephp.org/2.0/en/core-libraries/behaviors/tree.html#TreeBehavior::children
@@ -1329,7 +1329,7 @@ class TreeBehavior extends ModelBehavior
      * @param Model $Model Model instance.
      * @param int $shift Shift by.
      * @param string $dir Direction.
-     * @param array $conditions Conditions.
+     * @param array|string $conditions Conditions.
      * @param bool $created Whether it's a new record.
      * @param string $field Field type.
      * @return void

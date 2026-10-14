@@ -33,7 +33,7 @@ class Hash
      * but is faster for simple read operations.
      *
      * @param array $data Array of data to operate on.
-     * @param array|string $path The path being searched for. Either a dot
+     * @param array|string|int|null $path The path being searched for. Either a dot
      *   separated string, or an array of path segments.
      * @param mixed $default The return value when the path does not exist
      * @throws InvalidArgumentException

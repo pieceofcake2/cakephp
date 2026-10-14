@@ -233,7 +233,7 @@ class ModelBehavior extends CakeObject
      * you explicitly set the value of the field which you are allowing.
      *
      * @param Model $model Model using this behavior
-     * @param string $field Field to be added to $model's whitelist
+     * @param array|string $field Field to be added to $model's whitelist
      * @return void
      */
     protected function _addToWhitelist(Model $model, $field)

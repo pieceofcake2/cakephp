@@ -437,7 +437,7 @@ class Multibyte
             $string = implode($spacer, $parts);
         } else {
             $string = chunk_split(base64_encode($string), $length, $spacer);
-            $string = preg_replace('/' . preg_quote($spacer) . '$/', '', $string);
+            $string = preg_replace('/' . preg_quote($spacer, '/') . '$/', '', $string);
         }
 
         return $start . $string . $end;
