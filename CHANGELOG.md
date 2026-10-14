@@ -2,6 +2,18 @@
 
 ## Unreleased
 
+### Integration Testing Backport ([PR #51](https://github.com/pieceofcake2/cakephp/pull/51))
+
+- **IntegrationTestTrait**: New test trait, a backport of `Cake\TestSuite\IntegrationTestTrait` from CakePHP 5.x ([src/TestSuite/IntegrationTestTrait.php](https://github.com/cakephp/cakephp/blob/5.x/src/TestSuite/IntegrationTestTrait.php)) adapted to CakePHP 2. Dispatches requests through the real `Dispatcher` and captures the `CakeResponse`; usable from any test case (no `ControllerTestCase` needed)
+  - Requests: `get()`, `post()`, `put()`, `patch()`, `delete()`, `head()`, `options()` with string URLs, full URLs or routing arrays, array data or a raw body
+  - Setup: `configRequest()`, `replaceRequest()`, `requestAsJson()`, `session()`, `cookie()`, `cookieEncrypted()` (`CookieComponent` format), `enableSecurityToken()` / `setUnlockedFields()` (valid `SecurityComponent` `_Token` fields and CSRF token), `enableCsrfToken()`, `enableRetainFlashMessages()`, `disableErrorHandlerMiddleware()` (throw exceptions instead of rendering the error page)
+  - Assertions on the status, redirect, headers, content type, body, template, layout, session, flash messages, cookies and sent files (`assertResponseOk()`, `assertRedirect()`, `assertHeader()`, `assertResponseContains()`, `assertTemplate()`, `assertSession()`, `assertFlashMessage()`, `assertCookieEncrypted()`, `assertFileResponse()`, ...), and `viewVariable()`
+  - `exit` after a sent response (`Controller::redirect()`, `AuthComponent`, `AssetDispatcher`, redirect routes) is replaced by `IntegrationTestStop`, thrown by the test response `IntegrationTestResponse`; `IntegrationTestDispatcher` dispatches without sending the response
+- **Constraints**: PHPUnit constraints backported from [src/TestSuite/Constraint](https://github.com/cakephp/cakephp/tree/5.x/src/TestSuite/Constraint) (`Response/*`, `Session/*`, `View/*`, `Email/*`), named with a `Constraint` suffix (e.g. `StatusOkConstraint`, `FlashParamEqualsConstraint`, `MailSentToConstraint`)
+- **EmailTrait** / **TestEmailTransport**: Backport of [src/TestSuite/EmailTrait.php](https://github.com/cakephp/cakephp/blob/5.x/src/TestSuite/EmailTrait.php) and [src/TestSuite/TestEmailTransport.php](https://github.com/cakephp/cakephp/blob/5.x/src/TestSuite/TestEmailTransport.php). Every `CakeEmail` sends with `TestEmailTransport` during the test, and `assertMailCount()`, `assertNoMailSent()`, `assertMailSentTo()`, `assertMailSentFrom()`, `assertMailSentWith()`, `assertMailContains()`, `assertMailContainsText()`, `assertMailContainsHtml()`, `assertMailSubjectContains()`, `assertMailContainsAttachment()` (and `...At()` variants) check the captured emails
+- **CakeEmail**: New `CakeEmail::overrideTransport($name)` / `CakeEmail::transportOverride()` to make every instance use one transport (used by `TestEmailTransport::replaceAllTransports()`); no change unless called
+- **CookieCryptTrait** (TestSuite): Encrypts and decrypts values in the `CookieComponent` format, backport of `Cake\Utility\CookieCryptTrait`
+
 ### Docblock Types ([PR #49](https://github.com/pieceofcake2/cakephp/pull/49))
 
 - **ErrorHandler** / **ExceptionRenderer**: Document the `$exception` parameters of `handleException()`, `_getMessage()`, `_log()`, `ExceptionRenderer::__construct()` and `_getController()` as `Throwable`, matching what `set_exception_handler()` passes on PHP 8 (no behavior change)

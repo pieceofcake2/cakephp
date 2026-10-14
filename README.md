@@ -113,6 +113,28 @@ Step 3: CakePHP 5.x with CakePHP 5.x-style structure
 
 See [`pieceofcake2/app`](https://github.com/pieceofcake2/app) for the modern directory structure compatible with both CakePHP 2.x and 5.x.
 
+### Integration Testing
+
+`IntegrationTestTrait` and `EmailTrait` are backported from CakePHP 5.x. They dispatch requests through the real dispatcher and assert on the response, session, flash messages, cookies and sent emails, with the CakePHP 5 method names:
+
+```php
+class ArticlesControllerTest extends CakeTestCase
+{
+    use IntegrationTestTrait;
+
+    public function testAdd(): void
+    {
+        $this->enableSecurityToken();
+        $this->post('/articles/add', ['Article' => ['title' => 'New article']]);
+
+        $this->assertRedirectContains('/articles/view/');
+        $this->assertFlashMessage('The article has been saved.');
+    }
+}
+```
+
+See [UPGRADE.md](UPGRADE.md#integration-testing-integrationtesttrait-and-emailtrait-backport-pr-51) for the guide and the differences from CakePHP 5.x.
+
 ## Security
 
 ### SSL/TLS Certificate Validation
