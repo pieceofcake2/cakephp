@@ -17,7 +17,7 @@ Before migrating to this fork, ensure:
 
 ## Unreleased
 
-### `DboSource::order()` Validates the Sort Direction ([PR #PRNUM](https://github.com/pieceofcake2/cakephp/pull/PRNUM))
+### `DboSource::order()` Validates the Sort Direction ([PR #54](https://github.com/pieceofcake2/cakephp/pull/54))
 
 - The sort direction given to `order` (find options, `Model::$order`, association `'order'` settings, `DboSource::order()`) must be `ASC` or `DESC`, optionally followed by `NULLS FIRST` or `NULLS LAST`. It is matched case-insensitively and extra / leading / trailing whitespace is allowed, so `'asc'`, `'Desc'`, `' DESC '`, `'ASC NULLS FIRST'` and `'desc  nulls  last'` all keep working. Previously the direction was appended to the SQL verbatim.
 - Any other direction now throws an `InvalidArgumentException` (`Invalid ORDER BY direction "..."`). This covers array values (`['Post.title' => $direction]`), the `$direction` argument of `DboSource::order()`, and text after an `ASC` / `DESC` written at the end of a string key (`'Post.title DESC LIMIT 1'`).
