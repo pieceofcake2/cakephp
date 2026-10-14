@@ -630,15 +630,16 @@ class ShellDispatcherTest extends CakeTestCase
     }
 
     /**
-     * Test that a missing application core file is reported as a plain error message
-     * instead of an uncaught exception.
+     * Test that a missing application bootstrap file is reported as a plain error message
+     * instead of an uncaught exception with a stack trace.
      *
      * @return void
      */
-    public function testMissingCoreFilePrintsError()
+    public function testMissingBootstrapFilePrintsError()
     {
         $working = TMP . 'shell_dispatcher_' . uniqid() . DS . 'app';
         mkdir($working . DS . 'Config', 0777, true);
+        copy(CORE_ROOT . DS . 'config' . DS . 'core.php', $working . DS . 'Config' . DS . 'core.php');
         try {
             $process = proc_open(
                 [PHP_BINARY, '-d', 'display_errors=stderr', CORE_ROOT . DS . 'bin' . DS . 'cake', '-working', $working],
@@ -657,7 +658,8 @@ class ShellDispatcherTest extends CakeTestCase
         }
 
         $this->assertSame(1, $code);
-        $this->assertStringContainsString("Error: Can't find application core file.", $error);
-        $this->assertStringNotContainsString('Uncaught', $error);
+        $this->assertStringContainsString("Error: Can't find application bootstrap file.", $error);
+        $this->assertStringNotContainsString('Stack trace', $error);
+        $this->assertStringNotContainsString('#0 ', $error);
     }
 }
