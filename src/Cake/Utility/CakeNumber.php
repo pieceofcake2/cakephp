@@ -90,7 +90,7 @@ class CakeNumber
      *
      * @param float $value A floating point number.
      * @param int $precision The precision of the returned number.
-     * @return float Formatted float.
+     * @return string Formatted float.
      * @link https://book.cakephp.org/2.0/en/core-libraries/helpers/number.html#NumberHelper::precision
      */
     public static function precision($value, $precision = 3)
@@ -144,9 +144,10 @@ class CakeNumber
             $i = array_search(substr($size, -1), ['K', 'M', 'G', 'T', 'P']);
         }
         if ($i !== false) {
-            $size = substr($size, 0, $l);
-
-            return $size * 1024 ** ($i + 1);
+            $number = substr($size, 0, $l);
+            if (is_numeric($number)) {
+                return $number * 1024 ** ($i + 1);
+            }
         }
 
         if (str_ends_with($size, 'B') && ctype_digit(substr($size, 0, -1))) {
@@ -187,8 +188,8 @@ class CakeNumber
     /**
      * Formats a number into a currency format.
      *
-     * @param float $value A floating point number
-     * @param int $options If integer then places, if string then before, if (,.-) then use it
+     * @param string|float $value A floating point number
+     * @param array|string|int|false $options If integer then places, if string then before, if (,.-) then use it
      *   or array with places and before keys
      * @return string formatted number
      * @link https://book.cakephp.org/2.0/en/core-libraries/helpers/number.html#NumberHelper::format
@@ -219,7 +220,13 @@ class CakeNumber
         if (is_array($options)) {
             $defaults = ['before' => '$', 'places' => 2, 'thousands' => ',', 'decimals' => '.'];
             $options += $defaults;
-            extract($options);
+            ['before' => $before, 'places' => $places, 'thousands' => $thousands, 'decimals' => $decimals] = $options;
+            if (array_key_exists('after', $options)) {
+                $after = $options['after'];
+            }
+            if (array_key_exists('escape', $options)) {
+                $escape = $options['escape'];
+            }
         }
 
         $value = static::_numberFormat($value, $places, '.', '');
@@ -262,7 +269,7 @@ class CakeNumber
     /**
      * Alternative number_format() to accommodate multibyte decimals and thousands < PHP 5.4
      *
-     * @param float $value Value to format.
+     * @param string|float $value Value to format.
      * @param int $places Decimal places to use.
      * @param string $decimals Decimal position string.
      * @param string $thousands Thousands separator string.
@@ -328,7 +335,7 @@ class CakeNumber
         if (isset($options['before']) && $options['before'] !== '') {
             $options['wholeSymbol'] = $options['before'];
         }
-        if (isset($options['after']) && !$options['after'] !== '') {
+        if (isset($options['after'])) {
             $options['fractionSymbol'] = $options['after'];
         }
 

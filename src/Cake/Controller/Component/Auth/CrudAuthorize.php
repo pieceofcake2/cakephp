@@ -33,7 +33,7 @@ class CrudAuthorize extends BaseAuthorize
      * Sets up additional actionMap values that match the configured `Routing.prefixes`.
      *
      * @param ComponentCollection $collection The component collection from the controller.
-     * @param string $settings An array of settings. This class does not use any settings.
+     * @param array $settings An array of settings. This class does not use any settings.
      */
     public function __construct(ComponentCollection $collection, $settings = [])
     {

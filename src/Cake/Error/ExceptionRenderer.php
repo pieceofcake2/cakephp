@@ -72,7 +72,7 @@ class ExceptionRenderer
     /**
      * The exception being handled.
      *
-     * @var Exception
+     * @var Throwable
      */
     public $error = null;
 

@@ -193,12 +193,12 @@ class CakeText
 
         foreach ($tempData as $key => $hashVal) {
             $key = sprintf($format, preg_quote($key, '/'));
-            $str = preg_replace($key, $hashVal, $str);
+            $str = preg_replace($key, (string)$hashVal, $str);
         }
         $dataReplacements = array_combine($hashKeys, array_values($data));
         foreach ($dataReplacements as $tmpHash => $tmpValue) {
             $tmpValue = is_array($tmpValue) ? '' : $tmpValue;
-            $str = str_replace($tmpHash, $tmpValue ?? '', $str);
+            $str = str_replace((string)$tmpHash, $tmpValue ?? '', $str);
         }
 
         if (!isset($options['format']) && isset($options['before'])) {
@@ -409,7 +409,7 @@ class CakeText
             'regex' => '|%s|iu',
         ];
         $options += $defaults;
-        extract($options);
+        ['format' => $format, 'html' => $html] = $options;
 
         if (is_array($phrase)) {
             $replace = [];
@@ -470,7 +470,7 @@ class CakeText
             'ellipsis' => '...', 'exact' => true,
         ];
         $options += $defaults;
-        extract($options);
+        ['ellipsis' => $ellipsis, 'exact' => $exact] = $options;
 
         if (mb_strlen($text) <= $length) {
             return $text;
@@ -514,7 +514,7 @@ class CakeText
             $defaults['ellipsis'] = "\xe2\x80\xa6";
         }
         $options += $defaults;
-        extract($options);
+        ['ellipsis' => $ellipsis, 'exact' => $exact, 'html' => $html] = $options;
 
         if ($html) {
             if (mb_strlen(preg_replace('/<.*?>/', '', $text)) <= $length) {
@@ -669,7 +669,7 @@ class CakeText
             $and = __d('cake', 'and');
         }
         if (count($list) > 1) {
-            return implode($separator, array_slice($list, null, -1)) . ' ' . $and . ' ' . array_pop($list);
+            return implode($separator, array_slice($list, 0, -1)) . ' ' . $and . ' ' . array_pop($list);
         }
 
         return array_pop($list);

@@ -26,7 +26,7 @@ abstract class BaseLog implements CakeLogInterface
     /**
      * Engine config
      *
-     * @var string
+     * @var array
      */
     protected $_config = [];
 

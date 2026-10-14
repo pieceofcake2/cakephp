@@ -940,4 +940,20 @@ class ExceptionRendererTest extends CakeTestCase
         $expected = ['Controller.shutdown', 'Dispatcher.afterDispatch'];
         $this->assertEquals($expected, $fired);
     }
+
+    /**
+     * Test that PrivateActionException keeps the previous exception and formats its message.
+     *
+     * @return void
+     */
+    public function testPrivateActionExceptionPrevious()
+    {
+        $previous = new RuntimeException('previous');
+        $exception = new PrivateActionException(['controller' => 'PostsController', 'action' => '_secretSauce'], 404, $previous);
+
+        $this->assertSame($previous, $exception->getPrevious());
+        $this->assertSame(404, $exception->getCode());
+        $this->assertSame('Private Action PostsController::_secretSauce() is not directly accessible.', $exception->getMessage());
+        $this->assertSame(['controller' => 'PostsController', 'action' => '_secretSauce'], $exception->getAttributes());
+    }
 }

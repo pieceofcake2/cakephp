@@ -1080,4 +1080,31 @@ TEXT;
             ->method('_configureStdErrLogger');
         $shell->__construct();
     }
+
+    /**
+     * Test that shortPath() does not pass null to str_replace() (deprecated as of PHP 8.1).
+     *
+     * @return void
+     */
+    public function testShortPathDoesNotPassNull()
+    {
+        $path = ROOT . DS . 'src' . DS . 'Model' . DS . 'Post.php';
+        $deprecations = [];
+        $level = error_reporting(E_ALL);
+        set_error_handler(function ($errno, $errstr) use (&$deprecations) {
+            if (str_contains($errstr, 'Passing null')) {
+                $deprecations[] = $errstr;
+            }
+
+            return true;
+        }, E_DEPRECATED);
+        try {
+            $result = $this->Shell->shortPath($path);
+        } finally {
+            restore_error_handler();
+            error_reporting($level);
+        }
+        $this->assertSame([], $deprecations);
+        $this->assertSame(DS . 'src' . DS . 'Model' . DS . 'Post.php', $result);
+    }
 }

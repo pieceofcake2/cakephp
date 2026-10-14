@@ -19,6 +19,13 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+use PHPUnit\Framework\TestResult;
+use SebastianBergmann\CodeCoverage\CodeCoverage;
+use SebastianBergmann\CodeCoverage\Driver\Driver;
+use SebastianBergmann\CodeCoverage\Filter;
+use SebastianBergmann\CodeCoverage\ProcessedCodeCoverageData;
+use SebastianBergmann\CodeCoverage\RawCodeCoverageData;
+
 /**
  * HtmlCoverageReportTest
  *
@@ -243,5 +250,79 @@ class HtmlCoverageReportTest extends CakeTestCase
         unset($this->Coverage);
 
         parent::tearDown();
+    }
+
+    /**
+     * Creates a test result carrying line coverage data for one file.
+     *
+     * @param string $file The covered file.
+     * @return TestResult
+     */
+    protected function _resultWithCoverage($file)
+    {
+        $driver = new class extends Driver {
+            public function nameAndVersion(): string
+            {
+                return 'Fake driver';
+            }
+
+            public function start(): void
+            {
+            }
+
+            public function stop(): RawCodeCoverageData
+            {
+                return RawCodeCoverageData::fromXdebugWithoutPathCoverage([]);
+            }
+        };
+        $data = new ProcessedCodeCoverageData();
+        $data->setLineCoverage([$file => [1 => ['HtmlCoverageReportTest::testReporterFooter'], 2 => []]]);
+        $coverage = new CodeCoverage($driver, new Filter());
+        $coverage->setData($data);
+
+        $result = new TestResult();
+        $result->setCodeCoverage($coverage);
+
+        return $result;
+    }
+
+    /**
+     * Test that the text reporter paints the code coverage of a test run.
+     *
+     * @return void
+     */
+    public function testTextReporterPaintsCoverage()
+    {
+        $reporter = new CakeTextReporter(null, ['codeCoverage' => true, 'app' => false, 'plugin' => false]);
+
+        ob_start();
+        $reporter->paintFooter($this->_resultWithCoverage(CAKE . 'basics.php'));
+        $output = ob_get_clean();
+
+        $this->assertStringContainsString('Coverage Report', $output);
+        $this->assertStringContainsString(CAKE . 'basics.php', $output);
+    }
+
+    /**
+     * Test that the HTML reporter paints the code coverage of a test run.
+     *
+     * @return void
+     */
+    public function testHtmlReporterPaintsCoverage()
+    {
+        $reporter = new CakeHtmlReporter(null, ['codeCoverage' => true, 'app' => false, 'plugin' => false, 'baseDir' => '', 'baseUrl' => '/', 'core' => true, 'case' => 'Basics']);
+
+        // paintDocumentEnd() flushes the current output buffer, so collect the output in an outer one.
+        $level = ob_get_level();
+        ob_start();
+        ob_start();
+        $reporter->paintFooter($this->_resultWithCoverage(CAKE . 'basics.php'));
+        $output = '';
+        while (ob_get_level() > $level) {
+            $output = ob_get_clean() . $output;
+        }
+
+        $this->assertStringContainsString('Code coverage', $output);
+        $this->assertStringContainsString('basics.php', $output);
     }
 }

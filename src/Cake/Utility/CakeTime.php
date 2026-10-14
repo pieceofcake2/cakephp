@@ -95,7 +95,7 @@ class CakeTime
      * Used by TimeHelper to modify static variables in CakeTime
      *
      * @param string $name Variable name
-     * @param mixes $value Variable value
+     * @param mixed $value Variable value
      * @return void
      */
     public function __set($name, $value)
@@ -130,7 +130,7 @@ class CakeTime
      *
      * @param string $format Format with specifiers for strftime function.
      *    Accepts the special specifier %S which mimics the modifier S for date()
-     * @param string $time UNIX timestamp
+     * @param string|int|false|null $time UNIX timestamp
      * @return string Windows safe and date() function compatible format for strftime
      * @link https://book.cakephp.org/2.0/en/core-libraries/helpers/time.html#TimeHelper::convertSpecifiers
      */
@@ -249,7 +249,7 @@ class CakeTime
     /**
      * Converts given time (in server's time zone) to user's local time, given his/her timezone.
      *
-     * @param int $serverTime Server's timestamp.
+     * @param string|int $serverTime Server's timestamp.
      * @param DateTimeZone|string $timezone User's timezone string or DateTimeZone object.
      * @return int User's timezone timestamp.
      * @link https://book.cakephp.org/2.0/en/core-libraries/helpers/time.html#TimeHelper::convert
@@ -308,7 +308,7 @@ class CakeTime
     /**
      * Returns server's offset from GMT in seconds.
      *
-     * @return int Offset
+     * @return string Offset
      * @link https://book.cakephp.org/2.0/en/core-libraries/helpers/time.html#TimeHelper::serverOffset
      */
     public static function serverOffset()
@@ -625,7 +625,7 @@ class CakeTime
      *
      * @param DateTime|string|int $dateString UNIX timestamp, strtotime() valid string or DateTime object
      * @param bool $range if true returns a range in Y-m-d format
-     * @return array|int 1, 2, 3, or 4 quarter of year or array if $range true
+     * @return array|int|null 1, 2, 3, or 4 quarter of year or array if $range true
      * @link https://book.cakephp.org/2.0/en/core-libraries/helpers/time.html#TimeHelper::toQuarter
      */
     public static function toQuarter($dateString, $range = false)
@@ -647,6 +647,8 @@ class CakeTime
             case 4:
                 return [$year . '-10-01', $year . '-12-31'];
         }
+
+        return null;
     }
 
     /**
@@ -746,7 +748,7 @@ class CakeTime
         if ($userOffset != 0) {
             $hours = (int)floor(abs($userOffset));
             $minutes = (int)(fmod(abs($userOffset), $hours) * 60);
-            $timezone = ($userOffset < 0 ? '-' : '+') . str_pad($hours, 2, '0', STR_PAD_LEFT) . str_pad($minutes, 2, '0', STR_PAD_LEFT);
+            $timezone = ($userOffset < 0 ? '-' : '+') . sprintf('%02d%02d', $hours, $minutes);
         }
 
         return date('D, d M Y H:i:s', $date) . ' ' . $timezone;
@@ -874,8 +876,8 @@ class CakeTime
 
         // If more than a week, then take into account the length of months
         if ($diff >= 604800) {
-            [$future['H'], $future['i'], $future['s'], $future['d'], $future['m'], $future['Y']] = explode('/', date('H/i/s/d/m/Y', $endTime));
-            [$past['H'], $past['i'], $past['s'], $past['d'], $past['m'], $past['Y']] = explode('/', date('H/i/s/d/m/Y', $startTime));
+            $future = ['d' => idate('d', $endTime), 'm' => idate('m', $endTime), 'Y' => idate('Y', $endTime)];
+            $past = ['d' => idate('d', $startTime), 'm' => idate('m', $startTime), 'Y' => idate('Y', $startTime)];
 
             $years = $future['Y'] - $past['Y'];
             $months = $future['m'] + (12 * $years) - $past['m'];
@@ -891,8 +893,8 @@ class CakeTime
             if ($future['d'] >= $past['d']) {
                 $days = $future['d'] - $past['d'];
             } else {
-                $daysInPastMonth = date('t', $startTime);
-                $daysInFutureMonth = date('t', mktime(0, 0, 0, $future['m'] - 1, 1, $future['Y']));
+                $daysInPastMonth = idate('t', $startTime);
+                $daysInFutureMonth = idate('t', mktime(0, 0, 0, $future['m'] - 1, 1, $future['Y']));
 
                 if ($isFuture) {
                     $days = $daysInFutureMonth - $past['d'] + $future['d'];
@@ -947,29 +949,29 @@ class CakeTime
             $accuracy = $accuracies['minute'];
         }
 
-        $accuracyNum = str_replace(['year', 'month', 'week', 'day', 'hour', 'minute', 'second'], [1, 2, 3, 4, 5, 6, 7], $accuracy);
+        $accuracyNum = str_replace(['year', 'month', 'week', 'day', 'hour', 'minute', 'second'], ['1', '2', '3', '4', '5', '6', '7'], $accuracy);
 
         $relativeDate = [];
         if ($accuracyNum >= 1 && $years > 0) {
-            $relativeDate[] = __dn('cake', '%d year', '%d years', $years, $years);
+            $relativeDate[] = __dn('cake', '%d year', '%d years', (int)$years, $years);
         }
         if ($accuracyNum >= 2 && $months > 0) {
-            $relativeDate[] = __dn('cake', '%d month', '%d months', $months, $months);
+            $relativeDate[] = __dn('cake', '%d month', '%d months', (int)$months, $months);
         }
         if ($accuracyNum >= 3 && $weeks > 0) {
-            $relativeDate[] = __dn('cake', '%d week', '%d weeks', $weeks, $weeks);
+            $relativeDate[] = __dn('cake', '%d week', '%d weeks', (int)$weeks, $weeks);
         }
         if ($accuracyNum >= 4 && $days > 0) {
-            $relativeDate[] = __dn('cake', '%d day', '%d days', $days, $days);
+            $relativeDate[] = __dn('cake', '%d day', '%d days', (int)$days, $days);
         }
         if ($accuracyNum >= 5 && $hours > 0) {
-            $relativeDate[] = __dn('cake', '%d hour', '%d hours', $hours, $hours);
+            $relativeDate[] = __dn('cake', '%d hour', '%d hours', (int)$hours, $hours);
         }
         if ($accuracyNum >= 6 && $minutes > 0) {
-            $relativeDate[] = __dn('cake', '%d minute', '%d minutes', $minutes, $minutes);
+            $relativeDate[] = __dn('cake', '%d minute', '%d minutes', (int)$minutes, $minutes);
         }
         if ($accuracyNum >= 7 && $seconds > 0) {
-            $relativeDate[] = __dn('cake', '%d second', '%d seconds', $seconds, $seconds);
+            $relativeDate[] = __dn('cake', '%d second', '%d seconds', (int)$seconds, $seconds);
         }
         $relativeDate = implode(', ', $relativeDate);
 

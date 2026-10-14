@@ -34,14 +34,14 @@ class CakeEventManager
     /**
      * The globally available instance, used for dispatching events attached from any scope
      *
-     * @var CakeEventManager
+     * @var CakeEventManager|null
      */
     protected static $_generalManager = null;
 
     /**
      * List of listener callbacks associated to
      *
-     * @var object
+     * @var array
      */
     protected $_listeners = [];
 
@@ -147,7 +147,7 @@ class CakeEventManager
      *
      * @param array $function the array taken from a handler definition for an event
      * @param CakeEventListener $object The handler object
-     * @return callable
+     * @return array{callable, array} The callable and its options
      */
     protected function _extractCallable($function, $object)
     {
@@ -171,7 +171,9 @@ class CakeEventManager
     public function detach($callable, $eventKey = null)
     {
         if ($callable instanceof CakeEventListener) {
-            return $this->_detachSubscriber($callable, $eventKey);
+            $this->_detachSubscriber($callable, $eventKey);
+
+            return;
         }
         if (empty($eventKey)) {
             foreach (array_keys($this->_listeners) as $eventKey) {

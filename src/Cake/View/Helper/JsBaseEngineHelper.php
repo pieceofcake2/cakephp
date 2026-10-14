@@ -146,6 +146,7 @@ abstract class JsBaseEngineHelper extends AppHelper
      * @param mixed $val A PHP variable to be converted to JSON
      * @param bool $quoteString If false, leaves string values unquoted
      * @param string $key Key name.
+     * @phpstan-param mixed $quoteString
      * @return string a JavaScript-safe/JSON representation of $val
      */
     public function value($val = [], $quoteString = null, $key = 'value')
@@ -200,7 +201,7 @@ abstract class JsBaseEngineHelper extends AppHelper
      * Encode a string into JSON. Converts and escapes necessary characters.
      *
      * @param string $string The string that needs to be utf8->hex encoded
-     * @return void
+     * @return string
      */
     protected function _utf8ToHex($string)
     {

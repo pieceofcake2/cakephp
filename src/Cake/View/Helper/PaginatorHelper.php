@@ -28,6 +28,7 @@ App::uses('AppHelper', 'View/Helper');
  * @package       Cake.View.Helper
  * @property      HtmlHelper $Html
  * @link https://book.cakephp.org/2.0/en/core-libraries/helpers/paginator.html
+ * @property string|null $_defaultModel The default model of the paged sets, see defaultModel()
  */
 class PaginatorHelper extends AppHelper
 {
@@ -422,7 +423,7 @@ class PaginatorHelper extends AppHelper
      * - `escape` Whether you want the contents html entity encoded, defaults to true
      * - `model` The model to use, defaults to PaginatorHelper::defaultModel()
      *
-     * @param string $title Title for the link.
+     * @param string|float|int $title Title for the link.
      * @param array|string $url URL for the action. See Router::url()
      * @param array $options Options for the link. See #options for list of keys.
      * @return string A link with pagination parameters.
@@ -636,7 +637,7 @@ class PaginatorHelper extends AppHelper
      * Does $model have $page in its range?
      *
      * @param string $model Model name to get parameters for.
-     * @param int $page Page number you are checking.
+     * @param string|int $page Page number you are checking.
      * @return bool Whether model has $page
      */
     protected function _hasPage($model, $page)
@@ -733,12 +734,13 @@ class PaginatorHelper extends AppHelper
                     '%end%' => $end,
                     '%model%' => strtolower(Inflector::humanize(Inflector::tableize($options['model']))),
                 ];
-                $out = str_replace(array_keys($map), array_values($map), $options['format']);
+                $replacements = array_map('strval', array_values($map));
+                $out = str_replace(array_keys($map), $replacements, $options['format']);
 
                 $newKeys = [
                     '{:page}', '{:pages}', '{:current}', '{:count}', '{:start}', '{:end}', '{:model}',
                 ];
-                $out = str_replace($newKeys, array_values($map), $out);
+                $out = str_replace($newKeys, $replacements, $out);
         }
 
         return $out;
@@ -797,12 +799,15 @@ class PaginatorHelper extends AppHelper
             return '';
         }
 
-        extract($options);
+        [
+            'tag' => $tag, 'before' => $before, 'after' => $after, 'class' => $class,
+            'modulus' => $modulus, 'separator' => $separator, 'first' => $first, 'last' => $last,
+            'ellipsis' => $ellipsis, 'currentClass' => $currentClass, 'currentTag' => $currentTag,
+        ] = $options;
         unset(
             $options['tag'],
             $options['before'],
             $options['after'],
-            $options['model'],
             $options['modulus'],
             $options['separator'],
             $options['first'],
@@ -946,8 +951,8 @@ class PaginatorHelper extends AppHelper
         if ($params['pageCount'] <= 1) {
             return '';
         }
-        extract($options);
-        unset($options['tag'], $options['after'], $options['model'], $options['separator'], $options['ellipsis'], $options['class']);
+        ['tag' => $tag, 'after' => $after, 'separator' => $separator, 'ellipsis' => $ellipsis, 'class' => $class] = $options;
+        unset($options['tag'], $options['after'], $options['separator'], $options['ellipsis'], $options['class']);
 
         $out = '';
 
@@ -1012,8 +1017,8 @@ class PaginatorHelper extends AppHelper
             return '';
         }
 
-        extract($options);
-        unset($options['tag'], $options['before'], $options['model'], $options['separator'], $options['ellipsis'], $options['class']);
+        ['tag' => $tag, 'before' => $before, 'separator' => $separator, 'ellipsis' => $ellipsis, 'class' => $class] = $options;
+        unset($options['tag'], $options['before'], $options['separator'], $options['ellipsis'], $options['class']);
 
         $out = '';
         $lower = $params['pageCount'] - (int)$last + 1;
@@ -1087,5 +1092,7 @@ class PaginatorHelper extends AppHelper
             $options['block'] = __FUNCTION__;
         }
         $this->_View->append($options['block'], $out);
+
+        return null;
     }
 }

@@ -55,7 +55,7 @@ class IniReader implements ConfigReaderInterface
     /**
      * The path to read ini files from.
      *
-     * @var array
+     * @var string
      */
     protected $_path;
 

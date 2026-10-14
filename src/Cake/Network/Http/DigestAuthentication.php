@@ -82,6 +82,7 @@ class DigestAuthentication
         $a1 = md5($authInfo['user'] . ':' . $authInfo['realm'] . ':' . $authInfo['pass']);
         $a2 = md5($http->request['method'] . ':' . $http->request['uri']['path']);
 
+        $nc = null;
         if (empty($authInfo['qop'])) {
             $response = md5($a1 . ':' . $authInfo['nonce'] . ':' . $a2);
         } else {

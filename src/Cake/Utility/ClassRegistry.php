@@ -131,6 +131,7 @@ class ClassRegistry
         }
         $count = count($objects);
         $availableDs = null;
+        $instance = null;
 
         foreach ($objects as $settings) {
             if (is_numeric($settings)) {
@@ -379,13 +380,15 @@ class ClassRegistry
      * Return the name of a class in the registry.
      *
      * @param string $key Key to find in map
-     * @return string Mapped value
+     * @return string|null Mapped value
      */
     protected function _getMap($key)
     {
         if (isset($this->_map[$key])) {
             return $this->_map[$key];
         }
+
+        return null;
     }
 
     /**

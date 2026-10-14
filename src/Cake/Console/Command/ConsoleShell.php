@@ -20,6 +20,7 @@ App::uses('AppShell', 'Console/Command');
  *
  * @package       Cake.Console.Command
  * @deprecated 3.0.0 Deprecated since version 2.4, will be removed in 3.0
+ * @property Dispatcher $Dispatcher
  */
 class ConsoleShell extends AppShell
 {
@@ -223,7 +224,7 @@ class ConsoleShell extends AppShell
      * Determine the method to process the current command
      *
      * @param string $command The command to run.
-     * @return string or false
+     * @return string|false or false
      */
     protected function _method($command)
     {
@@ -351,9 +352,9 @@ class ConsoleShell extends AppShell
         [$modelToCheck] = explode('->', $command);
 
         if ($this->_isValidModel($modelToCheck)) {
-            $findCommand = "\$data = \$this->$command;";
+            $findCommand = "return \$this->$command;";
             //@codingStandardsIgnoreStart
-            @eval($findCommand);
+            $data = @eval($findCommand);
             //@codingStandardsIgnoreEnd
 
             if (is_array($data)) {
@@ -438,9 +439,9 @@ class ConsoleShell extends AppShell
 
         if ($this->_isValidModel($modelToCheck)) {
             // Get the column info for this model
-            $fieldsCommand = "\$data = \$this->{$modelToCheck}->getColumnTypes();";
+            $fieldsCommand = "return \$this->{$modelToCheck}->getColumnTypes();";
             //@codingStandardsIgnoreStart
-            @eval($fieldsCommand);
+            $data = @eval($fieldsCommand);
             //@codingStandardsIgnoreEnd
 
             if (is_array($data)) {
@@ -461,7 +462,9 @@ class ConsoleShell extends AppShell
     protected function _routesReload()
     {
         if (!$this->_loadRoutes()) {
-            return $this->err(__d('cake_console', 'There was an error loading the routes config. Please check that the file exists and is free of parse errors.'));
+            $this->err(__d('cake_console', 'There was an error loading the routes config. Please check that the file exists and is free of parse errors.'));
+
+            return;
         }
         $this->out(__d('cake_console', 'Routes configuration reloaded, %d routes connected', count(Router::$routes)));
     }

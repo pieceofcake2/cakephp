@@ -338,7 +338,7 @@ class CakeValidationRule
             $validator = ['rule' => $validator];
         }
         foreach ($validator as $key => $value) {
-            if (isset($value) || !empty($value)) {
+            if (isset($value)) {
                 if (in_array($key, ['rule', 'required', 'allowEmpty', 'on', 'message', 'last'])) {
                     $this->{$key} = $validator[$key];
                 } else {

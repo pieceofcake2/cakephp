@@ -324,7 +324,7 @@ class Postgres extends DboSource
      *
      * @param string $source Name of the database table
      * @param string $field Name of the ID database field. Defaults to "id"
-     * @return int
+     * @return string|int|false
      */
     public function lastInsertId($source = null, $field = 'id')
     {
@@ -554,7 +554,7 @@ class Postgres extends DboSource
      *
      * @param array $compare Results of CakeSchema::compare()
      * @param string $table name of the table
-     * @return array
+     * @return string|false
      */
     public function alterSchema($compare, $table = null)
     {
@@ -723,6 +723,7 @@ class Postgres extends DboSource
             // The sprintf %u format behavior is undefined for values outside int range, but must remain
             // consistent with previous PHP versions for query generation
             set_error_handler(function () {
+                return true;
             }, E_WARNING);
             $rt = sprintf(' LIMIT %u', $limit);
             if ($offset) {
@@ -840,7 +841,7 @@ class Postgres extends DboSource
     /**
      * Fetches the next row from the current result set
      *
-     * @return array
+     * @return array|false
      */
     public function fetchResult()
     {
@@ -875,7 +876,7 @@ class Postgres extends DboSource
      *
      * @param mixed $data Value to be translated
      * @param bool $quote true to quote a boolean to be used in a query, false to return the boolean value
-     * @return bool Converted boolean value
+     * @return string|bool Converted boolean value
      */
     public function boolean($data, $quote = false)
     {
@@ -917,7 +918,7 @@ class Postgres extends DboSource
     /**
      * Gets the database encoding
      *
-     * @return string The database encoding
+     * @return string|false The database encoding
      */
     public function getEncoding()
     {
@@ -983,7 +984,7 @@ class Postgres extends DboSource
      *
      * @param array $indexes The index to build
      * @param string $table The table name.
-     * @return string
+     * @return array
      */
     public function buildIndex($indexes, $table = null)
     {
@@ -1036,7 +1037,9 @@ class Postgres extends DboSource
     {
         switch (strtolower($type)) {
             case 'schema':
-                extract($data);
+                $table = $data['table'] ?? null;
+                $columns = $data['columns'] ?? null;
+                $indexes = $data['indexes'] ?? null;
 
                 foreach ($indexes as $i => $index) {
                     if (preg_match('/PRIMARY KEY/', $index)) {

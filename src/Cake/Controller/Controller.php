@@ -53,6 +53,8 @@
  * @property      array $params   Array of parameters parsed from the URL. Deprecated, use CakeRequest::$params instead.
  * @property      string $webroot Webroot path segment for the request.
  * @link          https://book.cakephp.org/2.0/en/controllers.html
+ * @property string|null $subDir Sub-directory for view files, reset by ExceptionRenderer
+ * @method bool isAuthorized(array $user) Implemented by controllers that use ControllerAuthorize
  */
 class Controller extends CakeObject implements CakeEventListener
 {
@@ -108,7 +110,7 @@ class Controller extends CakeObject implements CakeEventListener
     /**
      * An instance of a CakeResponse object that contains information about the impending response
      *
-     * @var CakeResponse
+     * @var CakeResponse|null
      * @link https://book.cakephp.org/2.0/en/controllers/request-response.html#cakeresponse
      */
     public $response;
@@ -130,7 +132,7 @@ class Controller extends CakeObject implements CakeEventListener
     /**
      * The name of the layouts subfolder containing layouts for this controller.
      *
-     * @var string
+     * @var string|null
      */
     public $layoutPath = null;
 
@@ -216,7 +218,7 @@ class Controller extends CakeObject implements CakeEventListener
     /**
      * Automatically set to the name of a plugin.
      *
-     * @var string
+     * @var string|null
      */
     public $plugin = null;
 
@@ -305,7 +307,7 @@ class Controller extends CakeObject implements CakeEventListener
      * Instance of the CakeEventManager this controller is using
      * to dispatch inner events.
      *
-     * @var CakeEventManager
+     * @var CakeEventManager|null
      */
     protected $_eventManager = null;
 
@@ -750,7 +752,6 @@ class Controller extends CakeObject implements CakeEventListener
      * @param string|int|null $id Initial ID the instanced model class should have
      * @return bool True if the model was found
      * @throws MissingModelException if the model class cannot be found.
-     * @phpstan-assert T $this->{$modelClass}
      */
     public function loadModel($modelClass = null, $id = null)
     {

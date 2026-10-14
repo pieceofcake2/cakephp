@@ -300,4 +300,20 @@ class ConsoleOutputTest extends CakeTestCase
 
         $this->output->write('<error>Bad</error> Regular <b>Left</b> <i>behind</i> <name>', false);
     }
+
+    /**
+     * Test ConsoleInput::dataAvailable() on a readable stream.
+     *
+     * @return void
+     */
+    public function testInputDataAvailable()
+    {
+        $file = TMP . 'console_input_test.txt';
+        file_put_contents($file, "input\n");
+        $Input = new ConsoleInput($file);
+
+        $this->assertTrue($Input->dataAvailable());
+        $this->assertSame("input\n", $Input->read());
+        unlink($file);
+    }
 }

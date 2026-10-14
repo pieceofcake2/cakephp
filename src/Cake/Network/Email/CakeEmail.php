@@ -164,7 +164,7 @@ class CakeEmail
     /**
      * Layout for the View
      *
-     * @var string
+     * @var string|false
      */
     protected $_layout = 'default';
 
@@ -192,7 +192,7 @@ class CakeEmail
     /**
      * Theme for the View
      *
-     * @var array
+     * @var string|null
      */
     protected $_theme = null;
 
@@ -220,7 +220,7 @@ class CakeEmail
     /**
      * Final message to send
      *
-     * @var array
+     * @var array|string
      */
     protected $_message = [];
 
@@ -248,7 +248,7 @@ class CakeEmail
     /**
      * Instance of transport class
      *
-     * @var AbstractTransport
+     * @var AbstractTransport|null
      */
     protected $_transportClass = null;
 
@@ -278,7 +278,7 @@ class CakeEmail
      * Charset the email header is sent in
      * If null, the $charset property will be used as default
      *
-     * @var string
+     * @var string|null
      */
     public $headerCharset = null;
 
@@ -1331,13 +1331,12 @@ class CakeEmail
      * @param array|string $message String with message or array with variables to be used in render
      * @param array|string $transportConfig String to use config from EmailConfig or array with configs
      * @param bool $send Send the email or just return the instance pre-configured
-     * @return self Instance of CakeEmail
+     * @return static Instance of CakeEmail
      * @throws SocketException
      */
     public static function deliver($to = null, $subject = null, $message = null, $transportConfig = 'fast', $send = true)
     {
         $class = static::class;
-        /** @var CakeEmail $instance */
         $instance = new $class($transportConfig);
         if ($to !== null) {
             $instance->to($to);
@@ -1618,7 +1617,7 @@ class CakeEmail
     protected function _createBoundary()
     {
         if (!empty($this->_attachments) || $this->_emailFormat === 'both') {
-            $this->_boundary = md5(uniqid(time()));
+            $this->_boundary = md5(uniqid((string)time()));
         }
     }
 

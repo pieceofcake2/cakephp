@@ -46,7 +46,7 @@ class Debugger
      * Templates used when generating trace or error strings. Can be global or indexed by the format
      * value used in $_outputFormat.
      *
-     * @var string
+     * @var array
      */
     protected $_templates = [
         'log' => [
@@ -82,7 +82,7 @@ class Debugger
     /**
      * Holds current output data when outputFormat is false.
      *
-     * @var string
+     * @var array
      */
     protected $_data = [];
 
@@ -582,7 +582,7 @@ class Debugger
     /**
      * Handles object to string conversion.
      *
-     * @param string $var Object to convert
+     * @param object $var Object to convert
      * @param int $depth The current depth, used for tracking recursion.
      * @param int $indent The current indentation level.
      * @return string
@@ -692,7 +692,7 @@ class Debugger
      * @param string $format Format to use, including 'js' for JavaScript-enhanced HTML, 'html' for
      *    straight HTML output, or 'txt' for unformatted text.
      * @param array $strings Template strings, or a callback to be used for the output format.
-     * @return The resulting format string set.
+     * @return array The resulting format string set.
      */
     public static function addFormat($format, array $strings)
     {
@@ -720,7 +720,7 @@ class Debugger
      * @param string $format Format to use, including 'js' for JavaScript-enhanced HTML, 'html' for
      *    straight HTML output, or 'txt' for unformatted text.
      * @param array $strings Template strings to be used for the output format.
-     * @return string
+     * @return array|string|null
      * @deprecated 3.0.0 Use Debugger::outputAs() and Debugger::addFormat(). Will be removed
      *   in 3.0
      */
@@ -751,7 +751,7 @@ class Debugger
      * Takes a processed array of data from an error and displays it in the chosen format.
      *
      * @param array $data Data to output.
-     * @return void
+     * @return mixed
      */
     public function outputError($data)
     {
@@ -792,11 +792,11 @@ class Debugger
             case false:
                 $this->_data[] = compact('context', 'trace') + $data;
 
-                return;
+                return null;
             case 'log':
                 static::log(compact('context', 'trace') + $data);
 
-                return;
+                return null;
         }
 
         $data['trace'] = $trace;
@@ -830,6 +830,8 @@ class Debugger
             return call_user_func($tpl['callback'], $data, compact('links', 'info'));
         }
         echo CakeText::insert($tpl['error'], compact('links', 'info') + $data, $insertOpts);
+
+        return null;
     }
 
     /**

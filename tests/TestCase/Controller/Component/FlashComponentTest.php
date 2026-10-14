@@ -243,4 +243,16 @@ class FlashComponentTest extends CakeTestCase
         $this->assertEquals($expected, $result, 'Element is ignored in magic call.');
         CakeSession::delete('Message.flash');
     }
+
+    /**
+     * Test that the constructor initializes the base Component.
+     *
+     * @return void
+     */
+    public function testConstructorInitializesComponent()
+    {
+        $Flash = new FlashComponent($this->Components, ['element' => 'custom']);
+
+        $this->assertSame(['element' => 'custom'], $Flash->settings);
+    }
 }

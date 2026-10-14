@@ -27,7 +27,7 @@ class ExtractTask extends AppShell
     /**
      * Paths to use when looking for strings
      *
-     * @var string
+     * @var array
      */
     protected $_paths = [];
 
@@ -55,7 +55,7 @@ class ExtractTask extends AppShell
     /**
      * Contains all content waiting to be write
      *
-     * @var string
+     * @var array
      */
     protected $_storage = [];
 
@@ -97,7 +97,7 @@ class ExtractTask extends AppShell
     /**
      * Holds the validation string domain to use for validation messages when extracting
      *
-     * @var bool
+     * @var string
      */
     protected $_validationDomain = 'default';
 
@@ -127,7 +127,9 @@ class ExtractTask extends AppShell
             if (strtoupper($response) === 'Q') {
                 $this->err(__d('cake_console', 'Extract Aborted'));
 
-                return $this->_stop();
+                $this->_stop();
+
+                return;
             } elseif (strtoupper($response) === 'D' && count($this->_paths)) {
                 $this->out();
 
@@ -207,7 +209,9 @@ class ExtractTask extends AppShell
                 if (strtoupper($response) === 'Q') {
                     $this->err(__d('cake_console', 'Extract Aborted'));
 
-                    return $this->_stop();
+                    $this->_stop();
+
+                    return;
                 } elseif ($this->_isPathUsable($response)) {
                     $this->_output = $response . DS;
                     break;
@@ -234,7 +238,9 @@ class ExtractTask extends AppShell
         if (!$this->_isPathUsable($this->_output)) {
             $this->err(__d('cake_console', 'The output directory %s was not found or writable.', $this->_output));
 
-            return $this->_stop();
+            $this->_stop();
+
+            return;
         }
 
         $this->_extract();
@@ -437,12 +443,15 @@ class ExtractTask extends AppShell
                 $strings = $this->_getStrings($position, $mapCount);
 
                 if ($mapCount === count($strings)) {
-                    extract(array_combine($map, $strings));
-                    $category ??= 6;
+                    $parsed = array_combine($map, $strings);
+                    $singular = $parsed['singular'];
+                    $plural = $parsed['plural'] ?? null;
+                    $context = $parsed['context'] ?? null;
+                    $category = $parsed['category'] ?? 6;
                     $category = (int)$category;
                     $categoryName = $categories[$category];
 
-                    $domain ??= 'default';
+                    $domain = $parsed['domain'] ?? 'default';
                     $details = [
                         'file' => $this->_file,
                         'line' => $line,
@@ -794,9 +803,9 @@ class ExtractTask extends AppShell
 
         while (($tokenCount - $count > 0) && $parenthesis) {
             if (is_array($this->_tokens[$count])) {
-                $this->err($this->_tokens[$count][1], false);
+                $this->err($this->_tokens[$count][1], 0);
             } else {
-                $this->err($this->_tokens[$count], false);
+                $this->err($this->_tokens[$count], 0);
                 if ($this->_tokens[$count] === '(') {
                     $parenthesis++;
                 }
@@ -807,7 +816,7 @@ class ExtractTask extends AppShell
             }
             $count++;
         }
-        $this->err("\n", true);
+        $this->err("\n", 1);
     }
 
     /**

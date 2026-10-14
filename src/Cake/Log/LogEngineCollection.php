@@ -28,7 +28,7 @@ class LogEngineCollection extends ObjectCollection
      *
      * @param string $name instance identifier
      * @param array $options Setting for the Log Engine
-     * @return BaseLog BaseLog engine instance
+     * @return CakeLogInterface BaseLog engine instance
      * @throws CakeLogException when logger class does not implement a write method
      */
     public function load($name, $options = [])

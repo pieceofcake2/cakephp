@@ -67,7 +67,7 @@ class HttpSocket extends CakeSocket
     /**
      * Contain information about the last response (read only)
      *
-     * @var array
+     * @var HttpSocketResponse|object|false|null
      */
     public $response = null;
 
@@ -186,7 +186,7 @@ class HttpSocket extends CakeSocket
      *
      * `$http->configAuth();`
      *
-     * @param string $method Authentication method (ie. Basic, Digest). If empty, disable authentication
+     * @param string|false|null $method Authentication method (ie. Basic, Digest). If empty, disable authentication
      * @param array|string $user Username for authentication. Can be an array with settings to authentication class
      * @param string $pass Password for authentication
      * @return void
@@ -913,7 +913,7 @@ class HttpSocket extends CakeSocket
      * Builds a request line according to HTTP/1.1 specs. Activate quirks mode to work outside specs.
      *
      * @param array $request Needs to contain a 'uri' key. Should also contain a 'method' key, otherwise defaults to GET.
-     * @return string Request line
+     * @return string|false Request line
      * @throws SocketException
      */
     protected function _buildRequestLine($request = [])
@@ -954,7 +954,7 @@ class HttpSocket extends CakeSocket
      *
      * @param array $header Header to build
      * @param string $mode Mode
-     * @return string Header built from array
+     * @return string|false Header built from array
      */
     protected function _buildHeader($header, $mode = 'standard')
     {
@@ -1064,6 +1064,7 @@ class HttpSocket extends CakeSocket
      * the same thing partially for the request and the response property only.
      *
      * @param bool $full If set to false only HttpSocket::response and HttpSocket::request are reset
+     * @phpstan-param mixed $full
      * @return bool True on success
      */
     public function reset($full = true)

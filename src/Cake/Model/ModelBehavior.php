@@ -184,7 +184,7 @@ class ModelBehavior extends CakeObject
      * @param Model $model Model using this behavior
      * @param bool $created True if this save created a new record
      * @param array $options Options passed from Model::save().
-     * @return bool
+     * @return bool|null
      * @see Model::save()
      */
     public function afterSave(Model $model, $created, $options = [])
@@ -233,7 +233,7 @@ class ModelBehavior extends CakeObject
      * you explicitly set the value of the field which you are allowing.
      *
      * @param Model $model Model using this behavior
-     * @param string $field Field to be added to $model's whitelist
+     * @param array|string $field Field to be added to $model's whitelist
      * @return void
      */
     protected function _addToWhitelist(Model $model, $field)

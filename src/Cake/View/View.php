@@ -46,6 +46,10 @@ App::uses('AppHelper', 'View/Helper');
  * @property      TextHelper $Text
  * @property      TimeHelper $Time
  * @property      ViewBlock $Blocks
+ * @property-read string $action The current action name, read from the request through __get()
+ * @property string $__viewFile Path of the view file being evaluated by _evaluate()
+ * @property string $output Deprecated, use View::fetch('content') and View::assign('content', ...) instead
+ * @property string|false $modelScope Unused, reset by FormHelper::end()
  */
 class View extends CakeObject
 {
@@ -67,7 +71,7 @@ class View extends CakeObject
      * Name of the plugin.
      *
      * @link http://manual.cakephp.org/chapter/plugins
-     * @var string
+     * @var string|null
      */
     public $plugin = null;
 
@@ -191,7 +195,7 @@ class View extends CakeObject
      * This object contains all the information about a request and several methods for reading
      * additional information about the request.
      *
-     * @var CakeRequest
+     * @var CakeRequest|null
      */
     public $request;
 
@@ -287,7 +291,7 @@ class View extends CakeObject
      * the controller, so it it possible to register view events in
      * the controller layer.
      *
-     * @var CakeEventManager
+     * @var CakeEventManager|null
      */
     protected $_eventManager = null;
 
@@ -390,7 +394,7 @@ class View extends CakeObject
      * - `callbacks` - Set to true to fire beforeRender and afterRender helper callbacks for this element.
      *   Defaults to false.
      * - `ignoreMissing` - Used to allow missing elements. Set to true to not trigger notices.
-     * @return string Rendered Element
+     * @return string|null Rendered Element
      */
     public function element($name, $data = [], $options = [])
     {
@@ -422,6 +426,8 @@ class View extends CakeObject
             $file = $plugin . 'Elements' . DS . $name . $this->ext;
             trigger_error(__d('cake_dev', 'Element Not Found: %s', $file), E_USER_NOTICE);
         }
+
+        return null;
     }
 
     /**
@@ -455,7 +461,7 @@ class View extends CakeObject
      * the view will be located along the regular view path cascade.
      *
      * @param string|false $view Name of view file to use.
-     * @param string $layout Layout to use.
+     * @param string|false|null $layout Layout to use.
      * @return string|null Rendered content or null if content already rendered and returned earlier.
      * @triggers View.beforeRender $this, array($viewFileName)
      * @triggers View.afterRender $this, array($viewFileName)
@@ -557,8 +563,8 @@ class View extends CakeObject
      * render cached view files.
      *
      * @param string $filename the cache file to include
-     * @param string $timeStart the page render start time
-     * @return bool Success of rendering the cached file.
+     * @param string|float $timeStart the page render start time
+     * @return string|false|null Success of rendering the cached file.
      */
     public function renderCache($filename, $timeStart)
     {
@@ -584,6 +590,8 @@ class View extends CakeObject
 
             return substr($out, strlen($match[0]));
         }
+
+        return null;
     }
 
     /**
@@ -832,7 +840,7 @@ class View extends CakeObject
      * @param array|string $one A string or an array of data.
      * @param mixed $two Value in case $one is a string (which then works as the key).
      *    Unused if $one is an associative array, otherwise serves as the values to $one's keys.
-     * @return void
+     * @return false|null
      */
     public function set($one, $two = null)
     {
@@ -850,6 +858,8 @@ class View extends CakeObject
             return false;
         }
         $this->viewVars = $data + $this->viewVars;
+
+        return null;
     }
 
     /**
@@ -897,13 +907,14 @@ class View extends CakeObject
      *
      * @param string $name Name of the attribute to set.
      * @param mixed $value Value of the attribute to set.
-     * @return mixed
+     * @return void
      */
     public function __set($name, $value)
     {
         switch ($name) {
             case 'output':
-                return $this->Blocks->set('content', $value);
+                $this->Blocks->set('content', $value);
+                break;
             default:
                 $this->{$name} = $value;
         }
@@ -1265,7 +1276,7 @@ class View extends CakeObject
      * Checks if an element is cached and returns the cached data if present
      *
      * @param string $name Element name
-     * @param string $data Data
+     * @param array $data Data
      * @param array $options Element options
      * @return string|null
      */

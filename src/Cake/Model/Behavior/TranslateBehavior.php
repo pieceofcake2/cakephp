@@ -452,7 +452,7 @@ class TranslateBehavior extends ModelBehavior
      * is disabled.
      *
      * @param Model $Model Model using this behavior.
-     * @return bool true.
+     * @return bool|null true.
      */
     protected function _setRuntimeData(Model $Model)
     {
@@ -479,6 +479,8 @@ class TranslateBehavior extends ModelBehavior
             }
         }
         $this->runtime[$Model->alias]['beforeSave'] = $tempData;
+
+        return null;
     }
 
     /**
@@ -504,7 +506,7 @@ class TranslateBehavior extends ModelBehavior
      * @param Model $Model Model the callback is called on
      * @param bool $created Whether or not the save created a record.
      * @param array $options Options passed from Model::save().
-     * @return bool true.
+     * @return bool|null true.
      */
     public function afterSave(Model $Model, $created, $options = [])
     {
@@ -567,6 +569,8 @@ class TranslateBehavior extends ModelBehavior
                 }
             }
         }
+
+        return null;
     }
 
     /**
@@ -624,7 +628,7 @@ class TranslateBehavior extends ModelBehavior
      */
     protected function _getLocale(Model $Model)
     {
-        if (!isset($Model->locale) || $Model->locale === null) {
+        if (!isset($Model->locale)) {
             $I18n = I18n::getInstance();
             $I18n->l10n->get(Configure::read('Config.language'));
             $Model->locale = $I18n->l10n->locale;

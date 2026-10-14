@@ -33,7 +33,7 @@ class FileEngine extends CacheEngine
     /**
      * Instance of SplFileObject class
      *
-     * @var File
+     * @var SplFileObject|null
      */
     protected $_File = null;
 
@@ -172,7 +172,7 @@ class FileEngine extends CacheEngine
         $time = time();
         $cachetime = (int)$this->_File->current();
 
-        if ($cachetime !== false && ($cachetime < $time || ($time + $this->settings['duration']) < $cachetime)) {
+        if ($cachetime < $time || ($time + $this->settings['duration']) < $cachetime) {
             if ($this->settings['lock']) {
                 $this->_File->flock(LOCK_UN);
             }
@@ -321,7 +321,7 @@ class FileEngine extends CacheEngine
      *
      * @param string $key The key to decrement
      * @param int $offset The number to offset
-     * @return void
+     * @return never
      * @throws CacheException
      */
     public function decrement($key, $offset = 1)
@@ -334,7 +334,7 @@ class FileEngine extends CacheEngine
      *
      * @param string $key The key to decrement
      * @param int $offset The number to offset
-     * @return void
+     * @return never
      * @throws CacheException
      */
     public function increment($key, $offset = 1)

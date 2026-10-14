@@ -140,7 +140,7 @@ class Router
     /**
      * Stores all information necessary to decide what named arguments are parsed under what conditions.
      *
-     * @var string
+     * @var array
      */
     protected static $_namedConfig = [
         'default' => ['page', 'fields', 'order', 'limit', 'recursive', 'sort', 'direction', 'step'],
@@ -215,6 +215,8 @@ class Router
         }
 
         static::$_routeClass = static::_validateRouteClass($routeClass);
+
+        return null;
     }
 
     /**
@@ -622,7 +624,7 @@ class Router
             parse_str($queryParameters, $queryParameters);
         }
 
-        extract(static::_parseExtension($url));
+        ['ext' => $ext, 'url' => $url] = static::_parseExtension($url);
 
         foreach (static::$routes as $route) {
             if (($r = $route->parse($url)) !== false) {
@@ -867,7 +869,7 @@ class Router
         if (is_bool($full)) {
             $escape = false;
         } else {
-            extract($full + ['escape' => false, 'full' => false]);
+            ['escape' => $escape, 'full' => $full] = $full + ['escape' => false, 'full' => false];
         }
 
         $path = ['base' => null];

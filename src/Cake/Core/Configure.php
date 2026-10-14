@@ -167,9 +167,9 @@ class Configure
 
         if (isset($config['debug']) && function_exists('ini_set')) {
             if (static::$_values['debug']) {
-                ini_set('display_errors', 1);
+                ini_set('display_errors', '1');
             } else {
-                ini_set('display_errors', 0);
+                ini_set('display_errors', '0');
             }
         }
 
@@ -282,7 +282,7 @@ class Configure
      * Gets the names of the configured reader objects.
      *
      * @param string|null $name Name to check. If null returns all configured reader names.
-     * @return array Array of the configured reader objects.
+     * @return array|bool Array of the configured reader objects.
      */
     public static function configured($name = null)
     {

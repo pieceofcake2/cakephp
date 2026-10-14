@@ -57,7 +57,7 @@ class CakeRoute
      * Is this route a greedy route?  Greedy routes have a `/*` in their
      * template
      *
-     * @var string
+     * @var bool
      */
     protected $_greedy = false;
 
@@ -109,7 +109,7 @@ class CakeRoute
      * Modifies defaults property so all necessary keys are set
      * and populates $this->names with the named routing elements.
      *
-     * @return array Returns a string regular expression of the compiled route.
+     * @return string Returns a string regular expression of the compiled route.
      */
     public function compile()
     {
@@ -272,7 +272,7 @@ class CakeRoute
      * The local and global configuration for named parameters will be used.
      *
      * @param string $args A string with the passed & named params. eg. /1/page:2
-     * @param string $context The current route context, which should contain controller/action keys.
+     * @param array $context The current route context, which should contain controller/action keys.
      * @return array Array of ($pass, $named)
      */
     protected function _parseArgs($args, $context)
@@ -295,7 +295,7 @@ class CakeRoute
         }
 
         foreach ($args as $param) {
-            if (empty($param) && $param !== '0' && $param !== 0) {
+            if (empty($param) && $param !== '0') {
                 continue;
             }
 
@@ -341,7 +341,7 @@ class CakeRoute
      *
      * @param string $val The value of the named parameter
      * @param array $rule The rule(s) to apply, can also be a match string
-     * @param string $context An array with additional context information (controller / action)
+     * @param array $context An array with additional context information (controller / action)
      * @return bool
      */
     protected function _matchNamed($val, $rule, $context)
@@ -471,7 +471,7 @@ class CakeRoute
             }
 
             // keys that don't exist are different.
-            if (!$defaultExists && !empty($value)) {
+            if (!empty($value)) {
                 return false;
             }
         }

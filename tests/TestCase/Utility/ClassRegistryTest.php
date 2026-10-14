@@ -353,4 +353,14 @@ class ClassRegistryTest extends CakeTestCase
         $this->expectException(CakeException::class);
         ClassRegistry::init('ClassRegistryInterfaceTest');
     }
+
+    /**
+     * Test that getObject() returns false for a key that is neither registered nor mapped.
+     *
+     * @return void
+     */
+    public function testGetObjectUnknownKey()
+    {
+        $this->assertFalse(ClassRegistry::getObject('ThisKeyIsNotRegistered'));
+    }
 }

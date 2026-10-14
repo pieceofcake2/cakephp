@@ -27,6 +27,13 @@ use PHPUnit\TextUI\Command;
 class CakeTestSuiteCommand extends Command
 {
     /**
+     * Options passed to the constructor.
+     *
+     * @var array
+     */
+    protected $_params = [];
+
+    /**
      * Construct method
      *
      * @param string $loader The loader instance to use.

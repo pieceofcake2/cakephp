@@ -27,6 +27,12 @@ App::uses('AppHelper', 'View/Helper');
  * @package       Cake.View.Helper
  * @property      HtmlHelper $Html
  * @link https://book.cakephp.org/2.0/en/core-libraries/helpers/form.html
+ * @method string text(string $fieldName, array $options = []) Creates a text input, see FormHelper::__call()
+ * @method string password(string $fieldName, array $options = []) Creates a password input, see FormHelper::__call()
+ * @method string email(string $fieldName, array $options = []) Creates an email input, see FormHelper::__call()
+ * @method string number(string $fieldName, array $options = []) Creates a number input, see FormHelper::__call()
+ * @method string search(string $fieldName, array $options = []) Creates a search input, see FormHelper::__call()
+ * @method string tel(string $fieldName, array $options = []) Creates a tel input, see FormHelper::__call()
  */
 class FormHelper extends AppHelper
 {
@@ -65,7 +71,7 @@ class FormHelper extends AppHelper
     /**
      * Defines the type of form being created. Set by FormHelper::create().
      *
-     * @var string
+     * @var string|null
      */
     public $requestType = null;
 
@@ -702,7 +708,7 @@ class FormHelper extends AppHelper
      *     or excluded as part of the unlockedFields.
      * @param array|string $field Reference to field to be secured. Should be dot separated to indicate nesting.
      * @param mixed $value Field value, if value should not be tampered with.
-     * @return void
+     * @return mixed
      */
     protected function _secure($lock, $field = null, $value = null)
     {
@@ -718,7 +724,7 @@ class FormHelper extends AppHelper
         foreach ($this->_unlockedFields as $unlockField) {
             $unlockParts = explode('.', $unlockField);
             if (array_values(array_intersect($field, $unlockParts)) === $unlockParts) {
-                return;
+                return null;
             }
         }
 
@@ -729,7 +735,7 @@ class FormHelper extends AppHelper
             if (!in_array($field, $this->fields)) {
                 if ($value !== null) {
                     return $this->fields[$field] = $value;
-                } elseif (isset($this->fields[$field]) && $value === null) {
+                } elseif (isset($this->fields[$field])) {
                     unset($this->fields[$field]);
                 }
                 $this->fields[] = $field;
@@ -737,6 +743,8 @@ class FormHelper extends AppHelper
         } else {
             $this->unlockField($field);
         }
+
+        return null;
     }
 
     /**
@@ -1163,7 +1171,13 @@ class FormHelper extends AppHelper
      */
     protected function _getInput($args)
     {
-        extract($args);
+        $type = $args['type'] ?? null;
+        $fieldName = $args['fieldName'] ?? null;
+        $options = $args['options'] ?? null;
+        $radioOptions = $args['radioOptions'] ?? null;
+        $selected = $args['selected'] ?? null;
+        $dateFormat = $args['dateFormat'] ?? null;
+        $timeFormat = $args['timeFormat'] ?? null;
         switch ($type) {
             case 'hidden':
                 return $this->hidden($fieldName, $options);
@@ -1313,8 +1327,11 @@ class FormHelper extends AppHelper
                 $options['type'] === 'number' &&
                 !isset($options['step'])
             ) {
+                $decimalPlaces = null;
                 if ($type === 'decimal' && isset($fieldDef['length'])) {
                     $decimalPlaces = substr($fieldDef['length'], strpos($fieldDef['length'], ',') + 1);
+                }
+                if (is_numeric($decimalPlaces)) {
                     $options['step'] = sprintf('%.' . $decimalPlaces . 'F', 10 ** (-1 * $decimalPlaces));
                 } elseif ($type === 'float' || $type === 'decimal') {
                     $options['step'] = 'any';
@@ -1831,7 +1848,7 @@ class FormHelper extends AppHelper
     /**
      * Creates a hidden input field.
      *
-     * @param string $fieldName Name of a field, in the form of "Modelname.fieldname"
+     * @param string|null $fieldName Name of a field, in the form of "Modelname.fieldname"
      * @param array $options Array of HTML attributes.
      * @return string A generated hidden input
      * @link https://book.cakephp.org/2.0/en/core-libraries/helpers/form.html#FormHelper::hidden
@@ -2285,23 +2302,21 @@ class FormHelper extends AppHelper
             unset($attributes['required']);
         }
 
-        if (!empty($tag) || isset($template)) {
-            $hasOptions = (count($options) > 0 || $showEmpty);
-            // Secure the field if there are options, or its a multi select.
-            // Single selects with no options don't submit, but multiselects do.
-            if (
-                (!isset($secure) || $secure) &&
-                empty($attributes['disabled']) &&
-                (!empty($attributes['multiple']) || $hasOptions)
-            ) {
-                $this->_secure(true, $this->_secureFieldName($attributes));
-            }
-            $filter = ['name' => null, 'value' => null];
-            if (is_array($attributes['disabled'])) {
-                $filter['disabled'] = null;
-            }
-            $select[] = $this->Html->useTag($tag, $attributes['name'], array_diff_key($attributes, $filter));
+        $hasOptions = (count($options) > 0 || $showEmpty);
+        // Secure the field if there are options, or its a multi select.
+        // Single selects with no options don't submit, but multiselects do.
+        if (
+            (!isset($secure) || $secure) &&
+            empty($attributes['disabled']) &&
+            (!empty($attributes['multiple']) || $hasOptions)
+        ) {
+            $this->_secure(true, $this->_secureFieldName($attributes));
         }
+        $filter = ['name' => null, 'value' => null];
+        if (is_array($attributes['disabled'])) {
+            $filter['disabled'] = null;
+        }
+        $select[] = $this->Html->useTag($tag, $attributes['name'], array_diff_key($attributes, $filter));
         $emptyMulti = (
             $showEmpty !== null && $showEmpty !== false && !(
                 empty($showEmpty) && (isset($attributes) &&
@@ -2429,19 +2444,9 @@ class FormHelper extends AppHelper
         $attributes += ['empty' => true, 'value' => null];
         if ((empty($attributes['value']) || $attributes['value'] === true) && $value = $this->value($fieldName)) {
             if (is_array($value)) {
-                $year = null;
-                extract($value);
-                $attributes['value'] = $year;
+                $attributes['value'] = $value['year'] ?? null;
             } else {
-                if (empty($value)) {
-                    if (!$attributes['empty'] && !$maxYear) {
-                        $attributes['value'] = 'now';
-                    } elseif (!$attributes['empty'] && $maxYear && !$attributes['value']) {
-                        $attributes['value'] = $maxYear;
-                    }
-                } else {
-                    $attributes['value'] = $value;
-                }
+                $attributes['value'] = $value;
             }
         }
 
@@ -2619,13 +2624,7 @@ class FormHelper extends AppHelper
             if (is_array($value)) {
                 $attributes['value'] = $value[$select] ?? null;
             } else {
-                if (empty($value)) {
-                    if (!$attributes['empty']) {
-                        $attributes['value'] = 'now';
-                    }
-                } else {
-                    $attributes['value'] = $value;
-                }
+                $attributes['value'] = $value;
             }
         }
 
@@ -2651,20 +2650,12 @@ class FormHelper extends AppHelper
         $attributes += ['empty' => true, 'value' => null];
         if ((empty($attributes['value']) || $attributes['value'] === true) && $value = $this->value($fieldName)) {
             if (is_array($value)) {
-                $meridian = null;
-                extract($value);
-                $attributes['value'] = $meridian;
+                $attributes['value'] = $value['meridian'] ?? null;
             } else {
-                if (empty($value)) {
-                    if (!$attributes['empty']) {
-                        $attributes['value'] = date('a');
-                    }
-                } else {
-                    $date = date_create($attributes['value']);
-                    $attributes['value'] = null;
-                    if ($date) {
-                        $attributes['value'] = $date->format('a');
-                    }
+                $date = date_create($attributes['value']);
+                $attributes['value'] = null;
+                if ($date) {
+                    $attributes['value'] = $date->format('a');
                 }
             }
         }
@@ -2698,8 +2689,8 @@ class FormHelper extends AppHelper
      *   matching the field name will override this value. If no default is provided `time()` will be used.
      *
      * @param string $fieldName Prefix name for the SELECT element
-     * @param string $dateFormat DMY, MDY, YMD, or null to not generate date inputs.
-     * @param string $timeFormat 12, 24, or null to not generate time inputs.
+     * @param string|null $dateFormat DMY, MDY, YMD, or null to not generate date inputs.
+     * @param string|null $timeFormat 12, 24, or null to not generate time inputs.
      * @param array $attributes Array of Attributes
      * @return string Generated set of select boxes for the date and time formats chosen.
      * @link https://book.cakephp.org/2.0/en/core-libraries/helpers/form.html#FormHelper::dateTime
@@ -2859,14 +2850,19 @@ class FormHelper extends AppHelper
      * Parse the value for a datetime selected value
      *
      * @param array|string $value The selected value.
-     * @param int $timeFormat The time format
+     * @param string|int|null $timeFormat The time format
      * @return array Array of selected value.
      */
     protected function _getDateTimeValue($value, $timeFormat)
     {
         $year = $month = $day = $hour = $min = $meridian = null;
         if (is_array($value)) {
-            extract($value);
+            $year = $value['year'] ?? null;
+            $month = $value['month'] ?? null;
+            $day = $value['day'] ?? null;
+            $hour = $value['hour'] ?? null;
+            $min = $value['min'] ?? null;
+            $meridian = $value['meridian'] ?? null;
             if ($meridian === 'pm') {
                 $hour += 12;
             }
@@ -3027,6 +3023,7 @@ class FormHelper extends AppHelper
                     $title = $attributes['escape'] ? h($title) : $title;
 
                     $hasDisabled = !empty($attributes['disabled']);
+                    $disabledIsArray = $disabledIsNumeric = false;
                     if ($hasDisabled) {
                         $disabledIsArray = is_array($attributes['disabled']);
                         if ($disabledIsArray) {
@@ -3254,7 +3251,7 @@ class FormHelper extends AppHelper
      * in secured field hash.
      *
      * @param array $options An array of options possibly containing a name key.
-     * @return string|null
+     * @return array|string|null
      */
     protected function _secureFieldName($options)
     {

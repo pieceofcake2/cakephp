@@ -46,7 +46,7 @@ class ConsoleOutputStub extends ConsoleOutput
      *
      * @param array|string $message A string or an array of strings to output
      * @param int $newlines Number of newlines to append
-     * @return void
+     * @return int The number of bytes written, see ConsoleOutputStub::$_lastWritten
      */
     public function write($message, $newlines = 1)
     {
@@ -60,6 +60,8 @@ class ConsoleOutputStub extends ConsoleOutput
             $this->_lastWritten = 0;
             $newlines--;
         }
+
+        return $this->_lastWritten;
     }
 
     /**

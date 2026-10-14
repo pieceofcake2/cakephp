@@ -780,6 +780,28 @@ class CakeNumberTest extends CakeTestCase
     }
 
     /**
+     * Test that a size with a unit but a non-numeric value is treated as invalid.
+     *
+     * @return void
+     */
+    public function testFromReadableSizeNonNumericWithUnit()
+    {
+        $this->assertSame('Unknown type', $this->Number->fromReadableSize('XMB', 'Unknown type'));
+        $this->assertSame('Unknown type', $this->Number->fromReadableSize('abcK', 'Unknown type'));
+    }
+
+    /**
+     * Test that a size with a unit but a non-numeric value throws when no default is given.
+     *
+     * @return void
+     */
+    public function testFromReadableSizeNonNumericWithUnitException()
+    {
+        $this->expectException(CakeException::class);
+        $this->Number->fromReadableSize('XMB', false);
+    }
+
+    /**
      * filesizes dataprovider
      *
      * @return array

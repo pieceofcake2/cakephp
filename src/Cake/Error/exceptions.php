@@ -307,7 +307,13 @@ class PrivateActionException extends CakeException
 
     public function __construct($message, $code = 404, ?Exception $previous = null)
     {
-        parent::__construct($message, $code, $previous);
+        // CakeException::__construct() does not accept a previous exception,
+        // so the message template is applied here and RuntimeException is called directly.
+        if (is_array($message)) {
+            $this->_attributes = $message;
+            $message = __d('cake_dev', $this->_messageTemplate, $message);
+        }
+        RuntimeException::__construct($message, $code, $previous);
     }
 
 //@codingStandardsIgnoreEnd

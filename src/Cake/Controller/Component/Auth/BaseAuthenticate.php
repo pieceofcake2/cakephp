@@ -121,12 +121,16 @@ abstract class BaseAuthenticate implements CakeEventListener
             $userFields[] = $model . '.' . $fields['password'];
         }
 
-        $result = ClassRegistry::init($userModel)->find('first', [
-            'conditions' => $conditions,
-            'recursive' => $this->settings['recursive'],
-            'fields' => $userFields,
-            'contain' => $this->settings['contain'],
-        ]);
+        $UserModel = ClassRegistry::init($userModel);
+        $result = null;
+        if (is_object($UserModel)) {
+            $result = $UserModel->find('first', [
+                'conditions' => $conditions,
+                'recursive' => $this->settings['recursive'],
+                'fields' => $userFields,
+                'contain' => $this->settings['contain'],
+            ]);
+        }
         if (empty($result[$model])) {
             $this->passwordHasher()->hash($password);
 

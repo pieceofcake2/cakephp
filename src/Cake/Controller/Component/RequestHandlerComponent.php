@@ -256,15 +256,15 @@ class RequestHandlerComponent extends Component
      * @param array|string $url A string or array containing the redirect location
      * @param array|int $status HTTP Status for redirect
      * @param bool $exit Whether to exit script, defaults to `true`.
-     * @return void
+     * @return null
      */
     public function beforeRedirect(Controller $controller, $url, $status = null, $exit = true)
     {
         if (!$this->request->is('ajax')) {
-            return;
+            return null;
         }
         if (empty($url)) {
-            return;
+            return null;
         }
         $_SERVER['REQUEST_METHOD'] = 'GET';
         foreach ($_POST as $key => $val) {
@@ -283,6 +283,8 @@ class RequestHandlerComponent extends Component
         $this->response->body($this->requestAction($url, ['return', 'bare' => false]));
         $this->response->send();
         $this->_stop();
+
+        return null;
     }
 
     /**
@@ -292,13 +294,15 @@ class RequestHandlerComponent extends Component
      * "304 Not Modified" header.
      *
      * @param Controller $controller Controller instance.
-     * @return bool False if the render process should be aborted.
+     * @return bool|null False if the render process should be aborted.
      */
     public function beforeRender(Controller $controller)
     {
         if ($this->settings['checkHttpCache'] && $this->response->checkNotModified($this->request)) {
             return false;
         }
+
+        return null;
     }
 
     /**
@@ -638,7 +642,7 @@ class RequestHandlerComponent extends Component
      * @param Controller $controller A reference to a controller object
      * @param string $type Type of response to send (e.g: 'ajax')
      * @param array $options Array of options to use
-     * @return void
+     * @return bool|null
      * @see RequestHandlerComponent::setContent()
      * @see RequestHandlerComponent::respondAs()
      */
@@ -695,6 +699,8 @@ class RequestHandlerComponent extends Component
                 $controller->helpers[] = $helper;
             }
         }
+
+        return null;
     }
 
     /**
@@ -774,7 +780,7 @@ class RequestHandlerComponent extends Component
      * Maps a content type alias back to its mime-type(s)
      *
      * @param array|string $alias String alias to convert back into a content type. Or an array of aliases to map.
-     * @return string|null Null on an undefined alias. String value of the mapped alias type. If an
+     * @return array|string|null Null on an undefined alias. String value of the mapped alias type. If an
      *   alias maps to more than one content type, the first one will be returned.
      */
     public function mapAlias($alias)

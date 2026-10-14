@@ -96,7 +96,7 @@ class ConsoleOptionParser
     /**
      * Map of short -> long options, generated when using addOption()
      *
-     * @var string
+     * @var array
      */
     protected $_shortOptions = [];
 
@@ -122,6 +122,13 @@ class ConsoleOptionParser
      * @var string
      */
     protected $_command = '';
+
+    /**
+     * Tokens left to parse, populated by parse().
+     *
+     * @var array
+     */
+    protected $_tokens = [];
 
     /**
      * Construct an OptionParser so you can define its behavior
@@ -541,7 +548,7 @@ class ConsoleOptionParser
      *    That subcommands help will be shown instead.
      * @param string $format Define the output format, can be text or xml
      * @param int $width The width to format user content to. Defaults to 72
-     * @return string Generated help.
+     * @return string|null Generated help.
      */
     public function help($subcommand = null, $format = 'text', $width = 72)
     {
@@ -560,6 +567,8 @@ class ConsoleOptionParser
         } elseif ($format === 'xml') {
             return $formatter->xml();
         }
+
+        return null;
     }
 
     /**
@@ -667,7 +676,7 @@ class ConsoleOptionParser
      *
      * @param string $argument The argument to append
      * @param array $args The array of parsed args to append to.
-     * @return array Args
+     * @return array|null Args
      * @throws ConsoleException
      */
     protected function _parseArg($argument, $args)
@@ -687,6 +696,8 @@ class ConsoleOptionParser
 
             return $args;
         }
+
+        return null;
     }
 
     /**

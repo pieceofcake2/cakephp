@@ -520,4 +520,32 @@ TEXT;
         $result = $formatter->xml(false);
         $this->assertInstanceOf('SimpleXmlElement', $result);
     }
+
+    /**
+     * Test that the constructor does not create dynamic properties (deprecated as of PHP 8.2).
+     *
+     * @return void
+     */
+    public function testConstructorDoesNotCreateDynamicProperties()
+    {
+        $parser = new ConsoleOptionParser('mycommand', false);
+
+        $deprecations = [];
+        $level = error_reporting(E_ALL);
+        set_error_handler(function ($errno, $errstr) use (&$deprecations) {
+            if (str_contains($errstr, 'dynamic property')) {
+                $deprecations[] = $errstr;
+            }
+
+            return true;
+        }, E_DEPRECATED);
+        try {
+            $formatter = new HelpFormatter($parser);
+        } finally {
+            restore_error_handler();
+            error_reporting($level);
+        }
+        $this->assertSame([], $deprecations);
+        $this->assertStringContainsString('cake mycommand', $formatter->text());
+    }
 }

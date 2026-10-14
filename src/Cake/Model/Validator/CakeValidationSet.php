@@ -79,7 +79,7 @@ class CakeValidationSet implements ArrayAccess, IteratorAggregate, Countable
     {
         $this->field = $fieldName;
 
-        if (!is_array($ruleSet) || (is_array($ruleSet) && isset($ruleSet['rule']))) {
+        if (!is_array($ruleSet) || isset($ruleSet['rule'])) {
             $ruleSet = [$ruleSet];
         }
 
@@ -164,13 +164,15 @@ class CakeValidationSet implements ArrayAccess, IteratorAggregate, Countable
      * Gets a rule for a given name if exists
      *
      * @param string $name Field name.
-     * @return CakeValidationRule
+     * @return CakeValidationRule|null
      */
     public function getRule($name)
     {
         if (!empty($this->_rules[$name])) {
             return $this->_rules[$name];
         }
+
+        return null;
     }
 
     /**

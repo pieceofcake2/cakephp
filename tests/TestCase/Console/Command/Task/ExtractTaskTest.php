@@ -516,4 +516,39 @@ class ExtractTaskTest extends CakeTestCase
         $pattern = '/#: Test\//';
         $this->assertDoesNotMatchRegularExpression($pattern, $result);
     }
+
+    /**
+     * Test that a literal count argument of __dcn() does not overwrite the token position
+     * used while parsing, so following calls are still extracted.
+     *
+     * @return void
+     */
+    public function testParseDcnWithLiteralCount()
+    {
+        $code = "<?php\n" .
+            "__dcn('domain', 'first singular', 'first plural', 1000, 6);\n" .
+            "__dcn('domain', 'second singular', 'second plural', 1, 6);\n";
+
+        $tokens = new ReflectionProperty('ExtractTask', '_tokens');
+        $tokens->setAccessible(true);
+        $tokens->setValue($this->Task, array_values(array_filter(
+            token_get_all($code),
+            fn($token) => !is_array($token) || ($token[0] !== T_WHITESPACE && $token[0] !== T_INLINE_HTML),
+        )));
+        $file = new ReflectionProperty('ExtractTask', '_file');
+        $file->setAccessible(true);
+        $file->setValue($this->Task, 'test.php');
+
+        $parse = new ReflectionMethod('ExtractTask', '_parse');
+        $parse->setAccessible(true);
+        $parse->invoke($this->Task, '__dcn', ['domain', 'singular', 'plural', 'count', 'category']);
+
+        $translations = new ReflectionProperty('ExtractTask', '_translations');
+        $translations->setAccessible(true);
+        $result = $translations->getValue($this->Task);
+
+        $this->assertArrayHasKey('first singular', $result['LC_MESSAGES']['domain']);
+        $this->assertArrayHasKey('second singular', $result['LC_MESSAGES']['domain']);
+        $this->assertSame('second plural', $result['LC_MESSAGES']['domain']['second singular']['']['msgid_plural']);
+    }
 }

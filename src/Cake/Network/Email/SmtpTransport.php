@@ -33,7 +33,7 @@ class SmtpTransport extends AbstractTransport
     /**
      * Content of email to return
      *
-     * @var string
+     * @var array
      */
     protected $_content;
 
@@ -419,5 +419,7 @@ class SmtpTransport extends AbstractTransport
             }
             throw new SocketException(__d('cake_dev', 'SMTP Error: %s', $response));
         }
+
+        return null;
     }
 }

@@ -344,4 +344,16 @@ class CakeValidationSetTest extends CakeTestCase
         $Set->removeRule('other');
         $this->assertFalse(isset($Set['other']));
     }
+
+    /**
+     * Test that getRule() returns null for an unknown rule.
+     *
+     * @return void
+     */
+    public function testGetRuleMissing()
+    {
+        $Field = new CakeValidationSet('title', ['notBlank' => ['rule' => 'notBlank']]);
+
+        $this->assertNull($Field->getRule('missing'));
+    }
 }

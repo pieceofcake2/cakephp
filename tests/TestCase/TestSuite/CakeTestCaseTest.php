@@ -17,6 +17,9 @@
  * @since         CakePHP v 1.2.0.4487
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
+
+use PHPUnit\Framework\AssertionFailedError;
+
 /**
  * Secondary Post stub class.
  */
@@ -531,5 +534,58 @@ class CakeTestCaseTest extends CakeTestCase
         $this->expectException(MissingModelException::class);
         $this->expectExceptionMessage('Model IDoNotExist could not be found');
         $this->getMockForModel('IDoNotExist');
+    }
+
+    /**
+     * Test that assertTags() outputs the remaining string and the expectations when
+     * $fullDebug is enabled and the assertion fails.
+     *
+     * @return void
+     */
+    public function testAssertTagsFullDebug()
+    {
+        $failed = false;
+        ob_start();
+        try {
+            $this->assertTags('<p>unexpected-content</p>', ['div' => true], true);
+        } catch (AssertionFailedError $e) {
+            $failed = true;
+        }
+        $output = ob_get_clean();
+
+        $this->assertTrue($failed);
+        $this->assertStringContainsString('unexpected-content', $output);
+    }
+
+    /**
+     * Test that ConsoleOutputStub::write() returns the number of bytes written like ConsoleOutput::write()
+     *
+     * @return void
+     */
+    public function testConsoleOutputStubWriteReturnsBytesWritten()
+    {
+        $stub = new ConsoleOutputStub();
+
+        $this->assertSame(5, $stub->write('hello'));
+        $this->assertSame(0, $stub->write('hello', 2));
+    }
+
+    /**
+     * Test the case-insensitive text assertions and the 1.x compatibility wrappers.
+     *
+     * @return void
+     */
+    public function testCompatibilityAssertions()
+    {
+        $this->assertTextContains('FOO', "foo\r\nbar", '', true);
+        $this->assertTextNotContains('BAZ', "foo\r\nbar", '', true);
+        $this->assertEqual(1, '1');
+        $this->assertNotEqual(1, 2);
+        $this->assertIdentical(1, 1);
+        $this->assertNotIdentical(1, '1');
+        $this->assertNoPattern('/baz/', 'foo bar');
+        $first = $second = 'value';
+        $this->assertReference($first, $first);
+        $this->assertIsA($this, 'CakeTestCase');
     }
 }

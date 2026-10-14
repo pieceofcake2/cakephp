@@ -728,4 +728,21 @@ class SchemaShellTest extends CakeTestCase
         $db->execute($db->dropSchema($schema, 'test_plugin_acos'));
         CakePlugin::unload();
     }
+
+    /**
+     * Test that view() reports a missing schema file.
+     *
+     * @return void
+     */
+    public function testViewMissingFile()
+    {
+        $this->Shell->startup();
+        $this->Shell->Schema->path = CONFIG . 'Schema';
+        $this->Shell->params['file'] = 'does_not_exist.php';
+        $this->Shell->expects($this->once())->method('_stop');
+        $this->Shell->expects($this->once())->method('err')
+            ->with($this->stringContains('could not be found'));
+        $this->Shell->expects($this->never())->method('out');
+        $this->Shell->view();
+    }
 }

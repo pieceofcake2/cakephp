@@ -26,27 +26,29 @@
  * @link          https://book.cakephp.org/2.0/en/core-libraries/components/email.html
  * @link          https://book.cakephp.org/2.0/en/core-utility-libraries/email.html
  * @deprecated    3.0.0 Will be removed in 3.0. Use Network/CakeEmail instead
+ * @property array $_header Reset after sending
+ * @property array $_message Reset after sending
  */
 class EmailComponent extends Component
 {
     /**
      * Recipient of the email
      *
-     * @var string
+     * @var array|string|null
      */
     public $to = null;
 
     /**
      * The mail which the email is sent from
      *
-     * @var string
+     * @var string|null
      */
     public $from = null;
 
     /**
      * The email the recipient will reply to
      *
-     * @var string
+     * @var string|null
      */
     public $replyTo = null;
 
@@ -63,7 +65,7 @@ class EmailComponent extends Component
      * - Remote user has exceeded his quota
      * - Unknown user
      *
-     * @var string
+     * @var string|null
      */
     public $return = null;
 
@@ -92,14 +94,14 @@ class EmailComponent extends Component
      * conforming with the RFC2822 standard. Leave null, to have
      * today's date generated.
      *
-     * @var string
+     * @var string|null
      */
     public $date = null;
 
     /**
      * The subject of the email
      *
-     * @var string
+     * @var string|null
      */
     public $subject = null;
 
@@ -116,7 +118,7 @@ class EmailComponent extends Component
      *
      * These will NOT be used if you are using safemode and mail()
      *
-     * @var string
+     * @var string|null
      */
     public $additionalParams = null;
 
@@ -130,7 +132,7 @@ class EmailComponent extends Component
     /**
      * Template for the view
      *
-     * @var string
+     * @var string|null
      */
     public $template = null;
 
@@ -217,14 +219,14 @@ class EmailComponent extends Component
     /**
      * Contains the rendered plain text message if one was sent.
      *
-     * @var string
+     * @var string|null
      */
     public $textMessage = null;
 
     /**
      * Contains the rendered HTML message if one was sent.
      *
-     * @var string
+     * @var string|null
      */
     public $htmlMessage = null;
 

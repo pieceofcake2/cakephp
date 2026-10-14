@@ -64,6 +64,7 @@
  *
  * @package       Cake.Controller.Component
  * @link https://book.cakephp.org/2.0/en/core-libraries/components/pagination.html
+ * @property Controller $Controller The controller the component is attached to, set in the constructor
  */
 class PaginatorComponent extends Component
 {
@@ -157,8 +158,6 @@ class PaginatorComponent extends Component
         $options = $this->validateSort($object, $options, $whitelist);
         $options = $this->checkLimit($options);
 
-        $conditions = $fields = $order = $limit = $page = $recursive = null;
-
         if (!isset($options['conditions'])) {
             $options['conditions'] = [];
         }
@@ -170,7 +169,14 @@ class PaginatorComponent extends Component
             unset($options[0]);
         }
 
+        // Other options, e.g. a custom `type`, are still extracted into local variables as before.
         extract($options);
+        $conditions = $options['conditions'];
+        $fields = $options['fields'] ?? null;
+        $order = $options['order'] ?? null;
+        $limit = $options['limit'] ?? null;
+        $page = $options['page'] ?? null;
+        $recursive = $options['recursive'] ?? null;
 
         if (is_array($scope) && !empty($scope)) {
             $conditions = array_merge($conditions, $scope);
@@ -203,6 +209,7 @@ class PaginatorComponent extends Component
         // The cast behavior is undefined for values outside int range, but must remain
         // consistent with previous PHP versions for page number validation
         set_error_handler(function () {
+            return true;
         }, E_WARNING);
         if ((int)$page < 1) {
             $page = 1;
@@ -309,7 +316,7 @@ class PaginatorComponent extends Component
                 return $this->Controller->{$this->Controller->modelClass}->{$object};
             }
         }
-        if (empty($object) || $object === null) {
+        if (empty($object)) {
             if (isset($this->Controller->{$this->Controller->modelClass})) {
                 return $this->Controller->{$this->Controller->modelClass};
             }
@@ -347,6 +354,7 @@ class PaginatorComponent extends Component
     public function mergeOptions($alias)
     {
         $defaults = $this->getDefaults($alias);
+        $request = [];
         switch ($defaults['paramType']) {
             case 'named':
                 $request = $this->Controller->request->params['named'];

@@ -267,8 +267,8 @@ class Inflector
      *
      * @param string $type Inflection type
      * @param string $key Original value
-     * @param string $value Inflected value
-     * @return string Inflected value, from cache
+     * @param string|false $value Inflected value
+     * @return string|false Inflected value, from cache
      */
     protected static function _cache($type, $key, $value = false)
     {
@@ -371,7 +371,7 @@ class Inflector
      * Return $word in plural form.
      *
      * @param string $word Word in singular
-     * @return string Word in plural
+     * @return string|null Word in plural
      * @link https://book.cakephp.org/2.0/en/core-utility-libraries/inflector.html#Inflector::pluralize
      */
     public static function pluralize($word)
@@ -414,6 +414,8 @@ class Inflector
                 return static::$_cache['pluralize'][$word];
             }
         }
+
+        return null;
     }
 
     /**

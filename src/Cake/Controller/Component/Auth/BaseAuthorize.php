@@ -62,7 +62,7 @@ abstract class BaseAuthorize
      * Constructor
      *
      * @param ComponentCollection $collection The controller for this request.
-     * @param string $settings An array of settings. This class does not use any settings.
+     * @param array $settings An array of settings. This class does not use any settings.
      */
     public function __construct(ComponentCollection $collection, $settings = [])
     {
@@ -84,16 +84,12 @@ abstract class BaseAuthorize
     /**
      * Accessor to the controller object.
      *
-     * @param Controller $controller null to get, a controller to set.
+     * @param Controller|null $controller null to get, a controller to set.
      * @return mixed
-     * @throws CakeException
      */
     public function controller(?Controller $controller = null)
     {
         if ($controller) {
-            if (!$controller instanceof Controller) {
-                throw new CakeException(__d('cake_dev', '$controller needs to be an instance of Controller'));
-            }
             $this->_Controller = $controller;
 
             return true;

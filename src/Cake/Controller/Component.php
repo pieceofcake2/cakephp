@@ -164,5 +164,6 @@ class Component extends CakeObject
      */
     public function beforeRedirect(Controller $controller, $url, $status = null, $exit = true)
     {
+        return null;
     }
 }

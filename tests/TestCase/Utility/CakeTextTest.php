@@ -893,4 +893,30 @@ podeís adquirirla.</span></p>
         $result = $this->Text->toList(['test_0' => 'banana', 'test_1' => 'apple', 'test_2' => 'lemon']);
         $this->assertEquals('banana, apple and lemon', $result);
     }
+
+    /**
+     * Test that toList() does not pass null to array_slice() (deprecated as of PHP 8.1).
+     *
+     * @return void
+     */
+    public function testToListDoesNotPassNull()
+    {
+        $deprecations = [];
+        $level = error_reporting(E_ALL);
+        set_error_handler(function ($errno, $errstr) use (&$deprecations) {
+            if (str_contains($errstr, 'Passing null')) {
+                $deprecations[] = $errstr;
+            }
+
+            return true;
+        }, E_DEPRECATED);
+        try {
+            $result = CakeText::toList(['Larry', 'Curly', 'Moe']);
+        } finally {
+            restore_error_handler();
+            error_reporting($level);
+        }
+        $this->assertSame([], $deprecations);
+        $this->assertSame('Larry, Curly and Moe', $result);
+    }
 }

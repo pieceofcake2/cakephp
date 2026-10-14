@@ -26,6 +26,7 @@
  * - Drag, Drag.Move
  *
  * @package       Cake.View.Helper
+ * @property bool $_multipleSelection Whether the current selection matches multiple elements
  */
 class MootoolsEngineHelper extends JsBaseEngineHelper
 {
@@ -317,7 +318,7 @@ class MootoolsEngineHelper extends JsBaseEngineHelper
      * Mootools droppables inherit all options from Drag.
      *
      * @param array $options Array of options for the droppable.
-     * @return string Completed droppable script.
+     * @return string|false Completed droppable script.
      * @see JsBaseEngineHelper::drop() for options list.
      */
     public function drop($options = [])

@@ -222,7 +222,7 @@ class SecurityComponent extends Component
      *
      * @param Controller $controller Instantiating controller
      * @throws AuthSecurityException
-     * @return void
+     * @return mixed
      */
     public function startup(Controller $controller)
     {
@@ -259,6 +259,8 @@ class SecurityComponent extends Component
         if ($hasData && is_array($controller->request->data)) {
             unset($controller->request->data['_Token']);
         }
+
+        return null;
     }
 
     /**
@@ -621,7 +623,7 @@ class SecurityComponent extends Component
         );
 
         foreach ($fieldList as $i => $key) {
-            $isLocked = (is_array($locked) && in_array($key, $locked));
+            $isLocked = in_array($key, $locked);
 
             if (!empty($unlockedFields)) {
                 foreach ($unlockedFields as $off) {
@@ -729,7 +731,7 @@ class SecurityComponent extends Component
      * @param array $dataFields Fields array, containing the POST data fields
      * @param array $expectedFields Fields array, containing the expected fields we should have in POST
      * @param string $intKeyMessage Message string if unexpected found in data fields indexed by int (not protected)
-     * @param string $stringKeyMessage Message string if tampered found in data fields indexed by string (protected)
+     * @param string|null $stringKeyMessage Message string if tampered found in data fields indexed by string (protected)
      * @param string $missingMessage Message string if missing field
      * @return array Messages
      */
@@ -920,7 +922,7 @@ class SecurityComponent extends Component
      *
      * @param array $expectedFields Expected fields
      * @param string $missingMessage Message template
-     * @return string Error message about expected fields
+     * @return string|null Error message about expected fields
      */
     protected function _debugExpectedFields($expectedFields = [], $missingMessage = '')
     {

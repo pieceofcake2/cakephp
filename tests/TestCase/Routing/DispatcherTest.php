@@ -1800,4 +1800,17 @@ class DispatcherTest extends CakeTestCase
 
         return $filename;
     }
+
+    /**
+     * Test that the base DispatcherFilter::beforeDispatch() does nothing.
+     *
+     * @return void
+     */
+    public function testBaseDispatcherFilterBeforeDispatch()
+    {
+        $filter = $this->getMockForAbstractClass('DispatcherFilter');
+        $event = new CakeEvent('Dispatcher.beforeDispatch', $this);
+
+        $this->assertNull($filter->beforeDispatch($event));
+    }
 }

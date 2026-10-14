@@ -76,9 +76,9 @@ class ShellDispatcher
     protected function _initConstants()
     {
         if (function_exists('ini_set')) {
-            ini_set('html_errors', false);
-            ini_set('implicit_flush', true);
-            ini_set('max_execution_time', 0);
+            ini_set('html_errors', '');
+            ini_set('implicit_flush', '1');
+            ini_set('max_execution_time', '0');
         }
 
         if (!defined('CAKEPHP_SHELL')) {
@@ -250,7 +250,7 @@ class ShellDispatcher
      * All paths in the loaded shell paths are searched.
      *
      * @param string $shell Optionally the name of a plugin
-     * @return mixed An object
+     * @return object An object
      * @throws MissingShellException when errors are encountered.
      */
     protected function _getShell($shell)

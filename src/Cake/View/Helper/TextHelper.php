@@ -50,7 +50,7 @@ class TextHelper extends AppHelper
     /**
      * CakeText utility instance
      *
-     * @var stdClass
+     * @var CakeText
      */
     protected $_engine;
 

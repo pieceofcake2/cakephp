@@ -47,7 +47,7 @@ interface CakeSessionHandlerInterface
     /**
      * Helper function called on write for sessions.
      *
-     * @param int $id ID that uniquely identifies session in database
+     * @param string $id ID that uniquely identifies session in database
      * @param mixed $data The value of the data to be saved.
      * @return bool True for successful write, false otherwise.
      */
@@ -56,7 +56,7 @@ interface CakeSessionHandlerInterface
     /**
      * Method called on the destruction of a session.
      *
-     * @param int $id ID that uniquely identifies session in database
+     * @param string $id ID that uniquely identifies session in database
      * @return bool True for successful delete, false otherwise.
      */
     public function destroy($id);

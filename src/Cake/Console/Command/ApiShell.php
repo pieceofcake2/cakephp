@@ -57,7 +57,7 @@ class ApiShell extends AppShell
     /**
      * Override main() to handle action
      *
-     * @return void
+     * @return int|bool|null
      */
     public function main()
     {
@@ -77,7 +77,7 @@ class ApiShell extends AppShell
         if ($count > 1) {
             $file = Inflector::underscore($this->args[1]);
             $class = Inflector::camelize($this->args[1]);
-        } elseif ($count) {
+        } else {
             $file = $type;
             $class = Inflector::camelize($type);
         }
@@ -99,12 +99,14 @@ class ApiShell extends AppShell
                 if (!isset($parsed[$this->params['method']])) {
                     $this->err(__d('cake_console', '%s::%s() could not be found', $class, $this->params['method']));
 
-                    return $this->_stop();
+                    $this->_stop();
+
+                    return null;
                 }
                 $method = $parsed[$this->params['method']];
                 $this->out($class . '::' . $method['method'] . $method['parameters']);
                 $this->hr();
-                $this->out($method['comment'], true);
+                $this->out($method['comment'], 1);
             } else {
                 $this->out(ucwords($class));
                 $this->hr();
@@ -119,7 +121,9 @@ class ApiShell extends AppShell
                     if ($number === 'q') {
                         $this->out(__d('cake_console', 'Done'));
 
-                        return $this->_stop();
+                        $this->_stop();
+
+                        return null;
                     }
 
                     if ($number === 'l') {
@@ -131,11 +135,13 @@ class ApiShell extends AppShell
                         $this->hr();
                         $this->out($class . '::' . $method['method'] . $method['parameters']);
                         $this->hr();
-                        $this->out($method['comment'], true);
+                        $this->out($method['comment'], 1);
                     }
                 }
             }
         }
+
+        return null;
     }
 
     /**

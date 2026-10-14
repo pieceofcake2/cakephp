@@ -27,6 +27,7 @@
  *
  * @package       Cake.Model
  * @link          https://book.cakephp.org/2.0/en/data-validation.html
+ * @property array $validationErrors Reset by _validationList(); validation errors are stored in Model::$validationErrors
  */
 #[\AllowDynamicProperties]
 class ModelValidator implements ArrayAccess, IteratorAggregate, Countable
@@ -41,7 +42,7 @@ class ModelValidator implements ArrayAccess, IteratorAggregate, Countable
     /**
      * Holds the reference to the model this Validator is attached to
      *
-     * @var Model
+     * @var Model|array
      */
     protected $_model = [];
 
@@ -122,6 +123,7 @@ class ModelValidator implements ArrayAccess, IteratorAggregate, Countable
      *
      * @param array &$data Record data to validate. This should be an array indexed by association name.
      * @param array $options Options to use when validating record data (see above), See also $options of validates().
+     * @param-out array|false $data
      * @return array|bool If atomic: True on success, or false on failure.
      *    Otherwise: array similar to the $data array passed, but values are set to true/false
      *    depending on whether each record validated successfully.
@@ -238,7 +240,7 @@ class ModelValidator implements ArrayAccess, IteratorAggregate, Countable
      * Returns an array of fields that have failed validation. On the current model. This method will
      * actually run validation rules over data, not just return the messages.
      *
-     * @param string $options An optional array of custom options to be made available in the beforeValidate callback
+     * @param array $options An optional array of custom options to be made available in the beforeValidate callback
      * @return array|bool Array of invalid fields
      * @triggers Model.afterValidate $model
      * @see ModelValidator::validates()

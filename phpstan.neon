@@ -2,33 +2,55 @@ includes:
     - vendor/pieceofcake2/phpstan-cakephp2/extension.neon
 
 parameters:
-    level: 0
+    level: 5
     phpVersion: 80000
     paths:
         - src/Cake
     excludePaths:
-        - tests/
-        - src/Cake/Console/Templates/
-        - src/Cake/View/Scaffolds/
-        - src/Cake/TestSuite/
+        - src/Cake/TestSuite/templates/*
     bootstrapFiles:
         - tests/bootstrap.php
     treatPhpDocTypesAsCertain: false
+    # Constants whose values depend on the platform (DS) or on the application layout
+    # (APP_DIR, WEBROOT_DIR), so their values at analysis time must not be assumed.
+    dynamicConstantNames:
+        - DS
+        - APP_DIR
+        - WEBROOT_DIR
     ignoreErrors:
-        # Ignore dynamic property creation for now
-        - '#Access to an undefined property#'
-        - '#Creating dynamic property#'
-        # Ignore deprecated functions that are part of CakePHP 2.x
-        - '#Function strftime\(\) is deprecated#'
-        - '#Function mcrypt_.*\(\) is deprecated#'
-        # Ignore missing return types for now
-        - '#Method .* has no return type specified#'
-        - '#Method .* has parameter .* with no type specified#'
-        # Ignore array shape issues
-        - '#Method .* return type has no value type specified in iterable type array#'
-        - '#Method .* has parameter .* with no value type specified in iterable type array#'
+        # ext-mcrypt is optional (PECL only since PHP 7.2) and has no stubs in PHPStan.
+        # Security::rijndael() and the legacy Security::encrypt()/decrypt() paths only use it when it is loaded.
+        -
+            message: '#^(Function mcrypt_\w+ not found|Constant MCRYPT_\w+ not found)\.#'
+            path: src/Cake/Utility/Security.php
+            reportUnmatched: false
+        # DATABASE_CONFIG is defined by the application in app/Config/database.php at runtime.
+        -
+            message: '#^Property ConnectionManager::\$config has unknown class DATABASE_CONFIG as its type\.$#'
+            path: src/Cake/Model/ConnectionManager.php
+        # EmailConfig is defined by the application in app/Config/email.php at runtime.
+        -
+            message: '#^Property CakeEmail::\$_configInstance has unknown class EmailConfig as its type\.$#'
+            path: src/Cake/Network/Email/CakeEmail.php
+        # trigger_error() with E_USER_ERROR is treated as terminating, but CakePHP's ErrorHandler
+        # handles E_USER_ERROR without stopping the script, so the following return is reachable.
+        -
+            identifier: deadCode.unreachable
+            path: src/Cake/Model/Behavior/TranslateBehavior.php
+            count: 2
+        # PHPStan expects autoloaders to return void. App::load() returns bool for its other callers,
+        # and PHP ignores the return value of autoloaders.
+        -
+            message: '#^Parameter \#1 \$callback of function spl_autoload_register expects \(callable\(string\)\: void\)\|null, array\{''App'', ''load''\} given\.$#'
+            identifier: argument.type
+            path: src/Cake/bootstrap.php
+        # These traits are provided for application test cases; nothing in src/ uses them.
+        -
+            identifier: trait.unused
+            paths:
+                - src/Cake/TestSuite/EmailTrait.php
+                - src/Cake/TestSuite/IntegrationTestTrait.php
     parallel:
         processTimeout: 300.0
         maximumNumberOfProcesses: 4
         minimumNumberOfJobsPerProcess: 2
-    reportUnmatchedIgnoredErrors: false

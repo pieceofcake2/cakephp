@@ -209,4 +209,23 @@ class TimeHelperTest extends CakeTestCase
         ];
         $this->assertTags($result, $expected);
     }
+
+    /**
+     * Test the magic accessors for the deprecated niceFormat attribute.
+     *
+     * @return void
+     */
+    public function testNiceFormatMagicAccess()
+    {
+        $Time = new TimeHelper($this->View);
+        $original = CakeTime::$niceFormat;
+
+        $Time->niceFormat = '%Y-%m-%d';
+        $this->assertSame('%Y-%m-%d', $Time->niceFormat);
+        $this->assertSame('%Y-%m-%d', CakeTime::$niceFormat);
+        $this->assertTrue(isset($Time->niceFormat));
+        $this->assertFalse(isset($Time->undefinedAttribute));
+
+        CakeTime::$niceFormat = $original;
+    }
 }

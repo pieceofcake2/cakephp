@@ -86,11 +86,12 @@ class TreeBehavior extends ModelBehavior
      * @param Model $Model Model using this behavior.
      * @param bool $created indicates whether the node just saved was created or updated
      * @param array $options Options passed from Model::save().
-     * @return bool true on success, false on failure
+     * @return bool|null true on success, false on failure
      */
     public function afterSave(Model $Model, $created, $options = [])
     {
-        extract($this->settings[$Model->alias]);
+        $parent = $this->settings[$Model->alias]['parent'];
+        $level = $this->settings[$Model->alias]['level'];
         if ($created) {
             if (isset($Model->data[$Model->alias][$parent]) && $Model->data[$Model->alias][$parent]) {
                 return $this->_setParent($Model, $Model->data[$Model->alias][$parent], $created);
@@ -103,6 +104,8 @@ class TreeBehavior extends ModelBehavior
 
             return $this->_setParent($Model, $Model->data[$Model->alias][$parent]);
         }
+
+        return null;
     }
 
     /**
@@ -168,7 +171,8 @@ class TreeBehavior extends ModelBehavior
      */
     public function beforeDelete(Model $Model, $cascade = true)
     {
-        extract($this->settings[$Model->alias]);
+        $left = $this->settings[$Model->alias]['left'];
+        $right = $this->settings[$Model->alias]['right'];
         $data = $Model->find('first', [
             'conditions' => [$Model->escapeField($Model->primaryKey) => $Model->id],
             'fields' => [$Model->escapeField($left), $Model->escapeField($right)],
@@ -191,7 +195,9 @@ class TreeBehavior extends ModelBehavior
      */
     public function afterDelete(Model $Model)
     {
-        extract($this->settings[$Model->alias]);
+        $left = $this->settings[$Model->alias]['left'];
+        $right = $this->settings[$Model->alias]['right'];
+        $scope = $this->settings[$Model->alias]['scope'];
         $data = $this->_deletedRow[$Model->alias];
         $this->_deletedRow[$Model->alias] = null;
 
@@ -226,7 +232,12 @@ class TreeBehavior extends ModelBehavior
      */
     public function beforeSave(Model $Model, $options = [])
     {
-        extract($this->settings[$Model->alias]);
+        $parent = $this->settings[$Model->alias]['parent'];
+        $left = $this->settings[$Model->alias]['left'];
+        $right = $this->settings[$Model->alias]['right'];
+        $level = $this->settings[$Model->alias]['level'];
+        $scope = $this->settings[$Model->alias]['scope'];
+        $recursive = $this->settings[$Model->alias]['recursive'];
 
         $this->_addToWhitelist($Model, [$left, $right]);
         if ($level) {
@@ -345,7 +356,10 @@ class TreeBehavior extends ModelBehavior
         } elseif (!$id) {
             $id = null;
         }
-        extract($this->settings[$Model->alias]);
+        $parent = $this->settings[$Model->alias]['parent'];
+        $left = $this->settings[$Model->alias]['left'];
+        $right = $this->settings[$Model->alias]['right'];
+        $scope = $this->settings[$Model->alias]['scope'];
 
         if ($direct) {
             return $Model->find('count', ['conditions' => [$scope, $Model->escapeField($parent) => $id]]);
@@ -378,7 +392,7 @@ class TreeBehavior extends ModelBehavior
      * @param array|string $fields Either a single string of a field name, or an array of field names
      * @param string $order SQL ORDER BY conditions (e.g. "price DESC" or "name ASC") defaults to the tree order
      * @param int $limit SQL LIMIT clause, for calculating items per page.
-     * @param int $page Page number, for accessing paged data
+     * @param int|null $page Page number, for accessing paged data
      * @param int $recursive The number of levels deep to fetch associated records
      * @return array Array of child nodes
      * @link https://book.cakephp.org/2.0/en/core-libraries/behaviors/tree.html#TreeBehavior::children
@@ -398,7 +412,11 @@ class TreeBehavior extends ModelBehavior
             $id = null;
         }
 
-        extract($this->settings[$Model->alias]);
+        $parent = $this->settings[$Model->alias]['parent'];
+        $left = $this->settings[$Model->alias]['left'];
+        $right = $this->settings[$Model->alias]['right'];
+        $scope = $this->settings[$Model->alias]['scope'];
+        $recursive = $this->settings[$Model->alias]['recursive'];
 
         if ($overrideRecursive !== null) {
             $recursive = $overrideRecursive;
@@ -457,7 +475,10 @@ class TreeBehavior extends ModelBehavior
     public function generateTreeList(Model $Model, $conditions = null, $keyPath = null, $valuePath = null, $spacer = '_', $recursive = null)
     {
         $overrideRecursive = $recursive;
-        extract($this->settings[$Model->alias]);
+        $left = $this->settings[$Model->alias]['left'];
+        $right = $this->settings[$Model->alias]['right'];
+        $scope = $this->settings[$Model->alias]['scope'];
+        $recursive = $this->settings[$Model->alias]['recursive'];
         if ($overrideRecursive !== null) {
             $recursive = $overrideRecursive;
         }
@@ -507,7 +528,7 @@ class TreeBehavior extends ModelBehavior
         ];
         $options += $defaults;
 
-        extract($this->settings[$Model->alias]);
+        $right = $this->settings[$Model->alias]['right'];
 
         if (!$options['keyPath']) {
             $options['keyPath'] = '{n}.' . $Model->alias . '.' . $Model->primaryKey;
@@ -559,7 +580,8 @@ class TreeBehavior extends ModelBehavior
         if (empty($id)) {
             $id = $Model->id;
         }
-        extract($this->settings[$Model->alias]);
+        $parent = $this->settings[$Model->alias]['parent'];
+        $recursive = $this->settings[$Model->alias]['recursive'];
         if ($overrideRecursive !== null) {
             $recursive = $overrideRecursive;
         }
@@ -631,7 +653,10 @@ class TreeBehavior extends ModelBehavior
         if (empty($id)) {
             $id = $Model->id;
         }
-        extract($this->settings[$Model->alias]);
+        $left = $this->settings[$Model->alias]['left'];
+        $right = $this->settings[$Model->alias]['right'];
+        $scope = $this->settings[$Model->alias]['scope'];
+        $recursive = $this->settings[$Model->alias]['recursive'];
         if ($overrideRecursive !== null) {
             $recursive = $overrideRecursive;
         }
@@ -684,7 +709,11 @@ class TreeBehavior extends ModelBehavior
         if (empty($id)) {
             $id = $Model->id;
         }
-        extract($this->settings[$Model->alias]);
+        $parent = $this->settings[$Model->alias]['parent'];
+        $left = $this->settings[$Model->alias]['left'];
+        $right = $this->settings[$Model->alias]['right'];
+        $scope = $this->settings[$Model->alias]['scope'];
+        $recursive = $this->settings[$Model->alias]['recursive'];
         [$node] = array_values($this->_getNode($Model, $id));
         if ($node[$parent]) {
             [$parentNode] = array_values($this->_getNode($Model, $node[$parent]));
@@ -739,7 +768,11 @@ class TreeBehavior extends ModelBehavior
         if (empty($id)) {
             $id = $Model->id;
         }
-        extract($this->settings[$Model->alias]);
+        $parent = $this->settings[$Model->alias]['parent'];
+        $left = $this->settings[$Model->alias]['left'];
+        $right = $this->settings[$Model->alias]['right'];
+        $scope = $this->settings[$Model->alias]['scope'];
+        $recursive = $this->settings[$Model->alias]['recursive'];
         [$node] = array_values($this->_getNode($Model, $id));
         if ($node[$parent]) {
             [$parentNode] = array_values($this->_getNode($Model, $node[$parent]));
@@ -793,7 +826,11 @@ class TreeBehavior extends ModelBehavior
         if (is_array($mode)) {
             extract(array_merge(['mode' => 'parent'], $mode));
         }
-        extract($this->settings[$Model->alias]);
+        $parent = $this->settings[$Model->alias]['parent'];
+        $left = $this->settings[$Model->alias]['left'];
+        $right = $this->settings[$Model->alias]['right'];
+        $scope = $this->settings[$Model->alias]['scope'];
+        $recursive = $this->settings[$Model->alias]['recursive'];
         $Model->recursive = $recursive;
         if ($mode === 'parent') {
             $Model->bindModel(['belongsTo' => ['VerifyParent' => [
@@ -804,7 +841,7 @@ class TreeBehavior extends ModelBehavior
             $missingParents = $Model->find('list', [
                 'recursive' => 0,
                 'conditions' => [$scope, [
-                    'NOT' => [$Model->escapeField($parent) => null], $Model->VerifyParent->escapeField() => null,
+                    'NOT' => [$Model->escapeField($parent) => null], $Model->escapeField($Model->primaryKey, 'VerifyParent') => null,
                 ]],
                 'order' => false,
             ]);
@@ -934,12 +971,17 @@ class TreeBehavior extends ModelBehavior
     public function reorder(Model $Model, $options = [])
     {
         $options += ['id' => null, 'field' => $Model->displayField, 'order' => 'ASC', 'verify' => true];
-        extract($options);
+        $id = $options['id'];
+        $field = $options['field'];
+        $order = $options['order'];
+        $verify = $options['verify'];
         if ($verify && !$this->verify($Model)) {
             return false;
         }
         $verify = false;
-        extract($this->settings[$Model->alias]);
+        $left = $this->settings[$Model->alias]['left'];
+        $right = $this->settings[$Model->alias]['right'];
+        $recursive = $this->settings[$Model->alias]['recursive'];
         $fields = [$Model->primaryKey, $field, $left, $right];
         $sort = $field . ' ' . $order;
         $nodes = $this->children($Model, $id, true, $fields, $sort, null, null, $recursive);
@@ -977,7 +1019,11 @@ class TreeBehavior extends ModelBehavior
         if (is_array($id)) {
             extract(array_merge(['id' => null], $id));
         }
-        extract($this->settings[$Model->alias]);
+        $parent = $this->settings[$Model->alias]['parent'];
+        $left = $this->settings[$Model->alias]['left'];
+        $right = $this->settings[$Model->alias]['right'];
+        $scope = $this->settings[$Model->alias]['scope'];
+        $recursive = $this->settings[$Model->alias]['recursive'];
 
         [$node] = array_values($this->_getNode($Model, $id));
 
@@ -1039,7 +1085,11 @@ class TreeBehavior extends ModelBehavior
      */
     public function verify(Model $Model)
     {
-        extract($this->settings[$Model->alias]);
+        $parent = $this->settings[$Model->alias]['parent'];
+        $left = $this->settings[$Model->alias]['left'];
+        $right = $this->settings[$Model->alias]['right'];
+        $scope = $this->settings[$Model->alias]['scope'];
+        $recursive = $this->settings[$Model->alias]['recursive'];
         if (!$Model->find('count', ['conditions' => $scope])) {
             return true;
         }
@@ -1127,7 +1177,9 @@ class TreeBehavior extends ModelBehavior
             return false;
         }
 
-        extract($this->settings[$Model->alias]);
+        $left = $this->settings[$Model->alias]['left'];
+        $right = $this->settings[$Model->alias]['right'];
+        $scope = $this->settings[$Model->alias]['scope'];
 
         return $Model->find('count', [
             'conditions' => [
@@ -1154,7 +1206,11 @@ class TreeBehavior extends ModelBehavior
      */
     protected function _setParent(Model $Model, $parentId = null, $created = false)
     {
-        extract($this->settings[$Model->alias]);
+        $parent = $this->settings[$Model->alias]['parent'];
+        $left = $this->settings[$Model->alias]['left'];
+        $right = $this->settings[$Model->alias]['right'];
+        $scope = $this->settings[$Model->alias]['scope'];
+        $recursive = $this->settings[$Model->alias]['recursive'];
         [$node] = array_values($this->_getNode($Model, $Model->id));
         $edge = $this->_getMax($Model, $scope, $right, $recursive, $created);
 
@@ -1273,7 +1329,7 @@ class TreeBehavior extends ModelBehavior
      * @param Model $Model Model instance.
      * @param int $shift Shift by.
      * @param string $dir Direction.
-     * @param array $conditions Conditions.
+     * @param array|string $conditions Conditions.
      * @param bool $created Whether it's a new record.
      * @param string $field Field type.
      * @return void
@@ -1281,7 +1337,10 @@ class TreeBehavior extends ModelBehavior
     protected function _sync(Model $Model, $shift, $dir = '+', $conditions = [], $created = false, $field = 'both')
     {
         $ModelRecursive = $Model->recursive;
-        extract($this->settings[$Model->alias]);
+        $left = $this->settings[$Model->alias]['left'];
+        $right = $this->settings[$Model->alias]['right'];
+        $scope = $this->settings[$Model->alias]['scope'];
+        $recursive = $this->settings[$Model->alias]['recursive'];
         $Model->recursive = $recursive;
 
         if ($field === 'both') {

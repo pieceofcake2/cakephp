@@ -615,4 +615,37 @@ class HttpResponseTest extends CakeTestCase
         $this->HttpResponse->raw = "HTTP/1.1 200 OK\r\n\r\nThis is a test!";
         $this->assertNull($this->HttpResponse['raw']['header']);
     }
+
+    /**
+     * Test that trailer headers sent after a chunked body are merged into the response headers.
+     *
+     * @return void
+     */
+    public function testParseResponseChunkedWithTrailerHeaders()
+    {
+        $response = "HTTP/1.1 200 OK\r\n" .
+            "Transfer-Encoding: chunked\r\n" .
+            "X-Value: first\r\n" .
+            "\r\n" .
+            "19\r\nThis is a chunked message\r\n0\r\n" .
+            "X-Trailer: trailer value\r\n" .
+            "X-Value: second\r\n";
+
+        $this->HttpResponse->parseResponse($response);
+
+        $this->assertSame('This is a chunked message', $this->HttpResponse->body);
+        $this->assertSame('trailer value', $this->HttpResponse->getHeader('X-Trailer'));
+        $this->assertSame(['first', 'second'], $this->HttpResponse->getHeader('X-Value'));
+        $this->assertSame('chunked', $this->HttpResponse->getHeader('Transfer-Encoding'));
+    }
+
+    /**
+     * Test that the deprecated HttpResponse class is an alias of HttpSocketResponse.
+     *
+     * @return void
+     */
+    public function testDeprecatedHttpResponseClass()
+    {
+        $this->assertInstanceOf('HttpSocketResponse', new HttpResponse());
+    }
 }

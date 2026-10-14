@@ -422,4 +422,51 @@ class ScaffoldTest extends CakeTestCase
 
         $this->assertMatchesRegularExpression('/Scaffold Error/', $result);
     }
+
+    /**
+     * Test that the constructor does not create dynamic properties (deprecated as of PHP 8.2).
+     *
+     * @return void
+     */
+    public function testConstructorDoesNotCreateDynamicProperties()
+    {
+        $params = [
+            'plugin' => null,
+            'pass' => [],
+            'form' => [],
+            'named' => [],
+            'url' => ['url' => 'scaffold_mock'],
+            'controller' => 'scaffold_mock',
+            'action' => 'index',
+        ];
+        $this->Controller->request->addParams($params);
+        $this->Controller->request->webroot = '/';
+        $this->Controller->request->base = '';
+        $this->Controller->request->here = '/scaffold_mock/index';
+        Router::reload();
+        Router::setRequestInfo($this->Controller->request);
+        $this->Controller->constructClasses();
+
+        ob_start();
+        $deprecations = [];
+        $level = error_reporting(E_ALL);
+        set_error_handler(function ($errno, $errstr) use (&$deprecations) {
+            if (str_contains($errstr, 'dynamic property')) {
+                $deprecations[] = $errstr;
+            }
+
+            return true;
+        }, E_DEPRECATED);
+        try {
+            $Scaffold = new Scaffold($this->Controller, $this->Controller->request);
+        } finally {
+            ob_end_clean();
+            restore_error_handler();
+            error_reporting($level);
+        }
+        $this->assertSame([], $deprecations);
+        $this->assertSame('ScaffoldMock', $Scaffold->modelClass);
+        $this->assertInstanceOf('ScaffoldMock', $Scaffold->ScaffoldModel);
+        $this->assertSame(['action' => 'index'], $Scaffold->redirect);
+    }
 }

@@ -16,6 +16,8 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+use PHPUnit\Framework\TestCase;
+
 /**
  * CakeTestFixtureTestFixture class
  *
@@ -582,5 +584,110 @@ class CakeTestFixtureTest extends CakeTestCase
         $this->criticDb->expects($this->atLeastOnce())->method('truncate');
         $Fixture->truncate($this->criticDb);
         $this->assertTrue($this->criticDb->fullDebug);
+    }
+
+    /**
+     * Test that the constructor does not create dynamic properties (deprecated as of PHP 8.2).
+     *
+     * @return void
+     */
+    public function testConstructorDoesNotCreateDynamicProperties()
+    {
+        $deprecations = [];
+        $level = error_reporting(E_ALL);
+        set_error_handler(function ($errno, $errstr) use (&$deprecations) {
+            if (str_contains($errstr, 'dynamic property')) {
+                $deprecations[] = $errstr;
+            }
+
+            return true;
+        }, E_DEPRECATED);
+        try {
+            $Fixture = new CakeTestFixtureTestFixture();
+        } finally {
+            restore_error_handler();
+            error_reporting($level);
+        }
+        $this->assertSame([], $deprecations);
+        $this->assertInstanceOf('CakeSchema', $Fixture->Schema);
+    }
+
+    /**
+     * Test that fixturize() does not create dynamic properties (deprecated as of PHP 8.2).
+     *
+     * @return void
+     */
+    public function testFixturizeDoesNotCreateDynamicProperties()
+    {
+        $fixtureManager = new CakeFixtureManager();
+        $TestCase = $this->getMock('CakeTestCase');
+        $TestCase->fixtures = ['core.apple'];
+
+        $deprecations = [];
+        $level = error_reporting(E_ALL);
+        set_error_handler(function ($errno, $errstr) use (&$deprecations) {
+            if (str_contains($errstr, 'dynamic property')) {
+                $deprecations[] = $errstr;
+            }
+
+            return true;
+        }, E_DEPRECATED);
+        try {
+            $fixtureManager->fixturize($TestCase);
+        } finally {
+            restore_error_handler();
+            error_reporting($level);
+        }
+        $this->assertSame([], $deprecations);
+        $this->assertInstanceOf('DboSource', $TestCase->db);
+    }
+
+    /**
+     * Test that CakeFixtureInjector only touches CakeTestCase instances, so plain PHPUnit
+     * tests do not get a dynamic property (deprecated as of PHP 8.2).
+     *
+     * @return void
+     */
+    public function testInjectorIgnoresPlainTestCases()
+    {
+        $manager = $this->getMock('CakeFixtureManager', ['shutDown', 'fixturize', 'load']);
+        $manager->expects($this->never())->method('fixturize');
+        $injector = new CakeFixtureInjector($manager);
+        $test = new class ('testNothing') extends TestCase {
+        };
+
+        $deprecations = [];
+        $level = error_reporting(E_ALL);
+        set_error_handler(function ($errno, $errstr) use (&$deprecations) {
+            if (str_contains($errstr, 'dynamic property')) {
+                $deprecations[] = $errstr;
+            }
+
+            return true;
+        }, E_DEPRECATED);
+        try {
+            $injector->startTest($test);
+        } finally {
+            restore_error_handler();
+            error_reporting($level);
+        }
+        $this->assertSame([], $deprecations);
+        $this->assertFalse(property_exists($test, 'fixtureManager'));
+    }
+
+    /**
+     * Test that CakeFixtureManager::load() does not load fixtures when autoFixtures is disabled.
+     *
+     * @return void
+     */
+    public function testFixtureManagerLoadWithoutAutoFixtures()
+    {
+        $manager = $this->getMock('CakeFixtureManager', ['loadSingle', '_setupTable']);
+        $manager->expects($this->never())->method('_setupTable');
+        $TestCase = $this->getMock('CakeTestCase');
+        $TestCase->fixtures = ['core.apple'];
+        $TestCase->autoFixtures = false;
+
+        $manager->load($TestCase);
     }
 }

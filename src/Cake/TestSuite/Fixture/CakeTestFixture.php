@@ -46,7 +46,7 @@ class CakeTestFixture
     /**
      * Full Table Name
      *
-     * @var string
+     * @var string|null
      */
     public $table = null;
 
@@ -73,9 +73,16 @@ class CakeTestFixture
     public $records = [];
 
     /**
+     * Schema object used to create and drop the fixture table.
+     *
+     * @var CakeSchema
+     */
+    public $Schema;
+
+    /**
      * The primary key for the table this fixture represents.
      *
-     * @var string
+     * @var string|null
      */
     public $primaryKey = null;
 
@@ -149,7 +156,7 @@ class CakeTestFixture
                 $this->fields[$model->primaryKey]['key'] = 'primary';
                 $this->table = $db->fullTableName($model, false, false);
                 $this->primaryKey = $model->primaryKey;
-                ClassRegistry::config(['ds' => 'test']);
+                ClassRegistry::config('Model', ['ds' => 'test']);
                 ClassRegistry::flush();
             } elseif (isset($import['table'])) {
                 $model = new Model(null, $import['table'], $import['connection']);
@@ -199,12 +206,12 @@ class CakeTestFixture
     /**
      * Run before all tests execute, should return SQL statement to create table for this fixture could be executed successfully.
      *
-     * @param DboSource $db An instance of the database object used to create the fixture table
+     * @param DataSource $db An instance of the database object used to create the fixture table
      * @return bool True on success, false on failure
      */
     public function create($db)
     {
-        if (!isset($this->fields) || empty($this->fields)) {
+        if (empty($this->fields)) {
             return false;
         }
 
@@ -252,7 +259,7 @@ class CakeTestFixture
     /**
      * Run after all tests executed, should return SQL statement to drop table for this fixture.
      *
-     * @param DboSource $db An instance of the database object used to create the fixture table
+     * @param DataSource $db An instance of the database object used to create the fixture table
      * @return bool True on success, false on failure
      */
     public function drop($db)
@@ -275,15 +282,15 @@ class CakeTestFixture
      * Run before each tests is executed, should return a set of SQL statements to insert records for the table
      * of this fixture could be executed successfully.
      *
-     * @param DboSource $db An instance of the database into which the records will be inserted
-     * @return bool on success or if there are no records to insert, or false on failure
+     * @param DataSource $db An instance of the database into which the records will be inserted
+     * @return bool|null on success or if there are no records to insert, or false on failure
      * @throws CakeException if counts of values and fields do not match.
      */
     public function insert($db)
     {
         if (!isset($this->_insert)) {
             $values = [];
-            if (isset($this->records) && !empty($this->records)) {
+            if (!empty($this->records)) {
                 $fields = [];
                 foreach ($this->records as $record) {
                     $fields = array_merge($fields, array_keys(array_intersect_key($record, $this->fields)));
@@ -322,13 +329,15 @@ class CakeTestFixture
 
             return true;
         }
+
+        return null;
     }
 
     /**
      * Truncates the current fixture. Can be overwritten by classes extending
      * CakeFixture to trigger other events before / after truncate.
      *
-     * @param DboSource $db A reference to a db instance
+     * @param DataSource $db A reference to a db instance
      * @return bool
      */
     public function truncate($db)

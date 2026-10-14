@@ -217,7 +217,7 @@ class Validation
     /**
      * Used to compare 2 numeric values.
      *
-     * @param array|string $check1 if string is passed for a string must also be passed for $check2
+     * @param array|string|float|int|false $check1 if string is passed for a string must also be passed for $check2
      *    used as an array it must be passed as array('check1' => value, 'operator' => 'value', 'check2' -> value)
      * @param string $operator Can be either a word or operand
      *    is greater >, is less <, greater or equal >=
@@ -638,7 +638,7 @@ class Validation
         $defaults = ['in' => null, 'max' => null, 'min' => null];
         $options += $defaults;
 
-        $check = array_filter((array)$check, 'strlen');
+        $check = array_filter((array)$check, static fn($value) => strlen($value) > 0);
         if (empty($check)) {
             return false;
         }
@@ -796,7 +796,7 @@ class Validation
             return $check > $lower && $check < $upper;
         }
 
-        return is_finite($check);
+        return is_finite((float)$check);
     }
 
     /**
@@ -970,15 +970,19 @@ class Validation
         if ((int)$check === 0) {
             return false;
         }
+        $check = (string)$check;
+        if (!ctype_digit($check)) {
+            return false;
+        }
         $sum = 0;
         $length = strlen($check);
 
         for ($position = 1 - ($length % 2); $position < $length; $position += 2) {
-            $sum += $check[$position];
+            $sum += (int)$check[$position];
         }
 
         for ($position = $length % 2; $position < $length; $position += 2) {
-            $number = $check[$position] * 2;
+            $number = (int)$check[$position] * 2;
             $sum += $number < 10 ? $number : $number - 9;
         }
 

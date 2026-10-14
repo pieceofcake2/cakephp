@@ -91,7 +91,7 @@ class CakeObject
         }
         if (is_string($url)) {
             $request = new CakeRequest($url);
-        } elseif (is_array($url)) {
+        } else {
             $params = $url + ['pass' => [], 'named' => [], 'base' => false];
             $params = $extra + $params;
             $request = new CakeRequest(Router::reverse($params));
@@ -152,7 +152,7 @@ class CakeObject
      * for more information on writing to logs.
      *
      * @param mixed $msg Log message
-     * @param int $type Error type constant. Defined in app/Config/core.php.
+     * @param string|int $type Error type constant. Defined in app/Config/core.php.
      * @param array|string|null $scope The scope(s) a log message is being created in.
      *    See CakeLog::config() for more information on logging scopes.
      * @return bool Success of log write

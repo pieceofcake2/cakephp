@@ -33,7 +33,7 @@ class Hash
      * but is faster for simple read operations.
      *
      * @param array $data Array of data to operate on.
-     * @param array|string $path The path being searched for. Either a dot
+     * @param array|string|int|null $path The path being searched for. Either a dot
      *   separated string, or an array of path segments.
      * @param mixed $default The return value when the path does not exist
      * @throws InvalidArgumentException
@@ -47,7 +47,7 @@ class Hash
         }
         if (is_string($path) || is_numeric($path)) {
             $parts = explode('.', $path);
-        } elseif (is_bool($path) || $path === null) {
+        } elseif (is_bool($path)) {
             $parts = [$path];
         } else {
             if (!is_array($path)) {
@@ -299,7 +299,7 @@ class Hash
      * @param array $data The data to operate on.
      * @param array $path The path to work on.
      * @param mixed $values The values to insert when doing inserts.
-     * @return array data.
+     * @return array|null data.
      */
     protected static function _simpleOp($op, $data, $path, $values = null)
     {
@@ -335,6 +335,8 @@ class Hash
                 $_list =& $_list[$key];
             }
         }
+
+        return null;
     }
 
     /**
@@ -439,6 +441,7 @@ class Hash
         if ($groupPath !== null) {
             $group = static::extract($data, $groupPath);
             if (!empty($group)) {
+                $out = [];
                 $c = count($keys);
                 for ($i = 0; $i < $c; $i++) {
                     if (!isset($group[$i])) {
@@ -452,9 +455,6 @@ class Hash
 
                 return $out;
             }
-        }
-        if (empty($vals)) {
-            return [];
         }
 
         return array_combine($keys, $vals);
@@ -475,7 +475,7 @@ class Hash
      * @param array $data Source array from which to extract the data
      * @param array $paths An array containing one or more Hash::extract()-style key paths
      * @param string $format Format string into which values will be inserted, see sprintf()
-     * @return array An array of strings extracted from `$path` and formatted with `$format`
+     * @return array|null An array of strings extracted from `$path` and formatted with `$format`
      * @link https://book.cakephp.org/2.0/en/core-utility-libraries/hash.html#Hash::format
      * @see sprintf()
      * @see Hash::extract()

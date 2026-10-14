@@ -154,7 +154,7 @@ class App
     /**
      * Holds the templates for each customizable package path in the application
      *
-     * @var array
+     * @var array|null
      */
     protected static $_packageFormat = [];
 
@@ -733,16 +733,16 @@ class App
         if ($mapped) {
             $file = $mapped;
         } elseif (!empty($search)) {
+            $found = false;
             foreach ($search as $path) {
-                $found = false;
                 if (file_exists($path . $file)) {
                     $file = $path . $file;
                     $found = true;
                     break;
                 }
-                if (empty($found)) {
-                    $file = false;
-                }
+            }
+            if (!$found) {
+                $file = false;
             }
         }
         if (!empty($file) && file_exists($file)) {
@@ -764,7 +764,7 @@ class App
      * @param string $name unique name of the file for identifying it inside the application
      * @param string $plugin camel cased plugin name if any
      * @param string $file file name if known
-     * @param string $ext file extension if known
+     * @param string|null $ext file extension if known
      * @return bool true if the file was loaded successfully, false otherwise
      */
     protected static function _loadVendor($name, $plugin, $file, $ext)
@@ -931,7 +931,7 @@ class App
      * Increases the PHP "memory_limit" ini setting by the specified amount
      * in kilobytes
      *
-     * @param string $additionalKb Number in kilobytes
+     * @param int $additionalKb Number in kilobytes
      * @return void
      */
     public static function increaseMemoryLimit($additionalKb)
@@ -943,6 +943,9 @@ class App
         $limit = trim($limit);
         $units = strtoupper(substr($limit, -1));
         $current = substr($limit, 0, strlen($limit) - 1);
+        if (!is_numeric($current)) {
+            return;
+        }
         if ($units === 'M') {
             $current = $current * 1024;
             $units = 'K';

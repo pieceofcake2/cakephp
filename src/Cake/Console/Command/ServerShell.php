@@ -48,7 +48,7 @@ class ServerShell extends AppShell
     /**
      * listen port
      *
-     * @var string
+     * @var string|int|null
      */
     protected $_port = null;
 

@@ -97,7 +97,9 @@ class ViewBlock
     public function startIfEmpty($name)
     {
         if (empty($this->_blocks[$name])) {
-            return $this->start($name);
+            $this->start($name);
+
+            return;
         }
         $this->_discardActiveBufferOnEnd = true;
         ob_start();

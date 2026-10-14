@@ -263,8 +263,6 @@ class Mysql extends DboSource
         $result = $this->_execute('SHOW TABLES FROM ' . $this->name($this->config['database']));
 
         if (!$result) {
-            $result->closeCursor();
-
             return [];
         }
         $tables = [];
@@ -671,7 +669,7 @@ class Mysql extends DboSource
     /**
      * Generate a "drop table" statement for the given table
      *
-     * @param type $table Name of the table to drop
+     * @param string $table Name of the table to drop
      * @return string Drop table SQL statement
      */
     protected function _dropTable($table)
@@ -814,8 +812,6 @@ class Mysql extends DboSource
         $result = $this->_connection->query('SHOW TABLE STATUS ' . $condition, PDO::FETCH_ASSOC);
 
         if (!$result) {
-            $result->closeCursor();
-
             return [];
         }
         $tables = [];
@@ -856,6 +852,7 @@ class Mysql extends DboSource
 
         $col = str_replace(')', '', $real);
         $limit = $this->length($real);
+        $vals = null;
         if (str_contains($col, '(')) {
             [$col, $vals] = explode('(', $col);
         }

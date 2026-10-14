@@ -96,7 +96,7 @@ class AclBehavior extends ModelBehavior
      * @param Model $model Model using this behavior.
      * @param bool $created True if this is a new record
      * @param array $options Options passed from Model::save().
-     * @return void
+     * @return null
      */
     public function afterSave(Model $model, $created, $options = [])
     {
@@ -121,6 +121,8 @@ class AclBehavior extends ModelBehavior
             $model->{$type}->create();
             $model->{$type}->save($data);
         }
+
+        return null;
     }
 
     /**

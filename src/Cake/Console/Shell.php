@@ -21,6 +21,7 @@ use PHPUnit\Framework\TestCase;
  * Base class for command-line utilities for automating programmer chores.
  *
  * @package       Cake.Console
+ * @method mixed main() Default entry point of the shell, implemented by subclasses.
  */
 class Shell extends CakeObject
 {
@@ -128,21 +129,21 @@ class Shell extends CakeObject
     /**
      * This shell's primary model class name, the first model in the $uses property
      *
-     * @var string
+     * @var string|null
      */
     public $modelClass = null;
 
     /**
      * Task Collection for the command, used to create Tasks.
      *
-     * @var TaskCollection
+     * @var TaskCollection|null
      */
     public $Tasks;
 
     /**
      * Normalized map of tasks.
      *
-     * @var string
+     * @var array
      */
     protected $_taskMap = [];
 
@@ -276,7 +277,7 @@ class Shell extends CakeObject
      * Lazy loads models using the loadModel() method if declared in $uses
      *
      * @param string $name The name of the model to look for.
-     * @return void
+     * @return bool
      */
     public function __isset($name)
     {
@@ -288,6 +289,8 @@ class Shell extends CakeObject
                 }
             }
         }
+
+        return false;
     }
 
     /**
@@ -619,7 +622,7 @@ class Shell extends CakeObject
         }
         $result = trim($result);
 
-        if ($default !== null && ($result === '' || $result === null)) {
+        if ($default !== null && $result === '') {
             return $default;
         }
 
@@ -693,7 +696,7 @@ class Shell extends CakeObject
      * @param array|string $message The message to output.
      * @param int $newlines Number of newlines to append.
      * @param int $size The number of bytes to overwrite. Defaults to the length of the last message output.
-     * @return int|bool Returns the number of bytes returned from writing to stdout.
+     * @return void
      */
     public function overwrite($message, $newlines = 1, $size = null)
     {
@@ -893,7 +896,7 @@ class Shell extends CakeObject
      */
     public function shortPath($file)
     {
-        $shortPath = str_replace(ROOT, null, $file);
+        $shortPath = str_replace(ROOT, '', $file);
         $shortPath = str_replace('..' . DS, '', $shortPath);
 
         return str_replace(DS . DS, DS, $shortPath);

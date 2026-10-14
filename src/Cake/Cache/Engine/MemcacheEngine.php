@@ -37,7 +37,7 @@ class MemcacheEngine extends CacheEngine
     /**
      * Memcache wrapper.
      *
-     * @var Memcache
+     * @var Memcache|null
      */
     protected $_Memcache = null;
 
@@ -165,7 +165,7 @@ class MemcacheEngine extends CacheEngine
      *
      * @param string $key Identifier for the data
      * @param int $offset How much to increment
-     * @return New incremented value, false otherwise
+     * @return int|false New incremented value, false otherwise
      * @throws CacheException when you try to increment with compress = true
      */
     public function increment($key, $offset = 1)
@@ -184,7 +184,7 @@ class MemcacheEngine extends CacheEngine
      *
      * @param string $key Identifier for the data
      * @param int $offset How much to subtract
-     * @return New decremented value, false otherwise
+     * @return int|false New decremented value, false otherwise
      * @throws CacheException when you try to decrement with compress = true
      */
     public function decrement($key, $offset = 1)
@@ -282,7 +282,7 @@ class MemcacheEngine extends CacheEngine
         if (count($groups) !== count($this->settings['groups'])) {
             foreach ($this->_compiledGroupNames as $group) {
                 if (!isset($groups[$group])) {
-                    $this->_Memcache->set($group, 1, false, 0);
+                    $this->_Memcache->set($group, 1, 0, 0);
                     $groups[$group] = 1;
                 }
             }

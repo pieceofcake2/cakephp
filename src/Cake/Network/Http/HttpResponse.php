@@ -15,7 +15,7 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-if (class_exists(HttpResponse::class)) {
+if (extension_loaded('http') && class_exists(HttpResponse::class, false)) {
     trigger_error(__d(
         'cake_dev',
         'HttpResponse is deprecated due to naming conflicts. Use HttpSocketResponse instead.',

@@ -334,7 +334,7 @@ class ContainableBehavior extends ModelBehavior
                 }
                 if ($optionKey && isset($children[$key])) {
                     if (!empty($keep[$name][$key]) && is_array($keep[$name][$key])) {
-                        $keep[$name][$key] = array_merge(($keep[$name][$key] ?? []), (array)$children[$key]);
+                        $keep[$name][$key] = array_merge($keep[$name][$key], (array)$children[$key]);
                     } else {
                         $keep[$name][$key] = $children[$key];
                     }

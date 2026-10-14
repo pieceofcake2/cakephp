@@ -206,7 +206,7 @@ class BehaviorCollection extends ObjectCollection implements CakeEventListener
      */
     public function detach($name)
     {
-        return $this->unload($name);
+        $this->unload($name);
     }
 
     /**
@@ -219,7 +219,7 @@ class BehaviorCollection extends ObjectCollection implements CakeEventListener
      * @param string $method The method called.
      * @param array $params Parameters for the called method.
      * @param bool $strict If methods are not found, trigger an error.
-     * @return array All methods for all behaviors attached to this object
+     * @return array|null All methods for all behaviors attached to this object
      */
     public function dispatchMethod($model, $method, $params = [], $strict = false)
     {

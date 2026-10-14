@@ -24,6 +24,8 @@
  *
  * @link http://www.php.net/manual/en/ref.pdo-sqlsrv.php
  * @package       Cake.Model.Datasource.Database
+ * @property null $_results Reset when a non-SELECT statement fails in _execute()
+ * @property string|null $error Error message of the last failed non-SELECT statement
  */
 class Sqlserver extends DboSource
 {
@@ -221,8 +223,6 @@ class Sqlserver extends DboSource
         $result = $this->_execute('SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES' . ($schema ? " WHERE TABLE_SCHEMA = '" . $schema . "'" : ''));
 
         if (!$result) {
-            $result->closeCursor();
-
             return [];
         }
         $tables = [];
@@ -409,7 +409,7 @@ class Sqlserver extends DboSource
      * @param Model $model The model to insert into.
      * @param array $fields The fields to set.
      * @param array $values The values to set.
-     * @return array
+     * @return bool
      */
     public function create(Model $model, $fields = null, $values = null)
     {
@@ -441,7 +441,7 @@ class Sqlserver extends DboSource
      * @param array $fields The fields to set.
      * @param array $values The values to set.
      * @param mixed $conditions The conditions to use.
-     * @return array
+     * @return bool
      */
     public function update(Model $model, $fields = [], $values = null, $conditions = null)
     {
@@ -470,13 +470,13 @@ class Sqlserver extends DboSource
      *
      * @param int $limit Limit of results returned
      * @param int|null $offset Offset from which to start results
-     * @return string SQL limit/offset statement
+     * @return string|null SQL limit/offset statement
      */
     public function limit($limit, $offset = null)
     {
         if ($limit) {
             $rt = '';
-            if (!strpos(strtolower($limit), 'top') || str_starts_with(strtolower($limit), 'top')) {
+            if (!strpos(strtolower((string)$limit), 'top') || str_starts_with(strtolower((string)$limit), 'top')) {
                 $rt = ' TOP';
             }
             $rt .= sprintf(' %u', $limit);
@@ -559,7 +559,7 @@ class Sqlserver extends DboSource
     public function length($length)
     {
         if (is_object($length)) {
-            if (!isset($length->Length) || $length->Length === null) {
+            if (!isset($length->Length)) {
                 return null;
             }
 
@@ -606,7 +606,7 @@ class Sqlserver extends DboSource
             } else {
                 $map = [0, $name];
             }
-            $map[] = $column['sqlsrv:decl_type'] === 'bit' ? 'boolean' : $column['native_type'];
+            $map[] = ($column['sqlsrv:decl_type'] ?? null) === 'bit' ? 'boolean' : $column['native_type'];
             $this->map[$index++] = $map;
         }
     }
@@ -622,7 +622,16 @@ class Sqlserver extends DboSource
     {
         switch (strtolower($type)) {
             case 'select':
-                extract($data);
+                $table = $data['table'] ?? null;
+                $alias = $data['alias'] ?? null;
+                $fields = $data['fields'] ?? null;
+                $joins = $data['joins'] ?? null;
+                $conditions = $data['conditions'] ?? null;
+                $group = $data['group'] ?? null;
+                $having = $data['having'] ?? null;
+                $order = $data['order'] ?? null;
+                $limit = $data['limit'] ?? null;
+                $lock = $data['lock'] ?? null;
                 $fields = trim($fields);
 
                 $having = !empty($having) ? " $having" : '';
@@ -663,7 +672,9 @@ class Sqlserver extends DboSource
 
                 return trim("SELECT {$limit} {$fields} FROM {$table} {$alias}{$lock} {$joins} {$conditions} {$group}{$having} {$order}");
             case 'schema':
-                extract($data);
+                $table = $data['table'] ?? null;
+                $columns = $data['columns'] ?? null;
+                $indexes = $data['indexes'] ?? null;
 
                 foreach ($indexes as $i => $index) {
                     if (preg_match('/PRIMARY KEY/', $index)) {
@@ -828,7 +839,7 @@ class Sqlserver extends DboSource
      *
      * @param array $indexes The indexes to build
      * @param string $table The table to make indexes for.
-     * @return string
+     * @return array
      */
     public function buildIndex($indexes, $table = null)
     {
@@ -857,7 +868,7 @@ class Sqlserver extends DboSource
      * Makes sure it will return the primary key
      *
      * @param Model|string $model Model instance of table name
-     * @return string
+     * @return string|null
      */
     protected function _getPrimaryKey($model)
     {
@@ -920,19 +931,16 @@ class Sqlserver extends DboSource
 
             return true;
         } catch (PDOException $e) {
-            if (isset($query->queryString)) {
-                $e->queryString = $query->queryString;
-            } else {
-                $e->queryString = $sql;
-            }
-            throw $e;
+            $wrapperException = new PDOExceptionWithQueryString($e);
+            $wrapperException->queryString = $sql;
+            throw $wrapperException;
         }
     }
 
     /**
      * Generate a "drop table" statement for the given table
      *
-     * @param type $table Name of the table to drop
+     * @param string $table Name of the table to drop
      * @return string Drop table SQL statement
      */
     protected function _dropTable($table)

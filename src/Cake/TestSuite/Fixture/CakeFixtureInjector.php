@@ -38,8 +38,8 @@ class CakeFixtureInjector implements TestListener
 
     public function startTest(Test $test): void
     {
-        $test->fixtureManager = $this->_fixtureManager;
         if ($test instanceof CakeTestCase) {
+            $test->fixtureManager = $this->_fixtureManager;
             $this->_fixtureManager->fixturize($test);
             $this->_fixtureManager->load($test);
         }

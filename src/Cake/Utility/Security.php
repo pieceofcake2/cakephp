@@ -33,7 +33,7 @@ class Security
     /**
      * Default cost
      *
-     * @var string
+     * @var string|int
      */
     public static $hashCost = '10';
 
@@ -169,7 +169,7 @@ class Security
                 [4, 31],
             ), E_USER_WARNING);
 
-            return null;
+            return;
         }
         static::$hashCost = $cost;
     }
@@ -203,7 +203,7 @@ class Security
         $bytes = '';
         $byteLength = 0;
         while ($byteLength < $length) {
-            $bytes .= static::hash(CakeText::uuid() . uniqid(mt_rand(), true), 'sha512', true);
+            $bytes .= static::hash(CakeText::uuid() . uniqid((string)mt_rand(), true), 'sha512', true);
             $byteLength = strlen($bytes);
         }
 
@@ -237,6 +237,7 @@ class Security
         // The cast behavior is undefined for values outside int range, but must remain
         // consistent with previous PHP versions for decryption to work
         set_error_handler(function () {
+            return true;
         }, E_WARNING);
         mt_srand((int)(float)Configure::read('Security.cipherSeed'));
         restore_error_handler();
@@ -387,7 +388,7 @@ class Security
             $ivSize = openssl_cipher_iv_length($method);
             $iv = openssl_random_pseudo_bytes($ivSize);
             $padLength = (int)ceil((strlen($plain) ?: 1) / $ivSize) * $ivSize;
-            $ciphertext = openssl_encrypt(str_pad($plain, $padLength, "\0"), $method, $key, true, $iv);
+            $ciphertext = openssl_encrypt(str_pad($plain, $padLength, "\0"), $method, $key, OPENSSL_RAW_DATA, $iv);
             // Remove the PKCS#7 padding block for compatibility with mcrypt.
             // Since we have padded the provided data with \0, the final block contains only padded bytes.
             // So it can be removed safely.
@@ -426,7 +427,7 @@ class Security
      * @param string $cipher The ciphertext to decrypt.
      * @param string $key The 256 bit/32 byte key to use as a cipher key.
      * @param string $hmacSalt The salt to use for the HMAC process. Leave null to use Security.salt.
-     * @return string Decrypted data. Any trailing null bytes will be removed.
+     * @return string|false Decrypted data. Any trailing null bytes will be removed.
      * @throws CakeException On invalid data or key.
      */
     public static function decrypt($cipher, $key, $hmacSalt = null)
@@ -458,8 +459,8 @@ class Security
             $iv = substr($cipher, 0, $ivSize);
             $cipher = substr($cipher, $ivSize);
             // Regenerate PKCS#7 padding block
-            $padding = openssl_encrypt('', $method, $key, true, substr($cipher, -$ivSize));
-            $plain = openssl_decrypt($cipher . $padding, $method, $key, true, $iv);
+            $padding = openssl_encrypt('', $method, $key, OPENSSL_RAW_DATA, substr($cipher, -$ivSize));
+            $plain = openssl_decrypt($cipher . $padding, $method, $key, OPENSSL_RAW_DATA, $iv);
         } else {
             $algorithm = MCRYPT_RIJNDAEL_128;
             $mode = MCRYPT_MODE_CBC;

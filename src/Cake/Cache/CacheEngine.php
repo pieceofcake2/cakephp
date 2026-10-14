@@ -92,10 +92,11 @@ abstract class CacheEngine
      * @param string $key Identifier for the data
      * @param mixed $value Data to be cached
      * @param int $duration How long to cache for.
-     * @return bool True if the data was successfully cached, false on failure
+     * @return bool|null True if the data was successfully cached, false on failure
      */
     public function add($key, $value, $duration)
     {
+        return null;
     }
 
     /**
@@ -111,7 +112,7 @@ abstract class CacheEngine
      *
      * @param string $key Identifier for the data
      * @param int $offset How much to add
-     * @return New incremented value, false otherwise
+     * @return int|false New incremented value, false otherwise
      */
     abstract public function increment($key, $offset = 1);
 
@@ -120,7 +121,7 @@ abstract class CacheEngine
      *
      * @param string $key Identifier for the data
      * @param int $offset How much to subtract
-     * @return New incremented value, false otherwise
+     * @return int|false New incremented value, false otherwise
      */
     abstract public function decrement($key, $offset = 1);
 

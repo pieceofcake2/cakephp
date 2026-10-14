@@ -5107,4 +5107,39 @@ SQL;
         $result = $db->insertMulti('articles', array_keys($data[0]), $data);
         $this->assertTrue($result, 'Data was saved');
     }
+
+    /**
+     * Test that listSources() returns an empty list when the query fails.
+     *
+     * @return void
+     */
+    public function testListSourcesQueryFailure()
+    {
+        $db = $this->getMock('Mysql', ['_execute'], [['database' => 'cake_test'], false]);
+        $db->cacheSources = false;
+        $db->expects($this->once())
+            ->method('_execute')
+            ->will($this->returnValue(false));
+
+        $this->assertSame([], $db->listSources());
+    }
+
+    /**
+     * Test that listDetailedSources() returns an empty list when the query fails.
+     *
+     * @return void
+     */
+    public function testListDetailedSourcesQueryFailure()
+    {
+        $db = new Mysql(['database' => 'cake_test'], false);
+        $connection = $this->getMock('PDO', ['query'], [], '', false);
+        $connection->expects($this->once())
+            ->method('query')
+            ->will($this->returnValue(false));
+        $property = new ReflectionProperty('Mysql', '_connection');
+        $property->setAccessible(true);
+        $property->setValue($db, $connection);
+
+        $this->assertSame([], $db->listDetailedSources());
+    }
 }

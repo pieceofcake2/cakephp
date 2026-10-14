@@ -68,7 +68,7 @@ class JqueryEngineHelper extends JsBaseEngineHelper
     /**
      * Callback arguments lists
      *
-     * @var string
+     * @var array
      */
     protected $_callbackArguments = [
         'slider' => [

@@ -53,7 +53,7 @@ class HttpSocketResponse implements ArrayAccess
     /**
      * Response code
      *
-     * @var int
+     * @var string|int
      */
     public $code = 0;
 
@@ -180,7 +180,13 @@ class HttpSocketResponse implements ArrayAccess
         $this->body = $decoded['body'];
 
         if (!empty($decoded['header'])) {
-            $this->headers = $this->_parseHeader($this->_buildHeader($this->headers) . $this->_buildHeader($decoded['header']));
+            foreach ($decoded['header'] as $field => $value) {
+                if (isset($this->headers[$field])) {
+                    $this->headers[$field] = array_merge((array)$this->headers[$field], (array)$value);
+                } else {
+                    $this->headers[$field] = $value;
+                }
+            }
         }
 
         if (!empty($this->headers)) {
@@ -240,14 +246,8 @@ class HttpSocketResponse implements ArrayAccess
                     1 => dechex($length),
                 ];
             }
-            $chunkSize = 0;
-            $hexLength = 0;
-            if (isset($match[0])) {
-                $chunkSize = $match[0];
-            }
-            if (isset($match[1])) {
-                $hexLength = $match[1];
-            }
+            $chunkSize = $match[0];
+            $hexLength = $match[1];
 
             $chunkLength = hexdec($hexLength);
             $body = substr($body, strlen($chunkSize));
@@ -269,7 +269,7 @@ class HttpSocketResponse implements ArrayAccess
     /**
      * Parses an array based header.
      *
-     * @param array $header Header as an indexed array (field => value)
+     * @param array|string $header Header as an indexed array (field => value)
      * @return array|bool Parsed header
      */
     protected function _parseHeader($header)
@@ -284,6 +284,7 @@ class HttpSocketResponse implements ArrayAccess
         $lines = explode("\r\n", $header);
 
         $header = [];
+        $field = $value = null;
         foreach ($lines as $line) {
             if (strlen($line) === 0) {
                 continue;

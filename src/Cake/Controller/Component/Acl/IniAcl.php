@@ -54,10 +54,11 @@ class IniAcl extends CakeObject implements AclInterface
      * @param string $aro ARO The requesting object identifier.
      * @param string $aco ACO The controlled object identifier.
      * @param string $action Action (defaults to *)
-     * @return bool Success
+     * @return bool|null Success
      */
     public function allow($aro, $aco, $action = '*')
     {
+        return null;
     }
 
     /**
@@ -66,10 +67,11 @@ class IniAcl extends CakeObject implements AclInterface
      * @param string $aro ARO The requesting object identifier.
      * @param string $aco ACO The controlled object identifier.
      * @param string $action Action (defaults to *)
-     * @return bool Success
+     * @return bool|null Success
      */
     public function deny($aro, $aco, $action = '*')
     {
+        return null;
     }
 
     /**
@@ -78,10 +80,11 @@ class IniAcl extends CakeObject implements AclInterface
      * @param string $aro ARO The requesting object identifier.
      * @param string $aco ACO The controlled object identifier.
      * @param string $action Action (defaults to *)
-     * @return bool Success
+     * @return bool|null Success
      */
     public function inherit($aro, $aco, $action = '*')
     {
+        return null;
     }
 
     /**

@@ -21,8 +21,31 @@
  *
  * DataSources are the link between models and the source of data that models represent.
  *
+ * The magic members documented below are not part of the base class. They are implemented by DboSource
+ * and are called by Model, behaviors and shells on the datasource returned by Model::getDataSource(),
+ * so custom datasources have to implement them to support the corresponding features.
+ *
  * @link          https://book.cakephp.org/2.0/en/models/datasources.html#basic-api-for-datasources
  * @package       Cake.Model.Datasource
+ * @property string $alias The SQL alias keyword, e.g. "AS "
+ * @property array $columns Database-specific column type definitions
+ * @property string|null $configKeyName The name of the connection configuration, set by ConnectionManager
+ * @property bool $fullDebug Whether to log queries with their full information
+ * @property bool $useNestedTransactions Whether to use nested transactions, if supported
+ * @method string value(mixed $data, string|null $column = null) Quotes a value for use in a query. Used by insertQueryData().
+ * @method array|string name(mixed $data) Quotes database identifiers
+ * @method stdClass identifier(string $identifier) Returns an object representing a database identifier
+ * @method string|null calculate(Model $Model, string $func, array $params = []) Returns an SQL calculation, i.e. COUNT() or MAX()
+ * @method mixed query(mixed ...$args) Executes an SQL query or a magic findBy call
+ * @method mixed execute(string $sql, array $options = [], array $params = []) Executes an SQL statement
+ * @method array index(Model|string $model) Returns the indexes of a table
+ * @method array readTableParameters(string $name) Returns the table parameters of a table
+ * @method string createSchema(CakeSchema $schema, string|null $tableName = null) Generates the SQL to create the schema
+ * @method string dropSchema(CakeSchema $schema, string|null $table = null) Generates the SQL to drop the schema
+ * @method string|false alterSchema(mixed $compare, string|null $table = null) Generates the SQL to alter the schema
+ * @method bool insertMulti(string $table, array $fields, array $values) Inserts multiple rows into a table
+ * @method bool truncate(Model|string $table) Deletes all the records in a table and resets the count of the auto-incrementing primary key
+ * @method bool|null resetSequence(string $table, string $column) Resets a sequence based key
  */
 class DataSource extends CakeObject
 {
@@ -50,7 +73,7 @@ class DataSource extends CakeObject
     /**
      * Holds a list of sources (tables) contained in the DataSource
      *
-     * @var array
+     * @var array|null
      */
     protected $_sources = null;
 
@@ -180,7 +203,7 @@ class DataSource extends CakeObject
      * Converts column types to basic types
      *
      * @param string $real Real column type (i.e. "varchar(255)")
-     * @return string Abstract column type (i.e. "string")
+     * @return string|false Abstract column type (i.e. "string")
      */
     public function column($real)
     {
@@ -262,7 +285,7 @@ class DataSource extends CakeObject
      * Returns the number of rows returned by last operation.
      *
      * @param mixed $source The source name.
-     * @return int Number of rows returned by last operation
+     * @return int|false Number of rows returned by last operation
      */
     public function lastNumRows($source = null)
     {
@@ -273,7 +296,7 @@ class DataSource extends CakeObject
      * Returns the number of rows affected by last query.
      *
      * @param mixed $source The source name.
-     * @return int Number of rows affected by last query.
+     * @return int|false Number of rows affected by last query.
      */
     public function lastAffected($source = null)
     {
@@ -438,7 +461,7 @@ class DataSource extends CakeObject
     /**
      * Closes a connection. Override in subclasses.
      *
-     * @return bool
+     * @return bool|null
      */
     public function close()
     {

@@ -129,7 +129,7 @@ class ConsoleOutput
     /**
      * formatting options for colored output
      *
-     * @var string
+     * @var array<string, int>
      */
     protected static $_options = [
         'bold' => 1,
@@ -185,7 +185,7 @@ class ConsoleOutput
      *
      * @param array|string $message A string or an array of strings to output
      * @param int $newlines Number of newlines to append
-     * @return int Returns the number of bytes returned from writing to stdout.
+     * @return int|false Returns the number of bytes returned from writing to stdout.
      */
     public function write($message, $newlines = 1)
     {
@@ -284,7 +284,7 @@ class ConsoleOutput
      * Writes a message to the output stream.
      *
      * @param string $message Message to write.
-     * @return bool success
+     * @return int|false The number of bytes written, or false on failure
      */
     protected function _write($message)
     {
@@ -312,8 +312,8 @@ class ConsoleOutput
      *
      * `$this->output->styles('annoy', false);`
      *
-     * @param string $style The style to get or create.
-     * @param array $definition The array definition of the style to change or create a style
+     * @param string|null $style The style to get or create.
+     * @param array|false|null $definition The array definition of the style to change or create a style
      *   or false to remove a style.
      * @return mixed If you are getting styles, the style or null will be returned. If you are creating/modifying
      *   styles true will be returned.

@@ -27,6 +27,12 @@ App::uses('AppHelper', 'View/Helper');
  * @package       Cake.View.Helper
  * @property      HtmlHelper $Html
  * @property      FormHelper $Form
+ * @method string|null object(array $data = [], array $options = []) Proxied to the engine helper, see JsBaseEngineHelper::object()
+ * @method $this get(string $selector) Proxied to the engine helper, see JsBaseEngineHelper::get()
+ * @method string|null confirmReturn(string $message) Proxied to the engine helper, see JsBaseEngineHelper::confirmReturn()
+ * @method string|null request(array|string $url, array $options = []) Proxied to the engine helper, see JsBaseEngineHelper::request()
+ * @method string|null event(string $type, string $callback, array $options = []) Proxied to the engine helper, see JsBaseEngineHelper::event()
+ * @method string|null serializeForm(array $options = []) Proxied to the engine helper, see JsBaseEngineHelper::serializeForm()
  */
 class JsHelper extends AppHelper
 {
@@ -161,6 +167,7 @@ class JsHelper extends AppHelper
      * @param mixed $val A PHP variable to be converted to JSON
      * @param bool $quoteString If false, leaves string values unquoted
      * @param string $key Key name.
+     * @phpstan-param mixed $quoteString
      * @return string a JavaScript-safe/JSON representation of $val
      * @link https://book.cakephp.org/2.0/en/core-libraries/helpers/js.html#JsHelper::value
      */
@@ -338,7 +345,7 @@ class JsHelper extends AppHelper
      *
      * @param array|string $one Either an array of variables to set, or the name of the variable to set.
      * @param array|string $two If $one is a string, $two is the value for that key.
-     * @return void
+     * @return false|null
      * @link https://book.cakephp.org/2.0/en/core-libraries/helpers/js.html#JsHelper::set
      */
     public function set($one, $two = null)
@@ -357,6 +364,8 @@ class JsHelper extends AppHelper
             return false;
         }
         $this->_jsVars = array_merge($this->_jsVars, $data);
+
+        return null;
     }
 
     /**
@@ -411,6 +420,7 @@ class JsHelper extends AppHelper
         unset($options['buffer'], $options['safe']);
 
         $requestString .= $this->request($url, $options);
+        $event = null;
         if (!empty($requestString)) {
             $event = $this->event('click', $requestString, $options + ['buffer' => $buffer]);
         }

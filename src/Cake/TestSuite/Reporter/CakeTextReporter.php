@@ -49,7 +49,7 @@ class CakeTextReporter extends CakeBaseReporter
     /**
      * Paints a failing test.
      *
-     * @param PHPUnit_Framework_AssertionFailedError $message Failure object displayed in
+     * @param \PHPUnit\Framework\AssertionFailedError|\PHPUnit\Framework\Warning $message Failure object displayed in
      *   the context of the other tests.
      * @return void
      */
@@ -93,8 +93,10 @@ class CakeTextReporter extends CakeBaseReporter
         echo 'Peak memory: ' . number_format(memory_get_peak_usage()) . " bytes\n";
 
         if (isset($this->params['codeCoverage']) && $this->params['codeCoverage']) {
-            $coverage = $result->getCodeCoverage()->getSummary();
-            echo $this->paintCoverage($coverage);
+            $coverage = $result->getCodeCoverage();
+            if ($coverage !== null) {
+                $this->paintCoverage($coverage->getData()->lineCoverage());
+            }
         }
     }
 
@@ -127,7 +129,7 @@ class CakeTextReporter extends CakeBaseReporter
     /**
      * Prints the message for skipping tests.
      *
-     * @param string $message Text of skip condition.
+     * @param Throwable $message The skip or incomplete exception.
      * @return void
      */
     public function paintSkip($message)

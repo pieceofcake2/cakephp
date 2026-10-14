@@ -182,7 +182,7 @@ class I18n
      * @param string $plural Plural string (if any)
      * @param string $domain Domain The domain of the translation. Domains are often used by plugin translations.
      *    If null, the default domain will be used.
-     * @param string|int $category Category The integer value of the category to use.
+     * @param string|int|null $category Category The integer value of the category to use.
      * @param int $count Count Count is used with $plural to choose the correct plural form.
      * @param string $language Language to translate string to.
      *    If null it checks for language in session followed by Config.language configuration variable.
@@ -262,31 +262,27 @@ class I18n
         }
 
         if (!empty($_this->_domains[$domain][$_this->_lang][$_this->category][$singular][$context])) {
-            if (
-                ($trans = $_this->_domains[$domain][$_this->_lang][$_this->category][$singular][$context]) ||
-                ($plurals) && ($trans = $_this->_domains[$domain][$_this->_lang][$_this->category][$plural][$context])
-            ) {
-                if (is_array($trans)) {
-                    if (isset($trans[$plurals])) {
-                        $trans = $trans[$plurals];
-                    } else {
-                        trigger_error(
-                            __d(
-                                'cake_dev',
-                                'Missing plural form translation for "%s" in "%s" domain, "%s" locale. ' .
-                                ' Check your po file for correct plurals and valid Plural-Forms header.',
-                                $singular,
-                                $domain,
-                                $_this->_lang,
-                            ),
-                            E_USER_WARNING,
-                        );
-                        $trans = $trans[0];
-                    }
+            $trans = $_this->_domains[$domain][$_this->_lang][$_this->category][$singular][$context];
+            if (is_array($trans)) {
+                if (isset($trans[$plurals])) {
+                    $trans = $trans[$plurals];
+                } else {
+                    trigger_error(
+                        __d(
+                            'cake_dev',
+                            'Missing plural form translation for "%s" in "%s" domain, "%s" locale. ' .
+                            ' Check your po file for correct plurals and valid Plural-Forms header.',
+                            $singular,
+                            $domain,
+                            $_this->_lang,
+                        ),
+                        E_USER_WARNING,
+                    );
+                    $trans = $trans[0];
                 }
-                if (strlen($trans)) {
-                    return $trans;
-                }
+            }
+            if (strlen($trans)) {
+                return $trans;
             }
         }
 
@@ -518,7 +514,7 @@ class I18n
             $translations = [];
             $header = substr($data, 0, 20);
             $header = unpack('L1magic/L1version/L1count/L1o_msg/L1o_trn', $header);
-            extract($header);
+            ['magic' => $magic, 'version' => $version, 'count' => $count, 'o_msg' => $o_msg, 'o_trn' => $o_trn] = $header;
 
             if ((dechex($magic) === '950412de' || dechex($magic) === 'ffffffff950412de') && !$version) {
                 for ($n = 0; $n < $count; $n++) {
@@ -688,7 +684,7 @@ class I18n
             }
 
             $mustEscape = [$escape . ',', $escape . ';', $escape . '<', $escape . '>', $escape . $escape];
-            $replacements = array_map('crc32', $mustEscape);
+            $replacements = array_map(static fn($value) => (string)crc32($value), $mustEscape);
             $value = str_replace($mustEscape, $replacements, $value);
             $value = explode(';', $value);
             $_this->_escape = $escape;
@@ -748,12 +744,12 @@ class I18n
         if (substr($string, 0, 2) === $this->_escape . 'd') {
             $delimiter = $this->_escape . 'd';
 
-            return implode('', array_map('chr', array_filter(explode($delimiter, $string))));
+            return implode('', array_map(static fn($code) => chr((int)$code), array_filter(explode($delimiter, $string))));
         }
         if ($string[0] === $this->_escape && isset($string[1]) && is_numeric($string[1])) {
             $delimiter = $this->_escape;
 
-            return implode('', array_map('chr', array_filter(explode($delimiter, $string))));
+            return implode('', array_map(static fn($code) => chr((int)$code), array_filter(explode($delimiter, $string))));
         }
         if (str_starts_with($string, 'U00')) {
             $delimiter = 'U00';

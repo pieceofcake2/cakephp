@@ -248,7 +248,7 @@ class HtmlHelper extends AppHelper
      * @param array|string $url The address of the external resource or string for content attribute
      * @param array $options Other attributes for the generated tag. If the type attribute is html,
      *    rss, atom, or icon, the mime-type is returned.
-     * @return string A completed `<link />` element.
+     * @return string|null A completed `<link />` element.
      * @link https://book.cakephp.org/2.0/en/core-libraries/helpers/html.html#HtmlHelper::meta
      */
     public function meta($type, $url = null, $options = [])
@@ -306,6 +306,8 @@ class HtmlHelper extends AppHelper
             return $out;
         }
         $this->_View->append($options['block'], $out);
+
+        return null;
     }
 
     /**
@@ -430,7 +432,7 @@ class HtmlHelper extends AppHelper
      *   CSS stylesheets. If `$path` is prefixed with '/', the path will be relative to the webroot
      *   of your application. Otherwise, the path will be relative to your CSS path, usually webroot/css.
      * @param array $options Array of options and HTML arguments.
-     * @return string CSS `<link />` or `<style />` tag, depending on the type of link.
+     * @return string|null CSS `<link />` or `<style />` tag, depending on the type of link.
      * @link https://book.cakephp.org/2.0/en/core-libraries/helpers/html.html#HtmlHelper::css
      */
     public function css($path, $options = [])
@@ -509,6 +511,8 @@ class HtmlHelper extends AppHelper
             return $out;
         }
         $this->_View->append($options['block'], $out);
+
+        return null;
     }
 
     /**
@@ -985,7 +989,7 @@ class HtmlHelper extends AppHelper
      * - `escape` Whether or not the contents should be html_entity escaped.
      *
      * @param string $name Tag name.
-     * @param string $text String content that will appear inside the div element.
+     * @param string|int|null $text String content that will appear inside the div element.
      *   If null, only a start tag will be printed
      * @param array $options Additional HTML attributes of the DIV tag, see above.
      * @return string The formatted tag element
@@ -1073,7 +1077,7 @@ class HtmlHelper extends AppHelper
         if (isset($options['escape'])) {
             $text = h($text);
         }
-        if ($class && !empty($class)) {
+        if ($class) {
             $options['class'] = $class;
         }
         $tag = 'para';

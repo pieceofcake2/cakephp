@@ -65,14 +65,14 @@ class CakeRequest implements ArrayAccess
     /**
      * The URL string used for the request.
      *
-     * @var string
+     * @var string|null
      */
     public $url;
 
     /**
      * Base URL path.
      *
-     * @var string
+     * @var string|false
      */
     public $base = false;
 
@@ -299,9 +299,11 @@ class CakeRequest implements ArrayAccess
      */
     protected function _base()
     {
-        $dir = $webroot = null;
         $config = Configure::read('App');
-        extract($config);
+        $base = $config['base'] ?? null;
+        $baseUrl = $config['baseUrl'] ?? null;
+        $dir = $config['dir'] ?? null;
+        $webroot = $config['webroot'] ?? null;
 
         if (!isset($base)) {
             $base = $this->base;
@@ -367,7 +369,7 @@ class CakeRequest implements ArrayAccess
      */
     protected function _processFiles()
     {
-        if (isset($_FILES) && is_array($_FILES)) {
+        if (!empty($_FILES)) {
             foreach ($_FILES as $name => $data) {
                 if ($name !== 'data') {
                     $this->params['form'][$name] = $data;

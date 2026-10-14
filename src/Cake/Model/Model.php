@@ -28,6 +28,8 @@
  *
  * @package       Cake.Model
  * @link          https://book.cakephp.org/2.0/en/models.html
+ * @property string|array|null $locale Locale(s) used by TranslateBehavior
+ * @method array|string|int|null parentNode(string $type) Implemented by models using AclBehavior, returns the parent node
  */
 #[AllowDynamicProperties]
 class Model extends CakeObject implements CakeEventListener
@@ -87,7 +89,7 @@ class Model extends CakeObject implements CakeEventListener
     /**
      * Table name for this Model.
      *
-     * @var string
+     * @var string|false
      */
     public $table = false;
 
@@ -102,7 +104,7 @@ class Model extends CakeObject implements CakeEventListener
     /**
      * Field-by-field table metadata.
      *
-     * @var array
+     * @var array|null
      */
     protected $_schema = null;
 
@@ -216,7 +218,7 @@ class Model extends CakeObject implements CakeEventListener
     /**
      * Database table prefix for tables in model.
      *
-     * @var string
+     * @var string|null
      * @link https://book.cakephp.org/2.0/en/models/model-attributes.html#tableprefix
      */
     public $tablePrefix = null;
@@ -501,7 +503,7 @@ class Model extends CakeObject implements CakeEventListener
     /**
      * Type of find query currently executing.
      *
-     * @var string
+     * @var string|null
      */
     public $findQueryType = null;
 
@@ -520,7 +522,7 @@ class Model extends CakeObject implements CakeEventListener
      * public $order = "Post.created DESC";
      * public $order = array("Post.view_count DESC", "Post.rating DESC");
      *
-     * @var string
+     * @var array|string|null
      * @link https://book.cakephp.org/2.0/en/models/model-attributes.html#order
      */
     public $order = null;
@@ -646,7 +648,7 @@ class Model extends CakeObject implements CakeEventListener
      * Instance of the CakeEventManager this model is using
      * to dispatch inner events.
      *
-     * @var CakeEventManager
+     * @var CakeEventManager|null
      */
     protected $_eventManager = null;
 
@@ -685,7 +687,7 @@ class Model extends CakeObject implements CakeEventListener
      * Would create a model attached to the posts table on connection2. Dynamic model creation is useful
      * when you want a model object that contains no associations or attached behaviors.
      *
-     * @param array|string|int|bool $id Set this ID for this model on startup,
+     * @param array|string|int|bool|null $id Set this ID for this model on startup,
      * can also be an array of options, see above.
      * @param string|false $table Name of database table to use.
      * @param string $ds DataSource connection name.
@@ -694,14 +696,18 @@ class Model extends CakeObject implements CakeEventListener
     {
         parent::__construct();
 
+        $plugin = $name = $alias = null;
         if (is_array($id)) {
-            extract(array_merge(
+            [
+                'id' => $id, 'table' => $table, 'ds' => $ds,
+                'name' => $name, 'alias' => $alias, 'plugin' => $plugin,
+            ] = array_merge(
                 [
                     'id' => $this->id, 'table' => $this->useTable, 'ds' => $this->useDbConfig,
                     'name' => $this->name, 'alias' => $this->alias, 'plugin' => $this->plugin,
                 ],
                 $id,
-            ));
+            );
         }
 
         if ($this->plugin === null) {
@@ -834,6 +840,7 @@ class Model extends CakeObject implements CakeEventListener
     public function __isset($name)
     {
         $className = false;
+        $assocKey = null;
 
         foreach ($this->_associations as $type) {
             if (isset($name, $this->{$type}[$name])) {
@@ -909,7 +916,7 @@ class Model extends CakeObject implements CakeEventListener
 
         if ($name === 'tablePrefix') {
             $this->setDataSource();
-            if (property_exists($this, 'tablePrefix') && !empty($this->tablePrefix)) {
+            if (!empty($this->tablePrefix)) {
                 return $this->tablePrefix;
             }
 
@@ -1079,14 +1086,15 @@ class Model extends CakeObject implements CakeEventListener
             }
 
             $model = ['class' => $plugin . $className, 'alias' => $assoc];
-            $this->{$assoc} = ClassRegistry::init($model);
+            $AssocModel = ClassRegistry::init($model);
+            $this->{$assoc} = $AssocModel;
 
-            if ($plugin) {
-                ClassRegistry::addObject($plugin . $className, $this->{$assoc});
+            if ($plugin && is_object($AssocModel)) {
+                ClassRegistry::addObject($plugin . $className, $AssocModel);
             }
 
-            if ($assoc) {
-                $this->tableToModel[$this->{$assoc}->table] = $assoc;
+            if ($assoc && is_object($AssocModel)) {
+                $this->tableToModel[$AssocModel->table] = $assoc;
             }
         }
     }
@@ -1105,7 +1113,7 @@ class Model extends CakeObject implements CakeEventListener
         $assoc =& $this->{$type}[$assocKey];
 
         foreach ($this->_associationKeys[$type] as $key) {
-            if (!isset($assoc[$key]) || $assoc[$key] === null) {
+            if (!isset($assoc[$key])) {
                 $data = '';
 
                 switch ($key) {
@@ -1435,7 +1443,7 @@ class Model extends CakeObject implements CakeEventListener
      * Returns the column type of a column in the model.
      *
      * @param string $column The name of the model column
-     * @return string Column type
+     * @return string|null Column type
      */
     public function getColumnType($column)
     {
@@ -1574,7 +1582,7 @@ class Model extends CakeObject implements CakeEventListener
      * for those fields that are not defined in $data, and clearing previous validation errors.
      * Especially helpful for saving data in loops.
      *
-     * @param array|bool $data Optional data array to assign to the model after it is created. If null or false,
+     * @param array|bool|null $data Optional data array to assign to the model after it is created. If null or false,
      *   schema data defaults are not merged.
      * @param bool $filterKey If true, overwrites any primary key input with an empty value
      * @return array The current Model::data; after merging $data and/or defaults from database
@@ -1661,7 +1669,7 @@ class Model extends CakeObject implements CakeEventListener
      * @param string $name The name of the field to get.
      * @param array $conditions SQL conditions (defaults to NULL).
      * @param array|string $order SQL ORDER BY fragment.
-     * @return string|false Field content, or false if not found.
+     * @return string|false|null Field content, or false if not found.
      * @link https://book.cakephp.org/2.0/en/models/retrieving-your-data.html#model-field
      */
     public function field($name, $conditions = null, $order = null)
@@ -1695,6 +1703,8 @@ class Model extends CakeObject implements CakeEventListener
         if (isset($data[0]) && count($data[0]) > 0) {
             return array_shift($data[0]);
         }
+
+        return null;
     }
 
     /**
@@ -2370,6 +2380,7 @@ class Model extends CakeObject implements CakeEventListener
 
         try {
             $return = [];
+            $validates = false;
             foreach ($data as $key => $record) {
                 $validates = $this->create(null) !== null;
                 $saved = false;
@@ -2687,6 +2698,7 @@ class Model extends CakeObject implements CakeEventListener
      *
      * @param array &$data Record data to validate. This should be an array indexed by association name.
      * @param array $options Options to use when validating record data (see above), See also $options of validates().
+     * @param-out array|false $data
      * @return array|bool If atomic: True on success, or false on failure.
      *    Otherwise: array similar to the $data array passed, but values are set to true/false
      *    depending on whether each record validated successfully.
@@ -3094,7 +3106,7 @@ class Model extends CakeObject implements CakeEventListener
      *
      * @param string $type Type of find operation (all / first / count / neighbors / list / threaded)
      * @param array $query Option fields (conditions / fields / joins / limit / offset / order / page / group / callbacks)
-     * @return array
+     * @return array|int|null
      */
     protected function _readDataSource($type, $query)
     {
@@ -3110,6 +3122,8 @@ class Model extends CakeObject implements CakeEventListener
         if ($this->findMethods[$type] === true) {
             return $this->{'_find' . ucfirst($type)}('after', $query, $results);
         }
+
+        return null;
     }
 
     /**
@@ -3309,7 +3323,7 @@ class Model extends CakeObject implements CakeEventListener
                 }
             }
 
-            if (!isset($query['recursive']) || $query['recursive'] === null) {
+            if (!isset($query['recursive'])) {
                 $query['recursive'] = -1;
             }
             [$query['list']['keyPath'], $query['list']['valuePath'], $query['list']['groupPath']] = $list;
@@ -3335,7 +3349,9 @@ class Model extends CakeObject implements CakeEventListener
      */
     protected function _findNeighbors($state, $query, $results = [])
     {
-        extract($query);
+        $conditions = $query['conditions'] ?? null;
+        $field = $query['field'] ?? null;
+        $value = $query['value'] ?? null;
 
         if ($state === 'before') {
             $conditions = (array)$conditions;
@@ -3832,7 +3848,7 @@ class Model extends CakeObject implements CakeEventListener
      *
      * @param array|string $assoc The model to be joined
      * @param array $keys Any join keys which must be merged with the keys queried
-     * @return array
+     * @return array|null
      */
     public function joinModel($assoc, $keys = [])
     {
@@ -3852,6 +3868,8 @@ class Model extends CakeObject implements CakeEventListener
             __d('cake_dev', 'Invalid join model settings in %s. The association parameter has the wrong type, expecting a string or array, but was passed type: %s', $this->alias, gettype($assoc)),
             E_USER_WARNING,
         );
+
+        return null;
     }
 
     /**

@@ -56,7 +56,7 @@ class CakeSchema extends CakeObject
     /**
      * Plugin name.
      *
-     * @var string
+     * @var string|null
      */
     public $plugin = null;
 
@@ -152,7 +152,7 @@ class CakeSchema extends CakeObject
      * Reads database and creates schema tables.
      *
      * @param array $options Schema object properties.
-     * @return array|bool Set of name and tables.
+     * @return CakeSchema|false Set of name and tables.
      */
     public function load($options = [])
     {
@@ -281,9 +281,10 @@ class CakeSchema extends CakeObject
                     continue;
                 }
                 foreach ($Object->hasAndBelongsToMany as $assocData) {
-                    if (isset($assocData['with'])) {
-                        $class = $assocData['with'];
+                    if (!isset($assocData['with'])) {
+                        continue;
                     }
+                    $class = $assocData['with'];
                     if (!is_object($Object->$class)) {
                         continue;
                     }
@@ -531,7 +532,7 @@ class CakeSchema extends CakeObject
                     if (isset($diff['drop'])) {
                         $tables[$table]['drop']['indexes'] = $diff['drop'];
                     }
-                    if ($diff && isset($diff['add'])) {
+                    if (isset($diff['add'])) {
                         $tables[$table]['add']['indexes'] = $diff['add'];
                     }
                 }
@@ -622,7 +623,7 @@ class CakeSchema extends CakeObject
     /**
      * Formats Schema columns from Model Object.
      *
-     * @param array &$Obj model object.
+     * @param Model &$Obj model object.
      * @return array Formatted columns.
      */
     protected function _columns(&$Obj)
@@ -753,7 +754,7 @@ class CakeSchema extends CakeObject
      */
     protected function _noPrefixTable($prefix, $table)
     {
-        return preg_replace('/^' . preg_quote($prefix) . '/', '', $table);
+        return preg_replace('/^' . preg_quote($prefix, '/') . '/', '', $table);
     }
 
     /**

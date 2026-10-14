@@ -125,8 +125,8 @@ class Set
      * structure
      *
      * @param array &$array Array to map
-     * @param string $class Class name
-     * @param bool $primary whether to assign first array key as the _name_
+     * @param string|bool $class Class name
+     * @param string|bool $primary whether to assign first array key as the _name_
      * @return mixed Mapped object
      */
     protected static function _map(&$array, $class, $primary = false)
@@ -157,7 +157,7 @@ class Set
                 } elseif (is_array($value)) {
                     if ($primary === true) {
                         // @codingStandardsIgnoreStart Legacy junk
-                        if (!isset($out->_name_)) {
+                        if (is_object($out) && !isset($out->_name_)) {
                             $out->_name_ = $key;
                         }
                         // @codingStandardsIgnoreEnd
@@ -250,13 +250,13 @@ class Set
         }
 
         for ($i = 0; $i < $count; $i++) {
-            $extracted[] = Set::extract($data, $keys[$i]);
+            $extracted[$i] = Set::extract($data, $keys[$i]);
         }
         $out = [];
         $data = $extracted;
         $count = count($data[0]);
 
-        if (preg_match_all('/\{([0-9]+)\}/msi', $format, $keys2) && isset($keys2[1])) {
+        if (preg_match_all('/\{([0-9]+)\}/msi', $format, $keys2)) {
             $keys = $keys2[1];
             $format = preg_split('/\{([0-9]+)\}/msi', $format);
             $count2 = count($format);
@@ -316,8 +316,8 @@ class Set
      * real-world testing. Please report Bugs as you find them. Suggestions for additional features to
      * implement are also very welcome!
      *
-     * @param string $path An absolute XPath 2.0 path
-     * @param array $data An array of data to extract from
+     * @param array|string $path An absolute XPath 2.0 path
+     * @param array|string|null $data An array of data to extract from
      * @param array $options Currently only supports 'flatten' which can be disabled for higher XPath-ness
      * @return mixed An array of matched items or the content of a single selected item or null in any of these cases: $path or $data are null, no items found.
      * @link https://book.cakephp.org/2.0/en/core-utility-libraries/set.html#Set::extract
@@ -394,7 +394,7 @@ class Set
                     } elseif (!isset($items[0])) {
                         $current = current($items);
                         $currentKey = key($items);
-                        if (!is_array($current) || (is_array($current) && count($items) <= 1 && !is_numeric($currentKey))) {
+                        if (!is_array($current) || (count($items) <= 1 && !is_numeric($currentKey))) {
                             $items = [$items];
                         }
                     }
@@ -669,7 +669,7 @@ class Set
      *
      * @param array|string $data Data to check on
      * @param array|string $path A dot-separated string.
-     * @return bool true if path is found, false otherwise
+     * @return mixed true if path is found, false otherwise
      * @link https://book.cakephp.org/2.0/en/core-utility-libraries/set.html#Set::check
      */
     public static function check($data, $path = null)
@@ -849,6 +849,7 @@ class Set
             return [];
         }
 
+        $vals = [];
         if (!empty($path2) && is_array($path2)) {
             $format = array_shift($path2);
             $vals = Set::format($data, $format, $path2);
@@ -864,6 +865,7 @@ class Set
         if ($groupPath) {
             $group = Set::extract($data, $groupPath);
             if (!empty($group)) {
+                $out = [];
                 $c = count($keys);
                 for ($i = 0; $i < $c; $i++) {
                     if (!isset($group[$i])) {
@@ -888,7 +890,7 @@ class Set
     /**
      * Converts an object into an array.
      *
-     * @param object $object Object to reverse
+     * @param object|array $object Object to reverse
      * @return array Array representation of given object
      * @link https://book.cakephp.org/2.0/en/core-utility-libraries/set.html#Set::reverse
      */
@@ -1141,7 +1143,7 @@ class Set
      *
      * @param array $input an array
      * @param array|string $path string or array of array keys
-     * @return the value at the specified position or null if it doesn't exist
+     * @return mixed The value at the specified position or null if it doesn't exist
      */
     public static function get($input, $path = null)
     {

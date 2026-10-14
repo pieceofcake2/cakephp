@@ -38,7 +38,7 @@ class Dispatcher implements CakeEventListener
     /**
      * Constructor.
      *
-     * @param string $base The base directory for the application. Writes `App.base` to Configure.
+     * @param string|false $base The base directory for the application. Writes `App.base` to Configure.
      */
     public function __construct($base = false)
     {
@@ -168,6 +168,8 @@ class Dispatcher implements CakeEventListener
         $afterEvent = new CakeEvent('Dispatcher.afterDispatch', $this, compact('request', 'response'));
         $this->getEventManager()->dispatch($afterEvent);
         $afterEvent->data['response']->send();
+
+        return null;
     }
 
     /**

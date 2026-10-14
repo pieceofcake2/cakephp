@@ -75,7 +75,7 @@ class CakeLog
     /**
      * LogEngineCollection class
      *
-     * @var LogEngineCollection
+     * @var LogEngineCollection|null
      */
     protected static $_Collection;
 

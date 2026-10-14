@@ -672,4 +672,16 @@ class CacheTest extends CakeTestCase
         $actual = Cache::engine();
         $this->assertNull($actual);
     }
+
+    /**
+     * Test that the base CacheEngine::add() returns null when an engine does not implement it.
+     *
+     * @return void
+     */
+    public function testBaseEngineAdd()
+    {
+        $engine = $this->getMockForAbstractClass('CacheEngine');
+
+        $this->assertNull($engine->add('key', 'value', 10));
+    }
 }

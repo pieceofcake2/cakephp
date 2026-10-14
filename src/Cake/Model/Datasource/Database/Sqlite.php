@@ -22,6 +22,7 @@
  * A DboSource adapter for SQLite 3 using PDO
  *
  * @package       Cake.Model.Datasource.Database
+ * @property PDOStatement $results The statement last passed to resultSet()
  */
 class Sqlite extends DboSource
 {
@@ -150,7 +151,7 @@ class Sqlite extends DboSource
 
         $result = $this->fetchAll("SELECT name FROM sqlite_master WHERE type='table' ORDER BY name;", false);
 
-        if (!$result || empty($result)) {
+        if (!$result) {
             return [];
         }
 
@@ -359,8 +360,9 @@ class Sqlite extends DboSource
             $metaType = false;
             try {
                 $metaData = (array)$results->getColumnMeta($j);
-                if (!empty($metaData['sqlite:decl_type'])) {
-                    $metaType = trim($metaData['sqlite:decl_type']);
+                $declType = $metaData['sqlite:decl_type'] ?? null;
+                if (!empty($declType)) {
+                    $metaType = trim($declType);
                 }
             } catch (Exception) {
             }
@@ -413,6 +415,7 @@ class Sqlite extends DboSource
             // The sprintf %u format behavior is undefined for values outside int range, but must remain
             // consistent with previous PHP versions for query generation
             set_error_handler(function () {
+                return true;
             }, E_WARNING);
             $rt = sprintf(' LIMIT %u', $limit);
             if ($offset) {
@@ -431,13 +434,13 @@ class Sqlite extends DboSource
      *
      * @param array $column An array structured like the following: array('name'=>'value', 'type'=>'value'[, options]),
      *    where options can be 'default', 'length', or 'key'.
-     * @return string
+     * @return string|null
      */
     public function buildColumn($column)
     {
-        $name = $type = null;
         $column += ['null' => true];
-        extract($column);
+        $name = $column['name'] ?? null;
+        $type = $column['type'] ?? null;
 
         if (empty($name) || empty($type)) {
             trigger_error(__d('cake_dev', 'Column name or type not defined in schema'), E_USER_WARNING);
@@ -486,7 +489,7 @@ class Sqlite extends DboSource
     /**
      * Gets the database encoding
      *
-     * @return string The database encoding
+     * @return array|null The database encoding
      */
     public function getEncoding()
     {
@@ -498,7 +501,7 @@ class Sqlite extends DboSource
      *
      * @param array $indexes The indexes to build.
      * @param string $table The table name.
-     * @return string The completed index.
+     * @return array The completed index.
      */
     public function buildIndex($indexes, $table = null)
     {
@@ -585,7 +588,9 @@ class Sqlite extends DboSource
     {
         switch (strtolower($type)) {
             case 'schema':
-                extract($data);
+                $table = $data['table'] ?? null;
+                $columns = $data['columns'] ?? null;
+                $indexes = $data['indexes'] ?? null;
                 if (is_array($columns)) {
                     $columns = "\t" . implode(",\n\t", array_filter($columns));
                 }
@@ -612,7 +617,7 @@ class Sqlite extends DboSource
     /**
      * Generate a "drop table" statement for the given table
      *
-     * @param type $table Name of the table to drop
+     * @param string $table Name of the table to drop
      * @return string Drop table SQL statement
      */
     protected function _dropTable($table)

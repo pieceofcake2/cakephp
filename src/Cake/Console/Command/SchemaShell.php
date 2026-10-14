@@ -103,12 +103,14 @@ class SchemaShell extends AppShell
         if ($File->exists()) {
             $this->out($File->read());
 
-            return $this->_stop();
+            $this->_stop();
+
+            return;
         }
         $file = $this->Schema->path . DS . $this->params['file'];
         $this->err(__d('cake_console', 'Schema file (%s) could not be found.', $file));
 
-        return $this->_stop();
+        $this->_stop();
     }
 
     /**
@@ -137,7 +139,9 @@ class SchemaShell extends AppShell
             $prompt = __d('cake_console', "Schema file exists.\n [O]verwrite\n [S]napshot\n [Q]uit\nWould you like to do?");
             $result = strtolower($this->in($prompt, ['o', 's', 'q'], 's'));
             if ($result === 'q') {
-                return $this->_stop();
+                $this->_stop();
+
+                return;
             }
             if ($result === 'o') {
                 $snapshot = false;
@@ -172,7 +176,7 @@ class SchemaShell extends AppShell
             $count = 0;
             if (!empty($result[1])) {
                 foreach ($result[1] as $file) {
-                    if (preg_match('/' . preg_quote($fileName) . '(?:[_\d]*)?\.php$/', $file)) {
+                    if (preg_match('/' . preg_quote($fileName, '/') . '(?:[_\d]*)?\.php$/', $file)) {
                         $count++;
                     }
                 }
@@ -190,11 +194,13 @@ class SchemaShell extends AppShell
         if ($this->Schema->write($content)) {
             $this->out(__d('cake_console', 'Schema file: %s generated', $content['file']));
 
-            return $this->_stop();
+            $this->_stop();
+
+            return;
         }
         $this->err(__d('cake_console', 'Schema file: %s generated'));
 
-        return $this->_stop();
+        $this->_stop();
     }
 
     /**
@@ -204,7 +210,7 @@ class SchemaShell extends AppShell
      * If -write contains a full path name the file will be saved there. If -write only
      * contains no DS, that will be used as the file name, in the same dir as the schema file.
      *
-     * @return string
+     * @return string|null
      */
     public function dump()
     {
@@ -213,7 +219,9 @@ class SchemaShell extends AppShell
         if (!$Schema) {
             $this->err(__d('cake_console', 'Schema could not be loaded'));
 
-            return $this->_stop();
+            $this->_stop();
+
+            return null;
         }
         if (!empty($this->params['write'])) {
             if ($this->params['write'] == 1) {
@@ -238,11 +246,15 @@ class SchemaShell extends AppShell
             if ($File->write($contents)) {
                 $this->out(__d('cake_console', 'SQL dump file created in %s', $File->pwd()));
 
-                return $this->_stop();
+                $this->_stop();
+
+                return null;
             }
             $this->err(__d('cake_console', 'SQL dump could not be created'));
 
-            return $this->_stop();
+            $this->_stop();
+
+            return null;
         }
         $this->out($contents);
 
@@ -274,7 +286,7 @@ class SchemaShell extends AppShell
     /**
      * Prepares the Schema objects for database operations.
      *
-     * @return void
+     * @return array|null
      */
     protected function _loadSchema()
     {
@@ -308,7 +320,9 @@ class SchemaShell extends AppShell
             $this->err(__d('cake_console', '- file: %s', $this->Schema->path . DS . $this->Schema->file));
             $this->err(__d('cake_console', '- name: %s', $this->Schema->name));
 
-            return $this->_stop(2);
+            $this->_stop(2);
+
+            return null;
         }
         $table = null;
         if (isset($this->args[1])) {
@@ -344,7 +358,9 @@ class SchemaShell extends AppShell
         if (empty($drop) || empty($create)) {
             $this->out(__d('cake_console', 'Schema is up to date.'));
 
-            return $this->_stop();
+            $this->_stop();
+
+            return;
         }
 
         $this->out("\n" . __d('cake_console', 'The following table(s) will be dropped.'));
@@ -412,7 +428,9 @@ class SchemaShell extends AppShell
         if (empty($contents)) {
             $this->out(__d('cake_console', 'Schema is up to date.'));
 
-            return $this->_stop();
+            $this->_stop();
+
+            return;
         }
 
         $this->out("\n" . __d('cake_console', 'The following statements will run.'));
@@ -438,14 +456,14 @@ class SchemaShell extends AppShell
      * @param array $contents The contents to execute.
      * @param string $event The event to fire
      * @param CakeSchema $Schema The schema instance.
-     * @return void
+     * @return false|null
      */
     protected function _run($contents, $event, CakeSchema $Schema)
     {
         if (empty($contents)) {
             $this->err(__d('cake_console', 'Sql could not be run'));
 
-            return;
+            return null;
         }
         Configure::write('debug', 2);
         $db = ConnectionManager::getDataSource($this->Schema->connection);
@@ -478,6 +496,8 @@ class SchemaShell extends AppShell
                 }
             }
         }
+
+        return null;
     }
 
     /**
