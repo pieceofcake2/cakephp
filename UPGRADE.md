@@ -25,6 +25,15 @@ Before migrating to this fork, ensure:
 - No action required if you pass `'readFile' => false` to disable remote loading; this now works as documented.
 - If you relied on `Xml::build()` fetching an `https://` URL with `'readFile' => false`, either remove the option (default is `true`) or fetch the document yourself (e.g. with `HttpSocket`) and pass the XML string.
 
+### CookieComponent Honors the `'type'` Setting ([PR #34](https://github.com/pieceofcake2/cakephp/pull/34))
+
+- `CookieComponent` now applies the `'type'` setting given in `$components` (e.g. `'Cookie' => ['type' => 'aes']`). Previously the setting was silently ignored and cookies were encrypted with the insecure default `'cipher'` type.
+
+**Migration:**
+- If your controllers set `'type'` in `$components`, cookies will now be written with that type, and cookies already written with `'cipher'` can no longer be decrypted. Plan the switch like any other encryption type change.
+- When using `'aes'`, set `Configure::write('Security.useOpenSsl', true);` unless the mcrypt extension is installed (it is not bundled with PHP 7.2+ and is only available from PECL).
+- An invalid `'type'` setting now triggers an `E_USER_WARNING` and falls back to `'cipher'`, as `CookieComponent::type()` does.
+
 ### Test Case Listing Supports the `tests/TestCase` Layout ([PR #35](https://github.com/pieceofcake2/cakephp/pull/35))
 
 - `CakeTestLoader::generateTestList()` now finds test cases in `tests/TestCase` for the app and plugins, falling back to the legacy `Test/Case` layout. Previously the list was empty for the modern layout, so `cake test app` / `cake test <Plugin>` without a test case name and the web test runner showed no test cases.
@@ -432,13 +441,24 @@ public $components = [
 // NEW (recommended)
 public $components = [
     'Cookie' => [
-        'type' => 'aes'  // or 'rijndael'
+        'type' => 'aes'  // or 'rijndael' (requires the mcrypt extension)
     ]
 ];
 
 // Or dynamically in your controller
 $this->Cookie->type('aes');
 ```
+
+Without the mcrypt extension (not bundled with PHP 7.2+), enable OpenSSL for `'aes'` in `config/core.php`:
+
+```php
+Configure::write('Security.useOpenSsl', true);
+```
+
+> [!NOTE]
+> The `'type'` setting in `$components` is honored since the fix in [PR #34](https://github.com/pieceofcake2/cakephp/pull/34). In v2.12.2 and earlier it was silently ignored, so use `$this->Cookie->type('aes')` (e.g. in `beforeFilter()`) there.
+>
+> `'aes'` uses OpenSSL only when `Security.useOpenSsl` is `true`; otherwise it calls mcrypt functions, which fail unless the mcrypt extension is installed from PECL. `'rijndael'` always requires the mcrypt extension.
 
 > [!IMPORTANT]
 > Changing encryption type will invalidate existing cookies. Plan your migration strategy accordingly (e.g., support both types during transition period).
