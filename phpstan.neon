@@ -23,6 +23,7 @@ parameters:
         -
             message: '#^(Function mcrypt_\w+ not found|Constant MCRYPT_\w+ not found)\.#'
             path: src/Cake/Utility/Security.php
+            reportUnmatched: false
         # DATABASE_CONFIG is defined by the application in app/Config/database.php at runtime.
         -
             message: '#^Property ConnectionManager::\$config has unknown class DATABASE_CONFIG as its type\.$#'
@@ -53,4 +54,3 @@ parameters:
         processTimeout: 300.0
         maximumNumberOfProcesses: 4
         minimumNumberOfJobsPerProcess: 2
-    reportUnmatchedIgnoredErrors: false
