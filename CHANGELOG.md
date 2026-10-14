@@ -1,6 +1,11 @@
 ## CHANGELOG
 
-## Unreleased
+## v2.12.3 (2026-10-14)
+
+> [!IMPORTANT]
+> This release contains a security fix and two fixes that change behavior. See [UPGRADE.md](UPGRADE.md#v2123) before upgrading:
+> - `CookieComponent` now honors the `'type'` setting in `$components`. Applications that already set it will write cookies with that type, and cookies written before the upgrade can no longer be read.
+> - `cake server` now listens on port `8765` by default instead of `80`.
 
 ### Xml::build() SSRF Fix ([PR #33](https://github.com/pieceofcake2/cakephp/pull/33))
 
