@@ -32,12 +32,22 @@ Before migrating to this fork, ensure:
 **Migration:**
 - No action required.
 
+## Unreleased
+
 ### SQL Server Driver Sets `PDO::ATTR_ERRMODE` by Default ([PR #36](https://github.com/pieceofcake2/cakephp/pull/36))
 
 - `Sqlserver::connect()` now merges `PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION` into the `'flags'` setting as the other drivers do. Because of an operator precedence bug, the default was never applied.
 
 **Migration:**
 - No action required. PDO already uses `PDO::ERRMODE_EXCEPTION` by default on PHP 8, and a `PDO::ATTR_ERRMODE` value given in `'flags'` still takes precedence.
+
+### ServerShell Default Port Changed to 8765 ([PR #37](https://github.com/pieceofcake2/cakephp/pull/37))
+
+- `cake server` now listens on port `8765` by default (as in CakePHP 3 and later) instead of `80`, which requires root privileges on most systems.
+- `ServerShell::DEFAULT_PORT` is now `8765`.
+
+**Migration:**
+- To keep using port 80, pass it explicitly: `bin/cake server -p 80`.
 
 ## Breaking Changes
 

@@ -36,7 +36,7 @@ class ServerShell extends AppShell
      *
      * @var int
      */
-    public const DEFAULT_PORT = 80;
+    public const DEFAULT_PORT = 8765;
 
     /**
      * server host
@@ -135,8 +135,22 @@ class ServerShell extends AppShell
             escapeshellarg($this->_documentRoot . '/index.php'),
         );
 
-        $port = $this->_port == static::DEFAULT_PORT ? '' : ':' . $this->_port;
+        $port = $this->_port == 80 ? '' : ':' . $this->_port;
         $this->out(__d('cake_console', 'built-in server is running in http://%s%s/', $this->_host, $port));
+        $this->_runCommand($command);
+    }
+
+    /**
+     * Runs the built-in server command.
+     *
+     * Not covered by tests, because it starts a real server process.
+     *
+     * @codeCoverageIgnore
+     * @param string $command The command to run.
+     * @return void
+     */
+    protected function _runCommand($command)
+    {
         system($command);
     }
 
@@ -154,10 +168,10 @@ class ServerShell extends AppShell
             __d('cake_console', '<warning>[WARN] Don\'t use this at the production environment</warning>'),
         ])->addOption('host', [
             'short' => 'H',
-            'help' => __d('cake_console', 'ServerHost'),
+            'help' => __d('cake_console', 'ServerHost (default: %s)', static::DEFAULT_HOST),
         ])->addOption('port', [
             'short' => 'p',
-            'help' => __d('cake_console', 'ListenPort'),
+            'help' => __d('cake_console', 'ListenPort (default: %s)', static::DEFAULT_PORT),
         ])->addOption('document_root', [
             'short' => 'd',
             'help' => __d('cake_console', 'DocumentRoot'),
