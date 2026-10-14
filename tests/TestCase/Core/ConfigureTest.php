@@ -78,6 +78,85 @@ class ConfigureTest extends CakeTestCase
     }
 
     /**
+     * Test that bootstrapping throws an exception when the application core file is missing.
+     *
+     * @return void
+     */
+    public function testBootstrapMissingCoreFile()
+    {
+        $result = $this->_bootstrapInSeparateProcess([]);
+        $this->assertSame(
+            "ConfigureException: Can't find application core file. Please create " . $result['config'] . 'core.php, and make sure it is readable by PHP.',
+            $result['output'],
+        );
+    }
+
+    /**
+     * Test that bootstrapping throws an exception when the application bootstrap file is missing.
+     *
+     * @return void
+     */
+    public function testBootstrapMissingBootstrapFile()
+    {
+        $result = $this->_bootstrapInSeparateProcess(['core.php' => '<?php return true;']);
+        $this->assertSame(
+            "ConfigureException: Can't find application bootstrap file. Please create " . $result['config'] . 'bootstrap.php, and make sure it is readable by PHP.',
+            $result['output'],
+        );
+    }
+
+    /**
+     * Runs Configure::bootstrap() in a separate PHP process with CONFIG pointing at a temporary
+     * directory holding the given files, and returns what the process wrote to STDOUT.
+     *
+     * @param array<string, string> $files File names and contents to create in the CONFIG directory.
+     * @return array{config: string, output: string}
+     */
+    protected function _bootstrapInSeparateProcess(array $files)
+    {
+        $dir = TMP . 'configure_bootstrap_' . uniqid() . DS;
+        $config = $dir . 'config' . DS;
+        mkdir($config, 0777, true);
+        foreach ($files as $name => $contents) {
+            file_put_contents($config . $name, $contents);
+        }
+        $loader = new ReflectionClass(Composer\Autoload\ClassLoader::class);
+        $script = '<?php' . "\n" .
+            'define("DS", DIRECTORY_SEPARATOR);' . "\n" .
+            'define("ROOT", ' . var_export(ROOT, true) . ');' . "\n" .
+            'define("APP_DIR", ' . var_export(APP_DIR, true) . ');' . "\n" .
+            'define("WWW_ROOT", ' . var_export(WWW_ROOT, true) . ');' . "\n" .
+            'define("TMP", ' . var_export($dir, true) . ');' . "\n" .
+            'define("CONFIG", ' . var_export($config, true) . ');' . "\n" .
+            'require ' . var_export(dirname($loader->getFileName(), 2) . DS . 'autoload.php', true) . ';' . "\n" .
+            'require ' . var_export(CORE_ROOT . DS . 'config' . DS . 'init.php', true) . ';' . "\n" .
+            'try {' . "\n" .
+            '    require CAKE . "bootstrap.php";' . "\n" .
+            '} catch (Exception $e) {' . "\n" .
+            '    fwrite(STDOUT, get_class($e) . ": " . $e->getMessage());' . "\n" .
+            '}' . "\n";
+        file_put_contents($dir . 'script.php', $script);
+
+        try {
+            $process = proc_open(
+                [PHP_BINARY, '-d', 'display_errors=stderr', $dir . 'script.php'],
+                [1 => ['pipe', 'w'], 2 => ['pipe', 'w']],
+                $pipes,
+            );
+            $output = stream_get_contents($pipes[1]);
+            stream_get_contents($pipes[2]);
+            fclose($pipes[1]);
+            fclose($pipes[2]);
+            proc_close($process);
+        } finally {
+            $Folder = new Folder($dir);
+            $Folder->delete();
+        }
+
+        return ['config' => $config, 'output' => $output];
+    }
+
+    /**
      * Test to ensure bootrapping doesn't overwrite prior configs set under 'App' key
      *
      * @return void
