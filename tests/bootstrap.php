@@ -36,3 +36,11 @@ if (isset($GLOBALS['_composer_autoload_path'])) {
 new ShellDispatcher([$_SERVER['argv'][0]]);
 
 set_error_handler(new ErrorHandler(true, true, true, true));
+
+// Security::cipher() reports its deprecation and an out-of-range Security.cipherSeed once
+// per process. Many core tests use 'cipher' on purpose, so mark both as reported here;
+// SecurityTest and CookieComponentTest reset them to test the reports.
+Closure::bind(function () {
+    static::$_cipherDeprecationReported = true;
+    static::$_cipherSeedReported = true;
+}, null, Security::class)();

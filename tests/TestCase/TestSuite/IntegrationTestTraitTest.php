@@ -1000,4 +1000,23 @@ class IntegrationTestTraitTest extends CakeTestCase
         $this->post('/integration_tests/request_info', '{"a":1}');
         $this->assertSame([], $this->requestInfo()['data']);
     }
+
+    /**
+     * The default cookie encryption key follows CookieComponent: Cookie.key, else Security.salt.
+     *
+     * @return void
+     */
+    public function testCookieEncryptionKeyDefault()
+    {
+        Configure::write('Security.salt', 'the-salt-of-this-test');
+        Configure::delete('Cookie.key');
+        $this->assertSame('the-salt-of-this-test', $this->_getCookieEncryptionKey());
+
+        Configure::write('Cookie.key', '');
+        $this->assertSame('the-salt-of-this-test', $this->_getCookieEncryptionKey());
+
+        Configure::write('Cookie.key', str_repeat('k', 32));
+        $this->assertSame(str_repeat('k', 32), $this->_getCookieEncryptionKey());
+        Configure::delete('Cookie.key');
+    }
 }

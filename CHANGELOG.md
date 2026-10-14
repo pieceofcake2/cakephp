@@ -5,6 +5,9 @@
 > [!NOTE]
 > Code that triggered an `E_USER_ERROR` (deprecated as of PHP 8.4) now throws an exception with the same message, and `ConsoleLog` decides colored output by its own stream. See [UPGRADE.md](UPGRADE.md#unreleased).
 
+> [!IMPORTANT]
+> The `'cipher'` encryption (`Security::cipher()`, the default `CookieComponent` type) is deprecated and now logs a warning once per process. New Configure values `Cookie.type` and `Cookie.key` set the default `CookieComponent` type and key; set them to `'aes'` and a random key of at least 32 bytes. See [UPGRADE.md](UPGRADE.md#cipher-encryption-is-deprecated-pr-62).
+
 ### PHPStan Level 5 (docblocks only) ([PR #56](https://github.com/pieceofcake2/cakephp/pull/56))
 
 - **PHPStan**: `src/Cake` (including `TestSuite`) now passes PHPStan level 5 with `pieceofcake2/phpstan-cakephp2` ^0.2.4, without a baseline. CI runs PHPStan on every pull request
@@ -39,6 +42,19 @@
 - **ConsoleLog**: Colored or plain output is decided by the configured `stream` instead of STDIN, so logging to a file or pipe from a terminal no longer writes ANSI escape codes. Plain output is still forced on Windows consoles without ANSI support, and an explicit `outputAs` setting is kept
 - **ConsoleOutput**: Uses `stream_isatty()` to detect a terminal, so streams that cannot be checked (e.g. `php://memory`, `php://temp`) get plain output without a `posix_isatty()` warning
 - **Tests**: `AllTestSuiteTest` includes the `TestSuite/Fixture` and `TestSuite/Stub` tests, which never ran before; `CakeFixtureManagerTest` passes when run on its own
+
+### Enhancements: CookieComponent `Cookie.key` and `Cookie.type` ([PR #62](https://github.com/pieceofcake2/cakephp/pull/62))
+
+- **CookieComponent**: Without a `'key'` setting, the key defaults to Configure `Cookie.key` when it is a non-empty string, otherwise to `Security.salt` as before. Without a `'type'` setting, the type defaults to Configure `Cookie.type` when it is set (validated by `type()`, so an invalid value triggers the usual `E_USER_WARNING` and falls back to `'cipher'`), otherwise to `'cipher'` as before. An explicit `'key'` / `'type'` setting, `$this->Cookie->key = ...` or `$this->Cookie->type(...)` always wins. Nothing changes for applications that do not set `Cookie.key` or `Cookie.type`
+- **IntegrationTestTrait**: `cookieEncrypted()` / `assertCookieEncrypted()` use the same default key (`Cookie.key`, else `Security.salt`)
+
+### Deprecation: 'cipher' encryption ([PR #62](https://github.com/pieceofcake2/cakephp/pull/62))
+
+- **Security::cipher()** / **CookieComponent `'cipher'` type**: Deprecated. It is not secure with any `Security.cipherSeed`. The first call in a process writes a `warning` to the log, also with debug off, and with debug on also triggers `E_USER_DEPRECATED`. The message names the source (`CookieComponent (type 'cipher')` or `Security::cipher() (called from Class::method())`) and the fix: set Configure 'Cookie.type' to 'aes' and 'Cookie.key' to a random value of at least 32 bytes, with Security.useOpenSsl enabled. The `cipher()` output, cookie values and return values are unchanged, and nothing throws
+- **Security.cipherSeed range**: `mt_srand()` keeps 32 bits, so `Security::cipher()` uses the seed as given only when it is a digits-only number from 1 to 4294967295. Other values are reduced: empty, `0`, non-numeric values, values of 27 or more digits and most 26-digit values (including the former default `76859309657453542496749683645`) become seed 0. The first `Security::cipher()` call with such a seed logs a `warning` once per process; the seed value is never logged
+- **Debugger::checkSecurityKeys()**: With debug on (called by `AuthComponent`), also triggers an `E_USER_NOTICE` when `Security.cipherSeed` is set but outside 1 to 4294967295. The "Please change the value of 'Security.cipherSeed'" notice now fires for both the former default and the new default `'2659758734'`
+- **Core config**: The fallback `config/core.php` (used when the application has no `core.php`) sets `Security.cipherSeed` to `'2659758734'` (the same default as the application skeleton) and enables `Security.useOpenSsl`
+- **Security::isCipherSeedInRange()**: New internal helper for the range check
 
 ## v2.12.5 (2026-10-15)
 

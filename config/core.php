@@ -212,9 +212,20 @@ Configure::write('Session', [
 Configure::write('Security.salt', 'DYhG93b0qyJfIxfs2guVoUubWwvniR2G0FgaC9mi');
 
 /**
- * A random numeric string (digits only) used to encrypt/decrypt strings.
+ * A random numeric string (digits only, from 1 to 4294967295) used by the deprecated
+ * 'cipher' encryption (Security::cipher(), the default CookieComponent type).
+ * An in-range seed does not make 'cipher' secure: set CookieComponent to
+ * 'type' => 'aes' with its own key of at least 32 bytes and Security.useOpenSsl enabled.
+ * Changing this value makes existing 'cipher' values unreadable.
  */
-Configure::write('Security.cipherSeed', '76859309657453542496749683645');
+Configure::write('Security.cipherSeed', '2659758734');
+
+/**
+ * Use OpenSSL instead of mcrypt for Security::encrypt() / Security::decrypt() and the
+ * CookieComponent 'aes' type. The data format is the same, so values encrypted with
+ * mcrypt can still be decrypted.
+ */
+Configure::write('Security.useOpenSsl', true);
 
 /**
  * Apply timestamps with the last modified time to static assets (js, css, images).
