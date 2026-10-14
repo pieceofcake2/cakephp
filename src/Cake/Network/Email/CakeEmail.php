@@ -253,6 +253,21 @@ class CakeEmail
     protected $_transportClass = null;
 
     /**
+     * Whether `$_transportClass` was created from the transport override.
+     *
+     * @var bool
+     */
+    protected $_transportOverridden = false;
+
+    /**
+     * Transport name that replaces the transport of every instance.
+     *
+     * @var string|null
+     * @see CakeEmail::overrideTransport()
+     */
+    protected static $_transportOverride = null;
+
+    /**
      * Charset the email body is sent in
      *
      * @var string
@@ -1016,10 +1031,12 @@ class CakeEmail
      */
     public function transportClass()
     {
-        if ($this->_transportClass) {
+        $overridden = self::$_transportOverride !== null;
+        if ($this->_transportClass && $this->_transportOverridden === $overridden) {
             return $this->_transportClass;
         }
-        [$plugin, $transportClassname] = pluginSplit($this->_transportName, true);
+        $transportName = $overridden ? self::$_transportOverride : $this->_transportName;
+        [$plugin, $transportClassname] = pluginSplit($transportName, true);
         $transportClassname .= 'Transport';
         App::uses($transportClassname, $plugin . 'Network/Email');
         if (!class_exists($transportClassname)) {
@@ -1028,7 +1045,45 @@ class CakeEmail
             throw new SocketException(__d('cake_dev', 'The "%s" does not have a %s method.', $transportClassname, 'send()'));
         }
 
+        $this->_transportOverridden = $overridden;
+
         return $this->_transportClass = new $transportClassname();
+    }
+
+    /**
+     * Replaces the transport of every CakeEmail instance, or restores the configured ones.
+     *
+     * While an override is set, `transportClass()` returns an instance of the given
+     * transport regardless of the `transport` setting of the instance or of its
+     * `EmailConfig` configuration. Passing `null` removes the override, and instances
+     * go back to their own transport.
+     *
+     * This is used by `TestEmailTransport::replaceAllTransports()` (and `EmailTrait`)
+     * to capture every email sent during a test, as a backport of the
+     * `TransportFactory` configuration replacement of CakePHP 4.x/5.x.
+     *
+     * ```
+     * CakeEmail::overrideTransport('TestEmail'); // Every email now uses TestEmailTransport
+     * CakeEmail::overrideTransport(null); // Back to the configured transports
+     * ```
+     *
+     * @param string|null $name Transport name as accepted by `transport()` (e.g. `'Debug'`,
+     *   `'TestEmail'` or `'MyPlugin.Custom'`), or `null` to remove the override.
+     * @return void
+     */
+    public static function overrideTransport($name)
+    {
+        self::$_transportOverride = $name === null ? null : (string)$name;
+    }
+
+    /**
+     * Returns the transport name set with `overrideTransport()`.
+     *
+     * @return string|null The transport name, or `null` when no override is set.
+     */
+    public static function transportOverride()
+    {
+        return self::$_transportOverride;
     }
 
     /**
