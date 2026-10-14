@@ -231,7 +231,7 @@ class CakeTestFixture
      */
     public function create(DboSource $db): bool
     {
-        if (!isset($this->fields) || empty($this->fields)) {
+        if (empty($this->fields)) {
             return false;
         }
 
@@ -310,7 +310,7 @@ class CakeTestFixture
     {
         if (!isset($this->_insert)) {
             $values = [];
-            if (isset($this->records) && !empty($this->records)) {
+            if (!empty($this->records)) {
                 $fields = [];
                 foreach ($this->records as $record) {
                     $fields = array_merge($fields, array_keys(array_intersect_key($record, $this->fields)));

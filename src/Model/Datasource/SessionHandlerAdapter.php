@@ -6,6 +6,8 @@ namespace Cake\Model\Datasource;
 
 use Cake\Model\Datasource\Session\CakeSessionHandlerInterface;
 use SessionHandlerInterface;
+use SessionIdInterface;
+use SessionUpdateTimestampHandlerInterface;
 
 /**
  * SessionHandlerAdapter

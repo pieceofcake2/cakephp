@@ -274,7 +274,7 @@ jobs:
       COMPOSER_ROOT_VERSION: 2.12.x-dev
 
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@v7
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
@@ -288,7 +288,7 @@ jobs:
         run: echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
 
       - name: Cache Composer
-        uses: actions/cache@v4
+        uses: actions/cache@v6
         with:
           path: ${{ steps.composer-cache.outputs.dir }}
           key: ${{ runner.os }}-php8.4-composer-${{ hashFiles('**/composer.json') }}
@@ -298,13 +298,13 @@ jobs:
       - name: Install dependencies
         run: composer install --prefer-dist --no-interaction --no-progress
 
-      - name: Copy database.php
+      - name: Copy config
         run: cp ./tests/config/database.php ./vendor/pieceofcake2/app/config/
 
-      - name: PHPStan analyse
-        id: phpcs
-        run: ./vendor/bin/phpstan analyse --error-format=checkstyle > ./checkstyle.xml
+      - name: Run PHPStan
+        id: phpstan
+        run: ./vendor/bin/phpstan analyse --no-progress --error-format=checkstyle > ./phpstan-report.xml
 
       - name: Show PHPStan results in PR
-        if: ${{ always() && steps.phpcs.outcome == 'failure' }}
-        run: cs2pr ./checkstyle.xml
+        if: ${{ always() && steps.phpstan.outcome == 'failure' }}
+        run: cs2pr ./phpstan-report.xml
