@@ -7,26 +7,16 @@ parameters:
     paths:
         - src/Cake
     excludePaths:
-        - tests/
-        - src/Cake/Console/Templates/
-        - src/Cake/View/Scaffolds/
-        - src/Cake/TestSuite/
+        - src/Cake/TestSuite/templates/*
     bootstrapFiles:
         - tests/bootstrap.php
     treatPhpDocTypesAsCertain: false
     ignoreErrors:
-        # Ignore dynamic property creation for now
-        - '#Access to an undefined property#'
-        - '#Creating dynamic property#'
-        # Ignore deprecated functions that are part of CakePHP 2.x
-        - '#Function strftime\(\) is deprecated#'
-        - '#Function mcrypt_.*\(\) is deprecated#'
-        # Ignore missing return types for now
-        - '#Method .* has no return type specified#'
-        - '#Method .* has parameter .* with no type specified#'
-        # Ignore array shape issues
-        - '#Method .* return type has no value type specified in iterable type array#'
-        - '#Method .* has parameter .* with no value type specified in iterable type array#'
+        # ext-mcrypt is optional (PECL only since PHP 7.2) and has no stubs in PHPStan.
+        # Security::rijndael() and the legacy Security::encrypt()/decrypt() paths only use it when it is loaded.
+        -
+            message: '#^(Function mcrypt_\w+ not found|Constant MCRYPT_\w+ not found)\.#'
+            path: src/Cake/Utility/Security.php
     parallel:
         processTimeout: 300.0
         maximumNumberOfProcesses: 4
