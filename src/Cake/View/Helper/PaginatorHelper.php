@@ -423,7 +423,7 @@ class PaginatorHelper extends AppHelper
      * - `escape` Whether you want the contents html entity encoded, defaults to true
      * - `model` The model to use, defaults to PaginatorHelper::defaultModel()
      *
-     * @param string|int|float $title Title for the link.
+     * @param string|float|int $title Title for the link.
      * @param array|string $url URL for the action. See Router::url()
      * @param array $options Options for the link. See #options for list of keys.
      * @return string A link with pagination parameters.
@@ -637,7 +637,7 @@ class PaginatorHelper extends AppHelper
      * Does $model have $page in its range?
      *
      * @param string $model Model name to get parameters for.
-     * @param int|string $page Page number you are checking.
+     * @param string|int $page Page number you are checking.
      * @return bool Whether model has $page
      */
     protected function _hasPage($model, $page)

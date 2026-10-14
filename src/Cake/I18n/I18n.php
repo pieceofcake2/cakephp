@@ -182,7 +182,7 @@ class I18n
      * @param string $plural Plural string (if any)
      * @param string $domain Domain The domain of the translation. Domains are often used by plugin translations.
      *    If null, the default domain will be used.
-     * @param int|string|null $category Category The integer value of the category to use.
+     * @param string|int|null $category Category The integer value of the category to use.
      * @param int $count Count Count is used with $plural to choose the correct plural form.
      * @param string $language Language to translate string to.
      *    If null it checks for language in session followed by Config.language configuration variable.

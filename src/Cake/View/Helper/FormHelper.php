@@ -2850,7 +2850,7 @@ class FormHelper extends AppHelper
      * Parse the value for a datetime selected value
      *
      * @param array|string $value The selected value.
-     * @param int|string|null $timeFormat The time format
+     * @param string|int|null $timeFormat The time format
      * @return array Array of selected value.
      */
     protected function _getDateTimeValue($value, $timeFormat)

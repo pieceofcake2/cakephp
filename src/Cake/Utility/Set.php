@@ -126,7 +126,7 @@ class Set
      *
      * @param array &$array Array to map
      * @param string|bool $class Class name
-     * @param bool|string $primary whether to assign first array key as the _name_
+     * @param string|bool $primary whether to assign first array key as the _name_
      * @return mixed Mapped object
      */
     protected static function _map(&$array, $class, $primary = false)

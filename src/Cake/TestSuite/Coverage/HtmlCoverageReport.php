@@ -203,7 +203,7 @@ HTML;
      * Generate an HTML snippet for coverage headers
      *
      * @param string $filename The file name being covered
-     * @param float|int|string $percent The percentage covered
+     * @param string|float|int $percent The percentage covered
      * @return string
      */
     public function coverageHeader($filename, $percent)

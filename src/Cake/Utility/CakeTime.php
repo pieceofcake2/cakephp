@@ -130,7 +130,7 @@ class CakeTime
      *
      * @param string $format Format with specifiers for strftime function.
      *    Accepts the special specifier %S which mimics the modifier S for date()
-     * @param int|string|false|null $time UNIX timestamp
+     * @param string|int|false|null $time UNIX timestamp
      * @return string Windows safe and date() function compatible format for strftime
      * @link https://book.cakephp.org/2.0/en/core-libraries/helpers/time.html#TimeHelper::convertSpecifiers
      */
@@ -249,7 +249,7 @@ class CakeTime
     /**
      * Converts given time (in server's time zone) to user's local time, given his/her timezone.
      *
-     * @param int|string $serverTime Server's timestamp.
+     * @param string|int $serverTime Server's timestamp.
      * @param DateTimeZone|string $timezone User's timezone string or DateTimeZone object.
      * @return int User's timezone timestamp.
      * @link https://book.cakephp.org/2.0/en/core-libraries/helpers/time.html#TimeHelper::convert

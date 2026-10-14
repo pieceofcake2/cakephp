@@ -217,7 +217,7 @@ class Validation
     /**
      * Used to compare 2 numeric values.
      *
-     * @param array|string|int|float|false $check1 if string is passed for a string must also be passed for $check2
+     * @param array|string|float|int|false $check1 if string is passed for a string must also be passed for $check2
      *    used as an array it must be passed as array('check1' => value, 'operator' => 'value', 'check2' -> value)
      * @param string $operator Can be either a word or operand
      *    is greater >, is less <, greater or equal >=
