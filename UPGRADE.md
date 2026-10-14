@@ -17,6 +17,318 @@ Before migrating to this fork, ensure:
 
 ## Unreleased
 
+### Integration Testing: `IntegrationTestTrait` and `EmailTrait` (backport) ([PR #51](https://github.com/pieceofcake2/cakephp/pull/51))
+
+This backports the integration testing support of CakePHP 4.x/5.x: [`IntegrationTestTrait`](https://github.com/cakephp/cakephp/blob/5.x/src/TestSuite/IntegrationTestTrait.php) with its constraints ([`Constraint/Response`](https://github.com/cakephp/cakephp/tree/5.x/src/TestSuite/Constraint/Response), [`Constraint/Session`](https://github.com/cakephp/cakephp/tree/5.x/src/TestSuite/Constraint/Session) and [`Constraint/View`](https://github.com/cakephp/cakephp/tree/5.x/src/TestSuite/Constraint/View)), and [`EmailTrait`](https://github.com/cakephp/cakephp/blob/5.x/src/TestSuite/EmailTrait.php) with [`TestEmailTransport`](https://github.com/cakephp/cakephp/blob/5.x/src/TestSuite/TestEmailTransport.php) and its [`Constraint/Email`](https://github.com/cakephp/cakephp/tree/5.x/src/TestSuite/Constraint/Email) constraints. Method names and semantics follow CakePHP 5.x, so tests written with them need few changes when the application moves to CakePHP 5.
+
+It is opt-in and nothing changes for existing tests: `ControllerTestCase` and `testAction()` keep working, and both can be used in the same test suite.
+
+**What it is.** `IntegrationTestTrait` builds a request from a URL and data, dispatches it through the real `Dispatcher` (dispatcher filters, routes, components, the controller, the view and the layout, nothing mocked) and captures the `CakeResponse` instead of sending it. The `assert*()` methods then check the status code, the redirect, headers, the body, the rendered template and layout, the session, flash messages and cookies. `EmailTrait` makes every `CakeEmail` send with `TestEmailTransport`, which delivers nothing and records the emails for the `assertMail*()` methods.
+
+Use the traits in any test case, usually `CakeTestCase` (for fixtures and the restoring of `Configure` after each test):
+
+```php
+class ArticlesControllerTest extends CakeTestCase
+{
+    use IntegrationTestTrait;
+
+    /**
+     * @var array<string>
+     */
+    public $fixtures = ['app.article'];
+
+    public function testIndex(): void
+    {
+        $this->get('/articles');
+
+        $this->assertResponseOk();
+        $this->assertResponseContains('<h1>Articles</h1>');
+    }
+}
+```
+
+#### Compared with `ControllerTestCase::testAction()`
+
+| | `ControllerTestCase::testAction()` | `IntegrationTestTrait` |
+|-|-|-|
+| Base class | `ControllerTestCase` | Any test case (`CakeTestCase`) |
+| Controller | Mocked with `generate()` (`_stop()` and components can be mocked) | Real controller, built by the `Dispatcher` |
+| Request | `testAction($url, ['method' => ..., 'data' => ...])` | `get()`, `post()`, `put()`, `patch()`, `delete()`, `head()`, `options()` |
+| Dispatcher filters | Not run | Run (`Dispatcher.filters`) |
+| `SecurityComponent` | Mock `_validatePost()` or disable it | `enableSecurityToken()` / `enableCsrfToken()` add valid tokens |
+| Redirects | `exit` avoided by mocking `_stop()`; read `$this->headers['Location']` | `exit` is replaced automatically; `assertRedirect()` |
+| Results | `$this->vars`, `$this->view`, `$this->contents`, `$this->headers`, `$this->result` | `viewVariable()`, `$this->_response`, `$this->_controller`, assertions |
+| Exceptions | Thrown to the test | Rendered as the error page (like production), or thrown with `disableErrorHandlerMiddleware()` |
+| Session, cookies | Set `$_SESSION` / `$_COOKIE` yourself | `session()`, `cookie()`, `cookieEncrypted()`, `assertSession()`, `assertCookie()` |
+
+The same test before and after:
+
+```php
+// Before: ControllerTestCase
+class ArticlesControllerTest extends ControllerTestCase
+{
+    public function testAdd(): void
+    {
+        $Articles = $this->generate('Articles', [
+            'components' => ['Security' => ['_validatePost']],
+        ]);
+        $Articles->Security->expects($this->any())
+            ->method('_validatePost')
+            ->will($this->returnValue(true));
+
+        $this->testAction('/articles/add', [
+            'method' => 'post',
+            'data' => ['Article' => ['title' => 'New article']],
+        ]);
+
+        $this->assertStringContainsString('/articles/view/', $this->headers['Location']);
+    }
+}
+```
+
+```php
+// After: IntegrationTestTrait
+class ArticlesControllerTest extends CakeTestCase
+{
+    use IntegrationTestTrait;
+
+    public function testAdd(): void
+    {
+        $this->enableSecurityToken();
+
+        $this->post('/articles/add', [
+            'Article' => ['title' => 'New article'],
+        ]);
+
+        $this->assertRedirectContains('/articles/view/');
+    }
+}
+```
+
+Mocking is still possible where it is needed (for example a model method that calls an external service): `$this->getMockForModel('Article', ['callApi'])` registers the mock in `ClassRegistry`, and the dispatched controller uses it.
+
+#### Full Example
+
+```php
+App::uses('EmailTrait', 'TestSuite');
+App::uses('IntegrationTestTrait', 'TestSuite');
+
+class ArticlesControllerTest extends CakeTestCase
+{
+    use EmailTrait;
+    use IntegrationTestTrait;
+
+    /**
+     * @var array<string>
+     */
+    public $fixtures = ['app.article', 'app.user'];
+
+    public function testIndex(): void
+    {
+        $this->get('/articles?page=2');
+
+        $this->assertResponseOk();
+        $this->assertResponseContains('<h1>Articles</h1>');
+        $this->assertTemplate('Articles' . DS . 'index');
+        $this->assertLayout('default');
+        $this->assertContentType('html');
+        $this->assertCount(10, $this->viewVariable('articles'));
+    }
+
+    public function testAddRequiresLogin(): void
+    {
+        $this->get(['controller' => 'articles', 'action' => 'add']);
+
+        $this->assertRedirect(['controller' => 'users', 'action' => 'login']);
+        $this->assertSession('/articles/add', 'Auth.redirect');
+    }
+
+    public function testAdd(): void
+    {
+        $this->session(['Auth' => ['User' => ['id' => 1, 'role' => 'admin']]]);
+        $this->enableSecurityToken();
+        $this->enableRetainFlashMessages();
+
+        $this->post('/articles/add', [
+            'Article' => ['title' => 'New article', 'body' => 'Body'],
+        ]);
+
+        $this->assertResponseCode(302);
+        $this->assertRedirectContains('/articles/view/');
+        $this->assertFlashMessage('The article has been saved.');
+        $this->assertFlashElement('Flash/success');
+        $this->assertNoMailSent();
+    }
+
+    public function testAddWithUnlockedField(): void
+    {
+        $this->session(['Auth' => ['User' => ['id' => 1, 'role' => 'admin']]]);
+        $this->enableSecurityToken();
+        // Also unlocked in the controller: $this->Security->unlockedFields = ['Article.preview'];
+        $this->setUnlockedFields(['Article.preview']);
+
+        $this->post('/articles/add', [
+            'Article' => ['title' => 'Draft', 'preview' => '1'],
+        ]);
+
+        $this->assertResponseOk();
+        $this->assertResponseContains('Preview: Draft');
+    }
+
+    public function testRememberMeCookie(): void
+    {
+        $this->cookieEncrypted('CakeCookie[remember]', ['id' => 1]);
+        $this->get('/users/dashboard');
+        $this->assertResponseOk();
+
+        $this->post('/users/logout');
+        $this->assertCookieNotSet('CakeCookie[remember]');
+    }
+
+    public function testLogin(): void
+    {
+        $this->enableSecurityToken();
+        $this->post('/users/login', ['User' => ['username' => 'mark', 'password' => 'secret', 'remember' => '1']]);
+
+        $this->assertRedirect('/');
+        $this->assertSessionHasKey('Auth.User.id');
+        $this->assertCookieEncrypted(['id' => 1], 'CakeCookie[remember]');
+    }
+
+    public function testApiView(): void
+    {
+        $this->requestAsJson();
+        $this->get('/api/articles/1.json');
+
+        $this->assertResponseOk();
+        $this->assertContentType('application/json');
+        $this->assertHeader('Cache-Control', 'no-store');
+        $this->assertSame('First article', json_decode((string)$this->_response->body(), true)['article']['title']);
+    }
+
+    public function testApiAdd(): void
+    {
+        $this->requestAsJson();
+        $this->post('/api/articles.json', json_encode(['title' => 'From the API']));
+
+        $this->assertResponseCode(201);
+        $this->assertHeaderContains('Location', '/api/articles/');
+    }
+
+    public function testViewMissing(): void
+    {
+        $this->get('/articles/view/999');
+
+        $this->assertResponseError();
+        $this->assertResponseCode(404);
+        $this->assertResponseContains('Article not found');
+    }
+
+    public function testViewMissingThrows(): void
+    {
+        $this->disableErrorHandlerMiddleware();
+        $this->expectException(NotFoundException::class);
+
+        $this->get('/articles/view/999');
+    }
+
+    public function testDownload(): void
+    {
+        $this->get('/articles/download/1');
+
+        $this->assertFileResponse(WWW_ROOT . 'files' . DS . 'article-1.pdf');
+        $this->assertHeaderContains('Content-Disposition', 'article-1.pdf');
+    }
+
+    public function testRegisterSendsWelcomeEmail(): void
+    {
+        $this->enableSecurityToken();
+        $this->post('/users/register', ['User' => ['email' => 'alice@example.com', 'username' => 'alice']]);
+
+        $this->assertRedirect(['controller' => 'users', 'action' => 'thanks']);
+        $this->assertMailCount(1);
+        $this->assertMailSentTo('alice@example.com');
+        $this->assertMailSentFrom('noreply@example.com');
+        $this->assertMailSubjectContains('Welcome');
+        $this->assertMailContainsText('Hello alice');
+        $this->assertMailContainsHtml('<strong>alice</strong>');
+        $this->assertMailSentWith('both', 'emailFormat');
+        $this->assertMailContainsAttachment('terms.pdf', ['mimetype' => 'application/pdf']);
+    }
+}
+```
+
+The classes are autoloaded (Composer classmap), so the `App::uses()` lines are optional.
+
+#### API Reference
+
+**Requests** (each stores the response for the assertions; `$url` is a string such as `/articles/view/1?page=2`, a full URL such as `https://example.com/articles` to set the host and HTTPS, or a routing array):
+
+| Method | Description |
+|-|-|
+| `get($url)`, `delete($url)`, `head($url)`, `options($url)` | Dispatch a request without body data |
+| `post($url, $data = [])`, `put($url, $data = [])`, `patch($url, $data = [])` | An array is the request data (`$this->request->data`; scalars are cast to strings like real form data, arrays that look like uploaded files are kept); a string is the raw body (`$this->request->input()`) |
+| `resolveUrl($url)` | Returns the string URL that is requested (`Router::url()` for arrays) |
+
+**Request setup** (cleared after each test):
+
+| Method | Description |
+|-|-|
+| `configRequest(array $data)` | Merge request settings: `headers` (used for the next request only), `environment` (`$_SERVER` values, e.g. `HTTP_REFERER`, `REMOTE_ADDR`), `cookies`, `files` (`$_FILES` array), `input` (raw body) |
+| `replaceRequest(array $data)` | Replace the request settings |
+| `requestAsJson()` | Set the `Accept` and `Content-Type` headers to `application/json` |
+| `session(array $data)` | Session data written before each following request (`$_SESSION` is kept between the requests of a test and cleared after it) |
+| `cookie(string $name, string $value)` | Request cookie; `Name[key]` becomes `$_COOKIE['Name']['key']` |
+| `cookieEncrypted(string $name, array\|string $value, string\|false $encrypt = 'cipher', ?string $key = null)` | Request cookie encrypted like `CookieComponent` (`CakeCookie[key]`; modes `cipher`, `aes`, `rijndael`, or `false`; key defaults to `Security.salt`) |
+| `enableSecurityToken()` | Add the `_Token` fields `SecurityComponent` validates (`fields`, `unlocked`, `debug` in debug mode) and its CSRF token, computed from the posted data |
+| `setUnlockedFields(array $fields)` | Fields excluded from the `SecurityComponent` hash (must match the fields unlocked in the controller or with `FormHelper::unlockField()`) |
+| `enableCsrfToken()` | Add only the CSRF token (`_Token.key` in the data and in the session), for actions where `SecurityComponent::$validatePost` is disabled but `csrfCheck` is enabled |
+| `enableRetainFlashMessages()` | Keep flash messages in the session after the view rendered them, so they can be asserted |
+| `disableErrorHandlerMiddleware()` | Throw exceptions to the test instead of rendering the error page |
+
+**Inspecting the result**: `viewVariable(string $name)` returns a view variable (or `null`); `$this->_response` (`CakeResponse`), `$this->_controller` (the dispatched controller, `null` if none was created), `$this->_exception` (the exception thrown while dispatching, also when it was rendered), `$this->_viewName` and `$this->_layoutName` (the rendered files).
+
+**Assertions** (all accept a custom failure message as the last argument; when an exception was rendered, its message and trace are appended to failures):
+
+| Area | Assertions |
+|-|-|
+| Status | `assertResponseOk()` (200-204), `assertResponseSuccess()` (200-308), `assertResponseError()` (400-429), `assertResponseFailure()` (500-505), `assertResponseCode(int $code)` |
+| Redirect | `assertRedirect($url = null)`, `assertRedirectEquals($url = null)`, `assertRedirectContains(string $url)`, `assertRedirectNotContains(string $url)`, `assertRedirectBackToReferer(?int $code = null)`, `assertNoRedirect()` (URLs are compared as absolute URLs, routing arrays are accepted) |
+| Headers | `assertHeader(string $header, string $content)`, `assertHeaderContains(string $header, string $content)`, `assertHeaderNotContains(string $header, string $content)`, `assertContentType(string $type)` (`json` or `application/json`) |
+| Body | `assertResponseContains(string $content, string $message = '', bool $ignoreCase = false)`, `assertResponseNotContains(...)`, `assertResponseEquals($content)`, `assertResponseNotEquals($content)`, `assertResponseRegExp(string $pattern)`, `assertResponseNotRegExp(string $pattern)`, `assertResponseEmpty()`, `assertResponseNotEmpty()` |
+| View | `assertTemplate(string $content)`, `assertLayout(string $content)` (substring of the rendered file path) |
+| Session | `assertSession($expected, string $path)`, `assertSessionHasKey(string $path)`, `assertSessionNotHasKey(string $path)` (`Hash` paths) |
+| Flash | `assertFlashMessage(string $expected, string $key = 'flash')`, `assertFlashMessageAt(int $at, ...)`, `assertFlashMessageContains(string $expected, string $key = 'flash', string $message = '', bool $ignoreCase = false)`, `assertFlashMessageContainsAt(int $at, ...)`, `assertFlashElement(string $expected, string $key = 'flash')`, `assertFlashElementAt(int $at, ...)` |
+| Cookies | `assertCookie($expected, string $name)`, `assertCookieIsSet(string $name)`, `assertCookieNotSet(string $name)`, `assertCookieEncrypted($expected, string $name, string $encrypt = 'cipher', ?string $key = null)` |
+| Files | `assertFileResponse(string $path)` (`CakeResponse::file()`) |
+| Email (`EmailTrait`) | `assertMailCount(int $count)`, `assertNoMailSent()`, `assertMailSentTo(string $address)`, `assertMailSentFrom(array\|string $address)`, `assertMailSentWith(string $expected, string $parameter)`, `assertMailContains(string $contents)`, `assertMailContainsText(string $contents)`, `assertMailContainsHtml(string $contents)`, `assertMailSubjectContains(string $contents)`, `assertMailContainsAttachment(string $filename, array $file = [])`, and the `...At(int $at, ...)` variants `assertMailSentToAt()`, `assertMailSentFromAt()`, `assertMailSentWithAt()`, `assertMailContainsAt()`, `assertMailContainsTextAt()`, `assertMailContainsHtmlAt()`, `assertMailSubjectContainsAt()` (0-based index) |
+
+`TestEmailTransport` can also be used without `EmailTrait`: `TestEmailTransport::replaceAllTransports()` / `restoreTransports()`, `getMessages()` (the sent `CakeEmail` objects) and `clearMessages()`, or `'transport' => 'TestEmail'` in a configuration. Both use the new `CakeEmail::overrideTransport(?string $name)`, which makes every `CakeEmail` instance (also those created earlier) use the given transport until it is called with `null`.
+
+#### Differences from CakePHP 5.x
+
+- **No middleware or `Application` class**: requests go through `Dispatcher` (as `IntegrationTestDispatcher`), so dispatcher filters run. `useHttpServer()`, `ContainerStubTrait` and `TestSession` are not available.
+- **`exit` is replaced**: CakePHP 2 sends the response and calls `exit` in `Controller::redirect()`, `AuthComponent`, `RequestHandlerComponent` (Ajax redirects), `AssetDispatcher` and redirect routes (`Router::redirect()`). The test response (`IntegrationTestResponse`) throws `IntegrationTestStop` instead of sending, which ends the request at the same point (code after the `redirect()` call and `afterFilter()` do not run), and the response is captured.
+- **Superglobals**: `CakeRequest`, `CookieComponent` and others read `$_GET`, `$_POST`, `$_FILES`, `$_COOKIE` and `$_SERVER`, so they are set while a request is dispatched and restored afterwards. `$_SESSION` is shared by the requests of a test and cleared after each test that dispatched a request.
+- **SecurityComponent instead of FormProtection/CSRF middleware**: `enableSecurityToken()` also adds the CSRF token (`SecurityComponent::$csrfCheck` is enabled by default). `enableCsrfToken()` takes no `$cookieName` (CakePHP 2 has no cookie based CSRF tokens). Fields unlocked in the controller must also be passed to `setUnlockedFields()`.
+- **Errors**: exceptions are rendered with `Exception.renderer` (`ExceptionRenderer` by default). `disableErrorHandlerMiddleware()` keeps its CakePHP 5 name and throws them instead. PHPUnit exceptions (failed assertions in the application) are always thrown.
+- **Flash messages** are read from the `Message` session key (CakePHP 5: `Flash`). Element names are those stored by CakePHP 2 (`Flash/success` for `$this->Flash->success()`, `default` for `SessionComponent::setFlash()`). An `$at` of `0` checks the first message (CakePHP 5 checks all of them).
+- **Cookies** use the `CookieComponent` format: values are in `CakeCookie[...]` cookies, arrays are JSON encoded, and `cookieEncrypted()` / `assertCookieEncrypted()` default to the `cipher` mode of `CookieComponent` (CakePHP 5: `aes`). Pass the `type` you configured for `CookieComponent` (e.g. `'aes'`).
+- **Headers** are matched case-insensitively and multiple values are joined with `, `. `Content-Type` is always available (with the charset that `CakeResponse::send()` would add).
+- **Emails** are `CakeEmail` objects, read with the `CakeEmail` getters (`assertMailSentWith('both', 'emailFormat')`). Subjects are MIME-decoded before `assertMailSubjectContains()`. `assertMailContainsAttachment()` always requires the file name to match.
+- **Not backported**: `assertRedirectBack()` (CakePHP 2 has no `url` request setting), `assertFlashMessage*()` with a `Flash` session key, the `$cookieName` of `enableCsrfToken()`, `MiddlewareDispatcher`.
+- **Class names**: CakePHP 2 has no namespaces, so the constraint classes have a `Constraint` suffix (`StatusOkConstraint`, `MailCountConstraint`, ...).
+- **Uploaded files** passed in the data or with `configRequest(['files' => ...])` are not real uploads: `is_uploaded_file()` and `move_uploaded_file()` return `false` for them.
+
+#### Modern and Legacy Layouts
+
+Both layouts work the same way; only the test location differs:
+
+- **Modern layout** (`pieceofcake2/app`): put the tests in `tests/TestCase/Controller/` and run `vendor/bin/phpunit` (or `bin/cake test app Controller/ArticlesController`). Fixtures are `app.article` (`tests/Fixture/ArticleFixture.php`).
+- **Legacy layout** (`app/` directory): put the tests in `app/Test/Case/Controller/` and run `app/Console/cake test app Controller/ArticlesController`. Fixtures are `app.article` (`app/Test/Fixture/ArticleFixture.php`).
+
+Requests use the routes of the application (`config/routes.php` or `app/Config/routes.php`) and its `core.php` settings (`Security.salt`, `Session`, `Exception.renderer`). URLs are dispatched as if the application were installed at the document root (`App.base` is empty unless configured).
+
 ### `.env` File Support ([PR #50](https://github.com/pieceofcake2/cakephp/pull/50))
 
 This backports the `.env` support of later CakePHP versions. The CakePHP 3.x, 4.x and 5.x application skeletons ship `config/.env.example` and an opt-in block in [`config/bootstrap.php`](https://github.com/cakephp/app/blob/5.x/config/bootstrap.php) that loads `config/.env` with josegonzalez/dotenv. In this fork the loader is part of the core (`CakeDotenv`, no dependencies), uses a parser compatible with [vlucas/phpdotenv](https://github.com/vlucas/phpdotenv) v5, and can also load a `.env` file in the project root.
