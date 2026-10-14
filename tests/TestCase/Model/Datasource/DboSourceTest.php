@@ -288,6 +288,261 @@ class DboSourceTest extends CakeTestCase
     }
 
     /**
+     * Valid sort directions, with the direction emitted in the SQL.
+     *
+     * @return array<string, array{string, string}>
+     */
+    public static function validOrderDirectionProvider()
+    {
+        return [
+            'ASC' => ['ASC', 'ASC'],
+            'DESC' => ['DESC', 'DESC'],
+            'asc' => ['asc', 'asc'],
+            'desc' => ['desc', 'desc'],
+            'Desc' => ['Desc', 'Desc'],
+            'aSc' => ['aSc', 'aSc'],
+            'surrounding spaces' => [' DESC ', 'DESC'],
+            'tabs and newlines' => ["\tdesc\n", 'desc'],
+            'ASC NULLS FIRST' => ['ASC NULLS FIRST', 'ASC NULLS FIRST'],
+            'ASC NULLS LAST' => ['ASC NULLS LAST', 'ASC NULLS LAST'],
+            'DESC NULLS FIRST' => ['DESC NULLS FIRST', 'DESC NULLS FIRST'],
+            'DESC NULLS LAST' => ['DESC NULLS LAST', 'DESC NULLS LAST'],
+            'lower case nulls' => ['asc nulls first', 'asc nulls first'],
+            'mixed case nulls' => [' Desc Nulls Last ', 'Desc Nulls Last'],
+            'extra inner whitespace' => ['desc  nulls  last', 'desc nulls last'],
+            'tab inner whitespace' => ["DESC\tNULLS\t\tFIRST", 'DESC NULLS FIRST'],
+        ];
+    }
+
+    /**
+     * Invalid sort directions.
+     *
+     * @return array<string, array{mixed}>
+     */
+    public static function invalidOrderDirectionProvider()
+    {
+        return [
+            'statement' => ['ASC; DROP TABLE posts'],
+            'subquery' => ['DESC, (SELECT 1)'],
+            'comment' => ['ASC --'],
+            'block comment' => ['DESC /* x */'],
+            'union' => ['ASC UNION SELECT 1'],
+            'limit' => ['DESC LIMIT 1'],
+            'nulls then statement' => ['ASC NULLS FIRST; SELECT 1'],
+            'nulls then list' => ['DESC NULLS LAST, title'],
+            'bare nulls' => ['NULLS FIRST'],
+            'incomplete nulls' => ['ASC NULLS'],
+            'unknown nulls' => ['ASC NULLS MIDDLE'],
+            'word' => ['ASCENDING'],
+            'other word' => ['up'],
+            'number' => ['1'],
+            'expression' => ["='test' DESC"],
+            'null byte' => ["DESC\0 NULLS LAST"],
+            'true' => [true],
+            'integer' => [1],
+            'array' => [['DESC']],
+        ];
+    }
+
+    /**
+     * Valid directions are accepted as array values, in "Field DIR" strings
+     * and as the default direction, whatever their case and whitespace.
+     *
+     * @dataProvider validOrderDirectionProvider
+     * @param string $direction The direction.
+     * @param string $expected The direction in the SQL.
+     * @return void
+     */
+    public function testOrderValidDirection($direction, $expected)
+    {
+        $sql = ' ORDER BY `Post`.`title` ' . $expected;
+
+        $this->assertSame($sql, $this->testDb->order(['Post.title' => $direction]));
+        $this->assertSame($sql, $this->testDb->order('Post.title ' . $direction));
+        $this->assertSame($sql, $this->testDb->order(['Post.title ' . $direction]));
+        $this->assertSame($sql, $this->testDb->order('Post.title', $direction));
+        $this->assertSame($sql, $this->testDb->order(['Post.title'], $direction));
+        $this->assertSame($sql, $this->testDb->order([['Post.title' => $direction]]));
+        $this->assertSame(
+            $sql . ', `Post`.`id` ' . $expected,
+            $this->testDb->order('Post.title ' . $direction . ', Post.id ' . $direction),
+        );
+    }
+
+    /**
+     * Invalid directions passed as array values or as the default direction throw.
+     *
+     * @dataProvider invalidOrderDirectionProvider
+     * @param mixed $direction The direction.
+     * @return void
+     */
+    public function testOrderInvalidDirectionValue($direction)
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Invalid ORDER BY direction');
+        $this->testDb->order(['Post.title' => $direction]);
+    }
+
+    /**
+     * Invalid default directions throw.
+     *
+     * @dataProvider invalidOrderDirectionProvider
+     * @param mixed $direction The direction.
+     * @return void
+     */
+    public function testOrderInvalidDefaultDirection($direction)
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->testDb->order(['Post.title'], $direction);
+    }
+
+    /**
+     * Invalid directions written after the field in a string key throw.
+     *
+     * @return array<string, array{string}>
+     */
+    public static function invalidOrderStringProvider()
+    {
+        return [
+            'statement' => ['Post.title ASC; DROP TABLE posts'],
+            'comment' => ['Post.title ASC --'],
+            'block comment' => ['Post.title DESC /* x */'],
+            'union' => ['Post.title ASC UNION SELECT 1'],
+            'limit' => ['Post.title DESC LIMIT 1'],
+            'nulls then statement' => ['Post.title ASC NULLS FIRST; SELECT 1'],
+            'statement ending with a direction' => ['Post.title ASC; DELETE FROM posts WHERE 1 = 1 DESC'],
+            'union with subquery' => ['Post.title ASC UNION (SELECT password FROM users) DESC'],
+            'tab before direction' => ["Post.title\tDESC; SELECT 1"],
+            'array key' => [['Post.title DESC; SELECT 1' => 'ASC']],
+        ];
+    }
+
+    /**
+     * @dataProvider invalidOrderStringProvider
+     * @param array|string $order The order.
+     * @return void
+     */
+    public function testOrderInvalidDirectionInString($order)
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Invalid ORDER BY direction');
+        $this->testDb->order($order);
+    }
+
+    /**
+     * The supported order shapes keep working with the direction validation.
+     *
+     * @return void
+     */
+    public function testOrderShapes()
+    {
+        $db = $this->testDb;
+
+        $this->assertSame('', $db->order(null));
+        $this->assertSame('', $db->order(''));
+        $this->assertSame('', $db->order([]));
+        $this->assertSame('', $db->order(['Post.title' => null]));
+        $this->assertSame(' ORDER BY `title` ASC', $db->order('title'));
+        $this->assertSame(' ORDER BY `Post`.`title` ', $db->order('Post.title', ''));
+        $this->assertSame(' ORDER BY `Post`.`title` ', $db->order('Post.title', null));
+        $this->assertSame(
+            ' ORDER BY `Post`.`title` desc, `Post`.`id` ASC',
+            $db->order(['Post.title' => 'desc', 'Post.id']),
+        );
+        $this->assertSame(
+            ' ORDER BY `Post`.`title` DESC NULLS LAST, `Post`.`id` asc',
+            $db->order([['Post.title DESC NULLS LAST'], ['Post.id' => 'asc']]),
+        );
+        $this->assertSame(
+            ' ORDER BY `Post`.`title` desc nulls first, `Post`.`id` DESC',
+            $db->order('Post.title desc  nulls  first ,  Post.id   DESC '),
+        );
+
+        // A direction in the key wins over the value, as before.
+        $this->assertSame(' ORDER BY `Post`.`title` DESC', $db->order(['Post.title DESC' => 'ASC']));
+
+        // Functions and expressions as keys.
+        $this->assertSame(' ORDER BY RAND() ASC', $db->order('RAND()'));
+        $this->assertSame(' ORDER BY RAND() desc', $db->order(['RAND()' => 'desc']));
+        $this->assertSame(
+            ' ORDER BY FIELD(`Post`.`id`, 3, 1, 2) ASC',
+            $db->order('FIELD(Post.id, 3, 1, 2)'),
+        );
+        $this->assertSame(
+            ' ORDER BY FIELD(`Post`.`id`, 3, 1, 2) DESC',
+            $db->order(['FIELD(Post.id, 3, 1, 2)' => 'DESC']),
+        );
+        $this->assertSame(
+            ' ORDER BY FIELD(`Post`.`id`, 3, 1, 2) ASC, `Post`.`title` DESC',
+            $db->order('FIELD(Post.id, 3, 1, 2) ASC, Post.title DESC'),
+        );
+        $this->assertSame(
+            ' ORDER BY FIELD(`Post`.`id`, 1, 2) ASC, `Post`.`title` ASC',
+            $db->order('FIELD(Post.id, 1, 2), Post.title'),
+        );
+        $this->assertSame(
+            " ORDER BY CONCAT(`Post`.`title`, ' desc, asc') DESC",
+            $db->order("CONCAT(Post.title, ' desc, asc') DESC"),
+        );
+        $this->assertSame(
+            " ORDER BY `Post`.`status` = 'asc desc' DESC",
+            $db->order("Post.status = 'asc desc' DESC"),
+        );
+        $this->assertSame(
+            " ORDER BY `Page`.`name` = 'test' DESC",
+            $db->order(["Page.name = 'test'" => 'DESC']),
+        );
+        $this->assertSame(
+            ' ORDER BY (SELECT MAX(`Comment`.`id`) FROM comments AS Comment WHERE `Comment`.`post_id` = `Post`.`id` ORDER BY `Comment`.`id` DESC LIMIT 1) DESC',
+            $db->order('(SELECT MAX(Comment.id) FROM comments AS Comment WHERE Comment.post_id = Post.id ORDER BY Comment.id DESC LIMIT 1) DESC'),
+        );
+        $this->assertSame(
+            ' ORDER BY CASE WHEN `Post`.`published` = 1 THEN 0 ELSE 1 END asc nulls last',
+            $db->order(['CASE WHEN Post.published = 1 THEN 0 ELSE 1 END' => 'asc nulls last']),
+        );
+
+        // Expression objects are used verbatim, without direction validation.
+        $expression = $db->expression('FIELD(id, 1, 2) DESC NULLS LAST, title ASC');
+        $this->assertSame(' ORDER BY FIELD(id, 1, 2) DESC NULLS LAST, title ASC', $db->order($expression));
+        $this->assertSame(
+            ' ORDER BY FIELD(id, 1, 2) DESC NULLS LAST, title ASC, `Post`.`id` desc',
+            $db->order([$expression, 'Post.id' => 'desc']),
+        );
+    }
+
+    /**
+     * Directions of virtual fields are validated too.
+     *
+     * @return void
+     */
+    public function testOrderVirtualFieldDirection()
+    {
+        $Article = ClassRegistry::init('Article');
+        $Article->virtualFields = ['two' => '1 + 1'];
+
+        $this->assertSame(' ORDER BY (1 + 1) desc', $this->testDb->order(['two' => 'desc'], 'ASC', $Article));
+        $this->assertSame(' ORDER BY (1 + 1) DESC NULLS LAST', $this->testDb->order('Article.two DESC NULLS LAST', 'ASC', $Article));
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->testDb->order(['Article.two' => 'DESC; SELECT 1'], 'ASC', $Article);
+    }
+
+    /**
+     * Sort directions validated by PaginatorComponent::validateSort() never throw.
+     *
+     * @return void
+     */
+    public function testOrderPaginatorDirections()
+    {
+        foreach (['asc', 'desc'] as $direction) {
+            $this->assertSame(
+                ' ORDER BY `Post`.`title` ' . $direction,
+                $this->testDb->order(['Post.title' => $direction]),
+            );
+        }
+    }
+
+    /**
      * testMergeAssociations method
      *
      * @return void

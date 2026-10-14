@@ -1,5 +1,12 @@
 ## CHANGELOG
 
+## Unreleased
+
+### Hardening: ORDER BY Direction Validation ([PR #PRNUM](https://github.com/pieceofcake2/cakephp/pull/PRNUM))
+
+- **DboSource::order()**: The sort direction is validated instead of being appended to the SQL verbatim. It must be `ASC` or `DESC`, optionally followed by `NULLS FIRST` / `NULLS LAST`, matched case-insensitively and with extra / leading / trailing whitespace allowed (`'asc'`, `' Desc '`, `'desc  nulls  last'`). This applies to array values (`['Post.title' => 'desc']`), the `$direction` argument and a direction written after the field (`'Post.title DESC'`). Any other direction throws an `InvalidArgumentException` (see [UPGRADE.md](UPGRADE.md#unreleased)). The direction keeps its casing in the SQL, with runs of whitespace collapsed to one space
+- **DboSource::order()**: A comma separated order string with commas inside parentheses (`'FIELD(Post.id, 3, 1, 2) ASC, Post.title DESC'`) is now split on the commas outside parentheses and quoted literals, so every item gets its direction validated and its field quoted. Field / expression handling is otherwise unchanged, and `DboSource::expression()` objects are still used verbatim
+
 ## v2.12.4 (2026-10-14)
 
 > [!NOTE]

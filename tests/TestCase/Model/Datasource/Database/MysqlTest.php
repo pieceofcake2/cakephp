@@ -3663,8 +3663,8 @@ SQL;
         $expected = ' ORDER BY `Dealer`.`id` = 7 desc, `Dealer`.`id` = 3 desc, `Dealer`.`title` asc';
         $this->assertEquals($expected, $result);
 
-        $result = $this->Dbo->order(['Page.name' => "='test' DESC"]);
-        $this->assertMatchesRegularExpression("/^\s*ORDER BY\s+`Page`\.`name`\s*='test'\s+DESC\s*$/", $result);
+        $result = $this->Dbo->order(["Page.name = 'test'" => 'DESC']);
+        $this->assertMatchesRegularExpression("/^\s*ORDER BY\s+`Page`\.`name`\s*=\s*'test'\s+DESC\s*$/", $result);
 
         $result = $this->Dbo->order("Page.name = 'view' DESC");
         $this->assertMatchesRegularExpression("/^\s*ORDER BY\s+`Page`\.`name`\s*=\s*'view'\s+DESC\s*$/", $result);
@@ -3695,6 +3695,59 @@ SQL;
         $result = $this->Dbo->order(['Property.sale_price IS NULL']);
         $expected = ' ORDER BY `Property`.`sale_price` IS NULL ASC';
         $this->assertEquals($expected, $result);
+    }
+
+    /**
+     * Sort directions are validated: ASC / DESC with an optional NULLS FIRST / NULLS LAST,
+     * case-insensitive and whitespace tolerant.
+     *
+     * @return void
+     */
+    public function testOrderDirectionValidation()
+    {
+        $result = $this->Dbo->order(['Post.title' => ' Desc ', 'Post.id' => 'asc']);
+        $this->assertSame(' ORDER BY `Post`.`title` Desc, `Post`.`id` asc', $result);
+
+        $result = $this->Dbo->order('Post.title  DESC , Post.id asc');
+        $this->assertSame(' ORDER BY `Post`.`title` DESC, `Post`.`id` asc', $result);
+
+        $result = $this->Dbo->order(['FIELD(Post.id, 3, 1, 2)' => 'desc']);
+        $this->assertSame(' ORDER BY FIELD(`Post`.`id`, 3, 1, 2) desc', $result);
+
+        $result = $this->Dbo->order('FIELD(Post.id, 3, 1, 2) ASC, Post.title DESC');
+        $this->assertSame(' ORDER BY FIELD(`Post`.`id`, 3, 1, 2) ASC, `Post`.`title` DESC', $result);
+
+        $result = $this->Dbo->order($this->Dbo->expression('RAND()'));
+        $this->assertSame(' ORDER BY RAND()', $result);
+
+        foreach (["='test' DESC", 'ASC; DROP TABLE posts', 'DESC, (SELECT 1)', 'ASC --', 'ASC UNION SELECT 1'] as $direction) {
+            try {
+                $this->Dbo->order(['Page.name' => $direction]);
+                $this->fail('No exception for ' . $direction);
+            } catch (InvalidArgumentException $e) {
+                $this->assertStringContainsString('Invalid ORDER BY direction', $e->getMessage());
+            }
+        }
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->Dbo->order('Post.title ASC; DROP TABLE posts');
+    }
+
+    /**
+     * A validated direction from find() options produces a working query.
+     *
+     * @return void
+     */
+    public function testFindWithOrderDirection()
+    {
+        $this->loadFixtures('Article');
+        $Article = ClassRegistry::init('Article');
+
+        $result = $Article->find('list', ['fields' => ['id', 'id'], 'order' => ['Article.id' => ' desc ']]);
+        $this->assertSame([3, 2, 1], array_map('intval', array_values($result)));
+
+        $this->expectException(InvalidArgumentException::class);
+        $Article->find('all', ['order' => ['Article.id' => 'DESC; SELECT 1']]);
     }
 
     /**

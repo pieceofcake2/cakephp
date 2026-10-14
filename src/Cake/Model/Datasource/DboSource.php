@@ -3249,10 +3249,31 @@ class DboSource extends DataSource
     /**
      * Returns an ORDER BY clause as a string.
      *
-     * @param array|string $keys Field reference, as a key (i.e. Post.title)
-     * @param string $direction Direction (ASC or DESC)
-     * @param Model $Model Model reference (used to look for virtual field)
+     * Accepted shapes for `$keys`:
+     *
+     * - `'Post.title'`, `'Post.title DESC'`, `'title DESC, id ASC'`
+     * - `['Post.title' => 'DESC', 'Post.id' => 'asc']`
+     * - `['Post.title DESC', 'Post.id']` (numeric keys use `$direction`)
+     * - nested arrays of the above
+     * - objects returned by DboSource::expression(), which are used verbatim
+     *
+     * The field / expression part of an order key is treated as trusted SQL:
+     * it is quoted where possible but otherwise not escaped, so it must never
+     * contain user input. Only the sort direction is validated.
+     *
+     * A direction (the array value, `$direction`, or a direction written after
+     * the field in a string key) must be `ASC` or `DESC`, optionally followed by
+     * `NULLS FIRST` or `NULLS LAST`. It is matched case-insensitively and
+     * extra / leading / trailing whitespace is allowed (for example `'asc'`,
+     * `' Desc '` or `'desc  nulls  last'`). The original casing is kept in the
+     * generated SQL and runs of whitespace are collapsed to a single space.
+     *
+     * @param object|array|string|null $keys Field reference, as a key (i.e. Post.title)
+     * @param string $direction Direction (ASC or DESC, optionally followed by NULLS FIRST / NULLS LAST)
+     * @param Model|null $Model Model reference (used to look for virtual field)
      * @return string ORDER BY clause
+     * @throws InvalidArgumentException When a sort direction is not ASC / DESC
+     *   (optionally followed by NULLS FIRST / NULLS LAST).
      */
     public function order($keys, $direction = 'ASC', ?Model $Model = null)
     {
@@ -3272,8 +3293,17 @@ class DboSource extends DataSource
                 $dir = $direction;
             }
 
-            if (is_string($key) && str_contains($key, ',') && !preg_match('/\(.+\,.+\)/', $key)) {
-                $key = array_map('trim', explode(',', $key));
+            if (is_string($key) && str_contains($key, ',')) {
+                if (!preg_match('/\(.+\,.+\)/', $key)) {
+                    $key = array_map('trim', explode(',', $key));
+                } else {
+                    // Commas inside parentheses (e.g. `FIELD(id, 1, 2) ASC, title DESC`):
+                    // only split on the commas outside parentheses and quoted literals.
+                    $parts = $this->_splitOrderList($key);
+                    if (count($parts) > 1) {
+                        $key = $parts;
+                    }
+                }
             }
 
             if (is_array($key)) {
@@ -3292,10 +3322,21 @@ class DboSource extends DataSource
                 continue;
             }
 
-            if (preg_match('/\\x20(ASC|DESC).*/i', $key, $_dir)) {
+            $key = (string)$key;
+            if (preg_match('/\s(ASC|DESC)(\s+NULLS\s+(FIRST|LAST))?\s*$/i', $key, $_dir)) {
                 $dir = $_dir[0];
-                $key = preg_replace('/\\x20(ASC|DESC).*/i', '', $key);
+                $key = substr($key, 0, -strlen($_dir[0]));
             }
+            if (preg_match('/\s(ASC|DESC)\b.*/is', $this->_stripOrderLiterals($key), $_dir)) {
+                // A direction followed by something that is not NULLS FIRST / NULLS LAST,
+                // e.g. `title DESC; ...` or `title ASC UNION ...`.
+                throw new InvalidArgumentException(sprintf(
+                    'Invalid ORDER BY direction "%s", expected ASC or DESC optionally followed by NULLS FIRST or NULLS LAST.',
+                    trim($_dir[0]),
+                ));
+            }
+
+            $dir = $this->_orderDirection($dir);
 
             $key = trim($key);
 
@@ -3319,7 +3360,7 @@ class DboSource extends DataSource
                 $key = $this->name($key);
             }
 
-            $key .= ' ' . trim($dir);
+            $key .= ' ' . $dir;
 
             $result[] = $key;
         }
@@ -3329,6 +3370,103 @@ class DboSource extends DataSource
         }
 
         return '';
+    }
+
+    /**
+     * Validates and normalizes a sort direction used by DboSource::order().
+     *
+     * Accepts `ASC` or `DESC`, optionally followed by `NULLS FIRST` or `NULLS LAST`,
+     * case-insensitively and with any amount of surrounding / separating whitespace.
+     * The casing is kept, whitespace is trimmed and collapsed to single spaces.
+     * An empty direction is returned as an empty string.
+     *
+     * @param mixed $direction The direction to validate.
+     * @return string The normalized direction.
+     * @throws InvalidArgumentException When the direction is not valid.
+     */
+    protected function _orderDirection($direction)
+    {
+        if ($direction === null || $direction === false) {
+            return '';
+        }
+        if (!is_string($direction)) {
+            throw new InvalidArgumentException(sprintf(
+                'Invalid ORDER BY direction of type "%s", expected ASC or DESC.',
+                get_debug_type($direction),
+            ));
+        }
+        $direction = trim($direction);
+        if ($direction === '') {
+            return '';
+        }
+        if (!preg_match('/^(ASC|DESC)(\s+NULLS\s+(FIRST|LAST))?$/iD', $direction)) {
+            throw new InvalidArgumentException(sprintf(
+                'Invalid ORDER BY direction "%s", expected ASC or DESC optionally followed by NULLS FIRST or NULLS LAST.',
+                $direction,
+            ));
+        }
+
+        return preg_replace('/\s+/', ' ', $direction);
+    }
+
+    /**
+     * Splits a comma separated ORDER BY list on the commas that are outside of
+     * parentheses and quoted literals.
+     *
+     * @param string $list The order list, e.g. `FIELD(id, 1, 2) ASC, title DESC`.
+     * @return array<string> The trimmed list items.
+     */
+    protected function _splitOrderList($list)
+    {
+        $parts = [];
+        $current = '';
+        $depth = 0;
+        $quote = null;
+        $length = strlen($list);
+        for ($i = 0; $i < $length; $i++) {
+            $char = $list[$i];
+            if ($quote !== null) {
+                if ($char === '\\' && $i + 1 < $length) {
+                    $current .= $char . $list[++$i];
+                    continue;
+                }
+                if ($char === $quote) {
+                    $quote = null;
+                }
+            } elseif ($char === "'" || $char === '"' || $char === '`') {
+                $quote = $char;
+            } elseif ($char === '(') {
+                $depth++;
+            } elseif ($char === ')') {
+                $depth = max(0, $depth - 1);
+            } elseif ($char === ',' && $depth === 0) {
+                $parts[] = trim($current);
+                $current = '';
+                continue;
+            }
+            $current .= $char;
+        }
+        $parts[] = trim($current);
+
+        return array_values(array_filter($parts, 'strlen'));
+    }
+
+    /**
+     * Removes quoted literals and parenthesized groups from an ORDER BY key, so
+     * that words such as `asc` or `desc` inside a literal, a function call or a
+     * subquery are not taken as a sort direction.
+     *
+     * @param string $key The order key.
+     * @return string The key without quoted literals and parenthesized groups.
+     */
+    protected function _stripOrderLiterals($key)
+    {
+        $key = (string)preg_replace('/\'(?:[^\'\\\\]|\\\\.|\'\')*\'|"(?:[^"\\\\]|\\\\.)*"|`[^`]*`/s', "''", $key);
+        do {
+            $key = (string)preg_replace('/\([^()]*\)/', '0', $key, -1, $count);
+        } while ($count > 0);
+
+        return $key;
     }
 
     /**

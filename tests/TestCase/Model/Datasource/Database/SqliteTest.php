@@ -77,7 +77,7 @@ class SqliteTest extends CakeTestCase
      *
      * @var object
      */
-    public $fixtures = ['core.user', 'core.uuid', 'core.datatype'];
+    public $fixtures = ['core.user', 'core.uuid', 'core.datatype', 'core.article'];
 
     /**
      * Actual DB connection used in testing
@@ -704,5 +704,49 @@ SQL;
         );
         $expected = 'SELECT id FROM users AS "User"   WHERE 1 = 1   ORDER BY "id" ASC  LIMIT 1';
         $this->assertEquals($expected, $sql);
+    }
+
+    /**
+     * Sort directions are validated: ASC / DESC with an optional NULLS FIRST / NULLS LAST,
+     * case-insensitive and whitespace tolerant.
+     *
+     * @return void
+     */
+    public function testOrderDirectionValidation()
+    {
+        $result = $this->Dbo->order(['Article.title' => ' Desc ', 'Article.id' => 'asc  nulls  first']);
+        $this->assertSame(' ORDER BY "Article"."title" Desc, "Article"."id" asc nulls first', $result);
+
+        $result = $this->Dbo->order('Article.title DESC, Article.id ASC NULLS LAST');
+        $this->assertSame(' ORDER BY "Article"."title" DESC, "Article"."id" ASC NULLS LAST', $result);
+
+        foreach (['ASC; DROP TABLE articles', 'DESC, (SELECT 1)', 'ASC --', 'ASC UNION SELECT 1'] as $direction) {
+            try {
+                $this->Dbo->order(['Article.title' => $direction]);
+                $this->fail('No exception for ' . $direction);
+            } catch (InvalidArgumentException $e) {
+                $this->assertStringContainsString('Invalid ORDER BY direction', $e->getMessage());
+            }
+        }
+    }
+
+    /**
+     * A validated direction from find() options produces a working query.
+     *
+     * @return void
+     */
+    public function testFindWithOrderDirection()
+    {
+        $this->loadFixtures('Article');
+        $Article = ClassRegistry::init('Article');
+
+        $result = $Article->find('list', ['fields' => ['id', 'id'], 'order' => ['Article.id' => ' desc ']]);
+        $this->assertSame([3, 2, 1], array_map('intval', array_values($result)));
+
+        $result = $Article->find('list', ['fields' => ['id', 'id'], 'order' => 'Article.id DESC']);
+        $this->assertSame([3, 2, 1], array_map('intval', array_values($result)));
+
+        $this->expectException(InvalidArgumentException::class);
+        $Article->find('all', ['order' => ['Article.id' => 'DESC; SELECT 1']]);
     }
 }

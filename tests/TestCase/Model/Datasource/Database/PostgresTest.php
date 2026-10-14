@@ -959,6 +959,51 @@ class PostgresTest extends CakeTestCase
         $result = $this->Dbo->order(['title' => 'DESC NULLS FIRST', 'body' => 'DESC']);
         $expected = ' ORDER BY "title" DESC NULLS FIRST, "body" DESC';
         $this->assertEquals($expected, $result);
+
+        $result = $this->Dbo->order(['Post.title' => ' desc  nulls  last ', 'Post.id' => 'Asc Nulls First']);
+        $expected = ' ORDER BY "Post"."title" desc nulls last, "Post"."id" Asc Nulls First';
+        $this->assertSame($expected, $result);
+
+        $result = $this->Dbo->order('Post.title ASC NULLS FIRST, Post.id DESC NULLS LAST');
+        $expected = ' ORDER BY "Post"."title" ASC NULLS FIRST, "Post"."id" DESC NULLS LAST';
+        $this->assertSame($expected, $result);
+
+        $result = $this->Dbo->order(['Post.title'], 'DESC NULLS LAST');
+        $this->assertSame(' ORDER BY "Post"."title" DESC NULLS LAST', $result);
+    }
+
+    /**
+     * Invalid sort directions throw an exception.
+     *
+     * @return void
+     */
+    public function testOrderInvalidDirection()
+    {
+        foreach (['DESC NULLS LAST; SELECT 1', 'NULLS FIRST', 'ASC NULLS', 'DESC, (SELECT 1)', 'ASC --'] as $direction) {
+            try {
+                $this->Dbo->order(['title' => $direction]);
+                $this->fail('No exception for ' . $direction);
+            } catch (InvalidArgumentException $e) {
+                $this->assertStringContainsString('Invalid ORDER BY direction', $e->getMessage());
+            }
+        }
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->Dbo->order('title DESC NULLS LAST UNION SELECT 1');
+    }
+
+    /**
+     * A validated direction with NULLS LAST from find() options produces a working query.
+     *
+     * @return void
+     */
+    public function testFindWithOrderNullsLast()
+    {
+        $this->loadFixtures('Article');
+        $Article = ClassRegistry::init('Article');
+
+        $result = $Article->find('list', ['fields' => ['id', 'id'], 'order' => ['Article.id' => 'desc nulls last']]);
+        $this->assertSame([3, 2, 1], array_map('intval', array_values($result)));
     }
 
     /**
