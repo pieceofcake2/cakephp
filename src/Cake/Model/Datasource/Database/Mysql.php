@@ -263,8 +263,6 @@ class Mysql extends DboSource
         $result = $this->_execute('SHOW TABLES FROM ' . $this->name($this->config['database']));
 
         if (!$result) {
-            $result->closeCursor();
-
             return [];
         }
         $tables = [];
@@ -814,8 +812,6 @@ class Mysql extends DboSource
         $result = $this->_connection->query('SHOW TABLE STATUS ' . $condition, PDO::FETCH_ASSOC);
 
         if (!$result) {
-            $result->closeCursor();
-
             return [];
         }
         $tables = [];

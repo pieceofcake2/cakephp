@@ -223,8 +223,6 @@ class Sqlserver extends DboSource
         $result = $this->_execute('SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES' . ($schema ? " WHERE TABLE_SCHEMA = '" . $schema . "'" : ''));
 
         if (!$result) {
-            $result->closeCursor();
-
             return [];
         }
         $tables = [];

@@ -893,4 +893,20 @@ ORDER BY _cake_paging_._cake_page_rownum_
 SQL;
         $this->assertEquals($expected, preg_replace('/^\s+|\s+$/m', '', $sql));
     }
+
+    /**
+     * Test that listSources() returns an empty list when the query fails.
+     *
+     * @return void
+     */
+    public function testListSourcesQueryFailure()
+    {
+        $db = $this->getMock('Sqlserver', ['_execute', 'getSchemaName'], [$this->Dbo->config, false]);
+        $db->cacheSources = false;
+        $db->expects($this->once())
+            ->method('_execute')
+            ->will($this->returnValue(false));
+
+        $this->assertSame([], $db->listSources());
+    }
 }
