@@ -279,6 +279,58 @@ CakePHP 2.x now supports modern PHP namespaces while maintaining full backward c
   - Ensures test isolation and prevents namespace configuration leaks between tests
   - Improves test reliability when running in different orders
 
+## v2.12.3 (2026-10-14)
+
+> [!IMPORTANT]
+> This release contains a security fix and two fixes that change behavior. See [UPGRADE.md](UPGRADE.md#v2123) before upgrading:
+> - `CookieComponent` now honors the `'type'` setting in `$components`. Applications that already set it will write cookies with that type, and cookies written before the upgrade can no longer be read.
+> - `cake server` now listens on port `8765` by default instead of `80`.
+
+### Xml::build() SSRF Fix ([PR #33](https://github.com/pieceofcake2/cakephp/pull/33))
+
+- **Xml**: `Xml::build()` no longer fetches `https://` URLs when `'readFile' => false` (operator precedence bug that allowed SSRF)
+
+### CookieComponent `'type'` Setting ([PR #34](https://github.com/pieceofcake2/cakephp/pull/34))
+
+- **CookieComponent**: Honor the `'type'` setting (e.g. `'Cookie' => ['type' => 'aes']`), which was previously ignored so cookies were always encrypted with the default `'cipher'` type
+- **Behavior change**: Applications that already set `'type'` in `$components` now write cookies with that type, so cookies written before the upgrade (with `'cipher'`) can no longer be read. See UPGRADE.md
+
+### CakeTestLoader Modern Layout ([PR #35](https://github.com/pieceofcake2/cakephp/pull/35))
+
+- **CakeTestLoader**: List test cases from `tests/TestCase` (app and plugins), falling back to `Test/Case`, so `cake test app` without a test case and the web test runner no longer show an empty list for the modern layout
+
+### Sqlserver Default PDO Flags ([PR #36](https://github.com/pieceofcake2/cakephp/pull/36))
+
+- **Sqlserver**: Fix operator precedence in `connect()` so `PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION` is merged into the `'flags'` setting
+
+### ServerShell Default Port ([PR #37](https://github.com/pieceofcake2/cakephp/pull/37))
+
+- **ServerShell**: Change the default port of `cake server` from `80` (requires root) to `8765`, and show the default host and port in the help
+
+### TestShell PHPUnit Version Message ([PR #38](https://github.com/pieceofcake2/cakephp/pull/38))
+
+- **TestShell**: Ask for PHPUnit 9.6 (instead of v3.7) when PHPUnit cannot be loaded
+
+### Documentation Fixes ([PR #39](https://github.com/pieceofcake2/cakephp/pull/39))
+
+- **README.md**: Use `^2.12` in the Composer install example, and link to the Piece of Cake 2 book (https://pieceofcake2.github.io/docs/)
+- **UPGRADE.md**: Show the SQL Server `schema` setting as a string per connection (the driver does not accept an array mapping)
+
+## v2.12.2 (2026-10-14)
+
+### PHP 8.6 Support
+
+- **Session handlers**: Support `session.use_strict_mode`, which is enabled by default since PHP 8.6
+  - `SessionHandlerAdapter` implements `SessionIdInterface` and `SessionUpdateTimestampHandlerInterface` (PHP 8.6 deprecates session handlers without `create_sid()`, `validateId()` and `updateTimestamp()`)
+  - `CacheSession::destroy()` and `DatabaseSession::destroy()` succeed for sessions that were never written, as with PHP's files handler
+- **CI**: Add PHP 8.6 to the test matrix as an allowed failure until it is released, and update GitHub Actions to the latest major versions
+
+## v2.12.1 (2026-10-14)
+
+### Bug Fixes
+
+- **ControllerTestCase**: Fix the `@method` annotation of `testAction()` so that IDEs can resolve its parameters and return type
+
 ## v2.12.0 (2025-10-09)
 
 ### Composer Autoloading Migration ([PR #22](https://github.com/pieceofcake2/cakephp/pull/22))

@@ -38,7 +38,7 @@ use PHPUnit\Framework\MockObject\MockObject;
  * ControllerTestCase class
  *
  * @package       Cake.TestSuite
- * @method        mixed testAction() testAction($url, $options = array())  Lets you do functional tests of a controller action.
+ * @method mixed testAction(string|array $url, array $options = []) Lets you do functional tests of a controller action.
  */
 abstract class ControllerTestCase extends CakeTestCase
 {
