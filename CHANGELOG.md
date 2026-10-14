@@ -8,6 +8,7 @@
 - **Unchanged**: Production mode (`debug` = 0), error templates provided by the application, plugin or theme, AJAX requests and the console. `Layouts/dev_error.ctp` in the application or theme overrides the core layout, and the `exception_stack_trace` element is kept for application templates
 - **ExceptionRenderer**: When an error page fails to render, the fallback still renders the template with the `error` layout, but lets the core templates switch to `dev_error` in debug mode
 - **Debugger**: `Debugger::excerpt()` no longer shows `<?php` at the start of every line on PHP 8.3+
+- **fatal_error.ctp**: The Xdebug function stack is only printed when Xdebug runs in `develop` mode; in other modes Xdebug 3 triggered a warning that broke the page
 
 ## v2.12.5 (2026-10-15)
 
