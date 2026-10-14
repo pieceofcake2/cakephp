@@ -145,7 +145,7 @@ class ShellDispatcher
 
         // $boot is used by Cake/bootstrap.php file. Without an application core.php,
         // Configure::bootstrap() is skipped and the default core.php is loaded below.
-        $boot = file_exists(CONFIG . 'core.php');
+        $boot = file_exists(CONFIG . 'core.php'); // phpcs:ignore SlevomatCodingStandard.Variables.UnusedVariable.UnusedVariable -- read by Cake/bootstrap.php
         require_once CORE_PATH . 'Cake' . DS . 'bootstrap.php';
 
         if (!file_exists(CONFIG . 'core.php')) {
