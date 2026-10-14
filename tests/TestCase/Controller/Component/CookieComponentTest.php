@@ -297,10 +297,9 @@ class CookieComponentTest extends CakeTestCase
         $this->assertCount(1, CookieComponentTestCaptureLog::$messages);
         $this->assertSame('warning', CookieComponentTestCaptureLog::$messages[0][0]);
         $this->assertSame(
-            'CookieComponent (type \'cipher\') encrypts cookies with Security::cipher(), which is insecure and deprecated. '
-            . 'Set CookieComponent to \'type\' => \'aes\' with its own key of at least 32 bytes '
-            . '(Security::encrypt() / Security::decrypt() for other data). '
-            . 'Existing \'cipher\' cookies cannot be read after the switch. '
+            'CookieComponent (type \'cipher\') uses Security::cipher(), which is insecure and deprecated. '
+            . 'Use \'type\' => \'aes\' with its own key of at least 32 bytes and Security.useOpenSsl enabled; '
+            . 'existing \'cipher\' cookies are lost once. '
             . 'See https://pieceofcake2.github.io/docs/development/configuration.html',
             CookieComponentTestCaptureLog::$messages[0][1],
         );
@@ -332,7 +331,7 @@ class CookieComponentTest extends CakeTestCase
         }
 
         $this->assertCount(1, $errors);
-        $this->assertStringStartsWith('CookieComponent (type \'cipher\') encrypts cookies with Security::cipher()', $errors[0]);
+        $this->assertStringStartsWith('CookieComponent (type \'cipher\') uses Security::cipher()', $errors[0]);
         $this->assertCount(1, CookieComponentTestCaptureLog::$messages);
         $this->assertStringNotContainsString('SecretValue', $errors[0]);
         $this->_assertValuesNotLogged(['FirstSecretValue', 'SecondSecretValue']);

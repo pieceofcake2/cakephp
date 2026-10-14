@@ -131,8 +131,8 @@ class CookieComponent extends Component
      *
      * Deprecated: the 'cipher' type is deprecated. The first encrypted read or write
      * with it in a process logs a deprecation warning (and triggers E_USER_DEPRECATED
-     * when debug is enabled). Use 'aes' with its own key of at least 32 bytes;
-     * existing 'cipher' cookies cannot be read after the switch.
+     * when debug is enabled). Use 'aes' with its own key of at least 32 bytes and
+     * `Security.useOpenSsl` enabled; existing 'cipher' cookies cannot be read after the switch.
      *
      * @var string
      */
@@ -358,7 +358,7 @@ class CookieComponent extends Component
      * written any cookies.
      *
      * Deprecated: the 'cipher' type (the default) is deprecated and insecure. Use
-     * `'aes'` with its own key of at least 32 bytes. See
+     * `'aes'` with its own key of at least 32 bytes and `Security.useOpenSsl` enabled. See
      * https://pieceofcake2.github.io/docs/development/configuration.html
      *
      * @param string $type Encryption method

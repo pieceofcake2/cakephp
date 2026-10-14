@@ -506,9 +506,8 @@ class SecurityTest extends CakeTestCase
         $this->assertSame('warning', SecurityTestCaptureLog::$messages[0][0]);
         $this->assertSame(
             'Security::cipher() (called from SecurityTest::testCipherDeprecationLoggedOnce()) is insecure and deprecated. '
-            . 'Set CookieComponent to \'type\' => \'aes\' with its own key of at least 32 bytes '
-            . '(Security::encrypt() / Security::decrypt() for other data). '
-            . 'Existing \'cipher\' cookies cannot be read after the switch. '
+            . 'Use Security::encrypt() / Security::decrypt() (CookieComponent: \'type\' => \'aes\') '
+            . 'with its own key of at least 32 bytes and Security.useOpenSsl enabled. '
             . 'See https://pieceofcake2.github.io/docs/development/configuration.html',
             SecurityTestCaptureLog::$messages[0][1],
         );
@@ -536,7 +535,7 @@ class SecurityTest extends CakeTestCase
         $this->assertCount(1, $errors);
         $this->assertStringStartsWith('Security::cipher() is insecure and deprecated. ', $errors[0]);
         $this->assertStringContainsString('is insecure and deprecated', $errors[0]);
-        $this->assertStringContainsString('\'type\' => \'aes\' with its own key of at least 32 bytes', $errors[0]);
+        $this->assertStringContainsString('\'type\' => \'aes\') with its own key of at least 32 bytes and Security.useOpenSsl enabled', $errors[0]);
         $this->assertStringContainsString('https://pieceofcake2.github.io/docs/development/configuration.html', $errors[0]);
         $this->assertCount(1, SecurityTestCaptureLog::$messages);
         $this->assertSame($errors[0], SecurityTestCaptureLog::$messages[0][1]);
@@ -607,9 +606,9 @@ class SecurityTest extends CakeTestCase
         $this->assertCount(2, SecurityTestCaptureLog::$messages, 'Deprecation and seed messages');
         $this->assertSame(
             'Security.cipherSeed is not a digits-only number from 1 to 4294967295, so Security::cipher() '
-            . $reduced . '. A seed in that range does not make \'cipher\' secure; '
-            . 'switch CookieComponent to \'type\' => \'aes\' with its own key of at least 32 bytes. '
-            . 'Changing Security.cipherSeed also makes existing \'cipher\' values unreadable. '
+            . $reduced . '. An in-range seed does not make \'cipher\' secure: '
+            . 'use \'type\' => \'aes\' with its own key of at least 32 bytes and Security.useOpenSsl enabled. '
+            . 'Changing Security.cipherSeed makes existing \'cipher\' values unreadable. '
             . 'See https://pieceofcake2.github.io/docs/development/configuration.html',
             $seedMessages[0],
         );

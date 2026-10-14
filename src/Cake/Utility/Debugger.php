@@ -876,7 +876,7 @@ class Debugger
      *
      * Also warns when `Security.cipherSeed` is set but is not a digits-only number from
      * 1 to 4294967295, the range Security::cipher() uses without reducing the seed.
-     * A seed in that range does not make the deprecated 'cipher' encryption secure.
+     * An in-range seed does not make the deprecated 'cipher' encryption secure.
      *
      * @return void
      */
@@ -894,7 +894,7 @@ class Debugger
         if ($cipherSeed !== null && !Security::isCipherSeedInRange($cipherSeed)) {
             trigger_error(__d(
                 'cake_dev',
-                'The value of %s in %s is not a digits-only number from 1 to %s, so Security::cipher() does not use it as given. A seed in that range does not make \'cipher\' secure; switch CookieComponent to \'type\' => \'aes\' with its own key of at least 32 bytes. See %s',
+                'The value of %s in %s is not a digits-only number from 1 to %s, so Security::cipher() does not use it as given. An in-range seed does not make \'cipher\' secure: use \'type\' => \'aes\' with its own key of at least 32 bytes and Security.useOpenSsl enabled. See %s',
                 '\'Security.cipherSeed\'',
                 CONFIG . 'core.php',
                 Security::MAX_CIPHER_SEED,

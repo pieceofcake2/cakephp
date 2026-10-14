@@ -260,8 +260,9 @@ class Security
      * @param string $text Encrypted string to decrypt, normal string to encrypt
      * @param string $key Key to use
      * @return string Encrypted/Decrypted string
-     * @deprecated 3.0.0 Will be removed in 3.0. Insecure: use Security::encrypt() / Security::decrypt(),
-     *   and set CookieComponent to `'type' => 'aes'` with its own key of at least 32 bytes.
+     * @deprecated 3.0.0 Will be removed in 3.0. Insecure: use Security::encrypt() / Security::decrypt()
+     *   (CookieComponent: `'type' => 'aes'`) with its own key of at least 32 bytes and
+     *   `Security.useOpenSsl` enabled.
      *   See https://pieceofcake2.github.io/docs/development/configuration.html
      */
     public static function cipher($text, $key)
@@ -369,20 +370,20 @@ class Security
      */
     protected static function _cipherDeprecationMessage($class, $function)
     {
-        $fix = 'Set CookieComponent to \'type\' => \'aes\' with its own key of at least 32 bytes'
-            . ' (Security::encrypt() / Security::decrypt() for other data).'
-            . ' Existing \'cipher\' cookies cannot be read after the switch.'
-            . ' See ' . static::CIPHER_DOCS_URL;
+        $fix = ' with its own key of at least 32 bytes and Security.useOpenSsl enabled';
         if (is_string($class) && $class !== '' && is_a($class, 'CookieComponent', true)) {
-            return 'CookieComponent (type \'cipher\') encrypts cookies with Security::cipher(),'
-                . ' which is insecure and deprecated. ' . $fix;
+            return 'CookieComponent (type \'cipher\') uses Security::cipher(), which is insecure and deprecated.'
+                . ' Use \'type\' => \'aes\'' . $fix . '; existing \'cipher\' cookies are lost once.'
+                . ' See ' . static::CIPHER_DOCS_URL;
         }
         $source = 'Security::cipher()';
         if (is_string($function) && $function !== '' && strpos($function, '{closure') === false) {
             $source .= ' (called from ' . (is_string($class) && $class !== '' ? $class . '::' : '') . $function . '())';
         }
 
-        return $source . ' is insecure and deprecated. ' . $fix;
+        return $source . ' is insecure and deprecated.'
+            . ' Use Security::encrypt() / Security::decrypt() (CookieComponent: \'type\' => \'aes\')' . $fix . '.'
+            . ' See ' . static::CIPHER_DOCS_URL;
     }
 
     /**
@@ -405,9 +406,9 @@ class Security
             : 'Security::cipher() keeps only its lowest 32 bits';
 
         return 'Security.cipherSeed is not a digits-only number from 1 to ' . static::MAX_CIPHER_SEED
-            . ', so ' . $reduced . '. A seed in that range does not make \'cipher\' secure;'
-            . ' switch CookieComponent to \'type\' => \'aes\' with its own key of at least 32 bytes.'
-            . ' Changing Security.cipherSeed also makes existing \'cipher\' values unreadable.'
+            . ', so ' . $reduced . '. An in-range seed does not make \'cipher\' secure:'
+            . ' use \'type\' => \'aes\' with its own key of at least 32 bytes and Security.useOpenSsl enabled.'
+            . ' Changing Security.cipherSeed makes existing \'cipher\' values unreadable.'
             . ' See ' . static::CIPHER_DOCS_URL;
     }
 
