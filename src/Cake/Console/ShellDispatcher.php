@@ -143,7 +143,9 @@ class ShellDispatcher
 
         require_once dirname(__DIR__, 3) . '/config/define.php';
 
-        // $boot is used by Cake/bootstrap.php file
+        // $boot is used by Cake/bootstrap.php file. Without an application core.php,
+        // Configure::bootstrap() is skipped and the default core.php is loaded below.
+        $boot = file_exists(CONFIG . 'core.php');
         require_once CORE_PATH . 'Cake' . DS . 'bootstrap.php';
 
         if (!file_exists(CONFIG . 'core.php')) {
