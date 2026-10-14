@@ -24,6 +24,10 @@
 - **Mysql** / **Sqlserver**: `listSources()` and `Mysql::listDetailedSources()` return an empty list when the query fails instead of calling `closeCursor()` on `false`
 - **TestSuite**: `assertTags()` prints the `$fullDebug` output before the assertion fails; `ConsoleOutputStub::write()` returns the number of bytes written like `ConsoleOutput::write()`; `CakeHtmlReporter` / `CakeTextReporter` code coverage output works with php-code-coverage 9
 
+### Console Without an Application core.php ([PR #59](https://github.com/pieceofcake2/cakephp/pull/59))
+
+- **ShellDispatcher**: When the application has no `Config/core.php`, the console no longer stops with the fatal error "Can't find application core file". `_bootstrap()` again tells `Cake/bootstrap.php` to skip `Configure::bootstrap()` in that case and loads the default `core.php`, as it was meant to, so the console starts and commands that do not need the application settings can run. Applications with a `Config/core.php` are not affected
+
 ## v2.12.5 (2026-10-15)
 
 > [!IMPORTANT]
