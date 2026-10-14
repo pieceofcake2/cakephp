@@ -187,6 +187,9 @@ class CookieComponent extends Component
         if (isset($this->time)) {
             $this->_expire($this->time);
         }
+        if (isset($settings['type'])) {
+            $this->type($settings['type']);
+        }
 
         $controller = $collection->getController();
         if ($controller && isset($controller->response)) {

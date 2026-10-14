@@ -223,6 +223,37 @@ class XmlTest extends CakeTestCase
     }
 
     /**
+     * Test that the readFile option disables fetching https URLs.
+     *
+     * A local socket server is used to detect whether a connection was
+     * attempted, so no external network access is required.
+     *
+     * @return void
+     */
+    public function testBuildFromHttpsUrlWhenDisabled()
+    {
+        $server = stream_socket_server('tcp://127.0.0.1:0', $errno, $errstr);
+        if ($server === false) {
+            $this->markTestSkipped('Unable to create a local socket server: ' . $errstr);
+        }
+        $address = stream_socket_get_name($server, false);
+
+        try {
+            Xml::build('https://' . $address . '/sample.xml', ['readFile' => false]);
+            $this->fail('XmlException was not thrown.');
+        } catch (XmlException $e) {
+            $this->assertSame('XML cannot be read.', $e->getMessage());
+        } finally {
+            $read = [$server];
+            $write = $except = null;
+            $connected = stream_select($read, $write, $except, 0) > 0;
+            fclose($server);
+        }
+
+        $this->assertFalse($connected, 'Xml::build() must not connect to a URL when readFile is false.');
+    }
+
+    /**
      * data provider function for testBuildInvalidData
      *
      * @return array

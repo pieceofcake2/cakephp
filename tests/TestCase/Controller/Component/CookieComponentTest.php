@@ -21,6 +21,7 @@ namespace Cake\Test\TestCase\Controller\Component;
 use Cake\Controller\Component\CookieComponent;
 use Cake\Controller\ComponentCollection;
 use Cake\Controller\Controller;
+use Cake\Core\Configure;
 use Cake\Network\CakeRequest;
 use Cake\Network\CakeResponse;
 use Cake\TestSuite\CakeTestCase;
@@ -139,6 +140,52 @@ class CookieComponentTest extends CakeTestCase
         $Cookie = new CookieComponent(new ComponentCollection(), $settings);
         $this->assertEquals($Cookie->time, $settings['time']);
         $this->assertEquals($Cookie->path, $settings['path']);
+    }
+
+    /**
+     * test that the encryption type can be set with the 'type' setting
+     *
+     * @return void
+     */
+    public function testSettingsType()
+    {
+        Configure::write('Security.useOpenSsl', true);
+        $Controller = new CookieComponentTestController(new CakeRequest(), new CakeResponse());
+        $Collection = new ComponentCollection();
+        $Collection->setController($Controller);
+        $key = 'qSI232qs*&sXOw!adre@34SAv!@*(XSL#$%)asGb$@11~_+!@#HKis~#^';
+        $Cookie = new CookieComponent($Collection, ['type' => 'aes', 'key' => $key]);
+
+        $Cookie->write('Testing', 'value');
+        $cookie = $Controller->response->cookie('CakeCookie[Testing]');
+        $this->assertStringStartsWith('Q2FrZQ==.', $cookie['value']);
+
+        $encrypted = base64_decode(substr($cookie['value'], strlen('Q2FrZQ==.')));
+        $this->assertSame('value', Security::decrypt($encrypted, $key));
+        $this->assertSame('value', $Cookie->read('Testing'));
+    }
+
+    /**
+     * test that an invalid 'type' setting falls back to cipher with a warning
+     *
+     * @return void
+     */
+    public function testSettingsInvalidType()
+    {
+        $errors = [];
+        set_error_handler(function ($errno, $errstr) use (&$errors) {
+            $errors[] = [$errno, $errstr];
+
+            return true;
+        });
+        try {
+            new CookieComponent(new ComponentCollection(), ['type' => 'invalid']);
+        } finally {
+            restore_error_handler();
+        }
+
+        $expected = [[E_USER_WARNING, 'You must use cipher, rijndael or aes for cookie encryption type']];
+        $this->assertSame($expected, $errors);
     }
 
     /**

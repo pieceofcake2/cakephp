@@ -15,6 +15,47 @@ Before migrating to this fork, ensure:
 4. **Upgrade PHP**: Update your PHP version to 8.0 or newer
 5. **Test Thoroughly**: Run your application's test suite to ensure compatibility
 
+## v2.12.3
+
+### Xml::build() `readFile` Option Also Blocks https URLs ([PR #33](https://github.com/pieceofcake2/cakephp/pull/33))
+
+- **Security fix (SSRF)**: `Xml::build($input, ['readFile' => false])` fetched `https://` URLs because of a missing pair of parentheses (inherited from the original CakePHP 2.x). With `'readFile' => false`, neither `http://` nor `https://` URLs are fetched now; an `XmlException` is thrown instead.
+
+**Migration:**
+- No action required if you pass `'readFile' => false` to disable remote loading; this now works as documented.
+- If you relied on `Xml::build()` fetching an `https://` URL with `'readFile' => false`, either remove the option (default is `true`) or fetch the document yourself (e.g. with `HttpSocket`) and pass the XML string.
+
+### CookieComponent Honors the `'type'` Setting ([PR #34](https://github.com/pieceofcake2/cakephp/pull/34))
+
+- `CookieComponent` now applies the `'type'` setting given in `$components` (e.g. `'Cookie' => ['type' => 'aes']`). Previously the setting was silently ignored and cookies were encrypted with the insecure default `'cipher'` type.
+
+**Migration:**
+- If your controllers set `'type'` in `$components`, cookies will now be written with that type, and cookies already written with `'cipher'` can no longer be decrypted. Plan the switch like any other encryption type change.
+- When using `'aes'`, set `Configure::write('Security.useOpenSsl', true);` unless the mcrypt extension is installed (it is not bundled with PHP 7.2+ and is only available from PECL).
+- An invalid `'type'` setting now triggers an `E_USER_WARNING` and falls back to `'cipher'`, as `CookieComponent::type()` does.
+
+### Test Case Listing Supports the `tests/TestCase` Layout ([PR #35](https://github.com/pieceofcake2/cakephp/pull/35))
+
+- `CakeTestLoader::generateTestList()` now finds test cases in `tests/TestCase` for the app and plugins, falling back to the legacy `Test/Case` layout. Previously the list was empty for the modern layout, so `cake test app` / `cake test <Plugin>` without a test case name and the web test runner showed no test cases.
+
+**Migration:**
+- No action required.
+
+### SQL Server Driver Sets `PDO::ATTR_ERRMODE` by Default ([PR #36](https://github.com/pieceofcake2/cakephp/pull/36))
+
+- `Sqlserver::connect()` now merges `PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION` into the `'flags'` setting as the other drivers do. Because of an operator precedence bug, the default was never applied.
+
+**Migration:**
+- No action required. PDO already uses `PDO::ERRMODE_EXCEPTION` by default on PHP 8, and a `PDO::ATTR_ERRMODE` value given in `'flags'` still takes precedence.
+
+### ServerShell Default Port Changed to 8765 ([PR #37](https://github.com/pieceofcake2/cakephp/pull/37))
+
+- `cake server` now listens on port `8765` by default (as in CakePHP 3 and later) instead of `80`, which requires root privileges on most systems.
+- `ServerShell::DEFAULT_PORT` is now `8765`.
+
+**Migration:**
+- To keep using port 80, pass it explicitly: `bin/cake server -p 80`.
+
 ## Breaking Changes
 
 ### Post-Installation Steps
@@ -577,19 +618,32 @@ CakePlugin::load('Upgrade');
 
 #### Configuration Format
 
-- **Schema-based configuration**: Use schema mapping instead of multiple databases
+- **Schema-based configuration**: Each connection can use a schema (`schema`, a string; defaults to `dbo`), so several connections can share one database instead of using multiple databases
   ```php
   // Old approach (still works)
-  'database' => 'cakephp_test2'
+  public $test2 = [
+      'datasource' => 'Database/Sqlserver',
+      'database' => 'cakephp_test2',
+      // ...
+  ];
 
-  // New recommended approach
-  'database' => 'cakephp_test',
-  'schema' => [
-      'default' => 'dbo',
-      'test2' => 'test2',
-      'test_database_three' => 'test3',
-  ]
+  // New recommended approach: same database, one schema per connection
+  public $test = [
+      'datasource' => 'Database/Sqlserver',
+      'database' => 'cakephp_test',
+      'schema' => 'dbo', // default when omitted
+      // ...
+  ];
+  public $test2 = [
+      'datasource' => 'Database/Sqlserver',
+      'database' => 'cakephp_test',
+      'schema' => 'test2',
+      // ...
+  ];
   ```
+
+> [!NOTE]
+> `schema` must be a string. The array form used in this repository's `tests/config/database.php` is resolved to a string per connection by that file's constructor; the driver itself does not accept an array.
 
 - **Connection options**: SSL/TLS options now in `options` array
   ```php
@@ -607,7 +661,7 @@ CakePlugin::load('Upgrade');
 - `insertMulti()` - Now returns `bool` instead of `void`
 
 **Migration:**
-- Update SQL Server configuration to use schema mapping (optional but recommended)
+- Optionally set `schema` per connection to share one database between connections
 - Move SSL/TLS options to `options` array if using inline DSN
 - If extending Sqlserver class, update method signatures to match
 
@@ -702,13 +756,24 @@ public $components = [
 // NEW (recommended)
 public $components = [
     'Cookie' => [
-        'type' => 'aes'  // or 'rijndael'
+        'type' => 'aes'  // or 'rijndael' (requires the mcrypt extension)
     ]
 ];
 
 // Or dynamically in your controller
 $this->Cookie->type('aes');
 ```
+
+Without the mcrypt extension (not bundled with PHP 7.2+), enable OpenSSL for `'aes'` in `config/core.php`:
+
+```php
+Configure::write('Security.useOpenSsl', true);
+```
+
+> [!NOTE]
+> The `'type'` setting in `$components` is honored since the fix in [PR #34](https://github.com/pieceofcake2/cakephp/pull/34). In v2.12.2 and earlier it was silently ignored, so use `$this->Cookie->type('aes')` (e.g. in `beforeFilter()`) there.
+>
+> `'aes'` uses OpenSSL only when `Security.useOpenSsl` is `true`; otherwise it calls mcrypt functions, which fail unless the mcrypt extension is installed from PECL. `'rijndael'` always requires the mcrypt extension.
 
 > [!IMPORTANT]
 > Changing encryption type will invalidate existing cookies. Plan your migration strategy accordingly (e.g., support both types during transition period).
