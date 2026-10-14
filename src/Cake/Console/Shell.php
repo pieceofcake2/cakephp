@@ -896,7 +896,7 @@ class Shell extends CakeObject
      */
     public function shortPath($file)
     {
-        $shortPath = str_replace(ROOT, null, $file);
+        $shortPath = str_replace(ROOT, '', $file);
         $shortPath = str_replace('..' . DS, '', $shortPath);
 
         return str_replace(DS . DS, DS, $shortPath);

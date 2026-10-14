@@ -48,7 +48,9 @@ class ConsoleLog extends BaseLog
         parent::__construct($config);
         if (
             (DS === '\\' && !(bool)env('ANSICON') && env('ConEmuANSI') !== 'ON') ||
-            (function_exists('posix_isatty') && !posix_isatty($this->_output))
+            // The output stream is not created yet: passing the unset $this->_output (null) has always
+            // checked file descriptor 0, so check it explicitly instead of passing null.
+            (function_exists('posix_isatty') && !posix_isatty(0))
         ) {
             $outputAs = ConsoleOutput::PLAIN;
         } else {

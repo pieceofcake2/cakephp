@@ -155,4 +155,29 @@ class ConsoleLogTest extends CakeTestCase
         $config = $stream->config();
         $this->assertEquals($expected, $config['outputAs']);
     }
+
+    /**
+     * Test that the constructor does not pass null to posix_isatty() (deprecated as of PHP 8.1).
+     *
+     * @return void
+     */
+    public function testConstructorDoesNotPassNullToPosixIsatty()
+    {
+        $deprecations = [];
+        $level = error_reporting(E_ALL);
+        set_error_handler(function ($errno, $errstr) use (&$deprecations) {
+            if (str_contains($errstr, 'Passing null')) {
+                $deprecations[] = $errstr;
+            }
+
+            return true;
+        }, E_DEPRECATED);
+        try {
+            new ConsoleLog(['stream' => 'php://memory']);
+        } finally {
+            restore_error_handler();
+            error_reporting($level);
+        }
+        $this->assertSame([], $deprecations);
+    }
 }

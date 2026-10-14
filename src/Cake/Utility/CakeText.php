@@ -669,7 +669,7 @@ class CakeText
             $and = __d('cake', 'and');
         }
         if (count($list) > 1) {
-            return implode($separator, array_slice($list, null, -1)) . ' ' . $and . ' ' . array_pop($list);
+            return implode($separator, array_slice($list, 0, -1)) . ' ' . $and . ' ' . array_pop($list);
         }
 
         return array_pop($list);
