@@ -655,6 +655,24 @@ class ExceptionRendererTest extends CakeTestCase
                 500,
             ],
             [
+                new MissingPluginException(['plugin' => 'TestPluginTwo']),
+                [
+                    '/<h1 class="header-title">\s*<span>Missing Plugin<\/span>/',
+                    '/Make sure your plugin <em>TestPluginTwo<\/em> is in the/',
+                    '/TestPluginTwo/',
+                ],
+                500,
+            ],
+            [
+                new FatalErrorException('Allowed memory size exhausted', 500, __FILE__, 42),
+                [
+                    '/<h1 class="header-title">\s*<span>Fatal Error<\/span>/',
+                    '/Allowed memory size exhausted/',
+                    '/' . preg_quote(Debugger::trimPath(__FILE__), '/') . ' at line 42/',
+                ],
+                500,
+            ],
+            [
                 new Exception('boom'),
                 [
                     '/Internal Error/',
