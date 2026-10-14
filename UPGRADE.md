@@ -15,6 +15,53 @@ Before migrating to this fork, ensure:
 4. **Upgrade PHP**: Update your PHP version to 8.0 or newer
 5. **Test Thoroughly**: Run your application's test suite to ensure compatibility
 
+## Unreleased
+
+### `.env` File Support ([PR #50](https://github.com/pieceofcake2/cakephp/pull/50))
+
+This backports the `.env` support of later CakePHP versions. The CakePHP 3.x, 4.x and 5.x application skeletons ship `config/.env.example` and an opt-in block in [`config/bootstrap.php`](https://github.com/cakephp/app/blob/5.x/config/bootstrap.php) that loads `config/.env` with josegonzalez/dotenv. In this fork the loader is part of the core (`CakeDotenv`, no dependencies), uses a parser compatible with [vlucas/phpdotenv](https://github.com/vlucas/phpdotenv) v5, and can also load a `.env` file in the project root.
+
+Loading is opt-in, so existing applications are not affected (for example, a `.env` file in the project root used only by Docker Compose is not loaded). To use it, add this line at the top of `config/core.php` (`app/Config/core.php` in the legacy layout):
+
+```php
+CakeDotenv::loadDefaults();
+```
+
+`loadDefaults()` loads these files if they exist:
+
+| Layout | Config directory `.env` (`CONFIG . '.env'`) | Project root `.env` (`ROOT . DS . '.env'`) |
+|--------|---------------------------------------------|--------------------------------------------|
+| Modern (`pieceofcake2/app`) | `config/.env` | `.env` |
+| Legacy (`app/` directory) | `app/Config/.env` | `.env` (next to `app/`) |
+
+- **Precedence**: real environment variables (web server, shell, container, CI) > config directory `.env` > project root `.env`. Variables that already exist are never overwritten unless you call `CakeDotenv::loadDefaults(true)`.
+- Values are written to `putenv()`, `$_ENV` and `$_SERVER`, so `env()`, `getenv()`, `$_ENV` and `$_SERVER` all see them.
+- Values are always strings. Unlike josegonzalez/dotenv, unquoted values are not converted (`007` stays `007`, and a long numeric `Security.cipherSeed` does not overflow).
+- `${NAME}` references are resolved against variables loaded before, so the config directory `.env` cannot refer to variables that are only defined in the project root `.env`.
+- Use `CakeDotenv::load($files, $overwrite = false)` to load other files (the first file wins), and `CakeDotenv::parse($contents)` / `CakeDotenv::parseFile($file)` to read variables without changing the environment.
+- A malformed line throws a `CakeDotenvException` with the file name and line number.
+
+**Syntax** (compatible with vlucas/phpdotenv v5, close to Docker Compose and Node's dotenv):
+
+```bash
+# Comment
+APP_NAME=my_app
+export DEBUG=true                       # optional "export " prefix; inline comment
+SECURITY_SALT='literal $value'          # single quotes: no escapes, no expansion
+DATABASE_URL="mysql://${DB_HOST}/app"   # double quotes: \n \t \" \\ \$ escapes and ${NAME} expansion
+PRIVATE_KEY="-----BEGIN KEY-----
+...
+-----END KEY-----"                      # double quoted values can span lines
+EMPTY_VALUE=                            # empty string
+```
+
+Unquoted values must not contain spaces (quote them), and `$NAME` without braces is not expanded. Differences from phpdotenv: errors include the file name and line number, an unterminated double quoted value is an error instead of being ignored, values containing a NUL byte are rejected, and files must be UTF-8.
+
+**Migration from josegonzalez/dotenv** (e.g. the `config/core.php` block of `pieceofcake2/app`):
+- Replace the block with `CakeDotenv::loadDefaults();` and remove `josegonzalez/dotenv` from `composer.json` if nothing else uses it.
+- Unquoted values that josegonzalez/dotenv converted (`true`, `false`, `null`, numbers) are now kept as the literal strings, which is what the values in the file say.
+- Check that the file parses: unquoted values with spaces must be quoted.
+
 ## v2.12.3
 
 ### Xml::build() `readFile` Option Also Blocks https URLs ([PR #33](https://github.com/pieceofcake2/cakephp/pull/33))
