@@ -556,4 +556,17 @@ class CakeTestCaseTest extends CakeTestCase
         $this->assertTrue($failed);
         $this->assertStringContainsString('unexpected-content', $output);
     }
+
+    /**
+     * Test that ConsoleOutputStub::write() returns the number of bytes written like ConsoleOutput::write()
+     *
+     * @return void
+     */
+    public function testConsoleOutputStubWriteReturnsBytesWritten()
+    {
+        $stub = new ConsoleOutputStub();
+
+        $this->assertSame(5, $stub->write('hello'));
+        $this->assertSame(0, $stub->write('hello', 2));
+    }
 }
