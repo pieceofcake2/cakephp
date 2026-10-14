@@ -124,6 +124,13 @@ class ConsoleOptionParser
     protected $_command = '';
 
     /**
+     * Tokens left to parse, populated by parse().
+     *
+     * @var array
+     */
+    protected $_tokens = [];
+
+    /**
      * Construct an OptionParser so you can define its behavior
      *
      * @param string $command The command name this parser is for. The command name is used for generating help.

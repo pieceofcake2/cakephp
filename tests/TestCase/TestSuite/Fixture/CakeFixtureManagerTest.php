@@ -101,4 +101,33 @@ class CakeFixtureManagerTest extends CakeTestCase
 
         $fixtureManager->loadSingle('Uuid', $db, false);
     }
+
+    /**
+     * Test that fixturize() does not create dynamic properties (deprecated as of PHP 8.2).
+     *
+     * @return void
+     */
+    public function testFixturizeDoesNotCreateDynamicProperties()
+    {
+        $TestCase = $this->getMock('CakeTestCase');
+        $TestCase->fixtures = ['core.apple'];
+
+        $deprecations = [];
+        $level = error_reporting(E_ALL);
+        set_error_handler(function ($errno, $errstr) use (&$deprecations) {
+            if (str_contains($errstr, 'dynamic property')) {
+                $deprecations[] = $errstr;
+            }
+
+            return true;
+        }, E_DEPRECATED);
+        try {
+            $this->fixtureManager->fixturize($TestCase);
+        } finally {
+            restore_error_handler();
+            error_reporting($level);
+        }
+        $this->assertSame([], $deprecations);
+        $this->assertInstanceOf('DboSource', $TestCase->db);
+    }
 }

@@ -106,4 +106,29 @@ class CakeTestSuiteTest extends CakeTestCase
 
         $Folder->delete();
     }
+
+    /**
+     * Test that the CakeTestSuiteCommand constructor does not create dynamic properties (deprecated as of PHP 8.2).
+     *
+     * @return void
+     */
+    public function testCommandConstructorDoesNotCreateDynamicProperties()
+    {
+        $deprecations = [];
+        $level = error_reporting(E_ALL);
+        set_error_handler(function ($errno, $errstr) use (&$deprecations) {
+            if (str_contains($errstr, 'dynamic property')) {
+                $deprecations[] = $errstr;
+            }
+
+            return true;
+        }, E_DEPRECATED);
+        try {
+            new CakeTestSuiteCommand('', ['case' => 'AllTests']);
+        } finally {
+            restore_error_handler();
+            error_reporting($level);
+        }
+        $this->assertSame([], $deprecations);
+    }
 }

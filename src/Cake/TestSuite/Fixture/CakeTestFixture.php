@@ -73,6 +73,13 @@ class CakeTestFixture
     public $records = [];
 
     /**
+     * Schema object used to create and drop the fixture table.
+     *
+     * @var CakeSchema
+     */
+    public $Schema;
+
+    /**
      * The primary key for the table this fixture represents.
      *
      * @var string

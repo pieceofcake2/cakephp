@@ -52,6 +52,13 @@ class CakeFixtureManager
     protected $_fixtureMap = [];
 
     /**
+     * Test case classes whose fixtures have already been processed, indexed by class name
+     *
+     * @var array<string, bool>
+     */
+    protected $_processed = [];
+
+    /**
      * Inspects the test to look for unloaded fixtures and loads them
      *
      * @param CakeTestCase $test the test case to inspect

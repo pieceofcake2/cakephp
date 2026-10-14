@@ -39,6 +39,13 @@ class ControllerTestDispatcher extends Dispatcher
     public $loadRoutes = true;
 
     /**
+     * The response object injected into the test controller
+     *
+     * @var CakeResponse|null
+     */
+    public $response = null;
+
+    /**
      * Returns the test controller
      *
      * @param CakeRequest $request The request instance.

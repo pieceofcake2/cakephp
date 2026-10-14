@@ -877,4 +877,38 @@ class MemcachedEngineTest extends CakeTestCase
         $result = Cache::add('test_add_key', 'test data 2', 'default');
         $this->assertFalse($result);
     }
+
+    /**
+     * Test that groups() does not create dynamic properties (deprecated as of PHP 8.2).
+     *
+     * @return void
+     */
+    public function testGroupsDoesNotCreateDynamicProperties()
+    {
+        $Memcached = new TestMemcachedEngine();
+        $Memcached->init([
+            'engine' => 'Memcached',
+            'servers' => ['127.0.0.1:11211'],
+            'prefix' => 'cake_dyn_',
+            'groups' => ['group_a', 'group_b'],
+        ]);
+
+        $deprecations = [];
+        $level = error_reporting(E_ALL);
+        set_error_handler(function ($errno, $errstr) use (&$deprecations) {
+            if (str_contains($errstr, 'dynamic property')) {
+                $deprecations[] = $errstr;
+            }
+
+            return true;
+        }, E_DEPRECATED);
+        try {
+            $result = $Memcached->groups();
+        } finally {
+            restore_error_handler();
+            error_reporting($level);
+        }
+        $this->assertSame([], $deprecations);
+        $this->assertCount(2, $result);
+    }
 }

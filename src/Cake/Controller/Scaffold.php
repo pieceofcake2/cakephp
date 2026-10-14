@@ -97,6 +97,41 @@ class Scaffold
     public $scaffoldTitle = null;
 
     /**
+     * Redirect target used after a successful save or delete.
+     *
+     * @var array|string
+     */
+    public $redirect;
+
+    /**
+     * Name of the scaffolded model class, copied from the controller.
+     *
+     * @var string
+     */
+    public $modelClass;
+
+    /**
+     * Key of the scaffolded model, copied from the controller.
+     *
+     * @var string
+     */
+    public $modelKey;
+
+    /**
+     * The scaffolded model instance.
+     *
+     * @var Model
+     */
+    public $ScaffoldModel;
+
+    /**
+     * Scaffolded actions, or the routing prefix to scaffold, copied from Controller::$scaffold.
+     *
+     * @var array|string|bool|null
+     */
+    public $scaffoldActions;
+
+    /**
      * Construct and set up given controller with given parameters.
      *
      * @param Controller $controller Controller to scaffold

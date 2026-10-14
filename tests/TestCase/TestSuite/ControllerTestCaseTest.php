@@ -797,4 +797,34 @@ class ControllerTestCaseTest extends CakeTestCase
         $this->assertEquals('tests_apps', $this->Case->controller->request->url);
         $this->assertEquals($data + $query, $this->Case->controller->request->query);
     }
+
+    /**
+     * Test that ControllerTestDispatcher declares the response property set by testAction(),
+     * so no dynamic property is created (deprecated as of PHP 8.2).
+     *
+     * @return void
+     */
+    public function testDispatcherResponseIsDeclared()
+    {
+        $Dispatch = new ControllerTestDispatcher();
+        $response = new CakeResponse();
+
+        $deprecations = [];
+        $level = error_reporting(E_ALL);
+        set_error_handler(function ($errno, $errstr) use (&$deprecations) {
+            if (str_contains($errstr, 'dynamic property')) {
+                $deprecations[] = $errstr;
+            }
+
+            return true;
+        }, E_DEPRECATED);
+        try {
+            $Dispatch->response = $response;
+        } finally {
+            restore_error_handler();
+            error_reporting($level);
+        }
+        $this->assertSame([], $deprecations);
+        $this->assertSame($response, $Dispatch->response);
+    }
 }

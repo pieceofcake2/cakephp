@@ -678,4 +678,34 @@ TEXT;
             'quiet' => false], ['c']];
         $this->assertEquals($expected, $result, 'Sub parser did not parse request.');
     }
+
+    /**
+     * Test that parsing does not create dynamic properties (deprecated as of PHP 8.2).
+     *
+     * @return void
+     */
+    public function testParseDoesNotCreateDynamicProperties()
+    {
+        $parser = new ConsoleOptionParser('test', false);
+        $parser->addOption('name', ['short' => 'n'])->addArgument('one');
+
+        $deprecations = [];
+        $level = error_reporting(E_ALL);
+        set_error_handler(function ($errno, $errstr) use (&$deprecations) {
+            if (str_contains($errstr, 'dynamic property')) {
+                $deprecations[] = $errstr;
+            }
+
+            return true;
+        }, E_DEPRECATED);
+        try {
+            $result = $parser->parse(['--name', 'value', '-n', 'other', 'arg']);
+        } finally {
+            restore_error_handler();
+            error_reporting($level);
+        }
+        $this->assertSame([], $deprecations);
+        $this->assertSame(['name' => 'other', 'help' => false], $result[0]);
+        $this->assertSame(['arg'], $result[1]);
+    }
 }
