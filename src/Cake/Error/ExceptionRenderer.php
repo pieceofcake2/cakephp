@@ -81,7 +81,7 @@ class ExceptionRenderer
      * If the error is a CakeException it will be converted to either a 400 or a 500
      * code error depending on the code used to construct the error.
      *
-     * @param Exception|ParseError $exception Exception
+     * @param Throwable $exception Exception
      */
     public function __construct($exception)
     {
@@ -131,7 +131,7 @@ class ExceptionRenderer
      * This method returns the built in `CakeErrorController` normally, or if an error is repeated
      * a bare controller will be used.
      *
-     * @param Exception $exception The exception to get a controller for.
+     * @param Throwable $exception The exception to get a controller for.
      * @return Controller
      */
     protected function _getController($exception)

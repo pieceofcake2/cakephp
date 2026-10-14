@@ -1,5 +1,11 @@
 ## CHANGELOG
 
+## Unreleased
+
+### Error Handling Docblocks
+
+- **ErrorHandler** / **ExceptionRenderer**: Document the `$exception` parameters of `handleException()`, `_getMessage()`, `_log()`, `ExceptionRenderer::__construct()` and `_getController()` as `Throwable`, matching what `set_exception_handler()` passes on PHP 8 (no behavior change)
+
 ## v2.12.3 (2026-10-14)
 
 > [!IMPORTANT]
