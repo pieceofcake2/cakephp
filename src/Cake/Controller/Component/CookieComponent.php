@@ -124,10 +124,15 @@ class CookieComponent extends Component
     /**
      * Type of encryption to use.
      *
-     * Currently two methods are available: cipher and rijndael
+     * Currently three methods are available: cipher, rijndael and aes
      * Defaults to Security::cipher(). Cipher is horribly insecure and only
      * the default because of backwards compatibility. In new applications you should
      * always change this to 'aes' or 'rijndael'.
+     *
+     * Deprecated: the 'cipher' type is deprecated. The first encrypted read or write
+     * with it in a process logs a deprecation warning (and triggers E_USER_DEPRECATED
+     * when debug is enabled). Use 'aes' with its own key of at least 32 bytes;
+     * existing 'cipher' cookies cannot be read after the switch.
      *
      * @var string
      */
@@ -351,6 +356,10 @@ class CookieComponent extends Component
      * Will allow overriding default encryption method. Use this method
      * in ex: AppController::beforeFilter() before you have read or
      * written any cookies.
+     *
+     * Deprecated: the 'cipher' type (the default) is deprecated and insecure. Use
+     * `'aes'` with its own key of at least 32 bytes. See
+     * https://pieceofcake2.github.io/docs/development/configuration.html
      *
      * @param string $type Encryption method
      * @return void

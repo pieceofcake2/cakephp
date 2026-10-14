@@ -38,6 +38,34 @@ class Security
     public static $hashCost = '10';
 
     /**
+     * Largest `Security.cipherSeed` that mt_srand() uses without reducing it.
+     *
+     * @var int
+     */
+    public const MAX_CIPHER_SEED = 4294967295;
+
+    /**
+     * Link to the documentation about replacing the 'cipher' encryption.
+     *
+     * @var string
+     */
+    public const CIPHER_DOCS_URL = 'https://pieceofcake2.github.io/docs/development/configuration.html';
+
+    /**
+     * Whether the 'cipher' deprecation was already reported in this process.
+     *
+     * @var bool
+     */
+    protected static $_cipherDeprecationReported = false;
+
+    /**
+     * Whether an out-of-range `Security.cipherSeed` was already reported in this process.
+     *
+     * @var bool
+     */
+    protected static $_cipherSeedReported = false;
+
+    /**
      * Get allowed minutes of inactivity based on security level.
      *
      * @deprecated 3.0.0 Exists for backwards compatibility only, not used by the core
@@ -220,13 +248,26 @@ class Security
      * Instead you should use Security::encrypt() when you need strong
      * encryption.
      *
+     * The keystream comes from mt_rand() seeded with `Security.cipherSeed`. mt_srand()
+     * keeps only 32 bits, so only a digits-only seed from 1 to 4294967295 is used as
+     * given; other values are reduced (very long ones to seed 0). Even a seed in that
+     * range does not make this method secure.
+     *
+     * The first call in a process writes a deprecation warning to the log, and also
+     * triggers an E_USER_DEPRECATED error when debug is enabled. A `Security.cipherSeed`
+     * outside the range above is logged once as well. The output is not changed.
+     *
      * @param string $text Encrypted string to decrypt, normal string to encrypt
      * @param string $key Key to use
      * @return string Encrypted/Decrypted string
-     * @deprecated 3.0.0 Will be removed in 3.0.
+     * @deprecated 3.0.0 Will be removed in 3.0. Insecure: use Security::encrypt() / Security::decrypt(),
+     *   and set CookieComponent to `'type' => 'aes'` with its own key of at least 32 bytes.
+     *   See https://pieceofcake2.github.io/docs/development/configuration.html
      */
     public static function cipher($text, $key)
     {
+        static::_reportCipherUsage();
+
         if (empty($key)) {
             trigger_error(__d('cake_dev', 'You cannot use an empty key for %s', 'Security::cipher()'), E_USER_WARNING);
 
@@ -254,6 +295,135 @@ class Security
         mt_srand();
 
         return $out;
+    }
+
+    /**
+     * Checks whether a `Security.cipherSeed` value is used by Security::cipher() as given.
+     *
+     * mt_srand() keeps only 32 bits, so only a digits-only value (string or integer)
+     * from 1 to 4294967295 is used as given. This says nothing about security:
+     * Security::cipher() is insecure with any seed.
+     *
+     * @param mixed $seed The seed value, e.g. `Configure::read('Security.cipherSeed')`.
+     * @return bool
+     * @internal
+     */
+    public static function isCipherSeedInRange($seed)
+    {
+        if (is_int($seed)) {
+            return $seed >= 1 && $seed <= static::MAX_CIPHER_SEED;
+        }
+        if (!is_string($seed) || $seed === '' || !ctype_digit($seed)) {
+            return false;
+        }
+        $seed = ltrim($seed, '0');
+        if ($seed === '') {
+            return false;
+        }
+        $max = (string)static::MAX_CIPHER_SEED;
+
+        return strlen($seed) < strlen($max) || (strlen($seed) === strlen($max) && strcmp($seed, $max) <= 0);
+    }
+
+    /**
+     * Reports the use of Security::cipher() once per process, and an out-of-range
+     * `Security.cipherSeed` once per process.
+     *
+     * Messages are written with CakeLog. When debug is enabled the deprecation is also
+     * triggered as E_USER_DEPRECATED. Nothing here throws, and the seed itself is never
+     * written to the log.
+     *
+     * @return void
+     */
+    protected static function _reportCipherUsage()
+    {
+        if (!static::$_cipherDeprecationReported) {
+            static::$_cipherDeprecationReported = true;
+            $trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 3);
+            $caller = $trace[2] ?? [];
+            $message = static::_cipherDeprecationMessage(
+                $caller['class'] ?? null,
+                $caller['function'] ?? null,
+            );
+            static::_logCipherWarning($message);
+            if (Configure::read('debug') > 0) {
+                trigger_error($message, E_USER_DEPRECATED);
+            }
+        }
+
+        if (!static::$_cipherSeedReported) {
+            static::$_cipherSeedReported = true;
+            $seed = Configure::read('Security.cipherSeed');
+            if (!static::isCipherSeedInRange($seed)) {
+                static::_logCipherWarning(static::_cipherSeedMessage($seed));
+            }
+        }
+    }
+
+    /**
+     * Builds the deprecation message for Security::cipher(), naming the caller when known.
+     *
+     * @param string|null $class Class of the code that called Security::cipher().
+     * @param string|null $function Function or method that called Security::cipher().
+     * @return string
+     */
+    protected static function _cipherDeprecationMessage($class, $function)
+    {
+        $fix = 'Set CookieComponent to \'type\' => \'aes\' with its own key of at least 32 bytes'
+            . ' (Security::encrypt() / Security::decrypt() for other data).'
+            . ' Existing \'cipher\' cookies cannot be read after the switch.'
+            . ' See ' . static::CIPHER_DOCS_URL;
+        if (is_string($class) && $class !== '' && is_a($class, 'CookieComponent', true)) {
+            return 'CookieComponent (type \'cipher\') encrypts cookies with Security::cipher(),'
+                . ' which is insecure and deprecated. ' . $fix;
+        }
+        $source = 'Security::cipher()';
+        if (is_string($function) && $function !== '' && strpos($function, '{closure') === false) {
+            $source .= ' (called from ' . (is_string($class) && $class !== '' ? $class . '::' : '') . $function . '())';
+        }
+
+        return $source . ' is insecure and deprecated. ' . $fix;
+    }
+
+    /**
+     * Builds the message for a `Security.cipherSeed` outside the range used as given.
+     *
+     * The seed value is never included.
+     *
+     * @param mixed $seed The configured seed.
+     * @return string
+     */
+    protected static function _cipherSeedMessage($seed)
+    {
+        set_error_handler(function () {
+            return true;
+        }, E_WARNING);
+        $effective = ((int)(float)$seed) & 0xFFFFFFFF;
+        restore_error_handler();
+        $reduced = $effective === 0
+            ? 'Security::cipher() reduces it to seed 0'
+            : 'Security::cipher() keeps only its lowest 32 bits';
+
+        return 'Security.cipherSeed is not a digits-only number from 1 to ' . static::MAX_CIPHER_SEED
+            . ', so ' . $reduced . '. A seed in that range does not make \'cipher\' secure;'
+            . ' switch CookieComponent to \'type\' => \'aes\' with its own key of at least 32 bytes.'
+            . ' Changing Security.cipherSeed also makes existing \'cipher\' values unreadable.'
+            . ' See ' . static::CIPHER_DOCS_URL;
+    }
+
+    /**
+     * Writes a 'cipher' warning to the log without letting a log engine error escape.
+     *
+     * @param string $message The message.
+     * @return void
+     */
+    protected static function _logCipherWarning($message)
+    {
+        try {
+            CakeLog::write(LOG_WARNING, $message);
+        } catch (Throwable $e) {
+            // Logging must never break encryption or decryption.
+        }
     }
 
     /**
