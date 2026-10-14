@@ -3228,7 +3228,7 @@ class DboSource extends DataSource
                         $data = $this->_parseKey($key, $value, $model);
                     }
                 } elseif (is_numeric($key) && !empty($value)) {
-                    $data = $this->_quoteFields($value);
+                    $data = $this->_quoteFields((string)$value);
                 } else {
                     $data = $this->_parseKey(trim($key), $value, $model);
                 }
