@@ -1700,4 +1700,34 @@ class PaginatorComponentTest extends CakeTestCase
         $this->assertTrue($result['nextPage']);
         $this->assertFalse($result['prevPage']);
     }
+
+    /**
+     * test that an unknown paramType ignores the request parameters instead of failing.
+     *
+     * @return void
+     */
+    public function testMergeOptionsUnknownParamType()
+    {
+        $this->request->params['named'] = [
+            'page' => 10,
+        ];
+        $this->request->query = [
+            'page' => 99,
+        ];
+        $this->Paginator->settings = [
+            'page' => 1,
+            'limit' => 20,
+            'maxLimit' => 100,
+            'paramType' => 'unknown',
+        ];
+        $result = $this->Paginator->mergeOptions('Post');
+        $expected = [
+            'page' => 1,
+            'limit' => 20,
+            'maxLimit' => 100,
+            'paramType' => 'unknown',
+            'queryScope' => null,
+        ];
+        $this->assertEquals($expected, $result);
+    }
 }

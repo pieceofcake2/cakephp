@@ -347,6 +347,7 @@ class PaginatorComponent extends Component
     public function mergeOptions($alias)
     {
         $defaults = $this->getDefaults($alias);
+        $request = [];
         switch ($defaults['paramType']) {
             case 'named':
                 $request = $this->Controller->request->params['named'];
