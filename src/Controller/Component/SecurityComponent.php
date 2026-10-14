@@ -268,7 +268,7 @@ class SecurityComponent extends Component
         }
 
         $this->generateToken($controller->request);
-        if ($hasData && is_array($controller->request->data)) {
+        if ($hasData) {
             unset($controller->request->data['_Token']);
         }
 

@@ -454,9 +454,6 @@ class Hash
                 return $out;
             }
         }
-        if (empty($vals)) {
-            return [];
-        }
 
         return array_combine($keys, $vals);
     }

@@ -16,7 +16,6 @@ namespace Cake\View;
 
 use Cake\Controller\Controller;
 use Cake\Core\Configure;
-use Cake\Network\CakeResponse;
 use Cake\Utility\Hash;
 use Cake\Utility\Xml;
 
@@ -67,13 +66,13 @@ class XmlView extends View
     /**
      * Constructor
      *
-     * @param Controller $controller Controller instance.
+     * @param Controller|null $controller Controller instance.
      */
     public function __construct(?Controller $controller = null)
     {
         parent::__construct($controller);
 
-        if (isset($controller->response) && $controller->response instanceof CakeResponse) {
+        if (isset($controller->response)) {
             $controller->response->type('xml');
         }
     }
