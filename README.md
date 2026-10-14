@@ -16,7 +16,7 @@ The original CakePHP 2.x branch [reached End of Life in June 2021](https://baker
 > **Do not use CakePHP 2.x for new projects!** This fork is only for maintaining existing legacy applications.
 > For new projects, please use [CakePHP 5.x](https://cakephp.org/) which has modern PHP support, better performance, and active development.
 
-[CakePHP 2.x Documentation](https://book.cakephp.org/2/en/) | [CHANGELOG](CHANGELOG.md) | [UPGRADE](UPGRADE.md)
+[CakePHP 2 Book](https://pieceofcake2.github.io/docs/) | [CHANGELOG](CHANGELOG.md) | [UPGRADE](UPGRADE.md)
 
 ## Requirements & Compatibility
 
