@@ -36,7 +36,7 @@ class AllTestSuiteTest extends TestSuite
     {
         $suite = new CakeTestSuite('All Test Suite classes tests');
 
-        $suite->addTestDirectory(CORE_TESTS . DS . 'TestCase' . DS . 'TestSuite');
+        $suite->addTestDirectoryRecursive(CORE_TESTS . DS . 'TestCase' . DS . 'TestSuite');
 
         return $suite;
     }
