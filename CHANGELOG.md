@@ -27,6 +27,11 @@
 
 - **TestShell**: Ask for PHPUnit 9.6 (instead of v3.7) when PHPUnit cannot be loaded
 
+### Documentation Fixes ([PR #39](https://github.com/pieceofcake2/cakephp/pull/39))
+
+- **README.md**: Use `^2.12` in the Composer install example, and link to the Piece of Cake 2 book (https://pieceofcake2.github.io/docs/)
+- **UPGRADE.md**: Show the SQL Server `schema` setting as a string per connection (the driver does not accept an array mapping)
+
 ## v2.12.2 (2026-10-14)
 
 ### PHP 8.6 Support
