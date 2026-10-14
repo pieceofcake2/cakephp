@@ -560,6 +560,16 @@ class ConfigureException extends CakeException
 }
 
 /**
+ * Exception class for CakeDotenv. This exception will be thrown from CakeDotenv when a
+ * `.env` file cannot be read or parsed.
+ *
+ * @package       Cake.Error
+ */
+class CakeDotenvException extends CakeException
+{
+}
+
+/**
  * Exception class for Socket. This exception will be thrown from CakeSocket, CakeEmail, HttpSocket
  * SmtpTransport, MailTransport and HttpResponse when it encounters an error.
  *
