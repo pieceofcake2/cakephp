@@ -51,6 +51,17 @@ class ConsoleOutputStubTest extends CakeTestCase
     }
 
     /**
+     * Test that write() returns the number of bytes written like ConsoleOutput::write()
+     *
+     * @return void
+     */
+    public function testWriteReturnsBytesWritten()
+    {
+        $this->assertSame(5, $this->stub->write('hello'));
+        $this->assertSame(0, $this->stub->write('hello', 2));
+    }
+
+    /**
      * Test overwrite method
      *
      * @return void
