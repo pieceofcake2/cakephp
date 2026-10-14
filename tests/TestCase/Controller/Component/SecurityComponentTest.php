@@ -1705,7 +1705,9 @@ class SecurityComponentTest extends CakeTestCase
         $this->Security->startup($this->Controller);
         $tokenTwo = $this->Security->Session->read('_Token.csrfTokens');
         $this->assertEquals(1, count($tokenTwo), 'Should only be one token.');
-        $this->assertEquals($token, $tokenTwo, 'Tokens should not be different.');
+        $this->assertSame(array_keys($token), array_keys($tokenTwo), 'Tokens should not be different.');
+        // The expiry is recalculated on each request, so allow for crossing a second boundary.
+        $this->assertEqualsWithDelta(current($token), current($tokenTwo), 1, 'Token expiry should be refreshed.');
 
         $key = $this->Controller->request->params['_Token']['key'];
         $this->assertEquals([$key], array_keys($token), '_Token.key and csrfToken do not match request will blackhole.');
