@@ -319,6 +319,25 @@ class PaginatorComponentTest extends CakeTestCase
     }
 
     /**
+     * Asserts that posts are sorted by author_id.
+     *
+     * Posts 1 and 3 have the same author, so their relative order is not defined
+     * (e.g. PostgreSQL may return them in either order).
+     *
+     * @param array $result Paginated PaginatorControllerPost records.
+     * @return void
+     */
+    protected function assertSortedByAuthorId(array $result): void
+    {
+        $this->assertEquals([1, 1, 3], Hash::extract($result, '{n}.PaginatorControllerPost.author_id'));
+        $ids = Hash::extract($result, '{n}.PaginatorControllerPost.id');
+        $this->assertEquals(2, $ids[2]);
+        $first = array_slice($ids, 0, 2);
+        sort($first);
+        $this->assertEquals([1, 3], $first);
+    }
+
+    /**
      * testPaginate method
      *
      * @return void
@@ -385,9 +404,9 @@ class PaginatorComponentTest extends CakeTestCase
         $Controller->request->params['named'] = [
             'sort' => 'PaginatorControllerPost.author_id', 'direction' => 'allYourBase',
         ];
-        $results = Hash::extract($Controller->Paginator->paginate('PaginatorControllerPost'), '{n}.PaginatorControllerPost.id');
+        $result = $Controller->Paginator->paginate('PaginatorControllerPost');
         $this->assertEquals(['PaginatorControllerPost.author_id' => 'asc'], $Controller->PaginatorControllerPost->lastQueries[0]['order']);
-        $this->assertEquals([1, 3, 2], $results);
+        $this->assertSortedByAuthorId($result);
 
         $Controller->request->params['named'] = [];
         $Controller->Paginator->settings = ['limit' => 0, 'maxLimit' => 10, 'paramType' => 'named'];
@@ -587,7 +606,7 @@ class PaginatorComponentTest extends CakeTestCase
         ];
         $result = $Controller->Paginator->paginate('PaginatorControllerPost');
         $this->assertEquals(1, $Controller->params['paging']['PaginatorControllerPost']['page']);
-        $this->assertEquals([1, 3, 2], Hash::extract($result, '{n}.PaginatorControllerPost.id'));
+        $this->assertSortedByAuthorId($result);
 
         $Controller->request->params['named'] = ['page' => '-1'];
         $Controller->Paginator->settings = [
