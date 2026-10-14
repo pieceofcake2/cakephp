@@ -887,7 +887,7 @@ class Debugger
         }
 
         $cipherSeed = Configure::read('Security.cipherSeed');
-        if (in_array($cipherSeed, ['76859309657453542496749683645', '3804817265'], true)) {
+        if (in_array($cipherSeed, ['76859309657453542496749683645', '2659758734'], true)) {
             trigger_error(__d('cake_dev', 'Please change the value of %s in %s to a numeric (digits only) seed value specific to your application.', '\'Security.cipherSeed\'', CONFIG . 'core.php'), E_USER_NOTICE);
         }
 

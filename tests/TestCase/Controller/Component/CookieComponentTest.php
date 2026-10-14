@@ -466,7 +466,7 @@ class CookieComponentTest extends CakeTestCase
     public function testCipherDeprecationNamesCookieComponent()
     {
         Configure::write('debug', 0);
-        Configure::write('Security.cipherSeed', '3804817265');
+        Configure::write('Security.cipherSeed', '2659758734');
         $_COOKIE['CakeTestCookie'] = [
             'Incoming' => $this->_encrypt(['secret' => 'IncomingSecretValue']),
         ];
@@ -497,7 +497,7 @@ class CookieComponentTest extends CakeTestCase
     public function testCipherDeprecationTriggeredOnceInDebug()
     {
         Configure::write('debug', 2);
-        Configure::write('Security.cipherSeed', '3804817265');
+        Configure::write('Security.cipherSeed', '2659758734');
         $this->_captureCipherReports();
 
         $errors = [];

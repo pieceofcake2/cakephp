@@ -218,7 +218,7 @@ Configure::write('Security.salt', 'DYhG93b0qyJfIxfs2guVoUubWwvniR2G0FgaC9mi');
  * 'type' => 'aes' with its own key of at least 32 bytes and Security.useOpenSsl enabled.
  * Changing this value makes existing 'cipher' values unreadable.
  */
-Configure::write('Security.cipherSeed', '3804817265');
+Configure::write('Security.cipherSeed', '2659758734');
 
 /**
  * Use OpenSSL instead of mcrypt for Security::encrypt() / Security::decrypt() and the

@@ -742,14 +742,19 @@ TEXT;
     }
 
     /**
-     * checkSecurityKeys() asks to change the new default seed, which is in range.
+     * checkSecurityKeys() asks to change the new default seed (the core fallback config
+     * and the application skeleton use it), although it is in range.
      *
      * @return void
      */
     public function testCheckSecurityKeysNewDefaultCipherSeed()
     {
+        $this->assertStringContainsString(
+            "Configure::write('Security.cipherSeed', '2659758734');",
+            (string)file_get_contents(CORE_ROOT . DS . 'config' . DS . 'core.php'),
+        );
         Configure::write('Security.salt', 'a-salt-specific-to-this-test-0123456789');
-        Configure::write('Security.cipherSeed', '3804817265');
+        Configure::write('Security.cipherSeed', '2659758734');
 
         $this->assertSame(
             ['Please change the value of \'Security.cipherSeed\' in ' . CONFIG . 'core.php to a numeric (digits only) seed value specific to your application.'],

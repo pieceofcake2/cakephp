@@ -464,7 +464,7 @@ class SecurityTest extends CakeTestCase
         $expected = [
             '76859309657453542496749683645' => 'bc2e6fd4b6ef8959f32f08283b30',
             '1234567890' => 'e3fa7487966e7b592f823fba7f70',
-            '3804817265' => 'fb8b7eeb8e0efa68ff6795d21b3d',
+            '2659758734' => 'fd083e5882c1970fc807f0b2d4e2',
         ];
         $this->_captureCipherReports();
         foreach ($expected as $seed => $hex) {
@@ -627,7 +627,7 @@ class SecurityTest extends CakeTestCase
     public function testCipherSeedInRangeNotLogged()
     {
         Configure::write('debug', 0);
-        foreach (['1', '4294967295', '3804817265', '0001', 1234, 4294967295] as $seed) {
+        foreach (['1', '4294967295', '2659758734', '0001', 1234, 4294967295] as $seed) {
             Configure::write('Security.cipherSeed', $seed);
             $this->_captureCipherReports();
             Security::cipher('abc', 'my_key');
@@ -643,7 +643,7 @@ class SecurityTest extends CakeTestCase
      */
     public function testIsCipherSeedInRange()
     {
-        foreach (['1', '9', '0001', '4294967295', '3804817265', 1, 4294967295] as $seed) {
+        foreach (['1', '9', '0001', '4294967295', '2659758734', 1, 4294967295] as $seed) {
             $this->assertTrue(Security::isCipherSeedInRange($seed), var_export($seed, true));
         }
         foreach (['', '0', '000', '4294967296', '04294967296', '76859309657453542496749683645', ' 1', '1 ', '+1', '-1', '1.0', '1e5', 'abc', 0, -1, 4294967296, 1.0, null, true, []] as $seed) {
