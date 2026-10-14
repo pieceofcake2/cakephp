@@ -33,7 +33,7 @@ class Security
     /**
      * Default cost
      *
-     * @var string
+     * @var string|int
      */
     public static $hashCost = '10';
 
@@ -169,7 +169,7 @@ class Security
                 [4, 31],
             ), E_USER_WARNING);
 
-            return null;
+            return;
         }
         static::$hashCost = $cost;
     }
@@ -426,7 +426,7 @@ class Security
      * @param string $cipher The ciphertext to decrypt.
      * @param string $key The 256 bit/32 byte key to use as a cipher key.
      * @param string $hmacSalt The salt to use for the HMAC process. Leave null to use Security.salt.
-     * @return string Decrypted data. Any trailing null bytes will be removed.
+     * @return string|false Decrypted data. Any trailing null bytes will be removed.
      * @throws CakeException On invalid data or key.
      */
     public static function decrypt($cipher, $key, $hmacSalt = null)

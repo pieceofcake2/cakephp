@@ -308,7 +308,7 @@ class CakeTime
     /**
      * Returns server's offset from GMT in seconds.
      *
-     * @return int Offset
+     * @return string Offset
      * @link https://book.cakephp.org/2.0/en/core-libraries/helpers/time.html#TimeHelper::serverOffset
      */
     public static function serverOffset()

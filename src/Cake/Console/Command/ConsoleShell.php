@@ -224,7 +224,7 @@ class ConsoleShell extends AppShell
      * Determine the method to process the current command
      *
      * @param string $command The command to run.
-     * @return string or false
+     * @return string|false or false
      */
     protected function _method($command)
     {

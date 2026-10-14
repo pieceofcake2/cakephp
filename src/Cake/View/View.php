@@ -840,7 +840,7 @@ class View extends CakeObject
      * @param array|string $one A string or an array of data.
      * @param mixed $two Value in case $one is a string (which then works as the key).
      *    Unused if $one is an associative array, otherwise serves as the values to $one's keys.
-     * @return void
+     * @return false|null
      */
     public function set($one, $two = null)
     {
@@ -858,6 +858,8 @@ class View extends CakeObject
             return false;
         }
         $this->viewVars = $data + $this->viewVars;
+
+        return null;
     }
 
     /**

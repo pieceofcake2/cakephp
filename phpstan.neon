@@ -2,7 +2,7 @@ includes:
     - vendor/pieceofcake2/phpstan-cakephp2/extension.neon
 
 parameters:
-    level: 2
+    level: 3
     phpVersion: 80000
     paths:
         - src/Cake

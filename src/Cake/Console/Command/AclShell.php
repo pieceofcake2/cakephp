@@ -572,7 +572,7 @@ class AclShell extends AppShell
      *
      * @param string $class Class type you want (Aro/Aco)
      * @param array|string|null $identifier A mixed identifier for finding the node, otherwise null.
-     * @return int Integer of NodeId. Will trigger an error if nothing is found.
+     * @return int|null Integer of NodeId. Will trigger an error if nothing is found.
      */
     protected function _getNodeId($class, $identifier)
     {

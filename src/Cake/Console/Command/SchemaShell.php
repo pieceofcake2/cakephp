@@ -456,14 +456,14 @@ class SchemaShell extends AppShell
      * @param array $contents The contents to execute.
      * @param string $event The event to fire
      * @param CakeSchema $Schema The schema instance.
-     * @return void
+     * @return false|null
      */
     protected function _run($contents, $event, CakeSchema $Schema)
     {
         if (empty($contents)) {
             $this->err(__d('cake_console', 'Sql could not be run'));
 
-            return;
+            return null;
         }
         Configure::write('debug', 2);
         $db = ConnectionManager::getDataSource($this->Schema->connection);
@@ -496,6 +496,8 @@ class SchemaShell extends AppShell
                 }
             }
         }
+
+        return null;
     }
 
     /**

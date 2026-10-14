@@ -39,7 +39,7 @@ abstract class CakeTestCase extends TestCase
      * By default, all fixtures attached to this class will be truncated and reloaded after each test.
      * Set this to false to handle manually
      *
-     * @var array
+     * @var bool
      */
     public $autoFixtures = true;
 

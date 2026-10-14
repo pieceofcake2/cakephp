@@ -140,7 +140,7 @@ class Router
     /**
      * Stores all information necessary to decide what named arguments are parsed under what conditions.
      *
-     * @var string
+     * @var array
      */
     protected static $_namedConfig = [
         'default' => ['page', 'fields', 'order', 'limit', 'recursive', 'sort', 'direction', 'step'],

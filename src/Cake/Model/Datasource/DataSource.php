@@ -68,7 +68,7 @@ class DataSource extends CakeObject
     /**
      * Holds a list of sources (tables) contained in the DataSource
      *
-     * @var array
+     * @var array|null
      */
     protected $_sources = null;
 
@@ -198,7 +198,7 @@ class DataSource extends CakeObject
      * Converts column types to basic types
      *
      * @param string $real Real column type (i.e. "varchar(255)")
-     * @return string Abstract column type (i.e. "string")
+     * @return string|false Abstract column type (i.e. "string")
      */
     public function column($real)
     {
@@ -280,7 +280,7 @@ class DataSource extends CakeObject
      * Returns the number of rows returned by last operation.
      *
      * @param mixed $source The source name.
-     * @return int Number of rows returned by last operation
+     * @return int|false Number of rows returned by last operation
      */
     public function lastNumRows($source = null)
     {
@@ -291,7 +291,7 @@ class DataSource extends CakeObject
      * Returns the number of rows affected by last query.
      *
      * @param mixed $source The source name.
-     * @return int Number of rows affected by last query.
+     * @return int|false Number of rows affected by last query.
      */
     public function lastAffected($source = null)
     {
@@ -456,7 +456,7 @@ class DataSource extends CakeObject
     /**
      * Closes a connection. Override in subclasses.
      *
-     * @return bool
+     * @return bool|null
      */
     public function close()
     {

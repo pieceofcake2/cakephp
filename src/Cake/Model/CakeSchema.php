@@ -152,7 +152,7 @@ class CakeSchema extends CakeObject
      * Reads database and creates schema tables.
      *
      * @param array $options Schema object properties.
-     * @return array|bool Set of name and tables.
+     * @return CakeSchema|false Set of name and tables.
      */
     public function load($options = [])
     {

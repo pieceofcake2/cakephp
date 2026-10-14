@@ -350,14 +350,14 @@ class CakeResponse
     /**
      * File object for file to be read out as response
      *
-     * @var File
+     * @var File|null
      */
     protected $_file = null;
 
     /**
      * File range. Used for requesting ranges of files.
      *
-     * @var array
+     * @var array|null
      */
     protected $_fileRange = null;
 
@@ -860,7 +860,7 @@ class CakeResponse
      *   if set to false, the response will be set to private
      *   if no value is provided, it will return whether the response is sharable or not
      * @param int $time time in seconds after which the response should no longer be considered fresh
-     * @return bool
+     * @return bool|null
      */
     public function sharable($public = null, $time = null)
     {
@@ -1050,7 +1050,7 @@ class CakeResponse
      *
      * @param array|string $cacheVariances a single Vary string or an array
      *   containing the list for variances.
-     * @return array
+     * @return array|null
      */
     public function vary($cacheVariances = null)
     {

@@ -409,7 +409,7 @@ class Sqlserver extends DboSource
      * @param Model $model The model to insert into.
      * @param array $fields The fields to set.
      * @param array $values The values to set.
-     * @return array
+     * @return bool
      */
     public function create(Model $model, $fields = null, $values = null)
     {
@@ -441,7 +441,7 @@ class Sqlserver extends DboSource
      * @param array $fields The fields to set.
      * @param array $values The values to set.
      * @param mixed $conditions The conditions to use.
-     * @return array
+     * @return bool
      */
     public function update(Model $model, $fields = [], $values = null, $conditions = null)
     {
@@ -470,7 +470,7 @@ class Sqlserver extends DboSource
      *
      * @param int $limit Limit of results returned
      * @param int|null $offset Offset from which to start results
-     * @return string SQL limit/offset statement
+     * @return string|null SQL limit/offset statement
      */
     public function limit($limit, $offset = null)
     {
@@ -606,7 +606,7 @@ class Sqlserver extends DboSource
             } else {
                 $map = [0, $name];
             }
-            $map[] = $column['sqlsrv:decl_type'] === 'bit' ? 'boolean' : $column['native_type'];
+            $map[] = ($column['sqlsrv:decl_type'] ?? null) === 'bit' ? 'boolean' : $column['native_type'];
             $this->map[$index++] = $map;
         }
     }
@@ -839,7 +839,7 @@ class Sqlserver extends DboSource
      *
      * @param array $indexes The indexes to build
      * @param string $table The table to make indexes for.
-     * @return string
+     * @return array
      */
     public function buildIndex($indexes, $table = null)
     {
@@ -868,7 +868,7 @@ class Sqlserver extends DboSource
      * Makes sure it will return the primary key
      *
      * @param Model|string $model Model instance of table name
-     * @return string
+     * @return string|null
      */
     protected function _getPrimaryKey($model)
     {

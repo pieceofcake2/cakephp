@@ -50,7 +50,7 @@ class File
     /**
      * Holds the file handler resource if the file is opened
      *
-     * @var resource
+     * @var resource|null
      * https://book.cakephp.org/2.0/en/core-utility-libraries/file-folder.html#File::$handle
      */
     public $handle = null;
@@ -350,7 +350,7 @@ class File
     /**
      * Returns the file name without extension.
      *
-     * @return string The file name without extension.
+     * @return string|false The file name without extension.
      * @link https://book.cakephp.org/2.0/en/core-utility-libraries/file-folder.html#File::name
      */
     public function name()

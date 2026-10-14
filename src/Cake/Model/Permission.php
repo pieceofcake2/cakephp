@@ -230,7 +230,7 @@ class Permission extends AppModel
      *
      * @param string $aro ARO The requesting object identifier.
      * @param string $aco ACO The controlled object identifier.
-     * @return array Indexed array with: 'aro', 'aco' and 'link'
+     * @return array|false Indexed array with: 'aro', 'aco' and 'link'
      */
     public function getAclLink($aro, $aco)
     {

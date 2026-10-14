@@ -59,7 +59,7 @@ class MediaView extends View
      *
      * @param string $view Not used
      * @param string $layout Not used
-     * @return void
+     * @return null
      */
     public function render($view = null, $layout = null)
     {
@@ -103,5 +103,7 @@ class MediaView extends View
         if ($compress) {
             $this->response->compress();
         }
+
+        return null;
     }
 }

@@ -58,7 +58,7 @@ class CakeSocket
     /**
      * Reference to socket connection resource
      *
-     * @var resource
+     * @var resource|null
      */
     public $connection = null;
 
@@ -408,7 +408,7 @@ class CakeSocket
      * Writes data to the socket.
      *
      * @param string $data The data to write to the socket
-     * @return bool Success
+     * @return int|false Success
      */
     public function write($data)
     {

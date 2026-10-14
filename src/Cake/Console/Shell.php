@@ -143,7 +143,7 @@ class Shell extends CakeObject
     /**
      * Normalized map of tasks.
      *
-     * @var string
+     * @var array
      */
     protected $_taskMap = [];
 

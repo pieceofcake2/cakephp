@@ -27,7 +27,7 @@ class ExtractTask extends AppShell
     /**
      * Paths to use when looking for strings
      *
-     * @var string
+     * @var array
      */
     protected $_paths = [];
 
@@ -55,7 +55,7 @@ class ExtractTask extends AppShell
     /**
      * Contains all content waiting to be write
      *
-     * @var string
+     * @var array
      */
     protected $_storage = [];
 
@@ -97,7 +97,7 @@ class ExtractTask extends AppShell
     /**
      * Holds the validation string domain to use for validation messages when extracting
      *
-     * @var bool
+     * @var string
      */
     protected $_validationDomain = 'default';
 

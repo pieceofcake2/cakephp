@@ -117,7 +117,7 @@ abstract class ControllerTestCase extends CakeTestCase
     /**
      * The controller to test in testAction
      *
-     * @var Controller
+     * @var Controller|null
      */
     public $controller = null;
 
@@ -138,35 +138,35 @@ abstract class ControllerTestCase extends CakeTestCase
     /**
      * The resulting view vars of the last testAction call
      *
-     * @var array
+     * @var array|null
      */
     public $vars = null;
 
     /**
      * The resulting rendered view of the last testAction call
      *
-     * @var string
+     * @var string|null
      */
     public $view = null;
 
     /**
      * The resulting rendered layout+view of the last testAction call
      *
-     * @var string
+     * @var string|null
      */
     public $contents = null;
 
     /**
      * The returned result of the dispatch (requestAction), if any
      *
-     * @var string
+     * @var string|null
      */
     public $result = null;
 
     /**
      * The headers that would have been sent by the action
      *
-     * @var string
+     * @var array|null
      */
     public $headers = null;
 

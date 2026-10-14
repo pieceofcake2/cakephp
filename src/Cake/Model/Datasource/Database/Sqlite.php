@@ -360,8 +360,9 @@ class Sqlite extends DboSource
             $metaType = false;
             try {
                 $metaData = (array)$results->getColumnMeta($j);
-                if (!empty($metaData['sqlite:decl_type'])) {
-                    $metaType = trim($metaData['sqlite:decl_type']);
+                $declType = $metaData['sqlite:decl_type'] ?? null;
+                if (!empty($declType)) {
+                    $metaType = trim($declType);
                 }
             } catch (Exception) {
             }
@@ -432,7 +433,7 @@ class Sqlite extends DboSource
      *
      * @param array $column An array structured like the following: array('name'=>'value', 'type'=>'value'[, options]),
      *    where options can be 'default', 'length', or 'key'.
-     * @return string
+     * @return string|null
      */
     public function buildColumn($column)
     {
@@ -487,7 +488,7 @@ class Sqlite extends DboSource
     /**
      * Gets the database encoding
      *
-     * @return string The database encoding
+     * @return array|null The database encoding
      */
     public function getEncoding()
     {
@@ -499,7 +500,7 @@ class Sqlite extends DboSource
      *
      * @param array $indexes The indexes to build.
      * @param string $table The table name.
-     * @return string The completed index.
+     * @return array The completed index.
      */
     public function buildIndex($indexes, $table = null)
     {

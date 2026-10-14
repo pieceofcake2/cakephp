@@ -669,7 +669,7 @@ class Set
      *
      * @param array|string $data Data to check on
      * @param array|string $path A dot-separated string.
-     * @return bool true if path is found, false otherwise
+     * @return mixed true if path is found, false otherwise
      * @link https://book.cakephp.org/2.0/en/core-utility-libraries/set.html#Set::check
      */
     public static function check($data, $path = null)

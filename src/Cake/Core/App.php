@@ -154,7 +154,7 @@ class App
     /**
      * Holds the templates for each customizable package path in the application
      *
-     * @var array
+     * @var array|null
      */
     protected static $_packageFormat = [];
 

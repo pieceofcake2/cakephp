@@ -321,7 +321,7 @@ class FileEngine extends CacheEngine
      *
      * @param string $key The key to decrement
      * @param int $offset The number to offset
-     * @return void
+     * @return never
      * @throws CacheException
      */
     public function decrement($key, $offset = 1)
@@ -334,7 +334,7 @@ class FileEngine extends CacheEngine
      *
      * @param string $key The key to decrement
      * @param int $offset The number to offset
-     * @return void
+     * @return never
      * @throws CacheException
      */
     public function increment($key, $offset = 1)

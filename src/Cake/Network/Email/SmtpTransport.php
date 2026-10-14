@@ -33,7 +33,7 @@ class SmtpTransport extends AbstractTransport
     /**
      * Content of email to return
      *
-     * @var string
+     * @var array
      */
     protected $_content;
 

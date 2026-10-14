@@ -57,7 +57,7 @@ class ApiShell extends AppShell
     /**
      * Override main() to handle action
      *
-     * @return void
+     * @return int|bool|null
      */
     public function main()
     {
@@ -101,7 +101,7 @@ class ApiShell extends AppShell
 
                     $this->_stop();
 
-                    return;
+                    return null;
                 }
                 $method = $parsed[$this->params['method']];
                 $this->out($class . '::' . $method['method'] . $method['parameters']);
@@ -123,7 +123,7 @@ class ApiShell extends AppShell
 
                         $this->_stop();
 
-                        return;
+                        return null;
                     }
 
                     if ($number === 'l') {
@@ -140,6 +140,8 @@ class ApiShell extends AppShell
                 }
             }
         }
+
+        return null;
     }
 
     /**

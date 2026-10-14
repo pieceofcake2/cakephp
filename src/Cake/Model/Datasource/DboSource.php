@@ -85,21 +85,21 @@ class DboSource extends DataSource
     /**
      * String to hold how many rows were affected by the last SQL operation.
      *
-     * @var string
+     * @var int|false|null
      */
     public $affected = null;
 
     /**
      * Number of rows in current resultset
      *
-     * @var int
+     * @var int|false|null
      */
     public $numRows = null;
 
     /**
      * Time the last query took
      *
-     * @var int|null
+     * @var int|false|null
      */
     public $took = null;
 
@@ -353,7 +353,7 @@ class DboSource extends DataSource
      * @param string $data String to be prepared for use in an SQL statement
      * @param string $column The column datatype into which this data will be inserted.
      * @param bool $null Column allows NULL values
-     * @return string Quoted and escaped data
+     * @return array|string Quoted and escaped data
      */
     public function value($data, $column = null, $null = true)
     {
@@ -553,7 +553,7 @@ class DboSource extends DataSource
      * Returns a formatted error message from previous database operation.
      *
      * @param PDOStatement $query the query to extract the error from if any
-     * @return string Error message with error number
+     * @return string|null Error message with error number
      */
     public function lastError(?PDOStatement $query = null)
     {
@@ -701,7 +701,7 @@ class DboSource extends DataSource
      * Returns a row from current resultset as an array
      *
      * @param string $sql Some SQL to be executed.
-     * @return array The fetched row as an array
+     * @return array|null The fetched row as an array
      */
     public function fetchRow($sql = null)
     {
@@ -788,7 +788,7 @@ class DboSource extends DataSource
     /**
      * Fetches the next row from the current result set
      *
-     * @return bool
+     * @return array|false
      */
     public function fetchResult()
     {
@@ -959,7 +959,7 @@ class DboSource extends DataSource
      *
      * @param mixed $data Either a string with a column to quote. An array of columns to quote or an
      *   object from DboSource::expression() or DboSource::identifier()
-     * @return string SQL field
+     * @return array|string SQL field
      */
     public function name($data)
     {
@@ -2399,7 +2399,7 @@ class DboSource extends DataSource
      *
      * @param Model $Model The model to find matching records for.
      * @param mixed $conditions The conditions to match against.
-     * @return array List of record IDs
+     * @return array|string|false List of record IDs
      */
     protected function _matchRecords(Model $Model, $conditions = null)
     {
@@ -2976,7 +2976,7 @@ class DboSource extends DataSource
      * @param array $conditions Array or string of conditions
      * @param bool $quoteValues If true, values should be quoted
      * @param Model $Model A reference to the Model instance making the query
-     * @return string SQL fragment
+     * @return array|string SQL fragment
      */
     public function conditionKeysToString($conditions, $quoteValues = true, ?Model $Model = null)
     {
@@ -3359,7 +3359,7 @@ class DboSource extends DataSource
      *
      * @param array|string $fields Group By fields
      * @param Model $Model The model to get group by fields for.
-     * @return string Group By clause or null.
+     * @return string|null Group By clause or null.
      */
     public function group($fields, ?Model $Model = null)
     {
@@ -3421,11 +3421,13 @@ class DboSource extends DataSource
     /**
      * Disconnects database, kills the connection and says the connection is closed.
      *
-     * @return void
+     * @return null
      */
     public function close()
     {
         $this->disconnect();
+
+        return null;
     }
 
     /**
@@ -3595,7 +3597,7 @@ class DboSource extends DataSource
      * @param CakeSchema $schema An instance of a subclass of CakeSchema
      * @param string $tableName Optional. If specified only the table name given will be generated.
      *   Otherwise, all tables defined in the schema are generated.
-     * @return string
+     * @return string|null
      */
     public function createSchema($schema, $tableName = null)
     {
@@ -3661,7 +3663,7 @@ class DboSource extends DataSource
      *
      * @param mixed $compare The comparison data.
      * @param string $table The table name.
-     * @return bool
+     * @return string|false
      */
     public function alterSchema($compare, $table = null)
     {
@@ -3709,7 +3711,7 @@ class DboSource extends DataSource
      *
      * @param array $column An array structured like the following: array('name' => 'value', 'type' => 'value'[, options]),
      *   where options can be 'default', 'length', or 'key'.
-     * @return string
+     * @return string|null
      */
     public function buildColumn($column)
     {

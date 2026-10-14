@@ -146,6 +146,7 @@ abstract class JsBaseEngineHelper extends AppHelper
      * @param mixed $val A PHP variable to be converted to JSON
      * @param bool $quoteString If false, leaves string values unquoted
      * @param string $key Key name.
+     * @phpstan-param mixed $quoteString
      * @return string a JavaScript-safe/JSON representation of $val
      */
     public function value($val = [], $quoteString = null, $key = 'value')

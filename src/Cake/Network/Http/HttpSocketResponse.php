@@ -53,7 +53,7 @@ class HttpSocketResponse implements ArrayAccess
     /**
      * Response code
      *
-     * @var int
+     * @var string|int
      */
     public $code = 0;
 

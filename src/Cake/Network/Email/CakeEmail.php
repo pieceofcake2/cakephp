@@ -164,7 +164,7 @@ class CakeEmail
     /**
      * Layout for the View
      *
-     * @var string
+     * @var string|false
      */
     protected $_layout = 'default';
 
@@ -192,7 +192,7 @@ class CakeEmail
     /**
      * Theme for the View
      *
-     * @var array
+     * @var string|null
      */
     protected $_theme = null;
 
@@ -220,7 +220,7 @@ class CakeEmail
     /**
      * Final message to send
      *
-     * @var array
+     * @var array|string
      */
     protected $_message = [];
 
@@ -248,7 +248,7 @@ class CakeEmail
     /**
      * Instance of transport class
      *
-     * @var AbstractTransport
+     * @var AbstractTransport|null
      */
     protected $_transportClass = null;
 
@@ -278,7 +278,7 @@ class CakeEmail
      * Charset the email header is sent in
      * If null, the $charset property will be used as default
      *
-     * @var string
+     * @var string|null
      */
     public $headerCharset = null;
 

@@ -42,7 +42,7 @@ class ModelValidator implements ArrayAccess, IteratorAggregate, Countable
     /**
      * Holds the reference to the model this Validator is attached to
      *
-     * @var Model
+     * @var Model|array
      */
     protected $_model = [];
 
@@ -123,6 +123,7 @@ class ModelValidator implements ArrayAccess, IteratorAggregate, Countable
      *
      * @param array &$data Record data to validate. This should be an array indexed by association name.
      * @param array $options Options to use when validating record data (see above), See also $options of validates().
+     * @param-out array|false $data
      * @return array|bool If atomic: True on success, or false on failure.
      *    Otherwise: array similar to the $data array passed, but values are set to true/false
      *    depending on whether each record validated successfully.

@@ -72,7 +72,7 @@ class FormHelper extends AppHelper
     /**
      * Defines the type of form being created. Set by FormHelper::create().
      *
-     * @var string
+     * @var string|null
      */
     public $requestType = null;
 
@@ -709,7 +709,7 @@ class FormHelper extends AppHelper
      *     or excluded as part of the unlockedFields.
      * @param array|string $field Reference to field to be secured. Should be dot separated to indicate nesting.
      * @param mixed $value Field value, if value should not be tampered with.
-     * @return void
+     * @return mixed
      */
     protected function _secure($lock, $field = null, $value = null)
     {
@@ -725,7 +725,7 @@ class FormHelper extends AppHelper
         foreach ($this->_unlockedFields as $unlockField) {
             $unlockParts = explode('.', $unlockField);
             if (array_values(array_intersect($field, $unlockParts)) === $unlockParts) {
-                return;
+                return null;
             }
         }
 
@@ -744,6 +744,8 @@ class FormHelper extends AppHelper
         } else {
             $this->unlockField($field);
         }
+
+        return null;
     }
 
     /**
@@ -3250,7 +3252,7 @@ class FormHelper extends AppHelper
      * in secured field hash.
      *
      * @param array $options An array of options possibly containing a name key.
-     * @return string|null
+     * @return array|string|null
      */
     protected function _secureFieldName($options)
     {

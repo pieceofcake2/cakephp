@@ -132,7 +132,7 @@ class Controller extends CakeObject implements CakeEventListener
     /**
      * The name of the layouts subfolder containing layouts for this controller.
      *
-     * @var string
+     * @var string|null
      */
     public $layoutPath = null;
 
@@ -218,7 +218,7 @@ class Controller extends CakeObject implements CakeEventListener
     /**
      * Automatically set to the name of a plugin.
      *
-     * @var string
+     * @var string|null
      */
     public $plugin = null;
 

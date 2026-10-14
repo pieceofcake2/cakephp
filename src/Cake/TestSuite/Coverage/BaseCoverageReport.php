@@ -30,21 +30,21 @@ abstract class BaseCoverageReport
     /**
      * coverage data
      *
-     * @var string
+     * @var array
      */
     protected $_rawCoverage;
 
     /**
      * is the test an app test
      *
-     * @var string
+     * @var bool
      */
     public $appTest = false;
 
     /**
      * is the test a plugin test
      *
-     * @var string
+     * @var string|false
      */
     public $pluginTest = false;
 

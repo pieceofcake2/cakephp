@@ -41,7 +41,7 @@ class CakeEventManager
     /**
      * List of listener callbacks associated to
      *
-     * @var object
+     * @var array
      */
     protected $_listeners = [];
 
@@ -147,7 +147,7 @@ class CakeEventManager
      *
      * @param array $function the array taken from a handler definition for an event
      * @param CakeEventListener $object The handler object
-     * @return callable
+     * @return array{callable, array} The callable and its options
      */
     protected function _extractCallable($function, $object)
     {

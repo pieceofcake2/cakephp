@@ -80,7 +80,7 @@ class NumberHelper extends AppHelper
      *
      * @param float $number A floating point number.
      * @param int $precision The precision of the returned number.
-     * @return float Formatted float.
+     * @return string Formatted float.
      * @see CakeNumber::precision()
      * @link https://book.cakephp.org/2.0/en/core-libraries/helpers/number.html#NumberHelper::precision
      */

@@ -222,7 +222,7 @@ class SecurityComponent extends Component
      *
      * @param Controller $controller Instantiating controller
      * @throws AuthSecurityException
-     * @return void
+     * @return mixed
      */
     public function startup(Controller $controller)
     {
@@ -259,6 +259,8 @@ class SecurityComponent extends Component
         if ($hasData && is_array($controller->request->data)) {
             unset($controller->request->data['_Token']);
         }
+
+        return null;
     }
 
     /**
@@ -920,7 +922,7 @@ class SecurityComponent extends Component
      *
      * @param array $expectedFields Expected fields
      * @param string $missingMessage Message template
-     * @return string Error message about expected fields
+     * @return string|null Error message about expected fields
      */
     protected function _debugExpectedFields($expectedFields = [], $missingMessage = '')
     {

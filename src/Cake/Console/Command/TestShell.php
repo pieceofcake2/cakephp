@@ -356,7 +356,7 @@ class TestShell extends Shell
      * @param string $file The file to map.
      * @param string $category The test file category.
      * @param bool $throwOnMissingFile Whether or not to throw an exception.
-     * @return array array(type, case)
+     * @return string|false|null The test case name, false if the file is not a PHP file, null if it cannot be mapped
      * @throws Exception
      */
     protected function _mapFileToCase($file, $category, $throwOnMissingFile = true)

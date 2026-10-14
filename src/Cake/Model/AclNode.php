@@ -56,7 +56,7 @@ class AclNode extends Model
      * Retrieves the Aro/Aco node for this model
      *
      * @param Model|array|string $ref Array with 'model' and 'foreign_key', model object, or string value
-     * @return array Node found in database
+     * @return array|false|null Node found in database
      * @throws CakeException when binding to a model that doesn't exist.
      */
     public function node($ref = null)

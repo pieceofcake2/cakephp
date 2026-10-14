@@ -184,7 +184,7 @@ class ModelBehavior extends CakeObject
      * @param Model $model Model using this behavior
      * @param bool $created True if this save created a new record
      * @param array $options Options passed from Model::save().
-     * @return bool
+     * @return bool|null
      * @see Model::save()
      */
     public function afterSave(Model $model, $created, $options = [])

@@ -89,7 +89,7 @@ class Model extends CakeObject implements CakeEventListener
     /**
      * Table name for this Model.
      *
-     * @var string
+     * @var string|false
      */
     public $table = false;
 
@@ -104,7 +104,7 @@ class Model extends CakeObject implements CakeEventListener
     /**
      * Field-by-field table metadata.
      *
-     * @var array
+     * @var array|null
      */
     protected $_schema = null;
 
@@ -218,7 +218,7 @@ class Model extends CakeObject implements CakeEventListener
     /**
      * Database table prefix for tables in model.
      *
-     * @var string
+     * @var string|null
      * @link https://book.cakephp.org/2.0/en/models/model-attributes.html#tableprefix
      */
     public $tablePrefix = null;
@@ -503,7 +503,7 @@ class Model extends CakeObject implements CakeEventListener
     /**
      * Type of find query currently executing.
      *
-     * @var string
+     * @var string|null
      */
     public $findQueryType = null;
 
@@ -522,7 +522,7 @@ class Model extends CakeObject implements CakeEventListener
      * public $order = "Post.created DESC";
      * public $order = array("Post.view_count DESC", "Post.rating DESC");
      *
-     * @var string
+     * @var array|string|null
      * @link https://book.cakephp.org/2.0/en/models/model-attributes.html#order
      */
     public $order = null;
@@ -1443,7 +1443,7 @@ class Model extends CakeObject implements CakeEventListener
      * Returns the column type of a column in the model.
      *
      * @param string $column The name of the model column
-     * @return string Column type
+     * @return string|null Column type
      */
     public function getColumnType($column)
     {
@@ -2698,6 +2698,7 @@ class Model extends CakeObject implements CakeEventListener
      *
      * @param array &$data Record data to validate. This should be an array indexed by association name.
      * @param array $options Options to use when validating record data (see above), See also $options of validates().
+     * @param-out array|false $data
      * @return array|bool If atomic: True on success, or false on failure.
      *    Otherwise: array similar to the $data array passed, but values are set to true/false
      *    depending on whether each record validated successfully.

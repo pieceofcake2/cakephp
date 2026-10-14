@@ -41,7 +41,7 @@ class CakeSession
     /**
      * Error messages for this session
      *
-     * @var array
+     * @var array|false
      */
     public static $error = false;
 
@@ -69,7 +69,7 @@ class CakeSession
     /**
      * Start time for this session.
      *
-     * @var int
+     * @var int|false
      */
     public static $time = false;
 
@@ -83,14 +83,14 @@ class CakeSession
     /**
      * Time when this session becomes invalid.
      *
-     * @var int
+     * @var int|false
      */
     public static $sessionTime = false;
 
     /**
      * Current Session id
      *
-     * @var string
+     * @var string|null
      */
     public static $id = null;
 
@@ -127,7 +127,7 @@ class CakeSession
     /**
      * Session cookie name
      *
-     * @var string
+     * @var string|null
      */
     protected static $_cookieName = null;
 
@@ -330,7 +330,7 @@ class CakeSession
      * Return error description for given error number.
      *
      * @param int $errorNumber Error to set
-     * @return string Error as string
+     * @return string|false Error as string
      */
     protected static function _error($errorNumber)
     {

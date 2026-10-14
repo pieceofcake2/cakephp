@@ -289,7 +289,7 @@ class CacheHelper extends AppHelper
      * @param string $timestamp Duration to set for cache file.
      * @param bool|null $useCallbacks Whether to include statements in cached file which
      *   run callbacks, otherwise null.
-     * @return bool success of caching view.
+     * @return bool|null success of caching view.
      */
     protected function _writeFile($content, $timestamp, $useCallbacks = false)
     {

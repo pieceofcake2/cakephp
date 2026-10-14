@@ -115,7 +115,7 @@ class Helper extends CakeObject
      * The name of the current model entities are in scope of.
      *
      * @see Helper::setEntity()
-     * @var string
+     * @var string|false|null
      */
     protected $_modelScope;
 
@@ -123,7 +123,7 @@ class Helper extends CakeObject
      * The name of the current model association entities are in scope of.
      *
      * @see Helper::setEntity()
-     * @var string
+     * @var string|null
      */
     protected $_association;
 

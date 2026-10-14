@@ -83,7 +83,7 @@ class TimeHelper extends AppHelper
      * Magic isset check for deprecated attributes.
      *
      * @param string $name Name of the attribute to check.
-     * @return bool|null
+     * @return bool
      */
     public function __isset($name)
     {
@@ -95,7 +95,7 @@ class TimeHelper extends AppHelper
             return $this->__get($name) !== null;
         }
 
-        return null;
+        return false;
     }
 
     /**
@@ -162,7 +162,7 @@ class TimeHelper extends AppHelper
     /**
      * Returns server's offset
      *
-     * @return int Offset
+     * @return string Offset
      * @see CakeTime::serverOffset()
      * @link https://book.cakephp.org/2.0/en/core-libraries/helpers/time.html#formatting
      */
@@ -176,7 +176,7 @@ class TimeHelper extends AppHelper
      *
      * @param DateTime|string|int $dateString UNIX timestamp, strtotime() valid string or DateTime object
      * @param DateTimeZone|string $timezone User's timezone string or DateTimeZone object
-     * @return string Parsed timestamp
+     * @return int|false Parsed timestamp
      * @see CakeTime::fromString()
      * @link https://book.cakephp.org/2.0/en/core-libraries/helpers/time.html#formatting
      */

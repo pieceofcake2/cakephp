@@ -160,7 +160,7 @@ class Folder
      * Change directory to $path.
      *
      * @param string $path Path to the directory to change to
-     * @return string The new path. Returns false on failure
+     * @return string|false The new path. Returns false on failure
      * @link https://book.cakephp.org/2.0/en/core-utility-libraries/file-folder.html#Folder::cd
      */
     public function cd($path)
@@ -909,7 +909,7 @@ class Folder
      * Get the real path (taking ".." and such into account)
      *
      * @param string $path Path to resolve
-     * @return string The resolved path
+     * @return string|false The resolved path
      * @link https://book.cakephp.org/2.0/en/core-utility-libraries/file-folder.html#Folder::realpath
      */
     public function realpath($path)

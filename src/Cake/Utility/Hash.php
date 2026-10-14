@@ -475,7 +475,7 @@ class Hash
      * @param array $data Source array from which to extract the data
      * @param array $paths An array containing one or more Hash::extract()-style key paths
      * @param string $format Format string into which values will be inserted, see sprintf()
-     * @return array An array of strings extracted from `$path` and formatted with `$format`
+     * @return array|null An array of strings extracted from `$path` and formatted with `$format`
      * @link https://book.cakephp.org/2.0/en/core-utility-libraries/hash.html#Hash::format
      * @see sprintf()
      * @see Hash::extract()

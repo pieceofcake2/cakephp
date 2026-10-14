@@ -72,7 +72,7 @@ class CakeRequest implements ArrayAccess
     /**
      * Base URL path.
      *
-     * @var string
+     * @var string|false
      */
     public $base = false;
 
