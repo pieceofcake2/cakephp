@@ -15,6 +15,28 @@ Before migrating to this fork, ensure:
 4. **Upgrade PHP**: Update your PHP version to 8.0 or newer
 5. **Test Thoroughly**: Run your application's test suite to ensure compatibility
 
+## Unreleased
+
+### Debug Error Pages in the CakePHP 5 Style
+
+In debug mode the core error pages (missing controller / action / view, database errors, uncaught exceptions without an application `error400.ctp` / `error500.ctp`, ...) now use a new `dev_error` layout ported from CakePHP 5, with code excerpts for every stack frame. Nothing changes in production mode (`debug` = 0), for AJAX requests or in the console, and no PHP API changed.
+
+Error templates that your application, plugin or theme provides (for example `templates/Errors/error400.ctp` / `error500.ctp`, or `app/View/Errors/...` in the legacy layout) keep rendering in your layout as before, and the `exception_stack_trace` element still works.
+
+To keep the old look for the core error pages:
+
+- Provide your own `Layouts/dev_error.ctp` (in `templates/Layouts/`, `app/View/Layouts/` or a theme). It receives the blocks `title`, `subheading`, `file` and `templateName`, and the `$error` view variable. For example:
+
+  ```php
+  <?php $this->extend('/Layouts/default'); ?>
+  <h2><?php echo $this->fetch('title'); ?></h2>
+  <p class="error"><?php echo $this->fetch('subheading'); ?></p>
+  <?php echo $this->fetch('file'); ?>
+  <?php echo $this->element('exception_stack_trace'); ?>
+  ```
+
+- Or copy the error templates you want to keep from the previous release into your `Errors/` directory.
+
 ## v2.12.5
 
 ### Security Fixes

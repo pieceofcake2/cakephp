@@ -1,5 +1,14 @@
 ## CHANGELOG
 
+## Unreleased
+
+### Debug Error Pages in the CakePHP 5 Style
+
+- **Error pages**: In debug mode (`debug` > 0) the core error templates (`missing_controller`, `missing_action`, `missing_view`, `missing_layout`, `missing_component`, `missing_helper`, `missing_behavior`, `missing_plugin`, `missing_table`, `missing_connection`, `missing_database`, `missing_datasource`, `missing_datasource_config`, `pdo_error`, `private_action`, `scaffold_error`, `fatal_error`, `error400`, `error500`) are rendered in the new `dev_error` layout ported from CakePHP 5: a header with the error title and exception class, the suggested fix with copyable code and the real file path of the application layout (`src/Controller/...` or `app/Controller/...`), and a stack trace of the exception and its previous exceptions with code excerpts, collapsible frames, arguments and a toggle for vendor frames. The layout has inline CSS and JavaScript and uses no helpers
+- **Unchanged**: Production mode (`debug` = 0), error templates provided by the application, plugin or theme, AJAX requests and the console. `Layouts/dev_error.ctp` in the application or theme overrides the core layout, and the `exception_stack_trace` element is kept for application templates
+- **ExceptionRenderer**: When an error page fails to render, the fallback still renders the template with the `error` layout, but lets the core templates switch to `dev_error` in debug mode
+- **Debugger**: `Debugger::excerpt()` no longer shows `<?php` at the start of every line on PHP 8.3+
+
 ## v2.12.5 (2026-10-15)
 
 > [!IMPORTANT]
