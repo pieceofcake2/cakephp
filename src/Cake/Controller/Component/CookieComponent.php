@@ -94,8 +94,13 @@ class CookieComponent extends Component
     /**
      * Encryption key.
      *
-     * Overridden with the controller beforeFilter();
+     * Defaults to `Configure::read('Cookie.key')` when that is a non-empty string,
+     * otherwise to `Configure::read('Security.salt')`. A `'key'` in the component
+     * settings, or setting this property (e.g. in the controller beforeFilter()),
+     * always wins:
      * $this->Cookie->key = 'SomeRandomString';
+     *
+     * The 'aes' type needs a key of at least 32 bytes.
      *
      * @var string|null
      */
@@ -125,14 +130,17 @@ class CookieComponent extends Component
      * Type of encryption to use.
      *
      * Currently three methods are available: cipher, rijndael and aes
+     * Set with the `'type'` setting or CookieComponent::type(); without one, the
+     * `Cookie.type` Configure value is used when set.
      * Defaults to Security::cipher(). Cipher is horribly insecure and only
      * the default because of backwards compatibility. In new applications you should
      * always change this to 'aes' or 'rijndael'.
      *
      * Deprecated: the 'cipher' type is deprecated. The first encrypted read or write
      * with it in a process logs a deprecation warning (and triggers E_USER_DEPRECATED
-     * when debug is enabled). Use 'aes' with its own key of at least 32 bytes and
-     * `Security.useOpenSsl` enabled; existing 'cipher' cookies cannot be read after the switch.
+     * when debug is enabled). Set Configure `Cookie.type` to 'aes' and `Cookie.key` to a
+     * random value of at least 32 bytes, with `Security.useOpenSsl` enabled; existing
+     * 'cipher' cookies cannot be read after the switch.
      *
      * @var string
      */
@@ -171,18 +179,25 @@ class CookieComponent extends Component
     /**
      * Constructor
      *
+     * The key defaults to the `Cookie.key` Configure value when it is a non-empty string,
+     * otherwise to `Security.salt`. The type defaults to the `Cookie.type` Configure value
+     * when it is set, otherwise to 'cipher'. `'key'` and `'type'` in $settings win.
+     *
      * @param ComponentCollection $collection A ComponentCollection for this component
      * @param array $settings Array of settings.
      */
     public function __construct(ComponentCollection $collection, $settings = [])
     {
-        $this->key = Configure::read('Security.salt');
+        $cookieKey = Configure::read('Cookie.key');
+        $this->key = is_string($cookieKey) && $cookieKey !== '' ? $cookieKey : Configure::read('Security.salt');
         parent::__construct($collection, $settings);
         if (isset($this->time)) {
             $this->_expire($this->time);
         }
         if (isset($settings['type'])) {
             $this->type($settings['type']);
+        } elseif (Configure::read('Cookie.type') !== null) {
+            $this->type(Configure::read('Cookie.type'));
         }
 
         $controller = $collection->getController();
@@ -358,7 +373,8 @@ class CookieComponent extends Component
      * written any cookies.
      *
      * Deprecated: the 'cipher' type (the default) is deprecated and insecure. Use
-     * `'aes'` with its own key of at least 32 bytes and `Security.useOpenSsl` enabled. See
+     * `'aes'` with its own key of at least 32 bytes and `Security.useOpenSsl` enabled,
+     * e.g. with the `Cookie.type` and `Cookie.key` Configure values. See
      * https://pieceofcake2.github.io/docs/development/configuration.html
      *
      * @param string $type Encryption method

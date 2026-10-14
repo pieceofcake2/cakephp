@@ -712,8 +712,9 @@ TEXT;
         Configure::write('Security.salt', 'a-salt-specific-to-this-test-0123456789');
         $expected = 'The value of \'Security.cipherSeed\' in ' . CONFIG . 'core.php is not a digits-only number '
             . 'from 1 to 4294967295, so Security::cipher() does not use it as given. An in-range seed does not '
-            . 'make \'cipher\' secure: use \'type\' => \'aes\' with its own key of at least 32 bytes and '
-            . 'Security.useOpenSsl enabled. See https://pieceofcake2.github.io/docs/development/configuration.html';
+            . 'make \'cipher\' secure: set Configure \'Cookie.type\' to \'aes\' and \'Cookie.key\' to a random value '
+            . 'of at least 32 bytes, with Security.useOpenSsl enabled. '
+            . 'See https://pieceofcake2.github.io/docs/development/configuration.html';
 
         foreach (['', '0', 'abc', '4294967296', '770011223369876', '12345678901234567890123456', 770011223369876] as $seed) {
             Configure::write('Security.cipherSeed', $seed);

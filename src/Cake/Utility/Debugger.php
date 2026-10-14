@@ -894,7 +894,7 @@ class Debugger
         if ($cipherSeed !== null && !Security::isCipherSeedInRange($cipherSeed)) {
             trigger_error(__d(
                 'cake_dev',
-                'The value of %s in %s is not a digits-only number from 1 to %s, so Security::cipher() does not use it as given. An in-range seed does not make \'cipher\' secure: use \'type\' => \'aes\' with its own key of at least 32 bytes and Security.useOpenSsl enabled. See %s',
+                'The value of %s in %s is not a digits-only number from 1 to %s, so Security::cipher() does not use it as given. An in-range seed does not make \'cipher\' secure: set Configure \'Cookie.type\' to \'aes\' and \'Cookie.key\' to a random value of at least 32 bytes, with Security.useOpenSsl enabled. See %s',
                 '\'Security.cipherSeed\'',
                 CONFIG . 'core.php',
                 Security::MAX_CIPHER_SEED,

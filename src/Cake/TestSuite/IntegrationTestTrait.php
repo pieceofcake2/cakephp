@@ -438,11 +438,17 @@ trait IntegrationTestTrait
      * Returns the encryption key to be used.
      *
      * @return string The key set with `cookieEncrypted()` or `assertCookieEncrypted()`,
-     *   or `Security.salt` (the default key of `CookieComponent`).
+     *   or the default key of `CookieComponent`: `Cookie.key` when it is a non-empty
+     *   string, otherwise `Security.salt`.
      */
     protected function _getCookieEncryptionKey(): string
     {
-        return $this->_cookieEncryptionKey ?? (string)Configure::read('Security.salt');
+        if ($this->_cookieEncryptionKey !== null) {
+            return $this->_cookieEncryptionKey;
+        }
+        $cookieKey = Configure::read('Cookie.key');
+
+        return is_string($cookieKey) && $cookieKey !== '' ? $cookieKey : (string)Configure::read('Security.salt');
     }
 
     /**
