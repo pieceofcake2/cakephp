@@ -628,7 +628,7 @@ class TranslateBehavior extends ModelBehavior
      */
     protected function _getLocale(Model $Model)
     {
-        if (!isset($Model->locale) || $Model->locale === null) {
+        if (!isset($Model->locale)) {
             $I18n = I18n::getInstance();
             $I18n->l10n->get(Configure::read('Config.language'));
             $Model->locale = $I18n->l10n->locale;

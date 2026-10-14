@@ -2,7 +2,7 @@ includes:
     - vendor/pieceofcake2/phpstan-cakephp2/extension.neon
 
 parameters:
-    level: 3
+    level: 4
     phpVersion: 80000
     paths:
         - src/Cake
@@ -11,6 +11,12 @@ parameters:
     bootstrapFiles:
         - tests/bootstrap.php
     treatPhpDocTypesAsCertain: false
+    # Constants whose values depend on the platform (DS) or on the application layout
+    # (APP_DIR, WEBROOT_DIR), so their values at analysis time must not be assumed.
+    dynamicConstantNames:
+        - DS
+        - APP_DIR
+        - WEBROOT_DIR
     ignoreErrors:
         # ext-mcrypt is optional (PECL only since PHP 7.2) and has no stubs in PHPStan.
         # Security::rijndael() and the legacy Security::encrypt()/decrypt() paths only use it when it is loaded.
@@ -25,6 +31,18 @@ parameters:
         -
             message: '#^Property CakeEmail::\$_configInstance has unknown class EmailConfig as its type\.$#'
             path: src/Cake/Network/Email/CakeEmail.php
+        # trigger_error() with E_USER_ERROR is treated as terminating, but CakePHP's ErrorHandler
+        # handles E_USER_ERROR without stopping the script, so the following return is reachable.
+        -
+            identifier: deadCode.unreachable
+            path: src/Cake/Model/Behavior/TranslateBehavior.php
+            count: 2
+        # These traits are provided for application test cases; nothing in src/ uses them.
+        -
+            identifier: trait.unused
+            paths:
+                - src/Cake/TestSuite/EmailTrait.php
+                - src/Cake/TestSuite/IntegrationTestTrait.php
     parallel:
         processTimeout: 300.0
         maximumNumberOfProcesses: 4

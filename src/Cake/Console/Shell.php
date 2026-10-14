@@ -129,14 +129,14 @@ class Shell extends CakeObject
     /**
      * This shell's primary model class name, the first model in the $uses property
      *
-     * @var string
+     * @var string|null
      */
     public $modelClass = null;
 
     /**
      * Task Collection for the command, used to create Tasks.
      *
-     * @var TaskCollection
+     * @var TaskCollection|null
      */
     public $Tasks;
 
@@ -622,7 +622,7 @@ class Shell extends CakeObject
         }
         $result = trim($result);
 
-        if ($default !== null && ($result === '' || $result === null)) {
+        if ($default !== null && $result === '') {
             return $default;
         }
 

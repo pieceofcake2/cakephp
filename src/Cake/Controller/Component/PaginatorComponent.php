@@ -158,8 +158,6 @@ class PaginatorComponent extends Component
         $options = $this->validateSort($object, $options, $whitelist);
         $options = $this->checkLimit($options);
 
-        $conditions = $fields = $order = $limit = $page = $recursive = null;
-
         if (!isset($options['conditions'])) {
             $options['conditions'] = [];
         }
@@ -171,7 +169,14 @@ class PaginatorComponent extends Component
             unset($options[0]);
         }
 
+        // Other options, e.g. a custom `type`, are still extracted into local variables as before.
         extract($options);
+        $conditions = $options['conditions'];
+        $fields = $options['fields'] ?? null;
+        $order = $options['order'] ?? null;
+        $limit = $options['limit'] ?? null;
+        $page = $options['page'] ?? null;
+        $recursive = $options['recursive'] ?? null;
 
         if (is_array($scope) && !empty($scope)) {
             $conditions = array_merge($conditions, $scope);
@@ -310,7 +315,7 @@ class PaginatorComponent extends Component
                 return $this->Controller->{$this->Controller->modelClass}->{$object};
             }
         }
-        if (empty($object) || $object === null) {
+        if (empty($object)) {
             if (isset($this->Controller->{$this->Controller->modelClass})) {
                 return $this->Controller->{$this->Controller->modelClass};
             }

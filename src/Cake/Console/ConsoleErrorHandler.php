@@ -26,7 +26,7 @@ class ConsoleErrorHandler
     /**
      * Standard error stream.
      *
-     * @var ConsoleOutput
+     * @var ConsoleOutput|null
      */
     public static $stderr;
 

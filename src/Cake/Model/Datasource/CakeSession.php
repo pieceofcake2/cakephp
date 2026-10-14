@@ -233,6 +233,7 @@ class CakeSession
      * Determine if Session has been started.
      *
      * @return bool True if session has been started.
+     * @phpstan-impure
      */
     public static function started()
     {

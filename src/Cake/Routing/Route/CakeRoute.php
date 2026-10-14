@@ -295,7 +295,7 @@ class CakeRoute
         }
 
         foreach ($args as $param) {
-            if (empty($param) && $param !== '0' && $param !== 0) {
+            if (empty($param) && $param !== '0') {
                 continue;
             }
 
@@ -471,7 +471,7 @@ class CakeRoute
             }
 
             // keys that don't exist are different.
-            if (!$defaultExists && !empty($value)) {
+            if (!empty($value)) {
                 return false;
             }
         }

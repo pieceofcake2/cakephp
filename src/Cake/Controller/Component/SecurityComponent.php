@@ -623,7 +623,7 @@ class SecurityComponent extends Component
         );
 
         foreach ($fieldList as $i => $key) {
-            $isLocked = (is_array($locked) && in_array($key, $locked));
+            $isLocked = in_array($key, $locked);
 
             if (!empty($unlockedFields)) {
                 foreach ($unlockedFields as $off) {

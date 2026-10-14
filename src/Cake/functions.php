@@ -179,7 +179,7 @@ if (!function_exists('h')) {
      *    implement a `__toString` method. Otherwise the class name will be used.
      * @param string|bool $double Boolean - encode existing html entities. String - character set to use when escaping.
      * @param string|null $charset Character set to use when escaping. Defaults to config value in 'App.encoding' or 'UTF-8'
-     * @return object|array|string|bool Wrapped text, Wrapped Array or Wrapped Object.
+     * @return array|string Wrapped text, or an array of wrapped values.
      * @link https://book.cakephp.org/2.0/en/core-libraries/global-constants-and-functions.html#h
      */
     function h($text, string|bool $double = true, $charset = null)

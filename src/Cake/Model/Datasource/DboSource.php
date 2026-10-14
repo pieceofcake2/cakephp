@@ -2897,15 +2897,13 @@ class DboSource extends DataSource
                     }
                     $fields[$i] = $prepend . $fields[$i];
                 } elseif (preg_match('/\(([\.\w]+)\)/', $fields[$i], $field)) {
-                    if (isset($field[1])) {
-                        if (!str_contains($field[1], '.')) {
-                            $field[1] = $this->name($alias . '.' . $field[1]);
-                        } else {
-                            $field[0] = explode('.', $field[1]);
-                            if (!Hash::numeric($field[0])) {
-                                $field[0] = implode('.', array_map([&$this, 'name'], $field[0]));
-                                $fields[$i] = preg_replace('/\(' . $field[1] . '\)/', '(' . $field[0] . ')', $fields[$i], 1);
-                            }
+                    if (!str_contains($field[1], '.')) {
+                        $field[1] = $this->name($alias . '.' . $field[1]);
+                    } else {
+                        $field[0] = explode('.', $field[1]);
+                        if (!Hash::numeric($field[0])) {
+                            $field[0] = implode('.', array_map([&$this, 'name'], $field[0]));
+                            $fields[$i] = preg_replace('/\(' . $field[1] . '\)/', '(' . $field[0] . ')', $fields[$i], 1);
                         }
                     }
                 }
@@ -3909,12 +3907,12 @@ class DboSource extends DataSource
         $containsInt = $containsString = false;
         foreach ($value as $valElement) {
             $valElement = trim($valElement);
-            if (!is_float($valElement) && !preg_match('/^[\d]+\.[\d]+$/', $valElement)) {
+            if (!preg_match('/^[\d]+\.[\d]+$/', $valElement)) {
                 $isAllFloat = false;
             } else {
                 continue;
             }
-            if (!is_int($valElement) && !preg_match('/^[\d]+$/', $valElement)) {
+            if (!preg_match('/^[\d]+$/', $valElement)) {
                 $isAllInt = false;
             } else {
                 $containsInt = true;

@@ -31,7 +31,7 @@ abstract class CakeTestCase extends TestCase
     /**
      * The class responsible for managing the creation, loading and removing of fixtures
      *
-     * @var CakeFixtureManager
+     * @var CakeFixtureManager|null
      */
     public $fixtureManager = null;
 

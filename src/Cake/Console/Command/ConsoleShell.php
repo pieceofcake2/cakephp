@@ -352,10 +352,9 @@ class ConsoleShell extends AppShell
         [$modelToCheck] = explode('->', $command);
 
         if ($this->_isValidModel($modelToCheck)) {
-            $data = null;
-            $findCommand = "\$data = \$this->$command;";
+            $findCommand = "return \$this->$command;";
             //@codingStandardsIgnoreStart
-            @eval($findCommand);
+            $data = @eval($findCommand);
             //@codingStandardsIgnoreEnd
 
             if (is_array($data)) {
@@ -440,10 +439,9 @@ class ConsoleShell extends AppShell
 
         if ($this->_isValidModel($modelToCheck)) {
             // Get the column info for this model
-            $data = null;
-            $fieldsCommand = "\$data = \$this->{$modelToCheck}->getColumnTypes();";
+            $fieldsCommand = "return \$this->{$modelToCheck}->getColumnTypes();";
             //@codingStandardsIgnoreStart
-            @eval($fieldsCommand);
+            $data = @eval($fieldsCommand);
             //@codingStandardsIgnoreEnd
 
             if (is_array($data)) {

@@ -56,7 +56,7 @@ class CakeSchema extends CakeObject
     /**
      * Plugin name.
      *
-     * @var string
+     * @var string|null
      */
     public $plugin = null;
 
@@ -532,7 +532,7 @@ class CakeSchema extends CakeObject
                     if (isset($diff['drop'])) {
                         $tables[$table]['drop']['indexes'] = $diff['drop'];
                     }
-                    if ($diff && isset($diff['add'])) {
+                    if (isset($diff['add'])) {
                         $tables[$table]['add']['indexes'] = $diff['add'];
                     }
                 }

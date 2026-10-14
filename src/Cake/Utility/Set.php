@@ -256,7 +256,7 @@ class Set
         $data = $extracted;
         $count = count($data[0]);
 
-        if (preg_match_all('/\{([0-9]+)\}/msi', $format, $keys2) && isset($keys2[1])) {
+        if (preg_match_all('/\{([0-9]+)\}/msi', $format, $keys2)) {
             $keys = $keys2[1];
             $format = preg_split('/\{([0-9]+)\}/msi', $format);
             $count2 = count($format);
@@ -394,7 +394,7 @@ class Set
                     } elseif (!isset($items[0])) {
                         $current = current($items);
                         $currentKey = key($items);
-                        if (!is_array($current) || (is_array($current) && count($items) <= 1 && !is_numeric($currentKey))) {
+                        if (!is_array($current) || (count($items) <= 1 && !is_numeric($currentKey))) {
                             $items = [$items];
                         }
                     }

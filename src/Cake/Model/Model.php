@@ -648,7 +648,7 @@ class Model extends CakeObject implements CakeEventListener
      * Instance of the CakeEventManager this model is using
      * to dispatch inner events.
      *
-     * @var CakeEventManager
+     * @var CakeEventManager|null
      */
     protected $_eventManager = null;
 
@@ -916,7 +916,7 @@ class Model extends CakeObject implements CakeEventListener
 
         if ($name === 'tablePrefix') {
             $this->setDataSource();
-            if (property_exists($this, 'tablePrefix') && !empty($this->tablePrefix)) {
+            if (!empty($this->tablePrefix)) {
                 return $this->tablePrefix;
             }
 
@@ -1113,7 +1113,7 @@ class Model extends CakeObject implements CakeEventListener
         $assoc =& $this->{$type}[$assocKey];
 
         foreach ($this->_associationKeys[$type] as $key) {
-            if (!isset($assoc[$key]) || $assoc[$key] === null) {
+            if (!isset($assoc[$key])) {
                 $data = '';
 
                 switch ($key) {
@@ -3323,7 +3323,7 @@ class Model extends CakeObject implements CakeEventListener
                 }
             }
 
-            if (!isset($query['recursive']) || $query['recursive'] === null) {
+            if (!isset($query['recursive'])) {
                 $query['recursive'] = -1;
             }
             [$query['list']['keyPath'], $query['list']['valuePath'], $query['list']['groupPath']] = $list;

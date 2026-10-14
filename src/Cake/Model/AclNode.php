@@ -129,7 +129,7 @@ class AclNode extends Model
             }
         } elseif (is_object($ref) && $ref instanceof Model) {
             $ref = ['model' => $ref->name, 'foreign_key' => $ref->id];
-        } elseif (is_array($ref) && !(isset($ref['model']) && isset($ref['foreign_key']))) {
+        } elseif (!(isset($ref['model']) && isset($ref['foreign_key']))) {
             $name = key($ref);
             [, $alias] = pluginSplit($name);
 

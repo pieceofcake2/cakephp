@@ -559,7 +559,7 @@ class Sqlserver extends DboSource
     public function length($length)
     {
         if (is_object($length)) {
-            if (!isset($length->Length) || $length->Length === null) {
+            if (!isset($length->Length)) {
                 return null;
             }
 

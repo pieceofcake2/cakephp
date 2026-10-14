@@ -220,7 +220,13 @@ class CakeNumber
         if (is_array($options)) {
             $defaults = ['before' => '$', 'places' => 2, 'thousands' => ',', 'decimals' => '.'];
             $options += $defaults;
-            extract($options);
+            ['before' => $before, 'places' => $places, 'thousands' => $thousands, 'decimals' => $decimals] = $options;
+            if (array_key_exists('after', $options)) {
+                $after = $options['after'];
+            }
+            if (array_key_exists('escape', $options)) {
+                $escape = $options['escape'];
+            }
         }
 
         $value = static::_numberFormat($value, $places, '.', '');
@@ -329,7 +335,7 @@ class CakeNumber
         if (isset($options['before']) && $options['before'] !== '') {
             $options['wholeSymbol'] = $options['before'];
         }
-        if (isset($options['after']) && !$options['after'] !== '') {
+        if (isset($options['after'])) {
             $options['fractionSymbol'] = $options['after'];
         }
 

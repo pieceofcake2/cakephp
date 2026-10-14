@@ -246,14 +246,8 @@ class HttpSocketResponse implements ArrayAccess
                     1 => dechex($length),
                 ];
             }
-            $chunkSize = 0;
-            $hexLength = 0;
-            if (isset($match[0])) {
-                $chunkSize = $match[0];
-            }
-            if (isset($match[1])) {
-                $hexLength = $match[1];
-            }
+            $chunkSize = $match[0];
+            $hexLength = $match[1];
 
             $chunkLength = hexdec($hexLength);
             $body = substr($body, strlen($chunkSize));

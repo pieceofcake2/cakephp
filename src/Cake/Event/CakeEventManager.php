@@ -34,7 +34,7 @@ class CakeEventManager
     /**
      * The globally available instance, used for dispatching events attached from any scope
      *
-     * @var CakeEventManager
+     * @var CakeEventManager|null
      */
     protected static $_generalManager = null;
 

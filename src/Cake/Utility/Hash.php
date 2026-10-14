@@ -47,7 +47,7 @@ class Hash
         }
         if (is_string($path) || is_numeric($path)) {
             $parts = explode('.', $path);
-        } elseif (is_bool($path) || $path === null) {
+        } elseif (is_bool($path)) {
             $parts = [$path];
         } else {
             if (!is_array($path)) {

@@ -262,31 +262,27 @@ class I18n
         }
 
         if (!empty($_this->_domains[$domain][$_this->_lang][$_this->category][$singular][$context])) {
-            if (
-                ($trans = $_this->_domains[$domain][$_this->_lang][$_this->category][$singular][$context]) ||
-                ($plurals) && ($trans = $_this->_domains[$domain][$_this->_lang][$_this->category][$plural][$context])
-            ) {
-                if (is_array($trans)) {
-                    if (isset($trans[$plurals])) {
-                        $trans = $trans[$plurals];
-                    } else {
-                        trigger_error(
-                            __d(
-                                'cake_dev',
-                                'Missing plural form translation for "%s" in "%s" domain, "%s" locale. ' .
-                                ' Check your po file for correct plurals and valid Plural-Forms header.',
-                                $singular,
-                                $domain,
-                                $_this->_lang,
-                            ),
-                            E_USER_WARNING,
-                        );
-                        $trans = $trans[0];
-                    }
+            $trans = $_this->_domains[$domain][$_this->_lang][$_this->category][$singular][$context];
+            if (is_array($trans)) {
+                if (isset($trans[$plurals])) {
+                    $trans = $trans[$plurals];
+                } else {
+                    trigger_error(
+                        __d(
+                            'cake_dev',
+                            'Missing plural form translation for "%s" in "%s" domain, "%s" locale. ' .
+                            ' Check your po file for correct plurals and valid Plural-Forms header.',
+                            $singular,
+                            $domain,
+                            $_this->_lang,
+                        ),
+                        E_USER_WARNING,
+                    );
+                    $trans = $trans[0];
                 }
-                if (strlen($trans)) {
-                    return $trans;
-                }
+            }
+            if (strlen($trans)) {
+                return $trans;
             }
         }
 

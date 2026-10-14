@@ -79,7 +79,7 @@ class CakeValidationSet implements ArrayAccess, IteratorAggregate, Countable
     {
         $this->field = $fieldName;
 
-        if (!is_array($ruleSet) || (is_array($ruleSet) && isset($ruleSet['rule']))) {
+        if (!is_array($ruleSet) || isset($ruleSet['rule'])) {
             $ruleSet = [$ruleSet];
         }
 

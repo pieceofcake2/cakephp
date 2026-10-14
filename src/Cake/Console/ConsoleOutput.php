@@ -312,8 +312,8 @@ class ConsoleOutput
      *
      * `$this->output->styles('annoy', false);`
      *
-     * @param string $style The style to get or create.
-     * @param array $definition The array definition of the style to change or create a style
+     * @param string|null $style The style to get or create.
+     * @param array|false|null $definition The array definition of the style to change or create a style
      *   or false to remove a style.
      * @return mixed If you are getting styles, the style or null will be returned. If you are creating/modifying
      *   styles true will be returned.

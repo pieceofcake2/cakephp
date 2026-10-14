@@ -110,7 +110,7 @@ class Controller extends CakeObject implements CakeEventListener
     /**
      * An instance of a CakeResponse object that contains information about the impending response
      *
-     * @var CakeResponse
+     * @var CakeResponse|null
      * @link https://book.cakephp.org/2.0/en/controllers/request-response.html#cakeresponse
      */
     public $response;
@@ -307,7 +307,7 @@ class Controller extends CakeObject implements CakeEventListener
      * Instance of the CakeEventManager this controller is using
      * to dispatch inner events.
      *
-     * @var CakeEventManager
+     * @var CakeEventManager|null
      */
     protected $_eventManager = null;
 

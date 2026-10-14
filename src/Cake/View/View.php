@@ -71,7 +71,7 @@ class View extends CakeObject
      * Name of the plugin.
      *
      * @link http://manual.cakephp.org/chapter/plugins
-     * @var string
+     * @var string|null
      */
     public $plugin = null;
 
@@ -195,7 +195,7 @@ class View extends CakeObject
      * This object contains all the information about a request and several methods for reading
      * additional information about the request.
      *
-     * @var CakeRequest
+     * @var CakeRequest|null
      */
     public $request;
 
@@ -291,7 +291,7 @@ class View extends CakeObject
      * the controller, so it it possible to register view events in
      * the controller layer.
      *
-     * @var CakeEventManager
+     * @var CakeEventManager|null
      */
     protected $_eventManager = null;
 
