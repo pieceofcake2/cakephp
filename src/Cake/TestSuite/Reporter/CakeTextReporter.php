@@ -94,8 +94,8 @@ class CakeTextReporter extends CakeBaseReporter
 
         if (isset($this->params['codeCoverage']) && $this->params['codeCoverage']) {
             $coverage = $result->getCodeCoverage();
-            if (method_exists($coverage, 'getSummary')) {
-                $this->paintCoverage($coverage->getSummary());
+            if ($coverage !== null) {
+                $this->paintCoverage($coverage->getData()->lineCoverage());
             }
         }
     }

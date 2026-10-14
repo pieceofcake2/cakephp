@@ -175,13 +175,8 @@ class CakeHtmlReporter extends CakeBaseReporter
         echo '</div>';
         if (isset($this->params['codeCoverage']) && $this->params['codeCoverage']) {
             $coverage = $result->getCodeCoverage();
-            if (method_exists($coverage, 'getSummary')) {
-                $report = $coverage->getSummary();
-                $this->paintCoverage($report);
-            }
-            if (method_exists($coverage, 'getData')) {
-                $report = $coverage->getData();
-                $this->paintCoverage($report);
+            if ($coverage !== null) {
+                $this->paintCoverage($coverage->getData()->lineCoverage());
             }
         }
         $this->paintDocumentEnd();
