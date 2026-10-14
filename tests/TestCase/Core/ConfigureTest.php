@@ -1,5 +1,6 @@
 <?php
 
+use Composer\Autoload\ClassLoader;
 use PHPUnit\Framework\Error;
 
 /**
@@ -120,7 +121,7 @@ class ConfigureTest extends CakeTestCase
         foreach ($files as $name => $contents) {
             file_put_contents($config . $name, $contents);
         }
-        $loader = new ReflectionClass(Composer\Autoload\ClassLoader::class);
+        $loader = new ReflectionClass(ClassLoader::class);
         $script = '<?php' . "\n" .
             'define("DS", DIRECTORY_SEPARATOR);' . "\n" .
             'define("ROOT", ' . var_export(ROOT, true) . ');' . "\n" .

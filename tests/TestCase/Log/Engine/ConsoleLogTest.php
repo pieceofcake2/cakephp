@@ -213,7 +213,7 @@ class ConsoleLogTest extends CakeTestCase
         $this->assertSame(ConsoleOutput::COLOR, $config['outputAs']);
         $this->assertSame(ConsoleOutput::COLOR, $output->outputAs());
 
-        $log = new ConsoleLog(['stream' => $output, 'outputAs' => ConsoleOutput::RAW]);
+        new ConsoleLog(['stream' => $output, 'outputAs' => ConsoleOutput::RAW]);
         $this->assertSame(ConsoleOutput::RAW, $output->outputAs());
     }
 
