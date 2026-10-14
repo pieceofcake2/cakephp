@@ -180,7 +180,13 @@ class HttpSocketResponse implements ArrayAccess
         $this->body = $decoded['body'];
 
         if (!empty($decoded['header'])) {
-            $this->headers = $this->_parseHeader($this->_buildHeader($this->headers) . $this->_buildHeader($decoded['header']));
+            foreach ($decoded['header'] as $field => $value) {
+                if (isset($this->headers[$field])) {
+                    $this->headers[$field] = array_merge((array)$this->headers[$field], (array)$value);
+                } else {
+                    $this->headers[$field] = $value;
+                }
+            }
         }
 
         if (!empty($this->headers)) {
