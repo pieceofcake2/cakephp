@@ -920,15 +920,16 @@ class Sqlserver extends DboSource
 
             return true;
         } catch (PDOException $e) {
-            $e->queryString = $sql;
-            throw $e;
+            $wrapperException = new PDOExceptionWithQueryString($e);
+            $wrapperException->queryString = $sql;
+            throw $wrapperException;
         }
     }
 
     /**
      * Generate a "drop table" statement for the given table
      *
-     * @param type $table Name of the table to drop
+     * @param string $table Name of the table to drop
      * @return string Drop table SQL statement
      */
     protected function _dropTable($table)

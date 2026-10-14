@@ -909,4 +909,46 @@ SQL;
 
         $this->assertSame([], $db->listSources());
     }
+
+    /**
+     * Test that a failing statement throws an exception carrying the query string
+     * without creating a dynamic property on PDOException (deprecated as of PHP 8.2).
+     *
+     * @return void
+     */
+    public function testExecuteFailureQueryString()
+    {
+        $db = new Sqlserver($this->Dbo->config, false);
+        $connection = $this->getMock('PDO', ['exec'], [], '', false);
+        $connection->expects($this->once())
+            ->method('exec')
+            ->will($this->throwException(new PDOException('failed')));
+        $property = new ReflectionProperty('Sqlserver', '_connection');
+        $property->setAccessible(true);
+        $property->setValue($db, $connection);
+        $execute = new ReflectionMethod('Sqlserver', '_execute');
+        $execute->setAccessible(true);
+
+        $exception = null;
+        $deprecations = [];
+        $level = error_reporting(E_ALL);
+        set_error_handler(function ($errno, $errstr) use (&$deprecations) {
+            if (str_contains($errstr, 'dynamic property')) {
+                $deprecations[] = $errstr;
+            }
+
+            return true;
+        }, E_DEPRECATED);
+        try {
+            $execute->invoke($db, 'DELETE FROM missing_table');
+        } catch (PDOException $e) {
+            $exception = $e;
+        } finally {
+            restore_error_handler();
+            error_reporting($level);
+        }
+        $this->assertSame([], $deprecations);
+        $this->assertInstanceOf('PDOExceptionWithQueryString', $exception);
+        $this->assertSame('DELETE FROM missing_table', $exception->queryString);
+    }
 }
