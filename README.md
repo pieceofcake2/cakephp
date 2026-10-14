@@ -113,6 +113,16 @@ Step 3: CakePHP 5.x with CakePHP 5.x-style structure
 
 See [`pieceofcake2/app`](https://github.com/pieceofcake2/app) for the modern directory structure compatible with both CakePHP 2.x and 5.x.
 
+### Environment Variables (`.env`)
+
+`.env` support is backported from the CakePHP 3.x+ application skeleton and built into the core (`CakeDotenv`, no dependencies, syntax compatible with [vlucas/phpdotenv](https://github.com/vlucas/phpdotenv)). It is opt-in: add this line at the top of `config/core.php` (`app/Config/core.php` in the legacy layout):
+
+```php
+CakeDotenv::loadDefaults();
+```
+
+It loads `config/.env` (`app/Config/.env`) and `.env` in the project root. Real environment variables take precedence over the config directory `.env`, which takes precedence over the project root `.env`. Values are always strings. See [UPGRADE.md](UPGRADE.md#env-file-support-pr-50) for details.
+
 ## Security
 
 ### SSL/TLS Certificate Validation
