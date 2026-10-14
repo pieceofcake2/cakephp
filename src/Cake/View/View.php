@@ -146,7 +146,7 @@ class View extends CakeObject
      * Sub-directory for this view file. This is often used for extension based routing.
      * Eg. With an `xml` extension, $subDir would be `xml/`
      *
-     * @var string
+     * @var string|null
      */
     public $subDir = null;
 
