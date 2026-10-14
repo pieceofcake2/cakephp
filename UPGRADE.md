@@ -30,6 +30,73 @@ If you had a custom error handler that caught these `E_USER_ERROR` errors and co
 
 `ConsoleLog` now decides between colored and plain output by checking whether its `stream` is a terminal, not STDIN. Logging to a file or pipe gets plain output; logging to `php://stderr` on a terminal is colored even when STDIN is redirected. Set `'outputAs' => ConsoleOutput::COLOR` (or `PLAIN` / `RAW`) in the log configuration to choose the format yourself.
 
+### 'cipher' Encryption Is Deprecated ([PR #62](https://github.com/pieceofcake2/cakephp/pull/62))
+
+`Security::cipher()` and the `'cipher'` type of `CookieComponent` (its default type) are deprecated. `'cipher'` is a XOR with a non-cryptographic keystream and is not secure with any `Security.cipherSeed`. Nothing else changes in this release: the `cipher()` output, cookie values and return values are the same as before, and nothing throws.
+
+**New log messages.** The first `Security::cipher()` call in a process (one request, or one console run) writes a `warning` with `CakeLog`, also when debug is off:
+
+```text
+CookieComponent (type 'cipher') uses Security::cipher(), which is insecure and deprecated. Use 'type' => 'aes' with its own key of at least 32 bytes and Security.useOpenSsl enabled; existing 'cipher' cookies are lost once. See https://pieceofcake2.github.io/docs/development/configuration.html
+```
+
+When your own code calls `Security::cipher()`, the message names the caller instead:
+
+```text
+Security::cipher() (called from MyClass::myMethod()) is insecure and deprecated. Use Security::encrypt() / Security::decrypt() (CookieComponent: 'type' => 'aes') with its own key of at least 32 bytes and Security.useOpenSsl enabled. See https://pieceofcake2.github.io/docs/development/configuration.html
+```
+
+With debug on, the same message is also triggered as `E_USER_DEPRECATED`, so it shows in the debug output (the default `Error.level`, `E_ALL & ~E_DEPRECATED`, includes `E_USER_DEPRECATED`). Plain (unencrypted) cookies and the `'aes'` / `'rijndael'` types never call `Security::cipher()` and log nothing.
+
+If your test suite turns deprecations into exceptions, the first `'cipher'` use in a test run fails. This includes `cookieEncrypted()` / `assertCookieEncrypted()` of `IntegrationTestTrait`, whose default mode is `'cipher'`; pass `'aes'` and your key once the application uses `'aes'`.
+
+**Seed range.** `Security::cipher()` seeds `mt_srand()` with `Security.cipherSeed`, and `mt_srand()` keeps only 32 bits. So the seed is used as given only when it is a digits-only number from 1 to 4294967295. Other values are reduced:
+
+- Empty, `0`, non-numeric values, values of 27 or more digits and most 26-digit values become seed 0. The former default `'76859309657453542496749683645'` (29 digits) is one of them.
+- Other values above 4294967295 keep only their lowest 32 bits.
+
+With such a seed, the first `Security::cipher()` call in a process also logs a `warning` (the seed itself is never logged):
+
+```text
+Security.cipherSeed is not a digits-only number from 1 to 4294967295, so Security::cipher() reduces it to seed 0. An in-range seed does not make 'cipher' secure: use 'type' => 'aes' with its own key of at least 32 bytes and Security.useOpenSsl enabled. Changing Security.cipherSeed makes existing 'cipher' values unreadable. See https://pieceofcake2.github.io/docs/development/configuration.html
+```
+
+(For a seed above the range that is not reduced to 0, the message says `keeps only its lowest 32 bits` instead of `reduces it to seed 0`.)
+
+With debug on, `Debugger::checkSecurityKeys()` (called by `AuthComponent::initialize()`) also triggers this `E_USER_NOTICE` when `Security.cipherSeed` is set but outside the range, in addition to the existing notice for the default seed:
+
+```text
+The value of 'Security.cipherSeed' in /path/to/config/core.php is not a digits-only number from 1 to 4294967295, so Security::cipher() does not use it as given. An in-range seed does not make 'cipher' secure: use 'type' => 'aes' with its own key of at least 32 bytes and Security.useOpenSsl enabled. See https://pieceofcake2.github.io/docs/development/configuration.html
+```
+
+PHPUnit turns notices into exceptions by default, so tests that run `AuthComponent` with debug on and an out-of-range seed now fail with this notice. Set an in-range `Security.cipherSeed` in the test configuration, or better, stop using `'cipher'`.
+
+The fallback `config/core.php` of the core (used only when the application has no `core.php`) now sets `Security.cipherSeed` to the in-range value `'3804817265'` and `Security.useOpenSsl` to `true`. OpenSSL reads and writes the same format as mcrypt, so existing `'aes'` values stay readable.
+
+> [!WARNING]
+> Do not change `Security.cipherSeed` just to silence the warning. A new seed makes every existing `'cipher'` cookie and value unreadable, and an in-range seed does not make `'cipher'` secure. Switch to `'aes'` instead.
+
+**Migrating to `'aes'`:**
+
+1. Create a random key of at least 32 bytes for the cookies, separate from `Security.salt`, and keep it out of version control, e.g. in `.env`: generate it with `php -r 'echo bin2hex(random_bytes(32)), PHP_EOL;'` (64 hex characters).
+2. Enable OpenSSL in `config/core.php`. Without it, `'aes'` calls mcrypt functions, which fail unless the mcrypt extension is installed from PECL:
+
+   ```php
+   Configure::write('Security.useOpenSsl', true);
+   ```
+
+3. Set the type and the key on `CookieComponent` before any cookie is read or written, e.g. in `AppController::beforeFilter()`:
+
+   ```php
+   $this->Cookie->type('aes');
+   $this->Cookie->key = env('COOKIE_KEY');
+   ```
+
+   `'type' => 'aes'` and `'key'` can also be given in `$components`.
+4. Existing `'cipher'` cookies cannot be decrypted with `'aes'`, so their values are lost once when you switch: for example, users signed in with a remember-me cookie must sign in again. New cookies are written with `'aes'`.
+5. If your code calls `Security::cipher()` directly, use `Security::encrypt()` / `Security::decrypt()` with a key of at least 32 bytes. Decrypt stored values with `Security::cipher()` once and encrypt them again with `Security::encrypt()`.
+6. In tests that use `IntegrationTestTrait`, pass `'aes'` and the key to `cookieEncrypted()` / `assertCookieEncrypted()`.
+
 ## v2.12.5
 
 ### Security Fixes
