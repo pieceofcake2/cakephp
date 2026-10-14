@@ -874,6 +874,10 @@ class Debugger
     /**
      * Verifies that the application's salt and cipher seed value has been changed from the default value.
      *
+     * Also warns when `Security.cipherSeed` is set but is not a digits-only number from
+     * 1 to 4294967295, the range Security::cipher() uses without reducing the seed.
+     * A seed in that range does not make the deprecated 'cipher' encryption secure.
+     *
      * @return void
      */
     public static function checkSecurityKeys()
@@ -882,8 +886,20 @@ class Debugger
             trigger_error(__d('cake_dev', 'Please change the value of %s in %s to a salt value specific to your application.', '\'Security.salt\'', CONFIG . 'core.php'), E_USER_NOTICE);
         }
 
-        if (Configure::read('Security.cipherSeed') === '76859309657453542496749683645') {
+        $cipherSeed = Configure::read('Security.cipherSeed');
+        if (in_array($cipherSeed, ['76859309657453542496749683645', '3804817265'], true)) {
             trigger_error(__d('cake_dev', 'Please change the value of %s in %s to a numeric (digits only) seed value specific to your application.', '\'Security.cipherSeed\'', CONFIG . 'core.php'), E_USER_NOTICE);
+        }
+
+        if ($cipherSeed !== null && !Security::isCipherSeedInRange($cipherSeed)) {
+            trigger_error(__d(
+                'cake_dev',
+                'The value of %s in %s is not a digits-only number from 1 to %s, so Security::cipher() does not use it as given. A seed in that range does not make \'cipher\' secure; switch CookieComponent to \'type\' => \'aes\' with its own key of at least 32 bytes. See %s',
+                '\'Security.cipherSeed\'',
+                CONFIG . 'core.php',
+                Security::MAX_CIPHER_SEED,
+                Security::CIPHER_DOCS_URL,
+            ), E_USER_NOTICE);
         }
     }
 }
