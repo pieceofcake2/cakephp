@@ -16,7 +16,7 @@
 - **ErrorHandler** / **ExceptionRenderer**: Document the `$exception` parameters of `handleException()`, `_getMessage()`, `_log()`, `ExceptionRenderer::__construct()` and `_getController()` as `Throwable`, matching what `set_exception_handler()` passes on PHP 8 (no behavior change)
 - **View**: Document `$subDir` as `string|null` (its default is `null`)
 - **AclComponent**: Document `$Aro` / `$Aco` as the ACL adapter's node objects (`Aro|PhpAro|null` / `Aco|PhpAco|null`) instead of `string`
-- **Tests**: Fix flaky `testConfigurationConflict` in `MemcacheEngineTest` / `MemcachedEngineTest` (one-second expiry granularity)
+- **Tests**: Fix flaky `testConfigurationConflict` in `MemcacheEngineTest` / `MemcachedEngineTest` (one-second expiry granularity), and `CakeTimeTest::testWasWithinLast` / `testTimeAgoInWords` (the clock can tick between the relative input and "now")
 
 ## v2.12.3 (2026-10-14)
 
