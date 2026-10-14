@@ -145,7 +145,7 @@ class ConsoleLogTest extends CakeTestCase
             ]);
         if (
             (DS === '\\' && !(bool)env('ANSICON') && env('ConEmuANSI') !== 'ON') ||
-            (function_exists('posix_isatty') && !posix_isatty(null))
+            !stream_isatty(STDERR)
         ) {
             $expected = ConsoleOutput::PLAIN;
         } else {
@@ -154,6 +154,67 @@ class ConsoleLogTest extends CakeTestCase
         $stream = TestCakeLog::stream('test_console_log');
         $config = $stream->config();
         $this->assertEquals($expected, $config['outputAs']);
+    }
+
+    /**
+     * Test that a stream which is not a terminal gets plain output, regardless of STDIN.
+     *
+     * @return void
+     */
+    public function testOutputAsPlainForNonTerminalStream()
+    {
+        $file = TMP . 'console_log_test.log';
+        try {
+            $log = new ConsoleLog(['stream' => $file]);
+            $config = $log->config();
+            $this->assertSame(ConsoleOutput::PLAIN, $config['outputAs']);
+
+            $log->write('error', 'Plain message');
+            unset($log);
+            $this->assertStringNotContainsString("\033[", file_get_contents($file));
+        } finally {
+            if (file_exists($file)) {
+                unlink($file);
+            }
+        }
+
+        $log = new ConsoleLog(['stream' => 'php://memory']);
+        $config = $log->config();
+        $this->assertSame(ConsoleOutput::PLAIN, $config['outputAs']);
+    }
+
+    /**
+     * Test that the output type of a given ConsoleOutput is decided by that output, not by STDIN.
+     *
+     * @return void
+     */
+    public function testOutputAsFollowsGivenConsoleOutput()
+    {
+        $this->skipIf(DS === '\\', 'Windows consoles without ANSI support are always plain.');
+
+        $output = new ConsoleOutput('php://memory');
+        $output->outputAs(ConsoleOutput::COLOR);
+        $log = new ConsoleLog(['stream' => $output]);
+        $config = $log->config();
+        $this->assertSame(ConsoleOutput::COLOR, $config['outputAs']);
+        $this->assertSame(ConsoleOutput::COLOR, $output->outputAs());
+    }
+
+    /**
+     * Test that an explicitly configured outputAs is honoured.
+     *
+     * @return void
+     */
+    public function testExplicitOutputAs()
+    {
+        $output = new ConsoleOutput('php://memory');
+        $log = new ConsoleLog(['stream' => $output, 'outputAs' => ConsoleOutput::COLOR]);
+        $config = $log->config();
+        $this->assertSame(ConsoleOutput::COLOR, $config['outputAs']);
+        $this->assertSame(ConsoleOutput::COLOR, $output->outputAs());
+
+        $log = new ConsoleLog(['stream' => $output, 'outputAs' => ConsoleOutput::RAW]);
+        $this->assertSame(ConsoleOutput::RAW, $output->outputAs());
     }
 
     /**
