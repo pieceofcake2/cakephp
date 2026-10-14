@@ -1,5 +1,16 @@
 ## CHANGELOG
 
+## Unreleased
+
+### `.env` File Support ([PR #50](https://github.com/pieceofcake2/cakephp/pull/50))
+
+- **CakeDotenv**: New core class that loads environment variables from `.env` files, a backport of the `.env` support of the CakePHP 3.x+ application skeleton (`config/.env`, loaded in [`config/bootstrap.php`](https://github.com/cakephp/app/blob/5.x/config/bootstrap.php) with josegonzalez/dotenv) built into the core without dependencies
+  - `CakeDotenv::loadDefaults()` loads `CONFIG . '.env'` and `ROOT . DS . '.env'` (project root). Precedence: real environment variables > config directory `.env` > project root `.env`
+  - `CakeDotenv::load($files, $overwrite = false)`, `CakeDotenv::parse($contents)` and `CakeDotenv::parseFile($file)`
+  - The syntax is compatible with [vlucas/phpdotenv](https://github.com/vlucas/phpdotenv) v5; values are always strings (no type conversion)
+  - Opt-in: nothing is loaded unless the application calls it (e.g. at the top of `config/core.php`)
+- **CakeDotenvException**: New exception thrown when a `.env` file cannot be read or parsed (with file name and line number)
+
 ## v2.12.3 (2026-10-14)
 
 > [!IMPORTANT]
