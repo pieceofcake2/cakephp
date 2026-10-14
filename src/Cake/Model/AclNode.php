@@ -135,8 +135,8 @@ class AclNode extends Model
 
             $model = ClassRegistry::init(['class' => $name, 'alias' => $alias]);
 
-            if (empty($model)) {
-                throw new CakeException('cake_dev', "Model class '%s' not found in AclNode::node() when trying to bind %s object", $type, $this->alias);
+            if (!is_object($model)) {
+                throw new CakeException(__d('cake_dev', "Model class '%s' not found in AclNode::node() when trying to bind %s object", $name, $type));
             }
 
             $tmpRef = null;
