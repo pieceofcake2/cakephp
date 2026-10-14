@@ -45,6 +45,7 @@ class FlashComponent extends Component
      */
     public function __construct(ComponentCollection $collection, $settings = [])
     {
+        parent::__construct($collection, $settings);
         $this->_defaultConfig = Hash::merge($this->_defaultConfig, $settings);
     }
 
