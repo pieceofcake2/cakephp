@@ -768,6 +768,11 @@ class AuthComponent extends Component
             $redir = $this->Session->read('Auth.redirect');
             $this->Session->delete('Auth.redirect');
 
+            if (is_string($redir) && preg_match('#^[/\\\\]{2}#', $redir)) {
+                // Protocol-relative URLs such as `//example.com` would redirect off-site.
+                $redir = '/' . ltrim($redir, '/\\');
+            }
+
             if (Router::normalize($redir) === Router::normalize($this->loginAction)) {
                 $redir = $this->loginRedirect ?: '/';
             }
