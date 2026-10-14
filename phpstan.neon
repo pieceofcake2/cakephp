@@ -7,9 +7,7 @@ parameters:
     paths:
         - src
     excludePaths:
-        - src/Console/Templates/*
         - src/TestSuite/templates/*
-        - src/View/Scaffolds/*
     bootstrapFiles:
         - tests/bootstrap.php
     treatPhpDocTypesAsCertain: false
