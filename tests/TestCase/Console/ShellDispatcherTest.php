@@ -662,4 +662,37 @@ class ShellDispatcherTest extends CakeTestCase
         $this->assertStringNotContainsString('Stack trace', $error);
         $this->assertStringNotContainsString('#0 ', $error);
     }
+
+    /**
+     * Test that the console runs with the default core.php when the application has none
+     *
+     * @return void
+     */
+    public function testRunWithoutApplicationCoreFile()
+    {
+        $this->skipIf(!function_exists('exec'), 'exec() is not available.');
+
+        $app = TMP . 'tests' . DS . 'shell_dispatcher_no_core';
+        $Folder = new Folder($app, true);
+        try {
+            $this->assertFileDoesNotExist($app . DS . 'Config' . DS . 'core.php');
+
+            $command = implode(' ', [
+                escapeshellarg(PHP_BINARY),
+                escapeshellarg(CORE_ROOT . DS . 'bin' . DS . 'cake'),
+                '-app',
+                escapeshellarg($app),
+                'command_list',
+                '2>&1',
+            ]);
+            exec($command, $output, $status);
+            $output = implode("\n", $output);
+
+            $this->assertSame(0, $status, $output);
+            $this->assertStringNotContainsString("Can't find application core file", $output);
+            $this->assertStringContainsString('Available Shells:', $output);
+        } finally {
+            $Folder->delete();
+        }
+    }
 }
