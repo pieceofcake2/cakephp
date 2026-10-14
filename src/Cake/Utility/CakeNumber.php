@@ -144,9 +144,10 @@ class CakeNumber
             $i = array_search(substr($size, -1), ['K', 'M', 'G', 'T', 'P']);
         }
         if ($i !== false) {
-            $size = substr($size, 0, $l);
-
-            return $size * 1024 ** ($i + 1);
+            $number = substr($size, 0, $l);
+            if (is_numeric($number)) {
+                return $number * 1024 ** ($i + 1);
+            }
         }
 
         if (str_ends_with($size, 'B') && ctype_digit(substr($size, 0, -1))) {
