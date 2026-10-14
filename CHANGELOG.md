@@ -2,10 +2,11 @@
 
 ## Unreleased
 
-### Hardening: ORDER BY Direction Validation ([PR #54](https://github.com/pieceofcake2/cakephp/pull/54))
+### Deprecation: invalid ORDER BY directions ([PR #54](https://github.com/pieceofcake2/cakephp/pull/54))
 
-- **DboSource::order()**: The sort direction is validated instead of being appended to the SQL verbatim. It must be `ASC` or `DESC`, optionally followed by `NULLS FIRST` / `NULLS LAST`, matched case-insensitively and with extra / leading / trailing whitespace allowed (`'asc'`, `' Desc '`, `'desc  nulls  last'`). This applies to array values (`['Post.title' => 'desc']`), the `$direction` argument and a direction written after the field (`'Post.title DESC'`). Any other direction throws an `InvalidArgumentException` (see [UPGRADE.md](UPGRADE.md#unreleased)). The direction keeps its casing in the SQL, with runs of whitespace collapsed to one space
-- **DboSource::order()**: A comma separated order string with commas inside parentheses (`'FIELD(Post.id, 3, 1, 2) ASC, Post.title DESC'`) is now split on the commas outside parentheses and quoted literals, so every item gets its direction validated and its field quoted. Field / expression handling is otherwise unchanged, and `DboSource::expression()` objects are still used verbatim
+- **DboSource::order()**: The sort direction is now checked. Valid directions are `ASC` or `DESC`, optionally followed by `NULLS FIRST` / `NULLS LAST`, matched case-insensitively and with any surrounding whitespace (`'asc'`, `' Desc '`, `'desc  nulls  last'`). This applies to array values (`['Post.title' => 'desc']`), the `$direction` argument and a direction written after the field in a string key (`'Post.title DESC'`)
+- Any other direction (for example `"='test' DESC"`, `'ASC; ...'`, `'DESC LIMIT 1'`, `'NULLS FIRST'`, or a non-string value) triggers an `E_USER_DEPRECATED` error. The generated SQL is exactly the same as before; invalid directions will throw an `InvalidArgumentException` in a future version (see [UPGRADE.md](UPGRADE.md#unreleased))
+- Field / expression handling is unchanged, and `DboSource::expression()` objects are used verbatim without the check
 
 ## v2.12.4 (2026-10-14)
 
