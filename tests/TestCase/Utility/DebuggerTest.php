@@ -697,4 +697,66 @@ TEXT;
         ]);
         $this->assertDoesNotMatchRegularExpression('/^DebuggerTest::testTraceExclude/', $result);
     }
+
+    /**
+     * Test the editor URLs, which default to PhpStorm like CakePHP 5.
+     *
+     * @return void
+     */
+    public function testEditorUrl()
+    {
+        Configure::delete('Debugger');
+        $result = Debugger::editorUrl('/var/www/app/src/Controller/PostsController.php', 12);
+        $this->assertSame('phpstorm://open?file=/var/www/app/src/Controller/PostsController.php&line=12', $result);
+
+        Configure::write('Debugger.editor', 'vscode');
+        $result = Debugger::editorUrl('/path/to/file.php', 3);
+        $this->assertSame('vscode://file//path/to/file.php:3', $result);
+
+        Debugger::setEditor('sublime');
+        $this->assertSame('sublime', Configure::read('Debugger.editor'));
+        $result = Debugger::editorUrl('/path/to/file.php', 3);
+        $this->assertSame('subl://open?url=file:///path/to/file.php&line=3', $result);
+    }
+
+    /**
+     * Test the editor base path and custom editors.
+     *
+     * @return void
+     */
+    public function testEditorUrlCustom()
+    {
+        Debugger::addEditor('open', function ($file, $line) {
+            return "open://{$file}#{$line}";
+        });
+        Debugger::setEditor('open');
+        Configure::write('Debugger.editorBasePath', '/home/me/project');
+
+        $result = Debugger::editorUrl(ROOT . DS . 'index.php', 5);
+        $this->assertSame('open:///home/me/project' . DS . 'index.php#5', $result);
+    }
+
+    /**
+     * Test unknown editors.
+     *
+     * @return void
+     */
+    public function testSetEditorUnknown()
+    {
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('Unknown editor `nope`');
+        Debugger::setEditor('nope');
+    }
+
+    /**
+     * Test an unknown editor in the configuration.
+     *
+     * @return void
+     */
+    public function testEditorUrlUnknown()
+    {
+        Configure::write('Debugger.editor', 'nope');
+        $this->expectException(InvalidArgumentException::class);
+        Debugger::editorUrl('/path/to/file.php', 1);
+    }
 }
