@@ -1,12 +1,12 @@
 ## CHANGELOG
 
-## Unreleased
+## v2.12.6 (2026-10-15)
 
 > [!NOTE]
-> Code that triggered an `E_USER_ERROR` (deprecated as of PHP 8.4) now throws an exception with the same message, and `ConsoleLog` decides colored output by its own stream. See [UPGRADE.md](UPGRADE.md#unreleased).
+> Code that triggered an `E_USER_ERROR` (deprecated as of PHP 8.4) now throws an exception with the same message, and `ConsoleLog` decides colored output by its own stream. See [UPGRADE.md](UPGRADE.md#v2126).
 
 > [!IMPORTANT]
-> The `'cipher'` encryption (`Security::cipher()`, the default `CookieComponent` type) is deprecated and now logs a warning once per process. New Configure values `Cookie.type` and `Cookie.key` set the default `CookieComponent` type and key; set them to `'aes'` and a random key of at least 32 bytes. See [UPGRADE.md](UPGRADE.md#cipher-encryption-is-deprecated-pr-62).
+> The `'cipher'` encryption (`Security::cipher()`, the default `CookieComponent` type) is deprecated and now logs a warning once per process. New Configure values `Cookie.type` and `Cookie.key` set the default `CookieComponent` type and key; set them to `'aes'` and a random key of at least 32 bytes. See [UPGRADE.md](UPGRADE.md#cipher-encryption-is-deprecated-pr-62) and the security advisory [GHSA-65v5-h65v-8pgg](https://github.com/pieceofcake2/cakephp/security/advisories/GHSA-65v5-h65v-8pgg).
 
 ### PHPStan Level 5 (docblocks only) ([PR #56](https://github.com/pieceofcake2/cakephp/pull/56))
 
@@ -93,7 +93,7 @@
 ### Deprecation: invalid ORDER BY directions ([PR #54](https://github.com/pieceofcake2/cakephp/pull/54))
 
 - **DboSource::order()**: The sort direction is now checked. Valid directions are `ASC` or `DESC`, optionally followed by `NULLS FIRST` / `NULLS LAST`, matched case-insensitively and with any surrounding whitespace (`'asc'`, `' Desc '`, `'desc  nulls  last'`). This applies to array values (`['Post.title' => 'desc']`), the `$direction` argument and a direction written after the field in a string key (`'Post.title DESC'`)
-- Any other direction (for example `"='test' DESC"`, `'ASC; ...'`, `'DESC LIMIT 1'`, `'NULLS FIRST'`, or a non-string value) triggers an `E_USER_DEPRECATED` error. The generated SQL is exactly the same as before; invalid directions will throw an `InvalidArgumentException` in a future version (see [UPGRADE.md](UPGRADE.md#unreleased))
+- Any other direction (for example `"='test' DESC"`, `'ASC; ...'`, `'DESC LIMIT 1'`, `'NULLS FIRST'`, or a non-string value) triggers an `E_USER_DEPRECATED` error. The generated SQL is exactly the same as before; invalid directions will throw an `InvalidArgumentException` in a future version (see [UPGRADE.md](UPGRADE.md#v2125))
 - Field / expression handling is unchanged, and `DboSource::expression()` objects are used verbatim without the check
 
 ## v2.12.4 (2026-10-14)
