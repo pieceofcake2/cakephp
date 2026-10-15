@@ -47,6 +47,33 @@ class CookieComponentTestController extends Controller
 }
 
 /**
+ * Log engine that keeps the messages written while cookies are encrypted or decrypted.
+ *
+ * @package       Cake.Test.Case.Controller.Component
+ */
+class CookieComponentTestCaptureLog extends BaseLog
+{
+    /**
+     * Logged messages as [type, message] pairs.
+     *
+     * @var array<int, array{0: string, 1: string}>
+     */
+    public static $messages = [];
+
+    /**
+     * Keeps the message.
+     *
+     * @param string $type The type of log.
+     * @param string $message The message.
+     * @return void
+     */
+    public function write($type, $message)
+    {
+        static::$messages[] = [$type, $message];
+    }
+}
+
+/**
  * CookieComponentTest class
  *
  * @package       Cake.Test.Case.Controller.Component
@@ -90,6 +117,12 @@ class CookieComponentTest extends CakeTestCase
      */
     public function tearDown(): void
     {
+        CakeLog::drop('cookie_test_capture');
+        Configure::delete('Cookie.key');
+        Configure::delete('Cookie.type');
+        CookieComponentTestCaptureLog::$messages = [];
+        $this->_setCipherReported(true);
+        Configure::delete('Security.useOpenSsl');
         $this->Cookie->destroy();
 
         parent::tearDown();
@@ -127,6 +160,187 @@ class CookieComponentTest extends CakeTestCase
         $Cookie = new CookieComponent(new ComponentCollection(), $settings);
         $this->assertEquals($Cookie->time, $settings['time']);
         $this->assertEquals($Cookie->path, $settings['path']);
+    }
+
+    /**
+     * Creates a CookieComponent with the given settings for a new controller.
+     *
+     * @param array $settings Component settings.
+     * @return array{0: CookieComponent, 1: Controller}
+     */
+    protected function _newCookieComponent(array $settings = [])
+    {
+        $Controller = new CookieComponentTestController(new CakeRequest(), new CakeResponse());
+        $Collection = new ComponentCollection();
+        $Collection->setController($Controller);
+
+        return [new CookieComponent($Collection, $settings), $Controller];
+    }
+
+    /**
+     * The Cookie.key Configure value is the default key when it is a non-empty string.
+     *
+     * @return void
+     */
+    public function testConfigureCookieKeyIsDefaultKey()
+    {
+        Configure::write('Cookie.key', 'configured-cookie-key');
+        [$Cookie] = $this->_newCookieComponent();
+        $this->assertSame('configured-cookie-key', $Cookie->key);
+    }
+
+    /**
+     * Without Cookie.key (or with an empty or non-string one), Security.salt stays the default key.
+     *
+     * @return void
+     */
+    public function testConfigureCookieKeyFallsBackToSalt()
+    {
+        Configure::write('Security.salt', 'the-salt-of-this-test');
+        foreach ([null, '', false, 12345678901234567890123456789012] as $value) {
+            Configure::write('Cookie.key', $value);
+            [$Cookie] = $this->_newCookieComponent();
+            $this->assertSame('the-salt-of-this-test', $Cookie->key, var_export($value, true));
+        }
+        Configure::delete('Cookie.key');
+        [$Cookie] = $this->_newCookieComponent();
+        $this->assertSame('the-salt-of-this-test', $Cookie->key);
+    }
+
+    /**
+     * An explicit key in the settings or on the property wins over Cookie.key.
+     *
+     * @return void
+     */
+    public function testExplicitKeyOverridesConfigureCookieKey()
+    {
+        Configure::write('Cookie.key', 'configured-cookie-key');
+        [$Cookie] = $this->_newCookieComponent(['key' => 'settings-key']);
+        $this->assertSame('settings-key', $Cookie->key);
+
+        [$Cookie] = $this->_newCookieComponent();
+        $Cookie->key = 'property-key';
+        $this->assertSame('property-key', $Cookie->key);
+    }
+
+    /**
+     * 'aes' cookies round-trip with a 32-byte Cookie.key and no explicit key.
+     *
+     * @return void
+     */
+    public function testAesRoundTripWithConfigureCookieKey()
+    {
+        $key = str_repeat('k', 32);
+        Configure::write('Security.useOpenSsl', true);
+        Configure::write('Cookie.type', 'aes');
+        Configure::write('Cookie.key', $key);
+        $this->_captureCipherReports();
+        [$Cookie, $Controller] = $this->_newCookieComponent();
+
+        $Cookie->write('Testing', ['a' => 'value']);
+        $cookie = $Controller->response->cookie('CakeCookie[Testing]');
+        $this->assertStringStartsWith('Q2FrZQ==.', $cookie['value']);
+        $encrypted = base64_decode(substr($cookie['value'], strlen('Q2FrZQ==.')));
+        $this->assertSame('{"a":"value"}', Security::decrypt($encrypted, $key));
+
+        $_COOKIE['CakeCookie'] = ['Testing' => $cookie['value']];
+        [$Reader] = $this->_newCookieComponent();
+        $this->assertSame(['a' => 'value'], $Reader->read('Testing'));
+        $this->assertSame([], CookieComponentTestCaptureLog::$messages, 'No cipher report for aes');
+    }
+
+    /**
+     * A Cookie.key shorter than 32 bytes behaves like a short explicit key: 'aes' throws
+     * the existing CakeException of Security::encrypt().
+     *
+     * @return void
+     */
+    public function testShortConfigureCookieKeyWithAes()
+    {
+        Configure::write('Security.useOpenSsl', true);
+        Configure::write('Cookie.key', 'short');
+        [$Cookie] = $this->_newCookieComponent(['type' => 'aes']);
+        $this->expectException(CakeException::class);
+        $this->expectExceptionMessage('Invalid key for encrypt(), key must be at least 256 bits (32 bytes) long.');
+        $Cookie->write('Testing', 'value');
+    }
+
+    /**
+     * The Cookie.type Configure value is the default type.
+     *
+     * @return void
+     */
+    public function testConfigureCookieTypeIsDefaultType()
+    {
+        foreach (['aes', 'rijndael', 'cipher'] as $type) {
+            Configure::write('Cookie.type', $type);
+            [$Cookie] = $this->_newCookieComponent();
+            $this->assertSame($type, $this->_cookieType($Cookie));
+        }
+    }
+
+    /**
+     * An explicit type in the settings or with type() wins over Cookie.type.
+     *
+     * @return void
+     */
+    public function testExplicitTypeOverridesConfigureCookieType()
+    {
+        Configure::write('Cookie.type', 'aes');
+        [$Cookie] = $this->_newCookieComponent(['type' => 'rijndael']);
+        $this->assertSame('rijndael', $this->_cookieType($Cookie));
+
+        [$Cookie] = $this->_newCookieComponent();
+        $Cookie->type('cipher');
+        $this->assertSame('cipher', $this->_cookieType($Cookie));
+    }
+
+    /**
+     * Without Cookie.type the type stays 'cipher'.
+     *
+     * @return void
+     */
+    public function testConfigureCookieTypeUnsetDefaultsToCipher()
+    {
+        Configure::delete('Cookie.type');
+        [$Cookie] = $this->_newCookieComponent();
+        $this->assertSame('cipher', $this->_cookieType($Cookie));
+    }
+
+    /**
+     * An invalid Cookie.type behaves like type() with that value: a warning and 'cipher'.
+     *
+     * @return void
+     */
+    public function testInvalidConfigureCookieType()
+    {
+        Configure::write('Cookie.type', 'blowfish');
+        $errors = [];
+        set_error_handler(function ($errno, $errstr) use (&$errors) {
+            $errors[] = [$errno, $errstr];
+
+            return true;
+        }, E_USER_WARNING);
+        try {
+            [$Cookie] = $this->_newCookieComponent();
+        } finally {
+            restore_error_handler();
+        }
+        $this->assertSame([[E_USER_WARNING, 'You must use cipher, rijndael or aes for cookie encryption type']], $errors);
+        $this->assertSame('cipher', $this->_cookieType($Cookie));
+    }
+
+    /**
+     * Returns the encryption type of a CookieComponent.
+     *
+     * @param CookieComponent $Cookie The component.
+     * @return string
+     */
+    protected function _cookieType(CookieComponent $Cookie)
+    {
+        return Closure::bind(function () {
+            return $this->_type;
+        }, $Cookie, CookieComponent::class)();
     }
 
     /**
@@ -200,6 +414,179 @@ class CookieComponentTest extends CakeTestCase
         $data = $this->Cookie->read('Encrytped_multi_cookies');
         $expected = ['name' => 'CakePHP', 'version' => '1.2.0.x', 'tag' => 'CakePHP Rocks!'];
         $this->assertEquals($expected, $data);
+    }
+
+    /**
+     * Sets whether the Security::cipher() deprecation and seed reports were already made.
+     *
+     * @param bool $reported Value for both flags.
+     * @return void
+     */
+    protected function _setCipherReported($reported)
+    {
+        Closure::bind(function () use ($reported) {
+            static::$_cipherDeprecationReported = $reported;
+            static::$_cipherSeedReported = $reported;
+        }, null, Security::class)();
+    }
+
+    /**
+     * Resets the Security::cipher() reports and starts capturing log messages.
+     *
+     * @return void
+     */
+    protected function _captureCipherReports()
+    {
+        $this->_setCipherReported(false);
+        CookieComponentTestCaptureLog::$messages = [];
+        CakeLog::config('cookie_test_capture', ['engine' => 'CookieComponentTestCapture']);
+    }
+
+    /**
+     * Asserts that no captured log message contains any of the given values.
+     *
+     * @param array<int, string> $values Cookie values.
+     * @return void
+     */
+    protected function _assertValuesNotLogged(array $values)
+    {
+        foreach (CookieComponentTestCaptureLog::$messages as $entry) {
+            foreach ($values as $value) {
+                $this->assertStringNotContainsString($value, $entry[1]);
+            }
+        }
+    }
+
+    /**
+     * The default 'cipher' type logs its deprecation once, naming CookieComponent,
+     * and never logs cookie values.
+     *
+     * @return void
+     */
+    public function testCipherDeprecationNamesCookieComponent()
+    {
+        Configure::write('debug', 0);
+        Configure::write('Security.cipherSeed', '2659758734');
+        $_COOKIE['CakeTestCookie'] = [
+            'Incoming' => $this->_encrypt(['secret' => 'IncomingSecretValue']),
+        ];
+        $this->_captureCipherReports();
+
+        $this->Cookie->write('Written', 'WrittenSecretValue');
+        $this->Cookie->write('Other', ['nested' => 'NestedSecretValue']);
+        $this->assertSame(['secret' => 'IncomingSecretValue'], $this->Cookie->read('Incoming'));
+        $this->assertSame('WrittenSecretValue', $this->Cookie->read('Written'));
+
+        $this->assertCount(1, CookieComponentTestCaptureLog::$messages);
+        $this->assertSame('warning', CookieComponentTestCaptureLog::$messages[0][0]);
+        $this->assertSame(
+            'CookieComponent (type \'cipher\') uses Security::cipher(), which is insecure and deprecated. '
+            . 'Set Configure \'Cookie.type\' to \'aes\' and \'Cookie.key\' to a random value of at least 32 bytes, '
+            . 'with Security.useOpenSsl enabled; existing \'cipher\' cookies are lost once. '
+            . 'See https://pieceofcake2.github.io/docs/development/configuration.html',
+            CookieComponentTestCaptureLog::$messages[0][1],
+        );
+        $this->_assertValuesNotLogged(['IncomingSecretValue', 'WrittenSecretValue', 'NestedSecretValue', 'somerandomhaskey']);
+    }
+
+    /**
+     * With debug on, the 'cipher' deprecation is also triggered once as E_USER_DEPRECATED.
+     *
+     * @return void
+     */
+    public function testCipherDeprecationTriggeredOnceInDebug()
+    {
+        Configure::write('debug', 2);
+        Configure::write('Security.cipherSeed', '2659758734');
+        $this->_captureCipherReports();
+
+        $errors = [];
+        set_error_handler(function ($errno, $errstr) use (&$errors) {
+            $errors[] = $errstr;
+
+            return true;
+        }, E_USER_DEPRECATED);
+        try {
+            $this->Cookie->write('First', 'FirstSecretValue');
+            $this->Cookie->write('Second', 'SecondSecretValue');
+        } finally {
+            restore_error_handler();
+        }
+
+        $this->assertCount(1, $errors);
+        $this->assertStringStartsWith('CookieComponent (type \'cipher\') uses Security::cipher()', $errors[0]);
+        $this->assertCount(1, CookieComponentTestCaptureLog::$messages);
+        $this->assertStringNotContainsString('SecretValue', $errors[0]);
+        $this->_assertValuesNotLogged(['FirstSecretValue', 'SecondSecretValue']);
+    }
+
+    /**
+     * An out-of-range seed is logged once, next to the deprecation, without cookie values.
+     *
+     * @return void
+     */
+    public function testCipherSeedOutOfRangeLoggedOnce()
+    {
+        Configure::write('debug', 0);
+        Configure::write('Security.cipherSeed', '76859309657453542496749683645');
+        $this->_captureCipherReports();
+
+        $this->Cookie->write('First', 'FirstSecretValue');
+        $this->Cookie->write('Second', 'SecondSecretValue');
+        $this->assertSame('FirstSecretValue', $this->Cookie->read('First'));
+
+        $this->assertCount(2, CookieComponentTestCaptureLog::$messages);
+        $this->assertStringStartsWith('CookieComponent (type \'cipher\')', CookieComponentTestCaptureLog::$messages[0][1]);
+        $this->assertStringStartsWith(
+            'Security.cipherSeed is not a digits-only number from 1 to 4294967295, so Security::cipher() reduces it to seed 0.',
+            CookieComponentTestCaptureLog::$messages[1][1],
+        );
+        $this->_assertValuesNotLogged(['FirstSecretValue', 'SecondSecretValue', '76859309657453542496749683645']);
+    }
+
+    /**
+     * Valid 'aes' cookies are not reported.
+     *
+     * @return void
+     */
+    public function testNoCipherReportForAesCookies()
+    {
+        Configure::write('Security.useOpenSsl', true);
+        Configure::write('Security.cipherSeed', '76859309657453542496749683645');
+        $this->Cookie->type('aes');
+        $this->Cookie->key = str_repeat('0123456789abcdef', 2);
+        $this->_captureCipherReports();
+
+        $this->Cookie->write('Secret', 'AesSecretValue');
+        $this->Cookie->write('Nested', ['a' => 'b']);
+        $this->assertSame('AesSecretValue', $this->Cookie->read('Secret'));
+        $this->assertSame(['a' => 'b'], $this->Cookie->read('Nested'));
+
+        $this->assertSame([], CookieComponentTestCaptureLog::$messages);
+    }
+
+    /**
+     * Plain (unencrypted) cookies do not use Security::cipher() and are not reported.
+     *
+     * @return void
+     */
+    public function testNoCipherReportForPlainCookies()
+    {
+        Configure::write('Security.cipherSeed', '76859309657453542496749683645');
+        $_COOKIE['CakeTestCookie'] = [
+            'Legacy' => 'name|value,other|thing',
+            'Plain' => 'just a value',
+            'Json' => '{"a":"b"}',
+        ];
+        $this->_captureCipherReports();
+
+        $this->Cookie->write('Unencrypted', 'PlainValue', false);
+        $this->assertSame('PlainValue', $this->Cookie->read('Unencrypted'));
+        $this->assertSame(['name' => 'value', 'other' => 'thing'], $this->Cookie->read('Legacy'));
+        $this->assertSame('just a value', $this->Cookie->read('Plain'));
+        $this->assertSame(['a' => 'b'], $this->Cookie->read('Json'));
+
+        $this->assertSame([], CookieComponentTestCaptureLog::$messages);
     }
 
     /**

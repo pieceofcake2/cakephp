@@ -2,7 +2,69 @@
 
 ## Unreleased
 
-### Debug Error Pages in the CakePHP 5 Style
+> [!NOTE]
+> Code that triggered an `E_USER_ERROR` (deprecated as of PHP 8.4) now throws an exception with the same message, and `ConsoleLog` decides colored output by its own stream. See [UPGRADE.md](UPGRADE.md#unreleased).
+
+> [!IMPORTANT]
+> The `'cipher'` encryption (`Security::cipher()`, the default `CookieComponent` type) is deprecated and now logs a warning once per process. New Configure values `Cookie.type` and `Cookie.key` set the default `CookieComponent` type and key; set them to `'aes'` and a random key of at least 32 bytes. See [UPGRADE.md](UPGRADE.md#cipher-encryption-is-deprecated-pr-62).
+
+### PHPStan Level 5 (docblocks only) ([PR #56](https://github.com/pieceofcake2/cakephp/pull/56))
+
+- **PHPStan**: `src/Cake` (including `TestSuite`) now passes PHPStan level 5 with `pieceofcake2/phpstan-cakephp2` ^0.2.4, without a baseline. CI runs PHPStan on every pull request
+- **No signature changes**: Only docblocks were corrected (`@param`, `@return`, `@var`, `@property`, `@method`, `@param-out`, `@phpstan-impure`). No native parameter, return or property types were added, and no public or protected method or property signature changed, so subclasses in applications and plugins keep working. The only declaration changes are the properties listed below, which were previously created dynamically
+- **Internal clean-ups without behavior change**: `extract()` calls were replaced by explicit variables, variables that were only set on some code paths are initialised, `return voidMethod()` statements were split, always-true/false conditions were removed, and internal functions receive values of the documented type (e.g. `ini_set()` values as strings)
+
+### Bug Fixes ([PR #56](https://github.com/pieceofcake2/cakephp/pull/56))
+
+- **Dynamic properties**: Declare `ConsoleOptionParser::$_tokens`, `HelpFormatter::$_parser`, `Scaffold::$redirect` / `$modelClass` / `$modelKey` / `$ScaffoldModel` / `$scaffoldActions`, `MemcachedEngine::$_compiledGroupNames`, `CakeFixtureManager::$_processed`, `CakeTestFixture::$Schema`, `CakeTestSuiteCommand::$_params` and `ControllerTestDispatcher::$response`, which were created dynamically (deprecated as of PHP 8.2). `CakeFixtureInjector` no longer adds `$fixtureManager` to plain PHPUnit test cases, and `Sqlserver::_execute()` throws `PDOExceptionWithQueryString` instead of adding `$queryString` to a `PDOException`
+- **Null arguments**: `ConsoleLog`, `CakeText::toList()` and `Shell::shortPath()` no longer pass `null` to internal functions (deprecated as of PHP 8.1)
+- **HttpSocketResponse**: Trailer headers after a chunked body no longer cause a fatal error (call to the undefined `_buildHeader()`); they are merged into the response headers
+- **App**: `App::import()` with several search paths no longer stops looking after the first path (it could include a directory instead of the file)
+- **ExtractTask**: A literal count argument of `__dcn()` / `__dxcn()` no longer overwrites the parser position, which skipped the following calls
+- **PaginatorComponent**: `mergeOptions()` ignores the request parameters for an unknown `paramType` instead of throwing a `TypeError`
+- **FlashComponent**: The constructor calls `Component::__construct()`, so `$settings` is set
+- **PrivateActionException**: The previous exception passed to the constructor is kept
+- **AclNode**: The "Model class not found" exception of `node()` has a formatted message
+- **CakeNumber**: `fromReadableSize()` treats a non-numeric value with a unit (e.g. `'XMB'`) as invalid (returns `$default` or throws) instead of throwing a `TypeError`
+- **Validation**: The deep `luhn()` check returns `false` for values with non-digit characters instead of throwing a `TypeError`, and accepts integers
+- **Mysql** / **Sqlserver**: `listSources()` and `Mysql::listDetailedSources()` return an empty list when the query fails instead of calling `closeCursor()` on `false`
+- **TestSuite**: `assertTags()` prints the `$fullDebug` output before the assertion fails; `ConsoleOutputStub::write()` returns the number of bytes written like `ConsoleOutput::write()`; `CakeHtmlReporter` / `CakeTextReporter` code coverage output works with php-code-coverage 9
+
+### Console Without an Application core.php ([PR #59](https://github.com/pieceofcake2/cakephp/pull/59))
+
+- **ShellDispatcher**: When the application has no `Config/core.php`, the console no longer stops with the fatal error "Can't find application core file". `_bootstrap()` again tells `Cake/bootstrap.php` to skip `Configure::bootstrap()` in that case and loads the default `core.php`, as it was meant to, so the console starts and commands that do not need the application settings can run. Applications with a `Config/core.php` are not affected
+
+### Bug Fixes ([PR #58](https://github.com/pieceofcake2/cakephp/pull/58))
+
+- **E_USER_ERROR**: `Configure::bootstrap()` throws `ConfigureException` when the application `core.php` or `bootstrap.php` is missing, and `TranslateBehavior` throws `CakeException` when its datasource is not connected or the translation association is already bound to the model, instead of triggering `E_USER_ERROR` (deprecated as of PHP 8.4). The messages are unchanged
+- **ShellDispatcher**: A `ConfigureException` from bootstrapping the application (missing `core.php` or `bootstrap.php`) is printed as `Error: ...` with exit code 1 instead of an uncaught exception or a stack trace
+- **bin/cake**: A missing Composer autoloader is printed to STDERR with exit code 1 instead of triggering `E_USER_ERROR`
+- **ConsoleLog**: Colored or plain output is decided by the configured `stream` instead of STDIN, so logging to a file or pipe from a terminal no longer writes ANSI escape codes. Plain output is still forced on Windows consoles without ANSI support, and an explicit `outputAs` setting is kept
+- **ConsoleOutput**: Uses `stream_isatty()` to detect a terminal, so streams that cannot be checked (e.g. `php://memory`, `php://temp`) get plain output without a `posix_isatty()` warning
+- **Tests**: `AllTestSuiteTest` includes the `TestSuite/Fixture` and `TestSuite/Stub` tests, which never ran before; `CakeFixtureManagerTest` passes when run on its own
+
+### Enhancements: CookieComponent `Cookie.key` and `Cookie.type` ([PR #62](https://github.com/pieceofcake2/cakephp/pull/62))
+
+- **CookieComponent**: Without a `'key'` setting, the key defaults to Configure `Cookie.key` when it is a non-empty string, otherwise to `Security.salt` as before. Without a `'type'` setting, the type defaults to Configure `Cookie.type` when it is set (validated by `type()`, so an invalid value triggers the usual `E_USER_WARNING` and falls back to `'cipher'`), otherwise to `'cipher'` as before. An explicit `'key'` / `'type'` setting, `$this->Cookie->key = ...` or `$this->Cookie->type(...)` always wins. Nothing changes for applications that do not set `Cookie.key` or `Cookie.type`
+- **IntegrationTestTrait**: `cookieEncrypted()` / `assertCookieEncrypted()` use the same default key (`Cookie.key`, else `Security.salt`)
+
+### Deprecation: 'cipher' encryption ([PR #62](https://github.com/pieceofcake2/cakephp/pull/62))
+
+- **Security::cipher()** / **CookieComponent `'cipher'` type**: Deprecated. It is not secure with any `Security.cipherSeed`. The first call in a process writes a `warning` to the log, also with debug off, and with debug on also triggers `E_USER_DEPRECATED`. The message names the source (`CookieComponent (type 'cipher')` or `Security::cipher() (called from Class::method())`) and the fix: set Configure 'Cookie.type' to 'aes' and 'Cookie.key' to a random value of at least 32 bytes, with Security.useOpenSsl enabled. The `cipher()` output, cookie values and return values are unchanged, and nothing throws
+- **Security.cipherSeed range**: `mt_srand()` keeps 32 bits, so `Security::cipher()` uses the seed as given only when it is a digits-only number from 1 to 4294967295. Other values are reduced: empty, `0`, non-numeric values, values of 27 or more digits and most 26-digit values (including the former default `76859309657453542496749683645`) become seed 0. The first `Security::cipher()` call with such a seed logs a `warning` once per process; the seed value is never logged
+- **Debugger::checkSecurityKeys()**: With debug on (called by `AuthComponent`), also triggers an `E_USER_NOTICE` when `Security.cipherSeed` is set but outside 1 to 4294967295. The "Please change the value of 'Security.cipherSeed'" notice now fires for both the former default and the new default `'2659758734'`
+- **Core config**: The fallback `config/core.php` (used when the application has no `core.php`) sets `Security.cipherSeed` to `'2659758734'` (the same default as the application skeleton) and enables `Security.useOpenSsl`
+- **Security::isCipherSeedInRange()**: New internal helper for the range check
+
+### Enhancements: Validation::utf8() (backport from CakePHP 5) ([PR #64](https://github.com/pieceofcake2/cakephp/pull/64))
+
+- **Validation::utf8()**: New validation rule, a backport of `Cake\Validation\Validation::utf8()` from CakePHP 5 (added in CakePHP 3.1). Returns `true` for a string that is valid UTF-8 and has no characters above the Basic Multilingual Plane (4-byte characters such as emoji), which MySQL's `utf8` (`utf8mb3`) columns cannot store. With `['extended' => true]`, characters above the BMP are allowed (for `utf8mb4`). Non-string values (including arrays, integers and `null`) and invalid UTF-8 byte sequences (e.g. truncated sequences, overlong encodings and encoded surrogates) are rejected in both modes. Usable in model validation as `'rule' => 'utf8'` or `'rule' => ['utf8', ['extended' => true]]`
+
+### Bug Fixes ([PR #63](https://github.com/pieceofcake2/cakephp/pull/63))
+
+- **Folder**: `Folder::isAbsolute()` / `isRegisteredStreamWrapper()` recognize registered stream wrapper schemes that contain digits, `+`, `-` or `.` (for example `s3://`), so `Folder` and `File` no longer treat such paths as relative
+
+### Debug Error Pages in the CakePHP 5 Style ([PR #60](https://github.com/pieceofcake2/cakephp/pull/60))
 
 - **Error pages**: In debug mode (`debug` > 0) the core error templates (`missing_controller`, `missing_action`, `missing_view`, `missing_layout`, `missing_component`, `missing_helper`, `missing_behavior`, `missing_plugin`, `missing_table`, `missing_connection`, `missing_database`, `missing_datasource`, `missing_datasource_config`, `pdo_error`, `private_action`, `scaffold_error`, `fatal_error`, `error400`, `error500`) are rendered in the new `dev_error` layout ported from CakePHP 5: a header with the error title and exception class, the suggested fix with the real file path of the application layout (`src/Controller/...` or `app/Controller/...`; the suggested class has no `App::uses()` in the modern layout, where the Composer classmap autoloads the classes, except for plugin classes), and a stack trace of the exception and its previous exceptions with code excerpts, collapsible frames, arguments and `(edit)` links that open the file in your editor. The layout has inline CSS and JavaScript and uses no helpers
 - **Unchanged**: Production mode (`debug` = 0), error templates provided by the application, plugin or theme, AJAX requests and the console. `Layouts/dev_error.ctp` in the application or theme overrides the core layout, and the `exception_stack_trace` element is kept for application templates
@@ -33,28 +95,6 @@
 - **DboSource::order()**: The sort direction is now checked. Valid directions are `ASC` or `DESC`, optionally followed by `NULLS FIRST` / `NULLS LAST`, matched case-insensitively and with any surrounding whitespace (`'asc'`, `' Desc '`, `'desc  nulls  last'`). This applies to array values (`['Post.title' => 'desc']`), the `$direction` argument and a direction written after the field in a string key (`'Post.title DESC'`)
 - Any other direction (for example `"='test' DESC"`, `'ASC; ...'`, `'DESC LIMIT 1'`, `'NULLS FIRST'`, or a non-string value) triggers an `E_USER_DEPRECATED` error. The generated SQL is exactly the same as before; invalid directions will throw an `InvalidArgumentException` in a future version (see [UPGRADE.md](UPGRADE.md#unreleased))
 - Field / expression handling is unchanged, and `DboSource::expression()` objects are used verbatim without the check
-
-### PHPStan Level 5 (docblocks only) ([PR #56](https://github.com/pieceofcake2/cakephp/pull/56))
-
-- **PHPStan**: `src/Cake` (including `TestSuite`) now passes PHPStan level 5 with `pieceofcake2/phpstan-cakephp2` ^0.2.4, without a baseline. CI runs PHPStan on every pull request
-- **No signature changes**: Only docblocks were corrected (`@param`, `@return`, `@var`, `@property`, `@method`, `@param-out`, `@phpstan-impure`). No native parameter, return or property types were added, and no public or protected method or property signature changed, so subclasses in applications and plugins keep working. The only declaration changes are the properties listed below, which were previously created dynamically
-- **Internal clean-ups without behavior change**: `extract()` calls were replaced by explicit variables, variables that were only set on some code paths are initialised, `return voidMethod()` statements were split, always-true/false conditions were removed, and internal functions receive values of the documented type (e.g. `ini_set()` values as strings)
-
-### Bug Fixes ([PR #56](https://github.com/pieceofcake2/cakephp/pull/56))
-
-- **Dynamic properties**: Declare `ConsoleOptionParser::$_tokens`, `HelpFormatter::$_parser`, `Scaffold::$redirect` / `$modelClass` / `$modelKey` / `$ScaffoldModel` / `$scaffoldActions`, `MemcachedEngine::$_compiledGroupNames`, `CakeFixtureManager::$_processed`, `CakeTestFixture::$Schema`, `CakeTestSuiteCommand::$_params` and `ControllerTestDispatcher::$response`, which were created dynamically (deprecated as of PHP 8.2). `CakeFixtureInjector` no longer adds `$fixtureManager` to plain PHPUnit test cases, and `Sqlserver::_execute()` throws `PDOExceptionWithQueryString` instead of adding `$queryString` to a `PDOException`
-- **Null arguments**: `ConsoleLog`, `CakeText::toList()` and `Shell::shortPath()` no longer pass `null` to internal functions (deprecated as of PHP 8.1)
-- **HttpSocketResponse**: Trailer headers after a chunked body no longer cause a fatal error (call to the undefined `_buildHeader()`); they are merged into the response headers
-- **App**: `App::import()` with several search paths no longer stops looking after the first path (it could include a directory instead of the file)
-- **ExtractTask**: A literal count argument of `__dcn()` / `__dxcn()` no longer overwrites the parser position, which skipped the following calls
-- **PaginatorComponent**: `mergeOptions()` ignores the request parameters for an unknown `paramType` instead of throwing a `TypeError`
-- **FlashComponent**: The constructor calls `Component::__construct()`, so `$settings` is set
-- **PrivateActionException**: The previous exception passed to the constructor is kept
-- **AclNode**: The "Model class not found" exception of `node()` has a formatted message
-- **CakeNumber**: `fromReadableSize()` treats a non-numeric value with a unit (e.g. `'XMB'`) as invalid (returns `$default` or throws) instead of throwing a `TypeError`
-- **Validation**: The deep `luhn()` check returns `false` for values with non-digit characters instead of throwing a `TypeError`, and accepts integers
-- **Mysql** / **Sqlserver**: `listSources()` and `Mysql::listDetailedSources()` return an empty list when the query fails instead of calling `closeCursor()` on `false`
-- **TestSuite**: `assertTags()` prints the `$fullDebug` output before the assertion fails; `ConsoleOutputStub::write()` returns the number of bytes written like `ConsoleOutput::write()`; `CakeHtmlReporter` / `CakeTextReporter` code coverage output works with php-code-coverage 9
 
 ## v2.12.4 (2026-10-14)
 

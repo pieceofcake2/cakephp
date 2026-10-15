@@ -759,4 +759,103 @@ TEXT;
         $this->expectException(InvalidArgumentException::class);
         Debugger::editorUrl('/path/to/file.php', 1);
     }
+
+    /**
+     * Calls Debugger::checkSecurityKeys() and collects the E_USER_NOTICE errors it triggers.
+     *
+     * @return array<int, string>
+     */
+    protected function _checkSecurityKeysNotices()
+    {
+        $notices = [];
+        set_error_handler(function ($errno, $errstr) use (&$notices) {
+            $notices[] = $errstr;
+
+            return true;
+        }, E_USER_NOTICE);
+        try {
+            Debugger::checkSecurityKeys();
+        } finally {
+            restore_error_handler();
+        }
+
+        return $notices;
+    }
+
+    /**
+     * checkSecurityKeys() warns about a Security.cipherSeed outside 1 to 4294967295.
+     *
+     * @return void
+     */
+    public function testCheckSecurityKeysCipherSeedOutOfRange()
+    {
+        Configure::write('Security.salt', 'a-salt-specific-to-this-test-0123456789');
+        $expected = 'The value of \'Security.cipherSeed\' in ' . CONFIG . 'core.php is not a digits-only number '
+            . 'from 1 to 4294967295, so Security::cipher() does not use it as given. An in-range seed does not '
+            . 'make \'cipher\' secure: set Configure \'Cookie.type\' to \'aes\' and \'Cookie.key\' to a random value '
+            . 'of at least 32 bytes, with Security.useOpenSsl enabled. '
+            . 'See https://pieceofcake2.github.io/docs/development/configuration.html';
+
+        foreach (['', '0', 'abc', '4294967296', '770011223369876', '12345678901234567890123456', 770011223369876] as $seed) {
+            Configure::write('Security.cipherSeed', $seed);
+            $this->assertSame([$expected], $this->_checkSecurityKeysNotices(), var_export($seed, true));
+        }
+    }
+
+    /**
+     * checkSecurityKeys() keeps detecting the old default seed and also reports its range.
+     *
+     * @return void
+     */
+    public function testCheckSecurityKeysOldDefaultCipherSeed()
+    {
+        Configure::write('Security.salt', 'a-salt-specific-to-this-test-0123456789');
+        Configure::write('Security.cipherSeed', '76859309657453542496749683645');
+
+        $notices = $this->_checkSecurityKeysNotices();
+        $this->assertCount(2, $notices);
+        $this->assertSame(
+            'Please change the value of \'Security.cipherSeed\' in ' . CONFIG . 'core.php to a numeric (digits only) seed value specific to your application.',
+            $notices[0],
+        );
+        $this->assertStringContainsString('is not a digits-only number from 1 to 4294967295', $notices[1]);
+    }
+
+    /**
+     * checkSecurityKeys() asks to change the new default seed (the core fallback config
+     * and the application skeleton use it), although it is in range.
+     *
+     * @return void
+     */
+    public function testCheckSecurityKeysNewDefaultCipherSeed()
+    {
+        $this->assertStringContainsString(
+            "Configure::write('Security.cipherSeed', '2659758734');",
+            (string)file_get_contents(CORE_ROOT . DS . 'config' . DS . 'core.php'),
+        );
+        Configure::write('Security.salt', 'a-salt-specific-to-this-test-0123456789');
+        Configure::write('Security.cipherSeed', '2659758734');
+
+        $this->assertSame(
+            ['Please change the value of \'Security.cipherSeed\' in ' . CONFIG . 'core.php to a numeric (digits only) seed value specific to your application.'],
+            $this->_checkSecurityKeysNotices(),
+        );
+    }
+
+    /**
+     * checkSecurityKeys() is silent for seeds in range and for an unset seed.
+     *
+     * @return void
+     */
+    public function testCheckSecurityKeysValidCipherSeed()
+    {
+        Configure::write('Security.salt', 'a-salt-specific-to-this-test-0123456789');
+        foreach (['1', '4294967295', '1234567890', '0042', 123456] as $seed) {
+            Configure::write('Security.cipherSeed', $seed);
+            $this->assertSame([], $this->_checkSecurityKeysNotices(), var_export($seed, true));
+        }
+
+        Configure::delete('Security.cipherSeed');
+        $this->assertSame([], $this->_checkSecurityKeysNotices());
+    }
 }

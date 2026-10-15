@@ -2721,4 +2721,85 @@ class ValidationTest extends CakeTestCase
         $this->assertTrue(Validation::luhn(4111111111111111, true));
         $this->assertFalse(Validation::luhn(4111111111111112, true));
     }
+
+    /**
+     * Test utf8() with valid strings.
+     *
+     * @return void
+     */
+    public function testUtf8Basic()
+    {
+        $this->assertTrue(Validation::utf8(''));
+        $this->assertTrue(Validation::utf8('ASCII text 123'));
+        $this->assertTrue(Validation::utf8('日本語のテキスト'));
+        $this->assertTrue(Validation::utf8('Grüße, ¿Qué tal?'));
+        // U+FFFD, the last 3-byte character of the BMP
+        $this->assertTrue(Validation::utf8("\xEF\xBF\xBD"));
+
+        $this->assertTrue(Validation::utf8('ASCII text 123', ['extended' => true]));
+        $this->assertTrue(Validation::utf8('日本語のテキスト', ['extended' => true]));
+    }
+
+    /**
+     * Test that utf8() rejects characters above the BMP unless extended is set.
+     *
+     * @return void
+     */
+    public function testUtf8Extended()
+    {
+        // U+1F600 GRINNING FACE (4 bytes)
+        $emoji = "\xF0\x9F\x98\x80";
+        // U+10000, the first 4-byte character
+        $first = "\xF0\x90\x80\x80";
+
+        $this->assertFalse(Validation::utf8($emoji));
+        $this->assertFalse(Validation::utf8('text ' . $emoji));
+        $this->assertFalse(Validation::utf8($first));
+        $this->assertFalse(Validation::utf8($emoji, ['extended' => false]));
+        $this->assertFalse(Validation::utf8($emoji, []));
+
+        $this->assertTrue(Validation::utf8($emoji, ['extended' => true]));
+        $this->assertTrue(Validation::utf8('text ' . $emoji, ['extended' => true]));
+        $this->assertTrue(Validation::utf8($first, ['extended' => true]));
+    }
+
+    /**
+     * Test that utf8() rejects invalid byte sequences in both modes.
+     *
+     * @return void
+     */
+    public function testUtf8InvalidBytes()
+    {
+        $invalid = [
+            'lone byte' => "\xFF",
+            'lone continuation byte' => "\x80",
+            'truncated sequence' => "\xE3\x81",
+            'trailing invalid byte' => "valid\xFF",
+            'Latin-1 encoded' => "Gr\xFC\xDFe",
+            'overlong 2-byte slash' => "\xC0\xAF",
+            'overlong 3-byte slash' => "\xE0\x80\xAF",
+            'overlong 4-byte slash' => "\xF0\x80\x80\xAF",
+            'lone high surrogate' => "\xED\xA0\x80",
+            'lone low surrogate' => "\xED\xBF\xBF",
+            'above U+10FFFF' => "\xF4\x90\x80\x80",
+        ];
+        foreach ($invalid as $name => $value) {
+            $this->assertFalse(Validation::utf8($value), $name);
+            $this->assertFalse(Validation::utf8($value, ['extended' => true]), $name . ' (extended)');
+        }
+    }
+
+    /**
+     * Test that utf8() rejects non-string values.
+     *
+     * @return void
+     */
+    public function testUtf8NonString()
+    {
+        $values = [1, 1.5, true, null, ['abc'], ['check' => 'abc'], new stdClass()];
+        foreach ($values as $value) {
+            $this->assertFalse(Validation::utf8($value));
+            $this->assertFalse(Validation::utf8($value, ['extended' => true]));
+        }
+    }
 }

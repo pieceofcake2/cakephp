@@ -38,7 +38,9 @@ class ConsoleLog extends BaseLog
      * - `types` string or array, levels the engine is interested in
      * - `scopes` string or array, scopes the engine is interested in
      * - `stream` the path to save logs on.
-     * - `outputAs` integer or ConsoleOutput::[RAW|PLAIN|COLOR]
+     * - `outputAs` integer or ConsoleOutput::[RAW|PLAIN|COLOR]. Defaults to PLAIN when
+     *   the stream is not a terminal (or is a Windows console without ANSI support),
+     *   COLOR otherwise.
      *
      * @param array $config Options for the FileLog, see above.
      * @throws CakeLogException
@@ -46,23 +48,12 @@ class ConsoleLog extends BaseLog
     public function __construct($config = [])
     {
         parent::__construct($config);
-        if (
-            (DS === '\\' && !(bool)env('ANSICON') && env('ConEmuANSI') !== 'ON') ||
-            // The output stream is not created yet: passing the unset $this->_output (null) has always
-            // checked file descriptor 0, so check it explicitly instead of passing null.
-            (function_exists('posix_isatty') && !posix_isatty(0))
-        ) {
-            $outputAs = ConsoleOutput::PLAIN;
-        } else {
-            $outputAs = ConsoleOutput::COLOR;
-        }
         $config = Hash::merge([
             'stream' => 'php://stderr',
             'types' => null,
             'scopes' => [],
-            'outputAs' => $outputAs,
+            'outputAs' => null,
             ], $this->_config);
-        $config = $this->config($config);
         if ($config['stream'] instanceof ConsoleOutput) {
             $this->_output = $config['stream'];
         } elseif (is_string($config['stream'])) {
@@ -70,6 +61,14 @@ class ConsoleLog extends BaseLog
         } else {
             throw new CakeLogException('`stream` not a ConsoleOutput nor string');
         }
+        if ($config['outputAs'] === null) {
+            // ConsoleOutput decides between color and plain output by checking its own stream.
+            $config['outputAs'] = $this->_output->outputAs();
+            if (DS === '\\' && !(bool)env('ANSICON') && env('ConEmuANSI') !== 'ON') {
+                $config['outputAs'] = ConsoleOutput::PLAIN;
+            }
+        }
+        $config = $this->config($config);
         $this->_output->outputAs($config['outputAs']);
     }
 

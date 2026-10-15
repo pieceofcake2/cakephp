@@ -56,6 +56,7 @@ class Configure
      *
      * @param bool $boot Whether to do bootstrapping.
      * @return void
+     * @throws ConfigureException When the application core or bootstrap file cannot be included.
      */
     public static function bootstrap($boot = true)
     {
@@ -63,13 +64,12 @@ class Configure
             static::_appDefaults();
 
             if (!include CONFIG . 'core.php') {
-                trigger_error(
+                throw new ConfigureException(
                     __d(
                         'cake_dev',
                         "Can't find application core file. Please create %s, and make sure it is readable by PHP.",
                         CONFIG . 'core.php',
                     ),
-                    E_USER_ERROR,
                 );
             }
             App::init();
@@ -91,13 +91,12 @@ class Configure
             static::_setErrorHandlers($error, $exception);
 
             if (!include CONFIG . 'bootstrap.php') {
-                trigger_error(
+                throw new ConfigureException(
                     __d(
                         'cake_dev',
                         "Can't find application bootstrap file. Please create %s, and make sure it is readable by PHP.",
                         CONFIG . 'bootstrap.php',
                     ),
-                    E_USER_ERROR,
                 );
             }
             restore_error_handler();

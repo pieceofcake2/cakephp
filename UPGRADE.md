@@ -17,9 +17,116 @@ Before migrating to this fork, ensure:
 
 ## Unreleased
 
-### Debug Error Pages in the CakePHP 5 Style
+### Exceptions Instead of E_USER_ERROR ([PR #58](https://github.com/pieceofcake2/cakephp/pull/58))
 
-In debug mode the core error pages (missing controller / action / view, database errors, uncaught exceptions without an application `error400.ctp` / `error500.ctp`, ...) now use a new `dev_error` layout ported from CakePHP 5, with code excerpts for every stack frame and `(edit)` links. The links open PhpStorm by default; set `Configure::write('Debugger.editor', 'vscode');` (or `atom`, `emacs`, `macvim`, `sublime`, `textmate`, `vscodium`) to use another editor, and `Debugger.editorBasePath` when the application runs in a container. Nothing changes in production mode (`debug` = 0), for AJAX requests or in the console, and no PHP API changed.
+Triggering `E_USER_ERROR` is deprecated as of PHP 8.4, so these errors are now exceptions with the same message. Execution already stopped at these points, so most applications need no change.
+
+- `Configure::bootstrap()` throws `ConfigureException` when the application `core.php` or `bootstrap.php` cannot be included. The console prints the message as `Error: ...` and exits with code 1.
+- `TranslateBehavior` throws `CakeException` when the model's datasource is not connected (`setup()`) or when `bindTranslation()` is given an association name that is already bound to the model.
+
+If you had a custom error handler that caught these `E_USER_ERROR` errors and continued, catch the exceptions instead.
+
+### ConsoleLog Color Detection ([PR #58](https://github.com/pieceofcake2/cakephp/pull/58))
+
+`ConsoleLog` now decides between colored and plain output by checking whether its `stream` is a terminal, not STDIN. Logging to a file or pipe gets plain output; logging to `php://stderr` on a terminal is colored even when STDIN is redirected. Set `'outputAs' => ConsoleOutput::COLOR` (or `PLAIN` / `RAW`) in the log configuration to choose the format yourself.
+
+### CookieComponent Reads `Cookie.key` and `Cookie.type` ([PR #62](https://github.com/pieceofcake2/cakephp/pull/62))
+
+`CookieComponent` takes its default key and encryption type from Configure, so the whole application can switch to `'aes'` in `config/core.php`:
+
+- **Key**: `Cookie.key` when it is a non-empty string, otherwise `Security.salt` (as before).
+- **Type**: `Cookie.type` when it is set, otherwise `'cipher'` (as before). The value goes through `CookieComponent::type()`, so an invalid value triggers the same `E_USER_WARNING` (`You must use cipher, rijndael or aes for cookie encryption type`) and falls back to `'cipher'`.
+- An explicit `'key'` / `'type'` in the component settings, `$this->Cookie->key = ...` or `$this->Cookie->type(...)` always wins.
+- `'aes'` needs a key of at least 32 bytes. A shorter `Cookie.key` behaves like a shorter explicit key: `Security::encrypt()` / `Security::decrypt()` throw their existing `CakeException` (`Invalid key for encrypt(), key must be at least 256 bits (32 bytes) long.`). With `'cipher'`, any key length works as before.
+- `IntegrationTestTrait::cookieEncrypted()` / `assertCookieEncrypted()` use the same default key.
+
+Nothing changes for applications that set neither value. Setting `Cookie.key` while still on `'cipher'` changes the key, so existing `'cipher'` cookies become unreadable.
+
+### 'cipher' Encryption Is Deprecated ([PR #62](https://github.com/pieceofcake2/cakephp/pull/62))
+
+`Security::cipher()` and the `'cipher'` type of `CookieComponent` (its default type) are deprecated. `'cipher'` is a XOR with a non-cryptographic keystream and is not secure with any `Security.cipherSeed`. Nothing else changes in this release: the `cipher()` output, cookie values and return values are the same as before, and nothing throws.
+
+**New log messages.** The first `Security::cipher()` call in a process (one request, or one console run) writes a `warning` with `CakeLog`, also when debug is off:
+
+```text
+CookieComponent (type 'cipher') uses Security::cipher(), which is insecure and deprecated. Set Configure 'Cookie.type' to 'aes' and 'Cookie.key' to a random value of at least 32 bytes, with Security.useOpenSsl enabled; existing 'cipher' cookies are lost once. See https://pieceofcake2.github.io/docs/development/configuration.html
+```
+
+When your own code calls `Security::cipher()`, the message names the caller instead:
+
+```text
+Security::cipher() (called from MyClass::myMethod()) is insecure and deprecated. Use Security::encrypt() / Security::decrypt() with a key of at least 32 bytes; for CookieComponent, set Configure 'Cookie.type' to 'aes' and 'Cookie.key' to a random value of at least 32 bytes, with Security.useOpenSsl enabled. See https://pieceofcake2.github.io/docs/development/configuration.html
+```
+
+With debug on, the same message is also triggered as `E_USER_DEPRECATED`, so it shows in the debug output (the default `Error.level`, `E_ALL & ~E_DEPRECATED`, includes `E_USER_DEPRECATED`). Plain (unencrypted) cookies and the `'aes'` / `'rijndael'` types never call `Security::cipher()` and log nothing.
+
+If your test suite turns deprecations into exceptions, the first `'cipher'` use in a test run fails. This includes `cookieEncrypted()` / `assertCookieEncrypted()` of `IntegrationTestTrait`, whose default mode is `'cipher'`; pass `'aes'` once the application uses `'aes'`.
+
+**Seed range.** `Security::cipher()` seeds `mt_srand()` with `Security.cipherSeed`, and `mt_srand()` keeps only 32 bits. So the seed is used as given only when it is a digits-only number from 1 to 4294967295. Other values are reduced:
+
+- Empty, `0`, non-numeric values, values of 27 or more digits and most 26-digit values become seed 0. The former default `'76859309657453542496749683645'` (29 digits) is one of them.
+- Other values above 4294967295 keep only their lowest 32 bits.
+
+With such a seed, the first `Security::cipher()` call in a process also logs a `warning` (the seed itself is never logged):
+
+```text
+Security.cipherSeed is not a digits-only number from 1 to 4294967295, so Security::cipher() reduces it to seed 0. An in-range seed does not make 'cipher' secure: set Configure 'Cookie.type' to 'aes' and 'Cookie.key' to a random value of at least 32 bytes, with Security.useOpenSsl enabled. Changing Security.cipherSeed makes existing 'cipher' values unreadable. See https://pieceofcake2.github.io/docs/development/configuration.html
+```
+
+(For a seed above the range that is not reduced to 0, the message says `keeps only its lowest 32 bits` instead of `reduces it to seed 0`.)
+
+With debug on, `Debugger::checkSecurityKeys()` (called by `AuthComponent::initialize()`) also triggers this `E_USER_NOTICE` when `Security.cipherSeed` is set but outside the range:
+
+```text
+The value of 'Security.cipherSeed' in /path/to/config/core.php is not a digits-only number from 1 to 4294967295, so Security::cipher() does not use it as given. An in-range seed does not make 'cipher' secure: set Configure 'Cookie.type' to 'aes' and 'Cookie.key' to a random value of at least 32 bytes, with Security.useOpenSsl enabled. See https://pieceofcake2.github.io/docs/development/configuration.html
+```
+
+The existing notice `Please change the value of 'Security.cipherSeed' in ... to a numeric (digits only) seed value specific to your application.` now fires for both the former default `'76859309657453542496749683645'` and the new default `'2659758734'`, which the application skeleton and the fallback `config/core.php` of the core use.
+
+PHPUnit turns notices into exceptions by default, so tests that run `AuthComponent` with debug on and an out-of-range seed now fail with this notice. Set an in-range `Security.cipherSeed` in the test configuration, or better, stop using `'cipher'`.
+
+The fallback `config/core.php` of the core (used only when the application has no `core.php`) now sets `Security.cipherSeed` to `'2659758734'` and `Security.useOpenSsl` to `true`. OpenSSL reads and writes the same format as mcrypt, so existing `'aes'` values stay readable.
+
+> [!WARNING]
+> Do not change `Security.cipherSeed` just to silence the warning. A new seed makes every existing `'cipher'` cookie and value unreadable, and an in-range seed does not make `'cipher'` secure. Switch to `'aes'` instead.
+
+**Migrating to `'aes'`:**
+
+1. Create a random key of at least 32 bytes for the cookies, separate from `Security.salt`, and keep it out of version control, e.g. as `COOKIE_KEY` in `.env`: `php -r 'echo bin2hex(random_bytes(32)), PHP_EOL;'` prints 64 hex characters.
+2. In `config/core.php`, enable OpenSSL (without it, `'aes'` calls mcrypt functions, which fail unless the mcrypt extension is installed from PECL) and set the default type and key:
+
+   ```php
+   Configure::write('Security.useOpenSsl', true);
+   Configure::write('Cookie.type', 'aes');
+   Configure::write('Cookie.key', env('COOKIE_KEY') ?: null);
+   ```
+
+   To switch only some controllers, leave `Cookie.type` unset and use `$this->Cookie->type('aes');` in their `beforeFilter()`, or `'Cookie' => ['type' => 'aes']` in `$components`. They use `Cookie.key` as the key. Remove any explicit `'key'` setting or `$this->Cookie->key = ...` so that `Cookie.key` applies.
+3. Existing `'cipher'` cookies cannot be decrypted with `'aes'`, so their values are lost once when you switch: for example, users signed in with a remember-me cookie must sign in again. New cookies are written with `'aes'`.
+4. If your code calls `Security::cipher()` directly, use `Security::encrypt()` / `Security::decrypt()` with a key of at least 32 bytes, e.g. `Configure::read('Cookie.key')` or a key of its own. Decrypt stored values with `Security::cipher()` once and encrypt them again with `Security::encrypt()`.
+5. In tests that use `IntegrationTestTrait`, pass `'aes'` as the mode of `cookieEncrypted()` / `assertCookieEncrypted()`; the key defaults to `Cookie.key`.
+
+### New Validation Rule: `Validation::utf8()` ([PR #64](https://github.com/pieceofcake2/cakephp/pull/64))
+
+`Validation::utf8()` is a backport of the CakePHP 5 rule. It checks that a value is a valid UTF-8 string, so you can reject input that a `utf8` (`utf8mb3`) MySQL column cannot store before saving it:
+
+```php
+public $validate = [
+    // Valid UTF-8 without 4-byte characters (for utf8 / utf8mb3 columns)
+    'title' => ['rule' => 'utf8'],
+    // Valid UTF-8 including emoji and other 4-byte characters (for utf8mb4 columns)
+    'body' => ['rule' => ['utf8', ['extended' => true]]],
+];
+```
+
+- Non-string values (arrays, integers, `null`, ...) are rejected. An empty string is valid; combine with `notBlank` to require a value.
+- Invalid UTF-8 byte sequences (truncated sequences, overlong encodings, encoded surrogates such as `"\xED\xA0\x80"`) are rejected in both modes.
+
+No existing rule changes. A custom model method named `utf8()` keeps precedence over the core rule, as with any other rule name.
+
+### Debug Error Pages in the CakePHP 5 Style ([PR #60](https://github.com/pieceofcake2/cakephp/pull/60))
+
+In debug mode the core error pages (missing controller / action / view, database errors, uncaught exceptions without an application `error400.ctp` / `error500.ctp`, ...) now use a new `dev_error` layout ported from CakePHP 5, with code excerpts for every stack frame and `(edit)` links. The links open PhpStorm by default; set `Configure::write('Debugger.editor', 'vscode');` (or `atom`, `emacs`, `macvim`, `sublime`, `textmate`, `vscodium`) to use another editor, and `Debugger.editorBasePath` when the application runs in a container. Nothing changes in production mode (`debug` = 0), for AJAX requests or in the console, and no existing PHP API changed.
 
 Error templates that your application, plugin or theme provides (for example `templates/Errors/error400.ctp` / `error500.ctp`, or `app/View/Errors/...` in the legacy layout) keep rendering in your layout as before, and the `exception_stack_trace` element still works.
 

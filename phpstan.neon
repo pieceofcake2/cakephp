@@ -32,12 +32,6 @@ parameters:
         -
             message: '#^Property CakeEmail::\$_configInstance has unknown class EmailConfig as its type\.$#'
             path: src/Cake/Network/Email/CakeEmail.php
-        # trigger_error() with E_USER_ERROR is treated as terminating, but CakePHP's ErrorHandler
-        # handles E_USER_ERROR without stopping the script, so the following return is reachable.
-        -
-            identifier: deadCode.unreachable
-            path: src/Cake/Model/Behavior/TranslateBehavior.php
-            count: 2
         # PHPStan expects autoloaders to return void. App::load() returns bool for its other callers,
         # and PHP ignores the return value of autoloaders.
         -

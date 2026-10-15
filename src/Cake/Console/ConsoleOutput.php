@@ -173,7 +173,8 @@ class ConsoleOutput
         if (
             (DS === '\\' && !(bool)env('ANSICON') && env('ConEmuANSI') !== 'ON') ||
             $stream === 'php://output' ||
-            (function_exists('posix_isatty') && !posix_isatty($this->_output))
+            !is_resource($this->_output) ||
+            !stream_isatty($this->_output)
         ) {
             $this->_outputAs = static::PLAIN;
         }

@@ -175,6 +175,15 @@ jobs:
       - name: Run Tests
         run: ./vendor/bin/phpunit --coverage-clover coverage.xml --log-junit junit.xml --colors=always
 
+      - name: Test summary
+        if: ${{ !cancelled() }}
+        uses: pieceofcake2/ci-summary@v1
+        with:
+          type: junit
+          title: PHPUnit — PHP ${{ matrix.php-version }} / ${{ matrix.db-type }}
+          file: junit.xml
+          coverage: coverage.xml
+
       - name: Upload test results to Codecov
         if: ${{ !cancelled() }}
         uses: codecov/codecov-action@v7
@@ -269,6 +278,14 @@ jobs:
         if: ${{ always() && steps.phpcs.outcome == 'failure' }}
         run: cs2pr ./phpcs-report.xml
 
+      - name: PHPCS summary
+        if: ${{ !cancelled() }}
+        uses: pieceofcake2/ci-summary@v1
+        with:
+          type: checkstyle
+          title: PHPCS
+          file: phpcs-report.xml
+
   phpstan:
     name: PHPStan
 
@@ -312,3 +329,11 @@ jobs:
       - name: Show PHPStan results in PR
         if: ${{ always() && steps.phpstan.outcome == 'failure' }}
         run: cs2pr ./phpstan-report.xml
+
+      - name: PHPStan summary
+        if: ${{ !cancelled() }}
+        uses: pieceofcake2/ci-summary@v1
+        with:
+          type: phpstan
+          title: PHPStan
+          file: phpstan-report.xml

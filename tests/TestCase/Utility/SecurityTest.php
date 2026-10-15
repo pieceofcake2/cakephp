@@ -14,6 +14,33 @@
  */
 
 /**
+ * Log engine that keeps the messages written by Security::cipher().
+ *
+ * @package       Cake.Test.Case.Utility
+ */
+class SecurityTestCaptureLog extends BaseLog
+{
+    /**
+     * Logged messages as [type, message] pairs.
+     *
+     * @var array<int, array{0: string, 1: string}>
+     */
+    public static $messages = [];
+
+    /**
+     * Keeps the message.
+     *
+     * @param string $type The type of log.
+     * @param string $message The message.
+     * @return void
+     */
+    public function write($type, $message)
+    {
+        static::$messages[] = [$type, $message];
+    }
+}
+
+/**
  * SecurityTest class
  *
  * @package       Cake.Test.Case.Utility
@@ -46,8 +73,77 @@ class SecurityTest extends CakeTestCase
     public function tearDown(): void
     {
         Configure::delete('Security.useOpenSsl');
+        CakeLog::drop('security_test_capture');
+        SecurityTestCaptureLog::$messages = [];
+        $this->_setCipherReported(true);
 
         parent::tearDown();
+    }
+
+    /**
+     * Sets whether the 'cipher' deprecation and seed reports were already made.
+     *
+     * @param bool $reported Value for both flags.
+     * @return void
+     */
+    protected function _setCipherReported($reported)
+    {
+        Closure::bind(function () use ($reported) {
+            static::$_cipherDeprecationReported = $reported;
+            static::$_cipherSeedReported = $reported;
+        }, null, Security::class)();
+    }
+
+    /**
+     * Resets the 'cipher' reports and starts capturing log messages.
+     *
+     * @return void
+     */
+    protected function _captureCipherReports()
+    {
+        $this->_setCipherReported(false);
+        SecurityTestCaptureLog::$messages = [];
+        CakeLog::config('security_test_capture', ['engine' => 'SecurityTestCapture']);
+    }
+
+    /**
+     * Calls a function and collects the E_USER_DEPRECATED errors it triggers.
+     *
+     * @param callable $callback Function to call.
+     * @param array $errors Collected error messages.
+     * @return mixed The return value of $callback.
+     */
+    protected function _collectDeprecations(callable $callback, &$errors)
+    {
+        $errors = [];
+        set_error_handler(function ($errno, $errstr) use (&$errors) {
+            $errors[] = $errstr;
+
+            return true;
+        }, E_USER_DEPRECATED);
+        try {
+            return $callback();
+        } finally {
+            restore_error_handler();
+        }
+    }
+
+    /**
+     * Returns the captured log messages that contain $needle.
+     *
+     * @param string $needle Text to look for.
+     * @return array<int, string>
+     */
+    protected function _capturedMessages($needle)
+    {
+        $found = [];
+        foreach (SecurityTestCaptureLog::$messages as $entry) {
+            if (strpos($entry[1], $needle) !== false) {
+                $found[] = $entry[1];
+            }
+        }
+
+        return $found;
     }
 
     /**
@@ -354,6 +450,205 @@ class SecurityTest extends CakeTestCase
         $key = 'my_key';
         $result = Security::cipher($txt, $key);
         $this->assertEquals($txt, Security::cipher($result, $key));
+    }
+
+    /**
+     * Security::cipher() output does not change for existing seeds.
+     *
+     * The expected values were generated with the code before the deprecation was added.
+     *
+     * @return void
+     */
+    public function testCipherOutputUnchanged()
+    {
+        $expected = [
+            '76859309657453542496749683645' => 'bc2e6fd4b6ef8959f32f08283b30',
+            '1234567890' => 'e3fa7487966e7b592f823fba7f70',
+            '2659758734' => 'fd083e5882c1970fc807f0b2d4e2',
+        ];
+        $this->_captureCipherReports();
+        foreach ($expected as $seed => $hex) {
+            Configure::write('Security.cipherSeed', (string)$seed);
+            $this->_collectDeprecations(function () use ($hex) {
+                $this->assertSame($hex, bin2hex(Security::cipher('Hello, cipher!', 'my_key')));
+                $this->assertSame('Hello, cipher!', Security::cipher(hex2bin($hex), 'my_key'));
+            }, $errors);
+        }
+    }
+
+    /**
+     * The 'cipher' deprecation is logged once per process, also with debug off.
+     *
+     * @return void
+     */
+    public function testCipherDeprecationLoggedOnce()
+    {
+        Configure::write('debug', 0);
+        Configure::write('Security.cipherSeed', '1234567890');
+        $this->_captureCipherReports();
+
+        $errors = [];
+        set_error_handler(function ($errno, $errstr) use (&$errors) {
+            $errors[] = $errstr;
+
+            return true;
+        }, E_USER_DEPRECATED);
+        try {
+            $first = Security::cipher('secret value 1', 'my_key');
+            Security::cipher($first, 'my_key');
+            $result = Security::cipher('secret value 2', 'other_key');
+        } finally {
+            restore_error_handler();
+        }
+
+        $this->assertSame([], $errors, 'No E_USER_DEPRECATED with debug off');
+        $this->assertCount(1, SecurityTestCaptureLog::$messages);
+        $this->assertSame('warning', SecurityTestCaptureLog::$messages[0][0]);
+        $this->assertSame(
+            'Security::cipher() (called from SecurityTest::testCipherDeprecationLoggedOnce()) is insecure and deprecated. '
+            . 'Use Security::encrypt() / Security::decrypt() with a key of at least 32 bytes; for CookieComponent, '
+            . 'set Configure \'Cookie.type\' to \'aes\' and \'Cookie.key\' to a random value of at least 32 bytes, '
+            . 'with Security.useOpenSsl enabled. '
+            . 'See https://pieceofcake2.github.io/docs/development/configuration.html',
+            SecurityTestCaptureLog::$messages[0][1],
+        );
+        $this->assertStringNotContainsString('secret value', SecurityTestCaptureLog::$messages[0][1]);
+        $this->assertStringNotContainsString('my_key', SecurityTestCaptureLog::$messages[0][1]);
+        $this->assertSame('secret value 2', Security::cipher($result, 'other_key'));
+    }
+
+    /**
+     * With debug on, the 'cipher' deprecation is also triggered as E_USER_DEPRECATED, once.
+     *
+     * @return void
+     */
+    public function testCipherDeprecationTriggeredOnceInDebug()
+    {
+        Configure::write('debug', 2);
+        Configure::write('Security.cipherSeed', '1234567890');
+        $this->_captureCipherReports();
+
+        $this->_collectDeprecations(function () {
+            Security::cipher('abc', 'my_key');
+            Security::cipher('def', 'my_key');
+        }, $errors);
+
+        $this->assertCount(1, $errors);
+        $this->assertStringStartsWith('Security::cipher() is insecure and deprecated. ', $errors[0]);
+        $this->assertStringContainsString('is insecure and deprecated', $errors[0]);
+        $this->assertStringContainsString('set Configure \'Cookie.type\' to \'aes\' and \'Cookie.key\' to a random value of at least 32 bytes', $errors[0]);
+        $this->assertStringContainsString('https://pieceofcake2.github.io/docs/development/configuration.html', $errors[0]);
+        $this->assertCount(1, SecurityTestCaptureLog::$messages);
+        $this->assertSame($errors[0], SecurityTestCaptureLog::$messages[0][1]);
+    }
+
+    /**
+     * Nothing is logged when Security::cipher() is not used.
+     *
+     * @return void
+     */
+    public function testNoCipherReportWithoutCipher()
+    {
+        Configure::write('Security.cipherSeed', '76859309657453542496749683645');
+        Configure::write('Security.useOpenSsl', true);
+        $this->_captureCipherReports();
+
+        $key = str_repeat('k', 32);
+        $encrypted = Security::encrypt('some text', $key);
+        $this->assertSame('some text', Security::decrypt($encrypted, $key));
+        Security::hash('some text');
+
+        $this->assertSame([], SecurityTestCaptureLog::$messages);
+    }
+
+    /**
+     * Data provider for testCipherSeedOutOfRangeLoggedOnce.
+     *
+     * @return array<string, array{0: mixed, 1: string}>
+     */
+    public static function outOfRangeCipherSeedProvider()
+    {
+        return [
+            'old default (29 digits)' => ['76859309657453542496749683645', 'reduces it to seed 0'],
+            '27 digits' => ['123456789012345678901234567', 'reduces it to seed 0'],
+            'empty' => ['', 'reduces it to seed 0'],
+            'zero' => ['0', 'reduces it to seed 0'],
+            'zeros' => ['0000', 'reduces it to seed 0'],
+            'not digits' => ['abcdef', 'reduces it to seed 0'],
+            'not configured' => [null, 'reduces it to seed 0'],
+            '2^32' => ['4294967296', 'reduces it to seed 0'],
+            '2^32 + 1' => ['4294967297', 'keeps only its lowest 32 bits'],
+            '15 digits' => ['770011223369876', 'keeps only its lowest 32 bits'],
+            'integer above range' => [770011223369876, 'keeps only its lowest 32 bits'],
+            'negative' => ['-5', 'keeps only its lowest 32 bits'],
+            'digits with a suffix' => ['12345abc', 'keeps only its lowest 32 bits'],
+        ];
+    }
+
+    /**
+     * An out-of-range Security.cipherSeed is logged once, without the seed itself.
+     *
+     * @dataProvider outOfRangeCipherSeedProvider
+     * @param mixed $seed The seed.
+     * @param string $reduced Expected description of what happens to the seed.
+     * @return void
+     */
+    public function testCipherSeedOutOfRangeLoggedOnce($seed, $reduced)
+    {
+        Configure::write('debug', 0);
+        Configure::write('Security.cipherSeed', $seed);
+        $this->_captureCipherReports();
+
+        Security::cipher('abc', 'my_key');
+        Security::cipher('def', 'my_key');
+
+        $seedMessages = $this->_capturedMessages('Security.cipherSeed is not');
+        $this->assertCount(1, $seedMessages);
+        $this->assertCount(2, SecurityTestCaptureLog::$messages, 'Deprecation and seed messages');
+        $this->assertSame(
+            'Security.cipherSeed is not a digits-only number from 1 to 4294967295, so Security::cipher() '
+            . $reduced . '. An in-range seed does not make \'cipher\' secure: '
+            . 'set Configure \'Cookie.type\' to \'aes\' and \'Cookie.key\' to a random value of at least 32 bytes, '
+            . 'with Security.useOpenSsl enabled. '
+            . 'Changing Security.cipherSeed makes existing \'cipher\' values unreadable. '
+            . 'See https://pieceofcake2.github.io/docs/development/configuration.html',
+            $seedMessages[0],
+        );
+        if (is_string($seed) && strlen($seed) > 3) {
+            $this->assertStringNotContainsString($seed, $seedMessages[0]);
+        }
+    }
+
+    /**
+     * A seed from 1 to 4294967295 is not reported (only the deprecation is).
+     *
+     * @return void
+     */
+    public function testCipherSeedInRangeNotLogged()
+    {
+        Configure::write('debug', 0);
+        foreach (['1', '4294967295', '2659758734', '0001', 1234, 4294967295] as $seed) {
+            Configure::write('Security.cipherSeed', $seed);
+            $this->_captureCipherReports();
+            Security::cipher('abc', 'my_key');
+            $this->assertSame([], $this->_capturedMessages('Security.cipherSeed'), var_export($seed, true));
+            $this->assertCount(1, SecurityTestCaptureLog::$messages);
+        }
+    }
+
+    /**
+     * Security::isCipherSeedInRange()
+     *
+     * @return void
+     */
+    public function testIsCipherSeedInRange()
+    {
+        foreach (['1', '9', '0001', '4294967295', '2659758734', 1, 4294967295] as $seed) {
+            $this->assertTrue(Security::isCipherSeedInRange($seed), var_export($seed, true));
+        }
+        foreach (['', '0', '000', '4294967296', '04294967296', '76859309657453542496749683645', ' 1', '1 ', '+1', '-1', '1.0', '1e5', 'abc', 0, -1, 4294967296, 1.0, null, true, []] as $seed) {
+            $this->assertFalse(Security::isCipherSeedInRange($seed), var_export($seed, true));
+        }
     }
 
     /**
