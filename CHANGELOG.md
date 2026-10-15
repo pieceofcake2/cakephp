@@ -56,6 +56,10 @@
 - **Core config**: The fallback `config/core.php` (used when the application has no `core.php`) sets `Security.cipherSeed` to `'2659758734'` (the same default as the application skeleton) and enables `Security.useOpenSsl`
 - **Security::isCipherSeedInRange()**: New internal helper for the range check
 
+### Bug Fixes ([PR #63](https://github.com/pieceofcake2/cakephp/pull/63))
+
+- **Folder**: `Folder::isAbsolute()` / `isRegisteredStreamWrapper()` recognize registered stream wrapper schemes that contain digits, `+`, `-` or `.` (for example `s3://`), so `Folder` and `File` no longer treat such paths as relative
+
 ## v2.12.5 (2026-10-15)
 
 > [!IMPORTANT]
