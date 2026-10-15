@@ -164,7 +164,7 @@ The following security vulnerabilities have been reported in the original CakePH
 
 > [!NOTE]
 > - **CVE-2015-8379**: The fix has been fully applied with comprehensive test coverage for `_method` parameter handling and custom HTTP methods.
-> - **CVE-2020-15400**: Fixed by implementing HMAC-signed CSRF tokens that are cryptographically bound to the application. Tokens are now signed with the application's Security.salt, preventing token fixation attacks while maintaining backward compatibility with existing tokens.
+> - **CVE-2020-15400**: Fixed by implementing HMAC-signed CSRF tokens that are cryptographically bound to the application. Tokens are now signed with the application's `Security.salt`, preventing token fixation attacks while maintaining backward compatibility with existing tokens.
 > - **Xml::build() SSRF**: Because of an operator precedence bug, `Xml::build($input, ['readFile' => false])` still fetched `https://` URLs, so applications passing untrusted input with `readFile` disabled could be made to send HTTPS requests from the server. The condition now requires `readFile` for both `http://` and `https://` URLs.
 
 ## Migration Guide
