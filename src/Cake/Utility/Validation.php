@@ -908,6 +908,44 @@ class Validation
     }
 
     /**
+     * Checks that a value is a valid UTF-8 string.
+     *
+     * Rejects all non-string values (including arrays) and strings with invalid
+     * UTF-8 byte sequences (e.g. overlong encodings or encoded surrogates).
+     *
+     * ### Options
+     *
+     * - `extended` - Allow characters above the Basic Multilingual Plane (4-byte
+     *   characters such as emoji). MySQL's older `utf8` (`utf8mb3`) encoding cannot
+     *   store them. Defaults to false.
+     *
+     * Usage in model validation:
+     *
+     * ```
+     * 'rule' => 'utf8'
+     * 'rule' => ['utf8', ['extended' => true]]
+     * ```
+     *
+     * Backport of `Cake\Validation\Validation::utf8()` from CakePHP 5.
+     *
+     * @param mixed $check Value to check
+     * @param array{extended?: bool} $options An array of options. See above for the supported options.
+     * @return bool Success
+     */
+    public static function utf8($check, $options = [])
+    {
+        if (!is_string($check)) {
+            return false;
+        }
+        $options += ['extended' => false];
+        if ($options['extended']) {
+            return preg_match('//u', $check) === 1;
+        }
+
+        return preg_match('/[\x{10000}-\x{10FFFF}]/u', $check) === 0;
+    }
+
+    /**
      * Attempts to pass unhandled Validation locales to a class starting with $classPrefix
      * and ending with Validation. For example $classPrefix = 'nl', the class would be
      * `NlValidation`.
