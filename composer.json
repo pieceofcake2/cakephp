@@ -15,10 +15,10 @@
         "symfony/polyfill-mbstring": "^1.29"
     },
     "require-dev": {
-        "cakephp/cakephp-codesniffer": "^5.0",
         "phpstan/phpstan": "^2.1",
         "phpunit/phpunit": "^9.6",
         "pieceofcake2/app": "^2.3",
+        "pieceofcake2/phpcs-cakephp2": "^1.0",
         "pieceofcake2/phpstan-cakephp2": "^0.2.4",
         "rector/rector": "^2.1"
     },
