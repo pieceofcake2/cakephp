@@ -563,6 +563,35 @@ class ModelValidationTest extends BaseModelTest
     }
 
     /**
+     * Test the utf8 rule by name, with and without the extended option.
+     *
+     * @return void
+     */
+    public function testValidatesUtf8Rule()
+    {
+        $TestModel = new TheVoid();
+        $TestModel->validate = [
+            'title' => ['rule' => 'utf8'],
+            'body' => ['rule' => ['utf8', ['extended' => true]]],
+        ];
+
+        $TestModel->create(['TheVoid' => ['title' => '日本語', 'body' => "emoji \xF0\x9F\x98\x80"]]);
+        $this->assertTrue($TestModel->validates());
+
+        $TestModel->create(['TheVoid' => ['title' => "emoji \xF0\x9F\x98\x80", 'body' => 'text']]);
+        $this->assertFalse($TestModel->validates());
+        $this->assertEquals(['title'], array_keys($TestModel->validationErrors));
+
+        $TestModel->create(['TheVoid' => ['title' => 'text', 'body' => "invalid \xFF"]]);
+        $this->assertFalse($TestModel->validates());
+        $this->assertEquals(['body'], array_keys($TestModel->validationErrors));
+
+        $TestModel->create(['TheVoid' => ['title' => ['text'], 'body' => 'text']]);
+        $this->assertFalse($TestModel->validates());
+        $this->assertEquals(['title'], array_keys($TestModel->validationErrors));
+    }
+
+    /**
      * test that validates() still performs correctly when useTable = false on the model.
      *
      * @return void
