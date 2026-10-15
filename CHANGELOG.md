@@ -56,6 +56,10 @@
 - **Core config**: The fallback `config/core.php` (used when the application has no `core.php`) sets `Security.cipherSeed` to `'2659758734'` (the same default as the application skeleton) and enables `Security.useOpenSsl`
 - **Security::isCipherSeedInRange()**: New internal helper for the range check
 
+### Enhancements: Validation::utf8() (backport from CakePHP 5) ([PR #64](https://github.com/pieceofcake2/cakephp/pull/64))
+
+- **Validation::utf8()**: New validation rule, a backport of `Cake\Validation\Validation::utf8()` from CakePHP 5 (added in CakePHP 3.1). Returns `true` for a string that is valid UTF-8 and has no characters above the Basic Multilingual Plane (4-byte characters such as emoji), which MySQL's `utf8` (`utf8mb3`) columns cannot store. With `['extended' => true]`, characters above the BMP are allowed (for `utf8mb4`). Non-string values (including arrays, integers and `null`) and invalid UTF-8 byte sequences (e.g. truncated sequences, overlong encodings and encoded surrogates) are rejected in both modes. Usable in model validation as `'rule' => 'utf8'` or `'rule' => ['utf8', ['extended' => true]]`
+
 ## v2.12.5 (2026-10-15)
 
 > [!IMPORTANT]

@@ -106,6 +106,24 @@ The fallback `config/core.php` of the core (used only when the application has n
 4. If your code calls `Security::cipher()` directly, use `Security::encrypt()` / `Security::decrypt()` with a key of at least 32 bytes, e.g. `Configure::read('Cookie.key')` or a key of its own. Decrypt stored values with `Security::cipher()` once and encrypt them again with `Security::encrypt()`.
 5. In tests that use `IntegrationTestTrait`, pass `'aes'` as the mode of `cookieEncrypted()` / `assertCookieEncrypted()`; the key defaults to `Cookie.key`.
 
+### New Validation Rule: `Validation::utf8()` ([PR #64](https://github.com/pieceofcake2/cakephp/pull/64))
+
+`Validation::utf8()` is a backport of the CakePHP 5 rule. It checks that a value is a valid UTF-8 string, so you can reject input that a `utf8` (`utf8mb3`) MySQL column cannot store before saving it:
+
+```php
+public $validate = [
+    // Valid UTF-8 without 4-byte characters (for utf8 / utf8mb3 columns)
+    'title' => ['rule' => 'utf8'],
+    // Valid UTF-8 including emoji and other 4-byte characters (for utf8mb4 columns)
+    'body' => ['rule' => ['utf8', ['extended' => true]]],
+];
+```
+
+- Non-string values (arrays, integers, `null`, ...) are rejected. An empty string is valid; combine with `notBlank` to require a value.
+- Invalid UTF-8 byte sequences (truncated sequences, overlong encodings, encoded surrogates such as `"\xED\xA0\x80"`) are rejected in both modes.
+
+No existing rule changes. A custom model method named `utf8()` keeps precedence over the core rule, as with any other rule name.
+
 ## v2.12.5
 
 ### Security Fixes
