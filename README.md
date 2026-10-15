@@ -94,6 +94,16 @@ See the [contribution guidelines](https://github.com/pieceofcake2/.github/blob/m
 [running the tests](https://github.com/pieceofcake2/.github/blob/master/CONTRIBUTING.md#running-the-tests) and
 [reporting issues](https://github.com/pieceofcake2/.github/blob/master/CONTRIBUTING.md#reporting-issues).
 
+## Origin
+
+This package is a maintained fork of [cakephp/cakephp](https://github.com/cakephp/cakephp)
+(`cakephp/cakephp` on Packagist, last upstream version 2.10.24), originally by the CakePHP community
+(Cake Software Foundation, Inc.). It is maintained for CakePHP 2 on modern PHP by
+[pieceofcake2](https://github.com/pieceofcake2). It includes the PHP 8 compatibility work of
+[kamilwylegala/cakephp2-php8](https://github.com/kamilwylegala/cakephp2-php8) up to commit
+`5b6a103`. Changes from the original are listed in
+[CHANGELOG.md](https://github.com/pieceofcake2/cakephp/blob/2.x/CHANGELOG.md).
+
 ## License
 
 This project maintains the original MIT License from CakePHP. See [LICENSE](LICENSE) for details.
