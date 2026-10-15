@@ -1012,8 +1012,11 @@ class ExceptionRendererTest extends CakeTestCase
     public function testSuggestedCodeWithoutAppUses()
     {
         $this->assertSame('src', basename(rtrim(APP, DS)), 'The test app uses the modern layout.');
+        // highlight_string() uses <br /> and &nbsp; before PHP 8.3
         $code = function ($result) {
-            return html_entity_decode(strip_tags($result), ENT_QUOTES);
+            $text = html_entity_decode(strip_tags(str_replace('<br />', "\n", $result)), ENT_QUOTES, 'UTF-8');
+
+            return str_replace("\u{a0}", ' ', $text);
         };
 
         $exceptions = [
