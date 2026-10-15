@@ -1,0 +1,75 @@
+# Qlty (code quality analysis and coverage)
+# Reference: https://qlty.sh/d/qlty-toml
+config_version = "0"
+
+# Paths that are not analyzed (dependencies and local files)
+exclude_patterns = [
+    "vendor/**",
+    "node_modules/**",
+    "tmp/**",
+    "logs/**",
+]
+
+test_patterns = [
+    "tests/**",
+]
+
+[[source]]
+name = "default"
+default = true
+
+[coverage]
+ignores = [
+    "tests/**",
+]
+
+# Plugins. PHP_CodeSniffer and PHPStan run in the CI workflow with the CakePHP 2 standard and
+# extension, which Qlty cannot load. editorconfig-checker is not used: PHP_CodeSniffer checks the
+# PHP files, and the checker applies the PHP indentation to Markdown and XML.
+[[plugin]]
+name = "actionlint"
+
+[[plugin]]
+name = "osv-scanner"
+
+[[plugin]]
+name = "radarlint-php"
+
+[[plugin]]
+name = "ripgrep"
+
+[[plugin]]
+name = "trufflehog"
+
+[[plugin]]
+name = "zizmor"
+
+[smells.return_statements]
+enabled = false
+
+# CakePHP 2 conventions: models, components and helpers are properties and variables with an
+# uppercase first letter ($this->User, $User, $this->Totp)
+[[triage]]
+match.plugins = ["radarlint-php"]
+match.rules = ["radarlint-php:php:S116", "radarlint-php:php:S117"]
+set.ignored = true
+
+# Early returns (guard clauses) are preferred, so the number of returns is not limited
+[[triage]]
+match.plugins = ["radarlint-php"]
+match.rules = ["radarlint-php:php:S1142"]
+set.ignored = true
+
+# Test classes may have many test methods
+[[triage]]
+match.plugins = ["radarlint-php"]
+match.rules = ["radarlint-php:php:S1448"]
+match.file_patterns = ["tests/**"]
+set.ignored = true
+
+# The test bootstrap and the configuration files load CakePHP 2 files with require_once
+[[triage]]
+match.plugins = ["radarlint-php"]
+match.rules = ["radarlint-php:php:S4833"]
+match.file_patterns = ["tests/bootstrap.php", "config/**"]
+set.ignored = true

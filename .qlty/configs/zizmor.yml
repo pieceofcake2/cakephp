@@ -1,0 +1,8 @@
+# zizmor (run by Qlty to check the GitHub Actions workflows)
+# Actions are referenced by their major version tag (e.g. actions/checkout@v7) to follow updates,
+# so pinning them to a commit SHA (hash-pin) is not required.
+rules:
+  unpinned-uses:
+    config:
+      policies:
+        "*": ref-pin
