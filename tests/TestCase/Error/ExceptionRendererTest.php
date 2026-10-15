@@ -581,7 +581,7 @@ class ExceptionRendererTest extends CakeTestCase
             [
                 new MissingViewException(['file' => '/posts/about.ctp']),
                 [
-                    "/posts\/about.ctp/",
+                    '/Confirm you have created the file: "\/posts\/about.ctp"/',
                 ],
                 500,
             ],
@@ -1004,6 +1004,35 @@ class ExceptionRendererTest extends CakeTestCase
     }
 
     /**
+     * Test that the suggested code has no App::uses() for the modern layout, where the
+     * Composer classmap autoloads the application and core classes, except for plugin classes.
+     *
+     * @return void
+     */
+    public function testSuggestedCodeWithoutAppUses()
+    {
+        $this->assertSame('src', basename(rtrim(APP, DS)), 'The test app uses the modern layout.');
+        $code = function ($result) {
+            return html_entity_decode(strip_tags($result), ENT_QUOTES);
+        };
+
+        $exceptions = [
+            new MissingControllerException(['class' => 'PostsController']),
+            new MissingComponentException(['class' => 'SideboxComponent']),
+            new MissingHelperException(['class' => 'MyCustomHelper']),
+            new MissingBehaviorException(['class' => 'MyCustomBehavior']),
+        ];
+        foreach ($exceptions as $exception) {
+            $result = $code($this->_render($exception));
+            $this->assertMatchesRegularExpression('/<\?php\s+class /', $result, get_class($exception));
+            $this->assertStringNotContainsString('App::uses(', $result, get_class($exception));
+        }
+
+        $result = $code($this->_render(new MissingControllerException(['class' => 'PostsController', 'plugin' => 'Blog'])));
+        $this->assertStringContainsString("App::uses('BlogAppController', 'Blog.Controller');", $result);
+    }
+
+    /**
      * Test that the core error templates use the dev_error layout in debug mode.
      *
      * @return void
@@ -1017,7 +1046,11 @@ class ExceptionRendererTest extends CakeTestCase
         $this->assertStringContainsString('<p class="error-subheading">', $result);
         $this->assertStringContainsString('class="code-dump"', $result);
         $this->assertStringContainsString('class="stack-frames"', $result);
-        $this->assertStringContainsString('class="toggle-vendor-frames"', $result);
+        $this->assertStringNotContainsString('toggle-vendor-frames', $result);
+        $this->assertStringNotContainsString('code-copy', $result);
+        $this->assertStringNotContainsString('<h3>Stack Trace</h3>', $result);
+        $this->assertMatchesRegularExpression('/<a href="phpstorm:\/\/open\?file=[^"]+&amp;line=\d+" class="stack-frame-edit">\(edit\)<\/a>/', $result);
+        $this->assertStringContainsString('In the case you tried to access a plugin controller', $result);
         $this->assertStringContainsString('Errors' . DS . 'missing_controller.ctp', $result);
         $this->assertStringNotContainsString('CakePHP: the rapid development php framework', $result, 'The app layout should not be used.');
         $this->assertStringNotContainsString('<h2>Missing Controller</h2>', $result);

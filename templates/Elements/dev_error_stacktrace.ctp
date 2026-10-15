@@ -48,12 +48,18 @@ $excerpt = function ($file, $line) {
 		Debugger::excerpt($file, $line - 1, 4),
 	);
 };
-?>
-<div class="stack-toolbar">
-	<h3><?php echo __d('cake_dev', 'Stack Trace'); ?></h3>
-	<button type="button" class="toggle-vendor-frames"><?php echo __d('cake_dev', 'Toggle Vendor Stack Frames'); ?></button>
-</div>
-<?php
+
+// Link that opens the file in the editor set with the `Debugger.editor` configure value.
+$editLink = function ($file, $line) {
+	try {
+		$url = Debugger::editorUrl($file, $line);
+	} catch (InvalidArgumentException $e) {
+		return '';
+	}
+
+	return '<a href="' . h($url) . '" class="stack-frame-edit">(edit)</a>';
+};
+
 foreach ($exceptions as $level => $exc) :
 	$frames = $exc->getTrace();
 	if ($level > 0) :
@@ -86,6 +92,9 @@ foreach ($exceptions as $level => $exc) :
 		<span class="stack-frame-file">
 			<?php echo h(Debugger::trimPath($file)); ?> <?php echo __d('cake_dev', 'at line'); ?> <?php echo h($line); ?>
 		</span>
+		<?php if ($line) : ?>
+			<?php echo $editLink($file, $line); ?>
+		<?php endif; ?>
 
 		<table class="code-excerpt" cellspacing="0" cellpadding="0">
 		<?php foreach ($lines as $l => $code) : ?>
@@ -151,6 +160,10 @@ foreach ($exceptions as $level => $exc) :
 							<?php echo h($stack['function']); ?>
 						<?php endif; ?>
 					</span>
+
+					<?php if ($line !== null) : ?>
+						<?php echo $editLink($file, $line); ?>
+					<?php endif; ?>
 				</div>
 			</div>
 			<div

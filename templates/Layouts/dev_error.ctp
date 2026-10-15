@@ -85,7 +85,6 @@ $errorType = isset($error) && is_object($error) ? get_class($error) : '';
 		align-items: center;
 		font-size: 30px;
 		margin: 0;
-		word-break: break-word;
 	}
 	.header-title a {
 		font-size: 18px;
@@ -121,24 +120,6 @@ $errorType = isset($error) && is_object($error) ? get_class($error) : '';
 		white-space: pre-wrap;
 		margin: 0;
 	}
-	.code-dump {
-		position: relative;
-	}
-	.code-dump > pre {
-		padding: 0;
-	}
-	.code-copy {
-		position: absolute;
-		top: 8px;
-		right: 8px;
-		cursor: pointer;
-		color: #525252;
-		border: 1px solid #d2d2d2;
-		border-radius: var(--border-radius);
-		background: #F5F7FA;
-		font-size: 12px;
-		padding: 2px 8px;
-	}
 
 	.error,
 	.error-subheading {
@@ -170,26 +151,10 @@ $errorType = isset($error) && is_object($error) ? get_class($error) : '';
 		margin-right: 8px;
 	}
 
-	/* Stack trace toolbar */
-	.stack-toolbar {
-		display: flex;
-		justify-content: space-between;
-		align-items: center;
-		margin: 0 0 10px;
-	}
-	.stack-toolbar h3 {
+	.stack-trace {
+		list-style: none;
 		margin: 0;
-	}
-	.toggle-vendor-frames {
-		cursor: pointer;
-		color: #525252;
-		border: 1px solid #d2d2d2;
-		border-radius: var(--border-radius);
-		background: #fff;
-		padding: 4px 10px;
-	}
-	.hide-vendor-frames .vendor-frame {
-		display: none;
+		padding: 0;
 	}
 
 	/* Previous exception blocks */
@@ -238,6 +203,9 @@ $errorType = isset($error) && is_object($error) ? get_class($error) : '';
 		color: #212121;
 		text-decoration: none;
 	}
+	.stack-frame.active {
+		background: #F5F7FA;
+	}
 	.stack-frame a:hover {
 		text-decoration: underline;
 	}
@@ -250,7 +218,6 @@ $errorType = isset($error) && is_object($error) ? get_class($error) : '';
 	}
 	.stack-frame-header-content {
 		display: flex;
-		flex-wrap: wrap;
 		gap: 8px;
 	}
 	.vendor-frame .stack-frame-header-content,
@@ -264,8 +231,16 @@ $errorType = isset($error) && is_object($error) ? get_class($error) : '';
 	}
 	.stack-function,
 	.stack-frame-file,
-	.stack-frame-line {
+	.stack-frame-line,
+	.stack-file {
 		font-family: var(--typeface-mono);
+	}
+	.stack-file {
+		font-size: 0.9em;
+		white-space: nowrap;
+		text-overflow: ellipsis;
+		overflow: hidden;
+		direction: rtl;
 	}
 	.stack-frame-file {
 		word-break: break-all;
@@ -280,6 +255,9 @@ $errorType = isset($error) && is_object($error) ? get_class($error) : '';
 		margin: 0;
 	}
 
+	.stack-frame-edit {
+		margin: 0 5px 0 0;
+	}
 	.stack-frame-toggle {
 		cursor: pointer;
 		color: #525252;
@@ -287,7 +265,6 @@ $errorType = isset($error) && is_object($error) ? get_class($error) : '';
 		border-radius: var(--border-radius);
 		height: 28px;
 		width: 28px;
-		flex-shrink: 0;
 		background: #F5F7FA;
 		line-height: 1.5;
 	}
@@ -304,6 +281,9 @@ $errorType = isset($error) && is_object($error) ? get_class($error) : '';
 	}
 	.stack-frame-args:hover {
 		color: #D33C47;
+	}
+	.stack-args h4 {
+		margin-top: 0;
 	}
 
 	/* Suggestion and help context */
@@ -364,7 +344,7 @@ $errorType = isset($error) && is_object($error) ? get_class($error) : '';
 	<header>
 		<h1 class="header-title">
 			<span><?php echo $errorTitle; ?></span>
-			<a title="<?php echo __d('cake_dev', 'Copy'); ?>">&#128203;</a>
+			<a>&#128203;</a>
 		</h1>
 		<?php if (strlen($errorDescription)) : ?>
 			<span class="header-description"><?php echo nl2br($errorDescription); ?></span>
@@ -459,17 +439,6 @@ $errorType = isset($error) && is_object($error) ? get_class($error) : '';
 				var frame = document.getElementById('stack-frame-details-' + frameId);
 				toggleElement(frame);
 				event.preventDefault();
-			});
-
-			bindEvent('.toggle-vendor-frames', 'click', function(event) {
-				document.body.classList.toggle('hide-vendor-frames');
-				event.preventDefault();
-			});
-
-			bindEvent('.code-copy', 'click', function(event) {
-				event.preventDefault();
-				var code = this.parentNode.querySelector('code');
-				copyText(code ? code.textContent : '', this, '✓');
 			});
 
 			bindEvent('.header-title a', 'click', function(event) {

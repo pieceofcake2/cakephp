@@ -25,7 +25,7 @@ $this->start('subheading');
 
 <?php $this->start('file'); ?>
 <p>
-	<?php echo __d('cake_dev', 'Confirm you have created the file: %s', h($file)); ?>
+	<?php echo __d('cake_dev', 'Confirm you have created the file: %s', '"' . h($file) . '"'); ?>
 	<?php echo __d('cake_dev', 'in one of the following paths:'); ?>
 </p>
 <ul>

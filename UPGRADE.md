@@ -19,7 +19,7 @@ Before migrating to this fork, ensure:
 
 ### Debug Error Pages in the CakePHP 5 Style
 
-In debug mode the core error pages (missing controller / action / view, database errors, uncaught exceptions without an application `error400.ctp` / `error500.ctp`, ...) now use a new `dev_error` layout ported from CakePHP 5, with code excerpts for every stack frame. Nothing changes in production mode (`debug` = 0), for AJAX requests or in the console, and no PHP API changed.
+In debug mode the core error pages (missing controller / action / view, database errors, uncaught exceptions without an application `error400.ctp` / `error500.ctp`, ...) now use a new `dev_error` layout ported from CakePHP 5, with code excerpts for every stack frame and `(edit)` links. The links open PhpStorm by default; set `Configure::write('Debugger.editor', 'vscode');` (or `atom`, `emacs`, `macvim`, `sublime`, `textmate`, `vscodium`) to use another editor, and `Debugger.editorBasePath` when the application runs in a container. Nothing changes in production mode (`debug` = 0), for AJAX requests or in the console, and no PHP API changed.
 
 Error templates that your application, plugin or theme provides (for example `templates/Errors/error400.ctp` / `error500.ctp`, or `app/View/Errors/...` in the legacy layout) keep rendering in your layout as before, and the `exception_stack_trace` element still works.
 
