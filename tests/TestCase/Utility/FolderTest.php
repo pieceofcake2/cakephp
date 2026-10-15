@@ -664,6 +664,27 @@ class FolderTest extends CakeTestCase
     }
 
     /**
+     * Stream wrapper schemes may contain digits, "+", "-" and "." after the first letter (e.g. s3://).
+     *
+     * @return void
+     */
+    public function testIsAbsoluteWithSchemeContainingDigits()
+    {
+        $this->assertTrue(stream_wrapper_register('s3test', 'FolderTestStreamWrapper'));
+        $this->assertTrue(stream_wrapper_register('x-foo.bar+2', 'FolderTestStreamWrapper'));
+        try {
+            $this->assertTrue(Folder::isAbsolute('s3test://bucket/path'));
+            $this->assertTrue(Folder::isRegisteredStreamWrapper('s3test://bucket/path'));
+            $this->assertTrue(Folder::isAbsolute('x-foo.bar+2://path'));
+            $this->assertFalse(Folder::isAbsolute('3test://bucket/path'));
+            $this->assertFalse(Folder::isAbsolute('s4test://bucket/path'));
+        } finally {
+            stream_wrapper_unregister('s3test');
+            stream_wrapper_unregister('x-foo.bar+2');
+        }
+    }
+
+    /**
      * testIsSlashTerm method
      *
      * @return void
@@ -1424,4 +1445,15 @@ class FolderTest extends CakeTestCase
 
         $Folder->delete();
     }
+}
+
+/**
+ * Stream wrapper used to register custom schemes in FolderTest.
+ */
+class FolderTestStreamWrapper
+{
+    /**
+     * @var resource|null
+     */
+    public $context;
 }

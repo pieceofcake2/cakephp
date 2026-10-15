@@ -342,7 +342,7 @@ class Folder
     public static function isRegisteredStreamWrapper($path)
     {
         if (
-            preg_match('/^[A-Z]+(?=:\/\/)/i', $path, $matches) &&
+            preg_match('/^[A-Z][A-Z0-9+.-]*(?=:\/\/)/i', $path, $matches) &&
             in_array($matches[0], stream_get_wrappers())
         ) {
             return true;
