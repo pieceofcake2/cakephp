@@ -87,6 +87,22 @@ class Debugger
     protected $_data = [];
 
     /**
+     * A map of editors to their link templates, used by Debugger::editorUrl().
+     *
+     * @var array<string, string|callable>
+     */
+    protected $_editors = [
+        'atom' => 'atom://core/open/file?filename={file}&line={line}',
+        'emacs' => 'emacs://open?url=file://{file}&line={line}',
+        'macvim' => 'mvim://open/?url=file://{file}&line={line}',
+        'phpstorm' => 'phpstorm://open?file={file}&line={line}',
+        'sublime' => 'subl://open?url=file://{file}&line={line}',
+        'textmate' => 'txmt://open?url=file://{file}&line={line}',
+        'vscode' => 'vscode://file/{file}:{line}',
+        'vscodium' => 'vscodium://file/{file}:{line}',
+    ];
+
+    /**
      * Constructor.
      */
     public function __construct()
@@ -385,6 +401,83 @@ class Debugger
     }
 
     /**
+     * Add an editor link format.
+     *
+     * Templates can use the `{file}` and `{line}` placeholders. Closures receive
+     * the file and line and must return the URL.
+     *
+     * @param string $name The name of the editor.
+     * @param callable|string $template The string template or closure.
+     * @return void
+     */
+    public static function addEditor($name, $template)
+    {
+        $self = static::getInstance();
+        $self->_editors[$name] = $template;
+    }
+
+    /**
+     * Choose the editor link style used by the error pages in debug mode.
+     *
+     * Same as setting the `Debugger.editor` configure value.
+     *
+     * @param string $name The editor name.
+     * @return void
+     * @throws InvalidArgumentException When the editor is not known.
+     */
+    public static function setEditor($name)
+    {
+        $self = static::getInstance();
+        if (!isset($self->_editors[$name])) {
+            throw new InvalidArgumentException(sprintf(
+                'Unknown editor `%s`. Known editors are `%s`.',
+                $name,
+                implode(', ', array_keys($self->_editors)),
+            ));
+        }
+        Configure::write('Debugger.editor', $name);
+    }
+
+    /**
+     * Get a formatted URL that opens a file in the active editor.
+     *
+     * The editor is read from the `Debugger.editor` configure value (default `phpstorm`).
+     * When `Debugger.editorBasePath` is set, it replaces ROOT in the file path, which is
+     * useful when the application runs in a container or a virtual machine.
+     *
+     * @param string $file The file to open.
+     * @param int $line The line number.
+     * @return string The editor URL.
+     * @throws InvalidArgumentException When the configured editor is not known.
+     */
+    public static function editorUrl($file, $line)
+    {
+        $self = static::getInstance();
+        $editor = Configure::read('Debugger.editor');
+        if ($editor === null) {
+            $editor = 'phpstorm';
+        }
+        if (!is_string($editor) || !isset($self->_editors[$editor])) {
+            throw new InvalidArgumentException(sprintf(
+                'Cannot format editor URL `%s` is not a known editor.',
+                is_scalar($editor) ? (string)$editor : gettype($editor),
+            ));
+        }
+
+        $basePath = Configure::read('Debugger.editorBasePath');
+        if (is_string($basePath) && defined('ROOT')) {
+            $file = str_replace(ROOT, $basePath, $file);
+        }
+
+        $template = $self->_editors[$editor];
+        if (is_string($template)) {
+            return str_replace(['{file}', '{line}'], [$file, (string)$line], $template);
+        }
+
+        return $template($file, $line);
+    }
+
+    /**
      * Grabs an excerpt from a file and highlights a given line of code.
      *
      * Usage:
@@ -453,8 +546,9 @@ class Debugger
         }
         $highlight = highlight_string($str, true);
         if ($added) {
+            // PHP 8.3+ keeps the line break as is instead of converting it to <br />.
             $highlight = str_replace(
-                '&lt;?php&nbsp;<br />',
+                ['&lt;?php&nbsp;<br />', "&lt;?php \n"],
                 '',
                 $highlight,
             );

@@ -14,26 +14,39 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+$this->assign('title', __d('cake_dev', 'Fatal Error'));
+$this->assign('templateName', 'fatal_error.ctp');
+
+$this->start('subheading');
 ?>
-<h2><?php echo __d('cake_dev', 'Fatal Error'); ?></h2>
-<p class="error">
-	<strong><?php echo __d('cake_dev', 'Error'); ?>: </strong>
-	<?php echo h($error->getMessage()); ?>
-	<br>
+<strong><?php echo __d('cake_dev', 'Error'); ?></strong>
+<?php echo h($error->getMessage()); ?>
+<br>
+<br>
+<strong><?php echo __d('cake_dev', 'File'); ?></strong>
+<?php echo h($error->getFile()); ?>
+<br>
+<br>
+<strong><?php echo __d('cake_dev', 'Line'); ?></strong>
+<?php echo h($error->getLine()); ?>
+<?php $this->end(); ?>
 
-	<strong><?php echo __d('cake_dev', 'File'); ?>: </strong>
-	<?php echo h($error->getFile()); ?>
-	<br>
-
-	<strong><?php echo __d('cake_dev', 'Line'); ?>: </strong>
-	<?php echo h($error->getLine()); ?>
-</p>
-<p class="notice">
-	<strong><?php echo __d('cake_dev', 'Notice'); ?>: </strong>
-	<?php echo __d('cake_dev', 'If you want to customize this error message, create %s', APP_DIR . DS . 'View' . DS . 'Errors' . DS . 'fatal_error.ctp'); ?>
-</p>
 <?php
-if (extension_loaded('xdebug')) {
-	xdebug_print_function_stack();
-}
-?>
+$this->start('file');
+if (extension_loaded('xdebug')) :
+	// Xdebug 3 only prints the function stack in develop mode, and triggers a warning otherwise.
+	if (function_exists('xdebug_info')) :
+		$xdebugDevelop = in_array('develop', (array)xdebug_info('mode'), true);
+	else :
+		$xdebugDevelop = version_compare((string)phpversion('xdebug'), '3.0.0', '<') || strpos((string)ini_get('xdebug.mode'), 'develop') !== false;
+	endif;
+	if ($xdebugDevelop) :
+		xdebug_print_function_stack();
+	endif;
+endif;
+$this->end();
+if (Configure::read('debug') > 0 && !$this->request->is('ajax')) :
+	$this->layout = 'dev_error';
+else :
+	echo $this->element('dev_error_content');
+endif;

@@ -15,27 +15,41 @@
  */
 
 $pluginDot = empty($plugin) ? null : $plugin . '.';
+$path = $this->element('dev_error_file_path', array('package' => 'Controller/Component', 'plugin' => $plugin ?? null, 'file' => $class . '.php'));
+
+$this->assign('title', __d('cake_dev', 'Missing Component'));
+$this->assign('templateName', 'missing_component.ctp');
+
+$this->start('subheading');
 ?>
-<h2><?php echo __d('cake_dev', 'Missing Component'); ?></h2>
-<p class="error">
-	<strong><?php echo __d('cake_dev', 'Error'); ?>: </strong>
-	<?php echo __d('cake_dev', '%s could not be found.', '<em>' . h($pluginDot . $class) . '</em>'); ?>
-</p>
-<p class="error">
-	<strong><?php echo __d('cake_dev', 'Error'); ?>: </strong>
-	<?php echo __d('cake_dev', 'Create the class %s below in file: %s', '<em>' . h($class) . '</em>', (empty($plugin) ? APP_DIR . DS : CakePlugin::path($plugin)) . 'Controller' . DS . 'Component' . DS . h($class) . '.php'); ?>
-</p>
-<pre>
-&lt;?php
-class <?php echo h($class); ?> extends Component {
+<strong><?php echo __d('cake_dev', 'Error'); ?></strong>
+<?php echo __d('cake_dev', '%s could not be found.', '<em>' . h($pluginDot . $class) . '</em>'); ?>
+<?php echo $this->element('dev_error_plugin_class'); ?>
+<?php $this->end(); ?>
 
-}
-</pre>
-<p class="notice">
-	<strong><?php echo __d('cake_dev', 'Notice'); ?>: </strong>
-	<?php echo __d('cake_dev', 'If you want to customize this error message, create %s', APP_DIR . DS . 'View' . DS . 'Errors' . DS . 'missing_component.ctp'); ?>
+<?php $this->start('file'); ?>
+<p class="error">
+	<strong><?php echo __d('cake_dev', 'Suggestion'); ?></strong>
+	<?php echo __d('cake_dev', 'Create the class %s below in file: %s', '<em>' . h($class) . '</em>', $path); ?>
 </p>
-
 <?php
-echo $this->element('exception_stack_trace');
+// Applications with the modern layout (src/) autoload their classes and the core classes
+// with the Composer classmap, so the suggested code only needs App::uses() in the legacy layout.
+$classmapApp = basename(rtrim(APP, DS)) === 'src';
+$uses = !$classmapApp ? "App::uses('Component', 'Controller');\n" : '';
+$code = <<<PHP
+<?php
+{$uses}
+class {$class} extends Component
+{
+}
+PHP;
 ?>
+<div class="code-dump"><?php highlight_string($code); ?></div>
+<?php $this->end(); ?>
+<?php
+if (Configure::read('debug') > 0 && !$this->request->is('ajax')) :
+	$this->layout = 'dev_error';
+else :
+	echo $this->element('dev_error_content');
+endif;

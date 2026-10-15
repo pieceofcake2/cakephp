@@ -15,27 +15,46 @@
  */
 
 $pluginDot = empty($plugin) ? null : $plugin . '.';
+$appController = (empty($plugin) ? '' : $plugin) . 'AppController';
+$appControllerPackage = (empty($plugin) ? '' : $plugin . '.') . 'Controller';
+$path = $this->element('dev_error_file_path', array('package' => 'Controller', 'plugin' => $plugin ?? null, 'file' => $class . '.php'));
+
+$this->assign('title', __d('cake_dev', 'Missing Controller'));
+$this->assign('templateName', 'missing_controller.ctp');
+
+$this->start('subheading');
 ?>
-<h2><?php echo __d('cake_dev', 'Missing Controller'); ?></h2>
-<p class="error">
-	<strong><?php echo __d('cake_dev', 'Error'); ?>: </strong>
-	<?php echo __d('cake_dev', '%s could not be found.', '<em>' . h($pluginDot . $class) . '</em>'); ?>
-</p>
-<p class="error">
-	<strong><?php echo __d('cake_dev', 'Error'); ?>: </strong>
-	<?php echo __d('cake_dev', 'Create the class %s below in file: %s', '<em>' . h($class) . '</em>', (empty($plugin) ? APP_DIR . DS : CakePlugin::path($plugin)) . 'Controller' . DS . h($class) . '.php'); ?>
-</p>
-<pre>
-&lt;?php
-class <?php echo h($class . ' extends ' . (empty($plugin) ? '' : $plugin)); ?>AppController {
+<strong><?php echo __d('cake_dev', 'Error'); ?></strong>
+<?php echo __d('cake_dev', '%s could not be found.', '<em>' . h($pluginDot . $class) . '</em>'); ?>
+<?php echo $this->element('dev_error_plugin_class'); ?>
+<?php $this->end(); ?>
 
-}
-</pre>
-<p class="notice">
-	<strong><?php echo __d('cake_dev', 'Notice'); ?>: </strong>
-	<?php echo __d('cake_dev', 'If you want to customize this error message, create %s', APP_DIR . DS . 'View' . DS . 'Errors' . DS . 'missing_controller.ctp'); ?>
+<?php $this->start('file'); ?>
+<p>
+	<?php echo __d('cake_dev', 'In the case you tried to access a plugin controller make sure you added it to your composer file and loaded it with %s.', '<code>CakePlugin::load()</code>'); ?>
 </p>
-
+<p class="error">
+	<strong><?php echo __d('cake_dev', 'Suggestion'); ?></strong>
+	<?php echo __d('cake_dev', 'Create the class %s below in file: %s', '<em>' . h($class) . '</em>', $path); ?>
+</p>
 <?php
-echo $this->element('exception_stack_trace');
+// Applications with the modern layout (src/) autoload their classes and the core classes
+// with the Composer classmap, so the suggested code only needs App::uses() in the legacy layout or in a plugin.
+$classmapApp = basename(rtrim(APP, DS)) === 'src';
+$uses = !empty($plugin) || !$classmapApp ? "App::uses('{$appController}', '{$appControllerPackage}');\n" : '';
+$code = <<<PHP
+<?php
+{$uses}
+class {$class} extends {$appController}
+{
+}
+PHP;
 ?>
+<div class="code-dump"><?php highlight_string($code); ?></div>
+<?php $this->end(); ?>
+<?php
+if (Configure::read('debug') > 0 && !$this->request->is('ajax')) :
+	$this->layout = 'dev_error';
+else :
+	echo $this->element('dev_error_content');
+endif;
