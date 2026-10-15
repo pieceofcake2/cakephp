@@ -73,6 +73,14 @@
 class CakeLog
 {
     /**
+     * The log DSN class map (scheme => log engine class name or callable).
+     * `null` until `getDsnClassMap()` sets the built-in schemes.
+     *
+     * @var array<string, mixed>|null
+     */
+    protected static $_dsnClassMap = null;
+
+    /**
      * LogEngineCollection class
      *
      * @var LogEngineCollection|null
@@ -139,6 +147,16 @@ class CakeLog
      * ```
      *
      * Will configure a FileLog instance to use the specified path.
+     * The same configuration can be written with a DSN in the `'dsn'` key
+     * (see `parseDsn()` and `setDsnClassMap()`); the keys parsed from the DSN
+     * replace the same keys of the array, and an empty `'dsn'` is ignored:
+     *
+     * ```
+     * CakeLog::config('second_file', array(
+     *     'dsn' => 'file:///var/logs/my_app/?types[]=error&types[]=warning',
+     * ));
+     * ```
+     *
      * All options that are not `engine` are passed onto the logging adapter,
      * and handled there. Any class can be configured as a logging
      * adapter as long as it implements the methods in CakeLogInterface.
@@ -193,6 +211,12 @@ class CakeLog
         if (!preg_match('/^[a-zA-Z_\x7f-\xff][a-zA-Z0-9_\x7f-\xff]*/', $key)) {
             throw new CakeLogException(__d('cake_dev', 'Invalid key name'));
         }
+        $config = CakeDsn::expandConfig(
+            $config,
+            [static::class, 'parseDsn'],
+            sprintf('the "%s" log configuration', $key),
+            'CakeLogException',
+        );
         if (empty($config['engine'])) {
             throw new CakeLogException(__d('cake_dev', 'Missing logger class name'));
         }
@@ -202,6 +226,124 @@ class CakeLog
         static::$_Collection->load($key, $config);
 
         return true;
+    }
+
+    /**
+     * Adds log DSN schemes, or replaces built-in ones, for the `'dsn'` key of
+     * log configurations.
+     *
+     * A plugin registers its schemes in its `Config/bootstrap.php`:
+     *
+     * ```
+     * CakeLog::setDsnClassMap([
+     *     // mylog://host:port/path uses MyPlugin.MyLog with the keys username,
+     *     // password, host, port, path and the query parameters
+     *     'mylog' => 'MyPlugin.MyLog',
+     *     // a callable returns the configuration keys itself
+     *     'otherlog' => function (array $parts, array $config) {
+     *         return ['engine' => 'MyPlugin.Other', 'endpoint' => $parts['host'] ?? null] + $parts['query'];
+     *     },
+     * ]);
+     * ```
+     *
+     * A value is either a log engine class name in plugin dot syntax (as in
+     * the `engine` key), or a callable (not a string)
+     * `function (array $parts, array $config): array` that gets the parts of
+     * `CakeDsn::parse()` and the configuration without the `'dsn'` key and
+     * returns the configuration keys. `null` removes a scheme. Schemes are
+     * case-insensitive.
+     *
+     * `CakeLog::config()` builds the engine at once, so a configuration that
+     * uses a scheme of a plugin must come after the plugin is loaded.
+     *
+     * @param array<string, mixed> $map Scheme => log engine class name or callable.
+     * @return void
+     */
+    public static function setDsnClassMap($map)
+    {
+        static::$_dsnClassMap = CakeDsn::mergeClassMap($map, static::getDsnClassMap());
+    }
+
+    /**
+     * Returns the log DSN class map (scheme => log engine class name or callable).
+     *
+     * @return array<string, mixed>
+     */
+    public static function getDsnClassMap()
+    {
+        if (static::$_dsnClassMap === null) {
+            static::$_dsnClassMap = static::_defaultDsnClassMap();
+        }
+
+        return static::$_dsnClassMap;
+    }
+
+    /**
+     * Returns the built-in log DSN schemes.
+     *
+     * @return array<string, mixed>
+     */
+    protected static function _defaultDsnClassMap()
+    {
+        return [
+            'file' => function ($parts) {
+                $config = ['engine' => 'File'];
+                if (isset($parts['path']) && $parts['path'] !== '') {
+                    $config['path'] = rtrim($parts['path'], '/\\') . DS;
+                }
+
+                return $parts['query'] + $config;
+            },
+            'console' => function ($parts) {
+                return $parts['query'] + ['engine' => 'Console'];
+            },
+            'syslog' => function ($parts) {
+                return $parts['query'] + ['engine' => 'Syslog'];
+            },
+        ];
+    }
+
+    /**
+     * Parses a log DSN into log configuration keys.
+     *
+     * ```
+     * CakeLog::parseDsn('file:///var/logs/my_app?file=error&types[]=error&types[]=warning');
+     * // ['engine' => 'File', 'path' => '/var/logs/my_app/', 'file' => 'error',
+     * //  'types' => ['error', 'warning']]
+     * ```
+     *
+     * The scheme is looked up in the DSN class map (see `setDsnClassMap()`).
+     * The built-in schemes are:
+     *
+     * | Scheme | Configuration |
+     * | --- | --- |
+     * | `file:///path/to/logs` | `File` engine, `path` (with a trailing directory separator) |
+     * | `console://` | `Console` engine (e.g. `console://?stream=php://stderr`) |
+     * | `syslog://` | `Syslog` engine (e.g. `syslog://?prefix=app`) |
+     *
+     * - Query parameters become configuration keys as they are (`file`,
+     *   `types[]`, `scopes[]`, `size`, `rotate`, `stream`, ...). `true`,
+     *   `false` and `null` are converted to the PHP values.
+     * - For an engine class name in the map, the user, password, host, port
+     *   and path become `username`, `password`, `host`, `port` and `path`, as
+     *   in CakePHP 3.x and later. An `engine` query parameter overrides a class
+     *   name and allows schemes that are not in the map.
+     * - A callable in the map returns the configuration keys itself.
+     *
+     * @param string $dsn The DSN.
+     * @param array $config The configuration the DSN is merged into (passed to a callable of the map).
+     * @return array The log configuration.
+     * @throws CakeLogException When the DSN cannot be parsed or its scheme is not supported.
+     */
+    public static function parseDsn($dsn, $config = [])
+    {
+        try {
+            return CakeDsn::toConfig($dsn, static::getDsnClassMap(), 'engine', [CakeDsn::class, 'genericConfig'], $config);
+        } catch (CakeLogException $e) {
+            throw $e;
+        } catch (CakeException $e) {
+            throw new CakeLogException($e->getMessage());
+        }
     }
 
     /**

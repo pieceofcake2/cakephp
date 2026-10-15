@@ -15,6 +15,114 @@ Before migrating to this fork, ensure:
 4. **Upgrade PHP**: Update your PHP version to 8.0 or newer
 5. **Test Thoroughly**: Run your application's test suite to ensure compatibility
 
+## Unreleased
+
+### DSN Configuration: `DATABASE_URL`, `MAILER_DSN`, Cache and Log ([PR #69](https://github.com/pieceofcake2/cakephp/pull/69))
+
+Database, email, cache and log configurations accept a DSN in a `'dsn'` key, so a whole connection can come from one environment variable. The environment variable names and DSN formats are the ones of Symfony (`DATABASE_URL`, `MAILER_DSN`). Nothing changes for configurations without a `'dsn'` key.
+
+```php
+// config/database.php
+class DATABASE_CONFIG
+{
+    public $default = [
+        'datasource' => 'Database/Mysql',
+        'persistent' => false,
+        'encoding' => 'utf8mb4',
+        'dsn' => null,
+    ];
+
+    public function __construct()
+    {
+        $this->default['dsn'] = env('DATABASE_URL');
+    }
+}
+
+// config/email.php
+class EmailConfig
+{
+    public $default = [
+        'transport' => 'Mail',
+        'from' => 'you@localhost',
+        'dsn' => null,
+    ];
+
+    public function __construct()
+    {
+        $this->default['dsn'] = env('MAILER_DSN');
+    }
+}
+
+// config/bootstrap.php
+Cache::config('default', ['engine' => 'File', 'dsn' => env('CACHE_DSN')]);
+CakeLog::config('error', ['dsn' => 'file://' . LOGS . '?file=error&types[]=warning&types[]=error']);
+```
+
+| Database DSN | Datasource configuration |
+| --- | --- |
+| `mysql://user:pass@host:3306/app?encoding=utf8mb4` | `Database/Mysql`, `login`, `password`, `host`, `port`, `database`, `encoding` |
+| `postgres://user:pass@host:5432/app?schema=public` (also `postgresql://`, `pgsql://`) | `Database/Postgres` |
+| `sqlite:///:memory:` | `Database/Sqlite`, `database` `:memory:` |
+| `sqlite:///tmp/app.sqlite` / `sqlite:////var/db/app.sqlite` | `database` `tmp/app.sqlite` (relative) / `/var/db/app.sqlite` (absolute, four slashes) |
+| `sqlserver://user:pass@host:1433/app` (also `mssql://`, `sqlsrv://`) | `Database/Sqlserver` |
+
+| Mailer DSN | Email configuration |
+| --- | --- |
+| `smtp://user:pass@host:587` | `Smtp` transport, `host`, `port`, `username`, `password`; `tls` is `true` on port 587 or with `?tls=1` |
+| `smtps://user:pass@host` | `Smtp` transport, host `ssl://host`, port `465` |
+| `sendmail://default`, `native://default` | `Mail` transport |
+| `null://null` | `Debug` transport (nothing is sent) |
+
+| Cache DSN | Cache configuration |
+| --- | --- |
+| `file:///path/to/cache/?prefix=app_` | `File` engine, `path` |
+| `apcu://`, `apc://` | `Apc` engine |
+| `memcached://user:pass@host:11211`, `memcached:///path/to/socket` | `Memcached` engine, `servers`, `login`, `password` |
+| `memcache://host:11211` | `Memcache` engine, `servers` |
+| `redis://:pass@host:6379/1`, `redis:///path/to/socket` | `Redis` engine, `server`, `port`, `password` (`[user, password]` when the DSN has a user name), `database` (path or `?database=`), `unix_socket` |
+
+| Log DSN | Log configuration |
+| --- | --- |
+| `file:///path/to/logs?file=error&types[]=error` | `File` engine, `path` (with a trailing separator) |
+| `console://?stream=php://stderr` | `Console` engine |
+| `syslog://?prefix=app` | `Syslog` engine |
+
+- **Precedence**: The keys parsed from the DSN replace the same keys of the array; the other keys are kept. This is how `StaticConfigTrait::setConfig()` merges a DSN in CakePHP 3.x and later (`$parsed + $config`), so the array holds defaults (`encoding`, `persistent`, `from`, `duration`, ...) and the DSN decides the connection.
+- **Empty values**: `null`, `''` and `false` are ignored, so `env('DATABASE_URL')` falls back to the array keys when the variable is not set.
+- **Encoding**: The user, password, host and path are URL-decoded. Encode reserved characters of a password (`%40` for `@`, `%3F` for `?`, `%23` for `#`).
+- **Query parameters**: They become configuration keys as they are. `true`, `false` and `null` are converted to the PHP values, and arrays work (`flags[1002]=SET%20NAMES%20utf8mb4`, `types[]=error`). `?datasource=`, `?transport=` and `?engine=` override the class of a scheme and allow schemes that are not registered, like `className` in CakePHP 3.x and later.
+- **IPv6**: Write the host in brackets (`mysql://user:pass@[::1]:3306/app`).
+- **Errors**: An unparsable DSN or an unknown scheme throws `CakeException` (database), `ConfigureException` (email), `CacheException` (cache) or `CakeLogException` (log). The message names the configuration and does not contain the user name or password.
+
+#### Schemes of plugins: `setDsnClassMap()`
+
+`ConnectionManager`, `CakeEmail`, `Cache` and `CakeLog` each have a DSN class map, like `setDsnClassMap()` of CakePHP 3.x and later. The built-in schemes are registered in it, and a plugin adds its schemes (or replaces built-in ones) in its `Config/bootstrap.php`, which is loaded with `CakePlugin::load('MyPlugin', ['bootstrap' => true])`:
+
+```php
+// MyPlugin/Config/bootstrap.php
+ConnectionManager::setDsnClassMap(['mydb' => 'MyPlugin.Database/MyDb']);
+
+if (method_exists('CakeEmail', 'setDsnClassMap')) {
+    CakeEmail::setDsnClassMap([
+        'myapi+api' => function (array $parts, array $config) {
+            return [
+                'transport' => 'MyPlugin.MyApi',
+                'apiKey' => $parts['username'] ?? null,
+                'region' => $parts['query']['region'] ?? 'eu',
+            ];
+        },
+    ]);
+}
+```
+
+- A **class name** (plugin dot syntax) is set as the `datasource`, `transport` or `engine`, and the DSN parts become the usual keys of that kind: `login`, `password`, `host`, `port`, `database` for datasources; `username`, `password`, `host`, `port` for transports (the host `default` is left out); `username`, `password`, `host`, `port`, `path` for cache and log engines. The query parameters are added.
+- A **callable** that is not a string (a closure, `[$class, 'method']`) is called with the parts of `CakeDsn::parse()` (`scheme`, `username`, `password`, `host`, `port`, `path`, `query`) and the configuration without the `'dsn'` key, and returns the configuration keys, including the class and the query parameters it uses.
+- `null` removes a scheme. Schemes are case-insensitive. `getDsnClassMap()` returns the map.
+- Datasources read the map when the connection is created (the first query), and email when a configuration is applied, so a plugin bootstrap is early enough for `config/database.php` and `config/email.php`. `Cache::config()` and `CakeLog::config()` build the engine at once, so a cache or log configuration that uses a scheme of a plugin must come after `CakePlugin::load()`.
+- Guard the call with `method_exists()` when a plugin also supports releases without DSN class maps.
+
+**New methods**: `setDsnClassMap()`, `getDsnClassMap()` and `parseDsn()` of `ConnectionManager`, `CakeEmail`, `Cache` and `CakeLog`, and the `CakeDsn` utility class. A subclass that defines a method with one of these names must be compatible with the new signature (`parseDsn($dsn, $config = [])`, `setDsnClassMap($map)`, `getDsnClassMap()`).
+
 ## v2.12.6
 
 ### Exceptions Instead of E_USER_ERROR ([PR #58](https://github.com/pieceofcake2/cakephp/pull/58))
