@@ -180,7 +180,7 @@ jobs:
         uses: pieceofcake2/ci-summary@v1
         with:
           type: junit
-          title: PHPUnit — PHP ${{ matrix.php-version }} / ${{ matrix.db-type }}
+          title: Unit tests — PHP ${{ matrix.php-version }} / ${{ matrix.db-type }}
           file: junit.xml
           coverage: coverage.xml
 
