@@ -9,6 +9,7 @@
 
 This is a community-maintained fork of CakePHP 2.x that provides compatibility with PHP 8.0 and newer versions.
 The original CakePHP 2.x branch [reached End of Life in June 2021](https://bakery.cakephp.org/2021/10/02/cakephp_2_eol.html).
+The fork keeps CakePHP 2 working on current PHP versions and fixes bugs and security issues; it does not add new features.
 
 > [!IMPORTANT]
 > This fork is based on CakePHP 2.10.24. Earlier versions are not supported.
@@ -17,220 +18,81 @@ The original CakePHP 2.x branch [reached End of Life in June 2021](https://baker
 > **Do not use CakePHP 2.x for new projects!** This fork is only for maintaining existing legacy applications.
 > For new projects, please use [CakePHP 5.x](https://cakephp.org/) which has modern PHP support, better performance, and active development.
 
-[Website](https://pieceofcake2.github.io/) | [CakePHP 2 Book](https://pieceofcake2.github.io/docs/) | [CHANGELOG](CHANGELOG.md) | [UPGRADE](UPGRADE.md)
+[Website](https://pieceofcake2.github.io/) | [CHANGELOG](CHANGELOG.md) | [UPGRADE](UPGRADE.md)
 
-## Requirements & Compatibility
+## Documentation
 
-### PHP Versions
+- Website: https://pieceofcake2.github.io/docs/
+- Markdown: [docs/en/index.md in pieceofcake2/docs](https://github.com/pieceofcake2/docs/blob/2.x/docs/en/index.md) (for AI tools and offline reading)
 
-- PHP 8.0, 8.1, 8.2, 8.3, 8.4, 8.5
+For AI coding tools, install the Markdown docs of the CakePHP 2 book as a dev dependency: `composer require --dev pieceofcake2/docs` (files in `vendor/pieceofcake2/docs/docs/en/`).
 
-### Database Support
+Start with [Getting Started](https://pieceofcake2.github.io/docs/getting-started.html)
+([Markdown](https://github.com/pieceofcake2/docs/blob/2.x/docs/en/getting-started.md)), which summarizes what
+is different from CakePHP 2.10.
 
-- MySQL 5.6, 5.7, 8.0+ (with `pdo_mysql` extension)
-- PostgreSQL 9.4+ (with `pdo_pgsql` extension)
-- SQLite 3 (with `pdo_sqlite` extension)
-- Microsoft SQL Server 2022+ (with `pdo_sqlsrv` extension)
+## Requirements
 
-### Required PHP Extensions
+- PHP 8.0 to 8.5
+- MySQL 5.6+, PostgreSQL 9.4+, SQLite 3 or Microsoft SQL Server 2022+ (PDO)
+- The `intl` extension; `mbstring` is strongly recommended
 
-- `mbstring` - Multi-byte string support (**strongly recommended**, uses Symfony polyfill as fallback)
-  - **Important**: The `mb_encode_mimeheader()` function is **not available** in the Symfony polyfill
-  - If `mbstring` extension is not loaded, CakePHP will automatically use `Multibyte::mimeEncode()` as a fallback for email header encoding
-  - However, **we strongly recommend installing the `mbstring` extension** for better compatibility and performance
-- `intl` - Internationalization support (**required**: `php81_bc/strftime`, used in place of the deprecated `strftime()`, requires it)
-- `openssl` - OpenSSL support (optional, required for SSL/TLS connections and encryption)
-- `mcrypt` - Mcrypt support (optional, deprecated in PHP 7.1+, only for legacy AES encryption)
-
-### Testing
-
-- All tests pass with PHPUnit 9.6 across all supported PHP versions and databases
+See [Requirements](https://pieceofcake2.github.io/docs/installation.html#requirements)
+([Markdown](https://github.com/pieceofcake2/docs/blob/2.x/docs/en/installation.md#requirements)) in the book for the details.
 
 ## Installation
 
-> [!IMPORTANT]
-> This fork requires Composer for installation. Manual installation is not supported.
-
-Install via Composer:
-
-```json
-{
-    "require": {
-        "pieceofcake2/cakephp": "^2.12"
-    }
-}
-```
-
-Then run:
-```bash
-composer update
-```
-
-After installation, copy dispatcher files from the package to your application:
+This fork is installed with Composer only. It declares `replace` for `cakephp/cakephp`, so plugins that
+require `cakephp/cakephp` 2.x keep working.
 
 ```bash
-# Copy web dispatcher files
-cp plugins/Bake/Console/Templates/skel/webroot/index.php app/webroot/index.php
-cp plugins/Bake/Console/Templates/skel/webroot/test.php app/webroot/test.php
+# New application, from the application skeleton
+composer create-project pieceofcake2/app my_app
 
-# Copy console dispatcher
-cp plugins/Bake/Console/Templates/skel/Console/cake app/Console/cake
-chmod +x app/Console/cake
+# Existing application
+composer remove --no-update cakephp/cakephp
+composer require pieceofcake2/cakephp
 ```
 
-> [!NOTE]
-> - This package uses Composer's `replace` directive to replace `cakephp/cakephp`.
-> - This ensures that all plugins and packages that depend on `cakephp/cakephp:^2.x` will continue to work correctly with this fork.
-> - Dispatcher files provide better error messages and simplified autoload handling.
+An existing application also needs updated dispatcher files and `composer.json` settings. See
+[Installation](https://pieceofcake2.github.io/docs/installation.html)
+([Markdown](https://github.com/pieceofcake2/docs/blob/2.x/docs/en/installation.md)) in the book.
 
-### Application Skeleton
+## Upgrading
 
-The application skeleton has been extracted to a separate package: [`pieceofcake2/app`](https://github.com/pieceofcake2/app)
+See [Migrating from CakePHP 2.10](https://pieceofcake2.github.io/docs/appendices/migrating-from-cakephp-2-10.html)
+([Markdown](https://github.com/pieceofcake2/docs/blob/2.x/docs/en/appendices/migrating-from-cakephp-2-10.md))
+in the book for the migration steps and breaking changes, and [UPGRADE.md](UPGRADE.md) for the changes of each release.
 
-#### Planning to migrate to CakePHP 5.x?
+To prepare for CakePHP 5, you can move to the CakePHP 5-style directory layout while you stay on CakePHP 2. See
+[Migrating to the Modern Layout](https://pieceofcake2.github.io/docs/appendices/migrating-to-the-modern-layout.html)
+([Markdown](https://github.com/pieceofcake2/docs/blob/2.x/docs/en/appendices/migrating-to-the-modern-layout.md))
+and the [pieceofcake2/app](https://pieceofcake2.github.io/app/) skeleton.
 
-If you're planning to upgrade to CakePHP 5.x in the future, you can **prepare now** by adopting the modern directory structure while still on CakePHP 2.x:
+## Integration Testing
 
-**Traditional migration approach (harder):**
-```
-CakePHP 2.x → CakePHP 5.x
-(change everything at once: code + folder structure + APIs)
-```
-
-**New gradual migration approach (easier):**
-```
-Step 1: CakePHP 2.x with traditional structure
-        ↓ (modernize folder structure only)
-Step 2: CakePHP 2.x with CakePHP 5.x-style structure ← You can stop here
-        ↓ (upgrade code only)
-Step 3: CakePHP 5.x with CakePHP 5.x-style structure
-```
-
-**Benefits:**
-- ✅ **Smaller, manageable changes**: Separate folder restructuring from code changes
-- ✅ **Test incrementally**: Verify each step works before moving to the next
-- ✅ **Reduced risk**: You can stay on Step 2 indefinitely if needed
-- ✅ **Team-friendly**: Easier for teams to understand and review smaller changes
-
-See [`pieceofcake2/app`](https://github.com/pieceofcake2/app) for the modern directory structure compatible with both CakePHP 2.x and 5.x.
-
-### Integration Testing
-
-`IntegrationTestTrait` and `EmailTrait` are backported from CakePHP 5.x. They dispatch requests through the real dispatcher and assert on the response, session, flash messages, cookies and sent emails, with the CakePHP 5 method names:
-
-```php
-class ArticlesControllerTest extends CakeTestCase
-{
-    use IntegrationTestTrait;
-
-    public function testAdd(): void
-    {
-        $this->enableSecurityToken();
-        $this->post('/articles/add', ['Article' => ['title' => 'New article']]);
-
-        $this->assertRedirectContains('/articles/view/');
-        $this->assertFlashMessage('The article has been saved.');
-    }
-}
-```
-
-See [UPGRADE.md](UPGRADE.md#integration-testing-integrationtesttrait-and-emailtrait-backport-pr-51) for the guide and the differences from CakePHP 5.x.
+`IntegrationTestTrait` and `EmailTrait` are backported from CakePHP 5. See
+[Integration Testing](https://pieceofcake2.github.io/docs/development/integration-testing.html)
+([Markdown](https://github.com/pieceofcake2/docs/blob/2.x/docs/en/development/integration-testing.md)) in the book.
 
 ## Security
 
-### SSL/TLS Certificate Validation
+Do not report vulnerabilities in public issues; follow the
+[security policy](https://github.com/pieceofcake2/.github/blob/master/SECURITY.md).
 
-This fork uses [`composer/ca-bundle`](https://github.com/composer/ca-bundle) for SSL/TLS certificate validation ([PR #15](https://github.com/pieceofcake2/cakephp/pull/15)):
-
-- **System CA certificates**: Uses OpenSSL's default certificate bundle when available (`openssl.cafile` or `openssl.capath`)
-- **Fallback bundle**: Falls back to Mozilla's CA certificate bundle maintained by composer/ca-bundle
-- **Automatic updates**: CA certificates are kept up-to-date through Composer ecosystem
-- **No manual maintenance**: Removed the outdated static `lib/Cake/Config/cacert.pem` file (last updated in 2016)
-
-This approach ensures that HTTPS connections made by `CakeSocket` (e.g., for external API calls) properly validate SSL/TLS certificates using current, trusted root certificates.
-
-### Known Vulnerabilities in Original CakePHP 2.10.24
-
-The following security vulnerabilities have been reported in the original CakePHP 2.10.24:
-
-| CVE | Description | Status in this Fork |
-|-----|-------------|-------------------|
-| [CVE-2015-8379](https://nvd.nist.gov/vuln/detail/CVE-2015-8379) | CSRF protection bypass via _method parameter | ✅ Fixed in [c0fb45e](https://github.com/pieceofcake2/cakephp/commit/c0fb45e79), tests in [PR #6](https://github.com/pieceofcake2/cakephp/pull/6) |
-| [CVE-2020-15400](https://nvd.nist.gov/vuln/detail/CVE-2020-15400) | CSRF token fixation (exploitable with XSS) | ✅ Fixed in [PR #5](https://github.com/pieceofcake2/cakephp/pull/5) |
-| [GHSA-wgww-24w3-wfqp](https://github.com/pieceofcake2/cakephp/security/advisories/GHSA-wgww-24w3-wfqp) | SSRF: `Xml::build()` fetches `https://` URLs even with `'readFile' => false` | ✅ Fixed in [PR #33](https://github.com/pieceofcake2/cakephp/pull/33) |
-| [GHSA-4f9q-3c4x-52cv](https://github.com/pieceofcake2/cakephp/security/advisories/GHSA-4f9q-3c4x-52cv) | Email header injection in `SmtpTransport` / `MailTransport` (CakePHP 2 equivalent of CVE-2026-77634) | ✅ Fixed in v2.12.5 |
-| [GHSA-w2mh-x92p-5p95](https://github.com/pieceofcake2/cakephp/security/advisories/GHSA-w2mh-x92p-5p95) | Path traversal in view, layout and element names (CakePHP 2 equivalent of CVE-2026-48820) | ✅ Fixed in v2.12.5 |
-| [GHSA-x4p9-p4cx-gxwx](https://github.com/pieceofcake2/cakephp/security/advisories/GHSA-x4p9-p4cx-gxwx) | Open redirect after login via protocol-relative `Auth.redirect` | ✅ Fixed in v2.12.5 |
-
-> [!NOTE]
-> - **CVE-2015-8379**: The fix has been fully applied with comprehensive test coverage for `_method` parameter handling and custom HTTP methods.
-> - **CVE-2020-15400**: Fixed by implementing HMAC-signed CSRF tokens that are cryptographically bound to the application. Tokens are now signed with the application's Security.salt, preventing token fixation attacks while maintaining backward compatibility with existing tokens.
-> - **Xml::build() SSRF**: Because of an operator precedence bug, `Xml::build($input, ['readFile' => false])` still fetched `https://` URLs, so applications passing untrusted input with `readFile` disabled could be made to send HTTPS requests from the server. The condition now requires `readFile` for both `http://` and `https://` URLs.
-
-## Migration Guide
-
-For detailed information about prerequisites, migration steps, and breaking changes, see [UPGRADE.md](UPGRADE.md).
-
-## Running Tests
-
-### Using Docker (Recommended)
-
-```bash
-# Copy test database configuration
-cp tests/Config/database.php app/Config/database.php
-
-# Start services
-docker-compose up -d
-
-# Install dependencies
-docker-compose exec web composer install
-
-# Run tests with specific database
-DB=mysql docker-compose exec web ./vendor/bin/phpunit
-DB=mysql80 docker-compose exec web ./vendor/bin/phpunit
-DB=pgsql docker-compose exec web ./vendor/bin/phpunit
-DB=sqlite docker-compose exec web ./vendor/bin/phpunit
-DB=sqlsrv docker-compose exec web ./vendor/bin/phpunit
-```
-
-### Local Installation
-
-```bash
-# Install dependencies
-composer install
-
-# Set up database configuration
-cp app/Config/database.php.default app/Config/database.php
-# Edit database.php with your database credentials
-
-# Run tests
-./vendor/bin/phpunit
-```
+The vulnerabilities fixed in this fork, including the known vulnerabilities of the original CakePHP 2.10.24,
+and other security changes such as SSL/TLS certificate validation with `composer/ca-bundle` are listed in
+[Security Fixes](https://pieceofcake2.github.io/docs/security/fixes.html)
+([Markdown](https://github.com/pieceofcake2/docs/blob/2.x/docs/en/security/fixes.md)). See
+[Security](https://pieceofcake2.github.io/docs/security/)
+([Markdown](https://github.com/pieceofcake2/docs/blob/2.x/docs/en/security/index.md)) in the book for the
+supported versions and how fixes are announced.
 
 ## Contributing
 
-We welcome contributions! Please:
-
-1. Fork the repository
-2. Create a feature branch
-3. Ensure all tests pass
-4. Submit a pull request
-
-### Reporting Issues
-
-If you find any PHP 8.x compatibility issues, please:
-- Create an issue with a clear description
-- Include PHP version and error messages
-- Provide minimal code to reproduce the issue (if possible)
-
-## Project Goals
-
-This fork aims to:
-- ✅ Maintain PHP 8.x compatibility
-- ✅ Fix critical bugs and security issues
-- ✅ Keep tests passing on all supported platforms
-- ✅ Support gradual migration path to CakePHP 5.x
-- ❌ Add new features (focus is on compatibility and migration only)
+See the [contribution guidelines](https://github.com/pieceofcake2/.github/blob/master/CONTRIBUTING.md), including
+[running the tests](https://github.com/pieceofcake2/.github/blob/master/CONTRIBUTING.md#running-the-tests) and
+[reporting issues](https://github.com/pieceofcake2/.github/blob/master/CONTRIBUTING.md#reporting-issues).
 
 ## License
 
