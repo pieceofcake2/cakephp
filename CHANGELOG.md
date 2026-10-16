@@ -1,5 +1,22 @@
 ## CHANGELOG
 
+## v2.12.8 (2026-10-16)
+
+No changes to the framework code: this release only updates the tests, the development dependencies and the documentation.
+
+### Tests ([PR #78](https://github.com/pieceofcake2/cakephp/pull/78))
+
+- **Independent of the skeleton defaults**: The core tests run with pieceofcake2/app as `ROOT`. `CookieComponentTest` and `IntegrationTestTraitTest` now clear `Cookie.type` and `Cookie.key`, and `ControllerTest::testFlash()` renders the core flash layout, so the `'aes'` cookie default and the flash layout of pieceofcake2/app v2.5.0 no longer make them fail. A failing `CookieComponentTest` had also left `debug` at `0` for the following tests
+
+### Development Dependencies
+
+- `pieceofcake2/phpstan-cakephp2` `^1.0` ([PR #76](https://github.com/pieceofcake2/cakephp/pull/76)) and `pieceofcake2/app` `^2.5` ([PR #78](https://github.com/pieceofcake2/cakephp/pull/78))
+
+### Documentation
+
+- **UPGRADE.md**: The v2.12.7 steps keep `COOKIE_KEY` in `config/.env.local` ([PR #77](https://github.com/pieceofcake2/cakephp/pull/77))
+- **AGENTS.md**: Rules for AI agents that work on this repository ([PR #75](https://github.com/pieceofcake2/cakephp/pull/75))
+
 ## v2.12.7 (2026-10-16)
 
 ### Enhancements: DSN Configuration (`DATABASE_URL`, `MAILER_DSN`) ([PR #69](https://github.com/pieceofcake2/cakephp/pull/69))
