@@ -1462,6 +1462,7 @@ class CakeEmail
             'smtps' => $smtp,
             'sendmail' => $mail,
             'native' => $mail,
+            'mail' => $mail,
             'null' => $null,
         ];
     }
@@ -1505,7 +1506,7 @@ class CakeEmail
      * | --- | --- |
      * | `smtp://user:pass@host:port` | `Smtp` transport. `tls` (STARTTLS) is `true` when the port is 587 |
      * | `smtps://user:pass@host:port` | `Smtp` transport with the host `ssl://host` (implicit TLS), port 465 by default |
-     * | `sendmail://default`, `native://default` | `Mail` transport (PHP `mail()`) |
+     * | `sendmail://default`, `native://default`, `mail://default` | `Mail` transport (PHP `mail()`) |
      * | `null://null` | `Debug` transport (nothing is sent) |
      *
      * - The user and password are URL-decoded, so encode reserved characters

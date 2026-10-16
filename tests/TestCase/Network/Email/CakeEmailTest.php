@@ -2752,6 +2752,10 @@ HTML;
                 'native://default?additionalParameters=-fbounce@example.com',
                 ['transport' => 'Mail', 'additionalParameters' => '-fbounce@example.com'],
             ],
+            'mail' => [
+                'mail://default',
+                ['transport' => 'Mail'],
+            ],
             'null' => [
                 'null://null',
                 ['transport' => 'Debug'],
@@ -2944,7 +2948,7 @@ HTML;
      */
     public function testGetDsnClassMap(): void
     {
-        $this->assertSame(['smtp', 'smtps', 'sendmail', 'native', 'null'], array_keys(CakeEmail::getDsnClassMap()));
+        $this->assertSame(['smtp', 'smtps', 'sendmail', 'native', 'mail', 'null'], array_keys(CakeEmail::getDsnClassMap()));
     }
 
     /**

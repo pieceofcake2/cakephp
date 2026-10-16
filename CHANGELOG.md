@@ -1,5 +1,11 @@
 ## CHANGELOG
 
+## Unreleased
+
+### Enhancements
+
+- **CakeEmail**: The mailer DSN `mail://default` uses the `Mail` transport (PHP `mail()`), as in CakePHP 3.x and later, besides `sendmail://default` and `native://default`
+
 ## v2.12.8 (2026-10-16)
 
 No changes to the framework code: this release only updates the tests, the development dependencies and the documentation.
