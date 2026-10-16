@@ -120,7 +120,16 @@ class CakeDsnTest extends CakeTestCase
      */
     public function testToConfig()
     {
-        $generic = [CakeDsn::class, 'genericConfig'];
+        $generic = function (array $parts) {
+            $config = [];
+            foreach (['username', 'password', 'host', 'port', 'path'] as $key) {
+                if (isset($parts[$key])) {
+                    $config[$key] = $parts[$key];
+                }
+            }
+
+            return $parts['query'] + $config;
+        };
         $map = [
             'thing' => 'MyPlugin.Thing',
             'other' => function (array $parts, array $config) {
@@ -196,19 +205,5 @@ class CakeDsnTest extends CakeTestCase
         $this->expectException(ConfigureException::class);
         $this->expectExceptionMessage('Invalid "dsn" of the "a" thing: Broken');
         CakeDsn::expandConfig(['dsn' => 'bad'], $parser, 'the "a" thing', 'ConfigureException');
-    }
-
-    /**
-     * Test genericConfig()
-     *
-     * @return void
-     */
-    public function testGenericConfig()
-    {
-        $this->assertSame(
-            ['q' => '1', 'username' => 'u', 'password' => 'p', 'host' => 'h', 'port' => 1, 'path' => '/x'],
-            CakeDsn::genericConfig(CakeDsn::parse('s://u:p@h:1/x?q=1')),
-        );
-        $this->assertSame([], CakeDsn::genericConfig(CakeDsn::parse('s://')));
     }
 }

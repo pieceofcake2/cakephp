@@ -35,10 +35,6 @@
  * general all Cache operations are supported by all cache engines. However, Cache::increment() and
  * Cache::decrement() are not supported by File caching.
  *
- * A configuration may set its engine with a DSN in the `'dsn'` key, for example
- * `Cache::config('default', ['dsn' => 'redis://localhost:6379?prefix=app_'])`.
- * See `parseDsn()` and `setDsnClassMap()`.
- *
  * @package       Cake.Cache
  */
 class Cache
@@ -72,14 +68,6 @@ class Cache
      * @var array
      */
     protected static $_engines = [];
-
-    /**
-     * The cache DSN class map (scheme => engine class name or callable).
-     * `null` until `getDsnClassMap()` sets the built-in schemes.
-     *
-     * @var array<string, mixed>|null
-     */
-    protected static $_dsnClassMap = null;
 
     /**
      * Set the cache configuration to use. config() can
@@ -121,10 +109,6 @@ class Cache
      * - `lock` Used by FileCache. Should files be locked before writing to them?
      * - `user` Used by Xcache. Username for XCache
      * - `password` Used by Xcache/Redis. Password for XCache/Redis
-     * - `dsn` A DSN that sets the engine and its connection, e.g.
-     *   `redis://:secret@localhost:6379/0?prefix=app_`. See `parseDsn()`. The
-     *   keys parsed from the DSN replace the same keys of the settings, and an
-     *   empty `dsn` (`null`, `''` or `false`) is ignored.
      *
      * @param string $name Name of the configuration
      * @param array $settings Optional associative array of settings passed to the engine
@@ -144,12 +128,6 @@ class Cache
         }
 
         if (!empty($settings)) {
-            $settings = CakeDsn::expandConfig(
-                $settings,
-                [static::class, 'parseDsn'],
-                sprintf('the "%s" cache configuration', is_string($name) ? $name : ''),
-                'CacheException',
-            );
             static::$_config[$name] = $settings + $current;
         }
 
@@ -175,174 +153,6 @@ class Cache
         }
 
         return compact('engine', 'settings');
-    }
-
-    /**
-     * Adds cache DSN schemes, or replaces built-in ones, for the `'dsn'` key of
-     * cache configurations.
-     *
-     * A plugin registers its schemes in its `Config/bootstrap.php`:
-     *
-     * ```
-     * Cache::setDsnClassMap([
-     *     // mycache://user:pass@host:port/path uses MyPlugin.MyCache with the keys
-     *     // username, password, host, port, path and the query parameters
-     *     'mycache' => 'MyPlugin.MyCache',
-     *     // a callable returns the configuration keys itself
-     *     'othercache' => function (array $parts, array $config) {
-     *         return ['engine' => 'MyPlugin.Other', 'endpoint' => $parts['host'] ?? null] + $parts['query'];
-     *     },
-     * ]);
-     * ```
-     *
-     * A value is either an engine class name in plugin dot syntax (as in the
-     * `engine` key), or a callable (not a string)
-     * `function (array $parts, array $config): array` that gets the parts of
-     * `CakeDsn::parse()` and the configuration without the `'dsn'` key and
-     * returns the configuration keys. `null` removes a scheme. Schemes are
-     * case-insensitive.
-     *
-     * `Cache::config()` builds the engine at once, so a configuration that uses
-     * a scheme of a plugin must come after the plugin is loaded.
-     *
-     * @param array<string, mixed> $map Scheme => engine class name or callable.
-     * @return void
-     * @since 2.12.7
-     */
-    public static function setDsnClassMap($map)
-    {
-        static::$_dsnClassMap = CakeDsn::mergeClassMap($map, static::getDsnClassMap());
-    }
-
-    /**
-     * Returns the cache DSN class map (scheme => engine class name or callable).
-     *
-     * @return array<string, mixed>
-     * @since 2.12.7
-     */
-    public static function getDsnClassMap()
-    {
-        if (static::$_dsnClassMap === null) {
-            static::$_dsnClassMap = static::_defaultDsnClassMap();
-        }
-
-        return static::$_dsnClassMap;
-    }
-
-    /**
-     * Returns the built-in cache DSN schemes.
-     *
-     * @return array<string, mixed>
-     */
-    protected static function _defaultDsnClassMap()
-    {
-        $file = function ($parts) {
-            $config = ['engine' => 'File'];
-            if (isset($parts['path']) && $parts['path'] !== '') {
-                $config['path'] = $parts['path'];
-            }
-
-            return $parts['query'] + $config;
-        };
-        $apc = function ($parts) {
-            return $parts['query'] + ['engine' => 'Apc'];
-        };
-        $memcached = function ($parts) {
-            $config = ['engine' => $parts['scheme'] === 'memcache' ? 'Memcache' : 'Memcached'];
-            if (isset($parts['host'])) {
-                $config['servers'] = [$parts['host'] . (isset($parts['port']) ? ':' . $parts['port'] : '')];
-            } elseif (isset($parts['path']) && $parts['path'] !== '') {
-                $config['servers'] = ['unix://' . $parts['path']];
-            }
-            if ($config['engine'] === 'Memcached' && isset($parts['username']) && $parts['username'] !== '') {
-                $config['login'] = $parts['username'];
-                $config['password'] = $parts['password'] ?? '';
-            }
-
-            return $parts['query'] + $config;
-        };
-        $redis = function ($parts) {
-            $config = ['engine' => 'Redis'];
-            if (isset($parts['host'])) {
-                $config['server'] = trim($parts['host'], '[]');
-                if (isset($parts['path']) && preg_match('#^/(\d+)/?$#', $parts['path'], $match)) {
-                    $config['database'] = (int)$match[1];
-                }
-            } elseif (isset($parts['path']) && $parts['path'] !== '') {
-                $config['unix_socket'] = $parts['path'];
-            }
-            if (isset($parts['port'])) {
-                $config['port'] = $parts['port'];
-            }
-            if (isset($parts['password']) && $parts['password'] !== '') {
-                $config['password'] = isset($parts['username']) && $parts['username'] !== ''
-                    ? [$parts['username'], $parts['password']]
-                    : $parts['password'];
-            }
-            $query = $parts['query'];
-            if (isset($query['database']) && is_string($query['database']) && ctype_digit($query['database'])) {
-                $query['database'] = (int)$query['database'];
-            }
-
-            return $query + $config;
-        };
-
-        return [
-            'file' => $file,
-            'apc' => $apc,
-            'apcu' => $apc,
-            'memcached' => $memcached,
-            'memcache' => $memcached,
-            'redis' => $redis,
-        ];
-    }
-
-    /**
-     * Parses a cache DSN into cache configuration keys.
-     *
-     * ```
-     * Cache::parseDsn('redis://:secret@localhost:6379/1?prefix=app_&duration=3600');
-     * // ['engine' => 'Redis', 'server' => 'localhost', 'port' => 6379, 'password' => 'secret',
-     * //  'database' => 1, 'prefix' => 'app_', 'duration' => '3600']
-     * ```
-     *
-     * The scheme is looked up in the DSN class map (see `setDsnClassMap()`).
-     * The built-in schemes are:
-     *
-     * | Scheme | Configuration |
-     * | --- | --- |
-     * | `file:///path/to/cache/` | `File` engine, `path` |
-     * | `apcu://`, `apc://` | `Apc` engine |
-     * | `memcached://user:pass@host:11211`, `memcached:///path/to/socket` | `Memcached` engine, `servers`, `login`, `password` |
-     * | `memcache://host:11211` | `Memcache` engine, `servers` |
-     * | `redis://user:pass@host:6379/1`, `redis:///path/to/socket` | `Redis` engine, `server`, `port`, `password` (`[user, password]` with a user name), `database` (the path or `?database=`), `unix_socket` |
-     *
-     * - The user, password, host and path are URL-decoded.
-     * - Query parameters become configuration keys as they are (`prefix`,
-     *   `duration`, `groups[]`, `probability`, `persistent`, `timeout`, ...).
-     *   `true`, `false` and `null` are converted to the PHP values. Encode a
-     *   `+` in a duration (`duration=%2B1%20hours`) or use seconds.
-     * - For an engine class name in the map, the user, password, host, port
-     *   and path become `username`, `password`, `host`, `port` and `path`, as
-     *   in CakePHP 3.x and later. An `engine` query parameter overrides a class
-     *   name and allows schemes that are not in the map.
-     * - A callable in the map returns the configuration keys itself.
-     *
-     * @param string $dsn The DSN.
-     * @param array $config The configuration the DSN is merged into (passed to a callable of the map).
-     * @return array The cache configuration.
-     * @throws CacheException When the DSN cannot be parsed or its scheme is not supported.
-     * @since 2.12.7
-     */
-    public static function parseDsn($dsn, $config = [])
-    {
-        try {
-            return CakeDsn::toConfig($dsn, static::getDsnClassMap(), 'engine', [CakeDsn::class, 'genericConfig'], $config);
-        } catch (CacheException $e) {
-            throw $e;
-        } catch (CakeException $e) {
-            throw new CacheException($e->getMessage());
-        }
     }
 
     /**

@@ -20,10 +20,9 @@
  * Splits a DSN such as `mysql://user:secret@localhost:3306/app?encoding=utf8mb4`
  * into its parts.
  *
- * This is the generic part of `ConnectionManager::parseDsn()`,
- * `CakeEmail::parseDsn()`, `Cache::parseDsn()` and `CakeLog::parseDsn()`,
- * which map the parts to configuration keys with their DSN class maps (see
- * `toConfig()`). It follows the pattern of
+ * This is the generic part of `ConnectionManager::parseDsn()` and
+ * `CakeEmail::parseDsn()`, which map the parts to configuration keys with
+ * their DSN class maps (see `toConfig()`). It follows the pattern of
  * `StaticConfigTrait::parseDsn()` of CakePHP 3.x/4.x/5.x: IPv6 hosts are
  * written in brackets, and a password may contain unencoded `:`, `@`, `/` and
  * `#` characters (the last `@` before the host ends it), but not `?`. A user
@@ -216,7 +215,7 @@ REGEXP;
      *
      * @param mixed $config The configuration.
      * @param callable $parser Parses the DSN: `function (string $dsn, array $config): array`.
-     * @param string $description What the configuration is, for error messages (e.g. `the "default" cache configuration`).
+     * @param string $description What the configuration is, for error messages (e.g. `the "default" datasource configuration`).
      * @param string $exceptionClass The exception class to throw.
      * @return mixed The configuration without the `'dsn'` key.
      * @throws CakeException When the DSN is invalid (an instance of `$exceptionClass`).
@@ -238,27 +237,5 @@ REGEXP;
         }
 
         return $parsed + $config;
-    }
-
-    /**
-     * Returns the user, password, host, port and path of parsed DSN parts as
-     * the configuration keys `username`, `password`, `host`, `port` and `path`
-     * (only those present), and the query parameters, which win over them, as
-     * `StaticConfigTrait::parseDsn()` of CakePHP 3.x and later does. The
-     * generic mapping of cache and log engine class names.
-     *
-     * @param array $parts The parts returned by `parse()`.
-     * @return array<string, mixed>
-     */
-    public static function genericConfig($parts)
-    {
-        $config = [];
-        foreach (['username', 'password', 'host', 'port', 'path'] as $key) {
-            if (isset($parts[$key]) && $parts[$key] !== '') {
-                $config[$key] = $parts[$key];
-            }
-        }
-
-        return $parts['query'] + $config;
     }
 }
