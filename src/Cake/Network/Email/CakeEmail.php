@@ -353,6 +353,14 @@ class CakeEmail
     protected $_configInstance;
 
     /**
+     * The mailer DSN class map (scheme => transport class name or callable).
+     * `null` until `getDsnClassMap()` sets the built-in schemes.
+     *
+     * @var array<string, mixed>|null
+     */
+    protected static $_dsnClassMap = null;
+
+    /**
      * Constructor
      *
      * @param array|string $config Array of configs, or string to load configs from email.php
@@ -1359,6 +1367,200 @@ class CakeEmail
     }
 
     /**
+     * Adds mailer DSN schemes, or replaces built-in ones, for the `'dsn'` key
+     * of email configurations.
+     *
+     * A plugin registers its schemes in its `Config/bootstrap.php`:
+     *
+     * ```
+     * CakeEmail::setDsnClassMap([
+     *     // myapi://user:pass@host:port uses the MyPlugin.MyApi transport with
+     *     // the keys username, password, host, port and the query parameters
+     *     'myapi' => 'MyPlugin.MyApi',
+     *     // a callable maps a Symfony Mailer DSN to the options of a transport
+     *     'ses+api' => function (array $parts, array $config) {
+     *         return [
+     *             'transport' => 'Aws.Ses',
+     *             'key' => $parts['username'] ?? null,
+     *             'secret' => $parts['password'] ?? null,
+     *             'region' => $parts['query']['region'] ?? 'us-east-1',
+     *         ];
+     *     },
+     * ]);
+     * ```
+     *
+     * A value is either a transport class name in plugin dot syntax, or a
+     * callable (not a string) `function (array $parts, array $config): array`
+     * that gets the parts of `CakeDsn::parse()` and the configuration without
+     * the `'dsn'` key and returns the configuration keys. `null` removes a
+     * scheme. Schemes are case-insensitive.
+     *
+     * The map is read when a configuration is applied (`new CakeEmail('default')`,
+     * `config()`), so register schemes before sending email (a plugin
+     * bootstrap is early enough).
+     *
+     * @param array<string, mixed> $map Scheme => transport class name or callable.
+     * @return void
+     * @since 2.12.7
+     */
+    public static function setDsnClassMap($map)
+    {
+        static::$_dsnClassMap = CakeDsn::mergeClassMap($map, static::getDsnClassMap());
+    }
+
+    /**
+     * Returns the mailer DSN class map (scheme => transport class name or callable).
+     *
+     * @return array<string, mixed>
+     * @since 2.12.7
+     */
+    public static function getDsnClassMap()
+    {
+        if (static::$_dsnClassMap === null) {
+            static::$_dsnClassMap = static::_defaultDsnClassMap();
+        }
+
+        return static::$_dsnClassMap;
+    }
+
+    /**
+     * Returns the built-in mailer DSN schemes.
+     *
+     * @return array<string, mixed>
+     */
+    protected static function _defaultDsnClassMap()
+    {
+        $smtp = function ($parts) {
+            $scheme = $parts['scheme'];
+            $config = ['transport' => 'Smtp'];
+            if (isset($parts['host'])) {
+                $host = $parts['host'] === 'default' ? 'localhost' : $parts['host'];
+                $config['host'] = ($scheme === 'smtps' ? 'ssl://' : '') . $host;
+            }
+            if (isset($parts['port'])) {
+                $config['port'] = $parts['port'];
+            } elseif ($scheme === 'smtps') {
+                $config['port'] = 465;
+            }
+            if (isset($parts['username']) && $parts['username'] !== '') {
+                $config['username'] = $parts['username'];
+                $config['password'] = $parts['password'] ?? '';
+            }
+            $config['tls'] = $scheme === 'smtp' && isset($config['port']) && $config['port'] === 587;
+
+            return static::_normalizeDsnQuery($parts['query']) + $config;
+        };
+        $mail = function ($parts) {
+            return $parts['query'] + ['transport' => 'Mail'];
+        };
+        $null = function ($parts) {
+            return $parts['query'] + ['transport' => 'Debug'];
+        };
+
+        return [
+            'smtp' => $smtp,
+            'smtps' => $smtp,
+            'sendmail' => $mail,
+            'native' => $mail,
+            'null' => $null,
+        ];
+    }
+
+    /**
+     * Converts the `tls` and `timeout` query parameters of a mailer DSN.
+     *
+     * @param array $query The query parameters.
+     * @return array
+     */
+    protected static function _normalizeDsnQuery($query)
+    {
+        if (array_key_exists('tls', $query) && !is_bool($query['tls']) && !is_array($query['tls'])) {
+            $query['tls'] = (bool)filter_var($query['tls'], FILTER_VALIDATE_BOOLEAN);
+        }
+        if (isset($query['timeout']) && is_string($query['timeout']) && ctype_digit($query['timeout'])) {
+            $query['timeout'] = (int)$query['timeout'];
+        }
+
+        return $query;
+    }
+
+    /**
+     * Parses a mailer DSN (the `MAILER_DSN` format of Symfony Mailer) into
+     * CakeEmail configuration keys.
+     *
+     * A configuration in `EmailConfig` (or an array passed to `config()`) may
+     * set its transport with this DSN in the `'dsn'` key, for example
+     * `'dsn' => env('MAILER_DSN')`.
+     *
+     * ```
+     * CakeEmail::parseDsn('smtp://user:secret@smtp.example.com:587');
+     * // ['transport' => 'Smtp', 'host' => 'smtp.example.com', 'port' => 587,
+     * //  'username' => 'user', 'password' => 'secret', 'tls' => true]
+     * ```
+     *
+     * The scheme is looked up in the DSN class map (see `setDsnClassMap()`).
+     * The built-in schemes are:
+     *
+     * | Scheme | Configuration |
+     * | --- | --- |
+     * | `smtp://user:pass@host:port` | `Smtp` transport. `tls` (STARTTLS) is `true` when the port is 587 |
+     * | `smtps://user:pass@host:port` | `Smtp` transport with the host `ssl://host` (implicit TLS), port 465 by default |
+     * | `sendmail://default`, `native://default` | `Mail` transport (PHP `mail()`) |
+     * | `null://null` | `Debug` transport (nothing is sent) |
+     *
+     * - The user and password are URL-decoded, so encode reserved characters
+     *   (`p%40ss` for `p@ss`). For SMTP the host `default` is `localhost`, and
+     *   an IPv6 host keeps its brackets (`[::1]`).
+     * - Query parameters become configuration keys as they are (`timeout`,
+     *   `client`, `tls`, `ssl_allow_self_signed`, `additionalParameters`, ...).
+     *   `true`, `false` and `null` are converted to the PHP values, `tls` accepts
+     *   `1` / `0` as well, and a numeric `timeout` becomes an integer.
+     *   `?tls=0` turns STARTTLS off on port 587.
+     * - For a transport class name in the map, the user, password, host and
+     *   port become `username`, `password`, `host` and `port` (the host
+     *   `default` is left out, so the transport uses its default) and the
+     *   query parameters are added. A `transport` query parameter (e.g.
+     *   `?transport=MyPlugin.Custom`) overrides a class name and allows
+     *   schemes that are not in the map.
+     * - A callable in the map returns the configuration keys itself.
+     *
+     * Only the parts present in the DSN are returned, so the other keys of a
+     * configuration still apply.
+     *
+     * @param string $dsn The DSN.
+     * @param array $config The configuration the DSN is merged into (passed to a callable of the map).
+     * @return array The email configuration.
+     * @throws ConfigureException When the DSN cannot be parsed or its scheme is not supported.
+     * @since 2.12.7
+     */
+    public static function parseDsn($dsn, $config = [])
+    {
+        try {
+            return CakeDsn::toConfig($dsn, static::getDsnClassMap(), 'transport', function ($parts) {
+                $config = [];
+                if (isset($parts['host']) && $parts['host'] !== 'default') {
+                    $config['host'] = $parts['host'];
+                }
+                if (isset($parts['port'])) {
+                    $config['port'] = $parts['port'];
+                }
+                if (isset($parts['username']) && $parts['username'] !== '') {
+                    $config['username'] = $parts['username'];
+                }
+                if (isset($parts['password'])) {
+                    $config['password'] = $parts['password'];
+                }
+
+                return static::_normalizeDsnQuery($parts['query']) + $config;
+            }, $config);
+        } catch (ConfigureException $e) {
+            throw $e;
+        } catch (CakeException $e) {
+            throw new ConfigureException($e->getMessage());
+        }
+    }
+
+    /**
      * Apply the config to an instance
      *
      * @param array $config Configuration options.
@@ -1368,6 +1570,7 @@ class CakeEmail
      */
     protected function _applyConfig($config)
     {
+        $name = $config;
         if (is_string($config)) {
             if (!$this->_configInstance) {
                 if (!class_exists($this->_configClass) && !config('email')) {
@@ -1380,6 +1583,12 @@ class CakeEmail
             }
             $config = $this->_configInstance->{$config};
         }
+        $config = CakeDsn::expandConfig(
+            $config,
+            [static::class, 'parseDsn'],
+            is_string($name) ? sprintf('the "%s" email configuration', $name) : 'the email configuration',
+            'ConfigureException',
+        );
         $this->_config = $config + $this->_config;
         if (!empty($config['charset'])) {
             $this->charset = $config['charset'];

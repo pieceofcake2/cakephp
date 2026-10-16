@@ -127,6 +127,40 @@ class TestEmailConfig
         'host' => 'cakephp.org',
         'timeout' => 60,
     ];
+
+    /**
+     * config with a mailer DSN
+     *
+     * @var array
+     */
+    public $dsn = [
+        'dsn' => 'smtp://user:p%40ss@smtp.example.com:587?timeout=10',
+        'transport' => 'Mail',
+        'host' => 'ignored.example.com',
+        'client' => 'app.example.com',
+        'from' => ['some@example.com' => 'My website'],
+    ];
+
+    /**
+     * config with a mailer DSN of an unknown scheme
+     *
+     * @var array
+     */
+    public $dsnBroken = [
+        'dsn' => 'ses+smtp://user:secret@default',
+    ];
+
+    /**
+     * config with an empty mailer DSN
+     *
+     * @var array
+     */
+    public $dsnEmpty = [
+        'dsn' => null,
+        'transport' => 'Smtp',
+        'host' => 'cakephp.org',
+        'port' => 2525,
+    ];
 }
 
 /**
@@ -2659,6 +2693,342 @@ HTML;
                 strlen($line) <= CakeEmail::LINE_LENGTH_MUST,
                 'Line length exceeds the max. limit of CakeEmail::LINE_LENGTH_MUST',
             );
+        }
+    }
+
+    /**
+     * Data provider for testParseDsn
+     *
+     * @return array
+     */
+    public static function parseDsnProvider(): array
+    {
+        return [
+            'smtp' => [
+                'smtp://user:secret@smtp.example.com:25',
+                ['transport' => 'Smtp', 'host' => 'smtp.example.com', 'port' => 25, 'username' => 'user', 'password' => 'secret', 'tls' => false],
+            ],
+            'smtp port 587 uses tls' => [
+                'smtp://user:secret@smtp.example.com:587',
+                ['transport' => 'Smtp', 'host' => 'smtp.example.com', 'port' => 587, 'username' => 'user', 'password' => 'secret', 'tls' => true],
+            ],
+            'smtp tls=1' => [
+                'smtp://smtp.example.com:2525?tls=1',
+                ['transport' => 'Smtp', 'host' => 'smtp.example.com', 'port' => 2525, 'tls' => true],
+            ],
+            'smtp tls=true' => [
+                'smtp://smtp.example.com?tls=true',
+                ['transport' => 'Smtp', 'host' => 'smtp.example.com', 'tls' => true],
+            ],
+            'smtp port 587 tls=0' => [
+                'smtp://smtp.example.com:587?tls=0',
+                ['transport' => 'Smtp', 'host' => 'smtp.example.com', 'port' => 587, 'tls' => false],
+            ],
+            'smtp without port and user' => [
+                'smtp://mailpit',
+                ['transport' => 'Smtp', 'host' => 'mailpit', 'tls' => false],
+            ],
+            'smtp default host' => [
+                'smtp://default',
+                ['transport' => 'Smtp', 'host' => 'localhost', 'tls' => false],
+            ],
+            'smtp user without password' => [
+                'smtp://apikey@smtp.example.com',
+                ['transport' => 'Smtp', 'host' => 'smtp.example.com', 'username' => 'apikey', 'password' => '', 'tls' => false],
+            ],
+            'smtps' => [
+                'smtps://user:secret@smtp.example.com',
+                ['transport' => 'Smtp', 'host' => 'ssl://smtp.example.com', 'port' => 465, 'username' => 'user', 'password' => 'secret', 'tls' => false],
+            ],
+            'smtps with port' => [
+                'smtps://user:secret@smtp.example.com:465',
+                ['transport' => 'Smtp', 'host' => 'ssl://smtp.example.com', 'port' => 465, 'username' => 'user', 'password' => 'secret', 'tls' => false],
+            ],
+            'sendmail' => [
+                'sendmail://default',
+                ['transport' => 'Mail'],
+            ],
+            'native' => [
+                'native://default?additionalParameters=-fbounce@example.com',
+                ['transport' => 'Mail', 'additionalParameters' => '-fbounce@example.com'],
+            ],
+            'null' => [
+                'null://null',
+                ['transport' => 'Debug'],
+            ],
+            'query options' => [
+                'smtp://smtp.example.com:587?timeout=10&client=app.example.com&ssl_allow_self_signed=true&context[ssl][verify_peer]=0',
+                [
+                    'transport' => 'Smtp',
+                    'host' => 'smtp.example.com',
+                    'port' => 587,
+                    'tls' => true,
+                    'timeout' => 10,
+                    'client' => 'app.example.com',
+                    'ssl_allow_self_signed' => true,
+                    'context' => ['ssl' => ['verify_peer' => '0']],
+                ],
+            ],
+            'encoded special characters' => [
+                'smtp://me%40example.com:p%40ss%3Aw%2Fo%23rd%3F%25+@smtp.example.com:587',
+                ['transport' => 'Smtp', 'host' => 'smtp.example.com', 'port' => 587, 'username' => 'me@example.com', 'password' => 'p@ss:w/o#rd?%+', 'tls' => true],
+            ],
+            'ipv6 host' => [
+                'smtp://[::1]:1025',
+                ['transport' => 'Smtp', 'host' => '[::1]', 'port' => 1025, 'tls' => false],
+            ],
+            'smtps ipv6 host' => [
+                'smtps://[2001:db8::25]',
+                ['transport' => 'Smtp', 'host' => 'ssl://[2001:db8::25]', 'port' => 465, 'tls' => false],
+            ],
+            'scheme is case insensitive' => [
+                'SMTP://mailpit:1025',
+                ['transport' => 'Smtp', 'host' => 'mailpit', 'port' => 1025, 'tls' => false],
+            ],
+            'unknown scheme with transport' => [
+                'ses+api://key:secret@default?transport=MyPlugin.Ses&region=eu-west-1',
+                ['transport' => 'MyPlugin.Ses', 'username' => 'key', 'password' => 'secret', 'region' => 'eu-west-1'],
+            ],
+        ];
+    }
+
+    /**
+     * Test parseDsn()
+     *
+     * @param string $dsn DSN
+     * @param array $expected Expected configuration
+     * @return void
+     * @dataProvider parseDsnProvider
+     */
+    public function testParseDsn($dsn, $expected): void
+    {
+        $result = CakeEmail::parseDsn($dsn);
+        ksort($expected);
+        ksort($result);
+        $this->assertSame($expected, $result);
+    }
+
+    /**
+     * Test parseDsn() with an unknown scheme
+     *
+     * @return void
+     */
+    public function testParseDsnUnknownScheme(): void
+    {
+        $this->expectException(ConfigureException::class);
+        $this->expectExceptionMessage('The DSN scheme "ses+api" is not supported.');
+        CakeEmail::parseDsn('ses+api://key:secret@default');
+    }
+
+    /**
+     * Test parseDsn() with an invalid DSN does not print the password
+     *
+     * @return void
+     */
+    public function testParseDsnInvalid(): void
+    {
+        try {
+            CakeEmail::parseDsn('smtp:/user:secret@host');
+            $this->fail('No exception thrown');
+        } catch (ConfigureException $e) {
+            $this->assertStringContainsString('could not be parsed', $e->getMessage());
+            $this->assertStringNotContainsString('secret', $e->getMessage());
+        }
+    }
+
+    /**
+     * Test a configuration with a DSN in EmailConfig: the DSN replaces the keys it
+     * sets and the other keys are kept
+     *
+     * @return void
+     */
+    public function testConfigStringWithDsn(): void
+    {
+        $this->CakeEmail->config('dsn');
+
+        $this->assertSame('Smtp', $this->CakeEmail->transport());
+        $this->assertInstanceOf('SmtpTransport', $this->CakeEmail->transportClass());
+        $this->assertSame(['some@example.com' => 'My website'], $this->CakeEmail->from());
+
+        $config = $this->CakeEmail->transportClass()->config();
+        $this->assertSame('smtp.example.com', $config['host']);
+        $this->assertSame(587, $config['port']);
+        $this->assertSame('user', $config['username']);
+        $this->assertSame('p@ss', $config['password']);
+        $this->assertTrue($config['tls']);
+        $this->assertSame(10, $config['timeout']);
+        $this->assertSame('app.example.com', $config['client']);
+        $this->assertArrayNotHasKey('dsn', $config);
+        $this->assertArrayNotHasKey('dsn', $this->CakeEmail->config());
+    }
+
+    /**
+     * Test that an empty DSN falls back to the other keys
+     *
+     * @return void
+     */
+    public function testConfigStringWithEmptyDsn(): void
+    {
+        $this->CakeEmail->config('dsnEmpty');
+
+        $this->assertSame('Smtp', $this->CakeEmail->transport());
+        $config = $this->CakeEmail->transportClass()->config();
+        $this->assertSame('cakephp.org', $config['host']);
+        $this->assertSame(2525, $config['port']);
+        $this->assertNull($config['username']);
+        $this->assertFalse($config['tls']);
+        $this->assertArrayNotHasKey('dsn', $config);
+
+        $this->CakeEmail->reset();
+        $this->CakeEmail->config(['dsn' => '', 'transport' => 'Debug']);
+        $this->assertSame('Debug', $this->CakeEmail->transport());
+    }
+
+    /**
+     * Test a DSN in an array configuration, and that null://null sends nothing
+     *
+     * @return void
+     */
+    public function testConfigArrayWithNullDsn(): void
+    {
+        $this->CakeEmail->config([
+            'dsn' => 'null://null',
+            'transport' => 'Smtp',
+            'from' => 'cake@cakephp.org',
+            'to' => 'you@cakephp.org',
+            'subject' => 'Null transport',
+        ]);
+        $this->assertInstanceOf('DebugTransport', $this->CakeEmail->transportClass());
+
+        $result = $this->CakeEmail->send('Hello');
+        $this->assertStringContainsString('Hello', $result['message']);
+    }
+
+    /**
+     * Test the MAILER_DSN environment variable
+     *
+     * @return void
+     */
+    public function testConfigWithMailerDsnEnv(): void
+    {
+        $previous = getenv('MAILER_DSN');
+        putenv('MAILER_DSN=smtps://user:secret@smtp.example.com');
+        try {
+            $this->CakeEmail->config(['dsn' => env('MAILER_DSN'), 'transport' => 'Debug']);
+        } finally {
+            putenv($previous === false ? 'MAILER_DSN' : 'MAILER_DSN=' . $previous);
+        }
+        $config = $this->CakeEmail->transportClass()->config();
+        $this->assertInstanceOf('SmtpTransport', $this->CakeEmail->transportClass());
+        $this->assertSame('ssl://smtp.example.com', $config['host']);
+        $this->assertSame(465, $config['port']);
+        $this->assertFalse($config['tls']);
+    }
+
+    /**
+     * Resets the DSN class map of CakeEmail to the built-in schemes.
+     *
+     * @return void
+     */
+    protected function _resetDsnClassMap(): void
+    {
+        $property = new ReflectionProperty('CakeEmail', '_dsnClassMap');
+        $property->setAccessible(true);
+        $property->setValue(null, null);
+    }
+
+    /**
+     * Test the built-in mailer DSN class map
+     *
+     * @return void
+     */
+    public function testGetDsnClassMap(): void
+    {
+        $this->assertSame(['smtp', 'smtps', 'sendmail', 'native', 'null'], array_keys(CakeEmail::getDsnClassMap()));
+    }
+
+    /**
+     * Test setDsnClassMap() with a class name, a callable, an override and a removal
+     *
+     * @return void
+     */
+    public function testSetDsnClassMap(): void
+    {
+        try {
+            CakeEmail::setDsnClassMap([
+                'myapi' => 'MyPlugin.MyApi',
+                'SES+API' => function (array $parts, array $config) {
+                    return [
+                        'transport' => 'Aws.Ses',
+                        'key' => $parts['username'],
+                        'secret' => $parts['password'],
+                        'region' => $parts['query']['region'] ?? 'us-east-1',
+                        'from' => $config['from'] ?? null,
+                    ];
+                },
+                'null' => 'MyPlugin.Blackhole',
+                'native' => null,
+            ]);
+
+            $this->assertSame(
+                ['timeout' => 5, 'host' => 'api.example.com', 'port' => 8443, 'username' => 'u', 'password' => 'p', 'transport' => 'MyPlugin.MyApi'],
+                CakeEmail::parseDsn('myapi://u:p@api.example.com:8443?timeout=5'),
+            );
+            $this->assertSame(
+                ['username' => 'u', 'transport' => 'MyPlugin.MyApi'],
+                CakeEmail::parseDsn('myapi://u@default'),
+            );
+            $this->assertSame(
+                ['transport' => 'Aws.Ses', 'key' => 'KEY', 'secret' => 'SE/CRET', 'region' => 'eu-west-1', 'from' => 'a@example.com'],
+                CakeEmail::parseDsn('ses+api://KEY:SE%2FCRET@default?region=eu-west-1', ['from' => 'a@example.com']),
+            );
+            $this->assertSame(['host' => 'null', 'transport' => 'MyPlugin.Blackhole'], CakeEmail::parseDsn('null://null'));
+            $this->assertArrayNotHasKey('native', CakeEmail::getDsnClassMap());
+            $this->assertArrayHasKey('ses+api', CakeEmail::getDsnClassMap());
+
+            $this->expectException(ConfigureException::class);
+            $this->expectExceptionMessage('The DSN scheme "native" is not supported.');
+            CakeEmail::parseDsn('native://default');
+        } finally {
+            $this->_resetDsnClassMap();
+        }
+    }
+
+    /**
+     * Test a scheme registered by a plugin is used when the configuration is applied
+     *
+     * @return void
+     */
+    public function testConfigWithRegisteredScheme(): void
+    {
+        try {
+            CakeEmail::setDsnClassMap([
+                'debug' => function (array $parts, array $config) {
+                    return ['transport' => 'Debug', 'marker' => $parts['host']];
+                },
+            ]);
+            $this->CakeEmail->config(['dsn' => 'debug://here', 'transport' => 'Smtp', 'from' => 'cake@cakephp.org']);
+            $this->assertInstanceOf('DebugTransport', $this->CakeEmail->transportClass());
+            $this->assertSame('here', $this->CakeEmail->config()['marker']);
+        } finally {
+            $this->_resetDsnClassMap();
+        }
+    }
+
+    /**
+     * Test an invalid DSN in an EmailConfig profile names the profile and does not print the password
+     *
+     * @return void
+     */
+    public function testConfigStringWithInvalidDsn(): void
+    {
+        try {
+            $this->CakeEmail->config('dsnBroken');
+            $this->fail('No exception thrown');
+        } catch (ConfigureException $e) {
+            $this->assertStringContainsString('Invalid "dsn" of the "dsnBroken" email configuration', $e->getMessage());
+            $this->assertStringContainsString('The DSN scheme "ses+smtp" is not supported.', $e->getMessage());
+            $this->assertStringNotContainsString('secret', $e->getMessage());
         }
     }
 }

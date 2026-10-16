@@ -24,10 +24,31 @@
  * Provides an interface for loading and enumerating connections defined in
  * app/Config/database.php
  *
+ * A connection configuration may set its connection with a DSN in the `'dsn'`
+ * key, for example `'dsn' => env('DATABASE_URL')`. See `parseDsn()` and
+ * `setDsnClassMap()`.
+ *
  * @package       Cake.Model
  */
 class ConnectionManager
 {
+    /**
+     * The DSN class map: datasources (or callables) for the DSN schemes
+     * understood by `parseDsn()`.
+     *
+     * @var array<string, mixed>
+     */
+    protected static $_dsnClassMap = [
+        'mysql' => 'Database/Mysql',
+        'postgres' => 'Database/Postgres',
+        'postgresql' => 'Database/Postgres',
+        'pgsql' => 'Database/Postgres',
+        'sqlite' => 'Database/Sqlite',
+        'sqlserver' => 'Database/Sqlserver',
+        'mssql' => 'Database/Sqlserver',
+        'sqlsrv' => 'Database/Sqlserver',
+    ];
+
     /**
      * Holds a loaded instance of the Connections object
      *
@@ -223,11 +244,124 @@ class ConnectionManager
         if (empty($name) || empty($config) || array_key_exists($name, static::$_connectionsEnum)) {
             return null;
         }
+        $config = static::_expandDsn($config, $name);
         static::$config->{$name} = $config;
         static::$_connectionsEnum[$name] = static::_connectionData($config);
         $return = static::getDataSource($name);
 
         return $return;
+    }
+
+    /**
+     * Adds DSN schemes, or replaces built-in ones, for the `'dsn'` key of
+     * datasource configurations.
+     *
+     * A plugin registers its schemes in its `Config/bootstrap.php`:
+     *
+     * ```
+     * ConnectionManager::setDsnClassMap([
+     *     // mydb://user:pass@host:1234/name uses MyPlugin.Database/MyDb with
+     *     // login, password, host, port and database
+     *     'mydb' => 'MyPlugin.Database/MyDb',
+     *     // a callable returns the configuration keys itself
+     *     'otherdb' => function (array $parts, array $config) {
+     *         return ['datasource' => 'MyPlugin.Database/Other', 'server' => $parts['host'] ?? 'localhost'] + $parts['query'];
+     *     },
+     * ]);
+     * ```
+     *
+     * A value is either a datasource class name in plugin dot syntax, or a
+     * callable (not a string) `function (array $parts, array $config): array`
+     * that gets the parts of `CakeDsn::parse()` and the configuration without
+     * the `'dsn'` key and returns the configuration keys. `null` removes a
+     * scheme. Schemes are case-insensitive.
+     *
+     * The map is read when a connection is created, so register schemes
+     * before the first query (a plugin bootstrap is early enough).
+     *
+     * @param array<string, mixed> $map Scheme => datasource class name or callable.
+     * @return void
+     * @since 2.12.7
+     */
+    public static function setDsnClassMap($map)
+    {
+        static::$_dsnClassMap = CakeDsn::mergeClassMap($map, static::$_dsnClassMap);
+    }
+
+    /**
+     * Returns the DSN class map (scheme => datasource class name or callable).
+     *
+     * @return array<string, mixed>
+     * @since 2.12.7
+     */
+    public static function getDsnClassMap()
+    {
+        return static::$_dsnClassMap;
+    }
+
+    /**
+     * Parses a database DSN into datasource configuration keys.
+     *
+     * ```
+     * ConnectionManager::parseDsn('mysql://app:secret@db.example.com:3306/app?encoding=utf8mb4');
+     * // ['datasource' => 'Database/Mysql', 'login' => 'app', 'password' => 'secret',
+     * //  'host' => 'db.example.com', 'port' => '3306', 'database' => 'app', 'encoding' => 'utf8mb4']
+     *
+     * ConnectionManager::parseDsn('sqlite:///:memory:');
+     * // ['datasource' => 'Database/Sqlite', 'database' => ':memory:']
+     * ```
+     *
+     * - The scheme selects the datasource with the DSN class map (see
+     *   `setDsnClassMap()`): `mysql` (`Database/Mysql`), `postgres` /
+     *   `postgresql` / `pgsql` (`Database/Postgres`), `sqlite`
+     *   (`Database/Sqlite`) and `sqlserver` / `mssql` / `sqlsrv`
+     *   (`Database/Sqlserver`) are built in. A `datasource` query parameter
+     *   (e.g. `?datasource=MyPlugin.Database/Custom`) overrides a class name
+     *   and allows schemes that are not in the map.
+     * - For a class name, the user, password, host, port and path become
+     *   `login`, `password`, `host`, `port` and `database`. They are
+     *   URL-decoded, so encode reserved characters in a password (`p%40ss`
+     *   for `p@ss`). The brackets of an IPv6 host (`[::1]`) are removed.
+     * - The database is the path without its leading `/`, as in CakePHP 3.x and
+     *   later: `sqlite:///:memory:` is `:memory:`, `sqlite:///app.sqlite` is
+     *   the relative path `app.sqlite` and `sqlite:////var/db/app.sqlite`
+     *   (four slashes) is the absolute path `/var/db/app.sqlite`.
+     * - Query parameters become configuration keys as they are (`encoding`,
+     *   `schema`, `prefix`, `persistent`, `flags[...]`, `options[...]`, ...).
+     *   `true`, `false` and `null` are converted to the PHP values.
+     * - A callable in the map returns the configuration keys itself.
+     *
+     * Only the parts present in the DSN are returned, so the other keys of a
+     * configuration still apply.
+     *
+     * @param string $dsn The DSN.
+     * @param array $config The configuration the DSN is merged into (passed to a callable of the map).
+     * @return array The datasource configuration.
+     * @throws CakeException When the DSN cannot be parsed or its scheme is not supported.
+     * @since 2.12.7
+     */
+    public static function parseDsn($dsn, $config = [])
+    {
+        return CakeDsn::toConfig($dsn, static::$_dsnClassMap, 'datasource', function ($parsed) {
+            $config = [];
+            if (isset($parsed['username']) && $parsed['username'] !== '') {
+                $config['login'] = $parsed['username'];
+            }
+            if (isset($parsed['password'])) {
+                $config['password'] = $parsed['password'];
+            }
+            if (isset($parsed['host'])) {
+                $config['host'] = trim($parsed['host'], '[]');
+            }
+            if (isset($parsed['port'])) {
+                $config['port'] = (string)$parsed['port'];
+            }
+            if (isset($parsed['path']) && strlen($parsed['path']) > 1) {
+                $config['database'] = substr($parsed['path'], 1);
+            }
+
+            return $parsed['query'] + $config;
+        }, $config);
     }
 
     /**
@@ -260,10 +394,33 @@ class ConnectionManager
     protected static function _getConnectionObject($name)
     {
         if (!empty(static::$config->{$name})) {
+            static::$config->{$name} = static::_expandDsn(static::$config->{$name}, $name);
             static::$_connectionsEnum[$name] = static::_connectionData(static::$config->{$name});
         } else {
             throw new MissingDatasourceConfigException(['config' => $name]);
         }
+    }
+
+    /**
+     * Merges the DSN in the `'dsn'` key of a configuration into it.
+     *
+     * The keys parsed from the DSN replace the same keys of the configuration
+     * (as `StaticConfigTrait::setConfig()` of CakePHP 3.x and later does), and
+     * the other keys are kept. The `'dsn'` key is removed. An empty `'dsn'`
+     * (e.g. `env('DATABASE_URL')` when the variable is not set) is ignored.
+     *
+     * @param array $config The connection configuration.
+     * @param string $name The connection name, for error messages.
+     * @return array The configuration without the `'dsn'` key.
+     * @throws CakeException When the DSN cannot be parsed or its scheme is not supported.
+     */
+    protected static function _expandDsn($config, $name)
+    {
+        return CakeDsn::expandConfig(
+            $config,
+            [static::class, 'parseDsn'],
+            sprintf('the "%s" datasource configuration', $name),
+        );
     }
 
     /**
