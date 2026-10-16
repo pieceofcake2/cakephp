@@ -1,6 +1,6 @@
 ## CHANGELOG
 
-## Unreleased
+## v2.12.7 (2026-10-16)
 
 ### Enhancements: DSN Configuration (`DATABASE_URL`, `MAILER_DSN`) ([PR #69](https://github.com/pieceofcake2/cakephp/pull/69))
 
