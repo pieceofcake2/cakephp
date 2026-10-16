@@ -7,6 +7,7 @@
          colors="true">
     <php>
         <ini name="memory_limit" value="-1"/>
+        <env name="APP_DEBUG" value="2"/>
     </php>
     <listeners>
         <listener class="CakeFixtureInjector" file="./src/Cake/TestSuite/Fixture/CakeFixtureInjector.php"/>
