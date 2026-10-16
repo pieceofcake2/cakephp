@@ -30,7 +30,7 @@ class EmailTestComponent extends EmailComponent
      *
      * @return string
      */
-    public function strip($content, $message = false): string
+    public function strip($content, $message = false): mixed
     {
         return parent::_strip($content, $message);
     }
@@ -56,7 +56,7 @@ class DebugCompTransport extends AbstractTransport
      * @params object $email CakeEmail
      * @return bool
      */
-    public function send(CakeEmail $email): bool
+    public function send(CakeEmail $email): mixed
     {
         $email->addHeaders(['Date' => EmailComponentTest::$sentDate]);
         $headers = $email->getHeaders(array_fill_keys(['from', 'replyTo', 'readReceipt', 'returnPath', 'to', 'cc', 'bcc', 'subject'], true));

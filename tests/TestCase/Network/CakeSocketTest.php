@@ -110,7 +110,7 @@ class CakeSocketTest extends CakeTestCase
      *
      * @return array
      */
-    public static function invalidConnections(): array
+    public static function invalidConnections(): mixed
     {
         return [
             [['host' => 'invalid.host', 'port' => 9999, 'timeout' => 1]],

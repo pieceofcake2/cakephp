@@ -120,7 +120,7 @@ class ControllerPaginateModel extends CakeTestModel
      *
      * @return array
      */
-    public function paginate($conditions, $fields, $order, $limit, $page, $recursive, $extra): array
+    public function paginate($conditions, $fields, $order, $limit, $page, $recursive, $extra): mixed
     {
         $this->extra = $extra;
 
@@ -228,7 +228,7 @@ class PaginatorCustomPost extends CakeTestModel
      *
      * @return array
      */
-    protected function _findPublished($state, $query, $results = []): array
+    protected function _findPublished($state, $query, $results = []): mixed
     {
         if ($state === 'before') {
             $query['conditions']['published'] = 'Y';
@@ -244,7 +244,7 @@ class PaginatorCustomPost extends CakeTestModel
      *
      * @return array
      */
-    protected function _findTotals($state, $query, $results = []): array
+    protected function _findTotals($state, $query, $results = []): mixed
     {
         if ($state === 'before') {
             $query['fields'] = ['author_id'];
@@ -265,7 +265,7 @@ class PaginatorCustomPost extends CakeTestModel
      *
      * @return array
      */
-    protected function _findTotalsOperation($state, $query, $results = []): array
+    protected function _findTotalsOperation($state, $query, $results = []): mixed
     {
         if ($state === 'before') {
             if (!empty($query['operation']) && $query['operation'] === 'count') {

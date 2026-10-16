@@ -56,7 +56,7 @@ class TestDispatcher extends Dispatcher
      * @param CakeRequest $request
      * @return CakeResponse
      */
-    protected function _invoke(Controller $controller, CakeRequest $request): CakeResponse
+    protected function _invoke(Controller $controller, CakeRequest $request): mixed
     {
         $this->controller = $controller;
 
@@ -199,7 +199,7 @@ class SomePagesController extends AppController
      *
      * @return CakeResponse
      */
-    public function responseGenerator(): CakeResponse
+    public function responseGenerator(): mixed
     {
         return new CakeResponse(['body' => 'new response']);
     }
@@ -209,7 +209,7 @@ class SomePagesController extends AppController
      *
      * @return CakeResponse
      */
-    public function sendfile(): CakeResponse
+    public function sendfile(): mixed
     {
         $this->response->file(CORE_TESTS . DS . 'test_app' . DS . 'Vendor' . DS . 'css' . DS . 'test_asset.css');
 
@@ -529,7 +529,7 @@ class TestFilterDispatcher extends DispatcherFilter
      * @param mixed $event
      * @return CakeResponse|bool
      */
-    public function beforeDispatch(CakeEvent $event): CakeResponse|bool
+    public function beforeDispatch(CakeEvent $event): mixed
     {
         $event->stopPropagation();
         $response = $event->data['request'];
@@ -1497,7 +1497,7 @@ class DispatcherTest extends CakeTestCase
      *
      * @return array
      */
-    public static function assetProvider(): array
+    public static function assetProvider(): mixed
     {
         return [
             [
@@ -1636,7 +1636,7 @@ class DispatcherTest extends CakeTestCase
      *
      * @return array
      */
-    public static function cacheActionProvider(): array
+    public static function cacheActionProvider(): mixed
     {
         return [
             ['/'],
@@ -1784,7 +1784,7 @@ class DispatcherTest extends CakeTestCase
      * @param string $here
      * @return string
      */
-    protected function _cachePath($here): string
+    protected function _cachePath($here): mixed
     {
         $path = $here;
         if ($here === '/') {

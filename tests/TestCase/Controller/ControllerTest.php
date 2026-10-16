@@ -1228,7 +1228,7 @@ class ControllerTest extends CakeTestCase
      *
      * @return array
      */
-    public function dangerousPostConditionsProvider(): array
+    public function dangerousPostConditionsProvider(): mixed
     {
         return [
             [

@@ -336,7 +336,7 @@ class CookieComponentTest extends CakeTestCase
      * @param CookieComponent $Cookie The component.
      * @return string
      */
-    protected function _cookieType(CookieComponent $Cookie): string
+    protected function _cookieType(CookieComponent $Cookie): mixed
     {
         return Closure::bind(function () {
             return $this->_type;
@@ -1379,7 +1379,7 @@ class CookieComponentTest extends CakeTestCase
      *
      * @return string.
      */
-    protected function _oldImplode(array $array): string
+    protected function _oldImplode(array $array): mixed
     {
         $string = '';
         foreach ($array as $key => $value) {
@@ -1395,7 +1395,7 @@ class CookieComponentTest extends CakeTestCase
      * @param array $array Map of key and values
      * @return string String in the form key1|value1,key2|value2
      */
-    protected function _implode(array $array): string
+    protected function _implode(array $array): mixed
     {
         return json_encode($array);
     }
@@ -1406,7 +1406,7 @@ class CookieComponentTest extends CakeTestCase
      * @param array|string $value
      * @return string
      */
-    protected function _encrypt($value): string
+    protected function _encrypt($value): mixed
     {
         if (is_array($value)) {
             $value = $this->_implode($value);

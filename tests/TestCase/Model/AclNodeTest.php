@@ -167,6 +167,8 @@ class DbAroUserTest extends CakeTestModel
         } elseif (Configure::read('DbAclbindMode') === 'array') {
             return ['DbAroTest' => ['DbAroTest.model' => 'AuthUser', 'DbAroTest.foreign_key' => 2]];
         }
+
+        return null;
     }
 }
 

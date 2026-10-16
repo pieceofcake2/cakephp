@@ -28,9 +28,11 @@ class CakeEventTestListener
      *
      * @return void
      */
-    public function listenerFunction(): void
+    public function listenerFunction(): mixed
     {
         $this->callStack[] = __FUNCTION__;
+
+        return null;
     }
 
     /**
@@ -38,9 +40,11 @@ class CakeEventTestListener
      *
      * @return void
      */
-    public function secondListenerFunction($some): void
+    public function secondListenerFunction($some): mixed
     {
         $this->callStack[] = __FUNCTION__;
+
+        return null;
     }
 
     /**
@@ -49,9 +53,11 @@ class CakeEventTestListener
      * @param CakeEvent $event
      * @return void
      */
-    public function stopListener($event): void
+    public function stopListener($event): mixed
     {
         $event->stopPropagation();
+
+        return null;
     }
 }
 
@@ -79,9 +85,11 @@ class CustomTestEventListener extends CakeEventTestListener implements CakeEvent
      *
      * @return void
      */
-    public function thirdListenerFunction(): void
+    public function thirdListenerFunction(): mixed
     {
         $this->callStack[] = __FUNCTION__;
+
+        return null;
     }
 }
 

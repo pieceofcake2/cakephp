@@ -57,7 +57,7 @@ class TestSource extends DataSource
      *
      * @return bool
      */
-    public function listSources($data = \null): bool
+    public function listSources($data = \null): mixed
     {
         return null;
     }
@@ -68,7 +68,7 @@ class TestSource extends DataSource
      * @param Model $Model
      * @return array
      */
-    public function describe(Model $Model): array
+    public function describe(Model $Model): mixed
     {
         return $this->_schema;
     }
@@ -82,7 +82,7 @@ class TestSource extends DataSource
      * @param type $params
      * @return array
      */
-    public function calculate(Model $Model, $func, $params = []): array
+    public function calculate(Model $Model, $func, $params = []): mixed
     {
         return $func;
     }

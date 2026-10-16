@@ -584,7 +584,7 @@ class CacheTest extends CakeTestCase
      *
      * @return string
      */
-    public function cacher(): string
+    public function cacher(): mixed
     {
         return 'This is some data ' . $this->_count;
     }

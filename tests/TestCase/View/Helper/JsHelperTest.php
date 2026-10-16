@@ -53,7 +53,7 @@ class OptionEngineHelper extends JsBaseEngineHelper
      * @param array $options
      * @return array
      */
-    public function testMap($options = []): array
+    public function testMap($options = []): mixed
     {
         return $this->_mapOptions('request', $options);
     }
@@ -72,46 +72,57 @@ class OptionEngineHelper extends JsBaseEngineHelper
 
     public function get($selector): mixed
     {
+        return null;
     }
 
     public function event($type, $callback, $options = []): mixed
     {
+        return null;
     }
 
     public function domReady($functionBody): mixed
     {
+        return null;
     }
 
     public function each($callback): mixed
     {
+        return null;
     }
 
     public function effect($name, $options = []): mixed
     {
+        return null;
     }
 
     public function request($url, $options = []): mixed
     {
+        return null;
     }
 
     public function drag($options = []): mixed
     {
+        return null;
     }
 
     public function drop($options = []): mixed
     {
+        return null;
     }
 
     public function sortable($options = []): mixed
     {
+        return null;
     }
 
     public function slider($options = []): mixed
     {
+        return null;
     }
 
     public function serializeForm($options = []): mixed
     {
+        return null;
     }
 }
 

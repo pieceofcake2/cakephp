@@ -29,7 +29,7 @@ class CustomValidator
      * @param string $check Email to check.
      * @return bool
      */
-    public static function customValidate($check): bool
+    public static function customValidate($check): mixed
     {
         return (bool)preg_match('/^[0-9]{3}$/', $check);
     }

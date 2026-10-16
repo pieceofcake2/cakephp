@@ -242,7 +242,7 @@ class XmlTest extends CakeTestCase
      *
      * @return array
      */
-    public static function invalidDataProvider(): array
+    public static function invalidDataProvider(): mixed
     {
         return [
             [null],
@@ -606,7 +606,7 @@ XML;
      *
      * @return array
      */
-    public static function invalidArrayDataProvider(): array
+    public static function invalidArrayDataProvider(): mixed
     {
         return [
             [''],
@@ -1220,7 +1220,7 @@ XML;
      *
      * @return array
      */
-    public static function invalidToArrayDataProvider(): array
+    public static function invalidToArrayDataProvider(): mixed
     {
         return [
             [new DateTime()],

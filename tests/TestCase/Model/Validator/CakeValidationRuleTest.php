@@ -28,7 +28,7 @@ class CakeValidationRuleTest extends CakeTestCase
      *
      * @return bool
      */
-    public function myTestRule(): bool
+    public function myTestRule(): mixed
     {
         return false;
     }
@@ -38,7 +38,7 @@ class CakeValidationRuleTest extends CakeTestCase
      *
      * @return bool
      */
-    public function myTestRule2(): bool
+    public function myTestRule2(): mixed
     {
         return true;
     }
@@ -48,7 +48,7 @@ class CakeValidationRuleTest extends CakeTestCase
      *
      * @return string
      */
-    public function myTestRule3(): string
+    public function myTestRule3(): mixed
     {
         return 'string';
     }

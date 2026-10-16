@@ -31,7 +31,7 @@ class TestMemcachedEngine extends MemcachedEngine
      * @param string $server
      * @return array
      */
-    public function parseServerString($server): array
+    public function parseServerString($server): mixed
     {
         return $this->_parseServerString($server);
     }

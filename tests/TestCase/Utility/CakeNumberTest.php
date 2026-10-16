@@ -806,7 +806,7 @@ class CakeNumberTest extends CakeTestCase
      *
      * @return array
      */
-    public function filesizes(): array
+    public function filesizes(): mixed
     {
         return [
             [['size' => '512B', 'default' => false], 512],

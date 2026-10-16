@@ -1977,7 +1977,7 @@ SQL;
      * @param array $binding
      * @return array The prepared association query
      */
-    protected function &_prepareAssociationQuery(Model $model, &$queryData, $binding): array
+    protected function &_prepareAssociationQuery(Model $model, &$queryData, $binding): mixed
     {
         $type = $binding['type'];
         $assoc = $binding['model'];
@@ -1999,7 +1999,7 @@ SQL;
      * @param array $data
      * @return array
      */
-    protected function _scrubQueryData($data): array
+    protected function _scrubQueryData($data): mixed
     {
         static $base = null;
         if ($base === null) {
@@ -3707,7 +3707,7 @@ SQL;
      * @param array $errors The collected deprecation messages.
      * @return string The ORDER BY clause.
      */
-    protected function _orderCollectingDeprecations(array $args, &$errors): string
+    protected function _orderCollectingDeprecations(array $args, &$errors): mixed
     {
         $errors = [];
         set_error_handler(function ($errno, $errstr) use (&$errors) {
@@ -3720,6 +3720,8 @@ SQL;
         } finally {
             restore_error_handler();
         }
+
+        return null;
     }
 
     /**
@@ -4095,7 +4097,7 @@ SQL;
      *
      * @return array
      */
-    public function buildColumnUnsignedProvider(): array
+    public function buildColumnUnsignedProvider(): mixed
     {
         return [
             // unsigned int

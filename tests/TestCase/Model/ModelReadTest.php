@@ -8962,7 +8962,7 @@ class ModelReadTest extends BaseModelTest
      * @param array $result The results.
      * @return string The username.
      */
-    public static function extractUserNameFromQueryResult(array $result): string
+    public static function extractUserNameFromQueryResult(array $result): mixed
     {
         return isset($result[0][0]) ? $result[0][0]['user'] : $result[0]['u']['user'];
     }

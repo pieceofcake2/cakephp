@@ -370,7 +370,7 @@ class CakeTextTest extends CakeTestCase
      *
      * @return array
      */
-    public function wordWrapProvider(): array
+    public function wordWrapProvider(): mixed
     {
         return [
             [

@@ -28,7 +28,7 @@ class TestBaseAuthenticate extends BaseAuthenticate
      *
      * @return array of events => callbacks.
      */
-    public function implementedEvents(): array
+    public function implementedEvents(): mixed
     {
         return [
             'Auth.afterIdentify' => 'afterIdentify',
@@ -95,7 +95,7 @@ class TestAuthComponent extends AuthComponent
      * @param int $index The index at which to get the object
      * @return CakeObject $object
      */
-    public function getAuthenticateObject($index): CakeObject
+    public function getAuthenticateObject($index): mixed
     {
         $this->constructAuthenticate();
 

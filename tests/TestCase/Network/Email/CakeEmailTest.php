@@ -40,7 +40,7 @@ class TestCakeEmail extends CakeEmail
      *
      * @return array
      */
-    public function formatAddress($address): array
+    public function formatAddress($address): mixed
     {
         return parent::_formatAddress($address);
     }
@@ -50,7 +50,7 @@ class TestCakeEmail extends CakeEmail
      *
      * @return array
      */
-    public function wrap($text, $length = CakeEmail::LINE_LENGTH_MUST): array
+    public function wrap($text, $length = CakeEmail::LINE_LENGTH_MUST): mixed
     {
         return parent::_wrap($text, $length);
     }
@@ -60,7 +60,7 @@ class TestCakeEmail extends CakeEmail
      *
      * @return string
      */
-    public function getBoundary(): string
+    public function getBoundary(): mixed
     {
         return $this->_boundary;
     }
@@ -70,7 +70,7 @@ class TestCakeEmail extends CakeEmail
      *
      * @return string
      */
-    public function encode($text): string
+    public function encode($text): mixed
     {
         return $this->_encode($text);
     }
@@ -80,7 +80,7 @@ class TestCakeEmail extends CakeEmail
      *
      * @return array
      */
-    public function render($content): array
+    public function render($content): mixed
     {
         return $this->_render($content);
     }
@@ -327,7 +327,7 @@ class CakeEmailTest extends CakeTestCase
      *
      * @return array
      */
-    public static function invalidEmails(): array
+    public static function invalidEmails(): mixed
     {
         return [
             [1.0],
@@ -786,7 +786,7 @@ class CakeEmailTest extends CakeTestCase
      *
      * @return array
      */
-    public static function invalidHeaders(): array
+    public static function invalidHeaders(): mixed
     {
         return [
             [10],
@@ -2437,7 +2437,7 @@ class CakeEmailTest extends CakeTestCase
      * @param mixed $headerCharset
      * @return CakeEmail
      */
-    protected function _getEmailByOldStyleCharset($charset, $headerCharset): CakeEmail
+    protected function _getEmailByOldStyleCharset($charset, $headerCharset): mixed
     {
         $email = new CakeEmail(['transport' => 'Debug']);
 
@@ -2462,7 +2462,7 @@ class CakeEmailTest extends CakeTestCase
      * @param mixed $headerCharset
      * @return CakeEmail
      */
-    protected function _getEmailByNewStyleCharset($charset, $headerCharset): CakeEmail
+    protected function _getEmailByNewStyleCharset($charset, $headerCharset): mixed
     {
         $email = new CakeEmail(['transport' => 'Debug']);
 

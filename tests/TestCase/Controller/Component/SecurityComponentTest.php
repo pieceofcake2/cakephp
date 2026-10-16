@@ -29,7 +29,7 @@ class TestSecurityComponent extends SecurityComponent
      * @param Controller $controller
      * @return bool
      */
-    public function validatePost(Controller $controller): bool
+    public function validatePost(Controller $controller): mixed
     {
         return $this->_validatePost($controller);
     }
@@ -40,7 +40,7 @@ class TestSecurityComponent extends SecurityComponent
      * @param Controller $controller
      * @return bool
      */
-    public function authRequired(Controller $controller): bool
+    public function authRequired(Controller $controller): mixed
     {
         return $this->_authRequired($controller);
     }
@@ -51,7 +51,7 @@ class TestSecurityComponent extends SecurityComponent
      * @param Controller $controller
      * @return bool
      */
-    public function methodsRequired(Controller $controller): bool
+    public function methodsRequired(Controller $controller): mixed
     {
         return $this->_methodsRequired($controller);
     }
@@ -208,6 +208,8 @@ class SecurityComponentTest extends CakeTestCase
 
             return false;
         }
+
+        return null;
     }
 
     /**

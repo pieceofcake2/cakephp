@@ -475,6 +475,8 @@ class FileTest extends CakeTestCase
             $TmpFile->close();
         }
         unlink($tmpFile);
+
+        return null;
     }
 
     /**
@@ -513,6 +515,8 @@ class FileTest extends CakeTestCase
         $TmpFile->append('');
         $this->assertEquals($data, file_get_contents($tmpFile));
         $TmpFile->close();
+
+        return null;
     }
 
     /**
@@ -539,6 +543,8 @@ class FileTest extends CakeTestCase
         $TmpFile = new File('/this/does/not/exist');
         $result = $TmpFile->delete();
         $this->assertFalse($result);
+
+        return null;
     }
 
     /**
@@ -559,6 +565,8 @@ class FileTest extends CakeTestCase
         $File = new File($tmpFile);
         $File->read();
         $this->assertTrue($File->delete());
+
+        return null;
     }
 
     /**
@@ -615,7 +623,7 @@ class FileTest extends CakeTestCase
      * @param bool $paintSkip
      * @return string|false
      */
-    protected function _getTmpFile($paintSkip = true): string|false
+    protected function _getTmpFile($paintSkip = true): mixed
     {
         $tmpFile = TMP . 'tests' . DS . 'cakephp.file.test.tmp';
         if (is_writable(dirname($tmpFile)) && (!file_exists($tmpFile) || is_writable($tmpFile))) {

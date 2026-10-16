@@ -62,7 +62,7 @@ class ScaffoldMockControllerWithFields extends Controller
      * @param string $method Method name.
      * @return bool true
      */
-    public function beforeScaffold($method): bool
+    public function beforeScaffold($method): mixed
     {
         $this->set('scaffoldFields', ['title']);
 
@@ -97,7 +97,7 @@ class ScaffoldMockControllerWithError extends Controller
      * @param string $method Method name.
      * @return bool false
      */
-    public function beforeScaffold($method): bool
+    public function beforeScaffold($method): mixed
     {
         return false;
     }
@@ -126,7 +126,7 @@ class TestScaffoldMock extends Scaffold
      *
      * @return unknown
      */
-    public function getParams(): unknown
+    public function getParams(): mixed
     {
         return $this->_params;
     }

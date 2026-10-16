@@ -50,7 +50,7 @@ class TestAuthor extends Author
      *
      * @return DataSource
      */
-    public function getDataSource(): DataSource
+    public function getDataSource(): mixed
     {
         if ($this->_dataSourceObject !== null) {
             return $this->_dataSourceObject;
@@ -92,7 +92,7 @@ class TestPost extends Post
      *
      * @return DataSource
      */
-    public function getDataSource(): DataSource
+    public function getDataSource(): mixed
     {
         if ($this->_dataSourceObject !== null) {
             return $this->_dataSourceObject;
@@ -942,7 +942,7 @@ class ModelWriteTest extends BaseModelTest
      *
      * @return bool false to stop event propagation
      */
-    public function callbackForTestSaveTransaction($event): bool
+    public function callbackForTestSaveTransaction($event): mixed
     {
         $TestModel = new Article();
 
@@ -8290,7 +8290,7 @@ class ModelWriteTest extends BaseModelTest
      * @param array $methods Configurable method names.
      * @return DboSource
      */
-    protected function _getMockDboSource($methods = []): DboSource
+    protected function _getMockDboSource($methods = []): mixed
     {
         $testDb = ConnectionManager::getDataSource('test');
 

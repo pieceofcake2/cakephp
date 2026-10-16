@@ -1198,7 +1198,7 @@ class CakeRequestTest extends CakeTestCase
      * @param CakeRequest $request
      * @return bool
      */
-    public function detectCallback($request): bool
+    public function detectCallback($request): mixed
     {
         return (bool)$request->return;
     }
@@ -1718,7 +1718,7 @@ class CakeRequestTest extends CakeTestCase
      *
      * @return array Environment array
      */
-    public static function environmentGenerator(): array
+    public static function environmentGenerator(): mixed
     {
         return [
             [
@@ -2273,7 +2273,7 @@ class CakeRequestTest extends CakeTestCase
      *
      * @return array
      */
-    public function paramReadingDataProvider(): array
+    public function paramReadingDataProvider(): mixed
     {
         return [
             [

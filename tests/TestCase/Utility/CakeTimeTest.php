@@ -104,7 +104,7 @@ class CakeTimeTest extends CakeTestCase
      *
      * @return array
      */
-    public static function timeAgoProvider(): array
+    public static function timeAgoProvider(): mixed
     {
         return [
             ['-12 seconds', '12 seconds ago'],

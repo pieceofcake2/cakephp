@@ -126,6 +126,8 @@ class SecurityTest extends CakeTestCase
         } finally {
             restore_error_handler();
         }
+
+        return null;
     }
 
     /**
@@ -841,7 +843,7 @@ class SecurityTest extends CakeTestCase
      *
      * @return array
      */
-    public function plainTextProvider(): array
+    public function plainTextProvider(): mixed
     {
         return [
             [''],

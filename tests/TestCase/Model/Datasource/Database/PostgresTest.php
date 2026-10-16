@@ -968,7 +968,7 @@ class PostgresTest extends CakeTestCase
      * @param array $errors The collected deprecation messages.
      * @return string The ORDER BY clause.
      */
-    protected function _orderCollectingDeprecations(array $args, &$errors): string
+    protected function _orderCollectingDeprecations(array $args, &$errors): mixed
     {
         $errors = [];
         set_error_handler(function ($errno, $errstr) use (&$errors) {
@@ -981,6 +981,8 @@ class PostgresTest extends CakeTestCase
         } finally {
             restore_error_handler();
         }
+
+        return null;
     }
 
     /**

@@ -1297,7 +1297,7 @@ class RouterTest extends CakeTestCase
      *
      * @return array
      */
-    public function parseReverseSymmetryData(): array
+    public function parseReverseSymmetryData(): mixed
     {
         return [
             ['/'],

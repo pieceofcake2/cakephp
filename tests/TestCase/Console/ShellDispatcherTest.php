@@ -77,7 +77,7 @@ class TestShellDispatcher extends ShellDispatcher
     /**
      * @return array
      */
-    public function getDefaults(): array
+    public function getDefaults(): mixed
     {
         return $this->_getDefaults();
     }

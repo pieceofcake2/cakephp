@@ -72,7 +72,7 @@ class RequestActionController extends Controller
      *
      * @return string Hello World!
      */
-    public function normal_request_action(): string
+    public function normal_request_action(): mixed
     {
         return 'Hello World';
     }
@@ -82,7 +82,7 @@ class RequestActionController extends Controller
      *
      * @return string $this->here.
      */
-    public function return_here(): string
+    public function return_here(): mixed
     {
         return $this->request->here();
     }
@@ -92,7 +92,7 @@ class RequestActionController extends Controller
      *
      * @return true
      */
-    public function paginate_request_action(): bool
+    public function paginate_request_action(): mixed
     {
         $this->paginate();
 
@@ -104,7 +104,7 @@ class RequestActionController extends Controller
      *
      * @return array
      */
-    public function post_pass(): array
+    public function post_pass(): mixed
     {
         return $this->request->data;
     }
@@ -114,7 +114,7 @@ class RequestActionController extends Controller
      *
      * @return array
      */
-    public function params_pass(): array
+    public function params_pass(): mixed
     {
         return $this->request;
     }

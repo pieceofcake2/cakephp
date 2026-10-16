@@ -76,6 +76,8 @@ class TestBehavior extends ModelBehavior
 
                 return $query;
         }
+
+        return null;
     }
 
     /**
@@ -102,6 +104,8 @@ class TestBehavior extends ModelBehavior
             case 'modify':
                 return Hash::extract($results, "{n}.{$model->alias}");
         }
+
+        return null;
     }
 
     /**
@@ -128,6 +132,8 @@ class TestBehavior extends ModelBehavior
 
                 return true;
         }
+
+        return null;
     }
 
     /**
@@ -161,6 +167,8 @@ class TestBehavior extends ModelBehavior
                 $model->data[$model->alias]['name'] .= ' ' . $string;
                 break;
         }
+
+        return null;
     }
 
     /**
@@ -171,7 +179,7 @@ class TestBehavior extends ModelBehavior
      * @return bool
      * @see Model::save()
      */
-    public function beforeValidate(Model $model, $options = []): bool
+    public function beforeValidate(Model $model, $options = []): mixed
     {
         $settings = $this->settings[$model->alias];
         if (!isset($settings['validate']) || $settings['validate'] === 'off') {
@@ -193,6 +201,8 @@ class TestBehavior extends ModelBehavior
 
                 return false;
         }
+
+        return null;
     }
 
     /**
@@ -216,6 +226,8 @@ class TestBehavior extends ModelBehavior
 
                 return true;
         }
+
+        return null;
     }
 
     /**
@@ -244,6 +256,8 @@ class TestBehavior extends ModelBehavior
 
                 return true;
         }
+
+        return null;
     }
 
     /**
@@ -263,6 +277,8 @@ class TestBehavior extends ModelBehavior
                 echo 'afterDelete success';
                 break;
         }
+
+        return null;
     }
 
     /**
@@ -278,6 +294,8 @@ class TestBehavior extends ModelBehavior
             return parent::onError($model, $error);
         }
         echo 'onError trigger success';
+
+        return null;
     }
 
     /**
@@ -308,6 +326,8 @@ class TestBehavior extends ModelBehavior
         if ($param === true) {
             return 'working';
         }
+
+        return null;
     }
 
     /**

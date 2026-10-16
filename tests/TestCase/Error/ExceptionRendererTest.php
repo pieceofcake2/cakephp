@@ -981,7 +981,7 @@ class ExceptionRendererTest extends CakeTestCase
      * @param Throwable $exception The exception to render.
      * @return string
      */
-    protected function _render($exception): string
+    protected function _render($exception): mixed
     {
         $ExceptionRenderer = $this->_mockResponse(new ExceptionRenderer($exception));
 

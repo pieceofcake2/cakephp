@@ -28,7 +28,7 @@ class TestHttpResponse extends HttpResponse
      * @param array $header Header as an indexed array (field => value)
      * @return array Parsed header
      */
-    public function parseHeader($header): array
+    public function parseHeader($header): mixed
     {
         return parent::_parseHeader($header);
     }
@@ -62,7 +62,7 @@ class TestHttpResponse extends HttpResponse
      * @param string $token Token to unescape
      * @return string Unescaped token
      */
-    public function unescapeToken($token, $chars = null): string
+    public function unescapeToken($token, $chars = null): mixed
     {
         return parent::_unescapeToken($token, $chars);
     }
@@ -73,7 +73,7 @@ class TestHttpResponse extends HttpResponse
      * @param bool $hex true to get them as HEX values, false otherwise
      * @return array Escape chars
      */
-    public function tokenEscapeChars($hex = true, $chars = null): array
+    public function tokenEscapeChars($hex = true, $chars = null): mixed
     {
         return parent::_tokenEscapeChars($hex, $chars);
     }
@@ -359,7 +359,7 @@ class HttpResponseTest extends CakeTestCase
      *
      * @return array
      */
-    public static function invalidParseResponseDataProvider(): array
+    public static function invalidParseResponseDataProvider(): mixed
     {
         return [
             [['foo' => 'bar']],

@@ -37,7 +37,7 @@ class TransSessionIdController extends AppController
      *
      * @return CakeResponse|null
      */
-    public function next(): ?CakeResponse
+    public function next(): mixed
     {
         $sessionName = session_name();
         $sessionId = $this->Session->id();

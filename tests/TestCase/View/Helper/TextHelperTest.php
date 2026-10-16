@@ -266,7 +266,7 @@ class TextHelperTest extends CakeTestCase
      *
      * @return array
      */
-    public static function autoLinkProvider(): array
+    public static function autoLinkProvider(): mixed
     {
         return [
             [

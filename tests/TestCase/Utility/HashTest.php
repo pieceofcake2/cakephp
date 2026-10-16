@@ -26,7 +26,7 @@ class HashTest extends CakeTestCase
      *
      * @return array
      */
-    public static function articleData(): array
+    public static function articleData(): mixed
     {
         return [
             [
@@ -145,7 +145,7 @@ class HashTest extends CakeTestCase
      *
      * @return array
      */
-    public static function userData(): array
+    public static function userData(): mixed
     {
         return [
             [

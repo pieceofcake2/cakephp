@@ -921,7 +921,7 @@ TEXT;
      *
      * @return array
      */
-    public function paramReadingDataProvider(): array
+    public function paramReadingDataProvider(): mixed
     {
         return [
             [

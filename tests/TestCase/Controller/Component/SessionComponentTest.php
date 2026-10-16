@@ -35,7 +35,7 @@ class SessionTestController extends Controller
      *
      * @return string
      */
-    public function sessionId(): string
+    public function sessionId(): mixed
     {
         return $this->Session->id();
     }
@@ -60,7 +60,7 @@ class OrangeSessionTestController extends Controller
      *
      * @return string
      */
-    public function sessionId(): string
+    public function sessionId(): mixed
     {
         return $this->Session->id();
     }

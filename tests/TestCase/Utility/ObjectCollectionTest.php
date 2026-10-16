@@ -44,8 +44,9 @@ class FirstGenericObject extends GenericObject
      *
      * @return void
      */
-    public function callback(): void
+    public function callback(): mixed
     {
+        return null;
     }
 }
 
@@ -57,8 +58,9 @@ class SecondGenericObject extends GenericObject
     /**
      * @return void
      */
-    public function callback(): void
+    public function callback(): mixed
     {
+        return null;
     }
 }
 
@@ -70,8 +72,9 @@ class ThirdGenericObject extends GenericObject
     /**
      * @return void
      */
-    public function callback(): void
+    public function callback(): mixed
     {
+        return null;
     }
 }
 
@@ -87,7 +90,7 @@ class GenericObjectCollection extends ObjectCollection
      * @param array $settings Settings array
      * @return array List of loaded objects
      */
-    public function load($object, $settings = []): array
+    public function load($object, $settings = []): mixed
     {
         [, $name] = pluginSplit($object);
         if (isset($this->_loaded[$name])) {
@@ -112,7 +115,7 @@ class GenericObjectCollection extends ObjectCollection
      * @param array $settings Settings to apply for the object
      * @return array Loaded objects
      */
-    public function setObject($name, $object, $settings = []): array
+    public function setObject($name, $object, $settings = []): mixed
     {
         $this->_loaded[$name] = $object;
         if (isset($settings['priority'])) {

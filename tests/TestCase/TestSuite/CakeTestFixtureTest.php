@@ -480,7 +480,7 @@ class CakeTestFixtureTest extends CakeTestCase
      * @param string $values
      * @return bool true
      */
-    public function insertCallback($table, $fields, $values): bool
+    public function insertCallback($table, $fields, $values): mixed
     {
         $this->insertMulti['table'] = $table;
         $this->insertMulti['fields'] = $fields;

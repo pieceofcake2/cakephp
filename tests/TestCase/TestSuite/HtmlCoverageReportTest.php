@@ -258,7 +258,7 @@ class HtmlCoverageReportTest extends CakeTestCase
      * @param string $file The covered file.
      * @return TestResult
      */
-    protected function _resultWithCoverage($file): TestResult
+    protected function _resultWithCoverage($file): mixed
     {
         $driver = new class extends Driver {
             public function nameAndVersion(): string

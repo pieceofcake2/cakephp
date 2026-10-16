@@ -100,7 +100,7 @@ class TestThemeView extends View
      * @param array $params
      * @return string The given name
      */
-    public function renderElement($name, $params = []): string
+    public function renderElement($name, $params = []): mixed
     {
         return $name;
     }
@@ -111,7 +111,7 @@ class TestThemeView extends View
      * @param string $name Controller action to find template filename for
      * @return string Template filename
      */
-    public function getViewFileName($name = null): string
+    public function getViewFileName($name = null): mixed
     {
         return $this->_getViewFileName($name);
     }
@@ -122,7 +122,7 @@ class TestThemeView extends View
      * @param string $name The name of the layout to find.
      * @return string Filename for layout file (.ctp).
      */
-    public function getLayoutFileName($name = null): string
+    public function getLayoutFileName($name = null): mixed
     {
         return $this->_getLayoutFileName($name);
     }
@@ -141,7 +141,7 @@ class TestView extends View
      * @param string $name Controller action to find template filename for
      * @return string Template filename
      */
-    public function getViewFileName($name = null): string
+    public function getViewFileName($name = null): mixed
     {
         return $this->_getViewFileName($name);
     }
@@ -152,7 +152,7 @@ class TestView extends View
      * @param string $name The name of the layout to find.
      * @return string Filename for layout file (.ctp).
      */
-    public function getLayoutFileName($name = null): string
+    public function getLayoutFileName($name = null): mixed
     {
         return $this->_getLayoutFileName($name);
     }
@@ -164,7 +164,7 @@ class TestView extends View
      * @param bool $cached Set to true to force a refresh of view paths.
      * @return array paths
      */
-    public function paths($plugin = null, $cached = true): array
+    public function paths($plugin = null, $cached = true): mixed
     {
         return $this->_paths($plugin, $cached);
     }
@@ -174,7 +174,7 @@ class TestView extends View
      *
      * @return array Scripts
      */
-    public function scripts(): array
+    public function scripts(): mixed
     {
         return $this->_scripts;
     }
@@ -265,7 +265,7 @@ class TestViewEventListener implements CakeEventListener
      *
      * @return array
      */
-    public function implementedEvents(): array
+    public function implementedEvents(): mixed
     {
         return [
                 'View.beforeRender' => 'beforeRender',
@@ -1667,7 +1667,7 @@ class ViewTest extends CakeTestCase
      *
      * @return array
      */
-    public static function blockValueProvider(): array
+    public static function blockValueProvider(): mixed
     {
         return [
             'string' => ['A string value'],

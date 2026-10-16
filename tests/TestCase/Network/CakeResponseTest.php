@@ -251,7 +251,7 @@ class CakeResponseTest extends CakeTestCase
      *
      * @return array
      */
-    public static function charsetTypeProvider(): array
+    public static function charsetTypeProvider(): mixed
     {
         return [
             ['mp3', 'audio/mpeg'],
@@ -1308,7 +1308,7 @@ class CakeResponseTest extends CakeTestCase
      *
      * @return array
      */
-    public function corsData(): array
+    public function corsData(): mixed
     {
         $fooRequest = new CakeRequest();
 
@@ -1769,7 +1769,7 @@ class CakeResponseTest extends CakeTestCase
      *
      * @return array
      */
-    public static function rangeProvider(): array
+    public static function rangeProvider(): mixed
     {
         return [
             // suffix-byte-range
@@ -1895,7 +1895,7 @@ class CakeResponseTest extends CakeTestCase
      *
      * @return array
      */
-    public function invalidFileRangeProvider(): array
+    public function invalidFileRangeProvider(): mixed
     {
         return [
             // malformed range

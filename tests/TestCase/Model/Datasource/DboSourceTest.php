@@ -294,7 +294,7 @@ class DboSourceTest extends CakeTestCase
      * @param array $errors The collected deprecation messages.
      * @return string The ORDER BY clause.
      */
-    protected function _orderCollectingDeprecations(array $args, &$errors): string
+    protected function _orderCollectingDeprecations(array $args, &$errors): mixed
     {
         $errors = [];
         set_error_handler(function ($errno, $errstr) use (&$errors) {
@@ -307,6 +307,8 @@ class DboSourceTest extends CakeTestCase
         } finally {
             restore_error_handler();
         }
+
+        return null;
     }
 
     /**
@@ -1863,7 +1865,7 @@ class DboSourceTest extends CakeTestCase
      *
      * @return array
      */
-    public static function joinStatements(): array
+    public static function joinStatements(): mixed
     {
         return [
             [[
@@ -1914,7 +1916,7 @@ class DboSourceTest extends CakeTestCase
      *
      * @return array
      */
-    public static function joinStatementsWithPrefix($schema): array
+    public static function joinStatementsWithPrefix($schema): mixed
     {
         return [
             [[

@@ -82,7 +82,7 @@ class TestHttpSocket extends HttpSocket
      * @param array|string $uri URI (see {@link _parseUri()})
      * @return array Current configuration settings
      */
-    public function configUri($uri = null): array
+    public function configUri($uri = null): mixed
     {
         return parent::_configUri($uri);
     }
@@ -94,7 +94,7 @@ class TestHttpSocket extends HttpSocket
      * @param array|bool $base If true use default URI config, otherwise indexed array to set 'scheme', 'host', 'port', etc.
      * @return array Parsed URI
      */
-    public function parseUri($uri = null, $base = []): array
+    public function parseUri($uri = null, $base = []): mixed
     {
         return parent::_parseUri($uri, $base);
     }
@@ -106,7 +106,7 @@ class TestHttpSocket extends HttpSocket
      * @param string $uriTemplate The Uri template/format to use
      * @return string A fully qualified URL formatted according to $uriTemplate
      */
-    public function buildUri($uri = [], $uriTemplate = '%scheme://%user:%pass@%host:%port/%path?%query#%fragment'): string
+    public function buildUri($uri = [], $uriTemplate = '%scheme://%user:%pass@%host:%port/%path?%query#%fragment'): mixed
     {
         return parent::_buildUri($uri, $uriTemplate);
     }
@@ -117,7 +117,7 @@ class TestHttpSocket extends HttpSocket
      * @param array $header Header to build
      * @return string Header built from array
      */
-    public function buildHeader($header, $mode = 'standard'): string
+    public function buildHeader($header, $mode = 'standard'): mixed
     {
         return parent::_buildHeader($header, $mode);
     }
@@ -128,7 +128,7 @@ class TestHttpSocket extends HttpSocket
      * @param array|string $query A query string to parse into an array or an array to return directly "as is"
      * @return array The $query parsed into a possibly multi-level array. If an empty $query is given, an empty array is returned.
      */
-    public function parseQuery($query): array
+    public function parseQuery($query): mixed
     {
         return parent::_parseQuery($query);
     }
@@ -139,7 +139,7 @@ class TestHttpSocket extends HttpSocket
      * @param array $request Needs to contain a 'uri' key. Should also contain a 'method' key, otherwise defaults to GET.
      * @return string Request line
      */
-    public function buildRequestLine($request = []): string
+    public function buildRequestLine($request = []): mixed
     {
         return parent::_buildRequestLine($request);
     }
@@ -150,7 +150,7 @@ class TestHttpSocket extends HttpSocket
      * @param bool $hex true to get them as HEX values, false otherwise
      * @return array Escape chars
      */
-    public function tokenEscapeChars($hex = true, $chars = null): array
+    public function tokenEscapeChars($hex = true, $chars = null): mixed
     {
         return parent::_tokenEscapeChars($hex, $chars);
     }
@@ -161,7 +161,7 @@ class TestHttpSocket extends HttpSocket
      * @param string $token Token to escape
      * @return string Escaped token
      */
-    public function escapeToken($token, $chars = null): string
+    public function escapeToken($token, $chars = null): mixed
     {
         return parent::_escapeToken($token, $chars);
     }
@@ -1873,7 +1873,7 @@ class HttpSocketTest extends CakeTestCase
      *
      * @return array
      */
-    public function statusProvider(): array
+    public function statusProvider(): mixed
     {
         return [
             ['HTTP/1.1 200 ', '200'],

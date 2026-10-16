@@ -89,7 +89,7 @@ class SqlserverTestDb extends Sqlserver
      * @param mixed $model
      * @return string
      */
-    public function getPrimaryKey($model): string
+    public function getPrimaryKey($model): mixed
     {
         return parent::_getPrimaryKey($model);
     }

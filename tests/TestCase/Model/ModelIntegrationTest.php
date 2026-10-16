@@ -29,7 +29,7 @@ class DboMock extends DboSource
      *
      * @return string
      */
-    public function name($field): string
+    public function name($field): mixed
     {
         return $field;
     }
@@ -39,7 +39,7 @@ class DboMock extends DboSource
      *
      * @return bool true
      */
-    public function connect(): bool
+    public function connect(): mixed
     {
         return true;
     }
@@ -970,7 +970,7 @@ class ModelIntegrationTest extends BaseModelTest
      *
      * @return array
      */
-    public static function timeProvider(): array
+    public static function timeProvider(): mixed
     {
         $db = ConnectionManager::getDataSource('test');
         $now = $db->expression('NOW()');

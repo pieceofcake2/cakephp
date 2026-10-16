@@ -241,7 +241,7 @@ class HelperTest extends CakeTestCase
      *
      * @return array
      */
-    public static function entityProvider(): array
+    public static function entityProvider(): mixed
     {
         return [
             [

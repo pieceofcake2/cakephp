@@ -175,7 +175,7 @@ class FolderTest extends CakeTestCase
      *
      * @return array
      */
-    public function inPathInvalidPathArgumentDataProvider(): array
+    public function inPathInvalidPathArgumentDataProvider(): mixed
     {
         return [
             [''],
@@ -1186,7 +1186,7 @@ class FolderTest extends CakeTestCase
      *
      * @return array Filenames to extract in the test methods
      */
-    protected function _setupFilesystem(): array
+    protected function _setupFilesystem(): mixed
     {
         $path = TMP . 'folder_test';
 

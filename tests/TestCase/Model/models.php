@@ -44,7 +44,7 @@ class AppModel extends Model
      *
      * @return array
      */
-    protected function _findPublished($state, $query, $results = []): array
+    protected function _findPublished($state, $query, $results = []): mixed
     {
         if ($state === 'before') {
             $query['conditions']['published'] = 'Y';
@@ -217,7 +217,7 @@ class User extends CakeTestModel
      * @return bool
      * @throws Exception
      */
-    public function beforeFind($queryData): bool
+    public function beforeFind($queryData): mixed
     {
         if (!empty($queryData['lazyLoad'])) {
             if (!isset($this->Article, $this->Comment, $this->ArticleFeatured)) {
@@ -944,7 +944,7 @@ class Post extends CakeTestModel
      * @param array $queryData
      * @return bool true
      */
-    public function beforeFind($queryData): bool
+    public function beforeFind($queryData): mixed
     {
         if (isset($queryData['connection'])) {
             $this->useDbConfig = $queryData['connection'];
@@ -958,7 +958,7 @@ class Post extends CakeTestModel
      * @param bool $primary
      * @return array results
      */
-    public function afterFind($results, $primary = false): array
+    public function afterFind($results, $primary = false): mixed
     {
         $this->useDbConfig = 'test';
 
@@ -1243,7 +1243,7 @@ class NodeAfterFind extends CakeTestModel
      * @param mixed $results
      * @return array
      */
-    public function afterFind($results, $primary = false): array
+    public function afterFind($results, $primary = false): mixed
     {
         return $results;
     }
@@ -1532,7 +1532,7 @@ class SomethingElse extends CakeTestModel
      * @param bool $primary
      * @return array
      */
-    public function afterFind($results, $primary = false): array
+    public function afterFind($results, $primary = false): mixed
     {
         foreach ($results as $key => $result) {
             if (!empty($result[$this->alias]) && is_array($result[$this->alias])) {
@@ -1572,7 +1572,7 @@ class JoinThing extends CakeTestModel
      * @param bool $primary
      * @return array
      */
-    public function afterFind($results, $primary = false): array
+    public function afterFind($results, $primary = false): mixed
     {
         foreach ($results as $key => $result) {
             if (!empty($result[$this->alias]) && is_array($result[$this->alias])) {
@@ -2091,7 +2091,7 @@ class CallbackPostTestModel extends CakeTestModel
      *
      * @return bool
      */
-    public function beforeSave($options = []): bool
+    public function beforeSave($options = []): mixed
     {
         return $this->beforeSaveReturn;
     }
@@ -2103,7 +2103,7 @@ class CallbackPostTestModel extends CakeTestModel
      * @return bool True if validate operation should continue, false to abort
      * @see Model::save()
      */
-    public function beforeValidate($options = []): bool
+    public function beforeValidate($options = []): mixed
     {
         return $this->beforeValidateReturn;
     }
@@ -2113,7 +2113,7 @@ class CallbackPostTestModel extends CakeTestModel
      *
      * @return bool
      */
-    public function beforeDelete($cascade = true): bool
+    public function beforeDelete($cascade = true): mixed
     {
         return $this->beforeDeleteReturn;
     }
@@ -2245,7 +2245,7 @@ class ValidationTest1 extends CakeTestModel
      *
      * @return array
      */
-    public function customValidatorWithParams($data, $validator, $or = true, $ignoreOnSame = 'id'): array
+    public function customValidatorWithParams($data, $validator, $or = true, $ignoreOnSame = 'id'): mixed
     {
         $this->validatorParams = get_defined_vars();
         unset($this->validatorParams['this']);
@@ -2258,7 +2258,7 @@ class ValidationTest1 extends CakeTestModel
      *
      * @return array
      */
-    public function customValidatorWithMessage($data): array
+    public function customValidatorWithMessage($data): mixed
     {
         return 'This field will *never* validate! Muhahaha!';
     }
@@ -5139,7 +5139,7 @@ class CustomArticle extends AppModel
      *
      * @return array
      */
-    protected function _findUnPublished($state, $query, $results = []): array
+    protected function _findUnPublished($state, $query, $results = []): mixed
     {
         if ($state === 'before') {
             $query['conditions']['published'] = 'N';
