@@ -1,5 +1,13 @@
 ## CHANGELOG
 
+## v2.12.9 (2026-10-17)
+
+No changes to the framework code: this release only updates the tests.
+
+### Tests ([PR #80](https://github.com/pieceofcake2/cakephp/pull/80))
+
+- **Debug level 2**: `phpunit.xml.dist` sets `APP_DEBUG=2`. The core tests run with pieceofcake2/app as `ROOT` and expect debug level 2, the default of the original CakePHP 2 `core.php`; pieceofcake2/app reads the level from `APP_DEBUG` and uses 0 when it is not set
+
 ## v2.12.8 (2026-10-16)
 
 No changes to the framework code: this release only updates the tests, the development dependencies and the documentation.
