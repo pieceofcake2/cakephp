@@ -60,7 +60,7 @@ class TreeBehaviorUuidTest extends CakeTestCase
      *
      * @return void
      */
-    public function testAddWithPreSpecifiedId()
+    public function testAddWithPreSpecifiedId(): void
     {
         extract($this->settings);
         $this->Tree = new $modelClass();
@@ -93,7 +93,7 @@ class TreeBehaviorUuidTest extends CakeTestCase
      *
      * @return void
      */
-    public function testMovePromote()
+    public function testMovePromote(): void
     {
         extract($this->settings);
         $this->Tree = new $modelClass();
@@ -121,7 +121,7 @@ class TreeBehaviorUuidTest extends CakeTestCase
      *
      * @return void
      */
-    public function testMoveWithWhitelist()
+    public function testMoveWithWhitelist(): void
     {
         extract($this->settings);
         $this->Tree = new $modelClass();
@@ -150,7 +150,7 @@ class TreeBehaviorUuidTest extends CakeTestCase
      *
      * @return void
      */
-    public function testRemoveNoChildren()
+    public function testRemoveNoChildren(): void
     {
         extract($this->settings);
         $this->Tree = new $modelClass();
@@ -186,7 +186,7 @@ class TreeBehaviorUuidTest extends CakeTestCase
      *
      * @return void
      */
-    public function testRemoveAndDeleteNoChildren()
+    public function testRemoveAndDeleteNoChildren(): void
     {
         extract($this->settings);
         $this->Tree = new $modelClass();
@@ -220,7 +220,7 @@ class TreeBehaviorUuidTest extends CakeTestCase
      *
      * @return void
      */
-    public function testChildren()
+    public function testChildren(): void
     {
         extract($this->settings);
         $this->Tree = new $modelClass();
@@ -250,7 +250,7 @@ class TreeBehaviorUuidTest extends CakeTestCase
      *
      * @return void
      */
-    public function testNoAmbiguousColumn()
+    public function testNoAmbiguousColumn(): void
     {
         extract($this->settings);
         $this->Tree = new $modelClass();
@@ -288,7 +288,7 @@ class TreeBehaviorUuidTest extends CakeTestCase
      *
      * @return void
      */
-    public function testGenerateTreeListWithSelfJoin()
+    public function testGenerateTreeListWithSelfJoin(): void
     {
         extract($this->settings);
         $this->Tree = new $modelClass();

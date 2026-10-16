@@ -32,7 +32,7 @@ class ModelTest extends TestSuite
      *
      * @return void
      */
-    public static function suite()
+    public static function suite(): mixed
     {
         $suite = new TestSuite('All Model related class tests');
 

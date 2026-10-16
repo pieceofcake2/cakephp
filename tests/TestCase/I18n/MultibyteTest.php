@@ -28,7 +28,7 @@ class MultibyteTest extends CakeTestCase
      *
      * @return void
      */
-    public function testUtf8()
+    public function testUtf8(): void
     {
         $string = '!"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~';
         $result = Multibyte::utf8($string);
@@ -349,7 +349,7 @@ class MultibyteTest extends CakeTestCase
      *
      * @return void
      */
-    public function testAscii()
+    public function testAscii(): void
     {
         $input = [33, 34, 35, 36, 37, 38, 39, 40, 41, 42, 43, 44, 45, 46, 47, 48, 49, 50, 51, 52, 53, 54, 55, 56, 57,
                             58, 59, 60, 61, 62, 63, 64, 65, 66, 67, 68, 69, 70, 71, 72, 73, 74, 75, 76, 77, 78, 79, 80, 81, 82,
@@ -670,7 +670,7 @@ class MultibyteTest extends CakeTestCase
      *
      * @return void
      */
-    public function testUsingMbStripos()
+    public function testUsingMbStripos(): void
     {
         $string = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
         $find = 'f';
@@ -918,7 +918,7 @@ class MultibyteTest extends CakeTestCase
      *
      * @return void
      */
-    public function testMultibyteStripos()
+    public function testMultibyteStripos(): void
     {
         $string = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
         $find = 'f';
@@ -1166,7 +1166,7 @@ class MultibyteTest extends CakeTestCase
      *
      * @return void
      */
-    public function testUsingMbStristr()
+    public function testUsingMbStristr(): void
     {
         $string = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
         $find = 'f';
@@ -1557,7 +1557,7 @@ class MultibyteTest extends CakeTestCase
      *
      * @return void
      */
-    public function testMultibyteStristr()
+    public function testMultibyteStristr(): void
     {
         $string = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
         $find = 'f';
@@ -1948,7 +1948,7 @@ class MultibyteTest extends CakeTestCase
      *
      * @return void
      */
-    public function testUsingMbStrlen()
+    public function testUsingMbStrlen(): void
     {
         $string = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
         $result = mb_strlen($string);
@@ -2096,7 +2096,7 @@ class MultibyteTest extends CakeTestCase
      *
      * @return void
      */
-    public function testMultibyteStrlen()
+    public function testMultibyteStrlen(): void
     {
         $string = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
         $result = Multibyte::strlen($string);
@@ -2244,7 +2244,7 @@ class MultibyteTest extends CakeTestCase
      *
      * @return void
      */
-    public function testUsingMbStrpos()
+    public function testUsingMbStrpos(): void
     {
         $string = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
         $find = 'F';
@@ -2492,7 +2492,7 @@ class MultibyteTest extends CakeTestCase
      *
      * @return void
      */
-    public function testMultibyteStrpos()
+    public function testMultibyteStrpos(): void
     {
         $string = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
         $find = 'F';
@@ -2740,7 +2740,7 @@ class MultibyteTest extends CakeTestCase
      *
      * @return void
      */
-    public function testUsingMbStrrchr()
+    public function testUsingMbStrrchr(): void
     {
         $string = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
         $find = 'F';
@@ -3125,7 +3125,7 @@ class MultibyteTest extends CakeTestCase
      *
      * @return void
      */
-    public function testMultibyteStrrchr()
+    public function testMultibyteStrrchr(): void
     {
         $string = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
         $find = 'F';
@@ -3510,7 +3510,7 @@ class MultibyteTest extends CakeTestCase
      *
      * @return void
      */
-    public function testUsingMbStrrichr()
+    public function testUsingMbStrrichr(): void
     {
         $string = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
         $find = 'F';
@@ -3895,7 +3895,7 @@ class MultibyteTest extends CakeTestCase
      *
      * @return void
      */
-    public function testMultibyteStrrichr()
+    public function testMultibyteStrrichr(): void
     {
         $string = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
         $find = 'F';
@@ -4280,7 +4280,7 @@ class MultibyteTest extends CakeTestCase
      *
      * @return void
      */
-    public function testUsingMbStrripos()
+    public function testUsingMbStrripos(): void
     {
         $string = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
         $find = 'F';
@@ -4533,7 +4533,7 @@ class MultibyteTest extends CakeTestCase
      *
      * @return void
      */
-    public function testMultibyteStrripos()
+    public function testMultibyteStrripos(): void
     {
         $string = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
         $find = 'F';
@@ -4787,7 +4787,7 @@ class MultibyteTest extends CakeTestCase
      *
      * @return void
      */
-    public function testUsingMbStrrpos()
+    public function testUsingMbStrrpos(): void
     {
         $string = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
         $find = 'F';
@@ -5041,7 +5041,7 @@ class MultibyteTest extends CakeTestCase
      *
      * @return void
      */
-    public function testMultibyteStrrpos()
+    public function testMultibyteStrrpos(): void
     {
         $string = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
         $find = 'F';
@@ -5295,7 +5295,7 @@ class MultibyteTest extends CakeTestCase
      *
      * @return void
      */
-    public function testUsingMbStrstr()
+    public function testUsingMbStrstr(): void
     {
         $string = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
         $find = 'F';
@@ -5692,7 +5692,7 @@ class MultibyteTest extends CakeTestCase
      *
      * @return void
      */
-    public function testMultibyteStrstr()
+    public function testMultibyteStrstr(): void
     {
         $string = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
         $find = 'F';
@@ -6089,7 +6089,7 @@ class MultibyteTest extends CakeTestCase
      *
      * @return void
      */
-    public function testUsingMbStrtolower()
+    public function testUsingMbStrtolower(): void
     {
         $string = '!"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`ABCDEFGHIJKLMNOPQRSTUVWXYZ{|}~';
         $result = mb_strtolower($string);
@@ -6592,7 +6592,7 @@ class MultibyteTest extends CakeTestCase
      *
      * @return void
      */
-    public function testMultibyteStrtolower()
+    public function testMultibyteStrtolower(): void
     {
         $string = '!"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`ABCDEFGHIJKLMNOPQRSTUVWXYZ{|}~';
         $result = Multibyte::strtolower($string);
@@ -7150,7 +7150,7 @@ class MultibyteTest extends CakeTestCase
      *
      * @return void
      */
-    public function testUsingMbStrtoupper()
+    public function testUsingMbStrtoupper(): void
     {
         $string = '!"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~';
         $result = mb_strtoupper($string);
@@ -7658,7 +7658,7 @@ class MultibyteTest extends CakeTestCase
      *
      * @return void
      */
-    public function testUsingMbStrtoupperArmenian()
+    public function testUsingMbStrtoupperArmenian(): void
     {
         if (extension_loaded('mbstring')) {
             $this->markTestSkipped('PHP7.3+ built-in function mb_strtoupper() behaves slightly different from Multibyte::strtoupper()');
@@ -7675,7 +7675,7 @@ class MultibyteTest extends CakeTestCase
      *
      * @return void
      */
-    public function testUsingMbStrtoupperDiacritic()
+    public function testUsingMbStrtoupperDiacritic(): void
     {
         if (extension_loaded('mbstring')) {
             $this->markTestSkipped('PHP7.3+ built-in function mb_strtoupper() behaves slightly different from Multibyte::strtoupper()');
@@ -7692,7 +7692,7 @@ class MultibyteTest extends CakeTestCase
      *
      * @return void
      */
-    public function testUsingMbStrtoupperLigatures()
+    public function testUsingMbStrtoupperLigatures(): void
     {
         if (extension_loaded('mbstring')) {
             $this->markTestSkipped('PHP7.3+ built-in function mb_strtoupper() behaves slightly different from Multibyte::strtoupper()');
@@ -7709,7 +7709,7 @@ class MultibyteTest extends CakeTestCase
      *
      * @return void
      */
-    public function testMultibyteStrtoupper()
+    public function testMultibyteStrtoupper(): void
     {
         $string = '!"#$%&\'()*+,-./0123456789:;<=>?@ABCDEFGHIJKLMNOPQRSTUVWXYZ[\]^_`abcdefghijklmnopqrstuvwxyz{|}~';
         $result = Multibyte::strtoupper($string);
@@ -8262,7 +8262,7 @@ class MultibyteTest extends CakeTestCase
      *
      * @return void
      */
-    public function testUsingMbSubstrCount()
+    public function testUsingMbSubstrCount(): void
     {
         $string = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
         $find = 'F';
@@ -8516,7 +8516,7 @@ class MultibyteTest extends CakeTestCase
      *
      * @return void
      */
-    public function testMultibyteSubstrCount()
+    public function testMultibyteSubstrCount(): void
     {
         $string = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
         $find = 'F';
@@ -8770,7 +8770,7 @@ class MultibyteTest extends CakeTestCase
      *
      * @return void
      */
-    public function testUsingMbSubstr()
+    public function testUsingMbSubstr(): void
     {
         $string = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
         $result = mb_substr($string, 4, 7);
@@ -8928,7 +8928,7 @@ class MultibyteTest extends CakeTestCase
      *
      * @return void
      */
-    public function testMultibyteSubstr()
+    public function testMultibyteSubstr(): void
     {
         $string = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
         $result = Multibyte::substr($string, 4, 7);
@@ -9086,7 +9086,7 @@ class MultibyteTest extends CakeTestCase
      *
      * @return void
      */
-    public function testMultibyteMimeEncode()
+    public function testMultibyteMimeEncode(): void
     {
         $string = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
         $result = Multibyte::mimeEncode($string);

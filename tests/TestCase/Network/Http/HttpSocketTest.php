@@ -30,7 +30,7 @@ class TestAuthentication
      * @param array &$authInfo Some auth info.
      * @return void
      */
-    public static function authentication(HttpSocket $http, &$authInfo)
+    public static function authentication(HttpSocket $http, &$authInfo): void
     {
         $http->request['header']['Authorization'] = 'Test ' . $authInfo['user'] . '.' . $authInfo['pass'];
     }
@@ -42,7 +42,7 @@ class TestAuthentication
      * @param array &$proxyInfo Some proxy info.
      * @return void
      */
-    public static function proxyAuthentication(HttpSocket $http, &$proxyInfo)
+    public static function proxyAuthentication(HttpSocket $http, &$proxyInfo): void
     {
         $http->request['header']['Proxy-Authorization'] = 'Test ' . $proxyInfo['user'] . '.' . $proxyInfo['pass'];
     }
@@ -82,7 +82,7 @@ class TestHttpSocket extends HttpSocket
      * @param array|string $uri URI (see {@link _parseUri()})
      * @return array Current configuration settings
      */
-    public function configUri($uri = null)
+    public function configUri($uri = null): array
     {
         return parent::_configUri($uri);
     }
@@ -94,7 +94,7 @@ class TestHttpSocket extends HttpSocket
      * @param array|bool $base If true use default URI config, otherwise indexed array to set 'scheme', 'host', 'port', etc.
      * @return array Parsed URI
      */
-    public function parseUri($uri = null, $base = [])
+    public function parseUri($uri = null, $base = []): array
     {
         return parent::_parseUri($uri, $base);
     }
@@ -106,7 +106,7 @@ class TestHttpSocket extends HttpSocket
      * @param string $uriTemplate The Uri template/format to use
      * @return string A fully qualified URL formatted according to $uriTemplate
      */
-    public function buildUri($uri = [], $uriTemplate = '%scheme://%user:%pass@%host:%port/%path?%query#%fragment')
+    public function buildUri($uri = [], $uriTemplate = '%scheme://%user:%pass@%host:%port/%path?%query#%fragment'): string
     {
         return parent::_buildUri($uri, $uriTemplate);
     }
@@ -117,7 +117,7 @@ class TestHttpSocket extends HttpSocket
      * @param array $header Header to build
      * @return string Header built from array
      */
-    public function buildHeader($header, $mode = 'standard')
+    public function buildHeader($header, $mode = 'standard'): string
     {
         return parent::_buildHeader($header, $mode);
     }
@@ -128,7 +128,7 @@ class TestHttpSocket extends HttpSocket
      * @param array|string $query A query string to parse into an array or an array to return directly "as is"
      * @return array The $query parsed into a possibly multi-level array. If an empty $query is given, an empty array is returned.
      */
-    public function parseQuery($query)
+    public function parseQuery($query): array
     {
         return parent::_parseQuery($query);
     }
@@ -139,7 +139,7 @@ class TestHttpSocket extends HttpSocket
      * @param array $request Needs to contain a 'uri' key. Should also contain a 'method' key, otherwise defaults to GET.
      * @return string Request line
      */
-    public function buildRequestLine($request = [])
+    public function buildRequestLine($request = []): string
     {
         return parent::_buildRequestLine($request);
     }
@@ -150,7 +150,7 @@ class TestHttpSocket extends HttpSocket
      * @param bool $hex true to get them as HEX values, false otherwise
      * @return array Escape chars
      */
-    public function tokenEscapeChars($hex = true, $chars = null)
+    public function tokenEscapeChars($hex = true, $chars = null): array
     {
         return parent::_tokenEscapeChars($hex, $chars);
     }
@@ -161,7 +161,7 @@ class TestHttpSocket extends HttpSocket
      * @param string $token Token to escape
      * @return string Escaped token
      */
-    public function escapeToken($token, $chars = null)
+    public function escapeToken($token, $chars = null): string
     {
         return parent::_escapeToken($token, $chars);
     }
@@ -217,7 +217,7 @@ class HttpSocketTest extends CakeTestCase
      *
      * @return void
      */
-    public function testConstruct()
+    public function testConstruct(): void
     {
         $this->Socket->reset();
         $baseConfig = $this->Socket->config;
@@ -246,7 +246,7 @@ class HttpSocketTest extends CakeTestCase
      *
      * @return void
      */
-    public function testConfigUri()
+    public function testConfigUri(): void
     {
         $this->Socket->reset();
         $r = $this->Socket->configUri('https://bob:secret@www.cakephp.org:23/?query=foo');
@@ -316,7 +316,7 @@ class HttpSocketTest extends CakeTestCase
      *
      * @return void
      */
-    public function testRequest()
+    public function testRequest(): void
     {
         $this->Socket->expects($this->any())
             ->method('read')
@@ -589,7 +589,7 @@ class HttpSocketTest extends CakeTestCase
      *
      * @return void
      */
-    public function testGetWithSchemeAndPort()
+    public function testGetWithSchemeAndPort(): void
     {
         $this->Socket->expects($this->any())
             ->method('read')
@@ -614,7 +614,7 @@ class HttpSocketTest extends CakeTestCase
      *
      * @return void
      */
-    public function testRequestWithStringQuery()
+    public function testRequestWithStringQuery(): void
     {
         $this->Socket->expects($this->any())
             ->method('read')
@@ -639,7 +639,7 @@ class HttpSocketTest extends CakeTestCase
      *
      * @return void
      */
-    public function testRequestNotAllowedUri()
+    public function testRequestNotAllowedUri(): void
     {
         $this->expectException(SocketException::class);
         $this->Socket->reset();
@@ -652,7 +652,7 @@ class HttpSocketTest extends CakeTestCase
      *
      * @return void
      */
-    public function testRequest2()
+    public function testRequest2(): void
     {
         $this->Socket->reset();
 
@@ -676,7 +676,7 @@ class HttpSocketTest extends CakeTestCase
      *
      * @return void
      */
-    public function testRequest3()
+    public function testRequest3(): void
     {
         $request = ['uri' => 'htpp://www.cakephp.org/'];
         $serverResponse = "HTTP/1.x 200 OK\r\nSet-Cookie: foo=bar\r\nDate: Mon, 16 Apr 2007 04:14:16 GMT\r\nServer: CakeHttp Server\r\nContent-Type: text/html\r\n\r\n<h1>This is a cookie test!</h1>";
@@ -703,7 +703,7 @@ class HttpSocketTest extends CakeTestCase
      *
      * @return void
      */
-    public function testRequestWithConstructor()
+    public function testRequestWithConstructor(): void
     {
         $request = [
             'request' => [
@@ -734,7 +734,7 @@ class HttpSocketTest extends CakeTestCase
      *
      * @return void
      */
-    public function testRequestWithResource()
+    public function testRequestWithResource(): void
     {
         $serverResponse = "HTTP/1.x 200 OK\r\nDate: Mon, 16 Apr 2007 04:14:16 GMT\r\nServer: CakeHttp Server\r\nContent-Type: text/html\r\n\r\n<h1>This is a test!</h1>";
 
@@ -766,7 +766,7 @@ class HttpSocketTest extends CakeTestCase
      *
      * @return void
      */
-    public function testRequestWithCrossCookie()
+    public function testRequestWithCrossCookie(): void
     {
         $this->Socket->connected = true;
         $this->Socket->config['request']['cookies'] = [];
@@ -816,7 +816,7 @@ class HttpSocketTest extends CakeTestCase
      *
      * @return void
      */
-    public function testRequestCustomResponse()
+    public function testRequestCustomResponse(): void
     {
         $this->Socket->connected = true;
         $serverResponse = "HTTP/1.x 200 OK\r\nDate: Mon, 16 Apr 2007 04:14:16 GMT\r\nServer: CakeHttp Server\r\nContent-Type: text/html\r\n\r\n<h1>This is a test!</h1>";
@@ -835,7 +835,7 @@ class HttpSocketTest extends CakeTestCase
      *
      * @return void
      */
-    public function testRequestWithRedirectUrlEncoded()
+    public function testRequestWithRedirectUrlEncoded(): void
     {
         $request = [
             'uri' => 'http://localhost/oneuri',
@@ -870,7 +870,7 @@ class HttpSocketTest extends CakeTestCase
      *
      * @return void
      */
-    public function testRequestWithRedirectAsTrue()
+    public function testRequestWithRedirectAsTrue(): void
     {
         $request = [
             'uri' => 'http://localhost/oneuri',
@@ -892,7 +892,7 @@ class HttpSocketTest extends CakeTestCase
      *
      * @return void
      */
-    public function testRequestWithRedirectAsInt()
+    public function testRequestWithRedirectAsInt(): void
     {
         $request = [
             'uri' => 'http://localhost/oneuri',
@@ -914,7 +914,7 @@ class HttpSocketTest extends CakeTestCase
      *
      * @return void
      */
-    public function testRequestWithRedirectAsIntReachingZero()
+    public function testRequestWithRedirectAsIntReachingZero(): void
     {
         $request = [
             'uri' => 'http://localhost/oneuri',
@@ -938,7 +938,7 @@ class HttpSocketTest extends CakeTestCase
      *
      * @return void
      */
-    public function testProxy()
+    public function testProxy(): void
     {
         $this->Socket->reset();
         $this->Socket->expects($this->any())->method('connect')->will($this->returnValue(true));
@@ -1014,7 +1014,7 @@ class HttpSocketTest extends CakeTestCase
      *
      * @return void
      */
-    public function testUrl()
+    public function testUrl(): void
     {
         $this->Socket->reset(true);
 
@@ -1069,7 +1069,7 @@ class HttpSocketTest extends CakeTestCase
      *
      * @return void
      */
-    public function testGet()
+    public function testGet(): void
     {
         $this->RequestSocket->reset();
 
@@ -1103,7 +1103,7 @@ class HttpSocketTest extends CakeTestCase
      *
      * @return void
      */
-    public function testHead()
+    public function testHead(): void
     {
         $this->RequestSocket->reset();
 
@@ -1137,7 +1137,7 @@ class HttpSocketTest extends CakeTestCase
      *
      * @return void
      */
-    public function testAuth()
+    public function testAuth(): void
     {
         $this->Socket->expects($this->any())
             ->method('read')->will($this->returnValue(false));
@@ -1182,7 +1182,7 @@ class HttpSocketTest extends CakeTestCase
      *
      * @return void
      */
-    public function testConsecutiveGetResetsAuthCredentials()
+    public function testConsecutiveGetResetsAuthCredentials(): void
     {
         $this->Socket->expects($this->any())
             ->method('read')->will($this->returnValue(false));
@@ -1213,7 +1213,7 @@ class HttpSocketTest extends CakeTestCase
      *
      * @return void
      */
-    public function testPost()
+    public function testPost(): void
     {
         $this->RequestSocket->reset();
 
@@ -1235,7 +1235,7 @@ class HttpSocketTest extends CakeTestCase
      *
      * @return void
      */
-    public function testPut()
+    public function testPut(): void
     {
         $this->RequestSocket->reset();
 
@@ -1257,7 +1257,7 @@ class HttpSocketTest extends CakeTestCase
      *
      * @return void
      */
-    public function testPatch()
+    public function testPatch(): void
     {
         $this->RequestSocket->reset();
 
@@ -1279,7 +1279,7 @@ class HttpSocketTest extends CakeTestCase
      *
      * @return void
      */
-    public function testDelete()
+    public function testDelete(): void
     {
         $this->RequestSocket->reset();
 
@@ -1301,7 +1301,7 @@ class HttpSocketTest extends CakeTestCase
      *
      * @return void
      */
-    public function testBuildRequestLine()
+    public function testBuildRequestLine(): void
     {
         $this->Socket->reset();
 
@@ -1362,7 +1362,7 @@ class HttpSocketTest extends CakeTestCase
      *
      * @return void
      */
-    public function testBadBuildRequestLine()
+    public function testBadBuildRequestLine(): void
     {
         $this->expectException(SocketException::class);
         $this->Socket->buildRequestLine('Foo');
@@ -1373,7 +1373,7 @@ class HttpSocketTest extends CakeTestCase
      *
      * @return void
      */
-    public function testBadBuildRequestLine2()
+    public function testBadBuildRequestLine2(): void
     {
         $this->expectException(SocketException::class);
         $this->Socket->buildRequestLine("GET * HTTP/1.1\r\n");
@@ -1384,7 +1384,7 @@ class HttpSocketTest extends CakeTestCase
      *
      * @return void
      */
-    public function testParseUri()
+    public function testParseUri(): void
     {
         $this->Socket->reset();
 
@@ -1512,7 +1512,7 @@ class HttpSocketTest extends CakeTestCase
      *
      * @return void
      */
-    public function testBuildUri()
+    public function testBuildUri(): void
     {
         $this->Socket->reset();
 
@@ -1579,7 +1579,7 @@ class HttpSocketTest extends CakeTestCase
      *
      * @return void
      */
-    public function testParseQuery()
+    public function testParseQuery(): void
     {
         $this->Socket->reset();
 
@@ -1685,7 +1685,7 @@ class HttpSocketTest extends CakeTestCase
      *
      * @return void
      */
-    public function testBuildHeader()
+    public function testBuildHeader(): void
     {
         $this->Socket->reset();
 
@@ -1722,7 +1722,7 @@ class HttpSocketTest extends CakeTestCase
      *
      * @return void
      */
-    public function testBuildCookies()
+    public function testBuildCookies(): void
     {
         $cookies = [
             'foo' => [
@@ -1744,7 +1744,7 @@ class HttpSocketTest extends CakeTestCase
      *
      * @return void
      */
-    public function testTokenEscapeChars()
+    public function testTokenEscapeChars(): void
     {
         $this->Socket->reset();
 
@@ -1770,7 +1770,7 @@ class HttpSocketTest extends CakeTestCase
      *
      * @return void
      */
-    public function testEscapeToken()
+    public function testEscapeToken(): void
     {
         $this->Socket->reset();
 
@@ -1797,7 +1797,7 @@ class HttpSocketTest extends CakeTestCase
      *
      * @return void
      */
-    public function testReset()
+    public function testReset(): void
     {
         $this->Socket->reset();
 
@@ -1821,7 +1821,7 @@ class HttpSocketTest extends CakeTestCase
      *
      * @return void
      */
-    public function testPartialReset()
+    public function testPartialReset(): void
     {
         $this->Socket->reset();
 
@@ -1849,7 +1849,7 @@ class HttpSocketTest extends CakeTestCase
      *
      * @return void
      */
-    public function testVerifyPeer()
+    public function testVerifyPeer(): void
     {
         $this->skipIf(!extension_loaded('openssl'), 'OpenSSL is not enabled cannot test SSL.');
         $socket = new HttpSocket();
@@ -1873,7 +1873,7 @@ class HttpSocketTest extends CakeTestCase
      *
      * @return array
      */
-    public function statusProvider()
+    public function statusProvider(): array
     {
         return [
             ['HTTP/1.1 200 ', '200'],
@@ -1891,7 +1891,7 @@ class HttpSocketTest extends CakeTestCase
      * @dataProvider statusProvider
      * @return void
      */
-    public function testResponseStatusParsing($status, $code, $msg = '')
+    public function testResponseStatusParsing($status, $code, $msg = ''): void
     {
         $this->Socket->connected = true;
         $serverResponse = $status . "\r\nDate: Mon, 16 Apr 2007 04:14:16 GMT\r\nServer: CakeHttp Server\r\n\r\n<h1>This is a test!</h1>";

@@ -26,7 +26,7 @@ class SyslogLogTest extends CakeTestCase
      *
      * @return void
      */
-    public function testOpenLog()
+    public function testOpenLog(): void
     {
         $log = $this->getMock('SyslogLog', ['_open', '_write']);
         $log->expects($this->once())->method('_open')->with('', LOG_ODELAY, LOG_USER);
@@ -50,7 +50,7 @@ class SyslogLogTest extends CakeTestCase
      * @dataProvider typesProvider
      * @return void
      */
-    public function testWriteOneLine($type, $expected)
+    public function testWriteOneLine($type, $expected): void
     {
         $log = $this->getMock('SyslogLog', ['_open', '_write']);
         $log->expects($this->once())->method('_write')->with($expected, $type . ': Foo');
@@ -62,7 +62,7 @@ class SyslogLogTest extends CakeTestCase
      *
      * @return void
      */
-    public function testWriteMultiLine()
+    public function testWriteMultiLine(): void
     {
         $log = $this->getMock('SyslogLog', ['_open', '_write']);
 
@@ -81,7 +81,7 @@ class SyslogLogTest extends CakeTestCase
      *
      * @return array
      */
-    public function typesProvider()
+    public function typesProvider(): array
     {
         return [
             ['emergency', LOG_EMERG],

@@ -52,7 +52,7 @@ class MootoolsEngineHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testSelector()
+    public function testSelector(): void
     {
         $result = $this->Moo->get('#content');
         $this->assertEquals($this->Moo, $result);
@@ -84,7 +84,7 @@ class MootoolsEngineHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testEvent()
+    public function testEvent(): void
     {
         $this->Moo->get('#myLink');
         $result = $this->Moo->event('click', 'doClick', ['wrap' => false]);
@@ -105,7 +105,7 @@ class MootoolsEngineHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testDomReady()
+    public function testDomReady(): void
     {
         $result = $this->Moo->domReady('foo.name = "bar";');
         $expected = 'window.addEvent("domready", function (event) {foo.name = "bar";});';
@@ -117,7 +117,7 @@ class MootoolsEngineHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testEach()
+    public function testEach(): void
     {
         $this->Moo->get('#foo');
         $result = $this->Moo->each('item.setStyle("display", "none");');
@@ -130,7 +130,7 @@ class MootoolsEngineHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testEffect()
+    public function testEffect(): void
     {
         $this->Moo->get('#foo');
         $result = $this->Moo->effect('show');
@@ -171,7 +171,7 @@ class MootoolsEngineHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testRequest()
+    public function testRequest(): void
     {
         $result = $this->Moo->request(['controller' => 'posts', 'action' => 'view', 1]);
         $expected = 'var jsRequest = new Request({url:"\\/posts\\/view\\/1"}).send();';
@@ -243,7 +243,7 @@ class MootoolsEngineHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testSortable()
+    public function testSortable(): void
     {
         $this->Moo->get('#myList');
         $result = $this->Moo->sortable([
@@ -263,7 +263,7 @@ class MootoolsEngineHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testDrag()
+    public function testDrag(): void
     {
         $this->Moo->get('#drag-me');
         $result = $this->Moo->drag([
@@ -282,7 +282,7 @@ class MootoolsEngineHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testDropWithMissingOption()
+    public function testDropWithMissingOption(): void
     {
         $warningTriggered = false;
         $warningMessage = '';
@@ -317,7 +317,7 @@ class MootoolsEngineHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testDrop()
+    public function testDrop(): void
     {
         $this->Moo->get('#drop-me');
         $result = $this->Moo->drop([
@@ -346,7 +346,7 @@ class MootoolsEngineHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testSlider()
+    public function testSlider(): void
     {
         $this->Moo->get('#slider');
         $result = $this->Moo->slider([
@@ -389,7 +389,7 @@ class MootoolsEngineHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testSerializeForm()
+    public function testSerializeForm(): void
     {
         $this->Moo->get('#element');
         $result = $this->Moo->serializeForm(['isForm' => true]);

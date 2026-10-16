@@ -29,7 +29,7 @@ class TestSecurityComponent extends SecurityComponent
      * @param Controller $controller
      * @return bool
      */
-    public function validatePost(Controller $controller)
+    public function validatePost(Controller $controller): bool
     {
         return $this->_validatePost($controller);
     }
@@ -40,7 +40,7 @@ class TestSecurityComponent extends SecurityComponent
      * @param Controller $controller
      * @return bool
      */
-    public function authRequired(Controller $controller)
+    public function authRequired(Controller $controller): bool
     {
         return $this->_authRequired($controller);
     }
@@ -51,7 +51,7 @@ class TestSecurityComponent extends SecurityComponent
      * @param Controller $controller
      * @return bool
      */
-    public function methodsRequired(Controller $controller)
+    public function methodsRequired(Controller $controller): bool
     {
         return $this->_methodsRequired($controller);
     }
@@ -90,7 +90,7 @@ class SecurityTestController extends Controller
      *
      * @return void
      */
-    public function fail()
+    public function fail(): void
     {
         $this->failed = true;
     }
@@ -103,7 +103,7 @@ class SecurityTestController extends Controller
      * @param mixed $exit
      * @return void
      */
-    public function redirect($url, $status = null, $exit = true)
+    public function redirect($url, $status = null, $exit = true): mixed
     {
         return $status;
     }
@@ -114,7 +114,7 @@ class SecurityTestController extends Controller
      * @param string $status
      * @return void
      */
-    public function header($status)
+    public function header($status): void
     {
         $this->testHeaders[] = $status;
     }
@@ -126,11 +126,11 @@ class BrokenCallbackController extends Controller
 
     public $components = ['Session', 'TestSecurity'];
 
-    public function index()
+    public function index(): void
     {
     }
 
-    protected function _fail()
+    protected function _fail(): void
     {
     }
 }
@@ -198,7 +198,7 @@ class SecurityComponentTest extends CakeTestCase
         parent::tearDown();
     }
 
-    public function validatePost($expectedException = null, $expectedExceptionMessage = null)
+    public function validatePost($expectedException = null, $expectedExceptionMessage = null): mixed
     {
         try {
             return $this->Controller->Security->validatePost($this->Controller);
@@ -216,7 +216,7 @@ class SecurityComponentTest extends CakeTestCase
      *
      * @return void
      */
-    public function testBlackholeWithBrokenCallback()
+    public function testBlackholeWithBrokenCallback(): void
     {
         $this->expectException(BadRequestException::class);
         $request = new CakeRequest('posts/index', false);
@@ -236,7 +236,7 @@ class SecurityComponentTest extends CakeTestCase
      *
      * @return void
      */
-    public function testExceptionWhenActionIsBlackholeCallback()
+    public function testExceptionWhenActionIsBlackholeCallback(): void
     {
         $this->Controller->request->addParams([
             'controller' => 'posts',
@@ -252,7 +252,7 @@ class SecurityComponentTest extends CakeTestCase
      *
      * @return void
      */
-    public function testConstructorSettingProperties()
+    public function testConstructorSettingProperties(): void
     {
         $settings = [
             'requirePost' => ['edit', 'update'],
@@ -273,7 +273,7 @@ class SecurityComponentTest extends CakeTestCase
      *
      * @return void
      */
-    public function testStartup()
+    public function testStartup(): void
     {
         $this->Controller->Security->startup($this->Controller);
         $result = $this->Controller->params['_Token']['key'];
@@ -286,7 +286,7 @@ class SecurityComponentTest extends CakeTestCase
      *
      * @return void
      */
-    public function testRequirePostFail()
+    public function testRequirePostFail(): void
     {
         $_SERVER['REQUEST_METHOD'] = 'GET';
         $this->Controller->request['action'] = 'posted';
@@ -301,7 +301,7 @@ class SecurityComponentTest extends CakeTestCase
      *
      * @return void
      */
-    public function testRequirePostSucceed()
+    public function testRequirePostSucceed(): void
     {
         $_SERVER['REQUEST_METHOD'] = 'POST';
         $this->Controller->request['action'] = 'posted';
@@ -316,7 +316,7 @@ class SecurityComponentTest extends CakeTestCase
      *
      * @return void
      */
-    public function testRequireSecureFail()
+    public function testRequireSecureFail(): void
     {
         $_SERVER['HTTPS'] = 'off';
         $_SERVER['REQUEST_METHOD'] = 'POST';
@@ -332,7 +332,7 @@ class SecurityComponentTest extends CakeTestCase
      *
      * @return void
      */
-    public function testRequireSecureSucceed()
+    public function testRequireSecureSucceed(): void
     {
         $_SERVER['REQUEST_METHOD'] = 'GET';
         $this->Controller->request['action'] = 'posted';
@@ -347,7 +347,7 @@ class SecurityComponentTest extends CakeTestCase
      *
      * @return void
      */
-    public function testRequireAuthFail()
+    public function testRequireAuthFail(): void
     {
         $_SERVER['REQUEST_METHOD'] = 'AUTH';
         $this->Controller->request['action'] = 'posted';
@@ -378,7 +378,7 @@ class SecurityComponentTest extends CakeTestCase
      *
      * @return void
      */
-    public function testRequireAuthSucceed()
+    public function testRequireAuthSucceed(): void
     {
         $_SERVER['REQUEST_METHOD'] = 'AUTH';
         $this->Controller->Security->unlockedActions = ['posted'];
@@ -410,7 +410,7 @@ class SecurityComponentTest extends CakeTestCase
      *
      * @return void
      */
-    public function testRequirePostSucceedWrongMethod()
+    public function testRequirePostSucceedWrongMethod(): void
     {
         $_SERVER['REQUEST_METHOD'] = 'GET';
         $this->Controller->request['action'] = 'getted';
@@ -425,7 +425,7 @@ class SecurityComponentTest extends CakeTestCase
      *
      * @return void
      */
-    public function testRequireGetFail()
+    public function testRequireGetFail(): void
     {
         $_SERVER['REQUEST_METHOD'] = 'POST';
         $this->Controller->request['action'] = 'getted';
@@ -440,7 +440,7 @@ class SecurityComponentTest extends CakeTestCase
      *
      * @return void
      */
-    public function testRequireGetSucceed()
+    public function testRequireGetSucceed(): void
     {
         $_SERVER['REQUEST_METHOD'] = 'GET';
         $this->Controller->request['action'] = 'getted';
@@ -455,7 +455,7 @@ class SecurityComponentTest extends CakeTestCase
      *
      * @return void
      */
-    public function testRequireGetSucceedWrongMethod()
+    public function testRequireGetSucceedWrongMethod(): void
     {
         $_SERVER['REQUEST_METHOD'] = 'POST';
         $this->Controller->request['action'] = 'posted';
@@ -470,7 +470,7 @@ class SecurityComponentTest extends CakeTestCase
      *
      * @return void
      */
-    public function testRequirePutFail()
+    public function testRequirePutFail(): void
     {
         $_SERVER['REQUEST_METHOD'] = 'POST';
         $this->Controller->request['action'] = 'putted';
@@ -485,7 +485,7 @@ class SecurityComponentTest extends CakeTestCase
      *
      * @return void
      */
-    public function testRequirePutSucceed()
+    public function testRequirePutSucceed(): void
     {
         $_SERVER['REQUEST_METHOD'] = 'PUT';
         $this->Controller->request['action'] = 'putted';
@@ -500,7 +500,7 @@ class SecurityComponentTest extends CakeTestCase
      *
      * @return void
      */
-    public function testRequirePutSucceedWrongMethod()
+    public function testRequirePutSucceedWrongMethod(): void
     {
         $_SERVER['REQUEST_METHOD'] = 'POST';
         $this->Controller->request['action'] = 'posted';
@@ -515,7 +515,7 @@ class SecurityComponentTest extends CakeTestCase
      *
      * @return void
      */
-    public function testRequireDeleteFail()
+    public function testRequireDeleteFail(): void
     {
         $_SERVER['REQUEST_METHOD'] = 'POST';
         $this->Controller->request['action'] = 'deleted';
@@ -530,7 +530,7 @@ class SecurityComponentTest extends CakeTestCase
      *
      * @return void
      */
-    public function testRequireDeleteSucceed()
+    public function testRequireDeleteSucceed(): void
     {
         $_SERVER['REQUEST_METHOD'] = 'DELETE';
         $this->Controller->request['action'] = 'deleted';
@@ -545,7 +545,7 @@ class SecurityComponentTest extends CakeTestCase
      *
      * @return void
      */
-    public function testRequireDeleteSucceedWrongMethod()
+    public function testRequireDeleteSucceedWrongMethod(): void
     {
         $_SERVER['REQUEST_METHOD'] = 'POST';
         $this->Controller->request['action'] = 'posted';
@@ -561,7 +561,7 @@ class SecurityComponentTest extends CakeTestCase
      *
      * @return void
      */
-    public function testValidatePostOnGetWithData()
+    public function testValidatePostOnGetWithData(): void
     {
         $_SERVER['REQUEST_METHOD'] = 'GET';
         $this->Controller->Security->startup($this->Controller);
@@ -589,7 +589,7 @@ class SecurityComponentTest extends CakeTestCase
      *
      * @return void
      */
-    public function testValidatePost()
+    public function testValidatePost(): void
     {
         $this->Controller->Security->startup($this->Controller);
 
@@ -610,7 +610,7 @@ class SecurityComponentTest extends CakeTestCase
      *
      * @return void
      */
-    public function testValidatePostNoSession()
+    public function testValidatePostNoSession(): void
     {
         $this->Controller->Security->startup($this->Controller);
         $this->Controller->Session->delete('_Token');
@@ -636,7 +636,7 @@ class SecurityComponentTest extends CakeTestCase
      *
      * @return void
      */
-    public function testValidatePostFormHacking()
+    public function testValidatePostFormHacking(): void
     {
         $this->Controller->Security->startup($this->Controller);
         $key = $this->Controller->params['_Token']['key'];
@@ -657,7 +657,7 @@ class SecurityComponentTest extends CakeTestCase
      *
      * @return void
      */
-    public function testValidatePostEmptyForm()
+    public function testValidatePostEmptyForm(): void
     {
         $_SERVER['REQUEST_METHOD'] = 'POST';
         $this->Controller->request->data = [];
@@ -672,7 +672,7 @@ class SecurityComponentTest extends CakeTestCase
      *
      * @return void
      */
-    public function testValidatePostObjectDeserialize()
+    public function testValidatePostObjectDeserialize(): void
     {
         $this->Controller->Security->startup($this->Controller);
         $key = $this->Controller->request->params['_Token']['key'];
@@ -701,7 +701,7 @@ class SecurityComponentTest extends CakeTestCase
      *
      * @return void
      */
-    public function testValidatePostArray()
+    public function testValidatePostArray(): void
     {
         $this->Controller->Security->startup($this->Controller);
 
@@ -726,7 +726,7 @@ class SecurityComponentTest extends CakeTestCase
      *
      * @return void
      */
-    public function testValidatePostNoModel()
+    public function testValidatePostNoModel(): void
     {
         $this->Controller->Security->startup($this->Controller);
 
@@ -749,7 +749,7 @@ class SecurityComponentTest extends CakeTestCase
      *
      * @return void
      */
-    public function testValidatePostSimple()
+    public function testValidatePostSimple(): void
     {
         $this->Controller->Security->startup($this->Controller);
 
@@ -772,7 +772,7 @@ class SecurityComponentTest extends CakeTestCase
      *
      * @return void
      */
-    public function testValidatePostComplex()
+    public function testValidatePostComplex(): void
     {
         $this->Controller->Security->startup($this->Controller);
 
@@ -803,7 +803,7 @@ class SecurityComponentTest extends CakeTestCase
      *
      * @return void
      */
-    public function testValidatePostMultipleSelect()
+    public function testValidatePostMultipleSelect(): void
     {
         $this->Controller->Security->startup($this->Controller);
 
@@ -851,7 +851,7 @@ class SecurityComponentTest extends CakeTestCase
      *
      * @return void
      */
-    public function testValidatePostCheckbox()
+    public function testValidatePostCheckbox(): void
     {
         $this->Controller->Security->startup($this->Controller);
         $key = $this->Controller->request->params['_Token']['key'];
@@ -895,7 +895,7 @@ class SecurityComponentTest extends CakeTestCase
      *
      * @return void
      */
-    public function testValidatePostHidden()
+    public function testValidatePostHidden(): void
     {
         $this->Controller->Security->startup($this->Controller);
         $key = $this->Controller->request->params['_Token']['key'];
@@ -919,7 +919,7 @@ class SecurityComponentTest extends CakeTestCase
      *
      * @return void
      */
-    public function testValidatePostWithDisabledFields()
+    public function testValidatePostWithDisabledFields(): void
     {
         $this->Controller->Security->disabledFields = ['Model.username', 'Model.password'];
         $this->Controller->Security->startup($this->Controller);
@@ -944,7 +944,7 @@ class SecurityComponentTest extends CakeTestCase
      *
      * @return void
      */
-    public function testValidatePostDisabledFieldsInData()
+    public function testValidatePostDisabledFieldsInData(): void
     {
         $this->Controller->Security->startup($this->Controller);
         $key = $this->Controller->request->params['_Token']['key'];
@@ -976,7 +976,7 @@ class SecurityComponentTest extends CakeTestCase
      *
      * @return void
      */
-    public function testValidatePostFailNoDisabled()
+    public function testValidatePostFailNoDisabled(): void
     {
         $this->Controller->Security->startup($this->Controller);
         $key = $this->Controller->request->params['_Token']['key'];
@@ -1001,7 +1001,7 @@ class SecurityComponentTest extends CakeTestCase
      *
      * @return void
      */
-    public function testValidatePostFailNoDebug()
+    public function testValidatePostFailNoDebug(): void
     {
         $this->Controller->Security->startup($this->Controller);
         $fields = ['Model.hidden', 'Model.password', 'Model.username'];
@@ -1026,7 +1026,7 @@ class SecurityComponentTest extends CakeTestCase
      *
      * @return void
      */
-    public function testValidatePostFailNoDebugMode()
+    public function testValidatePostFailNoDebugMode(): void
     {
         $this->Controller->Security->startup($this->Controller);
         $fields = ['Model.hidden', 'Model.password', 'Model.username'];
@@ -1050,7 +1050,7 @@ class SecurityComponentTest extends CakeTestCase
      *
      * @return void
      */
-    public function testValidatePostFailDisabledFieldTampering()
+    public function testValidatePostFailDisabledFieldTampering(): void
     {
         $this->Controller->Security->startup($this->Controller);
         $key = $this->Controller->request->params['_Token']['key'];
@@ -1084,7 +1084,7 @@ class SecurityComponentTest extends CakeTestCase
      *
      * @return void
      */
-    public function testValidateHiddenMultipleModel()
+    public function testValidateHiddenMultipleModel(): void
     {
         $this->Controller->Security->startup($this->Controller);
         $key = $this->Controller->request->params['_Token']['key'];
@@ -1107,7 +1107,7 @@ class SecurityComponentTest extends CakeTestCase
      *
      * @return void
      */
-    public function testValidateHasManyModel()
+    public function testValidateHasManyModel(): void
     {
         $this->Controller->Security->startup($this->Controller);
         $key = $this->Controller->request->params['_Token']['key'];
@@ -1139,7 +1139,7 @@ class SecurityComponentTest extends CakeTestCase
      *
      * @return void
      */
-    public function testValidateHasManyRecordsPass()
+    public function testValidateHasManyRecordsPass(): void
     {
         $this->Controller->Security->startup($this->Controller);
         $key = $this->Controller->request->params['_Token']['key'];
@@ -1183,7 +1183,7 @@ class SecurityComponentTest extends CakeTestCase
      *
      * @return void
      */
-    public function testValidateNestedNumericSets()
+    public function testValidateNestedNumericSets(): void
     {
         $this->Controller->Security->startup($this->Controller);
         $key = $this->Controller->request->params['_Token']['key'];
@@ -1218,7 +1218,7 @@ class SecurityComponentTest extends CakeTestCase
      *
      * @return void
      */
-    public function testValidateHasManyRecordsFail()
+    public function testValidateHasManyRecordsFail(): void
     {
         $this->Controller->Security->startup($this->Controller);
         $key = $this->Controller->request->params['_Token']['key'];
@@ -1283,7 +1283,7 @@ class SecurityComponentTest extends CakeTestCase
      *
      * @return void
      */
-    public function testFormDisabledFields()
+    public function testFormDisabledFields(): void
     {
         $this->Controller->Security->startup($this->Controller);
         $key = $this->Controller->request->params['_Token']['key'];
@@ -1320,7 +1320,7 @@ class SecurityComponentTest extends CakeTestCase
      *
      * @return void
      */
-    public function testValidatePostRadio()
+    public function testValidatePostRadio(): void
     {
         $this->Controller->Security->startup($this->Controller);
         $key = $this->Controller->request->params['_Token']['key'];
@@ -1365,7 +1365,7 @@ class SecurityComponentTest extends CakeTestCase
      *
      * @return void
      */
-    public function testValidatePostUrlAsHashInput()
+    public function testValidatePostUrlAsHashInput(): void
     {
         $this->Controller->Security->startup($this->Controller);
 
@@ -1405,7 +1405,7 @@ class SecurityComponentTest extends CakeTestCase
      *
      * @return void
      */
-    public function testSettingTokenForRequestAction()
+    public function testSettingTokenForRequestAction(): void
     {
         $this->Controller->Security->startup($this->Controller);
         $key = $this->Controller->request->params['_Token']['key'];
@@ -1423,7 +1423,7 @@ class SecurityComponentTest extends CakeTestCase
      *
      * @return void
      */
-    public function testBlackHoleNotDeletingSessionInformation()
+    public function testBlackHoleNotDeletingSessionInformation(): void
     {
         $this->Controller->Security->startup($this->Controller);
 
@@ -1436,7 +1436,7 @@ class SecurityComponentTest extends CakeTestCase
      *
      * @return void
      */
-    public function testCsrfSkipRequestAction()
+    public function testCsrfSkipRequestAction(): void
     {
         $_SERVER['REQUEST_METHOD'] = 'POST';
 
@@ -1454,7 +1454,7 @@ class SecurityComponentTest extends CakeTestCase
      *
      * @return void
      */
-    public function testCsrfSettings()
+    public function testCsrfSettings(): void
     {
         $this->Security->validatePost = false;
         $this->Security->csrfCheck = true;
@@ -1472,7 +1472,7 @@ class SecurityComponentTest extends CakeTestCase
      *
      * @return void
      */
-    public function testCsrfSettingMultipleNonces()
+    public function testCsrfSettingMultipleNonces(): void
     {
         $this->Security->validatePost = false;
         $this->Security->csrfCheck = true;
@@ -1493,7 +1493,7 @@ class SecurityComponentTest extends CakeTestCase
      *
      * @return void
      */
-    public function testCsrfNonceConsumption()
+    public function testCsrfNonceConsumption(): void
     {
         $this->Security->validatePost = false;
         $this->Security->csrfCheck = true;
@@ -1518,7 +1518,7 @@ class SecurityComponentTest extends CakeTestCase
     /**
      * tests that reusable CSRF-token expiry is renewed
      */
-    public function testCsrfReusableTokenRenewal()
+    public function testCsrfReusableTokenRenewal(): void
     {
         $this->Security->validatePost = false;
         $this->Security->csrfCheck = true;
@@ -1538,7 +1538,7 @@ class SecurityComponentTest extends CakeTestCase
      *
      * @return void
      */
-    public function testCsrfNonceVacuum()
+    public function testCsrfNonceVacuum(): void
     {
         $this->Security->validatePost = false;
         $this->Security->csrfCheck = true;
@@ -1560,7 +1560,7 @@ class SecurityComponentTest extends CakeTestCase
      *
      * @return void
      */
-    public function testCsrfExceptionOnMissingKey()
+    public function testCsrfExceptionOnMissingKey(): void
     {
         $this->expectException(SecurityException::class);
         $this->expectExceptionMessage('Missing CSRF token');
@@ -1582,7 +1582,7 @@ class SecurityComponentTest extends CakeTestCase
      *
      * @return void
      */
-    public function testCsrfBlackHoleOnKeyMismatch()
+    public function testCsrfBlackHoleOnKeyMismatch(): void
     {
         $this->Security->validatePost = false;
         $this->Security->csrfCheck = true;
@@ -1608,7 +1608,7 @@ class SecurityComponentTest extends CakeTestCase
      *
      * @return void
      */
-    public function testCsrfExceptionOnKeyMismatch()
+    public function testCsrfExceptionOnKeyMismatch(): void
     {
         $this->expectException(SecurityException::class);
         $this->expectExceptionMessage('CSRF token mismatch');
@@ -1636,7 +1636,7 @@ class SecurityComponentTest extends CakeTestCase
      *
      * @return void
      */
-    public function testCsrfBlackHoleOnExpiredKey()
+    public function testCsrfBlackHoleOnExpiredKey(): void
     {
         $this->Security->validatePost = false;
         $this->Security->csrfCheck = true;
@@ -1662,7 +1662,7 @@ class SecurityComponentTest extends CakeTestCase
      *
      * @return void
      */
-    public function testCsrfExceptionOnExpiredKey()
+    public function testCsrfExceptionOnExpiredKey(): void
     {
         $this->expectException(SecurityException::class);
         $this->expectExceptionMessage('CSRF token expired');
@@ -1690,7 +1690,7 @@ class SecurityComponentTest extends CakeTestCase
      *
      * @return void
      */
-    public function testCsrfNotUseOnce()
+    public function testCsrfNotUseOnce(): void
     {
         $this->Security->validatePost = false;
         $this->Security->csrfCheck = true;
@@ -1718,7 +1718,7 @@ class SecurityComponentTest extends CakeTestCase
      *
      * @return void
      */
-    public function testCsrfNotUseOnceValidationLeavingToken()
+    public function testCsrfNotUseOnceValidationLeavingToken(): void
     {
         $this->Security->validatePost = false;
         $this->Security->csrfCheck = true;
@@ -1747,7 +1747,7 @@ class SecurityComponentTest extends CakeTestCase
      *
      * @return void
      */
-    public function testGenerateToken()
+    public function testGenerateToken(): void
     {
         $request = $this->Controller->request;
         $this->Security->generateToken($request);
@@ -1762,7 +1762,7 @@ class SecurityComponentTest extends CakeTestCase
      *
      * @return void
      */
-    public function testCsrfLimit()
+    public function testCsrfLimit(): void
     {
         $this->Security->csrfLimit = 3;
         $time = strtotime('+10 minutes');
@@ -1789,7 +1789,7 @@ class SecurityComponentTest extends CakeTestCase
      *
      * @return void
      */
-    public function testUnlockedActions()
+    public function testUnlockedActions(): void
     {
         $_SERVER['REQUEST_METHOD'] = 'POST';
         $this->Controller->request->data = ['data'];
@@ -1804,7 +1804,7 @@ class SecurityComponentTest extends CakeTestCase
      *
      * @return void
      */
-    public function testValidatePostDebugFormat()
+    public function testValidatePostDebugFormat(): void
     {
         $this->Controller->Security->startup($this->Controller);
         $unlocked = 'Model.username';
@@ -1838,7 +1838,7 @@ class SecurityComponentTest extends CakeTestCase
      *
      * @return void
      */
-    public function testBlackholeThrowsException()
+    public function testBlackholeThrowsException(): void
     {
         $this->expectException(SecurityException::class);
         $this->expectExceptionMessage('error description');
@@ -1851,7 +1851,7 @@ class SecurityComponentTest extends CakeTestCase
      *
      * @return void
      */
-    public function testBlackholeThrowsBadRequest()
+    public function testBlackholeThrowsBadRequest(): void
     {
         $this->Security->blackHoleCallback = '';
         $message = '';
@@ -1872,7 +1872,7 @@ class SecurityComponentTest extends CakeTestCase
      *
      * @return void
      */
-    public function testValidatePostFailTampering()
+    public function testValidatePostFailTampering(): void
     {
         $this->Controller->Security->startup($this->Controller);
         $unlocked = '';
@@ -1901,7 +1901,7 @@ class SecurityComponentTest extends CakeTestCase
      *
      * @return void
      */
-    public function testValidatePostFailTamperingMutatedIntoArray()
+    public function testValidatePostFailTamperingMutatedIntoArray(): void
     {
         $this->Controller->Security->startup($this->Controller);
         $unlocked = '';
@@ -1930,7 +1930,7 @@ class SecurityComponentTest extends CakeTestCase
      *
      * @return void
      */
-    public function testValidatePostUnexpectedDebugToken()
+    public function testValidatePostUnexpectedDebugToken(): void
     {
         $this->Controller->Security->startup($this->Controller);
         $unlocked = '';
@@ -1959,7 +1959,7 @@ class SecurityComponentTest extends CakeTestCase
      *
      * @return void
      */
-    public function testAuthRequiredThrowsExceptionTokenNotFoundPost()
+    public function testAuthRequiredThrowsExceptionTokenNotFoundPost(): void
     {
         $this->expectException(AuthSecurityException::class);
         $this->expectExceptionMessage("'_Token' was not found in request data.");
@@ -1974,7 +1974,7 @@ class SecurityComponentTest extends CakeTestCase
      *
      * @return void
      */
-    public function testAuthRequiredThrowsExceptionTokenNotFoundSession()
+    public function testAuthRequiredThrowsExceptionTokenNotFoundSession(): void
     {
         $this->expectException(AuthSecurityException::class);
         $this->expectExceptionMessage("'_Token' was not found in session.");
@@ -1989,7 +1989,7 @@ class SecurityComponentTest extends CakeTestCase
      *
      * @return void
      */
-    public function testAuthRequiredThrowsExceptionControllerNotAllowed()
+    public function testAuthRequiredThrowsExceptionControllerNotAllowed(): void
     {
         $this->expectException(AuthSecurityException::class);
         $this->expectExceptionMessage("Controller 'NotAllowed' was not found in allowed controllers: 'Allowed, AnotherAllowed'.");
@@ -2008,7 +2008,7 @@ class SecurityComponentTest extends CakeTestCase
      *
      * @return void
      */
-    public function testAuthRequiredThrowsExceptionActionNotAllowed()
+    public function testAuthRequiredThrowsExceptionActionNotAllowed(): void
     {
         $this->expectException(AuthSecurityException::class);
         $this->expectExceptionMessage("Action 'NotAllowed::protected' was not found in allowed actions: 'index, view'.");
@@ -2027,7 +2027,7 @@ class SecurityComponentTest extends CakeTestCase
      *
      * @return void
      */
-    public function testAuthRequired()
+    public function testAuthRequired(): void
     {
         $this->Controller->Security->requireAuth = ['protected'];
         $this->Controller->request->params['controller'] = 'Allowed';
@@ -2045,7 +2045,7 @@ class SecurityComponentTest extends CakeTestCase
      *
      * @return void
      */
-    public function testMethodsRequiredThrowsExceptionMethodNotAllowed()
+    public function testMethodsRequiredThrowsExceptionMethodNotAllowed(): void
     {
         $this->expectException(SecurityException::class);
         $this->expectExceptionMessage('The request method must be POST');
@@ -2062,7 +2062,7 @@ class SecurityComponentTest extends CakeTestCase
      *
      * @return void
      */
-    public function testMethodsRequired()
+    public function testMethodsRequired(): void
     {
         $_SERVER['REQUEST_METHOD'] = 'POST';
         $this->Controller->Security->requirePost = ['delete'];
@@ -2077,7 +2077,7 @@ class SecurityComponentTest extends CakeTestCase
      *
      * @return void
      */
-    public function testGenerateHmacSignedCsrfToken()
+    public function testGenerateHmacSignedCsrfToken(): void
     {
         $this->Security->validatePost = false;
         $this->Security->csrfCheck = true;
@@ -2105,7 +2105,7 @@ class SecurityComponentTest extends CakeTestCase
      *
      * @return void
      */
-    public function testValidateHmacSignedCsrfToken()
+    public function testValidateHmacSignedCsrfToken(): void
     {
         $this->Security->validatePost = false;
         $this->Security->csrfCheck = true;
@@ -2132,7 +2132,7 @@ class SecurityComponentTest extends CakeTestCase
      *
      * @return void
      */
-    public function testRejectModifiedHmacToken()
+    public function testRejectModifiedHmacToken(): void
     {
         $this->expectException(SecurityException::class);
         $this->expectExceptionMessage('CSRF token mismatch');
@@ -2168,7 +2168,7 @@ class SecurityComponentTest extends CakeTestCase
      *
      * @return void
      */
-    public function testBackwardCompatibilityWithLegacyTokens()
+    public function testBackwardCompatibilityWithLegacyTokens(): void
     {
         $this->Security->validatePost = false;
         $this->Security->csrfCheck = true;
@@ -2196,7 +2196,7 @@ class SecurityComponentTest extends CakeTestCase
      *
      * @return void
      */
-    public function testPreventTokenFixation()
+    public function testPreventTokenFixation(): void
     {
         $this->expectException(SecurityException::class);
         $this->expectExceptionMessage('CSRF token mismatch');
@@ -2230,7 +2230,7 @@ class SecurityComponentTest extends CakeTestCase
      *
      * @return void
      */
-    public function testLegacyTokensVulnerableToFixation()
+    public function testLegacyTokensVulnerableToFixation(): void
     {
         $this->Security->validatePost = false;
         $this->Security->csrfCheck = true;
@@ -2316,7 +2316,7 @@ class SecurityComponentTest extends CakeTestCase
      *
      * @return void
      */
-    public function testValidateHmacTokenInvalidBase64()
+    public function testValidateHmacTokenInvalidBase64(): void
     {
         // Use reflection to access protected method
         $reflection = new ReflectionClass($this->Security);
@@ -2334,7 +2334,7 @@ class SecurityComponentTest extends CakeTestCase
      *
      * @return void
      */
-    public function testValidateHmacTokenIncorrectLength()
+    public function testValidateHmacTokenIncorrectLength(): void
     {
         // Use reflection to access protected method
         $reflection = new ReflectionClass($this->Security);
@@ -2357,7 +2357,7 @@ class SecurityComponentTest extends CakeTestCase
      *
      * @return void
      */
-    public function testValidateHmacTokenValid()
+    public function testValidateHmacTokenValid(): void
     {
         // Use reflection to access protected method
         $reflection = new ReflectionClass($this->Security);
@@ -2379,7 +2379,7 @@ class SecurityComponentTest extends CakeTestCase
      *
      * @return void
      */
-    public function testValidateHmacTokenModifiedHmac()
+    public function testValidateHmacTokenModifiedHmac(): void
     {
         // Use reflection to access protected method
         $reflection = new ReflectionClass($this->Security);
@@ -2412,7 +2412,7 @@ class SecurityComponentTest extends CakeTestCase
      *
      * @return void
      */
-    public function testMethodOverrideCannotBypassCsrf()
+    public function testMethodOverrideCannotBypassCsrf(): void
     {
         // Simulate the attack: POST request with _method=GET
         $_SERVER['REQUEST_METHOD'] = 'POST';
@@ -2459,7 +2459,7 @@ class SecurityComponentTest extends CakeTestCase
      *
      * @return void
      */
-    public function testPostWithMethodHeadClearsData()
+    public function testPostWithMethodHeadClearsData(): void
     {
         // Simulate POST request with _method=HEAD
         $_SERVER['REQUEST_METHOD'] = 'POST';
@@ -2497,7 +2497,7 @@ class SecurityComponentTest extends CakeTestCase
      *
      * @return void
      */
-    public function testPostWithMethodOptionsClearsData()
+    public function testPostWithMethodOptionsClearsData(): void
     {
         // Simulate POST request with _method=OPTIONS
         $_SERVER['REQUEST_METHOD'] = 'POST';
@@ -2536,7 +2536,7 @@ class SecurityComponentTest extends CakeTestCase
      *
      * @return void
      */
-    public function testDataPresenceTriggersCsrfCheck()
+    public function testDataPresenceTriggersCsrfCheck(): void
     {
         // Even if we somehow get a GET request with data, it should require CSRF
         $_SERVER['REQUEST_METHOD'] = 'GET';
@@ -2564,7 +2564,7 @@ class SecurityComponentTest extends CakeTestCase
      *
      * @return void
      */
-    public function testSafeMethodsWithoutDataAllowed()
+    public function testSafeMethodsWithoutDataAllowed(): void
     {
         $safeMethods = ['GET', 'HEAD', 'OPTIONS'];
 
@@ -2590,7 +2590,7 @@ class SecurityComponentTest extends CakeTestCase
      *
      * @return void
      */
-    public function testUnsafeMethodsAlwaysRequireCsrf()
+    public function testUnsafeMethodsAlwaysRequireCsrf(): void
     {
         $unsafeMethods = ['POST', 'PUT', 'PATCH', 'DELETE'];
 
@@ -2615,7 +2615,7 @@ class SecurityComponentTest extends CakeTestCase
      *
      * @return void
      */
-    public function testMethodOverrideWithValidToken()
+    public function testMethodOverrideWithValidToken(): void
     {
         $this->Controller->Security->validatePost = false;
         $this->Controller->Security->csrfCheck = true;
@@ -2652,7 +2652,7 @@ class SecurityComponentTest extends CakeTestCase
      *
      * @return void
      */
-    public function testCustomMethodsRequireCsrf()
+    public function testCustomMethodsRequireCsrf(): void
     {
         $customMethods = ['PURGE', 'LINK', 'UNLINK', 'CUSTOM', 'INVALID'];
 
@@ -2677,7 +2677,7 @@ class SecurityComponentTest extends CakeTestCase
      *
      * @return void
      */
-    public function testPostWithInvalidMethodStillRequiresCsrf()
+    public function testPostWithInvalidMethodStillRequiresCsrf(): void
     {
         $_SERVER['REQUEST_METHOD'] = 'POST';
         $this->Controller->request = new CakeRequest('posts/action', false);
@@ -2701,7 +2701,7 @@ class SecurityComponentTest extends CakeTestCase
      *
      * @return void
      */
-    public function testMethodOverrideProcessing()
+    public function testMethodOverrideProcessing(): void
     {
         // Test 1: Normal POST without _method
         $_SERVER['REQUEST_METHOD'] = 'POST';

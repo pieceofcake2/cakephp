@@ -58,7 +58,7 @@ class TreeBehaviorAfterTest extends CakeTestCase
      *
      * @return void
      */
-    public function testAftersaveCallback()
+    public function testAftersaveCallback(): void
     {
         $this->Tree = new AfterTree();
         $this->Tree->order = null;

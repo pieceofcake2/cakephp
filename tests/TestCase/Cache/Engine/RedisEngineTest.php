@@ -75,7 +75,7 @@ class RedisEngineTest extends CakeTestCase
      *
      * @return void
      */
-    public function testSettings()
+    public function testSettings(): void
     {
         $settings = Cache::settings('redis');
         $expecting = [
@@ -100,7 +100,7 @@ class RedisEngineTest extends CakeTestCase
      *
      * @return void
      */
-    public function testConnect()
+    public function testConnect(): void
     {
         $Redis = new RedisEngine();
         $this->assertTrue($Redis->init(Cache::settings('redis')));
@@ -111,7 +111,7 @@ class RedisEngineTest extends CakeTestCase
      *
      * @return void
      */
-    public function testMultiDatabaseOperations()
+    public function testMultiDatabaseOperations(): void
     {
         Cache::config('redisdb0', [
             'engine' => 'Redis',
@@ -157,7 +157,7 @@ class RedisEngineTest extends CakeTestCase
      *
      * @return void
      */
-    public function testWriteNumbers()
+    public function testWriteNumbers(): void
     {
         Cache::write('test-counter', 1, 'redis');
         $this->assertSame(1, Cache::read('test-counter', 'redis'));
@@ -174,7 +174,7 @@ class RedisEngineTest extends CakeTestCase
      *
      * @return void
      */
-    public function testReadAndWriteCache()
+    public function testReadAndWriteCache(): void
     {
         Cache::set(['duration' => 1], null, 'redis');
 
@@ -202,7 +202,7 @@ class RedisEngineTest extends CakeTestCase
      *
      * @return void
      */
-    public function testExpiry()
+    public function testExpiry(): void
     {
         Cache::set(['duration' => 1], 'redis');
 
@@ -251,7 +251,7 @@ class RedisEngineTest extends CakeTestCase
      *
      * @return void
      */
-    public function testDeleteCache()
+    public function testDeleteCache(): void
     {
         $data = 'this is a test of the emergency broadcasting system';
         $result = Cache::write('delete_test', $data, 'redis');
@@ -266,7 +266,7 @@ class RedisEngineTest extends CakeTestCase
      *
      * @return void
      */
-    public function testDecrement()
+    public function testDecrement(): void
     {
         Cache::delete('test_decrement', 'redis');
         $result = Cache::write('test_decrement', 5, 'redis');
@@ -290,7 +290,7 @@ class RedisEngineTest extends CakeTestCase
      *
      * @return void
      */
-    public function testIncrement()
+    public function testIncrement(): void
     {
         Cache::delete('test_increment', 'redis');
         $result = Cache::increment('test_increment', 1, 'redis');
@@ -311,7 +311,7 @@ class RedisEngineTest extends CakeTestCase
      *
      * @return void
      */
-    public function testClear()
+    public function testClear(): void
     {
         Cache::config('redis2', [
             'engine' => 'Redis',
@@ -338,7 +338,7 @@ class RedisEngineTest extends CakeTestCase
      *
      * @return void
      */
-    public function testZeroDuration()
+    public function testZeroDuration(): void
     {
         Cache::config('redis', ['duration' => 0]);
         $result = Cache::write('test_key', 'written!', 'redis');
@@ -355,7 +355,7 @@ class RedisEngineTest extends CakeTestCase
      *
      * @return void
      */
-    public function testGroupReadWrite()
+    public function testGroupReadWrite(): void
     {
         Cache::config('redis_groups', [
             'engine' => 'Redis',
@@ -387,7 +387,7 @@ class RedisEngineTest extends CakeTestCase
      *
      * @return void
      */
-    public function testGroupDelete()
+    public function testGroupDelete(): void
     {
         Cache::config('redis_groups', [
             'engine' => 'Redis',
@@ -406,7 +406,7 @@ class RedisEngineTest extends CakeTestCase
      *
      * @return void
      */
-    public function testGroupClear()
+    public function testGroupClear(): void
     {
         Cache::config('redis_groups', [
             'engine' => 'Redis',
@@ -428,7 +428,7 @@ class RedisEngineTest extends CakeTestCase
      *
      * @return void
      */
-    public function testAdd()
+    public function testAdd(): void
     {
         Cache::delete('test_add_key', 'redis');
 

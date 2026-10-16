@@ -67,7 +67,7 @@ class ModelCrossSchemaHabtmTest extends BaseModelTest
      *
      * @return void
      */
-    protected function _checkConfigs()
+    protected function _checkConfigs(): void
     {
         $config = ConnectionManager::enumConnectionObjects();
         $this->skipIf($this->db instanceof Sqlite, 'This test is not compatible with Sqlite.');
@@ -84,7 +84,7 @@ class ModelCrossSchemaHabtmTest extends BaseModelTest
      *
      * @return void
      */
-    public function testModelDatasources()
+    public function testModelDatasources(): void
     {
         $this->loadFixtures('Player', 'Guild', 'GuildsPlayer');
 
@@ -103,7 +103,7 @@ class ModelCrossSchemaHabtmTest extends BaseModelTest
      *
      * @return void
      */
-    public function testHabtmFind()
+    public function testHabtmFind(): void
     {
         $this->loadFixtures('Player', 'Guild', 'GuildsPlayer');
         $Player = ClassRegistry::init('Player');
@@ -138,7 +138,7 @@ class ModelCrossSchemaHabtmTest extends BaseModelTest
      *
      * @return void
      */
-    public function testHabtmSave()
+    public function testHabtmSave(): void
     {
         $this->loadFixtures('Player', 'Guild', 'GuildsPlayer');
         $Player = ClassRegistry::init('Player');
@@ -182,7 +182,7 @@ class ModelCrossSchemaHabtmTest extends BaseModelTest
      *
      * @return void
      */
-    public function testHabtmWithThreeDatabases()
+    public function testHabtmWithThreeDatabases(): void
     {
         $config = ConnectionManager::enumConnectionObjects();
         $this->skipIf(

@@ -54,7 +54,7 @@ class FlashComponentTest extends CakeTestCase
      *
      * @return void
      */
-    public function testSet()
+    public function testSet(): void
     {
         $this->assertNull(CakeSession::read('Message.flash'));
 
@@ -153,7 +153,7 @@ class FlashComponentTest extends CakeTestCase
      *
      * @return void
      */
-    public function testSetWithException()
+    public function testSetWithException(): void
     {
         $this->assertNull(CakeSession::read('Message.flash'));
 
@@ -176,7 +176,7 @@ class FlashComponentTest extends CakeTestCase
      *
      * @return void
      */
-    public function testSetWithComponentConfiguration()
+    public function testSetWithComponentConfiguration(): void
     {
         $this->assertNull(CakeSession::read('Message.flash'));
 
@@ -200,7 +200,7 @@ class FlashComponentTest extends CakeTestCase
      *
      * @return void
      */
-    public function testCall()
+    public function testCall(): void
     {
         $this->assertNull(CakeSession::read('Message.flash'));
 
@@ -249,7 +249,7 @@ class FlashComponentTest extends CakeTestCase
      *
      * @return void
      */
-    public function testConstructorInitializesComponent()
+    public function testConstructorInitializesComponent(): void
     {
         $Flash = new FlashComponent($this->Components, ['element' => 'custom']);
 

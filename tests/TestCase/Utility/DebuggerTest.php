@@ -63,7 +63,7 @@ class DebuggerTest extends CakeTestCase
      *
      * @return void
      */
-    public function testDocRef()
+    public function testDocRef(): void
     {
         ini_set('docref_root', '');
         $this->assertEquals(ini_get('docref_root'), '');
@@ -76,7 +76,7 @@ class DebuggerTest extends CakeTestCase
      *
      * @return void
      */
-    public function testExcerpt()
+    public function testExcerpt(): void
     {
         $result = Debugger::excerpt(__FILE__, __LINE__, 2);
         $this->assertTrue(is_array($result));
@@ -109,7 +109,7 @@ class DebuggerTest extends CakeTestCase
      *
      * @return void
      */
-    public function testExcerptWithoutAddedOpenTag()
+    public function testExcerptWithoutAddedOpenTag(): void
     {
         $line = __LINE__;
         // Debugger::excerpt() takes a zero based line number, so this highlights the line above.
@@ -127,7 +127,7 @@ class DebuggerTest extends CakeTestCase
      *
      * @return void
      */
-    public function testOutput()
+    public function testOutput(): void
     {
         // In PHP8.0+,
         // the errcontext argument will no longer be passed to custom error handlers set with set_error_handler().
@@ -191,7 +191,7 @@ class DebuggerTest extends CakeTestCase
      *
      * @return void
      */
-    public function testOutputEncodeDescription()
+    public function testOutputEncodeDescription(): void
     {
         set_error_handler('Debugger::showError');
 
@@ -212,7 +212,7 @@ class DebuggerTest extends CakeTestCase
      *
      * @return void
      */
-    public function testChangeOutputFormats()
+    public function testChangeOutputFormats(): void
     {
         set_error_handler('Debugger::showError');
 
@@ -254,7 +254,7 @@ class DebuggerTest extends CakeTestCase
      *
      * @return void
      */
-    public function testOutputAs()
+    public function testOutputAs(): void
     {
         Debugger::outputAs('html');
         $this->assertEquals('html', Debugger::outputAs());
@@ -265,7 +265,7 @@ class DebuggerTest extends CakeTestCase
      *
      * @return void
      */
-    public function testOutputAsException()
+    public function testOutputAsException(): void
     {
         $this->expectException(CakeException::class);
         Debugger::outputAs('Invalid junk');
@@ -276,7 +276,7 @@ class DebuggerTest extends CakeTestCase
      *
      * @return void
      */
-    public function testAddFormat()
+    public function testAddFormat(): void
     {
         set_error_handler('Debugger::showError');
 
@@ -317,7 +317,7 @@ class DebuggerTest extends CakeTestCase
      *
      * @return void
      */
-    public function testAddFormatCallback()
+    public function testAddFormatCallback(): void
     {
         set_error_handler('Debugger::showError');
 
@@ -338,7 +338,7 @@ class DebuggerTest extends CakeTestCase
      *
      * @return void
      */
-    public function customFormat($error, $strings)
+    public function customFormat($error, $strings): mixed
     {
         return $error['error'] . ': I eated an error ' . $error['file'];
     }
@@ -348,7 +348,7 @@ class DebuggerTest extends CakeTestCase
      *
      * @return void
      */
-    public function testTrimPath()
+    public function testTrimPath(): void
     {
         $this->assertEquals('APP' . DS, Debugger::trimPath(APP));
         $this->assertEquals('CORE', Debugger::trimPath(CAKE_CORE_INCLUDE_PATH));
@@ -362,7 +362,7 @@ class DebuggerTest extends CakeTestCase
      *
      * @return void
      */
-    public function testExportVar()
+    public function testExportVar(): void
     {
         $Controller = new Controller();
         $Controller->helpers = ['Html', 'Form'];
@@ -479,7 +479,7 @@ TEXT;
      *
      * @return void
      */
-    public function testExportVarZero()
+    public function testExportVarZero(): void
     {
         $data = [
             'nothing' => '',
@@ -506,7 +506,7 @@ TEXT;
      *
      * @return void
      */
-    public function testLog()
+    public function testLog(): void
     {
         if (file_exists(LOGS . 'debug.log')) {
             unlink(LOGS . 'debug.log');
@@ -534,7 +534,7 @@ TEXT;
      *
      * @return void
      */
-    public function testLogDepth()
+    public function testLogDepth(): void
     {
         if (file_exists(LOGS . 'debug.log')) {
             unlink(LOGS . 'debug.log');
@@ -557,7 +557,7 @@ TEXT;
      *
      * @return void
      */
-    public function testDump()
+    public function testDump(): void
     {
         $var = ['People' => [
             [
@@ -616,7 +616,7 @@ TEXT;
      *
      * @return void
      */
-    public function testGetInstance()
+    public function testGetInstance(): void
     {
         $result = Debugger::getInstance();
         $this->assertInstanceOf('Debugger', $result);
@@ -639,7 +639,7 @@ TEXT;
      *
      * @return void
      */
-    public function testNoDbCredentials()
+    public function testNoDbCredentials(): void
     {
         $config = [
             'datasource' => 'mysql',
@@ -672,7 +672,7 @@ TEXT;
      *
      * @return void
      */
-    public function testExportVarRecursion()
+    public function testExportVarRecursion(): void
     {
         $this->skipIf(
             version_compare(PHP_VERSION, '8.1.0', '>='),
@@ -687,7 +687,7 @@ TEXT;
      *
      * @return void
      */
-    public function testTraceExclude()
+    public function testTraceExclude(): void
     {
         $result = Debugger::trace();
         $this->assertMatchesRegularExpression('/^DebuggerTest::testTraceExclude/', $result);
@@ -703,7 +703,7 @@ TEXT;
      *
      * @return void
      */
-    public function testEditorUrl()
+    public function testEditorUrl(): void
     {
         Configure::delete('Debugger');
         $result = Debugger::editorUrl('/var/www/app/src/Controller/PostsController.php', 12);
@@ -724,7 +724,7 @@ TEXT;
      *
      * @return void
      */
-    public function testEditorUrlCustom()
+    public function testEditorUrlCustom(): void
     {
         Debugger::addEditor('open', function ($file, $line) {
             return "open://{$file}#{$line}";
@@ -741,7 +741,7 @@ TEXT;
      *
      * @return void
      */
-    public function testSetEditorUnknown()
+    public function testSetEditorUnknown(): void
     {
         $this->expectException(InvalidArgumentException::class);
         $this->expectExceptionMessage('Unknown editor `nope`');
@@ -753,7 +753,7 @@ TEXT;
      *
      * @return void
      */
-    public function testEditorUrlUnknown()
+    public function testEditorUrlUnknown(): void
     {
         Configure::write('Debugger.editor', 'nope');
         $this->expectException(InvalidArgumentException::class);
@@ -765,7 +765,7 @@ TEXT;
      *
      * @return array<int, string>
      */
-    protected function _checkSecurityKeysNotices()
+    protected function _checkSecurityKeysNotices(): mixed
     {
         $notices = [];
         set_error_handler(function ($errno, $errstr) use (&$notices) {
@@ -787,7 +787,7 @@ TEXT;
      *
      * @return void
      */
-    public function testCheckSecurityKeysCipherSeedOutOfRange()
+    public function testCheckSecurityKeysCipherSeedOutOfRange(): void
     {
         Configure::write('Security.salt', 'a-salt-specific-to-this-test-0123456789');
         $expected = 'The value of \'Security.cipherSeed\' in ' . CONFIG . 'core.php is not a digits-only number '
@@ -807,7 +807,7 @@ TEXT;
      *
      * @return void
      */
-    public function testCheckSecurityKeysOldDefaultCipherSeed()
+    public function testCheckSecurityKeysOldDefaultCipherSeed(): void
     {
         Configure::write('Security.salt', 'a-salt-specific-to-this-test-0123456789');
         Configure::write('Security.cipherSeed', '76859309657453542496749683645');
@@ -827,7 +827,7 @@ TEXT;
      *
      * @return void
      */
-    public function testCheckSecurityKeysNewDefaultCipherSeed()
+    public function testCheckSecurityKeysNewDefaultCipherSeed(): void
     {
         $this->assertStringContainsString(
             "Configure::write('Security.cipherSeed', '2659758734');",
@@ -847,7 +847,7 @@ TEXT;
      *
      * @return void
      */
-    public function testCheckSecurityKeysValidCipherSeed()
+    public function testCheckSecurityKeysValidCipherSeed(): void
     {
         Configure::write('Security.salt', 'a-salt-specific-to-this-test-0123456789');
         foreach (['1', '4294967295', '1234567890', '0042', 123456] as $seed) {

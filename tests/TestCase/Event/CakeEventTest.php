@@ -29,7 +29,7 @@ class CakeEventTest extends CakeTestCase
      * @return void
      * @triggers fake.event
      */
-    public function testName()
+    public function testName(): void
     {
         $event = new CakeEvent('fake.event');
         $this->assertEquals('fake.event', $event->name());
@@ -42,7 +42,7 @@ class CakeEventTest extends CakeTestCase
      * @triggers fake.event $this
      * @triggers fake.event
      */
-    public function testSubject()
+    public function testSubject(): void
     {
         $event = new CakeEvent('fake.event', $this);
         $this->assertSame($this, $event->subject());
@@ -57,7 +57,7 @@ class CakeEventTest extends CakeTestCase
      * @return void
      * @triggers fake.event
      */
-    public function testPropagation()
+    public function testPropagation(): void
     {
         $event = new CakeEvent('fake.event');
         $this->assertFalse($event->isStopped());
@@ -71,7 +71,7 @@ class CakeEventTest extends CakeTestCase
      * @return void
      * @triggers fake.event $this, array('some' => 'data')
      */
-    public function testEventData()
+    public function testEventData(): void
     {
         $event = new CakeEvent('fake.event', $this, ['some' => 'data']);
         $this->assertEquals(['some' => 'data'], $event->data);
@@ -83,7 +83,7 @@ class CakeEventTest extends CakeTestCase
      * @return void
      * @triggers fake.event $this
      */
-    public function testEventDirectPropertyAccess()
+    public function testEventDirectPropertyAccess(): void
     {
         $event = new CakeEvent('fake.event', $this);
         $this->assertEquals($this, $event->subject);

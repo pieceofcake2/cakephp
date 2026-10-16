@@ -28,7 +28,7 @@ class TestHttpResponse extends HttpResponse
      * @param array $header Header as an indexed array (field => value)
      * @return array Parsed header
      */
-    public function parseHeader($header)
+    public function parseHeader($header): array
     {
         return parent::_parseHeader($header);
     }
@@ -40,7 +40,7 @@ class TestHttpResponse extends HttpResponse
      * @param string|bool $encoding Can be false in case no encoding is being used, or a string representing the encoding
      * @return mixed Array or false
      */
-    public function decodeBody($body, $encoding = 'chunked')
+    public function decodeBody($body, $encoding = 'chunked'): mixed
     {
         return parent::_decodeBody($body, $encoding);
     }
@@ -51,7 +51,7 @@ class TestHttpResponse extends HttpResponse
      * @param string $body A string containing the chunked body to decode
      * @return mixed Array or false
      */
-    public function decodeChunkedBody($body)
+    public function decodeChunkedBody($body): mixed
     {
         return parent::_decodeChunkedBody($body);
     }
@@ -62,7 +62,7 @@ class TestHttpResponse extends HttpResponse
      * @param string $token Token to unescape
      * @return string Unescaped token
      */
-    public function unescapeToken($token, $chars = null)
+    public function unescapeToken($token, $chars = null): string
     {
         return parent::_unescapeToken($token, $chars);
     }
@@ -73,7 +73,7 @@ class TestHttpResponse extends HttpResponse
      * @param bool $hex true to get them as HEX values, false otherwise
      * @return array Escape chars
      */
-    public function tokenEscapeChars($hex = true, $chars = null)
+    public function tokenEscapeChars($hex = true, $chars = null): array
     {
         return parent::_tokenEscapeChars($hex, $chars);
     }
@@ -102,7 +102,7 @@ class HttpResponseTest extends CakeTestCase
      *
      * @return void
      */
-    public function testBody()
+    public function testBody(): void
     {
         $this->HttpResponse->body = 'testing';
         $this->assertEquals('testing', $this->HttpResponse->body());
@@ -116,7 +116,7 @@ class HttpResponseTest extends CakeTestCase
      *
      * @return void
      */
-    public function testToString()
+    public function testToString(): void
     {
         $this->HttpResponse->body = 'other test';
         $this->assertEquals('other test', $this->HttpResponse->body());
@@ -132,7 +132,7 @@ class HttpResponseTest extends CakeTestCase
      *
      * @return void
      */
-    public function testGetHeader()
+    public function testGetHeader(): void
     {
         $this->HttpResponse->headers = [
             'foo' => 'Bar',
@@ -157,7 +157,7 @@ class HttpResponseTest extends CakeTestCase
      *
      * @return void
      */
-    public function testIsOk()
+    public function testIsOk(): void
     {
         $this->HttpResponse->code = 0;
         $this->assertFalse($this->HttpResponse->isOk());
@@ -200,7 +200,7 @@ class HttpResponseTest extends CakeTestCase
      *
      * @return void
      */
-    public function testIsRedirect()
+    public function testIsRedirect(): void
     {
         $this->HttpResponse->code = 0;
         $this->assertFalse($this->HttpResponse->isRedirect());
@@ -237,7 +237,7 @@ class HttpResponseTest extends CakeTestCase
      *
      * @return void
      */
-    public function testParseHeader()
+    public function testParseHeader(): void
     {
         $r = $this->HttpResponse->parseHeader(['foo' => 'Bar', 'fOO-bAr' => 'quux']);
         $this->assertEquals(['foo' => 'Bar', 'fOO-bAr' => 'quux'], $r);
@@ -306,7 +306,7 @@ class HttpResponseTest extends CakeTestCase
      *
      * @return void
      */
-    public function testParseResponse()
+    public function testParseResponse(): void
     {
         $tests = [
             'simple-request' => [
@@ -359,7 +359,7 @@ class HttpResponseTest extends CakeTestCase
      *
      * @return array
      */
-    public static function invalidParseResponseDataProvider()
+    public static function invalidParseResponseDataProvider(): array
     {
         return [
             [['foo' => 'bar']],
@@ -375,7 +375,7 @@ class HttpResponseTest extends CakeTestCase
      * @dataProvider invalidParseResponseDataProvider
      * @return void
      */
-    public function testInvalidParseResponseData($value)
+    public function testInvalidParseResponseData($value): void
     {
         $this->expectException(SocketException::class);
         $this->HttpResponse->parseResponse($value);
@@ -386,7 +386,7 @@ class HttpResponseTest extends CakeTestCase
      *
      * @return void
      */
-    public function testDecodeBody()
+    public function testDecodeBody(): void
     {
         $r = $this->HttpResponse->decodeBody(true);
         $this->assertEquals(false, $r);
@@ -418,7 +418,7 @@ class HttpResponseTest extends CakeTestCase
      *
      * @return void
      */
-    public function testDecodeFooCoded()
+    public function testDecodeFooCoded(): void
     {
         $r = $this->HttpResponse->decodeBody(true);
         $this->assertEquals(false, $r);
@@ -441,7 +441,7 @@ class HttpResponseTest extends CakeTestCase
      *
      * @return void
      */
-    public function testDecodeChunkedBody()
+    public function testDecodeChunkedBody(): void
     {
         $r = $this->HttpResponse->decodeChunkedBody(true);
         $this->assertEquals(false, $r);
@@ -478,7 +478,7 @@ class HttpResponseTest extends CakeTestCase
      *
      * @return void
      */
-    public function testDecodeChunkedBodyError()
+    public function testDecodeChunkedBodyError(): void
     {
         $encoded = "19\r\nThis is a chunked message\r\nE\r\n\nThat is cool\n\r\n";
         $result = $this->HttpResponse->decodeChunkedBody($encoded);
@@ -491,7 +491,7 @@ class HttpResponseTest extends CakeTestCase
      *
      * @return void
      */
-    public function testParseCookies()
+    public function testParseCookies(): void
     {
         $header = [
             'Set-Cookie' => [
@@ -542,7 +542,7 @@ class HttpResponseTest extends CakeTestCase
      *
      * @return void
      */
-    public function testUnescapeToken()
+    public function testUnescapeToken(): void
     {
         $this->assertEquals('Foo', $this->HttpResponse->unescapeToken('Foo'));
 
@@ -566,7 +566,7 @@ class HttpResponseTest extends CakeTestCase
      *
      * @return void
      */
-    public function testArrayAccess()
+    public function testArrayAccess(): void
     {
         $this->HttpResponse->httpVersion = 'HTTP/1.1';
         $this->HttpResponse->code = 200;
@@ -621,7 +621,7 @@ class HttpResponseTest extends CakeTestCase
      *
      * @return void
      */
-    public function testParseResponseChunkedWithTrailerHeaders()
+    public function testParseResponseChunkedWithTrailerHeaders(): void
     {
         $response = "HTTP/1.1 200 OK\r\n" .
             "Transfer-Encoding: chunked\r\n" .
@@ -644,7 +644,7 @@ class HttpResponseTest extends CakeTestCase
      *
      * @return void
      */
-    public function testDeprecatedHttpResponseClass()
+    public function testDeprecatedHttpResponseClass(): void
     {
         $this->assertInstanceOf('HttpSocketResponse', new HttpResponse());
     }

@@ -95,7 +95,7 @@ class DatabaseSessionTest extends CakeTestCase
      *
      * @return void
      */
-    public function testConstructionSettings()
+    public function testConstructionSettings(): void
     {
         ClassRegistry::flush();
         new DatabaseSession();
@@ -112,7 +112,7 @@ class DatabaseSessionTest extends CakeTestCase
      *
      * @return void
      */
-    public function testOpen()
+    public function testOpen(): void
     {
         $this->assertTrue($this->storage->open());
     }
@@ -122,7 +122,7 @@ class DatabaseSessionTest extends CakeTestCase
      *
      * @return void
      */
-    public function testWrite()
+    public function testWrite(): void
     {
         $this->storage->write('foo', 'Some value');
         $this->assertEquals($this->storage->read('foo'), 'Some value');
@@ -133,7 +133,7 @@ class DatabaseSessionTest extends CakeTestCase
      *
      * @return void
      */
-    public function testWriteEmptySessionId()
+    public function testWriteEmptySessionId(): void
     {
         $result = $this->storage->write('', 'This is a Test');
         $this->assertFalse($result);
@@ -144,7 +144,7 @@ class DatabaseSessionTest extends CakeTestCase
      *
      * @return void
      */
-    public function testRead()
+    public function testRead(): void
     {
         $this->storage->write('foo', 'Some value');
         $this->assertEquals($this->storage->read('foo'), 'Some value');
@@ -158,7 +158,7 @@ class DatabaseSessionTest extends CakeTestCase
      *
      * @return void
      */
-    public function testDestroy()
+    public function testDestroy(): void
     {
         $this->storage->write('foo', 'Some value');
 
@@ -171,7 +171,7 @@ class DatabaseSessionTest extends CakeTestCase
      *
      * @return void
      */
-    public function testDestroyNotWrittenSession()
+    public function testDestroyNotWrittenSession(): void
     {
         $this->assertTrue($this->storage->destroy('not_written'));
     }
@@ -181,7 +181,7 @@ class DatabaseSessionTest extends CakeTestCase
      *
      * @return void
      */
-    public function testGc()
+    public function testGc(): void
     {
         ClassRegistry::flush();
         Configure::write('Session.timeout', 0);
@@ -199,7 +199,7 @@ class DatabaseSessionTest extends CakeTestCase
      *
      * @return void
      */
-    public function testConcurrentInsert()
+    public function testConcurrentInsert(): void
     {
         $this->skipIf(
             $this->db instanceof Sqlite,

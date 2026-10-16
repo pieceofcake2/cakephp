@@ -28,7 +28,7 @@ class CakeValidationRuleTest extends CakeTestCase
      *
      * @return bool
      */
-    public function myTestRule()
+    public function myTestRule(): bool
     {
         return false;
     }
@@ -38,7 +38,7 @@ class CakeValidationRuleTest extends CakeTestCase
      *
      * @return bool
      */
-    public function myTestRule2()
+    public function myTestRule2(): bool
     {
         return true;
     }
@@ -48,7 +48,7 @@ class CakeValidationRuleTest extends CakeTestCase
      *
      * @return string
      */
-    public function myTestRule3()
+    public function myTestRule3(): string
     {
         return 'string';
     }
@@ -58,7 +58,7 @@ class CakeValidationRuleTest extends CakeTestCase
      *
      * @return void
      */
-    public function testIsValid()
+    public function testIsValid(): void
     {
         $def = ['rule' => 'notBlank', 'message' => 'Can not be empty'];
         $data = [
@@ -80,7 +80,7 @@ class CakeValidationRuleTest extends CakeTestCase
      *
      * @return void
      */
-    public function testCustomMethods()
+    public function testCustomMethods(): void
     {
         $def = ['rule' => 'myTestRule'];
         $data = [
@@ -106,7 +106,7 @@ class CakeValidationRuleTest extends CakeTestCase
      *
      * @return void
      */
-    public function testCustomMethodMissingError()
+    public function testCustomMethodMissingError(): void
     {
         $warningTriggered = false;
         $warningMessage = '';
@@ -143,7 +143,7 @@ class CakeValidationRuleTest extends CakeTestCase
      *
      * @return void
      */
-    public function testIsRequired()
+    public function testIsRequired(): void
     {
         $def = ['rule' => 'notBlank', 'required' => true];
         $Rule = new CakeValidationRule($def);
@@ -170,7 +170,7 @@ class CakeValidationRuleTest extends CakeTestCase
      *
      * @return void
      */
-    public function testIsEmptyAllowed()
+    public function testIsEmptyAllowed(): void
     {
         $def = ['rule' => 'aRule', 'allowEmpty' => true];
         $Rule = new CakeValidationRule($def);
@@ -200,7 +200,7 @@ class CakeValidationRuleTest extends CakeTestCase
      *
      * @return void
      */
-    public function testCheckRequiredWhenRequiredAndAllowEmpty()
+    public function testCheckRequiredWhenRequiredAndAllowEmpty(): void
     {
         $Rule = $this->getMock('CakeValidationRule', ['isRequired']);
         $Rule->expects($this->any())

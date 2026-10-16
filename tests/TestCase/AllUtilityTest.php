@@ -32,7 +32,7 @@ class AllUtilityTest extends TestSuite
      *
      * @return void
      */
-    public static function suite()
+    public static function suite(): mixed
     {
         $suite = new CakeTestSuite('All Utility class tests');
         $suite->addTestDirectory(CORE_TESTS . DS . 'TestCase' . DS . 'Utility');

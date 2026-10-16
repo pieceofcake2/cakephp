@@ -29,12 +29,12 @@ class TestMemcacheEngine extends MemcacheEngine
      * @param string $server
      * @return array
      */
-    public function parseServerString($server)
+    public function parseServerString($server): array
     {
         return $this->_parseServerString($server);
     }
 
-    public function setMemcache($memcache)
+    public function setMemcache($memcache): void
     {
         $this->_Memcache = $memcache;
     }
@@ -87,7 +87,7 @@ class MemcacheEngineTest extends CakeTestCase
      *
      * @return void
      */
-    public function testSettings()
+    public function testSettings(): void
     {
         $settings = Cache::settings('memcache');
         unset($settings['serialize'], $settings['path']);
@@ -109,7 +109,7 @@ class MemcacheEngineTest extends CakeTestCase
      *
      * @return void
      */
-    public function testMultipleServers()
+    public function testMultipleServers(): void
     {
         $servers = ['127.0.0.1:11211', '127.0.0.1:11222'];
         $available = true;
@@ -139,7 +139,7 @@ class MemcacheEngineTest extends CakeTestCase
      *
      * @return void
      */
-    public function testConnect()
+    public function testConnect(): void
     {
         $Memcache = new MemcacheEngine();
         $Memcache->init(Cache::settings('memcache'));
@@ -152,7 +152,7 @@ class MemcacheEngineTest extends CakeTestCase
      *
      * @return void
      */
-    public function testConnectIpv6()
+    public function testConnectIpv6(): void
     {
         $Memcache = new MemcacheEngine();
         $result = $Memcache->init([
@@ -171,7 +171,7 @@ class MemcacheEngineTest extends CakeTestCase
      *
      * @return void
      */
-    public function testParseServerStringWithU()
+    public function testParseServerStringWithU(): void
     {
         $Memcached = new TestMemcachedEngine();
         $result = $Memcached->parseServerString('udomain.net:13211');
@@ -183,7 +183,7 @@ class MemcacheEngineTest extends CakeTestCase
      *
      * @return void
      */
-    public function testParseServerStringNonLatin()
+    public function testParseServerStringNonLatin(): void
     {
         $Memcache = new TestMemcacheEngine();
         $result = $Memcache->parseServerString('schülervz.net:13211');
@@ -198,7 +198,7 @@ class MemcacheEngineTest extends CakeTestCase
      *
      * @return void
      */
-    public function testParseServerStringUnix()
+    public function testParseServerStringUnix(): void
     {
         $Memcache = new TestMemcacheEngine();
         $result = $Memcache->parseServerString('unix:///path/to/memcached.sock');
@@ -210,7 +210,7 @@ class MemcacheEngineTest extends CakeTestCase
      *
      * @return void
      */
-    public function testReadAndWriteCache()
+    public function testReadAndWriteCache(): void
     {
         Cache::set(['duration' => 1], null, 'memcache');
 
@@ -234,7 +234,7 @@ class MemcacheEngineTest extends CakeTestCase
      *
      * @return void
      */
-    public function testExpiry()
+    public function testExpiry(): void
     {
         Cache::set(['duration' => 1], 'memcache');
 
@@ -282,7 +282,7 @@ class MemcacheEngineTest extends CakeTestCase
      *
      * @return void
      */
-    public function testDeleteCache()
+    public function testDeleteCache(): void
     {
         $data = 'this is a test of the emergency broadcasting system';
         $result = Cache::write('delete_test', $data, 'memcache');
@@ -297,7 +297,7 @@ class MemcacheEngineTest extends CakeTestCase
      *
      * @return void
      */
-    public function testDecrement()
+    public function testDecrement(): void
     {
         $result = Cache::write('test_decrement', 5, 'memcache');
         $this->assertTrue($result);
@@ -320,7 +320,7 @@ class MemcacheEngineTest extends CakeTestCase
      *
      * @return void
      */
-    public function testIncrement()
+    public function testIncrement(): void
     {
         $result = Cache::write('test_increment', 5, 'memcache');
         $this->assertTrue($result);
@@ -343,7 +343,7 @@ class MemcacheEngineTest extends CakeTestCase
      *
      * @return void
      */
-    public function testConfigurationConflict()
+    public function testConfigurationConflict(): void
     {
         Cache::config('long_memcache', [
             'engine' => 'Memcache',
@@ -379,7 +379,7 @@ class MemcacheEngineTest extends CakeTestCase
      *
      * @return void
      */
-    public function testClear()
+    public function testClear(): void
     {
         Cache::config('memcache2', [
             'engine' => 'Memcache',
@@ -410,7 +410,7 @@ class MemcacheEngineTest extends CakeTestCase
      *
      * @return void
      */
-    public function testZeroDuration()
+    public function testZeroDuration(): void
     {
         Cache::config('memcache', ['duration' => 0]);
         $result = Cache::write('test_key', 'written!', 'memcache');
@@ -425,7 +425,7 @@ class MemcacheEngineTest extends CakeTestCase
      *
      * @return void
      */
-    public function testLongDurationEqualToZero()
+    public function testLongDurationEqualToZero(): void
     {
         $memcache = new TestMemcacheEngine();
         $memcache->settings['compress'] = false;
@@ -447,7 +447,7 @@ class MemcacheEngineTest extends CakeTestCase
      *
      * @return void
      */
-    public function testGroupReadWrite()
+    public function testGroupReadWrite(): void
     {
         Cache::config('memcache_groups', [
             'engine' => 'Memcache',
@@ -479,7 +479,7 @@ class MemcacheEngineTest extends CakeTestCase
      *
      * @return void
      */
-    public function testGroupDelete()
+    public function testGroupDelete(): void
     {
         Cache::config('memcache_groups', [
             'engine' => 'Memcache',
@@ -498,7 +498,7 @@ class MemcacheEngineTest extends CakeTestCase
      *
      * @return void
      */
-    public function testGroupClear()
+    public function testGroupClear(): void
     {
         Cache::config('memcache_groups', [
             'engine' => 'Memcache',
@@ -520,7 +520,7 @@ class MemcacheEngineTest extends CakeTestCase
      *
      * @return void
      */
-    public function testAdd()
+    public function testAdd(): void
     {
         Cache::delete('test_add_key', 'memcache');
 

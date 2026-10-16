@@ -28,7 +28,7 @@ class IniAclTest extends CakeTestCase
      *
      * @return void
      */
-    public function testCheck()
+    public function testCheck(): void
     {
         $iniFile = CORE_TESTS . DS . 'test_app' . DS . 'Config' . DS . 'acl.ini.php';
 
@@ -52,7 +52,7 @@ class IniAclTest extends CakeTestCase
      *
      * @return void
      */
-    public function testCheckArray()
+    public function testCheckArray(): void
     {
         $iniFile = CORE_TESTS . DS . 'test_app' . DS . 'Config' . DS . 'acl.ini.php';
 
@@ -71,7 +71,7 @@ class IniAclTest extends CakeTestCase
      *
      * @return void
      */
-    public function testUnsupportedMethods()
+    public function testUnsupportedMethods(): void
     {
         $Ini = new IniAcl();
 

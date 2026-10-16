@@ -28,7 +28,7 @@ class HelpFormatterTest extends CakeTestCase
      *
      * @return void
      */
-    public function testWidthFormatting()
+    public function testWidthFormatting(): void
     {
         $parser = new ConsoleOptionParser('test', false);
         $parser->description('This is fifteen This is fifteen This is fifteen')
@@ -73,7 +73,7 @@ TEXT;
      *
      * @return void
      */
-    public function testHelpWithChoices()
+    public function testHelpWithChoices(): void
     {
         $parser = new ConsoleOptionParser('mycommand', false);
         $parser->addOption('test', ['help' => 'A test option.', 'choices' => ['one', 'two']])
@@ -109,7 +109,7 @@ TEXT;
      *
      * @return void
      */
-    public function testHelpDescriptionAndEpilog()
+    public function testHelpDescriptionAndEpilog(): void
     {
         $parser = new ConsoleOptionParser('mycommand', false);
         $parser->description('Description text')
@@ -145,7 +145,7 @@ TEXT;
      *
      * @return void
      */
-    public function testHelpSubcommand()
+    public function testHelpSubcommand(): void
     {
         $parser = new ConsoleOptionParser('mycommand', false);
         $parser->addSubcommand('method', ['help' => 'This is another command'])
@@ -177,7 +177,7 @@ TEXT;
      *
      * @return void
      */
-    public function testHelpWithOptions()
+    public function testHelpWithOptions(): void
     {
         $parser = new ConsoleOptionParser('mycommand', false);
         $parser->addOption('test', ['help' => 'A test option.'])
@@ -207,7 +207,7 @@ TEXT;
      *
      * @return void
      */
-    public function testHelpWithOptionsAndArguments()
+    public function testHelpWithOptionsAndArguments(): void
     {
         $parser = new ConsoleOptionParser('mycommand', false);
         $parser->addOption('test', ['help' => 'A test option.'])
@@ -239,7 +239,7 @@ TEXT;
      *
      * @return void
      */
-    public function testHelpWithLotsOfOptions()
+    public function testHelpWithLotsOfOptions(): void
     {
         $parser = new ConsoleOptionParser('mycommand', false);
         $parser
@@ -264,7 +264,7 @@ TEXT;
      *
      * @return void
      */
-    public function testHelpWithLotsOfArguments()
+    public function testHelpWithLotsOfArguments(): void
     {
         $parser = new ConsoleOptionParser('mycommand', false);
         $parser
@@ -289,7 +289,7 @@ TEXT;
      *
      * @return void
      */
-    public function testXmlHelpWithChoices()
+    public function testXmlHelpWithChoices(): void
     {
         $parser = new ConsoleOptionParser('mycommand', false);
         $parser->addOption('test', ['help' => 'A test option.', 'choices' => ['one', 'two']])
@@ -343,7 +343,7 @@ TEXT;
      *
      * @return void
      */
-    public function testXmlHelpDescriptionAndEpilog()
+    public function testXmlHelpDescriptionAndEpilog(): void
     {
         $parser = new ConsoleOptionParser('mycommand', false);
         $parser->description('Description text')
@@ -385,7 +385,7 @@ TEXT;
      *
      * @return void
      */
-    public function testXmlHelpSubcommand()
+    public function testXmlHelpSubcommand(): void
     {
         $parser = new ConsoleOptionParser('mycommand', false);
         $parser->addSubcommand('method', ['help' => 'This is another command'])
@@ -423,7 +423,7 @@ TEXT;
      *
      * @return void
      */
-    public function testXmlHelpWithOptions()
+    public function testXmlHelpWithOptions(): void
     {
         $parser = new ConsoleOptionParser('mycommand', false);
         $parser->addOption('test', ['help' => 'A test option.'])
@@ -465,7 +465,7 @@ TEXT;
      *
      * @return void
      */
-    public function testXmlHelpWithOptionsAndArguments()
+    public function testXmlHelpWithOptionsAndArguments(): void
     {
         $parser = new ConsoleOptionParser('mycommand', false);
         $parser->addOption('test', ['help' => 'A test option.'])
@@ -509,7 +509,7 @@ TEXT;
      *
      * @return void
      */
-    public function testXmlHelpAsObject()
+    public function testXmlHelpAsObject(): void
     {
         $parser = new ConsoleOptionParser('mycommand', false);
         $parser->addOption('test', ['help' => 'A test option.'])
@@ -526,7 +526,7 @@ TEXT;
      *
      * @return void
      */
-    public function testConstructorDoesNotCreateDynamicProperties()
+    public function testConstructorDoesNotCreateDynamicProperties(): void
     {
         $parser = new ConsoleOptionParser('mycommand', false);
 

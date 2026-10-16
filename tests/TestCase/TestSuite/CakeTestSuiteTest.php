@@ -26,7 +26,7 @@ class CakeTestSuiteTest extends CakeTestCase
      *
      * @return void
      */
-    public function testAddTestDirectory()
+    public function testAddTestDirectory(): void
     {
         $testFolder = CORE_TESTS . DS . 'TestCase' . DS . 'TestSuite';
         $count = count(glob($testFolder . DS . '*Test.php'));
@@ -44,7 +44,7 @@ class CakeTestSuiteTest extends CakeTestCase
      *
      * @return void
      */
-    public function testAddTestDirectoryRecursive()
+    public function testAddTestDirectoryRecursive(): void
     {
         $testFolder = CORE_TESTS . DS . 'TestCase' . DS . 'Cache';
         $count = count(glob($testFolder . DS . '*Test.php'));
@@ -63,7 +63,7 @@ class CakeTestSuiteTest extends CakeTestCase
      *
      * @return void
      */
-    public function testAddTestDirectoryRecursiveWithHidden()
+    public function testAddTestDirectoryRecursiveWithHidden(): void
     {
         $this->skipIf(!is_writable(TMP), 'Cant addTestDirectoryRecursiveWithHidden unless the tmp folder is writable.');
 
@@ -88,7 +88,7 @@ class CakeTestSuiteTest extends CakeTestCase
      *
      * @return void
      */
-    public function testAddTestDirectoryRecursiveWithNonPhp()
+    public function testAddTestDirectoryRecursiveWithNonPhp(): void
     {
         $this->skipIf(!is_writable(TMP), 'Cant addTestDirectoryRecursiveWithNonPhp unless the tmp folder is writable.');
 
@@ -112,7 +112,7 @@ class CakeTestSuiteTest extends CakeTestCase
      *
      * @return void
      */
-    public function testCommandConstructorDoesNotCreateDynamicProperties()
+    public function testCommandConstructorDoesNotCreateDynamicProperties(): void
     {
         $deprecations = [];
         $level = error_reporting(E_ALL);

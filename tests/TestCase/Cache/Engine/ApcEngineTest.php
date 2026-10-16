@@ -79,7 +79,7 @@ class ApcEngineTest extends CakeTestCase
      *
      * @return void
      */
-    public function testReadAndWriteCache()
+    public function testReadAndWriteCache(): void
     {
         Cache::set(['duration' => 1], 'apc');
 
@@ -103,7 +103,7 @@ class ApcEngineTest extends CakeTestCase
      *
      * @return void
      */
-    public function testReadWriteDurationZero()
+    public function testReadWriteDurationZero(): void
     {
         Cache::config('apc', ['engine' => 'Apc', 'duration' => 0, 'prefix' => 'cake_']);
         Cache::write('zero', 'Should save', 'apc');
@@ -118,7 +118,7 @@ class ApcEngineTest extends CakeTestCase
      *
      * @return void
      */
-    public function testExpiry()
+    public function testExpiry(): void
     {
         Cache::set(['duration' => 1], 'apc');
 
@@ -153,7 +153,7 @@ class ApcEngineTest extends CakeTestCase
      *
      * @return void
      */
-    public function testDeleteCache()
+    public function testDeleteCache(): void
     {
         $data = 'this is a test of the emergency broadcasting system';
         $result = Cache::write('delete_test', $data, 'apc');
@@ -168,7 +168,7 @@ class ApcEngineTest extends CakeTestCase
      *
      * @return void
      */
-    public function testDecrement()
+    public function testDecrement(): void
     {
         $hasSupport = function_exists('apc_dec') || function_exists('apcu_dec');
         $this->skipIf(!$hasSupport, 'No apc_dec()/apcu_dec() function, cannot test decrement().');
@@ -194,7 +194,7 @@ class ApcEngineTest extends CakeTestCase
      *
      * @return void
      */
-    public function testIncrement()
+    public function testIncrement(): void
     {
         $hasSupport = function_exists('apc_inc') || function_exists('apcu_inc');
         $this->skipIf(!$hasSupport, 'No apc_inc()/apcu_inc() function, cannot test increment().');
@@ -220,7 +220,7 @@ class ApcEngineTest extends CakeTestCase
      *
      * @return void
      */
-    public function testClear()
+    public function testClear(): void
     {
         $storeFunc = $this->_apcExtension . '_store';
         $fetchFunc = $this->_apcExtension . '_fetch';
@@ -243,7 +243,7 @@ class ApcEngineTest extends CakeTestCase
      *
      * @return void
      */
-    public function testGroupsReadWrite()
+    public function testGroupsReadWrite(): void
     {
         $incFunc = $this->_apcExtension . '_inc';
         Cache::config('apc_groups', [
@@ -271,7 +271,7 @@ class ApcEngineTest extends CakeTestCase
      *
      * @return void
      */
-    public function testGroupDelete()
+    public function testGroupDelete(): void
     {
         Cache::config('apc_groups', [
             'engine' => 'Apc',
@@ -291,7 +291,7 @@ class ApcEngineTest extends CakeTestCase
      *
      * @return void
      */
-    public function testGroupClear()
+    public function testGroupClear(): void
     {
         Cache::config('apc_groups', [
             'engine' => 'Apc',
@@ -314,7 +314,7 @@ class ApcEngineTest extends CakeTestCase
      *
      * @return void
      */
-    public function testAdd()
+    public function testAdd(): void
     {
         Cache::delete('test_add_key', 'apc');
 

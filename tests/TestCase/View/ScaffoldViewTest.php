@@ -33,7 +33,7 @@ class TestScaffoldView extends ScaffoldView
      * @param string $action
      * @return void
      */
-    public function testGetFilename($action)
+    public function testGetFilename($action): mixed
     {
         return $this->_getViewFileName($action);
     }
@@ -111,7 +111,7 @@ class ScaffoldViewTest extends CakeTestCase
      *
      * @return void
      */
-    public function testGetViewFilename()
+    public function testGetViewFilename(): void
     {
         $_admin = Configure::read('Routing.prefixes');
         Configure::write('Routing.prefixes', ['admin']);
@@ -197,7 +197,7 @@ class ScaffoldViewTest extends CakeTestCase
      *
      * @return void
      */
-    public function testGetViewFileNameWithTheme()
+    public function testGetViewFileNameWithTheme(): void
     {
         $this->Controller->request['action'] = 'index';
         $this->Controller->viewPath = 'Posts';
@@ -215,7 +215,7 @@ class ScaffoldViewTest extends CakeTestCase
      *
      * @return void
      */
-    public function testIndexScaffold()
+    public function testIndexScaffold(): void
     {
         $params = [
             'plugin' => null,
@@ -255,7 +255,7 @@ class ScaffoldViewTest extends CakeTestCase
      *
      * @return void
      */
-    public function testViewScaffold()
+    public function testViewScaffold(): void
     {
         $this->Controller->request->base = '';
         $this->Controller->request->here = '/scaffold_mock';
@@ -298,7 +298,7 @@ class ScaffoldViewTest extends CakeTestCase
      *
      * @return void
      */
-    public function testEditScaffold()
+    public function testEditScaffold(): void
     {
         $this->Controller->request->base = '';
         $this->Controller->request->webroot = '/';
@@ -341,7 +341,7 @@ class ScaffoldViewTest extends CakeTestCase
      *
      * @return void
      */
-    public function testAdminIndexScaffold()
+    public function testAdminIndexScaffold(): void
     {
         $_backAdmin = Configure::read('Routing.prefixes');
 
@@ -387,7 +387,7 @@ class ScaffoldViewTest extends CakeTestCase
      *
      * @return void
      */
-    public function testAdminEditScaffold()
+    public function testAdminEditScaffold(): void
     {
         Configure::write('Routing.prefixes', ['admin']);
         $params = [
@@ -427,7 +427,7 @@ class ScaffoldViewTest extends CakeTestCase
      *
      * @return void
      */
-    public function testMultiplePrefixScaffold()
+    public function testMultiplePrefixScaffold(): void
     {
         $_backAdmin = Configure::read('Routing.prefixes');
 

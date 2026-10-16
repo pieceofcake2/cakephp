@@ -32,7 +32,7 @@ class AllDatabaseTest extends TestSuite
      *
      * @return void
      */
-    public static function suite()
+    public static function suite(): mixed
     {
         $suite = new TestSuite('Datasources, Schema and DbAcl tests');
 

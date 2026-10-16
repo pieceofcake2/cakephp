@@ -41,7 +41,7 @@ class JsonViewTest extends CakeTestCase
      *
      * @return void
      */
-    public static function renderWithoutViewProvider()
+    public static function renderWithoutViewProvider(): mixed
     {
         return [
             // Test render with a valid string in _serialize.
@@ -169,7 +169,7 @@ class JsonViewTest extends CakeTestCase
      * @return void
      * @throws CakeException
      **/
-    public function jsonEncodeErrorHandler($errno, $errstr, $errfile, $errline, $errcontext)
+    public function jsonEncodeErrorHandler($errno, $errstr, $errfile, $errline, $errcontext): void
     {
         throw new CakeException($errstr, 0, $errno, $errfile, $errline);
     }
@@ -180,7 +180,7 @@ class JsonViewTest extends CakeTestCase
      * @dataProvider renderWithoutViewProvider
      * @return void
      */
-    public function testRenderWithoutView($data, $serialize, $expected)
+    public function testRenderWithoutView($data, $serialize, $expected): void
     {
         $Request = new CakeRequest();
         $Response = new CakeResponse();
@@ -199,7 +199,7 @@ class JsonViewTest extends CakeTestCase
      *
      * @return void
      */
-    public function testRenderWithoutViewJsonOptions()
+    public function testRenderWithoutViewJsonOptions(): void
     {
         $Request = new CakeRequest();
         $Response = new CakeResponse();
@@ -224,7 +224,7 @@ class JsonViewTest extends CakeTestCase
      *
      * @return void
      */
-    public function testRenderSerializeNoHelpers()
+    public function testRenderSerializeNoHelpers(): void
     {
         $Request = new CakeRequest();
         $Response = new CakeResponse();
@@ -246,7 +246,7 @@ class JsonViewTest extends CakeTestCase
      *
      * @return void
      */
-    public function testJsonpResponse()
+    public function testJsonpResponse(): void
     {
         $Request = new CakeRequest();
         $Response = new CakeResponse();
@@ -282,7 +282,7 @@ class JsonViewTest extends CakeTestCase
      *
      * @return void
      */
-    public function testRenderWithView()
+    public function testRenderWithView(): void
     {
         App::build([
             'View' => [CORE_TESTS . DS . 'test_app' . DS . 'View' . DS],
@@ -315,7 +315,7 @@ class JsonViewTest extends CakeTestCase
      *
      * @return void
      */
-    public function testRenderWithViewAndNamed()
+    public function testRenderWithViewAndNamed(): void
     {
         App::build([
             'View' => [CORE_TESTS . DS . 'test_app' . DS . 'View' . DS],
@@ -360,7 +360,7 @@ class JsonViewTest extends CakeTestCase
      *
      * @return void
      */
-    public function testRenderInvalidJSON()
+    public function testRenderInvalidJSON(): void
     {
         $Request = new CakeRequest();
         $Response = new CakeResponse();
@@ -395,7 +395,7 @@ class JsonViewTest extends CakeTestCase
      *
      * @return void
      */
-    public function testRenderJSONBoolFalse()
+    public function testRenderJSONBoolFalse(): void
     {
         $Request = new CakeRequest();
         $Response = new CakeResponse();

@@ -59,7 +59,7 @@ class MediaViewTest extends CakeTestCase
      *
      * @return void
      */
-    public function testRender()
+    public function testRender(): void
     {
         $vars = [
             'path' => CORE_TESTS . DS . 'test_app' . DS . 'Vendor' . DS . 'css' . DS,
@@ -85,7 +85,7 @@ class MediaViewTest extends CakeTestCase
      *
      * @return void
      */
-    public function testRenderCachingAndName()
+    public function testRenderCachingAndName(): void
     {
         $vars = [
             'path' => CORE_TESTS . DS . 'test_app' . DS . 'Vendor' . DS . 'css' . DS,
@@ -121,7 +121,7 @@ class MediaViewTest extends CakeTestCase
      *
      * @return void
      */
-    public function testRenderUpperExtension()
+    public function testRenderUpperExtension(): void
     {
         $this->MediaView->viewVars = [
             'path' => CORE_TESTS . DS . 'test_app' . DS . 'Vendor' . DS . 'img' . DS,

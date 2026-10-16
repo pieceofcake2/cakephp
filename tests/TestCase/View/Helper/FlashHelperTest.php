@@ -117,7 +117,7 @@ class FlashHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testFlash()
+    public function testFlash(): void
     {
         $result = $this->Flash->render();
         $expected = '<div class="message">This is the first Message</div><div class="message">This is the second Message</div>';
@@ -137,7 +137,7 @@ class FlashHelperTest extends CakeTestCase
     /**
      * testFlashThrowsException
      */
-    public function testFlashThrowsException()
+    public function testFlashThrowsException(): void
     {
         $this->expectException(UnexpectedValueException::class);
         CakeSession::write('Message.foo', 'bar');
@@ -149,7 +149,7 @@ class FlashHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testFlashElementInAttrs()
+    public function testFlashElementInAttrs(): void
     {
         $result = $this->Flash->render('notification', [
             'element' => 'flash_helper',
@@ -166,7 +166,7 @@ class FlashHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testFlashWithPluginElement()
+    public function testFlashWithPluginElement(): void
     {
         App::build([
             'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS],
@@ -181,7 +181,7 @@ class FlashHelperTest extends CakeTestCase
     /**
      * Test that the default element fallbacks to the Flash/default element.
      */
-    public function testFlashFallback()
+    public function testFlashFallback(): void
     {
         $result = $this->Flash->render('default');
         $expected = '<div class="message">Default</div>';

@@ -44,7 +44,7 @@ class ActionsAuthorizeTest extends CakeTestCase
      *
      * @return void
      */
-    protected function _mockAcl()
+    protected function _mockAcl(): void
     {
         $this->Collection->expects($this->any())
             ->method('load')
@@ -57,7 +57,7 @@ class ActionsAuthorizeTest extends CakeTestCase
      *
      * @return void
      */
-    public function testAuthorizeFailure()
+    public function testAuthorizeFailure(): void
     {
         $user = [
             'User' => [
@@ -87,7 +87,7 @@ class ActionsAuthorizeTest extends CakeTestCase
      *
      * @return void
      */
-    public function testAuthorizeSuccess()
+    public function testAuthorizeSuccess(): void
     {
         $user = [
             'User' => [
@@ -117,7 +117,7 @@ class ActionsAuthorizeTest extends CakeTestCase
      *
      * @return void
      */
-    public function testAuthorizeSettings()
+    public function testAuthorizeSettings(): void
     {
         $request = new CakeRequest('/posts/index', false);
         $request->addParams([
@@ -148,7 +148,7 @@ class ActionsAuthorizeTest extends CakeTestCase
      *
      * @return void
      */
-    public function testActionMethod()
+    public function testActionMethod(): void
     {
         $request = new CakeRequest('/posts/index', false);
         $request->addParams([
@@ -166,7 +166,7 @@ class ActionsAuthorizeTest extends CakeTestCase
      *
      * @return void
      */
-    public function testActionNoDoubleSlash()
+    public function testActionNoDoubleSlash(): void
     {
         $this->auth->settings['actionPath'] = '/controllers/';
         $request = new CakeRequest('/posts/index', false);
@@ -184,7 +184,7 @@ class ActionsAuthorizeTest extends CakeTestCase
      *
      * @return void
      */
-    public function testActionWithPlugin()
+    public function testActionWithPlugin(): void
     {
         $request = new CakeRequest('/debug_kit/posts/index', false);
         $request->addParams([

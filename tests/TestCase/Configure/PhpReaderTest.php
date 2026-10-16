@@ -59,7 +59,7 @@ class PhpReaderTest extends CakeTestCase
      *
      * @return void
      */
-    public function testRead()
+    public function testRead(): void
     {
         $reader = new PhpReader($this->path);
         $values = $reader->read('var_test');
@@ -75,7 +75,7 @@ class PhpReaderTest extends CakeTestCase
      *
      * @return void
      */
-    public function testReadWithExistentFileWithoutExtension()
+    public function testReadWithExistentFileWithoutExtension(): void
     {
         $this->expectException(ConfigureException::class);
         $reader = new PhpReader($this->path);
@@ -87,7 +87,7 @@ class PhpReaderTest extends CakeTestCase
      *
      * @return void
      */
-    public function testReadWithNonExistentFile()
+    public function testReadWithNonExistentFile(): void
     {
         $this->expectException(ConfigureException::class);
         $reader = new PhpReader($this->path);
@@ -99,7 +99,7 @@ class PhpReaderTest extends CakeTestCase
      *
      * @return void
      */
-    public function testReadEmptyFile()
+    public function testReadEmptyFile(): void
     {
         $this->expectException(ConfigureException::class);
         $reader = new PhpReader($this->path);
@@ -111,7 +111,7 @@ class PhpReaderTest extends CakeTestCase
      *
      * @return void
      */
-    public function testReadWithDots()
+    public function testReadWithDots(): void
     {
         $this->expectException(ConfigureException::class);
         $reader = new PhpReader($this->path);
@@ -123,7 +123,7 @@ class PhpReaderTest extends CakeTestCase
      *
      * @return void
      */
-    public function testReadPluginValue()
+    public function testReadPluginValue(): void
     {
         App::build([
             'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS],
@@ -143,7 +143,7 @@ class PhpReaderTest extends CakeTestCase
      *
      * @return void
      */
-    public function testDump()
+    public function testDump(): void
     {
         $reader = new PhpReader(TMP);
         $result = $reader->dump('test.php', $this->testData);
@@ -188,7 +188,7 @@ class PhpReaderTest extends CakeTestCase
      *
      * @return void
      */
-    public function testDumpRead()
+    public function testDumpRead(): void
     {
         $reader = new PhpReader(TMP);
         $reader->dump('test.php', $this->testData);

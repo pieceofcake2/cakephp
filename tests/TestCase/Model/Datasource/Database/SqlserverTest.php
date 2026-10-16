@@ -54,7 +54,7 @@ class SqlserverTestDb extends Sqlserver
      * @param mixed $prepareOptions
      * @return mixed
      */
-    protected function _execute($sql, $params = [], $prepareOptions = [])
+    protected function _execute($sql, $params = [], $prepareOptions = []): mixed
     {
         $this->simulated[] = $sql;
 
@@ -89,7 +89,7 @@ class SqlserverTestDb extends Sqlserver
      * @param mixed $model
      * @return string
      */
-    public function getPrimaryKey($model)
+    public function getPrimaryKey($model): string
     {
         return parent::_getPrimaryKey($model);
     }
@@ -99,7 +99,7 @@ class SqlserverTestDb extends Sqlserver
      *
      * @return void
      */
-    public function clearFieldMappings()
+    public function clearFieldMappings(): void
     {
         $this->_fieldMappings = [];
     }
@@ -176,7 +176,7 @@ class SqlserverTestModel extends CakeTestModel
      * @param mixed $recursive
      * @return mixed
      */
-    public function find($conditions = null, $fields = null, $order = null, $recursive = null)
+    public function find($conditions = null, $fields = null, $order = null, $recursive = null): mixed
     {
         return $conditions;
     }
@@ -222,7 +222,7 @@ class SqlserverTestResultIterator extends ArrayIterator
      *
      * @return void
      */
-    public function closeCursor()
+    public function closeCursor(): void
     {
     }
 
@@ -231,7 +231,7 @@ class SqlserverTestResultIterator extends ArrayIterator
      *
      * @return void
      */
-    public function fetch()
+    public function fetch(): mixed
     {
         if (!$this->valid()) {
             return null;
@@ -305,7 +305,7 @@ class SqlserverTest extends CakeTestCase
      *
      * @return void
      */
-    public function testQuoting()
+    public function testQuoting(): void
     {
         $expected = '1.2';
         $result = $this->db->value(1.2, 'float');
@@ -337,7 +337,7 @@ class SqlserverTest extends CakeTestCase
      *
      * @return void
      */
-    public function testFields()
+    public function testFields(): void
     {
         $fields = [
             '[SqlserverTestModel].[id] AS [SqlserverTestModel__id]',
@@ -392,7 +392,7 @@ class SqlserverTest extends CakeTestCase
      *
      * @return void
      */
-    public function testDistinctFields()
+    public function testDistinctFields(): void
     {
         $result = $this->db->fields($this->model, null, ['DISTINCT Car.country_code']);
         $expected = ['DISTINCT [Car].[country_code] AS [Car__country_code]'];
@@ -412,7 +412,7 @@ class SqlserverTest extends CakeTestCase
      *
      * @return void
      */
-    public function testDistinctWithLimit()
+    public function testDistinctWithLimit(): void
     {
         $this->db->read($this->model, [
             'fields' => ['DISTINCT SqlserverTestModel.city', 'SqlserverTestModel.country'],
@@ -434,7 +434,7 @@ class SqlserverTest extends CakeTestCase
      *
      * @return void
      */
-    public function testDescribe()
+    public function testDescribe(): void
     {
         $SqlserverTableDescription = new SqlserverTestResultIterator([
             (object)[
@@ -541,7 +541,7 @@ class SqlserverTest extends CakeTestCase
      *
      * @return void
      */
-    public function testBuildColumn()
+    public function testBuildColumn(): void
     {
         $column = ['name' => 'id', 'type' => 'integer', 'null' => false, 'default' => '', 'length' => '8', 'key' => 'primary'];
         $result = $this->db->buildColumn($column);
@@ -633,7 +633,7 @@ class SqlserverTest extends CakeTestCase
      *
      * @return void
      */
-    public function testBuildIndex()
+    public function testBuildIndex(): void
     {
         $indexes = [
             'PRIMARY' => ['column' => 'id', 'unique' => 1],
@@ -661,7 +661,7 @@ class SqlserverTest extends CakeTestCase
      *
      * @return void
      */
-    public function testUpdateAllSyntax()
+    public function testUpdateAllSyntax(): void
     {
         $fields = ['SqlserverTestModel.client_id' => '[SqlserverTestModel].[client_id] + 1'];
         $conditions = ['SqlserverTestModel.updated <' => date('2009-01-01 00:00:00')];
@@ -678,7 +678,7 @@ class SqlserverTest extends CakeTestCase
      *
      * @return void
      */
-    public function testGetPrimaryKey()
+    public function testGetPrimaryKey(): void
     {
         $schema = $this->model->schema();
 
@@ -697,7 +697,7 @@ class SqlserverTest extends CakeTestCase
      *
      * @return void
      */
-    public function testLimitOffsetHack()
+    public function testLimitOffsetHack(): void
     {
         $this->loadFixtures('Author', 'Post', 'User');
         $query = [
@@ -731,7 +731,7 @@ class SqlserverTest extends CakeTestCase
      *
      * @return void
      */
-    public function testStoredProcedureReturn()
+    public function testStoredProcedureReturn(): void
     {
         $sql = <<<SQL
 CREATE PROCEDURE cake_test_procedure
@@ -759,7 +759,7 @@ SQL;
      *
      * @return void
      */
-    public function testBuildStatementWithHaving()
+    public function testBuildStatementWithHaving(): void
     {
         $db = $this->getMock('SqlserverTestDb', ['getVersion'], [$this->Dbo->config]);
 
@@ -791,7 +791,7 @@ SQL;
      *
      * @return void
      */
-    public function testBuildStatementWithLockingHint()
+    public function testBuildStatementWithLockingHint(): void
     {
         $db = $this->getMock('SqlserverTestDb', ['getVersion'], [$this->Dbo->config]);
 
@@ -822,7 +822,7 @@ SQL;
      *
      * @return void
      */
-    public function testBuildStatementWithHavingForLegacyVersion()
+    public function testBuildStatementWithHavingForLegacyVersion(): void
     {
         $db = $this->getMock('SqlserverTestDb', ['getVersion'], [$this->Dbo->config]);
 
@@ -861,7 +861,7 @@ SQL;
      *
      * @return void
      */
-    public function testBuildStatementWithLockingHintForLegacyVersion()
+    public function testBuildStatementWithLockingHintForLegacyVersion(): void
     {
         $db = $this->getMock('SqlserverTestDb', ['getVersion'], [$this->Dbo->config]);
 
@@ -899,7 +899,7 @@ SQL;
      *
      * @return void
      */
-    public function testListSourcesQueryFailure()
+    public function testListSourcesQueryFailure(): void
     {
         $db = $this->getMock('Sqlserver', ['_execute', 'getSchemaName'], [$this->Dbo->config, false]);
         $db->cacheSources = false;
@@ -916,7 +916,7 @@ SQL;
      *
      * @return void
      */
-    public function testExecuteFailureQueryString()
+    public function testExecuteFailureQueryString(): void
     {
         $db = new Sqlserver($this->Dbo->config, false);
         $connection = $this->getMock('PDO', ['exec'], [], '', false);

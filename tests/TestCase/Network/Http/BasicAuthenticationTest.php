@@ -28,7 +28,7 @@ class TestSslHttpSocket extends HttpSocket
      *
      * @return void
      */
-    public function testSetProxy($proxy = null)
+    public function testSetProxy($proxy = null): void
     {
         $this->_proxy = $proxy;
         $this->_setProxy();
@@ -47,7 +47,7 @@ class BasicAuthenticationTest extends CakeTestCase
      *
      * @return void
      */
-    public function testAuthentication()
+    public function testAuthentication(): void
     {
         $http = new HttpSocket();
         $auth = [
@@ -65,7 +65,7 @@ class BasicAuthenticationTest extends CakeTestCase
      *
      * @return void
      */
-    public function testProxyAuthentication()
+    public function testProxyAuthentication(): void
     {
         $http = new HttpSocket();
         $proxy = [
@@ -83,7 +83,7 @@ class BasicAuthenticationTest extends CakeTestCase
      *
      * @return void
      */
-    public function testProxyAuthenticationSsl()
+    public function testProxyAuthenticationSsl(): void
     {
         $http = new TestSslHttpSocket();
         $http->request['uri']['scheme'] = 'https';

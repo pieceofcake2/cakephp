@@ -35,7 +35,7 @@ class CacheTestController extends Controller
      *
      * @return void
      */
-    public function cache_parsing()
+    public function cache_parsing(): void
     {
         $this->viewPath = 'Posts';
         $this->layout = 'cache_layout';
@@ -58,7 +58,7 @@ class CacheHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function skip()
+    public function skip(): void
     {
         if (!is_writable(TMP . 'cache' . DS . 'views' . DS)) {
             $this->markTestSkipped('TMP/views is not writable %s');
@@ -103,7 +103,7 @@ class CacheHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testLayoutCacheParsingNoTagsInView()
+    public function testLayoutCacheParsingNoTagsInView(): void
     {
         $this->Controller->cache_parsing();
         $this->Controller->request->addParams([
@@ -137,7 +137,7 @@ class CacheHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testLayoutCacheParsingNoTagsInViewWithRelativeDuration()
+    public function testLayoutCacheParsingNoTagsInViewWithRelativeDuration(): void
     {
         $this->Controller->cache_parsing();
         $this->Controller->request->addParams([
@@ -171,7 +171,7 @@ class CacheHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testCacheNonLatinCharactersInRoute()
+    public function testCacheNonLatinCharactersInRoute(): void
     {
         $this->Controller->cache_parsing();
         $this->Controller->request->addParams([
@@ -198,7 +198,7 @@ class CacheHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testLayoutCacheParsingWithTagsInView()
+    public function testLayoutCacheParsingWithTagsInView(): void
     {
         $this->Controller->cache_parsing();
         $this->Controller->request->addParams([
@@ -233,7 +233,7 @@ class CacheHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testMultipleNoCacheTagsInViewfile()
+    public function testMultipleNoCacheTagsInViewfile(): void
     {
         $this->Controller->cache_parsing();
         $this->Controller->request->addParams([
@@ -265,7 +265,7 @@ class CacheHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testComplexNoCache()
+    public function testComplexNoCache(): void
     {
         $this->Controller->cache_parsing();
         $this->Controller->request->addParams([
@@ -326,7 +326,7 @@ class CacheHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testCacheViewVars()
+    public function testCacheViewVars(): void
     {
         $this->Controller->cache_parsing();
         $this->Controller->request->addParams([
@@ -359,7 +359,7 @@ class CacheHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testCacheCallbacks()
+    public function testCacheCallbacks(): void
     {
         $this->Controller->request->addParams([
             'controller' => 'cache_test',
@@ -394,7 +394,7 @@ class CacheHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testCacheActionArray()
+    public function testCacheActionArray(): void
     {
         $this->Controller->request->addParams([
             'controller' => 'cache_test',
@@ -425,7 +425,7 @@ class CacheHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testCacheActionArrayCamelCase()
+    public function testCacheActionArrayCamelCase(): void
     {
         $this->Controller->request->addParams([
             'controller' => 'cache_test',
@@ -455,7 +455,7 @@ class CacheHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testCacheWithNamedAndPassedArgs()
+    public function testCacheWithNamedAndPassedArgs(): void
     {
         Router::reload();
 
@@ -490,7 +490,7 @@ class CacheHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testCacheWithQueryStringParams()
+    public function testCacheWithQueryStringParams(): void
     {
         Router::reload();
 
@@ -523,7 +523,7 @@ class CacheHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testCacheWithCustomRoutes()
+    public function testCacheWithCustomRoutes(): void
     {
         Router::reload();
         Router::connect('/:lang/:controller/:action/*', [], ['lang' => '[a-z]{3}']);
@@ -562,7 +562,7 @@ class CacheHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testCacheBaseNameControllerName()
+    public function testCacheBaseNameControllerName(): void
     {
         $this->Controller->cache_parsing();
         $this->Controller->cacheAction = [
@@ -594,7 +594,7 @@ class CacheHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testAfterRenderConditions()
+    public function testAfterRenderConditions(): void
     {
         Configure::write('Cache.check', true);
         $View = new View($this->Controller);
@@ -622,7 +622,7 @@ class CacheHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testAfterLayoutConditions()
+    public function testAfterLayoutConditions(): void
     {
         Configure::write('Cache.check', true);
         $View = new View($this->Controller);
@@ -652,7 +652,7 @@ class CacheHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testCacheEmptySections()
+    public function testCacheEmptySections(): void
     {
         $this->Controller->cache_parsing();
         $this->Controller->params = [

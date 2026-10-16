@@ -43,7 +43,7 @@ class BasicsTest extends CakeTestCase
      *
      * @return void
      */
-    public function testArrayDiffKey()
+    public function testArrayDiffKey(): void
     {
         $one = ['one' => 1, 'two' => 2, 'three' => 3];
         $two = ['one' => 'one', 'two' => 'two'];
@@ -74,7 +74,7 @@ class BasicsTest extends CakeTestCase
      *
      * @return void
      */
-    public function testEnv()
+    public function testEnv(): void
     {
         $server = $_SERVER;
         $env = $_ENV;
@@ -178,7 +178,7 @@ class BasicsTest extends CakeTestCase
      *
      * @return void
      */
-    public function testH()
+    public function testH(): void
     {
         $string = '<foo>';
         $result = h($string);
@@ -251,7 +251,7 @@ class BasicsTest extends CakeTestCase
      *
      * @return void
      */
-    public function testAm()
+    public function testAm(): void
     {
         $result = am(['one', 'two'], 2, 3, 4);
         $expected = ['one', 'two', 2, 3, 4];
@@ -267,7 +267,7 @@ class BasicsTest extends CakeTestCase
      *
      * @return void
      */
-    public function testCache()
+    public function testCache(): void
     {
         $_cacheDisable = Configure::read('Cache.disable');
         $this->skipIf($_cacheDisable, 'Cache is disabled, skipping cache() tests.');
@@ -303,7 +303,7 @@ class BasicsTest extends CakeTestCase
      *
      * @return void
      */
-    public function testClearCache()
+    public function testClearCache(): void
     {
         $cacheOff = Configure::read('Cache.disable');
         $this->skipIf($cacheOff, 'Cache is disabled, skipping clearCache() tests.');
@@ -366,7 +366,7 @@ class BasicsTest extends CakeTestCase
      *
      * @return void
      */
-    public function testTranslate()
+    public function testTranslate(): void
     {
         Configure::write('Config.language', 'rule_1_po');
 
@@ -416,7 +416,7 @@ class BasicsTest extends CakeTestCase
      *
      * @return void
      */
-    public function testTranslatePercent()
+    public function testTranslatePercent(): void
     {
         $result = __('%s are 100% real fruit', 'Apples');
         $expected = 'Apples are 100% real fruit';
@@ -452,7 +452,7 @@ class BasicsTest extends CakeTestCase
      *
      * @return void
      */
-    public function testTranslateWithFormatSpecifiers()
+    public function testTranslateWithFormatSpecifiers(): void
     {
         $expected = 'Check,   one, two, three';
         $result = __('Check, %+10s, three', 'one, two');
@@ -496,7 +496,7 @@ class BasicsTest extends CakeTestCase
      *
      * @return void
      */
-    public function testTranslateDomainPluralWithFormatSpecifiers()
+    public function testTranslateDomainPluralWithFormatSpecifiers(): void
     {
         $result = __dn('core', '%+5d item.', '%+5d items.', 1, 1);
         $expected = '   +1 item.';
@@ -524,7 +524,7 @@ class BasicsTest extends CakeTestCase
      *
      * @return void
      */
-    public function testTranslatePluralWithFormatSpecifiers()
+    public function testTranslatePluralWithFormatSpecifiers(): void
     {
         Configure::write('Config.language', 'rule_1_po');
 
@@ -538,7 +538,7 @@ class BasicsTest extends CakeTestCase
      *
      * @return void
      */
-    public function testTranslateDomainCategoryWithFormatSpecifiers()
+    public function testTranslateDomainCategoryWithFormatSpecifiers(): void
     {
         Configure::write('Config.language', 'rule_1_po');
 
@@ -560,7 +560,7 @@ class BasicsTest extends CakeTestCase
      *
      * @return void
      */
-    public function testTranslateDomainCategoryPluralWithFormatSpecifiers()
+    public function testTranslateDomainCategoryPluralWithFormatSpecifiers(): void
     {
         Configure::write('Config.language', 'rule_1_po');
 
@@ -578,7 +578,7 @@ class BasicsTest extends CakeTestCase
      *
      * @return void
      */
-    public function testTranslateCategoryWithFormatSpecifiers()
+    public function testTranslateCategoryWithFormatSpecifiers(): void
     {
         $result = __c('Some string with %+10s', 6, 'arguments');
         $expected = 'Some string with  arguments';
@@ -598,7 +598,7 @@ class BasicsTest extends CakeTestCase
      *
      * @return void
      */
-    public function testTranslatePlural()
+    public function testTranslatePlural(): void
     {
         Configure::write('Config.language', 'rule_1_po');
 
@@ -632,7 +632,7 @@ class BasicsTest extends CakeTestCase
      *
      * @return void
      */
-    public function testTranslateDomain()
+    public function testTranslateDomain(): void
     {
         Configure::write('Config.language', 'rule_1_po');
 
@@ -666,7 +666,7 @@ class BasicsTest extends CakeTestCase
      *
      * @return void
      */
-    public function testTranslateDomainPlural()
+    public function testTranslateDomainPlural(): void
     {
         Configure::write('Config.language', 'rule_1_po');
 
@@ -704,7 +704,7 @@ class BasicsTest extends CakeTestCase
      *
      * @return void
      */
-    public function testTranslateCategory()
+    public function testTranslateCategory(): void
     {
         Configure::write('Config.language', 'rule_1_po');
 
@@ -734,7 +734,7 @@ class BasicsTest extends CakeTestCase
      *
      * @return void
      */
-    public function testTranslateDomainCategory()
+    public function testTranslateDomainCategory(): void
     {
         Configure::write('Config.language', 'rule_1_po');
 
@@ -772,7 +772,7 @@ class BasicsTest extends CakeTestCase
      *
      * @return void
      */
-    public function testTranslateDomainCategoryPlural()
+    public function testTranslateDomainCategoryPlural(): void
     {
         Configure::write('Config.language', 'rule_1_po');
 
@@ -806,7 +806,7 @@ class BasicsTest extends CakeTestCase
      *
      * @return void
      */
-    public function testLogError()
+    public function testLogError(): void
     {
         if (file_exists(LOGS . 'error.log')) {
             unlink(LOGS . 'error.log');
@@ -835,7 +835,7 @@ class BasicsTest extends CakeTestCase
      *
      * @return void
      */
-    public function testFileExistsInPath()
+    public function testFileExistsInPath(): void
     {
         if (!function_exists('ini_set')) {
             $this->markTestSkipped('%s ini_set function not available');
@@ -882,7 +882,7 @@ class BasicsTest extends CakeTestCase
      *
      * @return void
      */
-    public function testConvertSlash()
+    public function testConvertSlash(): void
     {
         $result = convertSlash('\path\to\location\\');
         $expected = '\path\to\location\\';
@@ -898,7 +898,7 @@ class BasicsTest extends CakeTestCase
      *
      * @return void
      */
-    public function testDebug()
+    public function testDebug(): void
     {
         ob_start();
         debug('this-is-a-test', false);
@@ -1064,7 +1064,7 @@ EXPECTED;
      *
      * @return void
      */
-    public function testPr()
+    public function testPr(): void
     {
         $this->skipIf(PHP_SAPI === 'cli', 'Skipping web test in cli mode');
         ob_start();
@@ -1085,7 +1085,7 @@ EXPECTED;
      *
      * @return void
      */
-    public function testPrCli()
+    public function testPrCli(): void
     {
         $this->skipIf(PHP_SAPI !== 'cli', 'Skipping cli test in web mode');
         ob_start();
@@ -1106,7 +1106,7 @@ EXPECTED;
      *
      * @return void
      */
-    public function testStripslashesDeep()
+    public function testStripslashesDeep(): void
     {
         $this->assertEquals(stripslashes_deep("tes\'t"), "tes't");
         $this->assertEquals(stripslashes_deep('tes\\' . chr(0) . 't'), 'tes' . chr(0) . 't');
@@ -1142,7 +1142,7 @@ EXPECTED;
      *
      * @return void
      */
-    public function testStackTrace()
+    public function testStackTrace(): void
     {
         ob_start();
         [, $expected] = [stackTrace(), Debugger::trace()];
@@ -1161,7 +1161,7 @@ EXPECTED;
      *
      * @return void
      */
-    public function testPluginSplit()
+    public function testPluginSplit(): void
     {
         $result = pluginSplit('Something.else');
         $this->assertEquals(['Something', 'else'], $result);

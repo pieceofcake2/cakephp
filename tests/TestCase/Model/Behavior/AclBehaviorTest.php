@@ -68,7 +68,7 @@ class AclPerson extends CakeTestModel
      *
      * @return void
      */
-    public function parentNode()
+    public function parentNode(): mixed
     {
         if (!$this->id && empty($this->data)) {
             return null;
@@ -119,7 +119,7 @@ class AclUser extends CakeTestModel
      *
      * @return null
      */
-    public function parentNode()
+    public function parentNode(): mixed
     {
         return null;
     }
@@ -158,7 +158,7 @@ class AclPost extends CakeTestModel
      *
      * @return null
      */
-    public function parentNode()
+    public function parentNode(): mixed
     {
         return null;
     }
@@ -223,7 +223,7 @@ class AclBehaviorTest extends CakeTestCase
      *
      * @return void
      */
-    public function testsetUp()
+    public function testsetUp(): void
     {
         parent::setUp();
         $User = new AclUser();
@@ -242,7 +242,7 @@ class AclBehaviorTest extends CakeTestCase
      *
      * @return void
      */
-    public function testSetupMulti()
+    public function testSetupMulti(): void
     {
         $User = new AclPerson();
         $this->assertTrue(isset($User->Behaviors->Acl->settings['AclPerson']));
@@ -256,7 +256,7 @@ class AclBehaviorTest extends CakeTestCase
      *
      * @return void
      */
-    public function testAfterSave()
+    public function testAfterSave(): void
     {
         $Post = new AclPost();
         $data = [
@@ -350,7 +350,7 @@ class AclBehaviorTest extends CakeTestCase
      *
      * @return void
      */
-    public function testAfterSaveUpdateParentIdNotNull()
+    public function testAfterSaveUpdateParentIdNotNull(): void
     {
         $aroData = [
             'Aro' => [
@@ -397,7 +397,7 @@ class AclBehaviorTest extends CakeTestCase
      *
      * @return void
      */
-    public function testAfterDelete()
+    public function testAfterDelete(): void
     {
         $aroData = [
             'Aro' => [
@@ -468,7 +468,7 @@ class AclBehaviorTest extends CakeTestCase
      *
      * @return void
      */
-    public function testNode()
+    public function testNode(): void
     {
         $Person = new AclPerson();
         $aroData = [

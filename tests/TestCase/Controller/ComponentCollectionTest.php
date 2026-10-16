@@ -53,7 +53,7 @@ class ComponentCollectionTest extends CakeTestCase
      *
      * @return void
      */
-    public function testLoad()
+    public function testLoad(): void
     {
         $result = $this->Components->load('Cookie');
         $this->assertInstanceOf('CookieComponent', $result);
@@ -73,7 +73,7 @@ class ComponentCollectionTest extends CakeTestCase
      *
      * @return void
      */
-    public function testLoadWithAlias()
+    public function testLoadWithAlias(): void
     {
         $result = $this->Components->load('Cookie', ['className' => 'CookieAlias', 'somesetting' => true]);
         $this->assertInstanceOf('CookieAliasComponent', $result);
@@ -105,7 +105,7 @@ class ComponentCollectionTest extends CakeTestCase
      *
      * @return void
      */
-    public function testLoadWithEnableFalse()
+    public function testLoadWithEnableFalse(): void
     {
         $result = $this->Components->load('Cookie', ['enabled' => false]);
         $this->assertInstanceOf('CookieComponent', $result);
@@ -119,7 +119,7 @@ class ComponentCollectionTest extends CakeTestCase
      *
      * @return void
      */
-    public function testLoadMissingComponent()
+    public function testLoadMissingComponent(): void
     {
         $this->expectException(MissingComponentException::class);
         $this->Components->load('ThisComponentShouldAlwaysBeMissing');
@@ -130,7 +130,7 @@ class ComponentCollectionTest extends CakeTestCase
      *
      * @return void
      */
-    public function testLoadPluginComponent()
+    public function testLoadPluginComponent(): void
     {
         App::build([
             'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS],
@@ -148,7 +148,7 @@ class ComponentCollectionTest extends CakeTestCase
      *
      * @return void
      */
-    public function testUnload()
+    public function testUnload(): void
     {
         $this->Components->load('Cookie');
         $this->Components->load('Security');
@@ -172,7 +172,7 @@ class ComponentCollectionTest extends CakeTestCase
      *
      * @return void
      */
-    public function testGetController()
+    public function testGetController(): void
     {
         $controller = $this->getMock('Controller');
         $controller->components = ['Security'];

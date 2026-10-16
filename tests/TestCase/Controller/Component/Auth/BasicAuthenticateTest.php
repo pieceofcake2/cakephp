@@ -61,7 +61,7 @@ class BasicAuthenticateTest extends CakeTestCase
      *
      * @return void
      */
-    public function testConstructor()
+    public function testConstructor(): void
     {
         $object = new BasicAuthenticate($this->Collection, [
             'userModel' => 'AuthUser',
@@ -77,7 +77,7 @@ class BasicAuthenticateTest extends CakeTestCase
      *
      * @return void
      */
-    public function testAuthenticateNoData()
+    public function testAuthenticateNoData(): void
     {
         $request = new CakeRequest('posts/index', false);
 
@@ -92,7 +92,7 @@ class BasicAuthenticateTest extends CakeTestCase
      *
      * @return void
      */
-    public function testAuthenticateNoUsername()
+    public function testAuthenticateNoUsername(): void
     {
         $request = new CakeRequest('posts/index', false);
         $_SERVER['PHP_AUTH_PW'] = 'foobar';
@@ -105,7 +105,7 @@ class BasicAuthenticateTest extends CakeTestCase
      *
      * @return void
      */
-    public function testAuthenticateNoPassword()
+    public function testAuthenticateNoPassword(): void
     {
         $request = new CakeRequest('posts/index', false);
         $_SERVER['PHP_AUTH_USER'] = 'mariano';
@@ -119,7 +119,7 @@ class BasicAuthenticateTest extends CakeTestCase
      *
      * @return void
      */
-    public function testAuthenticateInjection()
+    public function testAuthenticateInjection(): void
     {
         $request = new CakeRequest('posts/index', false);
         $request->addParams(['pass' => [], 'named' => []]);
@@ -136,7 +136,7 @@ class BasicAuthenticateTest extends CakeTestCase
      *
      * @return void
      */
-    public function testAuthenticateUsernameZero()
+    public function testAuthenticateUsernameZero(): void
     {
         $User = ClassRegistry::init('User');
         $User->updateAll(['user' => $User->getDataSource()->value('0')], ['user' => 'mariano']);
@@ -163,7 +163,7 @@ class BasicAuthenticateTest extends CakeTestCase
      *
      * @return void
      */
-    public function testAuthenticateChallenge()
+    public function testAuthenticateChallenge(): void
     {
         $request = new CakeRequest('posts/index', false);
         $request->addParams(['pass' => [], 'named' => []]);
@@ -184,7 +184,7 @@ class BasicAuthenticateTest extends CakeTestCase
      *
      * @return void
      */
-    public function testAuthenticateSuccess()
+    public function testAuthenticateSuccess(): void
     {
         $request = new CakeRequest('posts/index', false);
         $request->addParams(['pass' => [], 'named' => []]);
@@ -207,7 +207,7 @@ class BasicAuthenticateTest extends CakeTestCase
      *
      * @return void
      */
-    public function testAuthenticateSuccessFromHeaders()
+    public function testAuthenticateSuccessFromHeaders(): void
     {
         $_SERVER['HTTP_AUTHORIZATION'] = 'Basic ' . base64_encode('mariano:password');
         unset($_SERVER['PHP_AUTH_USER'], $_SERVER['PHP_AUTH_PW']);
@@ -230,7 +230,7 @@ class BasicAuthenticateTest extends CakeTestCase
      *
      * @return void
      */
-    public function testAuthenticateContainSuccess()
+    public function testAuthenticateContainSuccess(): void
     {
         $User = ClassRegistry::init('User');
         $User->bindModel(['hasMany' => ['Article']]);
@@ -260,7 +260,7 @@ class BasicAuthenticateTest extends CakeTestCase
      *
      * @return void
      */
-    public function testAuthenticateUserFieldsSuccess()
+    public function testAuthenticateUserFieldsSuccess(): void
     {
         $this->auth->settings['userFields'] = ['id', 'user'];
         $request = new CakeRequest('posts/index', false);
@@ -282,7 +282,7 @@ class BasicAuthenticateTest extends CakeTestCase
      *
      * @return void
      */
-    public function testAuthenticateUserFieldsRelatedModelsSuccess()
+    public function testAuthenticateUserFieldsRelatedModelsSuccess(): void
     {
         $User = ClassRegistry::init('User');
         $User->bindModel(['hasOne' => [
@@ -311,7 +311,7 @@ class BasicAuthenticateTest extends CakeTestCase
      *
      * @return void
      */
-    public function testAuthenticateFailReChallenge()
+    public function testAuthenticateFailReChallenge(): void
     {
         $this->expectException(UnauthorizedException::class);
         $this->expectExceptionCode(401);
@@ -330,7 +330,7 @@ class BasicAuthenticateTest extends CakeTestCase
      *
      * @return void
      */
-    public function testAuthenticateWithBlowfish()
+    public function testAuthenticateWithBlowfish(): void
     {
         $hash = Security::hash('password', 'blowfish');
         $this->skipIf(!str_contains($hash, '$2a$'), 'Skipping blowfish tests as hashing is not working');

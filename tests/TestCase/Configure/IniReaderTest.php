@@ -59,7 +59,7 @@ class IniReaderTest extends CakeTestCase
      *
      * @return void
      */
-    public function testConstruct()
+    public function testConstruct(): void
     {
         $reader = new IniReader($this->path);
         $config = $reader->read('acl.ini');
@@ -74,7 +74,7 @@ class IniReaderTest extends CakeTestCase
      *
      * @return void
      */
-    public function testRead()
+    public function testRead(): void
     {
         $reader = new IniReader($this->path);
         $config = $reader->read('nested');
@@ -89,7 +89,7 @@ class IniReaderTest extends CakeTestCase
      *
      * @return void
      */
-    public function testReadOnlyOneSection()
+    public function testReadOnlyOneSection(): void
     {
         $reader = new IniReader($this->path, 'admin');
         $config = $reader->read('acl.ini');
@@ -103,7 +103,7 @@ class IniReaderTest extends CakeTestCase
      *
      * @return void
      */
-    public function testReadSpecialAclIniPhp()
+    public function testReadSpecialAclIniPhp(): void
     {
         $reader = new IniReader($this->path);
         $config = $reader->read('acl.ini.php');
@@ -118,7 +118,7 @@ class IniReaderTest extends CakeTestCase
      *
      * @return void
      */
-    public function testReadWithoutSection()
+    public function testReadWithoutSection(): void
     {
         $reader = new IniReader($this->path);
         $config = $reader->read('no_section.ini');
@@ -135,7 +135,7 @@ class IniReaderTest extends CakeTestCase
      *
      * @return void
      */
-    public function testReadValuesWithDots()
+    public function testReadValuesWithDots(): void
     {
         $reader = new IniReader($this->path);
         $config = $reader->read('nested.ini');
@@ -152,7 +152,7 @@ class IniReaderTest extends CakeTestCase
      *
      * @return void
      */
-    public function testBooleanReading()
+    public function testBooleanReading(): void
     {
         $reader = new IniReader($this->path);
         $config = $reader->read('nested.ini');
@@ -174,7 +174,7 @@ class IniReaderTest extends CakeTestCase
      *
      * @return void
      */
-    public function testReadWithExistentFileWithoutExtension()
+    public function testReadWithExistentFileWithoutExtension(): void
     {
         $this->expectException(ConfigureException::class);
         $reader = new IniReader($this->path);
@@ -186,7 +186,7 @@ class IniReaderTest extends CakeTestCase
      *
      * @return void
      */
-    public function testReadWithNonExistentFile()
+    public function testReadWithNonExistentFile(): void
     {
         $this->expectException(ConfigureException::class);
         $reader = new IniReader($this->path);
@@ -198,7 +198,7 @@ class IniReaderTest extends CakeTestCase
      *
      * @return void
      */
-    public function testReadEmptyFile()
+    public function testReadEmptyFile(): void
     {
         $reader = new IniReader($this->path);
         $config = $reader->read('empty');
@@ -210,7 +210,7 @@ class IniReaderTest extends CakeTestCase
      *
      * @return void
      */
-    public function testReadWithDots()
+    public function testReadWithDots(): void
     {
         $this->expectException(ConfigureException::class);
         $reader = new IniReader($this->path);
@@ -222,7 +222,7 @@ class IniReaderTest extends CakeTestCase
      *
      * @return void
      */
-    public function testReadPluginValue()
+    public function testReadPluginValue(): void
     {
         App::build([
             'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS],
@@ -246,7 +246,7 @@ class IniReaderTest extends CakeTestCase
      *
      * @return void
      */
-    public function testReadPluginSpecialAclIniPhpValue()
+    public function testReadPluginSpecialAclIniPhpValue(): void
     {
         App::build([
             'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS],
@@ -266,7 +266,7 @@ class IniReaderTest extends CakeTestCase
      *
      * @return void
      */
-    public function testDump()
+    public function testDump(): void
     {
         $reader = new IniReader(TMP);
         $result = $reader->dump('test.ini', $this->testData);
@@ -302,7 +302,7 @@ INI;
      *
      * @return void
      */
-    public function testDumpRead()
+    public function testDumpRead(): void
     {
         $reader = new IniReader(TMP);
         $reader->dump('test.ini', $this->testData);

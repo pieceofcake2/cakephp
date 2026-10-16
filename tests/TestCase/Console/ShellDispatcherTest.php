@@ -49,7 +49,7 @@ class TestShellDispatcher extends ShellDispatcher
      *
      * @return void
      */
-    protected function _initEnvironment()
+    protected function _initEnvironment(): void
     {
     }
 
@@ -58,7 +58,7 @@ class TestShellDispatcher extends ShellDispatcher
      *
      * @return void
      */
-    public function clear()
+    public function clear(): void
     {
     }
 
@@ -67,7 +67,7 @@ class TestShellDispatcher extends ShellDispatcher
      *
      * @return void
      */
-    protected function _stop($status = 0)
+    protected function _stop($status = 0): mixed
     {
         $this->stopped = 'Stopped with status: ' . $status;
 
@@ -77,7 +77,7 @@ class TestShellDispatcher extends ShellDispatcher
     /**
      * @return array
      */
-    public function getDefaults()
+    public function getDefaults(): array
     {
         return $this->_getDefaults();
     }
@@ -88,7 +88,7 @@ class TestShellDispatcher extends ShellDispatcher
      * @param string $shell
      * @return mixed
      */
-    public function getShell($shell)
+    public function getShell($shell): mixed
     {
         return $this->_getShell($shell);
     }
@@ -99,7 +99,7 @@ class TestShellDispatcher extends ShellDispatcher
      * @param string $plugin
      * @return mixed
      */
-    protected function _getShell($shell)
+    protected function _getShell($shell): mixed
     {
         return $this->TestShell ?? parent::_getShell($shell);
     }
@@ -148,7 +148,7 @@ class ShellDispatcherTest extends CakeTestCase
      *
      * @return void
      */
-    public function testParseParamsAppWorkingAbsolute()
+    public function testParseParamsAppWorkingAbsolute(): void
     {
         $Dispatcher = new TestShellDispatcher();
         $params = [
@@ -174,7 +174,7 @@ class ShellDispatcherTest extends CakeTestCase
      *
      * @return void
      */
-    public function testParseParamsNone()
+    public function testParseParamsNone(): void
     {
         $dispatcher = new TestShellDispatcher();
         $defaults = $dispatcher->getDefaults();
@@ -196,7 +196,7 @@ class ShellDispatcherTest extends CakeTestCase
      *
      * @return void
      */
-    public function testParseParamsApp()
+    public function testParseParamsApp(): void
     {
         $dispatcher = new TestShellDispatcher();
         $defaults = $dispatcher->getDefaults();
@@ -222,7 +222,7 @@ class ShellDispatcherTest extends CakeTestCase
      *
      * @return void
      */
-    public function testParseParamsAppWorkingRelative()
+    public function testParseParamsAppWorkingRelative(): void
     {
         $dispatcher = new TestShellDispatcher();
         $defaults = $dispatcher->getDefaults();
@@ -251,7 +251,7 @@ class ShellDispatcherTest extends CakeTestCase
      *
      * @return void
      */
-    public function testParseParams()
+    public function testParseParams(): void
     {
         $dispatcher = new TestShellDispatcher();
         $defaults = $dispatcher->getDefaults();
@@ -461,7 +461,7 @@ class ShellDispatcherTest extends CakeTestCase
      *
      * @return void
      */
-    public function testGetShell()
+    public function testGetShell(): void
     {
         $this->skipIf(class_exists('SampleShell'), 'SampleShell Class already loaded.');
         $this->skipIf(class_exists('ExampleShell'), 'ExampleShell Class already loaded.');
@@ -495,7 +495,7 @@ class ShellDispatcherTest extends CakeTestCase
      *
      * @return void
      */
-    public function testDispatchShellWithMain()
+    public function testDispatchShellWithMain(): void
     {
         $Dispatcher = new TestShellDispatcher();
         $Shell = $this->getMock('Shell');
@@ -518,7 +518,7 @@ class ShellDispatcherTest extends CakeTestCase
      *
      * @return void
      */
-    public function testDispatchShellWithoutMain()
+    public function testDispatchShellWithoutMain(): void
     {
         $Dispatcher = new TestShellDispatcher();
         $Shell = $this->getMock('Shell');
@@ -540,7 +540,7 @@ class ShellDispatcherTest extends CakeTestCase
      *
      * @return void
      */
-    public function testDispatchNotAShellWithMain()
+    public function testDispatchNotAShellWithMain(): void
     {
         $Dispatcher = new TestShellDispatcher();
         $methods = get_class_methods('CakeObject');
@@ -572,7 +572,7 @@ class ShellDispatcherTest extends CakeTestCase
      *
      * @return void
      */
-    public function testDispatchNotAShellWithoutMain()
+    public function testDispatchNotAShellWithoutMain(): void
     {
         $Dispatcher = new TestShellDispatcher();
         $methods = get_class_methods('CakeObject');
@@ -604,7 +604,7 @@ class ShellDispatcherTest extends CakeTestCase
      *
      * @return void
      */
-    public function testShiftArgs()
+    public function testShiftArgs(): void
     {
         $Dispatcher = new TestShellDispatcher();
 
@@ -635,7 +635,7 @@ class ShellDispatcherTest extends CakeTestCase
      *
      * @return void
      */
-    public function testMissingBootstrapFilePrintsError()
+    public function testMissingBootstrapFilePrintsError(): void
     {
         $working = TMP . 'shell_dispatcher_' . uniqid() . DS . 'app';
         mkdir($working . DS . 'Config', 0777, true);
@@ -668,7 +668,7 @@ class ShellDispatcherTest extends CakeTestCase
      *
      * @return void
      */
-    public function testRunWithoutApplicationCoreFile()
+    public function testRunWithoutApplicationCoreFile(): void
     {
         $this->skipIf(!function_exists('exec'), 'exec() is not available.');
 

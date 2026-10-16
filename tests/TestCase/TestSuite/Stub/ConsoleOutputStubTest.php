@@ -34,7 +34,7 @@ class ConsoleOutputStubTest extends CakeTestCase
      *
      * @return void
      */
-    public function testCanActAsConsoleOutput()
+    public function testCanActAsConsoleOutput(): void
     {
         $this->assertInstanceOf('ConsoleOutput', $this->stub);
     }
@@ -44,7 +44,7 @@ class ConsoleOutputStubTest extends CakeTestCase
      *
      * @return void
      */
-    public function testWrite()
+    public function testWrite(): void
     {
         $this->stub->write(['foo', 'bar', 'baz']);
         $this->assertEquals(['foo', 'bar', 'baz'], $this->stub->messages());
@@ -55,7 +55,7 @@ class ConsoleOutputStubTest extends CakeTestCase
      *
      * @return void
      */
-    public function testOverwrite()
+    public function testOverwrite(): void
     {
         $this->stub->write(['foo', 'bar', 'baz']);
         $this->stub->overwrite('bat');

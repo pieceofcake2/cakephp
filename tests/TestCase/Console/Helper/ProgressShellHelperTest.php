@@ -39,7 +39,7 @@ class ProgressShellHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testOutputFailure()
+    public function testOutputFailure(): void
     {
         $this->expectException(\RuntimeException::class);
         $this->helper->output(['not a callback']);
@@ -50,7 +50,7 @@ class ProgressShellHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testOutputSuccess()
+    public function testOutputSuccess(): void
     {
         $this->helper->output([function ($progress) {
             $progress->increment(20);
@@ -76,7 +76,7 @@ class ProgressShellHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testOutputSuccessOptions()
+    public function testOutputSuccessOptions(): void
     {
         $this->helper->output([
             'total' => 10,
@@ -106,7 +106,7 @@ class ProgressShellHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testIncrementAndRender()
+    public function testIncrementAndRender(): void
     {
         $this->helper->init();
         $this->helper->increment(20);
@@ -131,7 +131,7 @@ class ProgressShellHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testIncrementWithNegatives()
+    public function testIncrementWithNegatives(): void
     {
         $this->helper->init();
         $this->helper->increment(40);
@@ -156,7 +156,7 @@ class ProgressShellHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testIncrementWithOptions()
+    public function testIncrementWithOptions(): void
     {
         $this->helper->init([
             'total' => 10,
@@ -186,7 +186,7 @@ class ProgressShellHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testIncrementFloatPad()
+    public function testIncrementFloatPad(): void
     {
         $this->helper->init([
             'total' => 50,

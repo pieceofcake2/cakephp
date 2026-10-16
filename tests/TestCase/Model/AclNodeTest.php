@@ -160,7 +160,7 @@ class DbAroUserTest extends CakeTestModel
      * @param Model|array|string $ref
      * @return void
      */
-    public function bindNode($ref = null)
+    public function bindNode($ref = null): mixed
     {
         if (Configure::read('DbAclbindMode') === 'string') {
             return 'ROOT/admins/Gandalf';
@@ -220,7 +220,7 @@ class AclNodeTest extends CakeTestCase
      *
      * @return void
      */
-    public function testNode()
+    public function testNode(): void
     {
         $Aco = new DbAcoTest();
         $result = Hash::extract($Aco->node('Controller1'), '{n}.DbAcoTest.id');
@@ -260,7 +260,7 @@ class AclNodeTest extends CakeTestCase
      *
      * @return void
      */
-    public function testNodeWithDuplicatePathSegments()
+    public function testNodeWithDuplicatePathSegments(): void
     {
         $Aco = new DbAcoTest();
         $nodes = $Aco->node('ROOT/Users');
@@ -272,7 +272,7 @@ class AclNodeTest extends CakeTestCase
      *
      * @return void
      */
-    public function testNodeArrayFind()
+    public function testNodeArrayFind(): void
     {
         $Aro = new DbAroTest();
         Configure::write('DbAclbindMode', 'string');
@@ -291,7 +291,7 @@ class AclNodeTest extends CakeTestCase
      *
      * @return void
      */
-    public function testNodeObjectFind()
+    public function testNodeObjectFind(): void
     {
         $Aro = new DbAroTest();
         $Model = new DbAroUserTest();
@@ -311,7 +311,7 @@ class AclNodeTest extends CakeTestCase
      *
      * @return void
      */
-    public function testNodeAliasParenting()
+    public function testNodeAliasParenting(): void
     {
         $Aco = ClassRegistry::init('DbAcoTest');
         $db = $Aco->getDataSource();
@@ -336,7 +336,7 @@ class AclNodeTest extends CakeTestCase
      *
      * @return void
      */
-    public function testNodeActionAuthorize()
+    public function testNodeActionAuthorize(): void
     {
         App::build([
             'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS],

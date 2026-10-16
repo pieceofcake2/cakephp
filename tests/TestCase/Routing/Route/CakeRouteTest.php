@@ -39,7 +39,7 @@ class CakeRouteTest extends CakeTestCase
      *
      * @return void
      */
-    public function testConstruction()
+    public function testConstruction(): void
     {
         $route = new CakeRoute('/:controller/:action/:id', [], ['id' => '[0-9]+']);
 
@@ -54,7 +54,7 @@ class CakeRouteTest extends CakeTestCase
      *
      * @return void
      */
-    public function testBasicRouteCompiling()
+    public function testBasicRouteCompiling(): void
     {
         $route = new CakeRoute('/', ['controller' => 'pages', 'action' => 'display', 'home']);
         $result = $route->compile();
@@ -92,7 +92,7 @@ class CakeRouteTest extends CakeTestCase
      *
      * @return void
      */
-    public function testRouteParameterOverlap()
+    public function testRouteParameterOverlap(): void
     {
         $route = new CakeRoute('/invoices/add/:idd/:id', ['controller' => 'invoices', 'action' => 'add']);
         $result = $route->compile();
@@ -108,7 +108,7 @@ class CakeRouteTest extends CakeTestCase
      *
      * @return void
      */
-    public function testRouteCompilingWithParamPatterns()
+    public function testRouteCompilingWithParamPatterns(): void
     {
         $route = new CakeRoute(
             '/:controller/:action/:id',
@@ -179,7 +179,7 @@ class CakeRouteTest extends CakeTestCase
      *
      * @return void
      */
-    public function testComplexRouteCompilingAndParsing()
+    public function testComplexRouteCompilingAndParsing(): void
     {
         $route = new CakeRoute(
             '/posts/:month/:day/:year/*',
@@ -238,7 +238,7 @@ class CakeRouteTest extends CakeTestCase
      *
      * @return void
      */
-    public function testMatchBasic()
+    public function testMatchBasic(): void
     {
         $route = new CakeRoute('/:controller/:action/:id', ['plugin' => null]);
         $result = $route->match(['controller' => 'posts', 'action' => 'view', 'plugin' => null]);
@@ -324,7 +324,7 @@ class CakeRouteTest extends CakeTestCase
      *
      * @return void
      */
-    public function testGreedyRouteFailurePassedArg()
+    public function testGreedyRouteFailurePassedArg(): void
     {
         $route = new CakeRoute('/:controller/:action', ['plugin' => null]);
         $result = $route->match(['controller' => 'posts', 'action' => 'view', '0']);
@@ -340,7 +340,7 @@ class CakeRouteTest extends CakeTestCase
      *
      * @return void
      */
-    public function testGreedyRouteFailureNamedParam()
+    public function testGreedyRouteFailureNamedParam(): void
     {
         $route = new CakeRoute('/:controller/:action', ['plugin' => null]);
         $result = $route->match(['controller' => 'posts', 'action' => 'view', 'page' => 1]);
@@ -352,7 +352,7 @@ class CakeRouteTest extends CakeTestCase
      *
      * @return void
      */
-    public function testMatchWithFalseyValues()
+    public function testMatchWithFalseyValues(): void
     {
         $route = new CakeRoute('/:controller/:action/*', ['plugin' => null]);
         $result = $route->match([
@@ -366,7 +366,7 @@ class CakeRouteTest extends CakeTestCase
      *
      * @return void
      */
-    public function testMatchWithNamedParametersAndPassedArgs()
+    public function testMatchWithNamedParametersAndPassedArgs(): void
     {
         Router::connectNamed(true);
 
@@ -405,7 +405,7 @@ class CakeRouteTest extends CakeTestCase
      *
      * @return void
      */
-    public function testParseNamedParametersUrlDecode()
+    public function testParseNamedParametersUrlDecode(): void
     {
         Router::connectNamed(true);
         $route = new CakeRoute('/:controller/:action/*', ['plugin' => null]);
@@ -426,7 +426,7 @@ class CakeRouteTest extends CakeTestCase
      *
      * @return void
      */
-    public function testParseNamedKeyUrlDecode()
+    public function testParseNamedKeyUrlDecode(): void
     {
         Router::connectNamed(true);
         $route = new CakeRoute('/:controller/:action/*', ['plugin' => null]);
@@ -447,7 +447,7 @@ class CakeRouteTest extends CakeTestCase
      *
      * @return void
      */
-    public function testNamedParamsWithNullFalse()
+    public function testNamedParamsWithNullFalse(): void
     {
         $route = new CakeRoute('/:controller/:action/*');
         $result = $route->match(['controller' => 'posts', 'action' => 'index', 'page' => null, 'sort' => false]);
@@ -459,7 +459,7 @@ class CakeRouteTest extends CakeTestCase
      *
      * @return void
      */
-    public function testMatchWithPatterns()
+    public function testMatchWithPatterns(): void
     {
         $route = new CakeRoute('/:controller/:action/:id', ['plugin' => null], ['id' => '[0-9]+']);
         $result = $route->match(['controller' => 'posts', 'action' => 'view', 'id' => 'foo']);
@@ -480,7 +480,7 @@ class CakeRouteTest extends CakeTestCase
      *
      * @return void
      */
-    public function testPersistParams()
+    public function testPersistParams(): void
     {
         $route = new CakeRoute(
             '/:lang/:color/blog/:action',
@@ -505,7 +505,7 @@ class CakeRouteTest extends CakeTestCase
      *
      * @return void
      */
-    public function testPersistParamsNonArray()
+    public function testPersistParamsNonArray(): void
     {
         $url = ['controller' => 'posts', 'action' => 'index'];
         $params = ['lang' => 'en', 'color' => 'blue'];
@@ -540,7 +540,7 @@ class CakeRouteTest extends CakeTestCase
      *
      * @return void
      */
-    public function testParse()
+    public function testParse(): void
     {
         $route = new CakeRoute(
             '/:controller/:action/:id',
@@ -571,7 +571,7 @@ class CakeRouteTest extends CakeTestCase
      *
      * @return void
      */
-    public function testParseUrlDecodeElements()
+    public function testParseUrlDecodeElements(): void
     {
         $route = new Cakeroute(
             '/:controller/:slug',
@@ -594,7 +594,7 @@ class CakeRouteTest extends CakeTestCase
      *
      * @return void
      */
-    public function testParseWithPassDefaults()
+    public function testParseWithPassDefaults(): void
     {
         $route = new Cakeroute('/:controller', ['action' => 'display', 'home']);
         $result = $route->parse('/posts');
@@ -612,7 +612,7 @@ class CakeRouteTest extends CakeTestCase
      *
      * @return void
      */
-    public function testParseWithHttpHeaderConditions()
+    public function testParseWithHttpHeaderConditions(): void
     {
         $_SERVER['REQUEST_METHOD'] = 'GET';
         $route = new CakeRoute('/sample', ['controller' => 'posts', 'action' => 'index', '[method]' => 'POST']);
@@ -625,7 +625,7 @@ class CakeRouteTest extends CakeTestCase
      *
      * @return void
      */
-    public function testPatternOnAction()
+    public function testPatternOnAction(): void
     {
         $route = new CakeRoute(
             '/blog/:action/*',
@@ -651,7 +651,7 @@ class CakeRouteTest extends CakeTestCase
      *
      * @return void
      */
-    public function testParsePassedArgument()
+    public function testParsePassedArgument(): void
     {
         $route = new CakeRoute('/:controller/:action/*');
         $result = $route->parse('/posts/edit/1/2/0');
@@ -681,7 +681,7 @@ class CakeRouteTest extends CakeTestCase
      *
      * @return void
      */
-    public function testParseNamedParametersWithRules()
+    public function testParseNamedParametersWithRules(): void
     {
         $route = new CakeRoute('/:controller/:action/*', [], [
             'named' => [
@@ -751,7 +751,7 @@ class CakeRouteTest extends CakeTestCase
      *
      * @return void
      */
-    public function testParseGreedyNamed()
+    public function testParseGreedyNamed(): void
     {
         $route = new CakeRoute('/:controller/:action/*', [], [
             'named' => [
@@ -777,7 +777,7 @@ class CakeRouteTest extends CakeTestCase
      *
      * @return void
      */
-    public function testMatchGreedyNamedExcludesPrefixes()
+    public function testMatchGreedyNamedExcludesPrefixes(): void
     {
         Configure::write('Routing.prefixes', ['admin']);
         Router::reload();
@@ -791,7 +791,7 @@ class CakeRouteTest extends CakeTestCase
      *
      * @return void
      */
-    public function testParseArrayNamedParameters()
+    public function testParseArrayNamedParameters(): void
     {
         $route = new CakeRoute('/:controller/:action/*');
         $result = $route->parse('/tests/action/var[]:val1/var[]:val2');
@@ -848,7 +848,7 @@ class CakeRouteTest extends CakeTestCase
      *
      * @return void
      */
-    public function testMatchNamedParametersArray()
+    public function testMatchNamedParametersArray(): void
     {
         $route = new CakeRoute('/:controller/:action/*');
 
@@ -885,7 +885,7 @@ class CakeRouteTest extends CakeTestCase
      *
      * @return void
      */
-    public function testMatchSimilarParameters()
+    public function testMatchSimilarParameters(): void
     {
         $route = new CakeRoute('/:thisParam/:thisParamIsLonger');
 
@@ -904,7 +904,7 @@ class CakeRouteTest extends CakeTestCase
      *
      * @return void
      */
-    public function testMatchTrailing()
+    public function testMatchTrailing(): void
     {
         $route = new CakeRoute('/pages/**', ['controller' => 'pages', 'action' => 'display']);
         $id = 'test/ spaces/漢字/la†în';
@@ -922,7 +922,7 @@ class CakeRouteTest extends CakeTestCase
      *
      * @return void
      */
-    public function testPassArgRestructure()
+    public function testPassArgRestructure(): void
     {
         $route = new CakeRoute('/:controller/:action/:slug', [], [
             'pass' => ['slug'],
@@ -943,7 +943,7 @@ class CakeRouteTest extends CakeTestCase
      *
      * @return void
      */
-    public function testParseTrailing()
+    public function testParseTrailing(): void
     {
         $route = new CakeRoute('/:controller/:action/**');
         $result = $route->parse('/posts/index/1/2/3/foo:bar');
@@ -970,7 +970,7 @@ class CakeRouteTest extends CakeTestCase
      *
      * @return void
      */
-    public function testParseTrailingUTF8()
+    public function testParseTrailingUTF8(): void
     {
         $route = new CakeRoute('/category/**', ['controller' => 'categories', 'action' => 'index']);
         $result = $route->parse('/category/%D9%85%D9%88%D8%A8%D8%A7%DB%8C%D9%84');
@@ -988,7 +988,7 @@ class CakeRouteTest extends CakeTestCase
      *
      * @return void
      */
-    public function testUTF8PatternOnSection()
+    public function testUTF8PatternOnSection(): void
     {
         $route = new CakeRoute(
             '/:section',
@@ -1013,7 +1013,7 @@ class CakeRouteTest extends CakeTestCase
      *
      * @return void
      */
-    public function testSetState()
+    public function testSetState(): void
     {
         $route = CakeRoute::__set_state([
             'keys' => [],

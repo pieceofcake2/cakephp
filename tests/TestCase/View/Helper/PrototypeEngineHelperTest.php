@@ -52,7 +52,7 @@ class PrototypeEngineHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testSelector()
+    public function testSelector(): void
     {
         $result = $this->Proto->get('#content');
         $this->assertEquals($this->Proto, $result);
@@ -84,7 +84,7 @@ class PrototypeEngineHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testEvent()
+    public function testEvent(): void
     {
         $this->Proto->get('#myLink');
         $result = $this->Proto->event('click', 'doClick', ['wrap' => false]);
@@ -105,7 +105,7 @@ class PrototypeEngineHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testDomReady()
+    public function testDomReady(): void
     {
         $result = $this->Proto->domReady('foo.name = "bar";');
         $expected = 'document.observe("dom:loaded", function (event) {foo.name = "bar";});';
@@ -117,7 +117,7 @@ class PrototypeEngineHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testEach()
+    public function testEach(): void
     {
         $this->Proto->get('#foo li');
         $result = $this->Proto->each('item.hide();');
@@ -130,7 +130,7 @@ class PrototypeEngineHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testEffect()
+    public function testEffect(): void
     {
         $this->Proto->get('#foo');
         $result = $this->Proto->effect('show');
@@ -187,7 +187,7 @@ class PrototypeEngineHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testRequest()
+    public function testRequest(): void
     {
         $result = $this->Proto->request(['controller' => 'posts', 'action' => 'view', 1]);
         $expected = 'var jsRequest = new Ajax.Request("/posts/view/1");';
@@ -279,7 +279,7 @@ class PrototypeEngineHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testSortable()
+    public function testSortable(): void
     {
         $this->Proto->get('#myList');
         $result = $this->Proto->sortable([
@@ -297,7 +297,7 @@ class PrototypeEngineHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testDrag()
+    public function testDrag(): void
     {
         $this->Proto->get('#element');
         $result = $this->Proto->drag([
@@ -327,7 +327,7 @@ class PrototypeEngineHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testDrop()
+    public function testDrop(): void
     {
         $this->Proto->get('#element');
         $result = $this->Proto->drop([
@@ -345,7 +345,7 @@ class PrototypeEngineHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testSlider()
+    public function testSlider(): void
     {
         $this->Proto->get('#element');
         $result = $this->Proto->slider([
@@ -377,7 +377,7 @@ class PrototypeEngineHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testSerializeForm()
+    public function testSerializeForm(): void
     {
         $this->Proto->get('#element');
         $result = $this->Proto->serializeForm(['isForm' => true]);

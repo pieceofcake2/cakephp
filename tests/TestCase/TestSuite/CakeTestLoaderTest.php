@@ -85,7 +85,7 @@ class CakeTestLoaderTest extends CakeTestCase
      *
      * @return void
      */
-    public function testBasePathApp()
+    public function testBasePathApp(): void
     {
         $this->skipIf(!is_dir(TESTS . 'TestCase'), 'The app does not use the tests/TestCase layout.');
         $this->assertSame(TESTS . 'TestCase', TestCakeTestLoader::basePath(['app' => true]));
@@ -96,7 +96,7 @@ class CakeTestLoaderTest extends CakeTestCase
      *
      * @return void
      */
-    public function testBasePathCore()
+    public function testBasePathCore(): void
     {
         $this->assertSame(CORE_TESTS . DS . 'TestCase', TestCakeTestLoader::basePath(['core' => true]));
     }
@@ -106,7 +106,7 @@ class CakeTestLoaderTest extends CakeTestCase
      *
      * @return void
      */
-    public function testBasePathPlugin()
+    public function testBasePathPlugin(): void
     {
         $this->assertSame(
             $this->pluginsPath . 'ModernLayoutPlugin' . DS . 'tests' . DS . 'TestCase',
@@ -129,7 +129,7 @@ class CakeTestLoaderTest extends CakeTestCase
      *
      * @return void
      */
-    public function testGenerateTestListPlugin()
+    public function testGenerateTestListPlugin(): void
     {
         $result = CakeTestLoader::generateTestList(['plugin' => 'ModernLayoutPlugin']);
         $this->assertSame(['Model' . DS . 'Modern'], array_values($result));
@@ -143,7 +143,7 @@ class CakeTestLoaderTest extends CakeTestCase
      *
      * @return void
      */
-    public function testGenerateTestListMissingPlugin()
+    public function testGenerateTestListMissingPlugin(): void
     {
         $this->assertSame([], CakeTestLoader::generateTestList(['plugin' => 'NotExistingPlugin']));
     }

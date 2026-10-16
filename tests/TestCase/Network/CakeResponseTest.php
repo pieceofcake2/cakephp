@@ -49,7 +49,7 @@ class CakeResponseTest extends CakeTestCase
      *
      * @return void
      */
-    public function testConstruct()
+    public function testConstruct(): void
     {
         $response = new CakeResponse();
         $this->assertNull($response->body());
@@ -90,7 +90,7 @@ class CakeResponseTest extends CakeTestCase
      *
      * @return void
      */
-    public function testBody()
+    public function testBody(): void
     {
         $response = new CakeResponse();
         $this->assertNull($response->body());
@@ -104,7 +104,7 @@ class CakeResponseTest extends CakeTestCase
      *
      * @return void
      */
-    public function testCharset()
+    public function testCharset(): void
     {
         $response = new CakeResponse();
         $this->assertEquals('UTF-8', $response->charset());
@@ -118,7 +118,7 @@ class CakeResponseTest extends CakeTestCase
      *
      * @return void
      */
-    public function testStatusCode()
+    public function testStatusCode(): void
     {
         $this->expectException(CakeException::class);
         $response = new CakeResponse();
@@ -136,7 +136,7 @@ class CakeResponseTest extends CakeTestCase
      *
      * @return void
      */
-    public function testType()
+    public function testType(): void
     {
         $response = new CakeResponse();
         $this->assertEquals('text/html', $response->type());
@@ -160,7 +160,7 @@ class CakeResponseTest extends CakeTestCase
      *
      * @return void
      */
-    public function testHeader()
+    public function testHeader(): void
     {
         $response = new CakeResponse();
         $headers = [];
@@ -214,7 +214,7 @@ class CakeResponseTest extends CakeTestCase
      *
      * @return void
      */
-    public function testSend()
+    public function testSend(): void
     {
         $response = $this->getMock('CakeResponse', ['_sendHeader', '_sendContent', '_setCookies']);
         $response->header([
@@ -251,7 +251,7 @@ class CakeResponseTest extends CakeTestCase
      *
      * @return array
      */
-    public static function charsetTypeProvider()
+    public static function charsetTypeProvider(): array
     {
         return [
             ['mp3', 'audio/mpeg'],
@@ -268,7 +268,7 @@ class CakeResponseTest extends CakeTestCase
      * @dataProvider charsetTypeProvider
      * @return void
      */
-    public function testSendChangingContentType($original, $expected)
+    public function testSendChangingContentType($original, $expected): void
     {
         $response = $this->getMock('CakeResponse', ['_sendHeader', '_sendContent', '_setCookies']);
         $response->type($original);
@@ -297,7 +297,7 @@ class CakeResponseTest extends CakeTestCase
      *
      * @return void
      */
-    public function testSendChangingContentTypeWithoutCharset()
+    public function testSendChangingContentTypeWithoutCharset(): void
     {
         $response = $this->getMock('CakeResponse', ['_sendHeader', '_sendContent', '_setCookies']);
         $response->type('js');
@@ -328,7 +328,7 @@ class CakeResponseTest extends CakeTestCase
      *
      * @return void
      */
-    public function testSendWithLocation()
+    public function testSendWithLocation(): void
     {
         $response = $this->getMock('CakeResponse', ['_sendHeader', '_sendContent', '_setCookies']);
         $response->header('Location', 'http://www.example.com');
@@ -352,7 +352,7 @@ class CakeResponseTest extends CakeTestCase
      *
      * @return void
      */
-    public function testDisableCache()
+    public function testDisableCache(): void
     {
         $response = new CakeResponse();
         $expected = [
@@ -369,7 +369,7 @@ class CakeResponseTest extends CakeTestCase
      *
      * @return void
      */
-    public function testCache()
+    public function testCache(): void
     {
         $response = new CakeResponse();
         $since = time();
@@ -414,7 +414,7 @@ class CakeResponseTest extends CakeTestCase
      *
      * @return void
      */
-    public function testCompress()
+    public function testCompress(): void
     {
         if (PHP_SAPI !== 'cli') {
             $this->markTestSkipped('The response compression can only be tested in cli.');
@@ -443,7 +443,7 @@ class CakeResponseTest extends CakeTestCase
      *
      * @return void
      */
-    public function testHttpCodes()
+    public function testHttpCodes(): void
     {
         $this->expectException(CakeException::class);
         $response = new CakeResponse();
@@ -490,7 +490,7 @@ class CakeResponseTest extends CakeTestCase
      *
      * @return void
      */
-    public function testDownload()
+    public function testDownload(): void
     {
         $response = new CakeResponse();
         $expected = [
@@ -505,7 +505,7 @@ class CakeResponseTest extends CakeTestCase
      *
      * @return void
      */
-    public function testMapType()
+    public function testMapType(): void
     {
         $response = new CakeResponse();
         $this->assertEquals('wav', $response->mapType('audio/x-wav'));
@@ -523,7 +523,7 @@ class CakeResponseTest extends CakeTestCase
      *
      * @return void
      */
-    public function testOutputCompressed()
+    public function testOutputCompressed(): void
     {
         $response = new CakeResponse();
 
@@ -562,7 +562,7 @@ class CakeResponseTest extends CakeTestCase
      *
      * @return void
      */
-    public function testSendContentLength()
+    public function testSendContentLength(): void
     {
         $response = $this->getMock('CakeResponse', ['_sendHeader', '_sendContent']);
         $response->body('the response body');
@@ -644,7 +644,7 @@ class CakeResponseTest extends CakeTestCase
      *
      * @return void
      */
-    public function testProtocol()
+    public function testProtocol(): void
     {
         $response = $this->getMock('CakeResponse', ['_sendHeader', '_sendContent']);
         $response->protocol('HTTP/1.0');
@@ -664,7 +664,7 @@ class CakeResponseTest extends CakeTestCase
      *
      * @return void
      */
-    public function testLength()
+    public function testLength(): void
     {
         $response = $this->getMock('CakeResponse', ['_sendHeader', '_sendContent']);
         $response->length(100);
@@ -691,7 +691,7 @@ class CakeResponseTest extends CakeTestCase
      *
      * @return void
      */
-    public function testUnmodifiedContent()
+    public function testUnmodifiedContent(): void
     {
         $response = $this->getMock('CakeResponse', ['_sendHeader', '_sendContent']);
         $response->body('This is a body');
@@ -721,7 +721,7 @@ class CakeResponseTest extends CakeTestCase
      *
      * @return void
      */
-    public function testExpires()
+    public function testExpires(): void
     {
         $response = $this->getMock('CakeResponse', ['_sendHeader', '_sendContent']);
         $now = new DateTime('now', new DateTimeZone('America/Los_Angeles'));
@@ -769,7 +769,7 @@ class CakeResponseTest extends CakeTestCase
      *
      * @return void
      */
-    public function testModified()
+    public function testModified(): void
     {
         $response = $this->getMock('CakeResponse', ['_sendHeader', '_sendContent']);
         $now = new DateTime('now', new DateTimeZone('America/Los_Angeles'));
@@ -817,7 +817,7 @@ class CakeResponseTest extends CakeTestCase
      *
      * @return void
      */
-    public function testSharable()
+    public function testSharable(): void
     {
         $response = $this->getMock('CakeResponse', ['_sendHeader', '_sendContent']);
         $this->assertNull($response->sharable());
@@ -882,7 +882,7 @@ class CakeResponseTest extends CakeTestCase
      *
      * @return void
      */
-    public function testMaxAge()
+    public function testMaxAge(): void
     {
         $response = $this->getMock('CakeResponse', ['_sendHeader', '_sendContent']);
         $this->assertNull($response->maxAge());
@@ -919,7 +919,7 @@ class CakeResponseTest extends CakeTestCase
      *
      * @return void
      */
-    public function testSharedMaxAge()
+    public function testSharedMaxAge(): void
     {
         $response = $this->getMock('CakeResponse', ['_sendHeader', '_sendContent']);
         $this->assertNull($response->maxAge());
@@ -956,7 +956,7 @@ class CakeResponseTest extends CakeTestCase
      *
      * @return void
      */
-    public function testMustRevalidate()
+    public function testMustRevalidate(): void
     {
         $response = $this->getMock('CakeResponse', ['_sendHeader', '_sendContent']);
         $this->assertFalse($response->mustRevalidate());
@@ -995,7 +995,7 @@ class CakeResponseTest extends CakeTestCase
      *
      * @return void
      */
-    public function testVary()
+    public function testVary(): void
     {
         $response = $this->getMock('CakeResponse', ['_sendHeader', '_sendContent']);
         $response->vary('Accept-encoding');
@@ -1027,7 +1027,7 @@ class CakeResponseTest extends CakeTestCase
      *
      * @return void
      */
-    public function testEtag()
+    public function testEtag(): void
     {
         $response = $this->getMock('CakeResponse', ['_sendHeader', '_sendContent']);
         $response->etag('something');
@@ -1059,7 +1059,7 @@ class CakeResponseTest extends CakeTestCase
      *
      * @return void
      */
-    public function testNotModified()
+    public function testNotModified(): void
     {
         $response = $this->getMock('CakeResponse', ['_sendHeader', '_sendContent']);
         $response->body('something');
@@ -1078,7 +1078,7 @@ class CakeResponseTest extends CakeTestCase
      *
      * @return void
      */
-    public function testCheckNotModifiedByEtagStar()
+    public function testCheckNotModifiedByEtagStar(): void
     {
         $_SERVER['HTTP_IF_NONE_MATCH'] = '*';
         $response = $this->getMock('CakeResponse', ['notModified']);
@@ -1092,7 +1092,7 @@ class CakeResponseTest extends CakeTestCase
      *
      * @return void
      */
-    public function testCheckNotModifiedByEtagExact()
+    public function testCheckNotModifiedByEtagExact(): void
     {
         $_SERVER['HTTP_IF_NONE_MATCH'] = 'W/"something", "other"';
         $response = $this->getMock('CakeResponse', ['notModified']);
@@ -1106,7 +1106,7 @@ class CakeResponseTest extends CakeTestCase
      *
      * @return void
      */
-    public function testCheckNotModifiedByEtagAndTime()
+    public function testCheckNotModifiedByEtagAndTime(): void
     {
         $_SERVER['HTTP_IF_NONE_MATCH'] = 'W/"something", "other"';
         $_SERVER['HTTP_IF_MODIFIED_SINCE'] = '2012-01-01 00:00:00';
@@ -1122,7 +1122,7 @@ class CakeResponseTest extends CakeTestCase
      *
      * @return void
      */
-    public function testCheckNotModifiedByEtagAndTimeMismatch()
+    public function testCheckNotModifiedByEtagAndTimeMismatch(): void
     {
         $_SERVER['HTTP_IF_NONE_MATCH'] = 'W/"something", "other"';
         $_SERVER['HTTP_IF_MODIFIED_SINCE'] = '2012-01-01 00:00:00';
@@ -1138,7 +1138,7 @@ class CakeResponseTest extends CakeTestCase
      *
      * @return void
      */
-    public function testCheckNotModifiedByEtagMismatch()
+    public function testCheckNotModifiedByEtagMismatch(): void
     {
         $_SERVER['HTTP_IF_NONE_MATCH'] = 'W/"something-else", "other"';
         $_SERVER['HTTP_IF_MODIFIED_SINCE'] = '2012-01-01 00:00:00';
@@ -1154,7 +1154,7 @@ class CakeResponseTest extends CakeTestCase
      *
      * @return void
      */
-    public function testCheckNotModifiedByTime()
+    public function testCheckNotModifiedByTime(): void
     {
         $_SERVER['HTTP_IF_MODIFIED_SINCE'] = '2012-01-01 00:00:00';
         $response = $this->getMock('CakeResponse', ['notModified']);
@@ -1168,7 +1168,7 @@ class CakeResponseTest extends CakeTestCase
      *
      * @return void
      */
-    public function testCheckNotModifiedNoHints()
+    public function testCheckNotModifiedNoHints(): void
     {
         $_SERVER['HTTP_IF_NONE_MATCH'] = 'W/"something", "other"';
         $_SERVER['HTTP_IF_MODIFIED_SINCE'] = '2012-01-01 00:00:00';
@@ -1182,7 +1182,7 @@ class CakeResponseTest extends CakeTestCase
      *
      * @return void
      */
-    public function testCookieSettings()
+    public function testCookieSettings(): void
     {
         $response = new CakeResponse();
         $cookie = [
@@ -1274,7 +1274,7 @@ class CakeResponseTest extends CakeTestCase
      * @param string|bool $expectedHeaders
      * @return void
      */
-    public function testCors($request, $origin, $domains, $methods, $headers, $expectedOrigin, $expectedMethods = false, $expectedHeaders = false)
+    public function testCors($request, $origin, $domains, $methods, $headers, $expectedOrigin, $expectedMethods = false, $expectedHeaders = false): void
     {
         $_SERVER['HTTP_ORIGIN'] = $origin;
 
@@ -1308,7 +1308,7 @@ class CakeResponseTest extends CakeTestCase
      *
      * @return array
      */
-    public function corsData()
+    public function corsData(): array
     {
         $fooRequest = new CakeRequest();
 
@@ -1347,7 +1347,7 @@ class CakeResponseTest extends CakeTestCase
      *
      * @return void
      */
-    public function testFileNotFound()
+    public function testFileNotFound(): void
     {
         $this->expectException(NotFoundException::class);
         $response = new CakeResponse();
@@ -1359,7 +1359,7 @@ class CakeResponseTest extends CakeTestCase
      *
      * @return void
      */
-    public function testFileWithForwardSlashPathTraversal()
+    public function testFileWithForwardSlashPathTraversal(): void
     {
         $this->expectException(NotFoundException::class);
         $this->expectExceptionMessage('The requested file contains `..` and will not be read.');
@@ -1372,7 +1372,7 @@ class CakeResponseTest extends CakeTestCase
      *
      * @return void
      */
-    public function testFileWithBackwardSlashPathTraversal()
+    public function testFileWithBackwardSlashPathTraversal(): void
     {
         $this->expectException(NotFoundException::class);
         $this->expectExceptionMessage('The requested file contains `..` and will not be read.');
@@ -1386,7 +1386,7 @@ class CakeResponseTest extends CakeTestCase
      *
      * @return void
      */
-    public function testFileWithDotsInFilename()
+    public function testFileWithDotsInFilename(): void
     {
         $this->expectException(NotFoundException::class);
         $this->expectExceptionMessageMatches('#The requested file .+my/Some\.\.cat\.gif was not found or not readable#');
@@ -1399,7 +1399,7 @@ class CakeResponseTest extends CakeTestCase
      *
      * @return void
      */
-    public function testFile()
+    public function testFile(): void
     {
         $response = $this->getMock('CakeResponse', [
             'header',
@@ -1444,7 +1444,7 @@ class CakeResponseTest extends CakeTestCase
      *
      * @return void
      */
-    public function testFileWithUnknownFileTypeGeneric()
+    public function testFileWithUnknownFileTypeGeneric(): void
     {
         $currentUserAgent = $_SERVER['HTTP_USER_AGENT'] ?? null;
         $_SERVER['HTTP_USER_AGENT'] = 'Some generic browser';
@@ -1501,7 +1501,7 @@ class CakeResponseTest extends CakeTestCase
      *
      * @return void
      */
-    public function testFileWithUnknownFileTypeOpera()
+    public function testFileWithUnknownFileTypeOpera(): void
     {
         $currentUserAgent = $_SERVER['HTTP_USER_AGENT'] ?? null;
         $_SERVER['HTTP_USER_AGENT'] = 'Opera/9.80 (Windows NT 6.0; U; en) Presto/2.8.99 Version/11.10';
@@ -1560,7 +1560,7 @@ class CakeResponseTest extends CakeTestCase
      *
      * @return void
      */
-    public function testFileWithUnknownFileTypeIE()
+    public function testFileWithUnknownFileTypeIE(): void
     {
         $currentUserAgent = $_SERVER['HTTP_USER_AGENT'] ?? null;
         $_SERVER['HTTP_USER_AGENT'] = 'Mozilla/5.0 (compatible; MSIE 8.0; Windows NT 5.2; Trident/4.0; Media Center PC 4.0; SLCC1; .NET CLR 3.0.04320)';
@@ -1621,7 +1621,7 @@ class CakeResponseTest extends CakeTestCase
      *
      * @return void
      */
-    public function testFileWithUnknownFileNoDownload()
+    public function testFileWithUnknownFileNoDownload(): void
     {
         $currentUserAgent = $_SERVER['HTTP_USER_AGENT'] ?? null;
         $_SERVER['HTTP_USER_AGENT'] = 'Some generic browser';
@@ -1669,7 +1669,7 @@ class CakeResponseTest extends CakeTestCase
      *
      * @return void
      */
-    public function testConnectionAbortedOnBuffering()
+    public function testConnectionAbortedOnBuffering(): void
     {
         $response = $this->getMock('CakeResponse', [
             'header',
@@ -1705,7 +1705,7 @@ class CakeResponseTest extends CakeTestCase
      *
      * @return void
      */
-    public function testFileUpperExtension()
+    public function testFileUpperExtension(): void
     {
         $response = $this->getMock('CakeResponse', [
             'header',
@@ -1737,7 +1737,7 @@ class CakeResponseTest extends CakeTestCase
      *
      * @return void
      */
-    public function testFileExtensionNotSet()
+    public function testFileExtensionNotSet(): void
     {
         $response = $this->getMock('CakeResponse', [
             'header',
@@ -1769,7 +1769,7 @@ class CakeResponseTest extends CakeTestCase
      *
      * @return array
      */
-    public static function rangeProvider()
+    public static function rangeProvider(): array
     {
         return [
             // suffix-byte-range
@@ -1795,7 +1795,7 @@ class CakeResponseTest extends CakeTestCase
      * @dataProvider rangeProvider
      * @return void
      */
-    public function testFileRangeOffsets($range, $length, $offsetResponse)
+    public function testFileRangeOffsets($range, $length, $offsetResponse): void
     {
         $_SERVER['HTTP_RANGE'] = $range;
         $response = $this->getMock('CakeResponse', [
@@ -1841,7 +1841,7 @@ class CakeResponseTest extends CakeTestCase
      *
      * @return void
      */
-    public function testFileRange()
+    public function testFileRange(): void
     {
         $_SERVER['HTTP_RANGE'] = 'bytes=8-25';
         $response = $this->getMock('CakeResponse', [
@@ -1895,7 +1895,7 @@ class CakeResponseTest extends CakeTestCase
      *
      * @return array
      */
-    public function invalidFileRangeProvider()
+    public function invalidFileRangeProvider(): array
     {
         return [
             // malformed range
@@ -1919,7 +1919,7 @@ class CakeResponseTest extends CakeTestCase
      * @dataProvider invalidFileRangeProvider
      * @return void
      */
-    public function testFileRangeInvalid($range)
+    public function testFileRangeInvalid($range): void
     {
         $_SERVER['HTTP_RANGE'] = $range;
         $response = $this->getMock('CakeResponse', [
@@ -1947,7 +1947,7 @@ class CakeResponseTest extends CakeTestCase
      *
      * @return void
      */
-    public function testFileRangeReversed()
+    public function testFileRangeReversed(): void
     {
         $_SERVER['HTTP_RANGE'] = 'bytes=30-5';
         $response = $this->getMock('CakeResponse', [
@@ -1976,7 +1976,7 @@ class CakeResponseTest extends CakeTestCase
      * @dataProvider rangeProvider
      * @return void
      */
-    public function testFileRangeOffsetsNoDownload($range, $length, $offsetResponse)
+    public function testFileRangeOffsetsNoDownload($range, $length, $offsetResponse): void
     {
         $_SERVER['HTTP_RANGE'] = $range;
         $response = $this->getMock('CakeResponse', [
@@ -2023,7 +2023,7 @@ class CakeResponseTest extends CakeTestCase
      *
      * @return void
      */
-    public function testFileRangeNoDownload()
+    public function testFileRangeNoDownload(): void
     {
         $_SERVER['HTTP_RANGE'] = 'bytes=8-25';
         $response = $this->getMock('CakeResponse', [
@@ -2075,7 +2075,7 @@ class CakeResponseTest extends CakeTestCase
      *
      * @return void
      */
-    public function testFileRangeInvalidNoDownload()
+    public function testFileRangeInvalidNoDownload(): void
     {
         $_SERVER['HTTP_RANGE'] = 'bytes=30-2';
         $response = $this->getMock('CakeResponse', [
@@ -2111,7 +2111,7 @@ class CakeResponseTest extends CakeTestCase
      *
      * @return void
      */
-    public function testLocation()
+    public function testLocation(): void
     {
         $response = new CakeResponse();
         $this->assertNull($response->location(), 'No header should be set.');

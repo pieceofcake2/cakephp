@@ -39,7 +39,7 @@ class TableShellHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testDefaultOutput()
+    public function testDefaultOutput(): void
     {
         $data = [
             ['Header 1', 'Header', 'Long Header'],
@@ -63,7 +63,7 @@ class TableShellHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testOutputUtf8()
+    public function testOutputUtf8(): void
     {
         $data = [
             ['Header 1', 'Head', 'Long Header'],
@@ -87,7 +87,7 @@ class TableShellHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testOutputWithoutHeaderStyle()
+    public function testOutputWithoutHeaderStyle(): void
     {
         $data = [
             ['Header 1', 'Header', 'Long Header'],
@@ -112,7 +112,7 @@ class TableShellHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testOutputWithDifferentHeaderStyle()
+    public function testOutputWithDifferentHeaderStyle(): void
     {
         $data = [
             ['Header 1', 'Header', 'Long Header'],
@@ -137,7 +137,7 @@ class TableShellHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testOutputWithoutHeaders()
+    public function testOutputWithoutHeaders(): void
     {
         $data = [
             ['short', 'Longish thing', 'short'],
@@ -159,7 +159,7 @@ class TableShellHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testOutputWithRowSeparator()
+    public function testOutputWithRowSeparator(): void
     {
         $data = [
             ['Header 1', 'Header', 'Long Header'],
@@ -185,7 +185,7 @@ class TableShellHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testOutputWithRowSeparatorAndHeaders()
+    public function testOutputWithRowSeparatorAndHeaders(): void
     {
         $data = [
             ['Header 1', 'Header', 'Long Header'],

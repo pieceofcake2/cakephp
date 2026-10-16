@@ -32,7 +32,7 @@ class AllBehaviorsTest extends TestSuite
      *
      * @return void
      */
-    public static function suite()
+    public static function suite(): mixed
     {
         $suite = new CakeTestSuite('Model Behavior and all behaviors');
 

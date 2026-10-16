@@ -44,7 +44,7 @@ class ModelValidationTest extends BaseModelTest
      *
      * @return void
      */
-    public function testValidationParams()
+    public function testValidationParams(): void
     {
         $TestModel = new ValidationTest1();
         $TestModel->validate['title'] = [
@@ -139,7 +139,7 @@ class ModelValidationTest extends BaseModelTest
      *
      * @return void
      */
-    public function testInvalidFieldsWithFieldListParams()
+    public function testInvalidFieldsWithFieldListParams(): void
     {
         $TestModel = new ValidationTest1();
         $TestModel->validate = $validate = [
@@ -187,7 +187,7 @@ class ModelValidationTest extends BaseModelTest
      *
      * @return void
      */
-    public function testInvalidFieldsWhitelist()
+    public function testInvalidFieldsWhitelist(): void
     {
         $TestModel = new ValidationTest1();
         $TestModel->validate = [
@@ -212,7 +212,7 @@ class ModelValidationTest extends BaseModelTest
      *
      * @return void
      */
-    public function testValidates()
+    public function testValidates(): void
     {
         $TestModel = new TestValidate();
 
@@ -567,7 +567,7 @@ class ModelValidationTest extends BaseModelTest
      *
      * @return void
      */
-    public function testValidatesUtf8Rule()
+    public function testValidatesUtf8Rule(): void
     {
         $TestModel = new TheVoid();
         $TestModel->validate = [
@@ -596,7 +596,7 @@ class ModelValidationTest extends BaseModelTest
      *
      * @return void
      */
-    public function testValidatesWithNoTable()
+    public function testValidatesWithNoTable(): void
     {
         $TestModel = new TheVoid();
         $TestModel->validate = [
@@ -636,7 +636,7 @@ class ModelValidationTest extends BaseModelTest
      *
      * @return void
      */
-    public function testValidatesWithAssociations()
+    public function testValidatesWithAssociations(): void
     {
         $this->loadFixtures('Something', 'SomethingElse', 'JoinThing');
         $data = [
@@ -693,7 +693,7 @@ class ModelValidationTest extends BaseModelTest
      *
      * @return void
      */
-    public function testValidateWithFieldListAndBehavior()
+    public function testValidateWithFieldListAndBehavior(): void
     {
         $TestModel = new ValidationTest1();
         $TestModel->validate = [
@@ -721,7 +721,7 @@ class ModelValidationTest extends BaseModelTest
      *
      * @return void
      */
-    public function testValidatesWithModelsAndSaveAll()
+    public function testValidatesWithModelsAndSaveAll(): void
     {
         $this->loadFixtures('Something', 'SomethingElse', 'JoinThing');
         $data = [
@@ -770,7 +770,7 @@ class ModelValidationTest extends BaseModelTest
      *
      * @return void
      */
-    public function testValidatesWithModelsAndSaveAllWithoutId()
+    public function testValidatesWithModelsAndSaveAllWithoutId(): void
     {
         $this->loadFixtures('Post', 'Author');
 
@@ -816,7 +816,7 @@ class ModelValidationTest extends BaseModelTest
      *
      * @return void
      */
-    public function testMissingValidationErrorTriggering()
+    public function testMissingValidationErrorTriggering(): void
     {
         Configure::write('debug', 2);
 
@@ -856,7 +856,7 @@ class ModelValidationTest extends BaseModelTest
      *
      * @return void
      */
-    public function testValidationMessageAsArray()
+    public function testValidationMessageAsArray(): void
     {
         $TestModel = new ValidationTest1();
         $TestModel->validate = [
@@ -899,7 +899,7 @@ class ModelValidationTest extends BaseModelTest
      *
      * @return void
      */
-    public function testValidationMessageTranslation()
+    public function testValidationMessageTranslation(): void
     {
         $lang = Configure::read('Config.language');
         Configure::write('Config.language', 'en');
@@ -938,7 +938,7 @@ class ModelValidationTest extends BaseModelTest
      *
      * @return void
      */
-    public function testStateValidation()
+    public function testStateValidation(): void
     {
         $this->loadFixtures('Article');
         $Article = new Article();
@@ -992,7 +992,7 @@ class ModelValidationTest extends BaseModelTest
      *
      * @return void
      */
-    public function testStateRequiredValidation()
+    public function testStateRequiredValidation(): void
     {
         $this->loadFixtures('Article');
         $Article = new Article();
@@ -1046,7 +1046,7 @@ class ModelValidationTest extends BaseModelTest
      *
      * @return void
      */
-    public function testOnRequiredConflictValidation()
+    public function testOnRequiredConflictValidation(): void
     {
         $this->loadFixtures('Article');
         $Article = new Article();
@@ -1172,7 +1172,7 @@ class ModelValidationTest extends BaseModelTest
      *
      * @return void
      */
-    public function testSaveAllDeepValidateOnly()
+    public function testSaveAllDeepValidateOnly(): void
     {
         $this->loadFixtures('Article', 'Comment', 'User', 'Attachment');
         $TestModel = new Article();
@@ -1501,7 +1501,7 @@ class ModelValidationTest extends BaseModelTest
      *
      * @return void
      */
-    public function testSaveAllNotDeepValidateOnly()
+    public function testSaveAllNotDeepValidateOnly(): void
     {
         $this->loadFixtures('Article', 'Comment', 'User', 'Attachment');
         $TestModel = new Article();
@@ -1654,7 +1654,7 @@ class ModelValidationTest extends BaseModelTest
      *
      * @return void
      */
-    public function testValidateAssociated()
+    public function testValidateAssociated(): void
     {
         $this->loadFixtures('Comment', 'Attachment', 'Article', 'User');
         $TestModel = new Comment();
@@ -1788,7 +1788,7 @@ class ModelValidationTest extends BaseModelTest
      *
      * @return void
      */
-    public function testValidateMany()
+    public function testValidateMany(): void
     {
         $TestModel = new Article();
         $TestModel->validate = ['title' => 'notBlank'];
@@ -1829,7 +1829,7 @@ class ModelValidationTest extends BaseModelTest
      *
      * @return void
      */
-    public function testGetMethods()
+    public function testGetMethods(): void
     {
         $this->loadFixtures('Article', 'Comment');
         $TestModel = new Article();
@@ -1846,7 +1846,7 @@ class ModelValidationTest extends BaseModelTest
      *
      * @return void
      */
-    public function testGetMethodsRefresh()
+    public function testGetMethodsRefresh(): void
     {
         $this->loadFixtures('Article', 'Comment');
         $TestModel = new Article();
@@ -1876,7 +1876,7 @@ class ModelValidationTest extends BaseModelTest
      *
      * @return void
      */
-    public function testSetValidationDomain()
+    public function testSetValidationDomain(): void
     {
         $this->loadFixtures('Article', 'Comment');
         $TestModel = new Article();
@@ -1894,7 +1894,7 @@ class ModelValidationTest extends BaseModelTest
      *
      * @return void
      */
-    public function testGetModel()
+    public function testGetModel(): void
     {
         $TestModel = new Article();
         $Validator = $TestModel->validator();
@@ -1908,7 +1908,7 @@ class ModelValidationTest extends BaseModelTest
      *
      * @return void
      */
-    public function testArrayAccessGet()
+    public function testArrayAccessGet(): void
     {
         $TestModel = new Article();
         $Validator = $TestModel->validator();
@@ -1937,7 +1937,7 @@ class ModelValidationTest extends BaseModelTest
      *
      * @return void
      */
-    public function testArrayAccessExists()
+    public function testArrayAccessExists(): void
     {
         $TestModel = new Article();
         $Validator = $TestModel->validator();
@@ -1953,7 +1953,7 @@ class ModelValidationTest extends BaseModelTest
      *
      * @return void
      */
-    public function testArrayAccessSet()
+    public function testArrayAccessSet(): void
     {
         $TestModel = new Article();
         $Validator = $TestModel->validator();
@@ -1986,7 +1986,7 @@ class ModelValidationTest extends BaseModelTest
      *
      * @return void
      */
-    public function testArrayAccessUset()
+    public function testArrayAccessUset(): void
     {
         $TestModel = new Article();
         $Validator = $TestModel->validator();
@@ -2001,7 +2001,7 @@ class ModelValidationTest extends BaseModelTest
      *
      * @return void
      */
-    public function testIterator()
+    public function testIterator(): void
     {
         $TestModel = new Article();
         $Validator = $TestModel->validator();
@@ -2028,7 +2028,7 @@ class ModelValidationTest extends BaseModelTest
      *
      * @return void
      */
-    public function testCount()
+    public function testCount(): void
     {
         $TestModel = new Article();
         $Validator = $TestModel->validator();
@@ -2052,7 +2052,7 @@ class ModelValidationTest extends BaseModelTest
      *
      * @return void
      */
-    public function testAddRule()
+    public function testAddRule(): void
     {
         $TestModel = new Article();
         $Validator = $TestModel->validator();
@@ -2073,7 +2073,7 @@ class ModelValidationTest extends BaseModelTest
      *
      * @return void
      */
-    public function testRemoveRule()
+    public function testRemoveRule(): void
     {
         $TestModel = new Article();
         $Validator = $TestModel->validator();
@@ -2100,7 +2100,7 @@ class ModelValidationTest extends BaseModelTest
      *
      * @return void
      */
-    public function testValidateCallbacks()
+    public function testValidateCallbacks(): void
     {
         $TestModel = $this->getMock('Article', ['beforeValidate', 'afterValidate']);
         $TestModel->expects($this->once())->method('beforeValidate');
@@ -2116,7 +2116,7 @@ class ModelValidationTest extends BaseModelTest
      *
      * @return void
      */
-    public function testValidateFirstWithBeforeValidate()
+    public function testValidateFirstWithBeforeValidate(): void
     {
         $this->loadFixtures('Article', 'User');
         $model = new CustomArticle();
@@ -2171,7 +2171,7 @@ class ModelValidationTest extends BaseModelTest
      *
      * @return void
      */
-    public function testValidateFirstAssociatedWithBeforeValidate()
+    public function testValidateFirstAssociatedWithBeforeValidate(): void
     {
         $this->loadFixtures('Article', 'User');
         $model = new CustomArticle();
@@ -2207,7 +2207,7 @@ class ModelValidationTest extends BaseModelTest
      *
      * @return void
      */
-    public function testFirstWithDefaults()
+    public function testFirstWithDefaults(): void
     {
         $this->loadFixtures('Article', 'Tag', 'Comment', 'User', 'ArticlesTag');
         $TestModel = new Article();
@@ -2248,7 +2248,7 @@ class ModelValidationTest extends BaseModelTest
         $this->assertEquals($expected['Article'], $result['Article']);
     }
 
-    public function testAddMultipleRules()
+    public function testAddMultipleRules(): void
     {
         $TestModel = new Article();
         $Validator = $TestModel->validator();
@@ -2281,7 +2281,7 @@ class ModelValidationTest extends BaseModelTest
      *
      * @return void
      */
-    public function testValidator()
+    public function testValidator(): void
     {
         $TestModel = new Article();
         $Validator = $TestModel->validator();
@@ -2300,7 +2300,7 @@ class ModelValidationTest extends BaseModelTest
      *
      * @return void
      */
-    public function testValidatorOverride()
+    public function testValidatorOverride(): void
     {
         $TestModel = new Article();
         $ValidatorA = new ModelValidator($TestModel);
@@ -2319,7 +2319,7 @@ class ModelValidationTest extends BaseModelTest
      * @return void
      * @throws Error
      */
-    public function testValidatorTypehintException()
+    public function testValidatorTypehintException(): void
     {
         $this->expectException(Error::class);
         try {
@@ -2336,7 +2336,7 @@ class ModelValidationTest extends BaseModelTest
      *
      * @return void
      */
-    public function testValidateFirstAssociatedWithBeforeValidate2()
+    public function testValidateFirstAssociatedWithBeforeValidate2(): void
     {
         $this->loadFixtures('Article', 'User');
         $model = new CustomArticle();
@@ -2367,7 +2367,7 @@ class ModelValidationTest extends BaseModelTest
      *
      * @return void
      */
-    public function testDynamicValidationRuleBuilding()
+    public function testDynamicValidationRuleBuilding(): void
     {
         $model = new Article();
         $validator = $model->validator();
@@ -2386,7 +2386,7 @@ class ModelValidationTest extends BaseModelTest
      *
      * @return void
      */
-    public function testCustomMethodsWithCakeValidationSet()
+    public function testCustomMethodsWithCakeValidationSet(): void
     {
         $TestModel = new TestValidate();
         $Validator = $TestModel->validator();
@@ -2406,7 +2406,7 @@ class ModelValidationTest extends BaseModelTest
         $this->assertEquals($expected, $result);
     }
 
-    public function testCustomMethodWithEmptyValue()
+    public function testCustomMethodWithEmptyValue(): void
     {
         $this->loadFixtures('Article');
 
@@ -2432,7 +2432,7 @@ class ModelValidationTest extends BaseModelTest
      *
      * @return void
      */
-    public function testValidateAssociatedAtomicFalseDeepTrueWithErrors()
+    public function testValidateAssociatedAtomicFalseDeepTrueWithErrors(): void
     {
         $this->loadFixtures('Comment', 'Article', 'User', 'Attachment');
         $Attachment = ClassRegistry::init('Attachment');
@@ -2493,7 +2493,7 @@ class ModelValidationTest extends BaseModelTest
      *
      * @return void
      */
-    public function testValidateManyAtomicFalseDeepTrueWithErrors()
+    public function testValidateManyAtomicFalseDeepTrueWithErrors(): void
     {
         $this->loadFixtures('Comment', 'Article', 'User');
         $Article = ClassRegistry::init('Article');
@@ -2555,7 +2555,7 @@ class ModelValidationTest extends BaseModelTest
      *
      * @return void
      */
-    public function testIsUniqueValidator()
+    public function testIsUniqueValidator(): void
     {
         $this->loadFixtures('Article');
         $Article = ClassRegistry::init('Article');
@@ -2600,7 +2600,7 @@ class ModelValidationTest extends BaseModelTest
      *
      * @return void
      */
-    public function testBackwardCompatIsUniqueValidator()
+    public function testBackwardCompatIsUniqueValidator(): void
     {
         $this->loadFixtures('Article');
         $Article = ClassRegistry::init('Article');
@@ -2629,12 +2629,12 @@ class ModelValidationTest extends BaseModelTest
  */
 class ValidationRuleBehavior extends ModelBehavior
 {
-    public function setup(Model $Model, $config = [])
+    public function setup(Model $Model, $config = []): void
     {
         $this->settings[$Model->alias] = $config;
     }
 
-    public function beforeValidate(Model $Model, $options = [])
+    public function beforeValidate(Model $Model, $options = []): void
     {
         $fields = $this->settings[$Model->alias]['fields'];
         foreach ($fields as $field) {

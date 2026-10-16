@@ -30,7 +30,7 @@ class TestCakeRequest extends CakeRequest
      * @param bool $parseEnvironment
      * @return void
      */
-    public function reConstruct($url = 'some/path', $parseEnvironment = true)
+    public function reConstruct($url = 'some/path', $parseEnvironment = true): void
     {
         $this->_base();
         if (empty($url)) {
@@ -96,7 +96,7 @@ class CakeRequestTest extends CakeTestCase
      *
      * @return void
      */
-    public function testHeaderDetector()
+    public function testHeaderDetector(): void
     {
         $request = new CakeRequest('some/path');
         $request->addDetector('host', ['header' => ['host' => 'cakephp.org']]);
@@ -113,7 +113,7 @@ class CakeRequestTest extends CakeTestCase
      *
      * @return void
      */
-    public function testExtensionDetector()
+    public function testExtensionDetector(): void
     {
         $request = new CakeRequest('some/path');
         $request->params['ext'] = 'json';
@@ -128,7 +128,7 @@ class CakeRequestTest extends CakeTestCase
      *
      * @return void
      */
-    public function testAcceptHeaderDetector()
+    public function testAcceptHeaderDetector(): void
     {
         $request = new CakeRequest('some/path');
         $_SERVER['HTTP_ACCEPT'] = 'application/json, text/plain, */*';
@@ -143,7 +143,7 @@ class CakeRequestTest extends CakeTestCase
      *
      * @return void
      */
-    public function testNoAutoParseConstruction()
+    public function testNoAutoParseConstruction(): void
     {
         $_GET = [
             'one' => 'param',
@@ -157,7 +157,7 @@ class CakeRequestTest extends CakeTestCase
      *
      * @return void
      */
-    public function testContentType()
+    public function testContentType(): void
     {
         $_SERVER['HTTP_CONTENT_TYPE'] = 'application/json';
         $request = new CakeRequest('/', false);
@@ -173,7 +173,7 @@ class CakeRequestTest extends CakeTestCase
      *
      * @return void
      */
-    public function testConstructionGetParsing()
+    public function testConstructionGetParsing(): void
     {
         $_GET = [
             'one' => 'param',
@@ -196,7 +196,7 @@ class CakeRequestTest extends CakeTestCase
      *
      * @return void
      */
-    public function testQueryStringParsingFromInputUrl()
+    public function testQueryStringParsingFromInputUrl(): void
     {
         $_GET = [];
         $request = new CakeRequest('some/path?one=something&two=else');
@@ -211,7 +211,7 @@ class CakeRequestTest extends CakeTestCase
      *
      * @return void
      */
-    public function testQueryStringAndNamedParams()
+    public function testQueryStringAndNamedParams(): void
     {
         $_SERVER['REQUEST_URI'] = '/tasks/index/page:1?ts=123456';
         $request = new CakeRequest();
@@ -240,7 +240,7 @@ class CakeRequestTest extends CakeTestCase
      *
      * @return void
      */
-    public function testAddParams()
+    public function testAddParams(): void
     {
         $request = new CakeRequest('some/path');
         $request->params = ['controller' => 'posts', 'action' => 'view'];
@@ -258,7 +258,7 @@ class CakeRequestTest extends CakeTestCase
      *
      * @return void
      */
-    public function testAddPaths()
+    public function testAddPaths(): void
     {
         $request = new CakeRequest('some/path');
         $request->webroot = '/some/path/going/here/';
@@ -279,7 +279,7 @@ class CakeRequestTest extends CakeTestCase
      *
      * @return void
      */
-    public function testPostParsing()
+    public function testPostParsing(): void
     {
         $_POST = ['data' => [
             'Article' => ['title'],
@@ -331,7 +331,7 @@ class CakeRequestTest extends CakeTestCase
      *
      * @return void
      */
-    public function testPutParsing()
+    public function testPutParsing(): void
     {
         $_SERVER['REQUEST_METHOD'] = 'PUT';
         $_SERVER['CONTENT_TYPE'] = 'application/x-www-form-urlencoded; charset=UTF-8';
@@ -406,7 +406,7 @@ class CakeRequestTest extends CakeTestCase
      *
      * @return void
      */
-    public function testPutParsingJSON()
+    public function testPutParsingJSON(): void
     {
         $_SERVER['REQUEST_METHOD'] = 'PUT';
         $_SERVER['CONTENT_TYPE'] = 'application/json';
@@ -425,7 +425,7 @@ class CakeRequestTest extends CakeTestCase
      *
      * @return void
      */
-    public function testFilesParsing()
+    public function testFilesParsing(): void
     {
         $_FILES = [
             'data' => [
@@ -697,7 +697,7 @@ class CakeRequestTest extends CakeTestCase
      *
      * @return void
      */
-    public function testFilesZeroithIndex()
+    public function testFilesZeroithIndex(): void
     {
         $_FILES = [
             0 => [
@@ -718,7 +718,7 @@ class CakeRequestTest extends CakeTestCase
      *
      * @return void
      */
-    public function testMethodOverrides()
+    public function testMethodOverrides(): void
     {
         $_POST = ['_method' => 'POST'];
         new CakeRequest('some/path');
@@ -738,7 +738,7 @@ class CakeRequestTest extends CakeTestCase
      *
      * @return void
      */
-    public function testclientIp()
+    public function testclientIp(): void
     {
         $_SERVER['HTTP_X_FORWARDED_FOR'] = '192.168.1.5, 10.0.1.1, proxy.com';
         $_SERVER['HTTP_CLIENT_IP'] = '192.168.1.2';
@@ -762,7 +762,7 @@ class CakeRequestTest extends CakeTestCase
      *
      * @return void
      */
-    public function testReferer()
+    public function testReferer(): void
     {
         $request = new CakeRequest('some/path');
         $request->webroot = '/';
@@ -813,7 +813,7 @@ class CakeRequestTest extends CakeTestCase
      *
      * @return void
      */
-    public function testRefererBasePath()
+    public function testRefererBasePath(): void
     {
         $request = new CakeRequest('some/path');
         $request->url = 'users/login';
@@ -832,7 +832,7 @@ class CakeRequestTest extends CakeTestCase
      *
      * @return void
      */
-    public function testIsHttpMethods()
+    public function testIsHttpMethods(): void
     {
         $request = new CakeRequest('some/path');
 
@@ -861,7 +861,7 @@ class CakeRequestTest extends CakeTestCase
      *
      * @return void
      */
-    public function testIsJsonAndXml()
+    public function testIsJsonAndXml(): void
     {
         $request = new CakeRequest('some/path');
 
@@ -880,7 +880,7 @@ class CakeRequestTest extends CakeTestCase
      *
      * @return void
      */
-    public function testIsMultiple()
+    public function testIsMultiple(): void
     {
         $request = new CakeRequest('some/path');
 
@@ -899,7 +899,7 @@ class CakeRequestTest extends CakeTestCase
      *
      * @return void
      */
-    public function testIsAll()
+    public function testIsAll(): void
     {
         $request = new CakeRequest('some/path');
 
@@ -916,7 +916,7 @@ class CakeRequestTest extends CakeTestCase
      *
      * @return void
      */
-    public function testMethod()
+    public function testMethod(): void
     {
         $_SERVER['REQUEST_METHOD'] = 'delete';
         $request = new CakeRequest('some/path');
@@ -929,7 +929,7 @@ class CakeRequestTest extends CakeTestCase
      *
      * @return void
      */
-    public function testHost()
+    public function testHost(): void
     {
         $_SERVER['HTTP_HOST'] = 'localhost';
         $_SERVER['HTTP_X_FORWARDED_HOST'] = 'cakephp.org';
@@ -944,7 +944,7 @@ class CakeRequestTest extends CakeTestCase
      *
      * @return void
      */
-    public function testDomain()
+    public function testDomain(): void
     {
         $_SERVER['HTTP_HOST'] = 'something.example.com';
         $request = new CakeRequest('some/path');
@@ -960,7 +960,7 @@ class CakeRequestTest extends CakeTestCase
      *
      * @return void
      */
-    public function testSubdomain()
+    public function testSubdomain(): void
     {
         $_SERVER['HTTP_HOST'] = 'something.example.com';
         $request = new CakeRequest('some/path');
@@ -982,7 +982,7 @@ class CakeRequestTest extends CakeTestCase
      *
      * @return void
      */
-    public function testisAjaxFlashAndFriends()
+    public function testisAjaxFlashAndFriends(): void
     {
         $request = new CakeRequest('some/path');
 
@@ -1017,7 +1017,7 @@ class CakeRequestTest extends CakeTestCase
      *
      * @return void
      */
-    public function testMagicCallExceptionOnUnknownMethod()
+    public function testMagicCallExceptionOnUnknownMethod(): void
     {
         $this->expectException(CakeException::class);
         $request = new CakeRequest('some/path');
@@ -1029,7 +1029,7 @@ class CakeRequestTest extends CakeTestCase
      *
      * @return void
      */
-    public function testIsSsl()
+    public function testIsSsl(): void
     {
         $request = new CakeRequest('some/path');
 
@@ -1063,7 +1063,7 @@ class CakeRequestTest extends CakeTestCase
      *
      * @return void
      */
-    public function testMagicget()
+    public function testMagicget(): void
     {
         $request = new CakeRequest('some/path');
         $request->params = ['controller' => 'posts', 'action' => 'view', 'plugin' => 'blogs'];
@@ -1079,7 +1079,7 @@ class CakeRequestTest extends CakeTestCase
      *
      * @return void
      */
-    public function testMagicisset()
+    public function testMagicisset(): void
     {
         $request = new CakeRequest('some/path');
         $request->params = [
@@ -1100,7 +1100,7 @@ class CakeRequestTest extends CakeTestCase
      *
      * @return void
      */
-    public function testArrayAccess()
+    public function testArrayAccess(): void
     {
         $request = new CakeRequest('some/path');
         $request->params = ['controller' => 'posts', 'action' => 'view', 'plugin' => 'blogs'];
@@ -1132,7 +1132,7 @@ class CakeRequestTest extends CakeTestCase
      *
      * @return void
      */
-    public function testAddDetector()
+    public function testAddDetector(): void
     {
         $request = new CakeRequest('some/path');
         $request->addDetector('compare', ['env' => 'TEST_VAR', 'value' => 'something']);
@@ -1198,7 +1198,7 @@ class CakeRequestTest extends CakeTestCase
      * @param CakeRequest $request
      * @return bool
      */
-    public function detectCallback($request)
+    public function detectCallback($request): bool
     {
         return (bool)$request->return;
     }
@@ -1208,7 +1208,7 @@ class CakeRequestTest extends CakeTestCase
      *
      * @return void
      */
-    public function testHeader()
+    public function testHeader(): void
     {
         $_SERVER['HTTP_X_THING'] = '';
         $_SERVER['HTTP_HOST'] = 'localhost';
@@ -1228,7 +1228,7 @@ class CakeRequestTest extends CakeTestCase
      *
      * @return void
      */
-    public function testAccepts()
+    public function testAccepts(): void
     {
         $_SERVER['HTTP_ACCEPT'] = 'text/xml,application/xml;q=0.9,application/xhtml+xml,text/html,text/plain,image/png';
         $request = new CakeRequest('/', false);
@@ -1251,7 +1251,7 @@ class CakeRequestTest extends CakeTestCase
      *
      * @return void
      */
-    public function testAcceptWithWhitespace()
+    public function testAcceptWithWhitespace(): void
     {
         $_SERVER['HTTP_ACCEPT'] = 'text/xml  ,  text/html ,  text/plain,image/png';
         $request = new CakeRequest('/', false);
@@ -1269,7 +1269,7 @@ class CakeRequestTest extends CakeTestCase
      *
      * @return void
      */
-    public function testAcceptWithQvalueSorting()
+    public function testAcceptWithQvalueSorting(): void
     {
         $_SERVER['HTTP_ACCEPT'] = 'text/html;q=0.8,application/json;q=0.7,application/xml;q=1.0';
         $request = new CakeRequest('/', false);
@@ -1283,7 +1283,7 @@ class CakeRequestTest extends CakeTestCase
      *
      * @return void
      */
-    public function testParseAcceptWithQValue()
+    public function testParseAcceptWithQValue(): void
     {
         $_SERVER['HTTP_ACCEPT'] = 'text/html;q=0.8,application/json;q=0.7,application/xml;q=1.0,image/png';
         $request = new CakeRequest('/', false);
@@ -1301,7 +1301,7 @@ class CakeRequestTest extends CakeTestCase
      *
      * @return void
      */
-    public function testParseAcceptNoQValues()
+    public function testParseAcceptNoQValues(): void
     {
         $_SERVER['HTTP_ACCEPT'] = 'application/json, text/plain, */*';
 
@@ -1318,7 +1318,7 @@ class CakeRequestTest extends CakeTestCase
      *
      * @return void
      */
-    public function testParseAcceptIgnoreAcceptExtensions()
+    public function testParseAcceptIgnoreAcceptExtensions(): void
     {
         $_SERVER['HTTP_ACCEPT'] = 'application/json;level=1, text/plain, */*';
 
@@ -1337,7 +1337,7 @@ class CakeRequestTest extends CakeTestCase
      *
      * @return void
      */
-    public function testParseAcceptInvalidSyntax()
+    public function testParseAcceptInvalidSyntax(): void
     {
         $_SERVER['HTTP_ACCEPT'] = 'text/html,application/xhtml+xml,application/xml;image/png,image/jpeg,image/*;q=0.9,*/*;q=0.8';
         $request = new CakeRequest('/', false);
@@ -1355,7 +1355,7 @@ class CakeRequestTest extends CakeTestCase
      *
      * @return void
      */
-    public function testBaseUrlAndWebrootWithModRewrite()
+    public function testBaseUrlAndWebrootWithModRewrite(): void
     {
         Configure::write('App.baseUrl', false);
 
@@ -1425,7 +1425,7 @@ class CakeRequestTest extends CakeTestCase
      *
      * @return void
      */
-    public function testBaseUrlwithModRewriteAlias()
+    public function testBaseUrlwithModRewriteAlias(): void
     {
         $_SERVER['DOCUMENT_ROOT'] = '/home/aplusnur/public_html';
         $_SERVER['PHP_SELF'] = '/control/index.php';
@@ -1461,7 +1461,7 @@ class CakeRequestTest extends CakeTestCase
      *
      * @return void
      */
-    public function testBaseUrlWithModRewriteAndIndexPhp()
+    public function testBaseUrlWithModRewriteAndIndexPhp(): void
     {
         $_SERVER['REQUEST_URI'] = '/cakephp/' . APP_DIR . '/' . WEBROOT_DIR . '/index.php';
         $_SERVER['PHP_SELF'] = '/cakephp/' . APP_DIR . '/' . WEBROOT_DIR . '/index.php';
@@ -1520,7 +1520,7 @@ class CakeRequestTest extends CakeTestCase
      *
      * @return void
      */
-    public function testBaseUrlWithModRewriteAndExtraSlashes()
+    public function testBaseUrlWithModRewriteAndExtraSlashes(): void
     {
         $_SERVER['REQUEST_URI'] = '/cakephp/webroot///index.php/bananas/eat';
         $_SERVER['PHP_SELF'] = '/cakephp/webroot///index.php/bananas/eat';
@@ -1538,7 +1538,7 @@ class CakeRequestTest extends CakeTestCase
      *
      * @return void
      */
-    public function testBaseUrlWithNoModRewrite()
+    public function testBaseUrlWithNoModRewrite(): void
     {
         $_SERVER['DOCUMENT_ROOT'] = '/Users/markstory/Sites';
         $_SERVER['SCRIPT_FILENAME'] = '/Users/markstory/Sites/cake/index.php';
@@ -1563,7 +1563,7 @@ class CakeRequestTest extends CakeTestCase
      *
      * @return void
      */
-    public function testBaseUrlAndWebrootWithBaseUrl()
+    public function testBaseUrlAndWebrootWithBaseUrl(): void
     {
         Configure::write('App.dir', 'app');
         Configure::write('App.baseUrl', '/app/webroot/index.php');
@@ -1613,7 +1613,7 @@ class CakeRequestTest extends CakeTestCase
      *
      * @return void
      */
-    public function testBaseUrlNoRewriteTopLevelIndex()
+    public function testBaseUrlNoRewriteTopLevelIndex(): void
     {
         Configure::write('App.baseUrl', '/index.php');
         $_SERVER['DOCUMENT_ROOT'] = '/Users/markstory/Sites/cake_dev';
@@ -1629,7 +1629,7 @@ class CakeRequestTest extends CakeTestCase
      *
      * @return void
      */
-    public function testBaseUrlWithAppAndWebrootInDirname()
+    public function testBaseUrlWithAppAndWebrootInDirname(): void
     {
         Configure::write('App.baseUrl', '/approval/index.php');
         $_SERVER['DOCUMENT_ROOT'] = '/Users/markstory/Sites/';
@@ -1653,7 +1653,7 @@ class CakeRequestTest extends CakeTestCase
      *
      * @return void
      */
-    public function testBaseUrlNoRewriteWebrootIndex()
+    public function testBaseUrlNoRewriteWebrootIndex(): void
     {
         Configure::write('App.baseUrl', '/index.php');
         $_SERVER['DOCUMENT_ROOT'] = '/Users/markstory/Sites/cake_dev/' . APP_DIR . '/' . WEBROOT_DIR . '';
@@ -1670,7 +1670,7 @@ class CakeRequestTest extends CakeTestCase
      *
      * @return void
      */
-    public function testGetParamsWithDot()
+    public function testGetParamsWithDot(): void
     {
         $_GET = [];
         $_GET['/posts/index/add_add'] = '';
@@ -1694,7 +1694,7 @@ class CakeRequestTest extends CakeTestCase
      *
      * @return void
      */
-    public function testGetParamWithUrlencodedElement()
+    public function testGetParamWithUrlencodedElement(): void
     {
         $_GET = [];
         $_GET['/posts/add/∂∂'] = '';
@@ -1718,7 +1718,7 @@ class CakeRequestTest extends CakeTestCase
      *
      * @return array Environment array
      */
-    public static function environmentGenerator()
+    public static function environmentGenerator(): array
     {
         return [
             [
@@ -2125,7 +2125,7 @@ class CakeRequestTest extends CakeTestCase
      * @param array $expected
      * @return void
      */
-    public function testEnvironmentDetection($name, $env, $expected)
+    public function testEnvironmentDetection($name, $env, $expected): void
     {
         $_GET = [];
         $this->_loadEnvironment($env);
@@ -2144,7 +2144,7 @@ class CakeRequestTest extends CakeTestCase
      *
      * @return void
      */
-    public function testQuery()
+    public function testQuery(): void
     {
         $_GET = [];
         $_GET['foo'] = 'bar';
@@ -2163,7 +2163,7 @@ class CakeRequestTest extends CakeTestCase
      *
      * @return void
      */
-    public function testQueryWithArray()
+    public function testQueryWithArray(): void
     {
         $_GET = [];
         $_GET['test'] = ['foo', 'bar'];
@@ -2185,7 +2185,7 @@ class CakeRequestTest extends CakeTestCase
      *
      * @return void
      */
-    public function testDataReading()
+    public function testDataReading(): void
     {
         $_POST['data'] = [
             'Model' => [
@@ -2205,7 +2205,7 @@ class CakeRequestTest extends CakeTestCase
      *
      * @return void
      */
-    public function testDataWriting()
+    public function testDataWriting(): void
     {
         $_POST['data'] = [
             'Model' => [
@@ -2228,7 +2228,7 @@ class CakeRequestTest extends CakeTestCase
      *
      * @return void
      */
-    public function testDataWritingFalsey()
+    public function testDataWritingFalsey(): void
     {
         $request = new CakeRequest('posts/index');
 
@@ -2250,7 +2250,7 @@ class CakeRequestTest extends CakeTestCase
      *
      * @dataProvider paramReadingDataProvider
      */
-    public function testParamReading($toRead, $expected)
+    public function testParamReading($toRead, $expected): void
     {
         $request = new CakeRequest('/');
         $request->addParams([
@@ -2273,7 +2273,7 @@ class CakeRequestTest extends CakeTestCase
      *
      * @return array
      */
-    public function paramReadingDataProvider()
+    public function paramReadingDataProvider(): array
     {
         return [
             [
@@ -2316,7 +2316,7 @@ class CakeRequestTest extends CakeTestCase
      *
      * @return void
      */
-    public function testParamWriting()
+    public function testParamWriting(): void
     {
         $request = new CakeRequest('/');
         $request->addParams([
@@ -2347,7 +2347,7 @@ class CakeRequestTest extends CakeTestCase
      *
      * @return void
      */
-    public function testAcceptLanguage()
+    public function testAcceptLanguage(): void
     {
         // Weird language
         $_SERVER['HTTP_ACCEPT_LANGUAGE'] = 'inexistent,en-ca';
@@ -2391,7 +2391,7 @@ class CakeRequestTest extends CakeTestCase
      *
      * @return void
      */
-    public function testHere()
+    public function testHere(): void
     {
         Configure::write('App.base', '/base_path');
         $_GET = ['test' => 'value'];
@@ -2416,7 +2416,7 @@ class CakeRequestTest extends CakeTestCase
      *
      * @return void
      */
-    public function testHereWithSpaceInUrl()
+    public function testHereWithSpaceInUrl(): void
     {
         Configure::write('App.base', '');
         $_GET = ['/admin/settings/settings/prefix/Access_Control' => ''];
@@ -2431,7 +2431,7 @@ class CakeRequestTest extends CakeTestCase
      *
      * @return void
      */
-    public function testSetInput()
+    public function testSetInput(): void
     {
         $request = new CakeRequest('/');
 
@@ -2448,7 +2448,7 @@ class CakeRequestTest extends CakeTestCase
      *
      * @return void
      */
-    public function testInput()
+    public function testInput(): void
     {
         $request = $this->getMock('CakeRequest', ['_readInput']);
         $request->expects($this->once())->method('_readInput')
@@ -2463,7 +2463,7 @@ class CakeRequestTest extends CakeTestCase
      *
      * @return void
      */
-    public function testInputDecode()
+    public function testInputDecode(): void
     {
         $request = $this->getMock('CakeRequest', ['_readInput']);
         $request->expects($this->once())->method('_readInput')
@@ -2478,7 +2478,7 @@ class CakeRequestTest extends CakeTestCase
      *
      * @return void
      */
-    public function testInputDecodeExtraParams()
+    public function testInputDecodeExtraParams(): void
     {
         $xml = <<<XML
 <?xml version="1.0" encoding="utf-8"?>
@@ -2504,7 +2504,7 @@ XML;
      *
      * @return void
      */
-    public function testIsRequested()
+    public function testIsRequested(): void
     {
         $request = new CakeRequest('/posts/index');
         $request->addParams([
@@ -2531,7 +2531,7 @@ XML;
      *
      * @return void
      */
-    public function testAllowMethod()
+    public function testAllowMethod(): void
     {
         $_SERVER['REQUEST_METHOD'] = 'PUT';
         $request = new CakeRequest('/posts/edit/1');
@@ -2553,7 +2553,7 @@ XML;
      *
      * @return void
      */
-    public function testAllowMethodException()
+    public function testAllowMethodException(): void
     {
         $_SERVER['REQUEST_METHOD'] = 'PUT';
         $request = new CakeRequest('/posts/edit/1');
@@ -2575,7 +2575,7 @@ XML;
      *
      * @return void
      */
-    public function testMethodOverrideEmptyData()
+    public function testMethodOverrideEmptyData(): void
     {
         $_POST = ['_method' => 'GET', 'foo' => 'bar'];
         $_SERVER['REQUEST_METHOD'] = 'PUT';
@@ -2594,7 +2594,7 @@ XML;
      * @param array $env
      * @return void
      */
-    protected function _loadEnvironment($env)
+    protected function _loadEnvironment($env): void
     {
         if (isset($env['App'])) {
             Configure::write('App', $env['App']);

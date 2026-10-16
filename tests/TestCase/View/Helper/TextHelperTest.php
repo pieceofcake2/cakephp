@@ -23,12 +23,12 @@
  */
 class TextHelperTestObject extends TextHelper
 {
-    public function attach(CakeTextMock $string)
+    public function attach(CakeTextMock $string): void
     {
         $this->_engine = $string;
     }
 
-    public function engine()
+    public function engine(): mixed
     {
         return $this->_engine;
     }
@@ -79,7 +79,7 @@ class TextHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testTextHelperProxyMethodCalls()
+    public function testTextHelperProxyMethodCalls(): void
     {
         $methods = [
             'highlight', 'stripLinks', 'truncate', 'tail', 'excerpt', 'toList',
@@ -112,7 +112,7 @@ class TextHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testEngineOverride()
+    public function testEngineOverride(): void
     {
         App::build([
             'Utility' => [CORE_TESTS . DS . 'test_app' . DS . 'Utility' . DS],
@@ -134,7 +134,7 @@ class TextHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testAutoLink()
+    public function testAutoLink(): void
     {
         $text = 'The AWWWARD show happened today';
         $result = $this->Text->autoLink($text);
@@ -205,7 +205,7 @@ class TextHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testAutoLinkMixed()
+    public function testAutoLinkMixed(): void
     {
         $text = 'Text with a url/email http://example.com/store?email=mark@example.com and email.';
         $expected = 'Text with a url/email <a href="http://example.com/store?email=mark@example.com">' .
@@ -219,7 +219,7 @@ class TextHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testAutoLinkOptions()
+    public function testAutoLinkOptions(): void
     {
         $text = 'This is a test text with URL http://www.cakephp.org';
         $expected = 'This is a test text with URL <a href="http://www.cakephp.org" class="link">http://www.cakephp.org</a>';
@@ -237,7 +237,7 @@ class TextHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testAutoLinkEscape()
+    public function testAutoLinkEscape(): void
     {
         $text = 'This is a <b>test</b> text with URL http://www.cakephp.org';
         $expected = 'This is a &lt;b&gt;test&lt;/b&gt; text with URL <a href="http://www.cakephp.org">http://www.cakephp.org</a>';
@@ -266,7 +266,7 @@ class TextHelperTest extends CakeTestCase
      *
      * @return array
      */
-    public static function autoLinkProvider()
+    public static function autoLinkProvider(): array
     {
         return [
             [
@@ -342,7 +342,7 @@ class TextHelperTest extends CakeTestCase
      * @dataProvider autoLinkProvider
      * @return void
      */
-    public function testAutoLinkUrls($text, $expected)
+    public function testAutoLinkUrls($text, $expected): void
     {
         $result = $this->Text->autoLinkUrls($text);
         $this->assertEquals($expected, $result);
@@ -353,7 +353,7 @@ class TextHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testAutoLinkUrlsOptions()
+    public function testAutoLinkUrlsOptions(): void
     {
         $text = 'Text with a partial www.cakephp.org URL';
         $expected = 'Text with a partial <a href="http://www.cakephp.org" \s*class="link">www.cakephp.org</a> URL';
@@ -371,7 +371,7 @@ class TextHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testAutoLinkUrlsEscape()
+    public function testAutoLinkUrlsEscape(): void
     {
         $text = 'Text with a partial <a href="http://www.example.com">http://www.example.com</a> link';
         $expected = 'Text with a partial <a href="http://www.example.com">http://www.example.com</a> link';
@@ -424,7 +424,7 @@ class TextHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testAutoLinkUrlsQueryString()
+    public function testAutoLinkUrlsQueryString(): void
     {
         $text = 'Text with a partial http://www.cakephp.org?product_id=123&foo=bar link';
         $expected = 'Text with a partial <a href="http://www.cakephp.org?product_id=123&amp;foo=bar">http://www.cakephp.org?product_id=123&amp;foo=bar</a> link';
@@ -437,7 +437,7 @@ class TextHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function autoLinkEmailProvider()
+    public function autoLinkEmailProvider(): mixed
     {
         return [
             [
@@ -508,7 +508,7 @@ class TextHelperTest extends CakeTestCase
      * @dataProvider autoLinkEmailProvider
      * @return void
      */
-    public function testAutoLinkEmails($text, $expected, $attrs = [])
+    public function testAutoLinkEmails($text, $expected, $attrs = []): void
     {
         $result = $this->Text->autoLinkEmails($text, $attrs);
         $this->assertEquals($expected, $result);
@@ -519,7 +519,7 @@ class TextHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testAutoLinkEmailInvalid()
+    public function testAutoLinkEmailInvalid(): void
     {
         $result = $this->Text->autoLinkEmails('this is a myaddress@gmx-de test');
         $expected = 'this is a myaddress@gmx-de test';
@@ -531,7 +531,7 @@ class TextHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testAutoParagraph()
+    public function testAutoParagraph(): void
     {
         $text = 'This is a test text';
         $expected = <<<TEXT

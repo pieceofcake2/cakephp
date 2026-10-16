@@ -56,7 +56,7 @@ class FormAuthenticateTest extends CakeTestCase
      *
      * @return void
      */
-    public function testConstructor()
+    public function testConstructor(): void
     {
         $object = new FormAuthenticate($this->Collection, [
             'userModel' => 'AuthUser',
@@ -71,7 +71,7 @@ class FormAuthenticateTest extends CakeTestCase
      *
      * @return void
      */
-    public function testAuthenticateNoData()
+    public function testAuthenticateNoData(): void
     {
         $request = new CakeRequest('posts/index', false);
         $request->data = [];
@@ -83,7 +83,7 @@ class FormAuthenticateTest extends CakeTestCase
      *
      * @return void
      */
-    public function testAuthenticateNoUsername()
+    public function testAuthenticateNoUsername(): void
     {
         $request = new CakeRequest('posts/index', false);
         $request->data = ['User' => ['password' => 'foobar']];
@@ -95,7 +95,7 @@ class FormAuthenticateTest extends CakeTestCase
      *
      * @return void
      */
-    public function testAuthenticateNoPassword()
+    public function testAuthenticateNoPassword(): void
     {
         $request = new CakeRequest('posts/index', false);
         $request->data = ['User' => ['user' => 'mariano']];
@@ -107,7 +107,7 @@ class FormAuthenticateTest extends CakeTestCase
      *
      * @return void
      */
-    public function testAuthenticatePasswordIsFalse()
+    public function testAuthenticatePasswordIsFalse(): void
     {
         $request = new CakeRequest('posts/index', false);
         $request->data = [
@@ -124,7 +124,7 @@ class FormAuthenticateTest extends CakeTestCase
      *
      * @return void
      */
-    public function testAuthenticatePasswordIsEmptyString()
+    public function testAuthenticatePasswordIsEmptyString(): void
     {
         $request = new CakeRequest('posts/index', false);
         $request->data = [
@@ -158,7 +158,7 @@ class FormAuthenticateTest extends CakeTestCase
      *
      * @return void
      */
-    public function testAuthenticateFieldsAreNotString()
+    public function testAuthenticateFieldsAreNotString(): void
     {
         $request = new CakeRequest('posts/index', false);
         $request->data = [
@@ -188,7 +188,7 @@ class FormAuthenticateTest extends CakeTestCase
      *
      * @return void
      */
-    public function testAuthenticateInjection()
+    public function testAuthenticateInjection(): void
     {
         $request = new CakeRequest('posts/index', false);
         $request->data = [
@@ -204,7 +204,7 @@ class FormAuthenticateTest extends CakeTestCase
      *
      * @return void
      */
-    public function testAuthenticateSuccess()
+    public function testAuthenticateSuccess(): void
     {
         $request = new CakeRequest('posts/index', false);
         $request->data = ['User' => [
@@ -226,7 +226,7 @@ class FormAuthenticateTest extends CakeTestCase
      *
      * @return void
      */
-    public function testAuthenticateScopeFail()
+    public function testAuthenticateScopeFail(): void
     {
         $this->auth->settings['scope'] = ['user' => 'nate'];
         $request = new CakeRequest('posts/index', false);
@@ -243,7 +243,7 @@ class FormAuthenticateTest extends CakeTestCase
      *
      * @return void
      */
-    public function testAuthenticateUsernameZero()
+    public function testAuthenticateUsernameZero(): void
     {
         $User = ClassRegistry::init('User');
         $User->updateAll(['user' => $User->getDataSource()->value('0')], ['user' => 'mariano']);
@@ -268,7 +268,7 @@ class FormAuthenticateTest extends CakeTestCase
      *
      * @return void
      */
-    public function testPluginModel()
+    public function testPluginModel(): void
     {
         Cache::delete('object_map', '_cake_core_');
         App::build([
@@ -308,7 +308,7 @@ class FormAuthenticateTest extends CakeTestCase
      *
      * @return void
      */
-    public function testPasswordHasherSettings()
+    public function testPasswordHasherSettings(): void
     {
         $this->auth->settings['passwordHasher'] = [
             'className' => 'Simple',

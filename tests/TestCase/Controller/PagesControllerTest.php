@@ -28,7 +28,7 @@ class PagesControllerTest extends CakeTestCase
      *
      * @return void
      */
-    public function testDisplay()
+    public function testDisplay(): void
     {
         App::build([
             'View' => [
@@ -54,7 +54,7 @@ class PagesControllerTest extends CakeTestCase
      *
      * @return void
      */
-    public function testMissingView()
+    public function testMissingView(): void
     {
         $this->expectException(NotFoundException::class);
         $this->expectExceptionCode(404);
@@ -68,7 +68,7 @@ class PagesControllerTest extends CakeTestCase
      *
      * @return void
      */
-    public function testMissingViewInDebug()
+    public function testMissingViewInDebug(): void
     {
         $this->expectException(MissingViewException::class);
         $this->expectExceptionCode(500);
@@ -82,7 +82,7 @@ class PagesControllerTest extends CakeTestCase
      *
      * @return void
      */
-    public function testDirectoryTraversalProtection()
+    public function testDirectoryTraversalProtection(): void
     {
         $this->expectException(ForbiddenException::class);
         $this->expectExceptionCode(403);

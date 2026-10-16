@@ -76,7 +76,7 @@ class AppleComponent extends Component
      * @param Controller $controller
      * @return void
      */
-    public function startup(Controller $controller)
+    public function startup(Controller $controller): void
     {
         $this->testName = $controller->name;
     }
@@ -102,7 +102,7 @@ class OrangeComponent extends Component
      * @param Controller $controller
      * @return void
      */
-    public function initialize(Controller $controller)
+    public function initialize(Controller $controller): void
     {
         $this->Controller = $controller;
         $this->Banana->testField = 'OrangeField';
@@ -114,7 +114,7 @@ class OrangeComponent extends Component
      * @param Controller $controller
      * @return string
      */
-    public function startup(Controller $controller)
+    public function startup(Controller $controller): void
     {
         $controller->foo = 'pass';
     }
@@ -140,7 +140,7 @@ class BananaComponent extends Component
      * @param Controller $controller
      * @return string
      */
-    public function startup(Controller $controller)
+    public function startup(Controller $controller): void
     {
         $controller->bar = 'fail';
     }
@@ -217,7 +217,7 @@ class ComponentTest extends CakeTestCase
      *
      * @return void
      */
-    public function testInnerComponentConstruction()
+    public function testInnerComponentConstruction(): void
     {
         $Collection = new ComponentCollection();
         $Component = new AppleComponent($Collection);
@@ -230,7 +230,7 @@ class ComponentTest extends CakeTestCase
      *
      * @return void
      */
-    public function testNestedComponentLoading()
+    public function testNestedComponentLoading(): void
     {
         $Collection = new ComponentCollection();
         $Apple = new AppleComponent($Collection);
@@ -246,7 +246,7 @@ class ComponentTest extends CakeTestCase
      *
      * @return void
      */
-    public function testInnerComponentsAreNotEnabled()
+    public function testInnerComponentsAreNotEnabled(): void
     {
         $Collection = new ComponentCollection();
         $Apple = $Collection->load('Apple');
@@ -261,7 +261,7 @@ class ComponentTest extends CakeTestCase
      *
      * @return void
      */
-    public function testMultipleComponentInitialize()
+    public function testMultipleComponentInitialize(): void
     {
         $Collection = new ComponentCollection();
         $Banana = $Collection->load('Banana');
@@ -278,7 +278,7 @@ class ComponentTest extends CakeTestCase
      *
      * @return void
      */
-    public function testSomethingReferencingEmailComponent()
+    public function testSomethingReferencingEmailComponent(): void
     {
         $Controller = new ComponentTestController();
         $Controller->components = ['SomethingWithEmail'];
@@ -298,7 +298,7 @@ class ComponentTest extends CakeTestCase
      *
      * @return void
      */
-    public function testGet()
+    public function testGet(): void
     {
         $Collection = new ComponentCollection();
         $ParamTest = $Collection->load('ParamTest');

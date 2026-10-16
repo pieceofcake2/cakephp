@@ -32,7 +32,7 @@ class TestConsoleLog extends ConsoleLog
  */
 class TestCakeLog extends CakeLog
 {
-    public static function replace($key, &$engine)
+    public static function replace($key, &$engine): void
     {
         static::$_Collection->{$key} = $engine;
     }
@@ -77,7 +77,7 @@ class ConsoleLogTest extends CakeTestCase
      *
      * @return void
      */
-    public function testConsoleOutputWrites()
+    public function testConsoleOutputWrites(): void
     {
         TestCakeLog::config('test_console_log', [
             'engine' => 'TestConsole',
@@ -99,7 +99,7 @@ class ConsoleLogTest extends CakeTestCase
      *
      * @return void
      */
-    public function testCombinedLogWriting()
+    public function testCombinedLogWriting(): void
     {
         TestCakeLog::config('test_console_log', [
             'engine' => 'TestConsole',
@@ -138,7 +138,7 @@ class ConsoleLogTest extends CakeTestCase
      *
      * @return void
      */
-    public function testDefaultOutputAs()
+    public function testDefaultOutputAs(): void
     {
         TestCakeLog::config('test_console_log', [
             'engine' => 'TestConsole',
@@ -161,7 +161,7 @@ class ConsoleLogTest extends CakeTestCase
      *
      * @return void
      */
-    public function testOutputAsPlainForNonTerminalStream()
+    public function testOutputAsPlainForNonTerminalStream(): void
     {
         $file = TMP . 'console_log_test.log';
         try {
@@ -188,7 +188,7 @@ class ConsoleLogTest extends CakeTestCase
      *
      * @return void
      */
-    public function testOutputAsFollowsGivenConsoleOutput()
+    public function testOutputAsFollowsGivenConsoleOutput(): void
     {
         $this->skipIf(DS === '\\', 'Windows consoles without ANSI support are always plain.');
 
@@ -205,7 +205,7 @@ class ConsoleLogTest extends CakeTestCase
      *
      * @return void
      */
-    public function testExplicitOutputAs()
+    public function testExplicitOutputAs(): void
     {
         $output = new ConsoleOutput('php://memory');
         $log = new ConsoleLog(['stream' => $output, 'outputAs' => ConsoleOutput::COLOR]);
@@ -222,7 +222,7 @@ class ConsoleLogTest extends CakeTestCase
      *
      * @return void
      */
-    public function testConstructorDoesNotPassNullToPosixIsatty()
+    public function testConstructorDoesNotPassNullToPosixIsatty(): void
     {
         $deprecations = [];
         $level = error_reporting(E_ALL);

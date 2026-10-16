@@ -1006,7 +1006,7 @@ class IntegrationTestTraitTest extends CakeTestCase
      *
      * @return void
      */
-    public function testCookieEncryptionKeyDefault()
+    public function testCookieEncryptionKeyDefault(): void
     {
         Configure::write('Security.salt', 'the-salt-of-this-test');
         Configure::delete('Cookie.key');

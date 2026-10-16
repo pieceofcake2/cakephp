@@ -60,7 +60,7 @@ class TaskCollectionTest extends CakeTestCase
      *
      * @return void
      */
-    public function testLoad()
+    public function testLoad(): void
     {
         $result = $this->Tasks->load('Extract');
         $this->assertInstanceOf('ExtractTask', $result);
@@ -75,7 +75,7 @@ class TaskCollectionTest extends CakeTestCase
      *
      * @return void
      */
-    public function testLoadWithEnableFalse()
+    public function testLoadWithEnableFalse(): void
     {
         $result = $this->Tasks->load('Extract', ['enabled' => false]);
         $this->assertInstanceOf('ExtractTask', $result);
@@ -89,7 +89,7 @@ class TaskCollectionTest extends CakeTestCase
      *
      * @return void
      */
-    public function testLoadMissingTask()
+    public function testLoadMissingTask(): void
     {
         $this->expectException(MissingTaskException::class);
         $this->Tasks->load('ThisTaskShouldAlwaysBeMissing');
@@ -100,7 +100,7 @@ class TaskCollectionTest extends CakeTestCase
      *
      * @return void
      */
-    public function testLoadPluginTask()
+    public function testLoadPluginTask(): void
     {
         $dispatcher = $this->getMock('ShellDispatcher', [], [], '', false);
         $shell = $this->getMock('Shell', [], [], '', false);
@@ -121,7 +121,7 @@ class TaskCollectionTest extends CakeTestCase
      *
      * @return void
      */
-    public function testUnload()
+    public function testUnload(): void
     {
         App::build([
             'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS],
@@ -149,7 +149,7 @@ class TaskCollectionTest extends CakeTestCase
      *
      * @return void
      */
-    public function testLoadWithAlias()
+    public function testLoadWithAlias(): void
     {
         $result = $this->Tasks->load('Extract', ['className' => 'ExtractAliased']);
         $this->assertInstanceOf('ExtractAliasedTask', $result);

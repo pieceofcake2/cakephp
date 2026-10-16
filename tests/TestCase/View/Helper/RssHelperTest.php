@@ -53,7 +53,7 @@ class RssHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testDocument()
+    public function testDocument(): void
     {
         $result = $this->Rss->document();
         $expected = [
@@ -88,7 +88,7 @@ class RssHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testChannel()
+    public function testChannel(): void
     {
         $attrib = ['a' => '1', 'b' => '2'];
         $elements = ['title' => 'Title'];
@@ -118,7 +118,7 @@ class RssHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testChannelElements()
+    public function testChannelElements(): void
     {
         $attrib = [];
         $elements = [
@@ -163,7 +163,7 @@ class RssHelperTest extends CakeTestCase
         $this->assertTags($result, $expected);
     }
 
-    public function testChannelElementAttributes()
+    public function testChannelElementAttributes(): void
     {
         $attrib = [];
         $elements = [
@@ -211,7 +211,7 @@ class RssHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testItems()
+    public function testItems(): void
     {
         $items = [
             ['title' => 'title1', 'guid' => 'http://www.example.com/guid1', 'link' => 'http://www.example.com/link1', 'description' => 'description1'],
@@ -285,7 +285,7 @@ class RssHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testItem()
+    public function testItem(): void
     {
         $item = [
             'title' => 'My title',
@@ -459,7 +459,7 @@ class RssHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testItemCdata()
+    public function testItemCdata(): void
     {
         $item = [
             'title' => [
@@ -583,7 +583,7 @@ class RssHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testItemEnclosureLength()
+    public function testItemEnclosureLength(): void
     {
         if (!is_writable(WWW_ROOT)) {
             $this->markTestSkipped(__d('cake_dev', 'Webroot is not writable.'));
@@ -679,7 +679,7 @@ class RssHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testElementAttrNotInParent()
+    public function testElementAttrNotInParent(): void
     {
         $attributes = [
             'title' => 'Some Title',
@@ -703,7 +703,7 @@ class RssHelperTest extends CakeTestCase
         $this->assertTags($result, $expected);
     }
 
-    public function testElementNamespaceWithoutPrefix()
+    public function testElementNamespaceWithoutPrefix(): void
     {
         $item = [
                 'creator' => 'Alex',
@@ -726,7 +726,7 @@ class RssHelperTest extends CakeTestCase
         $this->assertTags($result, $expected, true);
     }
 
-    public function testElementNamespaceWithPrefix()
+    public function testElementNamespaceWithPrefix(): void
     {
         $item = [
             'title' => 'Title',

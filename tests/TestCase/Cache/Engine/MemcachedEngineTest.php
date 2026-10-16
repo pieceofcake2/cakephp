@@ -31,17 +31,17 @@ class TestMemcachedEngine extends MemcachedEngine
      * @param string $server
      * @return array
      */
-    public function parseServerString($server)
+    public function parseServerString($server): array
     {
         return $this->_parseServerString($server);
     }
 
-    public function setMemcached($memcached)
+    public function setMemcached($memcached): void
     {
         $this->_Memcached = $memcached;
     }
 
-    public function getMemcached()
+    public function getMemcached(): mixed
     {
         return $this->_Memcached;
     }
@@ -97,7 +97,7 @@ class MemcachedEngineTest extends CakeTestCase
      *
      * @return void
      */
-    public function testSettings()
+    public function testSettings(): void
     {
         $settings = Cache::settings('memcached');
         unset($settings['path']);
@@ -123,7 +123,7 @@ class MemcachedEngineTest extends CakeTestCase
      *
      * @return void
      */
-    public function testCompressionSetting()
+    public function testCompressionSetting(): void
     {
         $Memcached = new TestMemcachedEngine();
         $Memcached->init([
@@ -149,7 +149,7 @@ class MemcachedEngineTest extends CakeTestCase
      *
      * @return void
      */
-    public function testOptionsSetting()
+    public function testOptionsSetting(): void
     {
         $memcached = new TestMemcachedEngine();
         $memcached->init([
@@ -167,7 +167,7 @@ class MemcachedEngineTest extends CakeTestCase
      *
      * @return void
      */
-    public function testInvalidSerializerSetting()
+    public function testInvalidSerializerSetting(): void
     {
         $Memcached = new TestMemcachedEngine();
         $settings = [
@@ -187,7 +187,7 @@ class MemcachedEngineTest extends CakeTestCase
      *
      * @return void
      */
-    public function testPhpSerializerSetting()
+    public function testPhpSerializerSetting(): void
     {
         $Memcached = new TestMemcachedEngine();
         $settings = [
@@ -206,7 +206,7 @@ class MemcachedEngineTest extends CakeTestCase
      *
      * @return void
      */
-    public function testJsonSerializerSetting()
+    public function testJsonSerializerSetting(): void
     {
         $this->skipIf(
             !Memcached::HAVE_JSON,
@@ -230,7 +230,7 @@ class MemcachedEngineTest extends CakeTestCase
      *
      * @return void
      */
-    public function testIgbinarySerializerSetting()
+    public function testIgbinarySerializerSetting(): void
     {
         $this->skipIf(
             !Memcached::HAVE_IGBINARY,
@@ -254,7 +254,7 @@ class MemcachedEngineTest extends CakeTestCase
      *
      * @return void
      */
-    public function testMsgpackSerializerSetting()
+    public function testMsgpackSerializerSetting(): void
     {
         $this->skipIf(
             !defined('Memcached::HAVE_MSGPACK') || !Memcached::HAVE_MSGPACK,
@@ -278,7 +278,7 @@ class MemcachedEngineTest extends CakeTestCase
      *
      * @return void
      */
-    public function testJsonSerializerThrowException()
+    public function testJsonSerializerThrowException(): void
     {
         $this->skipIf(
             Memcached::HAVE_JSON,
@@ -303,7 +303,7 @@ class MemcachedEngineTest extends CakeTestCase
      *
      * @return void
      */
-    public function testMsgpackSerializerThrowException()
+    public function testMsgpackSerializerThrowException(): void
     {
         $this->skipIf(
             defined('Memcached::HAVE_MSGPACK') && Memcached::HAVE_MSGPACK,
@@ -328,7 +328,7 @@ class MemcachedEngineTest extends CakeTestCase
      *
      * @return void
      */
-    public function testIgbinarySerializerThrowException()
+    public function testIgbinarySerializerThrowException(): void
     {
         $this->skipIf(
             Memcached::HAVE_IGBINARY,
@@ -354,7 +354,7 @@ class MemcachedEngineTest extends CakeTestCase
      *
      * @return void
      */
-    public function testSaslAuthException()
+    public function testSaslAuthException(): void
     {
         $this->skipIf(version_compare(PHP_VERSION, '7.0.0', '>='));
 
@@ -394,7 +394,7 @@ class MemcachedEngineTest extends CakeTestCase
      *
      * @return void
      */
-    public function testMultipleServers()
+    public function testMultipleServers(): void
     {
         $servers = ['127.0.0.1:11211', '127.0.0.1:11222'];
         $available = true;
@@ -424,7 +424,7 @@ class MemcachedEngineTest extends CakeTestCase
      *
      * @return void
      */
-    public function testConnectIpv6()
+    public function testConnectIpv6(): void
     {
         $Memcached = new MemcachedEngine();
         $result = $Memcached->init([
@@ -443,7 +443,7 @@ class MemcachedEngineTest extends CakeTestCase
      *
      * @return void
      */
-    public function testParseServerStringWithU()
+    public function testParseServerStringWithU(): void
     {
         $Memcached = new TestMemcachedEngine();
         $result = $Memcached->parseServerString('udomain.net:13211');
@@ -455,7 +455,7 @@ class MemcachedEngineTest extends CakeTestCase
      *
      * @return void
      */
-    public function testParseServerStringNonLatin()
+    public function testParseServerStringNonLatin(): void
     {
         $Memcached = new TestMemcachedEngine();
         $result = $Memcached->parseServerString('schülervz.net:13211');
@@ -470,7 +470,7 @@ class MemcachedEngineTest extends CakeTestCase
      *
      * @return void
      */
-    public function testParseServerStringUnix()
+    public function testParseServerStringUnix(): void
     {
         $Memcached = new TestMemcachedEngine();
         $result = $Memcached->parseServerString('unix:///path/to/memcachedd.sock');
@@ -482,7 +482,7 @@ class MemcachedEngineTest extends CakeTestCase
      *
      * @return void
      */
-    public function testReadAndWriteCache()
+    public function testReadAndWriteCache(): void
     {
         Cache::set(['duration' => 1], null, 'memcached');
 
@@ -506,7 +506,7 @@ class MemcachedEngineTest extends CakeTestCase
      *
      * @return void
      */
-    public function testExpiry()
+    public function testExpiry(): void
     {
         Cache::set(['duration' => 1], 'memcached');
 
@@ -554,7 +554,7 @@ class MemcachedEngineTest extends CakeTestCase
      *
      * @return void
      */
-    public function testDeleteCache()
+    public function testDeleteCache(): void
     {
         $data = 'this is a test of the emergency broadcasting system';
         $result = Cache::write('delete_test', $data, 'memcached');
@@ -569,7 +569,7 @@ class MemcachedEngineTest extends CakeTestCase
      *
      * @return void
      */
-    public function testDecrement()
+    public function testDecrement(): void
     {
         $result = Cache::write('test_decrement', 5, 'memcached');
         $this->assertTrue($result);
@@ -594,7 +594,7 @@ class MemcachedEngineTest extends CakeTestCase
      *
      * @return void
      */
-    public function testDecrementCompressedKeys()
+    public function testDecrementCompressedKeys(): void
     {
         Cache::config('compressed_memcached', [
             'engine' => 'Memcached',
@@ -626,7 +626,7 @@ class MemcachedEngineTest extends CakeTestCase
      *
      * @return void
      */
-    public function testIncrement()
+    public function testIncrement(): void
     {
         $result = Cache::write('test_increment', 5, 'memcached');
         $this->assertTrue($result);
@@ -651,7 +651,7 @@ class MemcachedEngineTest extends CakeTestCase
      *
      * @return void
      */
-    public function testIncrementCompressedKeys()
+    public function testIncrementCompressedKeys(): void
     {
         Cache::config('compressed_memcached', [
             'engine' => 'Memcached',
@@ -683,7 +683,7 @@ class MemcachedEngineTest extends CakeTestCase
      *
      * @return void
      */
-    public function testConfigurationConflict()
+    public function testConfigurationConflict(): void
     {
         Cache::config('long_memcached', [
             'engine' => 'Memcached',
@@ -719,7 +719,7 @@ class MemcachedEngineTest extends CakeTestCase
      *
      * @return void
      */
-    public function testClear()
+    public function testClear(): void
     {
         Cache::config('memcached2', [
             'engine' => 'Memcached',
@@ -750,7 +750,7 @@ class MemcachedEngineTest extends CakeTestCase
      *
      * @return void
      */
-    public function testZeroDuration()
+    public function testZeroDuration(): void
     {
         Cache::config('memcached', ['duration' => 0]);
         $result = Cache::write('test_key', 'written!', 'memcached');
@@ -765,7 +765,7 @@ class MemcachedEngineTest extends CakeTestCase
      *
      * @return void
      */
-    public function testLongDurationEqualToZero()
+    public function testLongDurationEqualToZero(): void
     {
         $this->markTestSkipped('Cannot run as Memcached cannot be reflected');
 
@@ -789,7 +789,7 @@ class MemcachedEngineTest extends CakeTestCase
      *
      * @return void
      */
-    public function testGroupReadWrite()
+    public function testGroupReadWrite(): void
     {
         Cache::config('memcached_groups', [
             'engine' => 'Memcached',
@@ -821,7 +821,7 @@ class MemcachedEngineTest extends CakeTestCase
      *
      * @return void
      */
-    public function testGroupDelete()
+    public function testGroupDelete(): void
     {
         Cache::config('memcached_groups', [
             'engine' => 'Memcached',
@@ -840,7 +840,7 @@ class MemcachedEngineTest extends CakeTestCase
      *
      * @return void
      */
-    public function testGroupClear()
+    public function testGroupClear(): void
     {
         Cache::config('memcached_groups', [
             'engine' => 'Memcached',
@@ -862,7 +862,7 @@ class MemcachedEngineTest extends CakeTestCase
      *
      * @return void
      */
-    public function testAdd()
+    public function testAdd(): void
     {
         Cache::set(['duration' => 1], null, 'memcached');
         Cache::delete('test_add_key', 'default');
@@ -883,7 +883,7 @@ class MemcachedEngineTest extends CakeTestCase
      *
      * @return void
      */
-    public function testGroupsDoesNotCreateDynamicProperties()
+    public function testGroupsDoesNotCreateDynamicProperties(): void
     {
         $Memcached = new TestMemcachedEngine();
         $Memcached->init([

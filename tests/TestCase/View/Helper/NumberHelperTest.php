@@ -21,12 +21,12 @@
  */
 class NumberHelperTestObject extends NumberHelper
 {
-    public function attach(CakeNumberMock $cakeNumber)
+    public function attach(CakeNumberMock $cakeNumber): void
     {
         $this->_engine = $cakeNumber;
     }
 
-    public function engine()
+    public function engine(): mixed
     {
         return $this->_engine;
     }
@@ -74,7 +74,7 @@ class NumberHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testNumberHelperProxyMethodCalls()
+    public function testNumberHelperProxyMethodCalls(): void
     {
         $methods = [
             'precision', 'toReadableSize', 'toPercentage', 'format',
@@ -108,7 +108,7 @@ class NumberHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testEngineOverride()
+    public function testEngineOverride(): void
     {
         App::build([
             'Utility' => [CORE_TESTS . DS . 'test_app' . DS . 'Utility' . DS],

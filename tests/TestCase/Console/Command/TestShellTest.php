@@ -24,12 +24,12 @@
  */
 class TestTestShell extends TestShell
 {
-    public function mapFileToCase($file, $category, $throwOnMissingFile = true)
+    public function mapFileToCase($file, $category, $throwOnMissingFile = true): mixed
     {
         return $this->_mapFileToCase($file, $category, $throwOnMissingFile);
     }
 
-    public function mapFileToCategory($file)
+    public function mapFileToCategory($file): mixed
     {
         return $this->_mapFileToCategory($file);
     }
@@ -83,7 +83,7 @@ class TestShellTest extends CakeTestCase
      *
      * @return void
      */
-    public function testMapCoreFileToCategory()
+    public function testMapCoreFileToCategory(): void
     {
         $this->Shell->startup();
 
@@ -104,7 +104,7 @@ class TestShellTest extends CakeTestCase
      *
      * @return void
      */
-    public function testMapCoreFileToCase()
+    public function testMapCoreFileToCase(): void
     {
         $this->Shell->startup();
 
@@ -123,7 +123,7 @@ class TestShellTest extends CakeTestCase
      *
      * @return void
      */
-    public function testMapAppFileToCategory()
+    public function testMapAppFileToCategory(): void
     {
         $this->Shell->startup();
 
@@ -139,7 +139,7 @@ class TestShellTest extends CakeTestCase
      *
      * @return void
      */
-    public function testMapAppFileToCase()
+    public function testMapAppFileToCase(): void
     {
         $this->Shell->startup();
 
@@ -155,7 +155,7 @@ class TestShellTest extends CakeTestCase
      *
      * @return void
      */
-    public function testMapPluginFileToCategory()
+    public function testMapPluginFileToCategory(): void
     {
         $this->Shell->startup();
 
@@ -171,7 +171,7 @@ class TestShellTest extends CakeTestCase
      *
      * @return void
      */
-    public function testMapPluginFileToCase()
+    public function testMapPluginFileToCase(): void
     {
         $this->Shell->startup();
 
@@ -187,7 +187,7 @@ class TestShellTest extends CakeTestCase
      *
      * @return void
      */
-    public function testMapCoreTestToCategory()
+    public function testMapCoreTestToCategory(): void
     {
         $this->Shell->startup();
 
@@ -208,7 +208,7 @@ class TestShellTest extends CakeTestCase
      *
      * @return void
      */
-    public function testMapCoreTestToCase()
+    public function testMapCoreTestToCase(): void
     {
         $this->Shell->startup();
 
@@ -227,7 +227,7 @@ class TestShellTest extends CakeTestCase
      *
      * @return void
      */
-    public function testMapAppTestToCategory()
+    public function testMapAppTestToCategory(): void
     {
         $this->Shell->startup();
 
@@ -243,7 +243,7 @@ class TestShellTest extends CakeTestCase
      *
      * @return void
      */
-    public function testMapAppTestToCase()
+    public function testMapAppTestToCase(): void
     {
         $this->Shell->startup();
 
@@ -259,7 +259,7 @@ class TestShellTest extends CakeTestCase
      *
      * @return void
      */
-    public function testMapPluginTestToCategory()
+    public function testMapPluginTestToCategory(): void
     {
         $this->Shell->startup();
 
@@ -275,7 +275,7 @@ class TestShellTest extends CakeTestCase
      *
      * @return void
      */
-    public function testMapPluginTestToCase()
+    public function testMapPluginTestToCase(): void
     {
         $this->Shell->startup();
 
@@ -291,7 +291,7 @@ class TestShellTest extends CakeTestCase
      *
      * @return void
      */
-    public function testMapNotTestToNothing()
+    public function testMapNotTestToNothing(): void
     {
         $this->Shell->startup();
 
@@ -313,7 +313,7 @@ class TestShellTest extends CakeTestCase
      *
      * @return void
      */
-    public function testAvailableWithEmptyList()
+    public function testAvailableWithEmptyList(): void
     {
         $this->Shell->startup();
         $this->Shell->args = ['unexistant-category'];
@@ -334,7 +334,7 @@ class TestShellTest extends CakeTestCase
      *
      * @return void
      */
-    public function testAvailableCoreCategory()
+    public function testAvailableCoreCategory(): void
     {
         $this->Shell->startup();
         $this->Shell->args = ['core'];
@@ -365,7 +365,7 @@ class TestShellTest extends CakeTestCase
      *
      * @return void
      */
-    public function testRunnerOptions()
+    public function testRunnerOptions(): void
     {
         $this->Shell->startup();
         $this->Shell->args = ['core', 'Basics'];
@@ -384,7 +384,7 @@ class TestShellTest extends CakeTestCase
      *
      * @return void
      */
-    public function testRunnerOptionsQuiet()
+    public function testRunnerOptionsQuiet(): void
     {
         $this->Shell->startup();
         $this->Shell->args = ['core', 'Basics'];
@@ -403,7 +403,7 @@ class TestShellTest extends CakeTestCase
      *
      * @return void
      */
-    public function testRunnerOptionsDirective()
+    public function testRunnerOptionsDirective(): void
     {
         $this->Shell->startup();
         $this->Shell->args = ['core', 'Basics'];
