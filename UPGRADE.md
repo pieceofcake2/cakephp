@@ -15,7 +15,7 @@ Before migrating to this fork, ensure:
 4. **Upgrade PHP**: Update your PHP version to 8.0 or newer
 5. **Test Thoroughly**: Run your application's test suite to ensure compatibility
 
-## Unreleased
+## v2.12.7
 
 ### DSN Configuration: `DATABASE_URL` and `MAILER_DSN` ([PR #69](https://github.com/pieceofcake2/cakephp/pull/69))
 
