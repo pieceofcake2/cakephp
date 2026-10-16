@@ -36,7 +36,7 @@ class DigestHttpSocket extends HttpSocket
      * @param mixed $request
      * @return void
      */
-    public function request($request = [])
+    public function request($request = []): void
     {
         if ($request === false) {
             if (isset($this->response['header']['WWW-Authenticate'])) {
@@ -93,7 +93,7 @@ class DigestAuthenticationTest extends CakeTestCase
      *
      * @return void
      */
-    public function testBasic()
+    public function testBasic(): void
     {
         $this->HttpSocket->nextHeader = 'Digest realm="The batcave",nonce="4cded326c6c51"';
         $this->assertFalse(isset($this->HttpSocket->request['header']['Authorization']));
@@ -110,7 +110,7 @@ class DigestAuthenticationTest extends CakeTestCase
      *
      * @return void
      */
-    public function testQop()
+    public function testQop(): void
     {
         $this->HttpSocket->nextHeader = 'Digest realm="The batcave",nonce="4cded326c6c51"';
         $auth = ['user' => 'admin', 'pass' => '1234'];
@@ -134,7 +134,7 @@ class DigestAuthenticationTest extends CakeTestCase
      *
      * @return void
      */
-    public function testOpaque()
+    public function testOpaque(): void
     {
         $this->HttpSocket->nextHeader = 'Digest realm="The batcave",nonce="4cded326c6c51"';
         $auth = ['user' => 'admin', 'pass' => '1234'];
@@ -152,7 +152,7 @@ class DigestAuthenticationTest extends CakeTestCase
      *
      * @return void
      */
-    public function testMultipleRequest()
+    public function testMultipleRequest(): void
     {
         $this->HttpSocket->nextHeader = 'Digest realm="The batcave",nonce="4cded326c6c51",qop="auth"';
         $auth = ['user' => 'admin', 'pass' => '1234'];
@@ -180,7 +180,7 @@ class DigestAuthenticationTest extends CakeTestCase
      *
      * @return void
      */
-    public function testPathChanged()
+    public function testPathChanged(): void
     {
         $this->HttpSocket->nextHeader = 'Digest realm="The batcave",nonce="4cded326c6c51"';
         $this->HttpSocket->request['uri']['path'] = '/admin';
@@ -196,7 +196,7 @@ class DigestAuthenticationTest extends CakeTestCase
      *
      * @return void
      */
-    public function testNoDigestResponse()
+    public function testNoDigestResponse(): void
     {
         $this->HttpSocket->nextHeader = false;
         $this->HttpSocket->request['uri']['path'] = '/admin';

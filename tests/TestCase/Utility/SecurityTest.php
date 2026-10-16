@@ -34,7 +34,7 @@ class SecurityTestCaptureLog extends BaseLog
      * @param string $message The message.
      * @return void
      */
-    public function write($type, $message)
+    public function write($type, $message): void
     {
         static::$messages[] = [$type, $message];
     }
@@ -86,7 +86,7 @@ class SecurityTest extends CakeTestCase
      * @param bool $reported Value for both flags.
      * @return void
      */
-    protected function _setCipherReported($reported)
+    protected function _setCipherReported($reported): void
     {
         Closure::bind(function () use ($reported) {
             static::$_cipherDeprecationReported = $reported;
@@ -99,7 +99,7 @@ class SecurityTest extends CakeTestCase
      *
      * @return void
      */
-    protected function _captureCipherReports()
+    protected function _captureCipherReports(): void
     {
         $this->_setCipherReported(false);
         SecurityTestCaptureLog::$messages = [];
@@ -113,7 +113,7 @@ class SecurityTest extends CakeTestCase
      * @param array $errors Collected error messages.
      * @return mixed The return value of $callback.
      */
-    protected function _collectDeprecations(callable $callback, &$errors)
+    protected function _collectDeprecations(callable $callback, &$errors): mixed
     {
         $errors = [];
         set_error_handler(function ($errno, $errstr) use (&$errors) {
@@ -126,6 +126,8 @@ class SecurityTest extends CakeTestCase
         } finally {
             restore_error_handler();
         }
+
+        return null;
     }
 
     /**
@@ -134,7 +136,7 @@ class SecurityTest extends CakeTestCase
      * @param string $needle Text to look for.
      * @return array<int, string>
      */
-    protected function _capturedMessages($needle)
+    protected function _capturedMessages($needle): mixed
     {
         $found = [];
         foreach (SecurityTestCaptureLog::$messages as $entry) {
@@ -151,7 +153,7 @@ class SecurityTest extends CakeTestCase
      *
      * @return void
      */
-    public function testInactiveMins()
+    public function testInactiveMins(): void
     {
         Configure::write('Security.level', 'high');
         $this->assertEquals(10, Security::inactiveMins());
@@ -168,7 +170,7 @@ class SecurityTest extends CakeTestCase
      *
      * @return void
      */
-    public function testGenerateAuthkey()
+    public function testGenerateAuthkey(): void
     {
         $this->assertEquals(strlen(Security::generateAuthKey()), 40);
     }
@@ -178,7 +180,7 @@ class SecurityTest extends CakeTestCase
      *
      * @return void
      */
-    public function testValidateAuthKey()
+    public function testValidateAuthKey(): void
     {
         $authKey = Security::generateAuthKey();
         $this->assertTrue(Security::validateAuthKey($authKey));
@@ -189,7 +191,7 @@ class SecurityTest extends CakeTestCase
      *
      * @return void
      */
-    public function testHashInvalidSalt()
+    public function testHashInvalidSalt(): void
     {
         $warningTriggered = false;
         $warningMessage = '';
@@ -219,7 +221,7 @@ class SecurityTest extends CakeTestCase
      *
      * @return void
      */
-    public function testHashAnotherInvalidSalt()
+    public function testHashAnotherInvalidSalt(): void
     {
         $warningTriggered = false;
         $warningMessage = '';
@@ -249,7 +251,7 @@ class SecurityTest extends CakeTestCase
      *
      * @return void
      */
-    public function testHashYetAnotherInvalidSalt()
+    public function testHashYetAnotherInvalidSalt(): void
     {
         $warningTriggered = false;
         $warningMessage = '';
@@ -279,7 +281,7 @@ class SecurityTest extends CakeTestCase
      *
      * @return void
      */
-    public function testHashInvalidCost()
+    public function testHashInvalidCost(): void
     {
         $warningTriggered = false;
         $warningMessage = '';
@@ -310,7 +312,7 @@ class SecurityTest extends CakeTestCase
      *
      * @return void
      */
-    public function testHash()
+    public function testHash(): void
     {
         $_hashType = Security::$hashType;
 
@@ -359,7 +361,7 @@ class SecurityTest extends CakeTestCase
      *
      * @return void
      */
-    public function testHashBlowfishEmptySalt()
+    public function testHashBlowfishEmptySalt(): void
     {
         $test = Security::hash('password', 'blowfish');
         $this->skipIf(!str_contains($test, '$2a$'), 'Blowfish hashes are incorrect.');
@@ -380,7 +382,7 @@ class SecurityTest extends CakeTestCase
      *
      * @return void
      */
-    public function testHashBlowfish()
+    public function testHashBlowfish(): void
     {
         $test = Security::hash('password', 'blowfish');
         $this->skipIf(!str_contains($test, '$2a$'), 'Blowfish hashes are incorrect.');
@@ -425,7 +427,7 @@ class SecurityTest extends CakeTestCase
      *
      * @return void
      */
-    public function testCipher()
+    public function testCipher(): void
     {
         $length = 10;
         $txt = '';
@@ -459,7 +461,7 @@ class SecurityTest extends CakeTestCase
      *
      * @return void
      */
-    public function testCipherOutputUnchanged()
+    public function testCipherOutputUnchanged(): void
     {
         $expected = [
             '76859309657453542496749683645' => 'bc2e6fd4b6ef8959f32f08283b30',
@@ -481,7 +483,7 @@ class SecurityTest extends CakeTestCase
      *
      * @return void
      */
-    public function testCipherDeprecationLoggedOnce()
+    public function testCipherDeprecationLoggedOnce(): void
     {
         Configure::write('debug', 0);
         Configure::write('Security.cipherSeed', '1234567890');
@@ -522,7 +524,7 @@ class SecurityTest extends CakeTestCase
      *
      * @return void
      */
-    public function testCipherDeprecationTriggeredOnceInDebug()
+    public function testCipherDeprecationTriggeredOnceInDebug(): void
     {
         Configure::write('debug', 2);
         Configure::write('Security.cipherSeed', '1234567890');
@@ -547,7 +549,7 @@ class SecurityTest extends CakeTestCase
      *
      * @return void
      */
-    public function testNoCipherReportWithoutCipher()
+    public function testNoCipherReportWithoutCipher(): void
     {
         Configure::write('Security.cipherSeed', '76859309657453542496749683645');
         Configure::write('Security.useOpenSsl', true);
@@ -566,7 +568,7 @@ class SecurityTest extends CakeTestCase
      *
      * @return array<string, array{0: mixed, 1: string}>
      */
-    public static function outOfRangeCipherSeedProvider()
+    public static function outOfRangeCipherSeedProvider(): mixed
     {
         return [
             'old default (29 digits)' => ['76859309657453542496749683645', 'reduces it to seed 0'],
@@ -593,7 +595,7 @@ class SecurityTest extends CakeTestCase
      * @param string $reduced Expected description of what happens to the seed.
      * @return void
      */
-    public function testCipherSeedOutOfRangeLoggedOnce($seed, $reduced)
+    public function testCipherSeedOutOfRangeLoggedOnce($seed, $reduced): void
     {
         Configure::write('debug', 0);
         Configure::write('Security.cipherSeed', $seed);
@@ -624,7 +626,7 @@ class SecurityTest extends CakeTestCase
      *
      * @return void
      */
-    public function testCipherSeedInRangeNotLogged()
+    public function testCipherSeedInRangeNotLogged(): void
     {
         Configure::write('debug', 0);
         foreach (['1', '4294967295', '2659758734', '0001', 1234, 4294967295] as $seed) {
@@ -641,7 +643,7 @@ class SecurityTest extends CakeTestCase
      *
      * @return void
      */
-    public function testIsCipherSeedInRange()
+    public function testIsCipherSeedInRange(): void
     {
         foreach (['1', '9', '0001', '4294967295', '2659758734', 1, 4294967295] as $seed) {
             $this->assertTrue(Security::isCipherSeedInRange($seed), var_export($seed, true));
@@ -656,7 +658,7 @@ class SecurityTest extends CakeTestCase
      *
      * @return void
      */
-    public function testCipherEmptyKey()
+    public function testCipherEmptyKey(): void
     {
         $warningTriggered = false;
         $warningMessage = '';
@@ -688,7 +690,7 @@ class SecurityTest extends CakeTestCase
      *
      * @return void
      */
-    public function testRijndael()
+    public function testRijndael(): void
     {
         $this->skipIf(!function_exists('mcrypt_encrypt'));
         $txt = 'The quick brown fox jumped over the lazy dog.';
@@ -713,7 +715,7 @@ class SecurityTest extends CakeTestCase
      *
      * @return void
      */
-    public function testRijndaelBackwardCompatibility()
+    public function testRijndaelBackwardCompatibility(): void
     {
         $this->skipIf(!function_exists('mcrypt_encrypt'));
 
@@ -730,7 +732,7 @@ class SecurityTest extends CakeTestCase
      *
      * @return void
      */
-    public function testRijndaelInvalidOperation()
+    public function testRijndaelInvalidOperation(): void
     {
         $warningTriggered = false;
         $warningMessage = '';
@@ -762,7 +764,7 @@ class SecurityTest extends CakeTestCase
      *
      * @return void
      */
-    public function testRijndaelInvalidKey()
+    public function testRijndaelInvalidKey(): void
     {
         $warningTriggered = false;
         $warningMessage = '';
@@ -794,7 +796,7 @@ class SecurityTest extends CakeTestCase
      *
      * @return void
      */
-    public function testEncryptDecrypt()
+    public function testEncryptDecrypt(): void
     {
         $this->skipIf(!extension_loaded('mcrypt'), 'This test requires mcrypt to be installed');
         $txt = 'The quick brown fox';
@@ -812,7 +814,7 @@ class SecurityTest extends CakeTestCase
      * @param string $txt Plain text to be encrypted.
      * @return void
      */
-    public function testEncryptDecryptCompatibility($txt)
+    public function testEncryptDecryptCompatibility($txt): void
     {
         $this->skipIf(!extension_loaded('mcrypt'), 'This test requires mcrypt to be installed');
         $this->skipIf(!extension_loaded('openssl'), 'This test requires openssl to be installed');
@@ -841,7 +843,7 @@ class SecurityTest extends CakeTestCase
      *
      * @return array
      */
-    public function plainTextProvider()
+    public function plainTextProvider(): mixed
     {
         return [
             [''],
@@ -859,7 +861,7 @@ class SecurityTest extends CakeTestCase
      *
      * @return void
      */
-    public function testDecryptKeyFailure()
+    public function testDecryptKeyFailure(): void
     {
         $this->skipIf(!extension_loaded('mcrypt'), 'This test requires mcrypt to be installed');
         $txt = 'The quick brown fox';
@@ -875,7 +877,7 @@ class SecurityTest extends CakeTestCase
      *
      * @return void
      */
-    public function testDecryptHmacFailure()
+    public function testDecryptHmacFailure(): void
     {
         $this->skipIf(!extension_loaded('mcrypt'), 'This test requires mcrypt to be installed');
         $txt = 'The quick brown fox';
@@ -893,7 +895,7 @@ class SecurityTest extends CakeTestCase
      *
      * @return void
      */
-    public function testDecryptHmacSaltFailure()
+    public function testDecryptHmacSaltFailure(): void
     {
         $this->skipIf(!extension_loaded('mcrypt'), 'This test requires mcrypt to be installed');
         $txt = 'The quick brown fox';
@@ -910,7 +912,7 @@ class SecurityTest extends CakeTestCase
      *
      * @return void
      */
-    public function testEncryptInvalidKey()
+    public function testEncryptInvalidKey(): void
     {
         $this->expectException(CakeException::class);
         $this->expectExceptionMessage('Invalid key for encrypt(), key must be at least 256 bits (32 bytes) long.');
@@ -924,7 +926,7 @@ class SecurityTest extends CakeTestCase
      *
      * @return void
      */
-    public function testEncryptDecryptFalseyData()
+    public function testEncryptDecryptFalseyData(): void
     {
         $this->skipIf(!extension_loaded('mcrypt'), 'This test requires mcrypt to be installed');
         $key = 'This is a key that is long enough to be ok.';
@@ -950,7 +952,7 @@ class SecurityTest extends CakeTestCase
      *
      * @return void
      */
-    public function testDecryptInvalidKey()
+    public function testDecryptInvalidKey(): void
     {
         $this->expectException(CakeException::class);
         $this->expectExceptionMessage('Invalid key for decrypt(), key must be at least 256 bits (32 bytes) long.');
@@ -964,7 +966,7 @@ class SecurityTest extends CakeTestCase
      *
      * @return void
      */
-    public function testDecryptInvalidData()
+    public function testDecryptInvalidData(): void
     {
         $this->expectException(CakeException::class);
         $this->expectExceptionMessage('The data to decrypt cannot be empty.');
@@ -978,7 +980,7 @@ class SecurityTest extends CakeTestCase
      *
      * @return void
      */
-    public function testRandomBytes()
+    public function testRandomBytes(): void
     {
         $value = Security::randomBytes(16);
         $this->assertSame(16, strlen($value));

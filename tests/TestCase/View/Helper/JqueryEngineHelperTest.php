@@ -52,7 +52,7 @@ class JqueryEngineHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testSelector()
+    public function testSelector(): void
     {
         $result = $this->Jquery->get('#content');
         $this->assertEquals($this->Jquery, $result);
@@ -76,7 +76,7 @@ class JqueryEngineHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testEvent()
+    public function testEvent(): void
     {
         $this->Jquery->get('#myLink');
         $result = $this->Jquery->event('click', 'doClick', ['wrap' => false]);
@@ -97,7 +97,7 @@ class JqueryEngineHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testDomReady()
+    public function testDomReady(): void
     {
         $result = $this->Jquery->domReady('foo.name = "bar";');
         $expected = '$(document).ready(function () {foo.name = "bar";});';
@@ -109,7 +109,7 @@ class JqueryEngineHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testEach()
+    public function testEach(): void
     {
         $this->Jquery->get('#foo');
         $result = $this->Jquery->each('$(this).hide();');
@@ -122,7 +122,7 @@ class JqueryEngineHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testEffect()
+    public function testEffect(): void
     {
         $this->Jquery->get('#foo');
         $result = $this->Jquery->effect('show');
@@ -167,7 +167,7 @@ class JqueryEngineHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testRequest()
+    public function testRequest(): void
     {
         $result = $this->Jquery->request(['controller' => 'posts', 'action' => 'view', 1]);
         $expected = '$.ajax({url:"\\/posts\\/view\\/1"});';
@@ -239,7 +239,7 @@ class JqueryEngineHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testRequestWithQueryStringArguments()
+    public function testRequestWithQueryStringArguments(): void
     {
         $url = '/users/search/sort:User.name/direction:desc?nome=&cpm=&audience=public';
         $result = $this->Jquery->request($url);
@@ -252,7 +252,7 @@ class JqueryEngineHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testRequestWithAlternateJqueryObject()
+    public function testRequestWithAlternateJqueryObject(): void
     {
         $this->Jquery->jQueryObject = '$j';
 
@@ -273,7 +273,7 @@ class JqueryEngineHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testSortable()
+    public function testSortable(): void
     {
         $this->Jquery->get('#myList');
         $result = $this->Jquery->sortable([
@@ -303,7 +303,7 @@ class JqueryEngineHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testDrag()
+    public function testDrag(): void
     {
         $this->Jquery->get('#element');
         $result = $this->Jquery->drag([
@@ -333,7 +333,7 @@ class JqueryEngineHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testDrop()
+    public function testDrop(): void
     {
         $this->Jquery->get('#element');
         $result = $this->Jquery->drop([
@@ -361,7 +361,7 @@ class JqueryEngineHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testSlider()
+    public function testSlider(): void
     {
         $this->Jquery->get('#element');
         $result = $this->Jquery->slider([
@@ -393,7 +393,7 @@ class JqueryEngineHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testSerializeForm()
+    public function testSerializeForm(): void
     {
         $this->Jquery->get('#element');
         $result = $this->Jquery->serializeForm(['isForm' => false]);

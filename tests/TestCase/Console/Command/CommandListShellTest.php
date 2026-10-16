@@ -25,7 +25,7 @@ class TestStringOutput extends ConsoleOutput
 {
     public $output = '';
 
-    protected function _write($message)
+    protected function _write($message): void
     {
         $this->output .= $message;
     }
@@ -90,7 +90,7 @@ class CommandListShellTest extends CakeTestCase
      *
      * @return void
      */
-    public function testMain()
+    public function testMain(): void
     {
         $this->Shell->main();
         $output = $this->Shell->stdout->output;
@@ -113,7 +113,7 @@ class CommandListShellTest extends CakeTestCase
      *
      * @return void
      */
-    public function testMainXml()
+    public function testMainXml(): void
     {
         $this->Shell->params['xml'] = true;
         $this->Shell->main();

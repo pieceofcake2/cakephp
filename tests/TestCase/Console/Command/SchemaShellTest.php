@@ -128,7 +128,7 @@ class SchemaShellTest extends CakeTestCase
      *
      * @return void
      */
-    public function testStartup()
+    public function testStartup(): void
     {
         $this->Shell->startup();
         $this->assertTrue(isset($this->Shell->Schema));
@@ -164,7 +164,7 @@ class SchemaShellTest extends CakeTestCase
      *
      * @return void
      */
-    public function testView()
+    public function testView(): void
     {
         $this->Shell->startup();
         $this->Shell->Schema->path = CONFIG . 'Schema';
@@ -179,7 +179,7 @@ class SchemaShellTest extends CakeTestCase
      *
      * @return void
      */
-    public function testViewWithPlugins()
+    public function testViewWithPlugins(): void
     {
         App::build([
             'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS],
@@ -205,7 +205,7 @@ class SchemaShellTest extends CakeTestCase
      *
      * @return void
      */
-    public function testDumpWithFileWriting()
+    public function testDumpWithFileWriting(): void
     {
         $this->Shell->params = [
             'name' => 'i18n',
@@ -233,7 +233,7 @@ class SchemaShellTest extends CakeTestCase
      *
      * @return void
      */
-    public function testDumpFileWritingWithPlugins()
+    public function testDumpFileWritingWithPlugins(): void
     {
         App::build([
             'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS],
@@ -265,7 +265,7 @@ class SchemaShellTest extends CakeTestCase
      *
      * @return void
      */
-    public function testGenerateSnapshot()
+    public function testGenerateSnapshot(): void
     {
         $this->Shell->path = TMP;
         $this->Shell->params['file'] = 'schema.php';
@@ -290,7 +290,7 @@ class SchemaShellTest extends CakeTestCase
      *
      * @return void
      */
-    public function testGenerateNoOverwrite()
+    public function testGenerateNoOverwrite(): void
     {
         touch(TMP . 'schema.php');
         $this->Shell->params['file'] = 'schema.php';
@@ -311,7 +311,7 @@ class SchemaShellTest extends CakeTestCase
      *
      * @return void
      */
-    public function testGenerateOverwrite()
+    public function testGenerateOverwrite(): void
     {
         touch(TMP . 'schema.php');
         $this->Shell->params['file'] = 'schema.php';
@@ -353,7 +353,7 @@ class SchemaShellTest extends CakeTestCase
      *
      * @return void
      */
-    public function testGenerateWithPlugins()
+    public function testGenerateWithPlugins(): void
     {
         App::build([
             'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS],
@@ -388,7 +388,7 @@ class SchemaShellTest extends CakeTestCase
      *
      * @return void
      */
-    public function testGenerateModels()
+    public function testGenerateModels(): void
     {
         App::build([
             'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS],
@@ -423,7 +423,7 @@ class SchemaShellTest extends CakeTestCase
      *
      * @return void
      */
-    public function testGenerateExclude()
+    public function testGenerateExclude(): void
     {
         Configure::write('Acl.database', 'test');
         $this->db->cacheSources = false;
@@ -451,7 +451,7 @@ class SchemaShellTest extends CakeTestCase
      *
      * @return void
      */
-    public function testCreateOptionYes()
+    public function testCreateOptionYes(): void
     {
         $this->Shell = $this->getMock(
             'SchemaShell',
@@ -475,7 +475,7 @@ class SchemaShellTest extends CakeTestCase
      *
      * @return void
      */
-    public function testCreateNoArgs()
+    public function testCreateNoArgs(): void
     {
         $this->Shell->params = [
             'connection' => 'test',
@@ -500,7 +500,7 @@ class SchemaShellTest extends CakeTestCase
      *
      * @return void
      */
-    public function testCreateWithTableArgs()
+    public function testCreateWithTableArgs(): void
     {
         $db = ConnectionManager::getDataSource('test');
         $sources = $db->listSources();
@@ -531,7 +531,7 @@ class SchemaShellTest extends CakeTestCase
      *
      * @return void
      */
-    public function testUpdateWithTable()
+    public function testUpdateWithTable(): void
     {
         $this->Shell = $this->getMock(
             'SchemaShell',
@@ -561,7 +561,7 @@ class SchemaShellTest extends CakeTestCase
      *
      * @return void
      */
-    public function testUpdateWithTableCreate()
+    public function testUpdateWithTableCreate(): void
     {
         $this->Shell = $this->getMock(
             'SchemaShell',
@@ -590,7 +590,7 @@ class SchemaShellTest extends CakeTestCase
      *
      * @return void
      */
-    public function testUpdateWithOptionYes()
+    public function testUpdateWithOptionYes(): void
     {
         $this->Shell = $this->getMock(
             'SchemaShell',
@@ -618,7 +618,7 @@ class SchemaShellTest extends CakeTestCase
      *
      * @return void
      */
-    public function testPluginParam()
+    public function testPluginParam(): void
     {
         App::build([
             'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS],
@@ -639,7 +639,7 @@ class SchemaShellTest extends CakeTestCase
      *
      * @return void
      */
-    public function testName()
+    public function testName(): void
     {
         App::build([
             'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS],
@@ -670,7 +670,7 @@ class SchemaShellTest extends CakeTestCase
      *
      * @return void
      */
-    public function testNameAndFile()
+    public function testNameAndFile(): void
     {
         App::build([
             'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS],
@@ -706,7 +706,7 @@ class SchemaShellTest extends CakeTestCase
      *
      * @return void
      */
-    public function testPluginDotSyntaxWithCreate()
+    public function testPluginDotSyntaxWithCreate(): void
     {
         App::build([
             'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS],
@@ -734,7 +734,7 @@ class SchemaShellTest extends CakeTestCase
      *
      * @return void
      */
-    public function testViewMissingFile()
+    public function testViewMissingFile(): void
     {
         $this->Shell->startup();
         $this->Shell->Schema->path = CONFIG . 'Schema';

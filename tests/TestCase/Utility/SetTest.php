@@ -28,7 +28,7 @@ class SetTest extends CakeTestCase
      *
      * @return void
      */
-    public function testNumericKeyExtraction()
+    public function testNumericKeyExtraction(): void
     {
         $data = ['plugin' => null, 'controller' => '', 'action' => '', 1, 'whatever'];
         $this->assertEquals([1, 'whatever'], Set::extract($data, '{n}'));
@@ -40,7 +40,7 @@ class SetTest extends CakeTestCase
      *
      * @return void
      */
-    public function testEnum()
+    public function testEnum(): void
     {
         $result = Set::enum(1, 'one, two');
         $this->assertEquals('two', $result);
@@ -82,7 +82,7 @@ class SetTest extends CakeTestCase
      * @see Hash test cases, as Set::filter() is just a proxy.
      * @return void
      */
-    public function testFilter()
+    public function testFilter(): void
     {
         $result = Set::filter(['0', false, true, 0, ['one thing', 'I can tell you', 'is you got to be', false]]);
         $expected = ['0', 2 => true, 3 => 0, 4 => ['one thing', 'I can tell you', 'is you got to be']];
@@ -95,7 +95,7 @@ class SetTest extends CakeTestCase
      * @see Hash test cases, as Set::numeric() is just a proxy.
      * @return void
      */
-    public function testNumericArrayCheck()
+    public function testNumericArrayCheck(): void
     {
         $data = ['one'];
         $this->assertTrue(Set::numeric(array_keys($data)));
@@ -106,7 +106,7 @@ class SetTest extends CakeTestCase
      *
      * @return void
      */
-    public function testKeyCheck()
+    public function testKeyCheck(): void
     {
         $data = ['Multi' => ['dimensonal' => ['array']]];
         $this->assertTrue(Set::check($data, 'Multi.dimensonal'));
@@ -144,7 +144,7 @@ class SetTest extends CakeTestCase
      *
      * @return void
      */
-    public function testMerge()
+    public function testMerge(): void
     {
         $r = Set::merge(['foo']);
         $this->assertEquals(['foo'], $r);
@@ -227,7 +227,7 @@ class SetTest extends CakeTestCase
      *
      * @return void
      */
-    public function testSort()
+    public function testSort(): void
     {
         $result = Set::sort([], '{n}.name', 'asc');
         $this->assertEquals([], $result);
@@ -344,7 +344,7 @@ class SetTest extends CakeTestCase
      *
      * @return void
      */
-    public function testSortString()
+    public function testSortString(): void
     {
         $toSort = [
             'four' => ['number' => 4, 'some' => 'foursome'],
@@ -369,7 +369,7 @@ class SetTest extends CakeTestCase
      *
      * @return void
      */
-    public function testSortWithOutOfOrderKeys()
+    public function testSortWithOutOfOrderKeys(): void
     {
         $data = [
             9 => ['class' => 510, 'test2' => 2],
@@ -397,7 +397,7 @@ class SetTest extends CakeTestCase
      *
      * @return void
      */
-    public function testExtract()
+    public function testExtract(): void
     {
         $a = [
             [
@@ -1017,7 +1017,7 @@ class SetTest extends CakeTestCase
      *
      * @return void
      */
-    public function testExtractParentSelector()
+    public function testExtractParentSelector(): void
     {
         $tree = [
             [
@@ -1194,7 +1194,7 @@ class SetTest extends CakeTestCase
      *
      * @return void
      */
-    public function testExtractWithNonZeroArrays()
+    public function testExtractWithNonZeroArrays(): void
     {
         $nonZero = [
             1 => [
@@ -1300,7 +1300,7 @@ class SetTest extends CakeTestCase
      *
      * @return void
      */
-    public function testExtractWithArrays()
+    public function testExtractWithArrays(): void
     {
         $data = [
             'Level1' => [
@@ -1317,7 +1317,7 @@ class SetTest extends CakeTestCase
      *
      * @return void
      */
-    public function testExtractWithNonArrayElements()
+    public function testExtractWithNonArrayElements(): void
     {
         $data = [
             'node' => [
@@ -1366,7 +1366,7 @@ class SetTest extends CakeTestCase
      *
      * @return void
      */
-    public function testExtractMatchesNull()
+    public function testExtractMatchesNull(): void
     {
         $data = [
             'Country' => [
@@ -1396,7 +1396,7 @@ class SetTest extends CakeTestCase
      *
      * @return void
      */
-    public function testMatches()
+    public function testMatches(): void
     {
         $a = [
             ['Article' => ['id' => 1, 'title' => 'Article 1']],
@@ -1467,7 +1467,7 @@ class SetTest extends CakeTestCase
      *
      * @return void
      */
-    public function testSetExtractReturnsEmptyArray()
+    public function testSetExtractReturnsEmptyArray(): void
     {
         $this->assertEquals(Set::extract([], '/Post/id'), []);
 
@@ -1486,7 +1486,7 @@ class SetTest extends CakeTestCase
      *
      * @return void
      */
-    public function testClassicExtract()
+    public function testClassicExtract(): void
     {
         $a = [
             ['Article' => ['id' => 1, 'title' => 'Article 1']],
@@ -1669,7 +1669,7 @@ class SetTest extends CakeTestCase
      *
      * @return void
      */
-    public function testClassicExtractMaxInt()
+    public function testClassicExtractMaxInt(): void
     {
         $data = [
             'Data' => [
@@ -1685,7 +1685,7 @@ class SetTest extends CakeTestCase
      * @see Hash tests, as Set::insert() is just a proxy.
      * @return void
      */
-    public function testInsert()
+    public function testInsert(): void
     {
         $a = [
             'pages' => ['name' => 'page'],
@@ -1704,7 +1704,7 @@ class SetTest extends CakeTestCase
      *
      * @return void
      */
-    public function testRemove()
+    public function testRemove(): void
     {
         $a = [
             'pages' => ['name' => 'page'],
@@ -1723,7 +1723,7 @@ class SetTest extends CakeTestCase
      *
      * @return void
      */
-    public function testCheck()
+    public function testCheck(): void
     {
         $set = [
             'My Index 1' => ['First' => 'The first item'],
@@ -1746,7 +1746,7 @@ class SetTest extends CakeTestCase
      *
      * @return void
      */
-    public function testWritingWithFunkyKeys()
+    public function testWritingWithFunkyKeys(): void
     {
         $set = Set::insert([], 'Session Test', 'test');
         $this->assertEquals('test', Set::extract($set, 'Session Test'));
@@ -1764,7 +1764,7 @@ class SetTest extends CakeTestCase
      *
      * @return void
      */
-    public function testDiff()
+    public function testDiff(): void
     {
         $a = [
             0 => ['name' => 'main'],
@@ -1847,7 +1847,7 @@ class SetTest extends CakeTestCase
      *
      * @return void
      */
-    public function testContains()
+    public function testContains(): void
     {
         $a = [
             0 => ['name' => 'main'],
@@ -1870,7 +1870,7 @@ class SetTest extends CakeTestCase
      *
      * @return void
      */
-    public function testCombine()
+    public function testCombine(): void
     {
         $result = Set::combine([], '{n}.User.id', '{n}.User.Data');
         $this->assertTrue(empty($result));
@@ -2006,7 +2006,7 @@ class SetTest extends CakeTestCase
      *
      * @return void
      */
-    public function testMapReverse()
+    public function testMapReverse(): void
     {
         $result = Set::reverse(null);
         $this->assertEquals(null, $result);
@@ -2242,7 +2242,7 @@ class SetTest extends CakeTestCase
      *
      * @return void
      */
-    public function testFormatting()
+    public function testFormatting(): void
     {
         $data = [
             ['Person' => ['first_name' => 'Nate', 'last_name' => 'Abele', 'city' => 'Boston', 'state' => 'MA', 'something' => '42']],
@@ -2290,7 +2290,7 @@ class SetTest extends CakeTestCase
      *
      * @return void
      */
-    public function testFormattingNullValues()
+    public function testFormattingNullValues(): void
     {
         $data = [
             ['Person' => ['first_name' => 'Nate', 'last_name' => 'Abele', 'city' => 'Boston', 'state' => 'MA', 'something' => '42']],
@@ -2311,7 +2311,7 @@ class SetTest extends CakeTestCase
      *
      * @return void
      */
-    public function testCountDim()
+    public function testCountDim(): void
     {
         $data = ['one', '2', 'three'];
         $result = Set::countDim($data);
@@ -2366,7 +2366,7 @@ class SetTest extends CakeTestCase
      *
      * @return void
      */
-    public function testMapNesting()
+    public function testMapNesting(): void
     {
         $expected = [
             [
@@ -2493,7 +2493,7 @@ class SetTest extends CakeTestCase
      *
      * @return void
      */
-    public function testNestedMappedData()
+    public function testNestedMappedData(): void
     {
         $result = Set::map([
                 [
@@ -2749,7 +2749,7 @@ class SetTest extends CakeTestCase
      *
      * @return void
      */
-    public function testPushDiff()
+    public function testPushDiff(): void
     {
         $array1 = ['ModelOne' => ['id' => 1001, 'field_one' => 'a1.m1.f1', 'field_two' => 'a1.m1.f2']];
         $array2 = ['ModelTwo' => ['id' => 1002, 'field_one' => 'a2.m2.f1', 'field_two' => 'a2.m2.f2']];
@@ -2795,7 +2795,7 @@ class SetTest extends CakeTestCase
      *
      * @return void
      */
-    public function testApply()
+    public function testApply(): void
     {
         $data = [
             ['Movie' => ['id' => 1, 'title' => 'movie 3', 'rating' => 5]],
@@ -2833,7 +2833,7 @@ class SetTest extends CakeTestCase
      *
      * @return void
      */
-    public static function method($val1, $val2)
+    public static function method($val1, $val2): mixed
     {
         $val1 += $val2;
 
@@ -2845,7 +2845,7 @@ class SetTest extends CakeTestCase
      *
      * @return void
      */
-    public function testXmlSetReverse()
+    public function testXmlSetReverse(): void
     {
         $string = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 		<rss version="2.0">
@@ -3086,7 +3086,7 @@ class SetTest extends CakeTestCase
      *
      * @return void
      */
-    public function testStrictKeyCheck()
+    public function testStrictKeyCheck(): void
     {
         $set = ['a' => 'hi'];
         $this->assertFalse(Set::check($set, 'a.b'));
@@ -3098,7 +3098,7 @@ class SetTest extends CakeTestCase
      * @see Hash test cases, as Set::flatten() is just a proxy.
      * @return void
      */
-    public function testFlatten()
+    public function testFlatten(): void
     {
         $data = ['Larry', 'Curly', 'Moe'];
         $result = Set::flatten($data);
@@ -3129,7 +3129,7 @@ class SetTest extends CakeTestCase
      *
      * @return void
      */
-    public function testExpand()
+    public function testExpand(): void
     {
         $data = ['My', 'Array', 'To', 'Flatten'];
         $flat = Set::flatten($data);
@@ -3142,7 +3142,7 @@ class SetTest extends CakeTestCase
      *
      * @return void
      */
-    public function testNormalizeStrings()
+    public function testNormalizeStrings(): void
     {
         $result = Set::normalize('one,two,three');
         $expected = ['one' => null, 'two' => null, 'three' => null];
@@ -3162,7 +3162,7 @@ class SetTest extends CakeTestCase
      *
      * @return void
      */
-    public function testNormalizeArrays()
+    public function testNormalizeArrays(): void
     {
         $result = Set::normalize(['one', 'two', 'three']);
         $expected = ['one' => null, 'two' => null, 'three' => null];
@@ -3191,7 +3191,7 @@ class SetTest extends CakeTestCase
      *
      * @return void
      */
-    public function testNestModel()
+    public function testNestModel(): void
     {
         $input = [
             [
@@ -3339,7 +3339,7 @@ class SetTest extends CakeTestCase
      *
      * @return void
      */
-    public function testNestModelExplicitRoot()
+    public function testNestModelExplicitRoot(): void
     {
         $input = [
             [
@@ -3450,7 +3450,7 @@ class SetTest extends CakeTestCase
      *
      * @return void
      */
-    public function testNest1Dimensional()
+    public function testNest1Dimensional(): void
     {
         $input = [
             [
@@ -3561,7 +3561,7 @@ class SetTest extends CakeTestCase
      *
      * @return void
      */
-    public function testMissingParent()
+    public function testMissingParent(): void
     {
         $input = [
             [

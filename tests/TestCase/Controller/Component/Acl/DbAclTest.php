@@ -209,7 +209,7 @@ class DbAclTest extends CakeTestCase
      *
      * @return void
      */
-    public function testCreate()
+    public function testCreate(): void
     {
         $this->Acl->Aro->create(['alias' => 'Chotchkey']);
         $this->assertTrue((bool)$this->Acl->Aro->save());
@@ -237,7 +237,7 @@ class DbAclTest extends CakeTestCase
      *
      * @return void
      */
-    public function testCreateWithParent()
+    public function testCreateWithParent(): void
     {
         $parent = $this->Acl->Aro->findByAlias('Peter', null, null, -1);
         $this->Acl->Aro->create();
@@ -257,7 +257,7 @@ class DbAclTest extends CakeTestCase
      *
      * @return void
      */
-    public function testAllow()
+    public function testAllow(): void
     {
         $this->assertFalse($this->Acl->check('Micheal', 'tpsReports', 'read'));
         $this->assertTrue($this->Acl->allow('Micheal', 'tpsReports', ['read', 'delete', 'update']));
@@ -294,7 +294,7 @@ class DbAclTest extends CakeTestCase
      *
      * @return void
      */
-    public function testAllowInvalidPermission()
+    public function testAllowInvalidPermission(): void
     {
         $this->expectException(CakeException::class);
         $this->assertFalse($this->Acl->allow('Micheal', 'tpsReports', 'derp'));
@@ -305,7 +305,7 @@ class DbAclTest extends CakeTestCase
      *
      * @return void
      */
-    public function testAllowInvalidNode()
+    public function testAllowInvalidNode(): void
     {
         $this->assertFalse($this->Acl->allow('Homer', 'tpsReports', 'create'));
     }
@@ -315,7 +315,7 @@ class DbAclTest extends CakeTestCase
      *
      * @return void
      */
-    public function testCheck()
+    public function testCheck(): void
     {
         $this->assertTrue($this->Acl->check('Samir', 'print', 'read'));
         $this->assertTrue($this->Acl->check('Lumbergh', 'current', 'read'));
@@ -336,7 +336,7 @@ class DbAclTest extends CakeTestCase
      *
      * @return void
      */
-    public function testCheckInvalidNode()
+    public function testCheckInvalidNode(): void
     {
         $this->assertFalse($this->Acl->check('WRONG', 'tpsReports', 'read'));
     }
@@ -346,7 +346,7 @@ class DbAclTest extends CakeTestCase
      *
      * @return void
      */
-    public function testCheckInvalidPermission()
+    public function testCheckInvalidPermission(): void
     {
         $this->assertFalse($this->Acl->check('Lumbergh', 'smash', 'foobar'));
     }
@@ -356,7 +356,7 @@ class DbAclTest extends CakeTestCase
      *
      * @return void
      */
-    public function testCheckMissingPermission()
+    public function testCheckMissingPermission(): void
     {
         $this->assertFalse($this->Acl->check('users', 'NonExistent', 'read'));
     }
@@ -369,7 +369,7 @@ class DbAclTest extends CakeTestCase
      *
      * @return void
      */
-    public function testAclCascadingDeny()
+    public function testAclCascadingDeny(): void
     {
         $this->Acl->inherit('Bobs', 'ROOT', '*');
         $this->assertTrue($this->Acl->check('admin', 'tpsReports', 'delete'));
@@ -384,7 +384,7 @@ class DbAclTest extends CakeTestCase
      *
      * @return void
      */
-    public function testDeny()
+    public function testDeny(): void
     {
         $this->assertTrue($this->Acl->check('Micheal', 'smash', 'delete'));
         $this->Acl->deny('Micheal', 'smash', 'delete');
@@ -413,7 +413,7 @@ class DbAclTest extends CakeTestCase
      *
      * @return void
      */
-    public function testAclNodeLookup()
+    public function testAclNodeLookup(): void
     {
         $result = $this->Acl->Aro->node('root/users/Samir');
         $expected = [
@@ -438,7 +438,7 @@ class DbAclTest extends CakeTestCase
      *
      * @return void
      */
-    public function testInherit()
+    public function testInherit(): void
     {
         // parent doesn't have access inherit should still deny
         $this->assertFalse($this->Acl->check('Milton', 'smash', 'delete'));
@@ -456,7 +456,7 @@ class DbAclTest extends CakeTestCase
      *
      * @return void
      */
-    public function testInheritParentDeny()
+    public function testInheritParentDeny(): void
     {
         $this->Acl->Aco->create(['parent_id' => null, 'alias' => 'world']);
         $this->Acl->Aco->save();
@@ -500,7 +500,7 @@ class DbAclTest extends CakeTestCase
      *
      * @return void
      */
-    public function testGrant()
+    public function testGrant(): void
     {
         $this->assertFalse($this->Acl->check('Samir', 'tpsReports', 'create'));
         $this->Acl->allow('Samir', 'tpsReports', 'create');
@@ -521,7 +521,7 @@ class DbAclTest extends CakeTestCase
      *
      * @return void
      */
-    public function testRevoke()
+    public function testRevoke(): void
     {
         $this->assertTrue($this->Acl->check('Bobs', 'tpsReports', 'read'));
         $this->Acl->deny('Bobs', 'tpsReports', 'read');
@@ -546,7 +546,7 @@ class DbAclTest extends CakeTestCase
      * @param bool $treesToo
      * @return void
      */
-    protected function _debug($printTreesToo = false)
+    protected function _debug($printTreesToo = false): void
     {
         $this->Acl->Aro->displayField = 'alias';
         $this->Acl->Aco->displayField = 'alias';
@@ -594,7 +594,7 @@ class DbAclTest extends CakeTestCase
      * @param int $len
      * @return void
      */
-    protected function _pad($string = '', $len = 14)
+    protected function _pad($string = '', $len = 14): mixed
     {
         return str_pad($string, $len);
     }

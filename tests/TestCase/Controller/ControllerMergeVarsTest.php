@@ -127,7 +127,7 @@ class ControllerMergeVarsTest extends CakeTestCase
      *
      * @return void
      */
-    public function testComponentParamMergingNoDuplication()
+    public function testComponentParamMergingNoDuplication(): void
     {
         $Controller = new MergeVariablesController();
         $Controller->constructClasses();
@@ -141,7 +141,7 @@ class ControllerMergeVarsTest extends CakeTestCase
      *
      * @return void
      */
-    public function testComponentMergingWithRedeclarations()
+    public function testComponentMergingWithRedeclarations(): void
     {
         $Controller = new MergeVariablesController();
         $Controller->components['MergeVar'] = ['remote', 'redirect' => true];
@@ -156,7 +156,7 @@ class ControllerMergeVarsTest extends CakeTestCase
      *
      * @return void
      */
-    public function testHelperSettingMergingNoDuplication()
+    public function testHelperSettingMergingNoDuplication(): void
     {
         $Controller = new MergeVariablesController();
         $Controller->constructClasses();
@@ -171,7 +171,7 @@ class ControllerMergeVarsTest extends CakeTestCase
      *
      * @return void
      */
-    public function testHelperOrderPrecedence()
+    public function testHelperOrderPrecedence(): void
     {
         $Controller = new MergeVariablesController();
         $Controller->helpers = ['Custom', 'Foo' => ['something']];
@@ -190,7 +190,7 @@ class ControllerMergeVarsTest extends CakeTestCase
      *
      * @return void
      */
-    public function testMergeVarsWithPlugin()
+    public function testMergeVarsWithPlugin(): void
     {
         $Controller = new MergePostsController();
         $Controller->components = ['Email' => ['ports' => 'open']];
@@ -228,7 +228,7 @@ class ControllerMergeVarsTest extends CakeTestCase
      *
      * @return void
      */
-    public function testMergeVarsNotGreedy()
+    public function testMergeVarsNotGreedy(): void
     {
         $Controller = new Controller();
         $Controller->components = [];
@@ -244,7 +244,7 @@ class ControllerMergeVarsTest extends CakeTestCase
      *
      * @return void
      */
-    public function testMergeVarsModelClass()
+    public function testMergeVarsModelClass(): void
     {
         $Controller = new MergeVariablescontroller();
         $Controller->uses = ['Test', 'TestAlias'];

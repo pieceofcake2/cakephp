@@ -27,7 +27,7 @@ class TestCompletionStringOutput extends ConsoleOutput
 {
     public $output = '';
 
-    protected function _write($message)
+    protected function _write($message): void
     {
         $this->output .= $message;
     }
@@ -92,7 +92,7 @@ class CompletionShellTest extends CakeTestCase
      *
      * @return void
      */
-    public function testStartup()
+    public function testStartup(): void
     {
         $this->Shell->runCommand('main', []);
         $output = $this->Shell->stdout->output;
@@ -106,7 +106,7 @@ class CompletionShellTest extends CakeTestCase
      *
      * @return void
      */
-    public function testMain()
+    public function testMain(): void
     {
         $this->Shell->runCommand('main', []);
         $output = $this->Shell->stdout->output;
@@ -120,7 +120,7 @@ class CompletionShellTest extends CakeTestCase
      *
      * @return void
      */
-    public function testCommands()
+    public function testCommands(): void
     {
         $this->Shell->runCommand('commands', []);
         $output = $this->Shell->stdout->output;
@@ -134,7 +134,7 @@ class CompletionShellTest extends CakeTestCase
      *
      * @return void
      */
-    public function testOptionsNoArguments()
+    public function testOptionsNoArguments(): void
     {
         $this->Shell->runCommand('options', []);
         $output = $this->Shell->stdout->output;
@@ -148,7 +148,7 @@ class CompletionShellTest extends CakeTestCase
      *
      * @return void
      */
-    public function testOptionsNonExistingCommand()
+    public function testOptionsNonExistingCommand(): void
     {
         $this->Shell->runCommand('options', ['options', 'foo']);
         $output = $this->Shell->stdout->output;
@@ -162,7 +162,7 @@ class CompletionShellTest extends CakeTestCase
      *
      * @return void
      */
-    public function testOptions()
+    public function testOptions(): void
     {
         $this->Shell->runCommand('options', ['options', 'schema']);
         $output = $this->Shell->stdout->output;
@@ -176,7 +176,7 @@ class CompletionShellTest extends CakeTestCase
      *
      * @return void
      */
-    public function testSubCommandsCorePlugin()
+    public function testSubCommandsCorePlugin(): void
     {
         $this->Shell->runCommand('subCommands', ['subCommands', 'CORE.schema']);
         $output = $this->Shell->stdout->output;
@@ -190,7 +190,7 @@ class CompletionShellTest extends CakeTestCase
      *
      * @return void
      */
-    public function testSubCommandsAppPlugin()
+    public function testSubCommandsAppPlugin(): void
     {
         $this->Shell->runCommand('subCommands', ['subCommands', 'app.sample']);
         $output = $this->Shell->stdout->output;
@@ -204,7 +204,7 @@ class CompletionShellTest extends CakeTestCase
      *
      * @return void
      */
-    public function testSubCommandsPlugin()
+    public function testSubCommandsPlugin(): void
     {
         $this->Shell->runCommand('subCommands', ['subCommands', 'TestPluginTwo.welcome']);
         $output = $this->Shell->stdout->output;
@@ -218,7 +218,7 @@ class CompletionShellTest extends CakeTestCase
      *
      * @return void
      */
-    public function testSubCommandsNoArguments()
+    public function testSubCommandsNoArguments(): void
     {
         $this->Shell->runCommand('subCommands', []);
         $output = $this->Shell->stdout->output;
@@ -232,7 +232,7 @@ class CompletionShellTest extends CakeTestCase
      *
      * @return void
      */
-    public function testSubCommandsNonExistingCommand()
+    public function testSubCommandsNonExistingCommand(): void
     {
         $this->Shell->runCommand('subCommands', ['subCommands', 'foo']);
         $output = $this->Shell->stdout->output;
@@ -246,7 +246,7 @@ class CompletionShellTest extends CakeTestCase
      *
      * @return void
      */
-    public function testSubCommands()
+    public function testSubCommands(): void
     {
         $this->Shell->runCommand('subCommands', ['subCommands', 'schema']);
         $output = $this->Shell->stdout->output;
@@ -260,7 +260,7 @@ class CompletionShellTest extends CakeTestCase
      *
      * @return void
      */
-    public function testFuzzy()
+    public function testFuzzy(): void
     {
         $this->Shell->runCommand('fuzzy', []);
         $output = $this->Shell->stdout->output;

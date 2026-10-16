@@ -30,7 +30,7 @@ class EmailTestComponent extends EmailComponent
      *
      * @return string
      */
-    public function strip($content, $message = false)
+    public function strip($content, $message = false): mixed
     {
         return parent::_strip($content, $message);
     }
@@ -56,7 +56,7 @@ class DebugCompTransport extends AbstractTransport
      * @params object $email CakeEmail
      * @return bool
      */
-    public function send(CakeEmail $email)
+    public function send(CakeEmail $email): mixed
     {
         $email->addHeaders(['Date' => EmailComponentTest::$sentDate]);
         $headers = $email->getHeaders(array_fill_keys(['from', 'replyTo', 'readReceipt', 'returnPath', 'to', 'cc', 'bcc', 'subject'], true));
@@ -157,7 +157,7 @@ class EmailComponentTest extends CakeTestCase
      *
      * @return void
      */
-    public function testSendFormats()
+    public function testSendFormats(): void
     {
         $this->Controller->EmailTest->to = 'postmaster@example.com';
         $this->Controller->EmailTest->from = 'noreply@example.com';
@@ -203,7 +203,7 @@ MSGBLOC;
      *
      * @return void
      */
-    public function testTemplates()
+    public function testTemplates(): void
     {
         ClassRegistry::flush();
 
@@ -318,7 +318,7 @@ HTMLBLOC;
      *
      * @return void
      */
-    public function testTemplateNestedElements()
+    public function testTemplateNestedElements(): void
     {
         $this->Controller->EmailTest->to = 'postmaster@example.com';
         $this->Controller->EmailTest->from = 'noreply@example.com';
@@ -343,7 +343,7 @@ HTMLBLOC;
      *
      * @return void
      */
-    public function testSendNullProperties()
+    public function testSendNullProperties(): void
     {
         $this->Controller->EmailTest->to = 'test@example.com';
         $this->Controller->EmailTest->from = 'test@example.com';
@@ -370,7 +370,7 @@ HTMLBLOC;
      *
      * @return void
      */
-    public function testSendDebug()
+    public function testSendDebug(): void
     {
         $this->Controller->EmailTest->to = 'postmaster@example.com';
         $this->Controller->EmailTest->from = 'noreply@example.com';
@@ -402,7 +402,7 @@ HTMLBLOC;
      *
      * @return void
      */
-    public function testSendDebugWithNoSessions()
+    public function testSendDebugWithNoSessions(): void
     {
         $session = $this->Controller->Session;
         unset($this->Controller->Session);
@@ -433,7 +433,7 @@ HTMLBLOC;
      *
      * @return void
      */
-    public function testMessageRetrievalWithoutTemplate()
+    public function testMessageRetrievalWithoutTemplate(): void
     {
         App::build([
             'View' => [CORE_TESTS . DS . 'test_app' . DS . 'View' . DS],
@@ -471,7 +471,7 @@ HTMLBLOC;
      *
      * @return void
      */
-    public function testMessageRetrievalWithTemplate()
+    public function testMessageRetrievalWithTemplate(): void
     {
         App::build([
             'View' => [CORE_TESTS . DS . 'test_app' . DS . 'View' . DS],
@@ -532,7 +532,7 @@ HTMLBLOC;
      *
      * @return void
      */
-    public function testMessageRetrievalWithHelper()
+    public function testMessageRetrievalWithHelper(): void
     {
         App::build([
             'View' => [CORE_TESTS . DS . 'test_app' . DS . 'View' . DS],
@@ -561,7 +561,7 @@ HTMLBLOC;
      *
      * @return void
      */
-    public function testSendContentArray()
+    public function testSendContentArray(): void
     {
         $this->Controller->EmailTest->to = 'postmaster@example.com';
         $this->Controller->EmailTest->from = 'noreply@example.com';
@@ -591,7 +591,7 @@ HTMLBLOC;
      *
      * @return void
      */
-    public function testDateProperty()
+    public function testDateProperty(): void
     {
         $this->Controller->EmailTest->to = 'postmaster@example.com';
         $this->Controller->EmailTest->from = 'noreply@example.com';
@@ -610,7 +610,7 @@ HTMLBLOC;
      *
      * @return void
      */
-    public function testContentStripping()
+    public function testContentStripping(): void
     {
         $content = "Previous content\n--alt-\nContent-TypeContent-Type:: text/html; charsetcharset==utf-8\nContent-Transfer-Encoding: 8bit";
         $content .= "\n\n<p>My own html content</p>";
@@ -636,7 +636,7 @@ HTMLBLOC;
      *
      * @return void
      */
-    public function testEncodeSettingInternalCharset()
+    public function testEncodeSettingInternalCharset(): void
     {
         $this->skipIf(!function_exists('mb_internal_encoding'), 'Missing mb_* functions, cannot run test.');
 
@@ -670,7 +670,7 @@ HTMLBLOC;
      *
      * @return void
      */
-    public function testMultibyte()
+    public function testMultibyte(): void
     {
         $this->Controller->charset = 'UTF-8';
         $this->Controller->EmailTest->to = 'postmaster@example.com';
@@ -703,7 +703,7 @@ HTMLBLOC;
      *
      * @return void
      */
-    public function testSendWithAttachments()
+    public function testSendWithAttachments(): void
     {
         $this->Controller->EmailTest->to = 'postmaster@example.com';
         $this->Controller->EmailTest->from = 'noreply@example.com';
@@ -729,7 +729,7 @@ HTMLBLOC;
      *
      * @return void
      */
-    public function testSendAsIsNotIgnoredIfAttachmentsPresent()
+    public function testSendAsIsNotIgnoredIfAttachmentsPresent(): void
     {
         $this->Controller->EmailTest->to = 'postmaster@example.com';
         $this->Controller->EmailTest->from = 'noreply@example.com';
@@ -766,7 +766,7 @@ HTMLBLOC;
      *
      * @return void
      */
-    public function testNoDoubleNewlinesInHeaders()
+    public function testNoDoubleNewlinesInHeaders(): void
     {
         $this->Controller->EmailTest->to = 'postmaster@example.com';
         $this->Controller->EmailTest->from = 'noreply@example.com';
@@ -789,7 +789,7 @@ HTMLBLOC;
      *
      * @return void
      */
-    public function testReset()
+    public function testReset(): void
     {
         $this->Controller->EmailTest->template = 'default';
         $this->Controller->EmailTest->to = 'test.recipient@example.com';
@@ -835,7 +835,7 @@ HTMLBLOC;
         $this->assertEquals('mail', $this->Controller->EmailTest->delivery);
     }
 
-    public function testPluginCustomViewClass()
+    public function testPluginCustomViewClass(): void
     {
         App::build([
             'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS],
@@ -861,7 +861,7 @@ HTMLBLOC;
      *
      * @return void
      */
-    public function testStartup()
+    public function testStartup(): void
     {
         $this->assertNull($this->Controller->EmailTest->startup($this->Controller));
     }
@@ -871,7 +871,7 @@ HTMLBLOC;
      *
      * @return void
      */
-    public function testMessageId()
+    public function testMessageId(): void
     {
         $this->Controller->EmailTest->to = 'postmaster@example.com';
         $this->Controller->EmailTest->from = 'noreply@example.com';
@@ -906,7 +906,7 @@ HTMLBLOC;
      *
      * @return void
      */
-    public function testEncodingFrom()
+    public function testEncodingFrom(): void
     {
         $this->Controller->EmailTest->to = 'Teßt <test@example.com>';
         $this->Controller->EmailTest->from = 'Teßt <test@example.com>';

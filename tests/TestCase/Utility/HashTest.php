@@ -26,7 +26,7 @@ class HashTest extends CakeTestCase
      *
      * @return array
      */
-    public static function articleData()
+    public static function articleData(): mixed
     {
         return [
             [
@@ -145,7 +145,7 @@ class HashTest extends CakeTestCase
      *
      * @return array
      */
-    public static function userData()
+    public static function userData(): mixed
     {
         return [
             [
@@ -186,7 +186,7 @@ class HashTest extends CakeTestCase
      *
      * @return void
      */
-    public function testGet()
+    public function testGet(): void
     {
         $data = ['abc', 'def'];
 
@@ -235,7 +235,7 @@ class HashTest extends CakeTestCase
      *
      * @return void
      */
-    public function testGetEmptyKey()
+    public function testGetEmptyKey(): void
     {
         $data = [
             true => 'true value',
@@ -252,7 +252,7 @@ class HashTest extends CakeTestCase
      *
      * @return void
      */
-    public function testGetInvalidPath()
+    public function testGetInvalidPath(): void
     {
         $this->expectException(InvalidArgumentException::class);
         Hash::get(['one' => 'two'], new StdClass());
@@ -263,7 +263,7 @@ class HashTest extends CakeTestCase
      *
      * @return void
      */
-    public function testGetNullPath()
+    public function testGetNullPath(): void
     {
         $result = Hash::get(['one' => 'two'], null, '-');
         $this->assertEquals('-', $result);
@@ -277,7 +277,7 @@ class HashTest extends CakeTestCase
      *
      * @return void
      */
-    public function testDimensions()
+    public function testDimensions(): void
     {
         $result = Hash::dimensions([]);
         $this->assertEquals($result, 0);
@@ -308,7 +308,7 @@ class HashTest extends CakeTestCase
      *
      * @return void
      */
-    public function testMaxDimensions()
+    public function testMaxDimensions(): void
     {
         $data = [];
         $result = Hash::maxDimensions($data);
@@ -351,7 +351,7 @@ class HashTest extends CakeTestCase
      *
      * @return void
      */
-    public function testFlatten()
+    public function testFlatten(): void
     {
         $data = ['Larry', 'Curly', 'Moe'];
         $result = Hash::flatten($data);
@@ -421,7 +421,7 @@ class HashTest extends CakeTestCase
      *
      * @return void
      */
-    public function testDiff()
+    public function testDiff(): void
     {
         $a = [
             0 => ['name' => 'main'],
@@ -504,7 +504,7 @@ class HashTest extends CakeTestCase
      *
      * @return void
      */
-    public function testMerge()
+    public function testMerge(): void
     {
         $result = Hash::merge(['foo'], ['bar']);
         $this->assertEquals($result, ['foo', 'bar']);
@@ -592,7 +592,7 @@ class HashTest extends CakeTestCase
      *
      * @return void
      */
-    public function testNormalize()
+    public function testNormalize(): void
     {
         $result = Hash::normalize(['one', 'two', 'three']);
         $expected = ['one' => null, 'two' => null, 'three' => null];
@@ -620,7 +620,7 @@ class HashTest extends CakeTestCase
      *
      * @return void
      */
-    public function testContains()
+    public function testContains(): void
     {
         $data = ['apple', 'bee', 'cyclops'];
         $this->assertTrue(Hash::contains($data, ['apple']));
@@ -665,7 +665,7 @@ class HashTest extends CakeTestCase
      *
      * @return void
      */
-    public function testFilter()
+    public function testFilter(): void
     {
         $result = Hash::filter([
             '0',
@@ -708,7 +708,7 @@ class HashTest extends CakeTestCase
      *
      * @return void
      */
-    public function testNumeric()
+    public function testNumeric(): void
     {
         $data = ['one'];
         $this->assertTrue(Hash::numeric(array_keys($data)));
@@ -749,7 +749,7 @@ class HashTest extends CakeTestCase
      *
      * @return void
      */
-    public function testExtractBasic()
+    public function testExtractBasic(): void
     {
         $data = static::articleData();
 
@@ -771,7 +771,7 @@ class HashTest extends CakeTestCase
      *
      * @return void
      */
-    public function testExtractNumericKey()
+    public function testExtractNumericKey(): void
     {
         $data = static::articleData();
         $result = Hash::extract($data, '{n}.Article.title');
@@ -794,7 +794,7 @@ class HashTest extends CakeTestCase
      *
      * @return void
      */
-    public function testExtractNumericMixedKeys()
+    public function testExtractNumericMixedKeys(): void
     {
         $data = [
             'User' => [
@@ -821,7 +821,7 @@ class HashTest extends CakeTestCase
      *
      * @return void
      */
-    public function testExtractNumericNonZero()
+    public function testExtractNumericNonZero(): void
     {
         $data = [
             1 => [
@@ -853,7 +853,7 @@ class HashTest extends CakeTestCase
      *
      * @return void
      */
-    public function testExtractStringKey()
+    public function testExtractStringKey(): void
     {
         $data = static::articleData();
         $result = Hash::extract($data, '{n}.{s}.user');
@@ -875,7 +875,7 @@ class HashTest extends CakeTestCase
      *
      * @return void
      */
-    public function testExtractWildcard()
+    public function testExtractWildcard(): void
     {
         $data = [
             '02000009C5560001' => ['name' => 'Mr. Alphanumeric'],
@@ -902,7 +902,7 @@ class HashTest extends CakeTestCase
      *
      * @return void
      */
-    public function testExtractAttributePresence()
+    public function testExtractAttributePresence(): void
     {
         $data = static::articleData();
 
@@ -920,7 +920,7 @@ class HashTest extends CakeTestCase
      *
      * @return void
      */
-    public function testExtractAttributeEquality()
+    public function testExtractAttributeEquality(): void
     {
         $data = static::articleData();
 
@@ -944,7 +944,7 @@ class HashTest extends CakeTestCase
      *
      * @return void
      */
-    public function testExtractAttributeBoolean()
+    public function testExtractAttributeBoolean(): void
     {
         $users = [
             [
@@ -987,7 +987,7 @@ class HashTest extends CakeTestCase
      *
      * @return void
      */
-    public function testExtractAttributeEqualityOnScalarValue()
+    public function testExtractAttributeEqualityOnScalarValue(): void
     {
         $data = [
             'Entity' => [
@@ -1008,7 +1008,7 @@ class HashTest extends CakeTestCase
      *
      * @return void
      */
-    public function testExtractAttributeComparison()
+    public function testExtractAttributeComparison(): void
     {
         $data = static::articleData();
 
@@ -1038,7 +1038,7 @@ class HashTest extends CakeTestCase
      *
      * @return void
      */
-    public function testExtractAttributeMultiple()
+    public function testExtractAttributeMultiple(): void
     {
         $data = static::articleData();
 
@@ -1056,7 +1056,7 @@ class HashTest extends CakeTestCase
      *
      * @return void
      */
-    public function testExtractAttributePattern()
+    public function testExtractAttributePattern(): void
     {
         $data = static::articleData();
 
@@ -1074,7 +1074,7 @@ class HashTest extends CakeTestCase
      *
      * @return void
      */
-    public function testExtractMatchesNull()
+    public function testExtractMatchesNull(): void
     {
         $data = [
             'Country' => [
@@ -1100,7 +1100,7 @@ class HashTest extends CakeTestCase
      *
      * @return void
      */
-    public function testExtractUnevenKeys()
+    public function testExtractUnevenKeys(): void
     {
         $data = [
             'Level1' => [
@@ -1140,7 +1140,7 @@ class HashTest extends CakeTestCase
      *
      * @return void
      */
-    public function testSort()
+    public function testSort(): void
     {
         $result = Hash::sort([], '{n}.name');
         $this->assertEquals([], $result);
@@ -1293,7 +1293,7 @@ class HashTest extends CakeTestCase
      *
      * @return void
      */
-    public function testSortNumeric()
+    public function testSortNumeric(): void
     {
         $items = [
             ['Item' => ['price' => '155,000']],
@@ -1328,7 +1328,7 @@ class HashTest extends CakeTestCase
      *
      * @return void
      */
-    public function testSortNatural()
+    public function testSortNatural(): void
     {
         $items = [
             ['Item' => ['image' => 'img1.jpg']],
@@ -1363,7 +1363,7 @@ class HashTest extends CakeTestCase
      *
      * @return void
      */
-    public function testSortNaturalIgnoreCase()
+    public function testSortNaturalIgnoreCase(): void
     {
         $items = [
             ['Item' => ['image' => 'img1.jpg']],
@@ -1398,7 +1398,7 @@ class HashTest extends CakeTestCase
      *
      * @return void
      */
-    public function testSortNaturalFallbackToRegular()
+    public function testSortNaturalFallbackToRegular(): void
     {
         $a = [
             0 => ['Person' => ['name' => 'Jeff']],
@@ -1417,7 +1417,7 @@ class HashTest extends CakeTestCase
      *
      * @return void
      */
-    public function testSortLocale()
+    public function testSortLocale(): void
     {
         // get the current locale
         $oldLocale = setlocale(LC_COLLATE, '0');
@@ -1450,7 +1450,7 @@ class HashTest extends CakeTestCase
      *
      * @return void
      */
-    public function testSortWithOutOfOrderKeys()
+    public function testSortWithOutOfOrderKeys(): void
     {
         $data = [
             9 => ['class' => 510, 'test2' => 2],
@@ -1478,7 +1478,7 @@ class HashTest extends CakeTestCase
      *
      * @return void
      */
-    public function testSortStringKeys()
+    public function testSortStringKeys(): void
     {
         $toSort = [
             'four' => ['number' => 4, 'some' => 'foursome'],
@@ -1516,7 +1516,7 @@ class HashTest extends CakeTestCase
      *
      * @return void
      */
-    public function testSortStringIgnoreCase()
+    public function testSortStringIgnoreCase(): void
     {
         $toSort = [
             ['Item' => ['name' => 'bar']],
@@ -1539,7 +1539,7 @@ class HashTest extends CakeTestCase
      *
      * @return void
      */
-    public function testSortRegularIgnoreCase()
+    public function testSortRegularIgnoreCase(): void
     {
         $toSort = [
             ['Item' => ['name' => 'bar']],
@@ -1562,7 +1562,7 @@ class HashTest extends CakeTestCase
      *
      * @return void
      */
-    public function testSortSparse()
+    public function testSortSparse(): void
     {
         $data = [
             [
@@ -1615,7 +1615,7 @@ class HashTest extends CakeTestCase
      *
      * @return void
      */
-    public function testInsertSimple()
+    public function testInsertSimple(): void
     {
         $a = [
             'pages' => ['name' => 'page'],
@@ -1649,7 +1649,7 @@ class HashTest extends CakeTestCase
      *
      * @return void
      */
-    public function testInsertMulti()
+    public function testInsertMulti(): void
     {
         $data = static::articleData();
 
@@ -1695,7 +1695,7 @@ class HashTest extends CakeTestCase
      *
      * @return void
      */
-    public function testInsertOverwriteStringValue()
+    public function testInsertOverwriteStringValue(): void
     {
         $data = [
             'Some' => [
@@ -1718,7 +1718,7 @@ class HashTest extends CakeTestCase
      *
      * @return void
      */
-    public function testRemove()
+    public function testRemove(): void
     {
         $a = [
             'pages' => ['name' => 'page'],
@@ -1826,7 +1826,7 @@ class HashTest extends CakeTestCase
      *
      * @return void
      */
-    public function testRemoveMulti()
+    public function testRemoveMulti(): void
     {
         $data = static::articleData();
 
@@ -1873,7 +1873,7 @@ class HashTest extends CakeTestCase
      *
      * @return void
      */
-    public function testCheck()
+    public function testCheck(): void
     {
         $set = [
             'My Index 1' => ['First' => 'The first item'],
@@ -1903,7 +1903,7 @@ class HashTest extends CakeTestCase
      *
      * @return void
      */
-    public function testCombine()
+    public function testCombine(): void
     {
         $result = Hash::combine([], '{n}.User.id', '{n}.User.Data');
         $this->assertTrue(empty($result));
@@ -1938,7 +1938,7 @@ class HashTest extends CakeTestCase
      *
      * @return void
      */
-    public function testCombineErrorMissingValue()
+    public function testCombineErrorMissingValue(): void
     {
         $this->expectException(CakeException::class);
         $data = [
@@ -1953,7 +1953,7 @@ class HashTest extends CakeTestCase
      *
      * @return void
      */
-    public function testCombineErrorMissingKey()
+    public function testCombineErrorMissingKey(): void
     {
         $this->expectException(CakeException::class);
         $data = [
@@ -1968,7 +1968,7 @@ class HashTest extends CakeTestCase
      *
      * @return void
      */
-    public function testCombineWithGroupPath()
+    public function testCombineWithGroupPath(): void
     {
         $a = static::userData();
 
@@ -2026,7 +2026,7 @@ class HashTest extends CakeTestCase
      *
      * @return void
      */
-    public function testCombineWithFormatting()
+    public function testCombineWithFormatting(): void
     {
         $a = static::userData();
 
@@ -2093,7 +2093,7 @@ class HashTest extends CakeTestCase
      *
      * @return void
      */
-    public function testFormat()
+    public function testFormat(): void
     {
         $data = static::userData();
 
@@ -2127,7 +2127,7 @@ class HashTest extends CakeTestCase
      *
      * @return void
      */
-    public function testFormatNullValues()
+    public function testFormatNullValues(): void
     {
         $data = [
             ['Person' => [
@@ -2155,7 +2155,7 @@ class HashTest extends CakeTestCase
      *
      * @return void
      */
-    public function testMap()
+    public function testMap(): void
     {
         $data = static::articleData();
 
@@ -2169,7 +2169,7 @@ class HashTest extends CakeTestCase
      *
      * @return void
      */
-    public function testApply()
+    public function testApply(): void
     {
         $data = static::articleData();
 
@@ -2182,7 +2182,7 @@ class HashTest extends CakeTestCase
      *
      * @return void
      */
-    public function testReduce()
+    public function testReduce(): void
     {
         $data = static::articleData();
 
@@ -2196,7 +2196,7 @@ class HashTest extends CakeTestCase
      * @param mixed $value Value
      * @return mixed
      */
-    public function mapCallback($value)
+    public function mapCallback($value): mixed
     {
         return $value * 2;
     }
@@ -2208,7 +2208,7 @@ class HashTest extends CakeTestCase
      * @param mixed $two Second param
      * @return mixed
      */
-    public function reduceCallback($one, $two)
+    public function reduceCallback($one, $two): mixed
     {
         return $one + $two;
     }
@@ -2219,7 +2219,7 @@ class HashTest extends CakeTestCase
      *
      * @return void
      */
-    public function testNestModel()
+    public function testNestModel(): void
     {
         $input = [
             [
@@ -2367,7 +2367,7 @@ class HashTest extends CakeTestCase
      *
      * @return void
      */
-    public function testNestModelExplicitRoot()
+    public function testNestModelExplicitRoot(): void
     {
         $input = [
             [
@@ -2478,7 +2478,7 @@ class HashTest extends CakeTestCase
      *
      * @return void
      */
-    public function testNest1Dimensional()
+    public function testNest1Dimensional(): void
     {
         $input = [
             [
@@ -2589,7 +2589,7 @@ class HashTest extends CakeTestCase
      *
      * @return void
      */
-    public function testMissingParent()
+    public function testMissingParent(): void
     {
         $input = [
             [
@@ -2638,7 +2638,7 @@ class HashTest extends CakeTestCase
      *
      * @return void
      */
-    public function testNestInvalid()
+    public function testNestInvalid(): void
     {
         $this->expectException(InvalidArgumentException::class);
         $input = [
@@ -2658,7 +2658,7 @@ class HashTest extends CakeTestCase
      *
      * @return void
      */
-    public function testMergeDiff()
+    public function testMergeDiff(): void
     {
         $first = [
             'ModelOne' => [
@@ -2760,7 +2760,7 @@ class HashTest extends CakeTestCase
      *
      * @return void
      */
-    public function testExpand()
+    public function testExpand(): void
     {
         $data = ['My', 'Array', 'To', 'Flatten'];
         $flat = Hash::flatten($data);
@@ -2819,7 +2819,7 @@ class HashTest extends CakeTestCase
      *
      * @return void
      */
-    public function testFlattenInfiniteLoop()
+    public function testFlattenInfiniteLoop(): void
     {
         $data = [
             'Order.ASI' => '0',

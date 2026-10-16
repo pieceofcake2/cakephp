@@ -61,7 +61,7 @@ class CacheTest extends CakeTestCase
      *
      * @return void
      */
-    public function testConfig()
+    public function testConfig(): void
     {
         $settings = ['engine' => 'File', 'path' => TMP . 'tests', 'prefix' => 'cake_test_'];
         $results = Cache::config('new', $settings);
@@ -75,7 +75,7 @@ class CacheTest extends CakeTestCase
      *
      * @return void
      */
-    public function testConfigInvalidEngine()
+    public function testConfigInvalidEngine(): void
     {
         $this->expectException(CacheException::class);
         $settings = ['engine' => 'Imaginary'];
@@ -87,7 +87,7 @@ class CacheTest extends CakeTestCase
      *
      * @return void
      */
-    public function testNonFatalErrorsWithCachedisable()
+    public function testNonFatalErrorsWithCachedisable(): void
     {
         Configure::write('Cache.disable', true);
         Cache::config('test', ['engine' => 'File', 'path' => TMP, 'prefix' => 'error_test_']);
@@ -113,7 +113,7 @@ class CacheTest extends CakeTestCase
      *
      * @return void
      */
-    public function testConfigWithLibAndPluginEngines()
+    public function testConfigWithLibAndPluginEngines(): void
     {
         App::build([
             'Lib' => [CORE_TESTS . DS . 'test_app' . DS . 'Lib' . DS],
@@ -143,7 +143,7 @@ class CacheTest extends CakeTestCase
      *
      * @return void
      */
-    public function testInvalidConfig()
+    public function testInvalidConfig(): void
     {
         $this->expectException(CacheException::class);
         $this->expectExceptionMessage('Cache engine "invalid" is not properly configured');
@@ -190,7 +190,7 @@ class CacheTest extends CakeTestCase
      *
      * @return void
      */
-    public function testReadNonExistingConfig()
+    public function testReadNonExistingConfig(): void
     {
         $this->assertFalse(Cache::read('key', 'totally fake'));
         $this->assertFalse(Cache::write('key', 'value', 'totally fake'));
@@ -203,7 +203,7 @@ class CacheTest extends CakeTestCase
      *
      * @return void
      */
-    public function testAttemptingToConfigureANonCacheEngineClass()
+    public function testAttemptingToConfigureANonCacheEngineClass(): void
     {
         $this->expectException(CacheException::class);
         $this->getMock('StdClass', [], [], 'RubbishEngine');
@@ -217,7 +217,7 @@ class CacheTest extends CakeTestCase
      *
      * @return void
      */
-    public function testConfigChange()
+    public function testConfigChange(): void
     {
         $_cacheConfigSessions = Cache::config('sessions');
         $_cacheConfigTests = Cache::config('tests');
@@ -241,7 +241,7 @@ class CacheTest extends CakeTestCase
      *
      * @return void
      */
-    public function testConfigSettingDefaultConfigKey()
+    public function testConfigSettingDefaultConfigKey(): void
     {
         Cache::config('test_name', ['engine' => 'File', 'prefix' => 'test_name_']);
 
@@ -268,7 +268,7 @@ class CacheTest extends CakeTestCase
      *
      * @return void
      */
-    public function testWritingWithConfig()
+    public function testWritingWithConfig(): void
     {
         $_cacheConfigSessions = Cache::config('sessions');
 
@@ -296,7 +296,7 @@ class CacheTest extends CakeTestCase
      *
      * @return void
      */
-    public function testGroupConfigs()
+    public function testGroupConfigs(): void
     {
         Cache::config('latest', [
             'duration' => 300,
@@ -352,7 +352,7 @@ class CacheTest extends CakeTestCase
      *
      * @return void
      */
-    public function testGroupConfigsThrowsException()
+    public function testGroupConfigsThrowsException(): void
     {
         $this->expectException(CacheException::class);
         Cache::groupConfigs('bogus');
@@ -364,7 +364,7 @@ class CacheTest extends CakeTestCase
      *
      * @return void
      */
-    public function testConfigured()
+    public function testConfigured(): void
     {
         $result = Cache::configured();
         $this->assertTrue(in_array('_cake_core_', $result));
@@ -376,7 +376,7 @@ class CacheTest extends CakeTestCase
      *
      * @return void
      */
-    public function testInitSettings()
+    public function testInitSettings(): void
     {
         $initial = Cache::settings();
         $override = ['engine' => 'File', 'path' => TMP . 'tests'];
@@ -393,7 +393,7 @@ class CacheTest extends CakeTestCase
      *
      * @return void
      */
-    public function testDrop()
+    public function testDrop(): void
     {
         App::build([
             'Lib' => [CORE_TESTS . DS . 'test_app' . DS . 'Lib' . DS],
@@ -424,7 +424,7 @@ class CacheTest extends CakeTestCase
      *
      * @return void
      */
-    public function testWriteEmptyValues()
+    public function testWriteEmptyValues(): void
     {
         Cache::write('App.falseTest', false);
         $this->assertFalse(Cache::read('App.falseTest'));
@@ -447,7 +447,7 @@ class CacheTest extends CakeTestCase
      *
      * @return void
      */
-    public function testWriteTriggerError()
+    public function testWriteTriggerError(): void
     {
         App::build([
             'Lib' => [CORE_TESTS . DS . 'test_app' . DS . 'Lib' . DS],
@@ -485,7 +485,7 @@ class CacheTest extends CakeTestCase
      *
      * @return void
      */
-    public function testCacheDisable()
+    public function testCacheDisable(): void
     {
         Configure::write('Cache.disable', false);
         Cache::config('test_cache_disable_1', ['engine' => 'File', 'path' => TMP . 'tests']);
@@ -525,7 +525,7 @@ class CacheTest extends CakeTestCase
      *
      * @return void
      */
-    public function testSet()
+    public function testSet(): void
     {
         $_cacheSet = Cache::set();
 
@@ -553,7 +553,7 @@ class CacheTest extends CakeTestCase
      *
      * @return void
      */
-    public function testSetOnAlternateConfigs()
+    public function testSetOnAlternateConfigs(): void
     {
         Cache::config('file_config', ['engine' => 'File', 'prefix' => 'test_file_']);
         Cache::set(['duration' => '+1 year'], 'file_config');
@@ -568,7 +568,7 @@ class CacheTest extends CakeTestCase
      *
      * @return void
      */
-    public function testRemember()
+    public function testRemember(): void
     {
         $expected = 'This is some data 0';
         $result = Cache::remember('test_key', [$this, 'cacher'], 'default');
@@ -584,7 +584,7 @@ class CacheTest extends CakeTestCase
      *
      * @return string
      */
-    public function cacher()
+    public function cacher(): mixed
     {
         return 'This is some data ' . $this->_count;
     }
@@ -594,7 +594,7 @@ class CacheTest extends CakeTestCase
      *
      * @return void
      */
-    public function testAdd()
+    public function testAdd(): void
     {
         Cache::delete('test_add_key', 'default');
 
@@ -616,7 +616,7 @@ class CacheTest extends CakeTestCase
      *
      * @return void
      */
-    public function testEngineSuccess()
+    public function testEngineSuccess(): void
     {
         $actual = Cache::engine();
         $this->assertInstanceOf('CacheEngine', $actual);
@@ -632,7 +632,7 @@ class CacheTest extends CakeTestCase
      *
      * @return void
      */
-    public function testEngineSuccessMemcached()
+    public function testEngineSuccessMemcached(): void
     {
         $this->skipIf(!class_exists('Memcached'), 'Memcached is not installed or configured properly.');
 
@@ -663,7 +663,7 @@ class CacheTest extends CakeTestCase
      *
      * @return void
      */
-    public function testEngineFailure()
+    public function testEngineFailure(): void
     {
         $actual = Cache::engine('some_config_that_does_not_exist');
         $this->assertNull($actual);
@@ -678,7 +678,7 @@ class CacheTest extends CakeTestCase
      *
      * @return void
      */
-    public function testBaseEngineAdd()
+    public function testBaseEngineAdd(): void
     {
         $engine = $this->getMockForAbstractClass('CacheEngine');
 

@@ -82,7 +82,7 @@ class CacheSessionTest extends CakeTestCase
      *
      * @return void
      */
-    public function testOpen()
+    public function testOpen(): void
     {
         $this->assertTrue($this->storage->open());
     }
@@ -92,7 +92,7 @@ class CacheSessionTest extends CakeTestCase
      *
      * @return void
      */
-    public function testWrite()
+    public function testWrite(): void
     {
         $this->storage->write('abc', 'Some value');
         $this->assertEquals('Some value', Cache::read('abc', 'session_test'), 'Value was not written.');
@@ -104,7 +104,7 @@ class CacheSessionTest extends CakeTestCase
      *
      * @return void
      */
-    public function testRead()
+    public function testRead(): void
     {
         $this->storage->write('test_one', 'Some other value');
         $this->assertEquals('Some other value', $this->storage->read('test_one'), 'Incorrect value.');
@@ -117,7 +117,7 @@ class CacheSessionTest extends CakeTestCase
      *
      * @return void
      */
-    public function testDestroy()
+    public function testDestroy(): void
     {
         $this->storage->write('test_one', 'Some other value');
         $this->assertTrue($this->storage->destroy('test_one'), 'Value was not deleted.');
@@ -130,7 +130,7 @@ class CacheSessionTest extends CakeTestCase
      *
      * @return void
      */
-    public function testDestroyNotWrittenSession()
+    public function testDestroyNotWrittenSession(): void
     {
         $this->assertTrue($this->storage->destroy('not_written'));
     }

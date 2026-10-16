@@ -62,7 +62,7 @@ class ScaffoldMockControllerWithFields extends Controller
      * @param string $method Method name.
      * @return bool true
      */
-    public function beforeScaffold($method)
+    public function beforeScaffold($method): mixed
     {
         $this->set('scaffoldFields', ['title']);
 
@@ -97,7 +97,7 @@ class ScaffoldMockControllerWithError extends Controller
      * @param string $method Method name.
      * @return bool false
      */
-    public function beforeScaffold($method)
+    public function beforeScaffold($method): mixed
     {
         return false;
     }
@@ -116,7 +116,7 @@ class TestScaffoldMock extends Scaffold
      * @param CakeRequest $request Request object for scaffolding
      * @return void
      */
-    protected function _scaffold(CakeRequest $request)
+    protected function _scaffold(CakeRequest $request): void
     {
         $this->_params = $request;
     }
@@ -126,7 +126,7 @@ class TestScaffoldMock extends Scaffold
      *
      * @return unknown
      */
-    public function getParams()
+    public function getParams(): mixed
     {
         return $this->_params;
     }
@@ -186,7 +186,7 @@ class ScaffoldTest extends CakeTestCase
      *
      * @return void
      */
-    public function testScaffoldParams()
+    public function testScaffoldParams(): void
     {
         $params = [
             'plugin' => null,
@@ -217,7 +217,7 @@ class ScaffoldTest extends CakeTestCase
      *
      * @return void
      */
-    public function testScaffoldVariableSetting()
+    public function testScaffoldVariableSetting(): void
     {
         $params = [
             'plugin' => null,
@@ -258,7 +258,7 @@ class ScaffoldTest extends CakeTestCase
      *
      * @return void
      */
-    public function testScaffoldChangingViewProperty()
+    public function testScaffoldChangingViewProperty(): void
     {
         $this->Controller->action = 'edit';
         $this->Controller->theme = 'TestTheme';
@@ -274,7 +274,7 @@ class ScaffoldTest extends CakeTestCase
      *
      * @return void
      */
-    public function testScaffoldFlashMessages()
+    public function testScaffoldFlashMessages(): void
     {
         $params = [
             'plugin' => null,
@@ -315,7 +315,7 @@ class ScaffoldTest extends CakeTestCase
      *
      * @return void
      */
-    public function testHabtmFieldAdditionWithScaffoldForm()
+    public function testHabtmFieldAdditionWithScaffoldForm(): void
     {
         CakePlugin::unload();
         $params = [
@@ -352,7 +352,7 @@ class ScaffoldTest extends CakeTestCase
      *
      * @return void
      */
-    public function testEditScaffoldWithScaffoldFields()
+    public function testEditScaffoldWithScaffoldFields(): void
     {
         $request = new CakeRequest(null, false);
         $this->Controller = new ScaffoldMockControllerWithFields($request);
@@ -390,7 +390,7 @@ class ScaffoldTest extends CakeTestCase
      *
      * @return void
      */
-    public function testScaffoldError()
+    public function testScaffoldError(): void
     {
         $request = new CakeRequest(null, false);
         $this->Controller = new ScaffoldMockControllerWithError($request);
@@ -428,7 +428,7 @@ class ScaffoldTest extends CakeTestCase
      *
      * @return void
      */
-    public function testConstructorDoesNotCreateDynamicProperties()
+    public function testConstructorDoesNotCreateDynamicProperties(): void
     {
         $params = [
             'plugin' => null,

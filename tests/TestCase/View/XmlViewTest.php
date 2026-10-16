@@ -34,7 +34,7 @@ class XmlViewTest extends CakeTestCase
      *
      * @return void
      */
-    public function testRenderWithoutView()
+    public function testRenderWithoutView(): void
     {
         $Request = new CakeRequest();
         $Response = new CakeResponse();
@@ -79,7 +79,7 @@ class XmlViewTest extends CakeTestCase
      *
      * @return void
      */
-    public function testRenderSerializeNoHelpers()
+    public function testRenderSerializeNoHelpers(): void
     {
         $Request = new CakeRequest();
         $Response = new CakeResponse();
@@ -99,7 +99,7 @@ class XmlViewTest extends CakeTestCase
      *
      * @return void
      */
-    public function testRenderSerializeWithOptions()
+    public function testRenderSerializeWithOptions(): void
     {
         $Request = new CakeRequest();
         $Response = new CakeResponse();
@@ -134,7 +134,7 @@ class XmlViewTest extends CakeTestCase
      *
      * @return void
      */
-    public function testRenderSerializeWithString()
+    public function testRenderSerializeWithString(): void
     {
         $Request = new CakeRequest();
         $Response = new CakeResponse();
@@ -171,7 +171,7 @@ class XmlViewTest extends CakeTestCase
      *
      * @return void
      */
-    public function testRenderWithoutViewMultiple()
+    public function testRenderWithoutViewMultiple(): void
     {
         $Request = new CakeRequest();
         $Response = new CakeResponse();
@@ -201,7 +201,7 @@ class XmlViewTest extends CakeTestCase
      *
      * @return void
      */
-    public function testRenderWithoutViewMultipleAndAlias()
+    public function testRenderWithoutViewMultipleAndAlias(): void
     {
         $Request = new CakeRequest();
         $Response = new CakeResponse();
@@ -231,7 +231,7 @@ class XmlViewTest extends CakeTestCase
      *
      * @return void
      */
-    public function testRenderWithView()
+    public function testRenderWithView(): void
     {
         App::build(['View' => [
             CORE_TESTS . DS . 'test_app' . DS . 'View' . DS,
@@ -271,7 +271,7 @@ class XmlViewTest extends CakeTestCase
      *
      * @return void
      */
-    public function testRenderWithoutViewAndSerialize()
+    public function testRenderWithoutViewAndSerialize(): void
     {
         $Controller = new Controller(new CakeRequest(), new CakeResponse());
         $View = new XmlView($Controller);

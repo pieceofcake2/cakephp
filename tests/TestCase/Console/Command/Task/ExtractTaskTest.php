@@ -66,7 +66,7 @@ class ExtractTaskTest extends CakeTestCase
      *
      * @return void
      */
-    public function testExecute()
+    public function testExecute(): void
     {
         $this->Task->interactive = false;
 
@@ -193,7 +193,7 @@ class ExtractTaskTest extends CakeTestCase
      *
      * @return void
      */
-    public function testExtractCategory()
+    public function testExtractCategory(): void
     {
         $this->Task->interactive = false;
 
@@ -224,7 +224,7 @@ class ExtractTaskTest extends CakeTestCase
      *
      * @return void
      */
-    public function testExtractWithoutLocations()
+    public function testExtractWithoutLocations(): void
     {
         $this->Task->interactive = false;
 
@@ -253,7 +253,7 @@ class ExtractTaskTest extends CakeTestCase
      *
      * @return void
      */
-    public function testExtractWithExclude()
+    public function testExtractWithExclude(): void
     {
         $this->Task->interactive = false;
 
@@ -281,7 +281,7 @@ class ExtractTaskTest extends CakeTestCase
      *
      * @return void
      */
-    public function testExtractMultiplePaths()
+    public function testExtractMultiplePaths(): void
     {
         $this->Task->interactive = false;
 
@@ -306,7 +306,7 @@ class ExtractTaskTest extends CakeTestCase
      *
      * @return void
      */
-    public function testExtractExcludePlugins()
+    public function testExtractExcludePlugins(): void
     {
         App::build([
             'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS],
@@ -334,7 +334,7 @@ class ExtractTaskTest extends CakeTestCase
      *
      * @return void
      */
-    public function testExtractPlugin()
+    public function testExtractPlugin(): void
     {
         App::build([
             'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS],
@@ -364,7 +364,7 @@ class ExtractTaskTest extends CakeTestCase
      *
      * @return void
      */
-    public function testExtractModelValidation()
+    public function testExtractModelValidation(): void
     {
         App::build([
             'Model' => [CORE_TESTS . DS . 'test_app' . DS . 'Model' . DS],
@@ -403,7 +403,7 @@ class ExtractTaskTest extends CakeTestCase
      *
      * @return void
      */
-    public function testExtractModelValidationWithDomainInModel()
+    public function testExtractModelValidationWithDomainInModel(): void
     {
         App::build([
             'Model' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS . 'TestPlugin' . DS . 'Model' . DS],
@@ -437,7 +437,7 @@ class ExtractTaskTest extends CakeTestCase
      *
      * @return void
      */
-    public function testExtractModelValidationInPlugin()
+    public function testExtractModelValidationInPlugin(): void
     {
         App::build([
             'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS],
@@ -469,7 +469,7 @@ class ExtractTaskTest extends CakeTestCase
      *
      * @return void
      */
-    public function testExtractOverwrite()
+    public function testExtractOverwrite(): void
     {
         $this->Task->interactive = false;
 
@@ -492,7 +492,7 @@ class ExtractTaskTest extends CakeTestCase
      *
      * @return void
      */
-    public function testExtractCore()
+    public function testExtractCore(): void
     {
         $this->Task->interactive = false;
 
@@ -523,7 +523,7 @@ class ExtractTaskTest extends CakeTestCase
      *
      * @return void
      */
-    public function testParseDcnWithLiteralCount()
+    public function testParseDcnWithLiteralCount(): void
     {
         $code = "<?php\n" .
             "__dcn('domain', 'first singular', 'first plural', 1000, 6);\n" .

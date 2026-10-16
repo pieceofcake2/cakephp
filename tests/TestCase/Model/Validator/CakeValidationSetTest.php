@@ -39,7 +39,7 @@ class CakeValidationSetTest extends CakeTestCase
      *
      * @return void
      */
-    public function testValidate()
+    public function testValidate(): void
     {
         $Field = new CakeValidationSet('title', 'notBlank');
         $data = [
@@ -82,7 +82,7 @@ class CakeValidationSetTest extends CakeTestCase
      *
      * @return void
      */
-    public function testGetRule()
+    public function testGetRule(): void
     {
         $rules = ['notBlank' => ['rule' => 'notBlank', 'message' => 'Can not be empty']];
         $Field = new CakeValidationSet('title', $rules);
@@ -101,7 +101,7 @@ class CakeValidationSetTest extends CakeTestCase
      *
      * @return void
      */
-    public function testGetRules()
+    public function testGetRules(): void
     {
         $rules = ['notBlank' => ['rule' => 'notBlank', 'message' => 'Can not be empty']];
         $Field = new CakeValidationSet('title', $rules);
@@ -116,7 +116,7 @@ class CakeValidationSetTest extends CakeTestCase
      *
      * @return void
      */
-    public function testSetRule()
+    public function testSetRule(): void
     {
         $rules = ['notBlank' => ['rule' => 'notBlank', 'message' => 'Can not be empty']];
         $Field = new CakeValidationSet('title', $rules);
@@ -150,7 +150,7 @@ class CakeValidationSetTest extends CakeTestCase
      *
      * @return void
      */
-    public function testSetRules()
+    public function testSetRules(): void
     {
         $rule = ['notBlank' => ['rule' => 'notBlank', 'message' => 'Can not be empty']];
         $Field = new CakeValidationSet('title', $rule);
@@ -187,7 +187,7 @@ class CakeValidationSetTest extends CakeTestCase
      *
      * @return void
      */
-    public function testArrayAccessGet()
+    public function testArrayAccessGet(): void
     {
         $Set = new CakeValidationSet('title', [
             'notBlank' => ['rule' => 'notBlank', 'required' => true],
@@ -213,7 +213,7 @@ class CakeValidationSetTest extends CakeTestCase
      *
      * @return void
      */
-    public function testArrayAccessExists()
+    public function testArrayAccessExists(): void
     {
         $Set = new CakeValidationSet('title', [
             'notBlank' => ['rule' => 'notBlank', 'required' => true],
@@ -232,7 +232,7 @@ class CakeValidationSetTest extends CakeTestCase
      *
      * @return void
      */
-    public function testArrayAccessSet()
+    public function testArrayAccessSet(): void
     {
         $Set = new CakeValidationSet('title', [
             'notBlank' => ['rule' => 'notBlank', 'required' => true],
@@ -256,7 +256,7 @@ class CakeValidationSetTest extends CakeTestCase
      *
      * @return void
      */
-    public function testArrayAccessUnset()
+    public function testArrayAccessUnset(): void
     {
         $Set = new CakeValidationSet('title', [
             'notBlank' => ['rule' => 'notBlank', 'required' => true],
@@ -279,7 +279,7 @@ class CakeValidationSetTest extends CakeTestCase
      *
      * @return void
      */
-    public function testIterator()
+    public function testIterator(): void
     {
         $Set = new CakeValidationSet('title', [
             'notBlank' => ['rule' => 'notBlank', 'required' => true],
@@ -309,7 +309,7 @@ class CakeValidationSetTest extends CakeTestCase
      *
      * @return void
      */
-    public function testCount()
+    public function testCount(): void
     {
         $Set = new CakeValidationSet('title', [
             'notBlank' => ['rule' => 'notBlank', 'required' => true],
@@ -327,7 +327,7 @@ class CakeValidationSetTest extends CakeTestCase
      *
      * @return void
      */
-    public function testRemoveRule()
+    public function testRemoveRule(): void
     {
         $Set = new CakeValidationSet('title', [
             'notBlank' => ['rule' => 'notBlank', 'required' => true],
@@ -350,7 +350,7 @@ class CakeValidationSetTest extends CakeTestCase
      *
      * @return void
      */
-    public function testGetRuleMissing()
+    public function testGetRuleMissing(): void
     {
         $Field = new CakeValidationSet('title', ['notBlank' => ['rule' => 'notBlank']]);
 

@@ -35,7 +35,7 @@ class SessionTestController extends Controller
      *
      * @return string
      */
-    public function sessionId()
+    public function sessionId(): mixed
     {
         return $this->Session->id();
     }
@@ -60,7 +60,7 @@ class OrangeSessionTestController extends Controller
      *
      * @return string
      */
-    public function sessionId()
+    public function sessionId(): mixed
     {
         return $this->Session->id();
     }
@@ -136,7 +136,7 @@ class SessionComponentTest extends CakeTestCase
      *
      * @return void
      */
-    public function testSessionIdConsistentAcrossRequestAction()
+    public function testSessionIdConsistentAcrossRequestAction(): void
     {
         $Object = new CakeObject();
         $Session = new SessionComponent($this->ComponentCollection);
@@ -154,7 +154,7 @@ class SessionComponentTest extends CakeTestCase
      *
      * @return void
      */
-    public function testSessionValid()
+    public function testSessionValid(): void
     {
         $Session = new SessionComponent($this->ComponentCollection);
 
@@ -174,7 +174,7 @@ class SessionComponentTest extends CakeTestCase
      *
      * @return void
      */
-    public function testSessionError()
+    public function testSessionError(): void
     {
         CakeSession::$lastError = null;
         $Session = new SessionComponent($this->ComponentCollection);
@@ -186,7 +186,7 @@ class SessionComponentTest extends CakeTestCase
      *
      * @return void
      */
-    public function testSessionReadWrite()
+    public function testSessionReadWrite(): void
     {
         $Session = new SessionComponent($this->ComponentCollection);
 
@@ -218,7 +218,7 @@ class SessionComponentTest extends CakeTestCase
      *
      * @return void
      */
-    public function testSessionDelete()
+    public function testSessionDelete(): void
     {
         $Session = new SessionComponent($this->ComponentCollection);
 
@@ -233,7 +233,7 @@ class SessionComponentTest extends CakeTestCase
      *
      * @return void
      */
-    public function testSessionCheck()
+    public function testSessionCheck(): void
     {
         $Session = new SessionComponent($this->ComponentCollection);
 
@@ -249,7 +249,7 @@ class SessionComponentTest extends CakeTestCase
      *
      * @return void
      */
-    public function testSessionFlash()
+    public function testSessionFlash(): void
     {
         $Session = new SessionComponent($this->ComponentCollection);
 
@@ -272,7 +272,7 @@ class SessionComponentTest extends CakeTestCase
      *
      * @return void
      */
-    public function testSessionId()
+    public function testSessionId(): void
     {
         unset($_SESSION);
         $Session = new SessionComponent($this->ComponentCollection);
@@ -285,7 +285,7 @@ class SessionComponentTest extends CakeTestCase
      *
      * @return void
      */
-    public function testSessionDestroy()
+    public function testSessionDestroy(): void
     {
         $Session = new SessionComponent($this->ComponentCollection);
 

@@ -51,7 +51,7 @@ class CakeNumberTest extends CakeTestCase
      *
      * @return void
      */
-    public function testFormat()
+    public function testFormat(): void
     {
         $value = '100100100';
 
@@ -93,7 +93,7 @@ class CakeNumberTest extends CakeTestCase
      *
      * @return void
      */
-    public function testFormatDelta()
+    public function testFormatDelta(): void
     {
         $value = '100100100';
 
@@ -138,7 +138,7 @@ class CakeNumberTest extends CakeTestCase
      *
      * @return void
      */
-    public function testMultibyteFormat()
+    public function testMultibyteFormat(): void
     {
         $value = '5199100.0006';
         $result = $this->Number->format($value, [
@@ -187,7 +187,7 @@ class CakeNumberTest extends CakeTestCase
      *
      * @return void
      */
-    public function testCurrency()
+    public function testCurrency(): void
     {
         $value = '100100100';
 
@@ -309,7 +309,7 @@ class CakeNumberTest extends CakeTestCase
      *
      * @return void
      */
-    public function testCurrencyWithFractionAndPlaces()
+    public function testCurrencyWithFractionAndPlaces(): void
     {
         $result = $this->Number->currency('1.23', 'GBP', ['places' => 3]);
         $expected = '£1.230';
@@ -343,7 +343,7 @@ class CakeNumberTest extends CakeTestCase
      *
      * @return void
      */
-    public function testCurrencyFractionSymbol()
+    public function testCurrencyFractionSymbol(): void
     {
         $result = $this->Number->currency(0.2, '', [
             'places' => 2,
@@ -357,7 +357,7 @@ class CakeNumberTest extends CakeTestCase
      *
      * @return void
      */
-    public function testCurrencyAddFormat()
+    public function testCurrencyAddFormat(): void
     {
         $this->Number->addFormat('NOK', ['before' => 'Kr. ']);
         $result = $this->Number->currency(1000, 'NOK');
@@ -384,7 +384,7 @@ class CakeNumberTest extends CakeTestCase
      *
      * @return void
      */
-    public function testDefaultCurrency()
+    public function testDefaultCurrency(): void
     {
         $result = $this->Number->defaultCurrency();
         $this->assertEquals('USD', $result);
@@ -418,7 +418,7 @@ class CakeNumberTest extends CakeTestCase
      *
      * @return void
      */
-    public function testCurrencyPositive()
+    public function testCurrencyPositive(): void
     {
         $value = '100100100';
 
@@ -452,7 +452,7 @@ class CakeNumberTest extends CakeTestCase
      *
      * @return void
      */
-    public function testCurrencyNegative()
+    public function testCurrencyNegative(): void
     {
         $value = '-100100100';
 
@@ -486,7 +486,7 @@ class CakeNumberTest extends CakeTestCase
      *
      * @return void
      */
-    public function testCurrencyCentsPositive()
+    public function testCurrencyCentsPositive(): void
     {
         $value = '0.99';
 
@@ -508,7 +508,7 @@ class CakeNumberTest extends CakeTestCase
      *
      * @return void
      */
-    public function testCurrencyCentsNegative()
+    public function testCurrencyCentsNegative(): void
     {
         $value = '-0.99';
 
@@ -542,7 +542,7 @@ class CakeNumberTest extends CakeTestCase
      *
      * @return void
      */
-    public function testCurrencyZero()
+    public function testCurrencyZero(): void
     {
         $value = '0';
 
@@ -568,7 +568,7 @@ class CakeNumberTest extends CakeTestCase
      *
      * @return void
      */
-    public function testCurrencyOptions()
+    public function testCurrencyOptions(): void
     {
         $value = '1234567.89';
 
@@ -614,7 +614,7 @@ class CakeNumberTest extends CakeTestCase
      *
      * @return void
      */
-    public function testToReadableSize()
+    public function testToReadableSize(): void
     {
         $result = $this->Number->toReadableSize(0);
         $expected = '0 Bytes';
@@ -678,7 +678,7 @@ class CakeNumberTest extends CakeTestCase
      *
      * @return void
      */
-    public function testReadableSizeLocalized()
+    public function testReadableSizeLocalized(): void
     {
         $restore = setlocale(LC_NUMERIC, 0);
 
@@ -697,7 +697,7 @@ class CakeNumberTest extends CakeTestCase
      *
      * @return void
      */
-    public function testPrecisionLocalized()
+    public function testPrecisionLocalized(): void
     {
         $restore = setlocale(LC_NUMERIC, 0);
 
@@ -713,7 +713,7 @@ class CakeNumberTest extends CakeTestCase
      *
      * @return void
      */
-    public function testToPercentage()
+    public function testToPercentage(): void
     {
         $result = $this->Number->toPercentage(45, 0);
         $expected = '45%';
@@ -762,7 +762,7 @@ class CakeNumberTest extends CakeTestCase
      * @dataProvider filesizes
      * @return void
      */
-    public function testFromReadableSize($params, $expected)
+    public function testFromReadableSize($params, $expected): void
     {
         $result = $this->Number->fromReadableSize($params['size'], $params['default']);
         $this->assertEquals($expected, $result);
@@ -773,7 +773,7 @@ class CakeNumberTest extends CakeTestCase
      *
      * @return void
      */
-    public function testFromReadableSizeException()
+    public function testFromReadableSizeException(): void
     {
         $this->expectException(CakeException::class);
         $this->Number->fromReadableSize('bogus', false);
@@ -784,7 +784,7 @@ class CakeNumberTest extends CakeTestCase
      *
      * @return void
      */
-    public function testFromReadableSizeNonNumericWithUnit()
+    public function testFromReadableSizeNonNumericWithUnit(): void
     {
         $this->assertSame('Unknown type', $this->Number->fromReadableSize('XMB', 'Unknown type'));
         $this->assertSame('Unknown type', $this->Number->fromReadableSize('abcK', 'Unknown type'));
@@ -795,7 +795,7 @@ class CakeNumberTest extends CakeTestCase
      *
      * @return void
      */
-    public function testFromReadableSizeNonNumericWithUnitException()
+    public function testFromReadableSizeNonNumericWithUnitException(): void
     {
         $this->expectException(CakeException::class);
         $this->Number->fromReadableSize('XMB', false);
@@ -806,7 +806,7 @@ class CakeNumberTest extends CakeTestCase
      *
      * @return array
      */
-    public function filesizes()
+    public function filesizes(): mixed
     {
         return [
             [['size' => '512B', 'default' => false], 512],

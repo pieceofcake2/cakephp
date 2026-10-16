@@ -52,7 +52,7 @@ class CakePluginTest extends CakeTestCase
      *
      * @return void
      */
-    public function testLoadSingle()
+    public function testLoadSingle(): void
     {
         CakePlugin::unload();
         CakePlugin::load('TestPlugin');
@@ -65,7 +65,7 @@ class CakePluginTest extends CakeTestCase
      *
      * @return void
      */
-    public function testUnload()
+    public function testUnload(): void
     {
         CakePlugin::load('TestPlugin');
         $expected = ['TestPlugin'];
@@ -87,7 +87,7 @@ class CakePluginTest extends CakeTestCase
      *
      * @return void
      */
-    public function testLoadSingleWithBootstrap()
+    public function testLoadSingleWithBootstrap(): void
     {
         CakePlugin::load('TestPlugin', ['bootstrap' => true]);
         $this->assertTrue(CakePlugin::loaded('TestPlugin'));
@@ -99,7 +99,7 @@ class CakePluginTest extends CakeTestCase
      *
      * @return void
      */
-    public function testLoadSingleWithBootstrapAndRoutes()
+    public function testLoadSingleWithBootstrapAndRoutes(): void
     {
         CakePlugin::load('TestPlugin', ['bootstrap' => true, 'routes' => true]);
         $this->assertTrue(CakePlugin::loaded('TestPlugin'));
@@ -114,7 +114,7 @@ class CakePluginTest extends CakeTestCase
      *
      * @return void
      */
-    public function testLoadMultiple()
+    public function testLoadMultiple(): void
     {
         CakePlugin::load(['TestPlugin', 'TestPluginTwo']);
         $expected = ['TestPlugin', 'TestPluginTwo'];
@@ -126,7 +126,7 @@ class CakePluginTest extends CakeTestCase
      *
      * @return void
      */
-    public function testLoadMultipleWithDefaults()
+    public function testLoadMultipleWithDefaults(): void
     {
         CakePlugin::load(['TestPlugin', 'TestPluginTwo'], ['bootstrap' => true, 'routes' => false]);
         $expected = ['TestPlugin', 'TestPluginTwo'];
@@ -140,7 +140,7 @@ class CakePluginTest extends CakeTestCase
      *
      * @return void
      */
-    public function testLoadMultipleWithDefaultsAndOverride()
+    public function testLoadMultipleWithDefaultsAndOverride(): void
     {
         CakePlugin::load(
             ['TestPlugin', 'TestPluginTwo' => ['routes' => false]],
@@ -157,7 +157,7 @@ class CakePluginTest extends CakeTestCase
      *
      * @return void
      */
-    public function testMultipleBootstrapFiles()
+    public function testMultipleBootstrapFiles(): void
     {
         CakePlugin::load('TestPlugin', ['bootstrap' => ['bootstrap', 'custom_config']]);
         $this->assertTrue(CakePlugin::loaded('TestPlugin'));
@@ -169,7 +169,7 @@ class CakePluginTest extends CakeTestCase
      *
      * @return void
      */
-    public function testCallbackBootstrap()
+    public function testCallbackBootstrap(): void
     {
         CakePlugin::load('TestPlugin', ['bootstrap' => [$this, 'pluginBootstrap']]);
         $this->assertTrue(CakePlugin::loaded('TestPlugin'));
@@ -181,7 +181,7 @@ class CakePluginTest extends CakeTestCase
      *
      * @return void
      */
-    public function testLoadMultipleWithDefaultsMissingFile()
+    public function testLoadMultipleWithDefaultsMissingFile(): void
     {
         $warningTriggered = false;
         set_error_handler(function ($errno, $errstr) use (&$warningTriggered) {
@@ -209,7 +209,7 @@ class CakePluginTest extends CakeTestCase
      *
      * @return void
      */
-    public function testIgnoreMissingFiles()
+    public function testIgnoreMissingFiles(): void
     {
         $warningTriggered = false;
         set_error_handler(function ($errno, $errstr) use (&$warningTriggered) {
@@ -244,7 +244,7 @@ class CakePluginTest extends CakeTestCase
      *
      * @return void
      */
-    public function testLoadNotFound()
+    public function testLoadNotFound(): void
     {
         $this->expectException(MissingPluginException::class);
         CakePlugin::load('MissingPlugin');
@@ -255,7 +255,7 @@ class CakePluginTest extends CakeTestCase
      *
      * @return void
      */
-    public function testPath()
+    public function testPath(): void
     {
         CakePlugin::load(['TestPlugin', 'TestPluginTwo']);
         $expected = CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS . 'TestPlugin' . DS;
@@ -270,7 +270,7 @@ class CakePluginTest extends CakeTestCase
      *
      * @return void
      */
-    public function testPathNotFound()
+    public function testPathNotFound(): void
     {
         $this->expectException(MissingPluginException::class);
         CakePlugin::path('TestPlugin');
@@ -281,7 +281,7 @@ class CakePluginTest extends CakeTestCase
      *
      * @return void
      */
-    public function testLoadAll()
+    public function testLoadAll(): void
     {
         CakePlugin::loadAll();
         $expected = ['PluginJs', 'TestPlugin', 'TestPluginTwo'];
@@ -293,7 +293,7 @@ class CakePluginTest extends CakeTestCase
      *
      * @return void
      */
-    public function testLoadAllWithDefaults()
+    public function testLoadAllWithDefaults(): void
     {
         $defaults = ['bootstrap' => true];
         CakePlugin::loadAll([$defaults]);
@@ -310,7 +310,7 @@ class CakePluginTest extends CakeTestCase
      *
      * @return void
      */
-    public function testLoadAllWithDefaultsAndOverride()
+    public function testLoadAllWithDefaultsAndOverride(): void
     {
         CakePlugin::loadAll([['bootstrap' => true], 'TestPlugin' => ['routes' => true]]);
         CakePlugin::routes();
@@ -329,7 +329,7 @@ class CakePluginTest extends CakeTestCase
      *
      * @return void
      */
-    public function testLoadAllWithDefaultsAndOverrideComplex()
+    public function testLoadAllWithDefaultsAndOverrideComplex(): void
     {
         CakePlugin::loadAll([['bootstrap' => true], 'TestPlugin' => ['routes' => true, 'bootstrap' => false]]);
         CakePlugin::routes();
@@ -347,7 +347,7 @@ class CakePluginTest extends CakeTestCase
      *
      * @return void
      */
-    public function pluginBootstrap()
+    public function pluginBootstrap(): void
     {
         Configure::write('CakePluginTest.test_plugin.bootstrap', 'called plugin bootstrap callback');
     }

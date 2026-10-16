@@ -27,7 +27,7 @@ class FaultyExceptionRenderer extends ExceptionRenderer
      * @return void
      * @throws Exception
      */
-    public function render()
+    public function render(): void
     {
         throw new Exception('Error from renderer.');
     }
@@ -96,7 +96,7 @@ class ErrorHandlerTest extends CakeTestCase
      *
      * @return void
      */
-    public function testHandleErrorDebugOn()
+    public function testHandleErrorDebugOn(): void
     {
         set_error_handler('ErrorHandler::handleError');
         $this->_restoreError = true;
@@ -117,7 +117,7 @@ class ErrorHandlerTest extends CakeTestCase
      *
      * @return void
      */
-    public static function errorProvider()
+    public static function errorProvider(): mixed
     {
         return [
             [E_USER_NOTICE, 'Notice'],
@@ -131,7 +131,7 @@ class ErrorHandlerTest extends CakeTestCase
      * @dataProvider errorProvider
      * @return void
      */
-    public function testErrorMapping($error, $expected)
+    public function testErrorMapping($error, $expected): void
     {
         set_error_handler('ErrorHandler::handleError');
         $this->_restoreError = true;
@@ -150,7 +150,7 @@ class ErrorHandlerTest extends CakeTestCase
      *
      * @return void
      */
-    public function testErrorSuppressed()
+    public function testErrorSuppressed(): void
     {
         set_error_handler('ErrorHandler::handleError');
         $this->_restoreError = true;
@@ -168,7 +168,7 @@ class ErrorHandlerTest extends CakeTestCase
      *
      * @return void
      */
-    public function testHandleErrorDebugOff()
+    public function testHandleErrorDebugOff(): void
     {
         Configure::write('debug', 0);
         Configure::write('Error.trace', false);
@@ -197,7 +197,7 @@ class ErrorHandlerTest extends CakeTestCase
      *
      * @return void
      */
-    public function testHandleErrorLoggingTrace()
+    public function testHandleErrorLoggingTrace(): void
     {
         Configure::write('debug', 0);
         Configure::write('Error.trace', true);
@@ -227,7 +227,7 @@ class ErrorHandlerTest extends CakeTestCase
      *
      * @return void
      */
-    public function testHandleException()
+    public function testHandleException(): void
     {
         $error = new NotFoundException('Kaboom!');
         ob_start();
@@ -241,7 +241,7 @@ class ErrorHandlerTest extends CakeTestCase
      *
      * @return void
      */
-    public function testHandleExceptionLog()
+    public function testHandleExceptionLog(): void
     {
         if (file_exists(LOGS . 'error.log')) {
             unlink(LOGS . 'error.log');
@@ -264,7 +264,7 @@ class ErrorHandlerTest extends CakeTestCase
      *
      * @return void
      */
-    public function testHandleExceptionLogSkipping()
+    public function testHandleExceptionLogSkipping(): void
     {
         if (file_exists(LOGS . 'error.log')) {
             unlink(LOGS . 'error.log');
@@ -294,7 +294,7 @@ class ErrorHandlerTest extends CakeTestCase
      *
      * @return void
      */
-    public function testLoadPluginHandler()
+    public function testLoadPluginHandler(): void
     {
         App::build([
             'Plugin' => [
@@ -318,7 +318,7 @@ class ErrorHandlerTest extends CakeTestCase
      *
      * @return void
      */
-    public function testHandleFatalErrorPage()
+    public function testHandleFatalErrorPage(): void
     {
         $line = __LINE__;
         $initialLevel = ob_get_level();
@@ -357,7 +357,7 @@ class ErrorHandlerTest extends CakeTestCase
      *
      * @return void
      */
-    public function testHandleFatalErrorLog()
+    public function testHandleFatalErrorLog(): void
     {
         if (file_exists(LOGS . 'error.log')) {
             unlink(LOGS . 'error.log');
@@ -382,7 +382,7 @@ class ErrorHandlerTest extends CakeTestCase
      *
      * @return void
      */
-    public function testExceptionRendererNestingDebug()
+    public function testExceptionRendererNestingDebug(): void
     {
         Configure::write('debug', 2);
         Configure::write('Exception.renderer', 'FaultyExceptionRenderer');
@@ -405,7 +405,7 @@ class ErrorHandlerTest extends CakeTestCase
      *
      * @return void
      */
-    public function testExceptionRendererNestingProduction()
+    public function testExceptionRendererNestingProduction(): void
     {
         Configure::write('debug', 0);
         Configure::write('Exception.renderer', 'FaultyExceptionRenderer');

@@ -52,7 +52,7 @@ class ConsoleOutputTest extends CakeTestCase
      *
      * @return void
      */
-    public function testWriteNoNewLine()
+    public function testWriteNoNewLine(): void
     {
         $this->output->expects($this->once())->method('_write')
             ->with('Some output');
@@ -65,7 +65,7 @@ class ConsoleOutputTest extends CakeTestCase
      *
      * @return void
      */
-    public function testWriteNewLine()
+    public function testWriteNewLine(): void
     {
         $this->output->expects($this->once())->method('_write')
             ->with('Some output' . PHP_EOL);
@@ -78,7 +78,7 @@ class ConsoleOutputTest extends CakeTestCase
      *
      * @return void
      */
-    public function testWriteMultipleNewLines()
+    public function testWriteMultipleNewLines(): void
     {
         $this->output->expects($this->once())->method('_write')
             ->with('Some output' . PHP_EOL . PHP_EOL . PHP_EOL . PHP_EOL);
@@ -91,7 +91,7 @@ class ConsoleOutputTest extends CakeTestCase
      *
      * @return void
      */
-    public function testWriteArray()
+    public function testWriteArray(): void
     {
         $this->output->expects($this->once())->method('_write')
             ->with('Line' . PHP_EOL . 'Line' . PHP_EOL . 'Line' . PHP_EOL);
@@ -104,7 +104,7 @@ class ConsoleOutputTest extends CakeTestCase
      *
      * @return void
      */
-    public function testOverwrite()
+    public function testOverwrite(): void
     {
         $testString = 'Text';
         $overwriteTestString = 'Overwriting text';
@@ -133,7 +133,7 @@ class ConsoleOutputTest extends CakeTestCase
      *
      * @return void
      */
-    public function testStylesGet()
+    public function testStylesGet(): void
     {
         $result = $this->output->styles('error');
         $expected = ['text' => 'red', 'underline' => true];
@@ -151,7 +151,7 @@ class ConsoleOutputTest extends CakeTestCase
      *
      * @return void
      */
-    public function testStylesAdding()
+    public function testStylesAdding(): void
     {
         $this->output->styles('test', ['text' => 'red', 'background' => 'black']);
         $result = $this->output->styles('test');
@@ -167,7 +167,7 @@ class ConsoleOutputTest extends CakeTestCase
      *
      * @return void
      */
-    public function testFormattingSimple()
+    public function testFormattingSimple(): void
     {
         $this->output->expects($this->once())->method('_write')
             ->with("\033[31;4mError:\033[0m Something bad");
@@ -180,7 +180,7 @@ class ConsoleOutputTest extends CakeTestCase
      *
      * @return void
      */
-    public function testFormattingNotEatingTags()
+    public function testFormattingNotEatingTags(): void
     {
         $this->output->expects($this->once())->method('_write')
             ->with('<red> Something bad');
@@ -193,7 +193,7 @@ class ConsoleOutputTest extends CakeTestCase
      *
      * @return void
      */
-    public function testFormattingCustom()
+    public function testFormattingCustom(): void
     {
         $this->output->styles('annoying', [
             'text' => 'magenta',
@@ -213,7 +213,7 @@ class ConsoleOutputTest extends CakeTestCase
      *
      * @return void
      */
-    public function testFormattingMissingStyleName()
+    public function testFormattingMissingStyleName(): void
     {
         $this->output->expects($this->once())->method('_write')
             ->with('<not_there>Error:</not_there> Something bad');
@@ -226,7 +226,7 @@ class ConsoleOutputTest extends CakeTestCase
      *
      * @return void
      */
-    public function testFormattingMultipleStylesName()
+    public function testFormattingMultipleStylesName(): void
     {
         $this->output->expects($this->once())->method('_write')
             ->with("\033[31;4mBad\033[0m \033[33mWarning\033[0m Regular");
@@ -239,7 +239,7 @@ class ConsoleOutputTest extends CakeTestCase
      *
      * @return void
      */
-    public function testFormattingMultipleSameTags()
+    public function testFormattingMultipleSameTags(): void
     {
         $this->output->expects($this->once())->method('_write')
             ->with("\033[31;4mBad\033[0m \033[31;4mWarning\033[0m Regular");
@@ -252,7 +252,7 @@ class ConsoleOutputTest extends CakeTestCase
      *
      * @return void
      */
-    public function testOutputAsRaw()
+    public function testOutputAsRaw(): void
     {
         $this->output->outputAs(ConsoleOutput::RAW);
         $this->output->expects($this->once())->method('_write')
@@ -266,7 +266,7 @@ class ConsoleOutputTest extends CakeTestCase
      *
      * @return void
      */
-    public function testOutputAsPlain()
+    public function testOutputAsPlain(): void
     {
         $this->output->outputAs(ConsoleOutput::PLAIN);
         $this->output->expects($this->once())->method('_write')
@@ -281,7 +281,7 @@ class ConsoleOutputTest extends CakeTestCase
      *
      * @return void
      */
-    public function testOutputAsPlainWhenOutputStream()
+    public function testOutputAsPlainWhenOutputStream(): void
     {
         $output = $this->getMock('ConsoleOutput', ['_write'], ['php://output']);
         $this->assertEquals(ConsoleOutput::PLAIN, $output->outputAs());
@@ -292,7 +292,7 @@ class ConsoleOutputTest extends CakeTestCase
      *
      * @return void
      */
-    public function testOutputAsPlainForInMemoryStream()
+    public function testOutputAsPlainForInMemoryStream(): void
     {
         $output = new ConsoleOutput('php://memory');
         $this->assertSame(ConsoleOutput::PLAIN, $output->outputAs());
@@ -306,7 +306,7 @@ class ConsoleOutputTest extends CakeTestCase
      *
      * @return void
      */
-    public function testOutputAsPlainSelectiveTagRemoval()
+    public function testOutputAsPlainSelectiveTagRemoval(): void
     {
         $this->output->outputAs(ConsoleOutput::PLAIN);
         $this->output->expects($this->once())->method('_write')
@@ -320,7 +320,7 @@ class ConsoleOutputTest extends CakeTestCase
      *
      * @return void
      */
-    public function testInputDataAvailable()
+    public function testInputDataAvailable(): void
     {
         $file = TMP . 'console_input_test.txt';
         file_put_contents($file, "input\n");

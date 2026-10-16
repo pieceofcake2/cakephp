@@ -53,27 +53,27 @@ class DboTestSource extends DboSource
 {
     public $nestedSupport = false;
 
-    public function connect($config = [])
+    public function connect($config = []): void
     {
         $this->connected = true;
     }
 
-    public function mergeAssociation(&$data, &$merge, $association, $type, $selfJoin = false)
+    public function mergeAssociation(&$data, &$merge, $association, $type, $selfJoin = false): mixed
     {
         return parent::_mergeAssociation($data, $merge, $association, $type, $selfJoin);
     }
 
-    public function setConfig($config = [])
+    public function setConfig($config = []): void
     {
         $this->config = $config;
     }
 
-    public function setConnection($conn)
+    public function setConnection($conn): void
     {
         $this->_connection = $conn;
     }
 
-    public function nestedTransactionSupported()
+    public function nestedTransactionSupported(): mixed
     {
         return $this->useNestedTransactions && $this->nestedSupport;
     }
@@ -90,22 +90,22 @@ class DboSecondTestSource extends DboSource
 
     public $endQuote = '_';
 
-    public function connect($config = [])
+    public function connect($config = []): void
     {
         $this->connected = true;
     }
 
-    public function mergeAssociation(&$data, &$merge, $association, $type, $selfJoin = false)
+    public function mergeAssociation(&$data, &$merge, $association, $type, $selfJoin = false): mixed
     {
         return parent::_mergeAssociation($data, $merge, $association, $type, $selfJoin);
     }
 
-    public function setConfig($config = [])
+    public function setConfig($config = []): void
     {
         $this->config = $config;
     }
 
-    public function setConnection($conn)
+    public function setConnection($conn): void
     {
         $this->_connection = $conn;
     }
@@ -118,12 +118,12 @@ class DboSecondTestSource extends DboSource
  */
 class DboThirdTestSource extends DboSource
 {
-    public function connect($config = [])
+    public function connect($config = []): void
     {
         $this->connected = true;
     }
 
-    public function cacheMethodHasher($value)
+    public function cacheMethodHasher($value): mixed
     {
         return hash('sha1', $value);
     }
@@ -136,12 +136,12 @@ class DboThirdTestSource extends DboSource
  */
 class DboFourthTestSource extends DboSource
 {
-    public function connect($config = [])
+    public function connect($config = []): void
     {
         $this->connected = true;
     }
 
-    public function cacheMethodFilter($method, $key, $value)
+    public function cacheMethodFilter($method, $key, $value): mixed
     {
         if ($method === 'name') {
             if ($value === '`menus`') {
@@ -217,7 +217,7 @@ class DboSourceTest extends CakeTestCase
      *
      * @return void
      */
-    public function testBooleanNullConditionsParsing()
+    public function testBooleanNullConditionsParsing(): void
     {
         $result = $this->testDb->conditions(true);
         $this->assertEquals(' WHERE 1 = 1', $result, 'true conditions failed %s');
@@ -243,7 +243,7 @@ class DboSourceTest extends CakeTestCase
      *
      * @return void
      */
-    public function testBooleanEmptyConditionsParsing()
+    public function testBooleanEmptyConditionsParsing(): void
     {
         $result = $this->testDb->conditions(['OR' => []]);
         $this->assertEquals(' WHERE  1 = 1', $result, 'empty conditions failed');
@@ -257,7 +257,7 @@ class DboSourceTest extends CakeTestCase
      *
      * @return void
      */
-    public function testColumnHyphenOperator()
+    public function testColumnHyphenOperator(): void
     {
         //PostgreSQL style
         $result = $this->testDb->conditions(['Foo.bar->>\'fieldName\'' => 42]);
@@ -279,7 +279,7 @@ class DboSourceTest extends CakeTestCase
      *
      * @return void
      */
-    public function testOrderWithExpression()
+    public function testOrderWithExpression(): void
     {
         $expression = $this->testDb->expression("CASE Sample.id WHEN 1 THEN 'Id One' ELSE 'Other Id' END AS case_col");
         $result = $this->testDb->order($expression);
@@ -294,7 +294,7 @@ class DboSourceTest extends CakeTestCase
      * @param array $errors The collected deprecation messages.
      * @return string The ORDER BY clause.
      */
-    protected function _orderCollectingDeprecations(array $args, &$errors)
+    protected function _orderCollectingDeprecations(array $args, &$errors): mixed
     {
         $errors = [];
         set_error_handler(function ($errno, $errstr) use (&$errors) {
@@ -307,6 +307,8 @@ class DboSourceTest extends CakeTestCase
         } finally {
             restore_error_handler();
         }
+
+        return null;
     }
 
     /**
@@ -315,7 +317,7 @@ class DboSourceTest extends CakeTestCase
      *
      * @return array<array{array, string}>
      */
-    public static function validOrderDirectionProvider()
+    public static function validOrderDirectionProvider(): mixed
     {
         return [
             [[['Post.title' => 'ASC']], ' ORDER BY `Post`.`title` ASC'],
@@ -357,7 +359,7 @@ class DboSourceTest extends CakeTestCase
      *
      * @return array<array{array, string}>
      */
-    public static function invalidOrderDirectionProvider()
+    public static function invalidOrderDirectionProvider(): mixed
     {
         return [
             [[['Page.name' => '=\'test\' DESC']], ' ORDER BY `Page`.`name` =\'test\' DESC'],
@@ -400,7 +402,7 @@ class DboSourceTest extends CakeTestCase
      * @param string $expected The expected SQL.
      * @return void
      */
-    public function testOrderValidDirection(array $args, $expected)
+    public function testOrderValidDirection(array $args, $expected): void
     {
         $result = $this->_orderCollectingDeprecations($args, $errors);
         $this->assertSame($expected, $result);
@@ -415,7 +417,7 @@ class DboSourceTest extends CakeTestCase
      * @param string $expected The expected SQL.
      * @return void
      */
-    public function testOrderInvalidDirectionDeprecated(array $args, $expected)
+    public function testOrderInvalidDirectionDeprecated(array $args, $expected): void
     {
         $result = $this->_orderCollectingDeprecations($args, $errors);
         $this->assertSame($expected, $result);
@@ -430,7 +432,7 @@ class DboSourceTest extends CakeTestCase
      *
      * @return void
      */
-    public function testOrderInvalidDirectionMessage()
+    public function testOrderInvalidDirectionMessage(): void
     {
         $this->_orderCollectingDeprecations([['Post.title' => ' ASC; DROP TABLE posts ']], $errors);
         $this->assertStringStartsWith('Invalid ORDER BY direction "ASC; DROP TABLE posts".', $errors[0]);
@@ -450,7 +452,7 @@ class DboSourceTest extends CakeTestCase
      *
      * @return void
      */
-    public function testOrderDirectionUncheckedShapes()
+    public function testOrderDirectionUncheckedShapes(): void
     {
         $expression = $this->testDb->expression('FIELD(id, 1, 2) DESC NULLS LAST; anything');
         $this->assertSame(' ORDER BY FIELD(id, 1, 2) DESC NULLS LAST; anything', $this->_orderCollectingDeprecations([$expression], $errors));
@@ -480,7 +482,7 @@ class DboSourceTest extends CakeTestCase
      *
      * @return void
      */
-    public function testOrderPaginatorDirections()
+    public function testOrderPaginatorDirections(): void
     {
         foreach (['asc', 'desc'] as $direction) {
             $this->assertSame(
@@ -496,7 +498,7 @@ class DboSourceTest extends CakeTestCase
      *
      * @return void
      */
-    public function testMergeAssociations()
+    public function testMergeAssociations(): void
     {
         $data = ['Article2' => [
                 'id' => '1', 'user_id' => '1', 'title' => 'First Article',
@@ -770,7 +772,7 @@ class DboSourceTest extends CakeTestCase
      *
      * @return void
      */
-    public function testMagicMethodQuerying()
+    public function testMagicMethodQuerying(): void
     {
         $result = $this->db->query('findByFieldName', ['value'], $this->Model);
         $expected = ['first', [
@@ -898,7 +900,7 @@ class DboSourceTest extends CakeTestCase
     /**
      * @return void
      */
-    public function testDirectCallThrowsException()
+    public function testDirectCallThrowsException(): void
     {
         $this->expectException(PDOException::class);
         $this->db->query('directCall', [], $this->Model);
@@ -909,7 +911,7 @@ class DboSourceTest extends CakeTestCase
      *
      * @return void
      */
-    public function testValue()
+    public function testValue(): void
     {
         if ($this->db instanceof Sqlserver) {
             $this->markTestSkipped('Cannot run this test with SqlServer');
@@ -927,7 +929,7 @@ class DboSourceTest extends CakeTestCase
      *
      * @return void
      */
-    public function testReconnect()
+    public function testReconnect(): void
     {
         $this->testDb->reconnect(['prefix' => 'foo']);
         $this->assertTrue($this->testDb->connected);
@@ -939,7 +941,7 @@ class DboSourceTest extends CakeTestCase
      *
      * @return void
      */
-    public function testName()
+    public function testName(): void
     {
         $result = $this->testDb->name('name');
         $expected = '`name`';
@@ -1003,7 +1005,7 @@ class DboSourceTest extends CakeTestCase
      *
      * @return void
      */
-    public function testCacheMethod()
+    public function testCacheMethod(): void
     {
         $this->testDb->cacheMethods = true;
         $result = $this->testDb->cacheMethod('name', 'some-key', 'stuff');
@@ -1031,7 +1033,7 @@ class DboSourceTest extends CakeTestCase
      *
      * @return void
      */
-    public function testCacheMethodFilter()
+    public function testCacheMethodFilter(): void
     {
         $method = 'name';
         $key = '49d9207adfce6df1dd3ee8c30c434414';
@@ -1060,7 +1062,7 @@ class DboSourceTest extends CakeTestCase
      *
      * @return void
      */
-    public function testCacheMethodFilterOverridden()
+    public function testCacheMethodFilterOverridden(): void
     {
         $testDb = new DboFourthTestSource();
 
@@ -1105,7 +1107,7 @@ class DboSourceTest extends CakeTestCase
      *
      * @return void
      */
-    public function testCacheMethodHasher()
+    public function testCacheMethodHasher(): void
     {
         $name = 'Model.fieldlbqndkezcoapfgirmjsh';
         $actual = $this->testDb->cacheMethodHasher($name);
@@ -1119,7 +1121,7 @@ class DboSourceTest extends CakeTestCase
      *
      * @return void
      */
-    public function testCacheMethodHasherOverridden()
+    public function testCacheMethodHasherOverridden(): void
     {
         $testDb = new DboThirdTestSource();
 
@@ -1135,7 +1137,7 @@ class DboSourceTest extends CakeTestCase
      *
      * @return void
      */
-    public function testNameMethodCacheCollisions()
+    public function testNameMethodCacheCollisions(): void
     {
         $this->testDb->cacheMethods = true;
         $this->testDb->flushMethodCache();
@@ -1150,7 +1152,7 @@ class DboSourceTest extends CakeTestCase
      *
      * @return void
      */
-    public function testFlushMethodCache()
+    public function testFlushMethodCache(): void
     {
         $this->testDb->cacheMethods = true;
         $this->testDb->cacheMethod('name', 'some-key', 'stuff');
@@ -1168,7 +1170,7 @@ class DboSourceTest extends CakeTestCase
      * @outputBuffering enabled
      * @return void
      */
-    public function testLog()
+    public function testLog(): void
     {
         $this->testDb->logQuery('Query 1');
         $this->testDb->logQuery('Query 2');
@@ -1202,7 +1204,7 @@ class DboSourceTest extends CakeTestCase
      *
      * @return void
      */
-    public function testGetLog()
+    public function testGetLog(): void
     {
         $this->testDb->logQuery('Query 1');
         $this->testDb->logQuery('Query 2');
@@ -1220,7 +1222,7 @@ class DboSourceTest extends CakeTestCase
      *
      * @return void
      */
-    public function testGetLogParams()
+    public function testGetLogParams(): void
     {
         $this->testDb->logQuery('Query 1', [1, 2, 'abc']);
         $this->testDb->logQuery('Query 2', ['field1' => 1, 'field2' => 'abc']);
@@ -1238,7 +1240,7 @@ class DboSourceTest extends CakeTestCase
      *
      * @return void
      */
-    public function testFetchAllBooleanReturns()
+    public function testFetchAllBooleanReturns(): void
     {
         $name = $this->db->fullTableName('test_query');
         $query = "CREATE TABLE {$name} (name varchar(10));";
@@ -1255,7 +1257,7 @@ class DboSourceTest extends CakeTestCase
      *
      * @return void
      */
-    public function testNotNullOnEnum()
+    public function testNotNullOnEnum(): void
     {
         if (!$this->db instanceof Mysql) {
             $this->markTestSkipped('This test can only run on MySQL');
@@ -1290,7 +1292,7 @@ class DboSourceTest extends CakeTestCase
      *
      * @return void
      */
-    public function testIntValueAsStringOnEnum()
+    public function testIntValueAsStringOnEnum(): void
     {
         if (!$this->db instanceof Mysql) {
             $this->markTestSkipped('This test can only run on MySQL');
@@ -1325,7 +1327,7 @@ class DboSourceTest extends CakeTestCase
      *
      * @return void
      */
-    public function testVirtualFieldsInOrder()
+    public function testVirtualFieldsInOrder(): void
     {
         $Article = ClassRegistry::init('Article');
         $Article->virtualFields = [
@@ -1348,7 +1350,7 @@ class DboSourceTest extends CakeTestCase
      *
      * @return void
      */
-    public function testFullTablePermutations()
+    public function testFullTablePermutations(): void
     {
         $Article = ClassRegistry::init('Article');
         $result = $this->testDb->fullTableName($Article, false, false);
@@ -1389,7 +1391,7 @@ class DboSourceTest extends CakeTestCase
      *
      * @return void
      */
-    public function testReadOnlyCallingQueryAssociationWhenDefined()
+    public function testReadOnlyCallingQueryAssociationWhenDefined(): void
     {
         $this->loadFixtures('Article', 'User', 'ArticlesTag', 'Tag');
         ConnectionManager::create('test_no_queryAssociation', [
@@ -1407,7 +1409,7 @@ class DboSourceTest extends CakeTestCase
      *
      * @return void
      */
-    public function testQueryAssociationUnneededQueries()
+    public function testQueryAssociationUnneededQueries(): void
     {
         $this->loadFixtures('Article', 'User', 'Comment', 'Attachment', 'Tag', 'ArticlesTag');
         $Comment = ClassRegistry::init('Comment');
@@ -1464,7 +1466,7 @@ class DboSourceTest extends CakeTestCase
      *
      * @return void
      */
-    public function testGenerateAssociationQuery()
+    public function testGenerateAssociationQuery(): void
     {
         $this->loadFixtures('Article');
         $Article = ClassRegistry::init('Article');
@@ -1498,7 +1500,7 @@ class DboSourceTest extends CakeTestCase
      *
      * @return void
      */
-    public function testFieldsUsingMethodCache()
+    public function testFieldsUsingMethodCache(): void
     {
         $this->testDb->cacheMethods = false;
         DboTestSource::$methodCache = [];
@@ -1513,7 +1515,7 @@ class DboSourceTest extends CakeTestCase
      *
      * @return void
      */
-    public function testFieldsCacheKeyWithDatasourceChange()
+    public function testFieldsCacheKeyWithDatasourceChange(): void
     {
         ConnectionManager::create('firstschema', [
             'datasource' => 'DboTestSource',
@@ -1544,7 +1546,7 @@ class DboSourceTest extends CakeTestCase
      *
      * @return void
      */
-    public function testFieldsCacheKeyWithSchemanameChange()
+    public function testFieldsCacheKeyWithSchemanameChange(): void
     {
         if ($this->db instanceof Postgres || $this->db instanceof Sqlserver) {
             $this->markTestSkipped('Cannot run this test with SqlServer or Postgres');
@@ -1570,7 +1572,7 @@ class DboSourceTest extends CakeTestCase
      *
      * @return void
      */
-    public function testGroupNoModel()
+    public function testGroupNoModel(): void
     {
         $result = $this->db->group('created');
         $this->assertEquals(' GROUP BY created', $result);
@@ -1581,7 +1583,7 @@ class DboSourceTest extends CakeTestCase
      *
      * @return void
      */
-    public function testHaving()
+    public function testHaving(): void
     {
         $this->loadFixtures('User');
 
@@ -1598,7 +1600,7 @@ class DboSourceTest extends CakeTestCase
      *
      * @return void
      */
-    public function testGetLockingHint()
+    public function testGetLockingHint(): void
     {
         $this->assertEquals(' FOR UPDATE', $this->testDb->getLockingHint(true));
         $this->assertNull($this->testDb->getLockingHint(false));
@@ -1610,7 +1612,7 @@ class DboSourceTest extends CakeTestCase
      *
      * @return void
      */
-    public function testLastError()
+    public function testLastError(): void
     {
         $stmt = $this->getMock('PDOStatement');
         $stmt->expects($this->any())
@@ -1627,7 +1629,7 @@ class DboSourceTest extends CakeTestCase
      *
      * @return void
      */
-    public function testTransactionLogging()
+    public function testTransactionLogging(): void
     {
         $conn = $this->getMock('MockPDO');
         $db = new DboTestSource();
@@ -1663,7 +1665,7 @@ class DboSourceTest extends CakeTestCase
      *
      * @return void
      */
-    public function testTransactionNested()
+    public function testTransactionNested(): void
     {
         $conn = $this->getMock('MockPDO');
         $db = new DboTestSource();
@@ -1719,7 +1721,7 @@ class DboSourceTest extends CakeTestCase
      *
      * @return void
      */
-    public function testTransactionNestedWithoutSupport()
+    public function testTransactionNestedWithoutSupport(): void
     {
         $conn = $this->getMock('MockPDO');
         $db = new DboTestSource();
@@ -1739,7 +1741,7 @@ class DboSourceTest extends CakeTestCase
      *
      * @return void
      */
-    public function testTransactionNestedDisabled()
+    public function testTransactionNestedDisabled(): void
     {
         $conn = $this->getMock('MockPDO');
         $db = new DboTestSource();
@@ -1760,7 +1762,7 @@ class DboSourceTest extends CakeTestCase
      * @param DboTestSource $db
      * @return void
      */
-    protected function _runTransactions($db)
+    protected function _runTransactions($db): void
     {
         $db->begin();
         $db->begin();
@@ -1775,7 +1777,7 @@ class DboSourceTest extends CakeTestCase
      *
      * @return void
      */
-    public function testBuildStatementDefaults()
+    public function testBuildStatementDefaults(): void
     {
         $conn = $this->getMock('MockPDO', ['quote']);
         $conn->expects($this->any())
@@ -1804,7 +1806,7 @@ class DboSourceTest extends CakeTestCase
      *
      * @return void
      */
-    public function testBuildStatementWithHaving()
+    public function testBuildStatementWithHaving(): void
     {
         $conn = $this->getMock('MockPDO', ['quote']);
         $conn->expects($this->any())
@@ -1834,7 +1836,7 @@ class DboSourceTest extends CakeTestCase
      *
      * @return void
      */
-    public function testBuildStatementWithLockingHint()
+    public function testBuildStatementWithLockingHint(): void
     {
         $conn = $this->getMock('MockPDO', ['quote']);
         $conn->expects($this->any())
@@ -1863,7 +1865,7 @@ class DboSourceTest extends CakeTestCase
      *
      * @return array
      */
-    public static function joinStatements()
+    public static function joinStatements(): mixed
     {
         return [
             [[
@@ -1899,7 +1901,7 @@ class DboSourceTest extends CakeTestCase
      * @dataProvider joinStatements
      * @return void
      */
-    public function testBuildJoinStatement($join, $expected)
+    public function testBuildJoinStatement($join, $expected): void
     {
         $db = $this->getMock('DboTestSource', ['getSchemaName']);
         $db->expects($this->any())
@@ -1914,7 +1916,7 @@ class DboSourceTest extends CakeTestCase
      *
      * @return array
      */
-    public static function joinStatementsWithPrefix($schema)
+    public static function joinStatementsWithPrefix($schema): mixed
     {
         return [
             [[
@@ -1939,7 +1941,7 @@ class DboSourceTest extends CakeTestCase
      * @dataProvider joinStatementsWithPrefix
      * @return void
      */
-    public function testBuildJoinStatementWithTablePrefix($join, $expected)
+    public function testBuildJoinStatementWithTablePrefix($join, $expected): void
     {
         $db = new DboTestSource();
         $db->config['prefix'] = 'pre_';
@@ -1952,7 +1954,7 @@ class DboSourceTest extends CakeTestCase
      *
      * @return void
      */
-    public function testConditionKeysToString()
+    public function testConditionKeysToString(): void
     {
         $Article = ClassRegistry::init('Article');
         $conn = $this->getMock('MockPDO', ['quote']);
@@ -1979,7 +1981,7 @@ class DboSourceTest extends CakeTestCase
      *
      * @return void
      */
-    public function testConditionKeysToStringVirtualFieldExpression()
+    public function testConditionKeysToStringVirtualFieldExpression(): void
     {
         $Article = ClassRegistry::init('Article');
         $Article->virtualFields = [
@@ -2009,7 +2011,7 @@ class DboSourceTest extends CakeTestCase
      *
      * @return void
      */
-    public function testConditionKeysToStringVirtualField()
+    public function testConditionKeysToStringVirtualField(): void
     {
         $Article = ClassRegistry::init('Article');
         $Article->virtualFields = [
@@ -2039,7 +2041,7 @@ class DboSourceTest extends CakeTestCase
      *
      * @return void
      */
-    public function testLimit()
+    public function testLimit(): void
     {
         $db = new DboTestSource();
 
@@ -2065,7 +2067,7 @@ class DboSourceTest extends CakeTestCase
      *
      * @return void
      */
-    public function testInsertMultiId()
+    public function testInsertMultiId(): void
     {
         $this->loadFixtures('Article');
         $Article = ClassRegistry::init('Article');
@@ -2124,7 +2126,7 @@ class DboSourceTest extends CakeTestCase
      *
      * @return void
      */
-    public function testDefaultConditions()
+    public function testDefaultConditions(): void
     {
         $this->loadFixtures('Article');
         $Article = ClassRegistry::init('Article');
@@ -2166,7 +2168,7 @@ class DboSourceTest extends CakeTestCase
      *
      * @return void
      */
-    public function testCountAfterFindCalls()
+    public function testCountAfterFindCalls(): void
     {
         $this->loadFixtures('Article', 'User', 'Comment', 'Attachment', 'Tag', 'ArticlesTag');
 
@@ -2243,7 +2245,7 @@ class DboSourceTest extends CakeTestCase
      *
      * @return void
      */
-    public function testUseConsistentAfterFind()
+    public function testUseConsistentAfterFind(): void
     {
         $this->loadFixtures('Author', 'Post');
 
@@ -2312,7 +2314,7 @@ class DboSourceTest extends CakeTestCase
      *
      * @return void
      */
-    public function testJoinsAfterFind()
+    public function testJoinsAfterFind(): void
     {
         $this->loadFixtures('Article', 'User');
 
@@ -2372,7 +2374,7 @@ class DboSourceTest extends CakeTestCase
      *
      * @return void
      */
-    public function testHasOneAfterFind()
+    public function testHasOneAfterFind(): void
     {
         $this->loadFixtures('Article', 'User', 'Comment');
 
@@ -2428,7 +2430,7 @@ class DboSourceTest extends CakeTestCase
      *
      * @return void
      */
-    public function testFlushQueryCache()
+    public function testFlushQueryCache(): void
     {
         $this->db->flushQueryCache();
         $this->db->query('SELECT 1');
@@ -2449,7 +2451,7 @@ class DboSourceTest extends CakeTestCase
      *
      * @return void
      */
-    public function testLength()
+    public function testLength(): void
     {
         $result = $this->db->length('varchar(255)');
         $this->assertEquals(255, $result);
@@ -2475,7 +2477,7 @@ class DboSourceTest extends CakeTestCase
      *
      * @return void
      */
-    public function testLengthEnum()
+    public function testLengthEnum(): void
     {
         $result = $this->db->length('enum("one", "longer")');
         $this->assertNull($result);
@@ -2487,7 +2489,7 @@ class DboSourceTest extends CakeTestCase
     /**
      * Test find with locking hint
      */
-    public function testFindWithLockingHint()
+    public function testFindWithLockingHint(): void
     {
         $db = $this->getMock('DboTestSource', ['connect', '_execute', 'execute', 'describ']);
 
@@ -2515,7 +2517,7 @@ class DboSourceTest extends CakeTestCase
      *
      * @return void
      */
-    public function testUnknownStatementAndCalculation()
+    public function testUnknownStatementAndCalculation(): void
     {
         $this->assertNull($this->testDb->renderStatement('unknown', ['table' => 'articles']));
         $this->assertNull($this->testDb->renderStatement('alter', ['table' => 'articles']));

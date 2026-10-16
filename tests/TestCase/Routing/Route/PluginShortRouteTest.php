@@ -40,7 +40,7 @@ class PluginShortRouteTest extends CakeTestCase
      *
      * @return void
      */
-    public function testParsing()
+    public function testParsing(): void
     {
         $route = new PluginShortRoute('/:plugin', ['action' => 'index'], ['plugin' => 'foo|bar']);
 
@@ -58,7 +58,7 @@ class PluginShortRouteTest extends CakeTestCase
      *
      * @return void
      */
-    public function testMatch()
+    public function testMatch(): void
     {
         $route = new PluginShortRoute('/:plugin', ['action' => 'index'], ['plugin' => 'foo|bar']);
 

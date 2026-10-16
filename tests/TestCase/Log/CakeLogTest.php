@@ -42,7 +42,7 @@ class CakeLogTest extends CakeTestCase
      *
      * @return void
      */
-    public function testImportingLoggers()
+    public function testImportingLoggers(): void
     {
         App::build([
             'Lib' => [CORE_TESTS . DS . 'test_app' . DS . 'Lib' . DS],
@@ -73,7 +73,7 @@ class CakeLogTest extends CakeTestCase
      *
      * @return void
      */
-    public function testImportingLoggerFailure()
+    public function testImportingLoggerFailure(): void
     {
         $this->expectException(CakeLogException::class);
         CakeLog::config('fail', []);
@@ -84,7 +84,7 @@ class CakeLogTest extends CakeTestCase
      *
      * @return void
      */
-    public function testValidKeyName()
+    public function testValidKeyName(): void
     {
         CakeLog::config('valid', ['engine' => 'File']);
         $stream = CakeLog::stream('valid');
@@ -97,7 +97,7 @@ class CakeLogTest extends CakeTestCase
      *
      * @return void
      */
-    public function testValidKeyNameLogSuffix()
+    public function testValidKeyNameLogSuffix(): void
     {
         CakeLog::config('valid', ['engine' => 'FileLog']);
         $stream = CakeLog::stream('valid');
@@ -110,7 +110,7 @@ class CakeLogTest extends CakeTestCase
      *
      * @return void
      */
-    public function testInvalidKeyName()
+    public function testInvalidKeyName(): void
     {
         $this->expectException(CakeLogException::class);
         CakeLog::config('1nv', ['engine' => 'File']);
@@ -121,7 +121,7 @@ class CakeLogTest extends CakeTestCase
      *
      * @return void
      */
-    public function testNotImplementingInterface()
+    public function testNotImplementingInterface(): void
     {
         $this->expectException(CakeLogException::class);
         CakeLog::config('fail', ['engine' => 'stdClass']);
@@ -132,7 +132,7 @@ class CakeLogTest extends CakeTestCase
      *
      * @return void
      */
-    public function testNoStreamListenting()
+    public function testNoStreamListenting(): void
     {
         if (file_exists(LOGS . 'error.log')) {
             unlink(LOGS . 'error.log');
@@ -150,7 +150,7 @@ class CakeLogTest extends CakeTestCase
      *
      * @return void
      */
-    public function testConfig()
+    public function testConfig(): void
     {
         CakeLog::config('file', [
             'engine' => 'File',
@@ -175,7 +175,7 @@ class CakeLogTest extends CakeTestCase
      *
      * @return void
      */
-    public function testDrop()
+    public function testDrop(): void
     {
         CakeLog::config('file', [
             'engine' => 'File',
@@ -194,7 +194,7 @@ class CakeLogTest extends CakeTestCase
      *
      * @return void
      */
-    public function testLogFileWriting()
+    public function testLogFileWriting(): void
     {
         CakeLog::config('file', [
             'engine' => 'File',
@@ -221,7 +221,7 @@ class CakeLogTest extends CakeTestCase
      *
      * @return void
      */
-    public function testSelectiveLoggingByLevel()
+    public function testSelectiveLoggingByLevel(): void
     {
         if (file_exists(LOGS . 'spam.log')) {
             unlink(LOGS . 'spam.log');
@@ -267,7 +267,7 @@ class CakeLogTest extends CakeTestCase
      *
      * @return void
      */
-    public function testStreamEnable()
+    public function testStreamEnable(): void
     {
         $this->expectException(CakeLogException::class);
         CakeLog::config('spam', [
@@ -284,7 +284,7 @@ class CakeLogTest extends CakeTestCase
      *
      * @return void
      */
-    public function testStreamDisable()
+    public function testStreamDisable(): void
     {
         $this->expectException(CakeLogException::class);
         CakeLog::config('spam', [
@@ -303,7 +303,7 @@ class CakeLogTest extends CakeTestCase
      *
      * @return void
      */
-    public function testStreamEnabledInvalid()
+    public function testStreamEnabledInvalid(): void
     {
         $this->expectException(CakeLogException::class);
         CakeLog::enabled('bogus_stream');
@@ -314,7 +314,7 @@ class CakeLogTest extends CakeTestCase
      *
      * @return void
      */
-    public function testStreamDisableInvalid()
+    public function testStreamDisableInvalid(): void
     {
         $this->expectException(CakeLogException::class);
         CakeLog::disable('bogus_stream');
@@ -325,7 +325,7 @@ class CakeLogTest extends CakeTestCase
      *
      * @return void
      */
-    protected function _resetLogConfig()
+    protected function _resetLogConfig(): void
     {
         CakeLog::config('debug', [
             'engine' => 'File',
@@ -344,7 +344,7 @@ class CakeLogTest extends CakeTestCase
      *
      * @return void
      */
-    protected function _deleteLogs()
+    protected function _deleteLogs(): void
     {
         if (file_exists(LOGS . 'shops.log')) {
             unlink(LOGS . 'shops.log');
@@ -371,7 +371,7 @@ class CakeLogTest extends CakeTestCase
      *
      * @return void
      */
-    public function testScopedLoggingBC()
+    public function testScopedLoggingBC(): void
     {
         $this->_resetLogConfig();
 
@@ -426,7 +426,7 @@ class CakeLogTest extends CakeTestCase
      *
      * @return void
      */
-    public function testScopedLoggingExclusive()
+    public function testScopedLoggingExclusive(): void
     {
         $this->_deleteLogs();
 
@@ -459,7 +459,7 @@ class CakeLogTest extends CakeTestCase
      *
      * @return void
      */
-    public function testScopedLogging()
+    public function testScopedLogging(): void
     {
         $this->_resetLogConfig();
         $this->_deleteLogs();
@@ -527,7 +527,7 @@ class CakeLogTest extends CakeTestCase
      *
      * @return void
      */
-    public function testBogusTypeAndScope()
+    public function testBogusTypeAndScope(): void
     {
         $this->_resetLogConfig();
         $this->_deleteLogs();
@@ -561,7 +561,7 @@ class CakeLogTest extends CakeTestCase
      *
      * @return void
      */
-    public function testConvenienceScopedLogging()
+    public function testConvenienceScopedLogging(): void
     {
         if (file_exists(LOGS . 'shops.log')) {
             unlink(LOGS . 'shops.log');
@@ -610,7 +610,7 @@ class CakeLogTest extends CakeTestCase
      *
      * @return void
      */
-    public function testConvenienceMethods()
+    public function testConvenienceMethods(): void
     {
         $this->_deleteLogs();
 
@@ -687,7 +687,7 @@ class CakeLogTest extends CakeTestCase
      *
      * @return void
      */
-    public function testLevelCustomization()
+    public function testLevelCustomization(): void
     {
         $this->skipIf(DIRECTORY_SEPARATOR === '\\', 'Log level tests not supported on Windows.');
 
@@ -720,7 +720,7 @@ class CakeLogTest extends CakeTestCase
      *
      * @return void
      */
-    public function testCustomLevelWrites()
+    public function testCustomLevelWrites(): void
     {
         $this->_deleteLogs();
         $this->_resetLogConfig();

@@ -37,7 +37,7 @@ class DebugTransportTest extends CakeTestCase
      *
      * @return void
      */
-    public function testSend()
+    public function testSend(): void
     {
         $email = $this->getMock('CakeEmail', ['message'], [], 'DebugCakeEmail');
         $email->from('noreply@cakephp.org', 'CakePHP Test');

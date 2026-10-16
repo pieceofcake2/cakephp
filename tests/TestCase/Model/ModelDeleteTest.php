@@ -30,7 +30,7 @@ class ModelDeleteTest extends BaseModelTest
      *
      * @return void
      */
-    public function testDeleteHabtmReferenceWithConditions()
+    public function testDeleteHabtmReferenceWithConditions(): void
     {
         $this->loadFixtures('Portfolio', 'Item', 'ItemsPortfolio', 'Syfile', 'Image');
 
@@ -121,7 +121,7 @@ class ModelDeleteTest extends BaseModelTest
      *
      * @return void
      */
-    public function testDeleteArticleBLinks()
+    public function testDeleteArticleBLinks(): void
     {
         $this->loadFixtures('Article', 'ArticlesTag', 'Tag', 'User');
         $TestModel = new ArticleB();
@@ -150,7 +150,7 @@ class ModelDeleteTest extends BaseModelTest
      *
      * @return void
      */
-    public function testDeleteDependentWithConditions()
+    public function testDeleteDependentWithConditions(): void
     {
         $this->loadFixtures('Cd', 'Book', 'OverallFavorite');
 
@@ -190,7 +190,7 @@ class ModelDeleteTest extends BaseModelTest
      *
      * @return void
      */
-    public function testDelete()
+    public function testDelete(): void
     {
         $this->loadFixtures('Article', 'Comment', 'Attachment');
         $TestModel = new Article();
@@ -269,7 +269,7 @@ class ModelDeleteTest extends BaseModelTest
      *
      * @return void
      */
-    public function testDeleteUpdatingCounterCacheCorrectly()
+    public function testDeleteUpdatingCounterCacheCorrectly(): void
     {
         $this->loadFixtures('CounterCacheUser', 'CounterCachePost');
         $User = new CounterCacheUser();
@@ -287,7 +287,7 @@ class ModelDeleteTest extends BaseModelTest
      *
      * @return void
      */
-    public function testDeleteAll()
+    public function testDeleteAll(): void
     {
         $this->loadFixtures('Article');
         $TestModel = new Article();
@@ -432,7 +432,7 @@ class ModelDeleteTest extends BaseModelTest
      *
      * @return void
      */
-    public function testDeleteAllDiamondOperator()
+    public function testDeleteAllDiamondOperator(): void
     {
         $this->loadFixtures('Article');
         $article = new Article();
@@ -447,7 +447,7 @@ class ModelDeleteTest extends BaseModelTest
      *
      * @return void
      */
-    public function testDeleteAllUnknownColumn()
+    public function testDeleteAllUnknownColumn(): void
     {
         $this->expectException(PDOException::class);
         $this->loadFixtures('Article');
@@ -463,7 +463,7 @@ class ModelDeleteTest extends BaseModelTest
      *
      * @return void
      */
-    public function testDeleteAllFailedFind()
+    public function testDeleteAllFailedFind(): void
     {
         $this->loadFixtures('Article');
         $TestModel = $this->getMock('Article', ['find']);
@@ -483,7 +483,7 @@ class ModelDeleteTest extends BaseModelTest
      *
      * @return void
      */
-    public function testDeleteAllMultipleRowsPerId()
+    public function testDeleteAllMultipleRowsPerId(): void
     {
         $this->loadFixtures('Article', 'User');
 
@@ -520,7 +520,7 @@ class ModelDeleteTest extends BaseModelTest
      *
      * @return void
      */
-    public function testDeleteAllWithOrderProperty()
+    public function testDeleteAllWithOrderProperty(): void
     {
         $this->loadFixtures('Article', 'User');
 
@@ -546,7 +546,7 @@ class ModelDeleteTest extends BaseModelTest
      *
      * @return void
      */
-    public function testRecursiveDel()
+    public function testRecursiveDel(): void
     {
         $this->loadFixtures('Article', 'Comment', 'Attachment');
         $TestModel = new Article();
@@ -582,7 +582,7 @@ class ModelDeleteTest extends BaseModelTest
      *
      * @return void
      */
-    public function testDependentExclusiveDelete()
+    public function testDependentExclusiveDelete(): void
     {
         $this->loadFixtures('Article', 'Comment');
         $TestModel = new Article10();
@@ -601,7 +601,7 @@ class ModelDeleteTest extends BaseModelTest
      *
      * @return void
      */
-    public function testDeleteLinks()
+    public function testDeleteLinks(): void
     {
         $this->loadFixtures('Article', 'ArticlesTag', 'Tag');
         $TestModel = new Article();
@@ -649,7 +649,7 @@ class ModelDeleteTest extends BaseModelTest
      *
      * @return void
      */
-    public function testDeleteLinksWithPLuginJoinModel()
+    public function testDeleteLinksWithPLuginJoinModel(): void
     {
         $this->loadFixtures('Article', 'ArticlesTag', 'Tag');
         $Article = new Article();
@@ -668,7 +668,7 @@ class ModelDeleteTest extends BaseModelTest
      *
      * @return void
      */
-    public function testDeleteDependent()
+    public function testDeleteDependent(): void
     {
         $this->loadFixtures(
             'Bidding',
@@ -770,7 +770,7 @@ class ModelDeleteTest extends BaseModelTest
      *
      * @return void
      */
-    public function testDeleteLinksWithMultipleHabtmAssociations()
+    public function testDeleteLinksWithMultipleHabtmAssociations(): void
     {
         $this->loadFixtures('JoinA', 'JoinB', 'JoinC', 'JoinAB', 'JoinAC');
         $JoinA = new JoinA();
@@ -806,7 +806,7 @@ class ModelDeleteTest extends BaseModelTest
      *
      * @return void
      */
-    public function testHabtmDeleteLinksWhenNoPrimaryKeyInJoinTable()
+    public function testHabtmDeleteLinksWhenNoPrimaryKeyInJoinTable(): void
     {
         $this->loadFixtures('Apple', 'Device', 'ThePaperMonkies');
         $ThePaper = new ThePaper();
@@ -872,7 +872,7 @@ class ModelDeleteTest extends BaseModelTest
      *
      * @return void
      */
-    public function testBeforeDeleteDeleteAbortion()
+    public function testBeforeDeleteDeleteAbortion(): void
     {
         $this->loadFixtures('Post');
         $Model = new CallbackPostTestModel();
@@ -891,7 +891,7 @@ class ModelDeleteTest extends BaseModelTest
      *
      * @return void
      */
-    public function testDeleteHabtmPostgresFailure()
+    public function testDeleteHabtmPostgresFailure(): void
     {
         $this->loadFixtures('Article', 'Tag', 'ArticlesTag');
 
@@ -948,7 +948,7 @@ class ModelDeleteTest extends BaseModelTest
      *
      * @return void
      */
-    public function testBeforeDeleteWipingTable()
+    public function testBeforeDeleteWipingTable(): void
     {
         $this->loadFixtures('Comment');
 
@@ -977,7 +977,7 @@ class ModelDeleteTest extends BaseModelTest
      *
      * @return void
      */
-    public function testBeforeDeleteWipingTableWithDuplicateDelete()
+    public function testBeforeDeleteWipingTableWithDuplicateDelete(): void
     {
         $this->loadFixtures('Comment');
 

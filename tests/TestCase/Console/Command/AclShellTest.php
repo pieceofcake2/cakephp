@@ -59,7 +59,7 @@ class AclShellTest extends CakeTestCase
      *
      * @return void
      */
-    public function testViewWithModelForeignKeyOutput()
+    public function testViewWithModelForeignKeyOutput(): void
     {
         $this->Task->command = 'view';
         $this->Task->startup();
@@ -92,7 +92,7 @@ class AclShellTest extends CakeTestCase
      *
      * @return void
      */
-    public function testViewWithArgument()
+    public function testViewWithArgument(): void
     {
         $this->Task->args = ['aro', 'admins'];
 
@@ -116,7 +116,7 @@ class AclShellTest extends CakeTestCase
      *
      * @return void
      */
-    public function testParsingModelAndForeignKey()
+    public function testParsingModelAndForeignKey(): void
     {
         $result = $this->Task->parseIdentifier('Model.foreignKey');
         $expected = ['model' => 'Model', 'foreign_key' => 'foreignKey'];
@@ -134,7 +134,7 @@ class AclShellTest extends CakeTestCase
      *
      * @return void
      */
-    public function testCreate()
+    public function testCreate(): void
     {
         $outCalls = [];
         $this->Task->expects($this->any())
@@ -189,7 +189,7 @@ class AclShellTest extends CakeTestCase
      *
      * @return void
      */
-    public function testDelete()
+    public function testDelete(): void
     {
         $this->Task->args = ['aro', 'AuthUser.1'];
         $outCalls = [];
@@ -214,7 +214,7 @@ class AclShellTest extends CakeTestCase
      *
      * @return void
      */
-    public function testSetParent()
+    public function testSetParent(): void
     {
         $this->Task->args = ['aro', 'AuthUser.2', 'root'];
         $this->Task->setParent();
@@ -229,7 +229,7 @@ class AclShellTest extends CakeTestCase
      *
      * @return void
      */
-    public function testGrant()
+    public function testGrant(): void
     {
         $this->Task->args = ['AuthUser.2', 'ROOT/Controller1', 'create'];
         $outCalls = [];
@@ -255,7 +255,7 @@ class AclShellTest extends CakeTestCase
      *
      * @return void
      */
-    public function testDeny()
+    public function testDeny(): void
     {
         $this->Task->args = ['AuthUser.2', 'ROOT/Controller1', 'create'];
         $outCalls = [];
@@ -282,7 +282,7 @@ class AclShellTest extends CakeTestCase
      *
      * @return void
      */
-    public function testCheck()
+    public function testCheck(): void
     {
         $outCalls = [];
         $this->Task->expects($this->exactly(4))
@@ -318,7 +318,7 @@ class AclShellTest extends CakeTestCase
      *
      * @return void
      */
-    public function testInherit()
+    public function testInherit(): void
     {
         $outCalls = [];
         $this->Task->expects($this->exactly(2))
@@ -349,7 +349,7 @@ class AclShellTest extends CakeTestCase
      *
      * @return void
      */
-    public function testGetPath()
+    public function testGetPath(): void
     {
         $this->Task->args = ['aro', 'AuthUser.2'];
         $node = $this->Task->Acl->Aro->node(['model' => 'AuthUser', 'foreign_key' => 2]);
@@ -374,7 +374,7 @@ class AclShellTest extends CakeTestCase
      *
      * @return void
      */
-    public function testInitDb()
+    public function testInitDb(): void
     {
         $this->Task->expects($this->once())->method('dispatchShell')
             ->with('schema create DbAcl');

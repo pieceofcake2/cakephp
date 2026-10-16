@@ -29,7 +29,7 @@ class DboMock extends DboSource
      *
      * @return string
      */
-    public function name($field)
+    public function name($field): mixed
     {
         return $field;
     }
@@ -39,7 +39,7 @@ class DboMock extends DboSource
      *
      * @return bool true
      */
-    public function connect()
+    public function connect(): mixed
     {
         return true;
     }
@@ -58,7 +58,7 @@ class ModelIntegrationTest extends BaseModelTest
      * @group lazyloading
      * @return void
      */
-    public function testAssociationLazyLoading()
+    public function testAssociationLazyLoading(): void
     {
         $this->loadFixtures('ArticleFeaturedsTags');
         $Article = new ArticleFeatured();
@@ -95,7 +95,7 @@ class ModelIntegrationTest extends BaseModelTest
      * @group lazyloading
      * @return void
      */
-    public function testAssociationLazyLoadWithHABTM()
+    public function testAssociationLazyLoadWithHABTM(): void
     {
         $this->loadFixtures('FruitsUuidTag', 'ArticlesTag');
         $this->db->cacheSources = false;
@@ -124,7 +124,7 @@ class ModelIntegrationTest extends BaseModelTest
      * @group lazyloading
      * @return void
      */
-    public function testAssociationLazyLoadWithBindModel()
+    public function testAssociationLazyLoadWithBindModel(): void
     {
         $this->loadFixtures('Article', 'User');
         $Article = new ArticleB();
@@ -143,7 +143,7 @@ class ModelIntegrationTest extends BaseModelTest
      *
      * @return void
      */
-    public function testMissingTable()
+    public function testMissingTable(): void
     {
         $this->expectException(MissingTableException::class);
         $Article = new ArticleB(false, uniqid());
@@ -155,7 +155,7 @@ class ModelIntegrationTest extends BaseModelTest
      *
      * @return void
      */
-    public function testPkInHabtmLinkModelArticleB()
+    public function testPkInHabtmLinkModelArticleB(): void
     {
         $this->loadFixtures('Article', 'Tag', 'ArticlesTag');
         $TestModel = new ArticleB();
@@ -167,7 +167,7 @@ class ModelIntegrationTest extends BaseModelTest
      *
      * @return void
      */
-    public function testCacheSourcesRestored()
+    public function testCacheSourcesRestored(): void
     {
         $this->loadFixtures('JoinA', 'JoinB', 'JoinAB', 'JoinC', 'JoinAC');
         $this->db->cacheSources = true;
@@ -188,7 +188,7 @@ class ModelIntegrationTest extends BaseModelTest
      *
      * @return void
      */
-    public function testPkInHabtmLinkModel()
+    public function testPkInHabtmLinkModel(): void
     {
         //Test Nonconformant Models
         $this->loadFixtures('Content', 'ContentAccount', 'Account', 'JoinC', 'JoinAC', 'ItemsPortfolio');
@@ -215,7 +215,7 @@ class ModelIntegrationTest extends BaseModelTest
      *
      * @return void
      */
-    public function testDynamicBehaviorAttachment()
+    public function testDynamicBehaviorAttachment(): void
     {
         $this->loadFixtures('Apple', 'Sample', 'Author');
         $TestModel = new Apple();
@@ -251,7 +251,7 @@ class ModelIntegrationTest extends BaseModelTest
      *
      * @return void
      */
-    public function testTreeWithContainable()
+    public function testTreeWithContainable(): void
     {
         $this->loadFixtures('Ad', 'Campaign');
         $TestModel = new Ad();
@@ -278,7 +278,7 @@ class ModelIntegrationTest extends BaseModelTest
      *
      * @return void
      */
-    public function testFindWithJoinsOption()
+    public function testFindWithJoinsOption(): void
     {
         $this->loadFixtures('Article', 'User');
         $TestUser = new User();
@@ -319,7 +319,7 @@ class ModelIntegrationTest extends BaseModelTest
      *
      * @return void
      */
-    public function testCrossDatabaseJoins()
+    public function testCrossDatabaseJoins(): void
     {
         $config = ConnectionManager::enumConnectionObjects();
 
@@ -667,7 +667,7 @@ class ModelIntegrationTest extends BaseModelTest
      *
      * @return void
      */
-    public function testHABTMKeepExisting()
+    public function testHABTMKeepExisting(): void
     {
         $this->loadFixtures('Site', 'Domain', 'DomainsSite');
 
@@ -756,7 +756,7 @@ class ModelIntegrationTest extends BaseModelTest
      *
      * @return void
      */
-    public function testHABTMKeepExistingAlternateDataFormat()
+    public function testHABTMKeepExistingAlternateDataFormat(): void
     {
         $this->loadFixtures('Site', 'Domain', 'DomainsSite');
 
@@ -853,7 +853,7 @@ class ModelIntegrationTest extends BaseModelTest
      *
      * @return void
      */
-    public function testHABTMKeepExistingWithThreeDbs()
+    public function testHABTMKeepExistingWithThreeDbs(): void
     {
         $config = ConnectionManager::enumConnectionObjects();
         $this->skipIf($this->db instanceof Sqlite, 'This test is not compatible with Sqlite.');
@@ -915,7 +915,7 @@ class ModelIntegrationTest extends BaseModelTest
      *
      * @return void
      */
-    public function testDisplayField()
+    public function testDisplayField(): void
     {
         $this->loadFixtures('Post', 'Comment', 'Person', 'User');
         $Post = new Post();
@@ -932,7 +932,7 @@ class ModelIntegrationTest extends BaseModelTest
      *
      * @return void
      */
-    public function testSchema()
+    public function testSchema(): void
     {
         $Post = new Post();
 
@@ -955,7 +955,7 @@ class ModelIntegrationTest extends BaseModelTest
      *
      * @return void
      */
-    public function testSchemaUseTableFalse()
+    public function testSchemaUseTableFalse(): void
     {
         $model = new TheVoid();
         $result = $model->schema();
@@ -970,7 +970,7 @@ class ModelIntegrationTest extends BaseModelTest
      *
      * @return array
      */
-    public static function timeProvider()
+    public static function timeProvider(): mixed
     {
         $db = ConnectionManager::getDataSource('test');
         $now = $db->expression('NOW()');
@@ -1031,7 +1031,7 @@ class ModelIntegrationTest extends BaseModelTest
      * @dataProvider timeProvider
      * @return void
      */
-    public function testDeconstructFieldsTime($input, $result)
+    public function testDeconstructFieldsTime($input, $result): void
     {
         $this->skipIf($this->db instanceof Sqlserver, 'This test is not compatible with SQL Server.');
 
@@ -1055,7 +1055,7 @@ class ModelIntegrationTest extends BaseModelTest
      *
      * @return void
      */
-    public function testDeconstructFieldsDateTime()
+    public function testDeconstructFieldsDateTime(): void
     {
         $this->skipIf($this->db instanceof Sqlserver, 'This test is not compatible with SQL Server.');
 
@@ -1234,7 +1234,7 @@ class ModelIntegrationTest extends BaseModelTest
      *
      * @return void
      */
-    public function testTablePrefixSwitching()
+    public function testTablePrefixSwitching(): void
     {
         ConnectionManager::create(
             'database1',
@@ -1290,7 +1290,7 @@ class ModelIntegrationTest extends BaseModelTest
      *
      * @return void
      */
-    public function testInvalidAssociation()
+    public function testInvalidAssociation(): void
     {
         $TestModel = new ValidationTest1();
         $this->assertNull($TestModel->getAssociated('Foo'));
@@ -1301,7 +1301,7 @@ class ModelIntegrationTest extends BaseModelTest
      *
      * @return void
      */
-    public function testLoadModelSecondIteration()
+    public function testLoadModelSecondIteration(): void
     {
         $this->loadFixtures('Apple', 'Message', 'Thread', 'Bid');
         $model = new ModelA();
@@ -1319,7 +1319,7 @@ class ModelIntegrationTest extends BaseModelTest
      *
      * @return void
      */
-    public function testResetOfExistsOnCreate()
+    public function testResetOfExistsOnCreate(): void
     {
         $this->loadFixtures('Article');
         $Article = new Article();
@@ -1342,7 +1342,7 @@ class ModelIntegrationTest extends BaseModelTest
      *
      * @return void
      */
-    public function testUseTableFalseExistsCheck()
+    public function testUseTableFalseExistsCheck(): void
     {
         $this->loadFixtures('Article');
         $Article = new Article();
@@ -1367,7 +1367,7 @@ class ModelIntegrationTest extends BaseModelTest
      *
      * @return void
      */
-    public function testPluginAssociations()
+    public function testPluginAssociations(): void
     {
         $this->loadFixtures('TestPluginArticle', 'User', 'TestPluginComment');
         $TestModel = new TestPluginArticle();
@@ -1492,7 +1492,7 @@ class ModelIntegrationTest extends BaseModelTest
      *
      * @return void
      */
-    public function testGetAssociated()
+    public function testGetAssociated(): void
     {
         $this->loadFixtures('Article', 'Tag');
         $Article = ClassRegistry::init('Article');
@@ -1536,7 +1536,7 @@ class ModelIntegrationTest extends BaseModelTest
      *
      * @return void
      */
-    public function testAutoConstructAssociations()
+    public function testAutoConstructAssociations(): void
     {
         $this->loadFixtures('User', 'ArticleFeatured', 'Featured', 'ArticleFeaturedsTags');
         $TestModel = new AssociationTest1();
@@ -1642,7 +1642,7 @@ class ModelIntegrationTest extends BaseModelTest
      *
      * @return void
      */
-    public function testAutoConstructPluginAssociations()
+    public function testAutoConstructPluginAssociations(): void
     {
         $Comment = ClassRegistry::init('TestPluginComment');
 
@@ -1661,7 +1661,7 @@ class ModelIntegrationTest extends BaseModelTest
      *
      * @return void
      */
-    public function testConstruct()
+    public function testConstruct(): void
     {
         $this->loadFixtures('Post');
 
@@ -1683,7 +1683,7 @@ class ModelIntegrationTest extends BaseModelTest
      *
      * @return void
      */
-    public function testConstructWithAlternateDataSource()
+    public function testConstructWithAlternateDataSource(): void
     {
         $TestModel = ClassRegistry::init([
             'class' => 'DoesntMatter', 'ds' => 'test', 'table' => false,
@@ -1700,7 +1700,7 @@ class ModelIntegrationTest extends BaseModelTest
      *
      * @return void
      */
-    public function testColumnTypeFetching()
+    public function testColumnTypeFetching(): void
     {
         $model = new Test();
         $this->assertEquals('integer', $model->getColumnType('id'));
@@ -1719,7 +1719,7 @@ class ModelIntegrationTest extends BaseModelTest
      *
      * @return void
      */
-    public function testHabtmUniqueKey()
+    public function testHabtmUniqueKey(): void
     {
         $model = new Item();
         $this->assertFalse($model->hasAndBelongsToMany['Portfolio']['unique']);
@@ -1730,7 +1730,7 @@ class ModelIntegrationTest extends BaseModelTest
      *
      * @return void
      */
-    public function testIdentity()
+    public function testIdentity(): void
     {
         $TestModel = new Test();
         $result = $TestModel->alias;
@@ -1761,7 +1761,7 @@ class ModelIntegrationTest extends BaseModelTest
      *
      * @return void
      */
-    public function testWithAssociation()
+    public function testWithAssociation(): void
     {
         $this->loadFixtures('Something', 'SomethingElse', 'JoinThing');
         $TestModel = new Something();
@@ -2041,7 +2041,7 @@ class ModelIntegrationTest extends BaseModelTest
      *
      * @return void
      */
-    public function testFindSelfAssociations()
+    public function testFindSelfAssociations(): void
     {
         $this->loadFixtures('Person');
 
@@ -2151,7 +2151,7 @@ class ModelIntegrationTest extends BaseModelTest
      *
      * @return void
      */
-    public function testDynamicAssociations()
+    public function testDynamicAssociations(): void
     {
         $this->loadFixtures('Article', 'Comment');
         $TestModel = new Article();
@@ -2259,7 +2259,7 @@ class ModelIntegrationTest extends BaseModelTest
      *
      * @return void
      */
-    public function testCreation()
+    public function testCreation(): void
     {
         $this->loadFixtures('Article', 'ArticleFeaturedsTags', 'User', 'Featured');
         $TestModel = new Test();
@@ -2380,7 +2380,7 @@ class ModelIntegrationTest extends BaseModelTest
      *
      * @return void
      */
-    public function testEscapeField()
+    public function testEscapeField(): void
     {
         $TestModel = new Test();
         $db = $TestModel->getDataSource();
@@ -2412,7 +2412,7 @@ class ModelIntegrationTest extends BaseModelTest
      *
      * @return void
      */
-    public function testGetID()
+    public function testGetID(): void
     {
         $TestModel = new Test();
 
@@ -2437,7 +2437,7 @@ class ModelIntegrationTest extends BaseModelTest
      *
      * @return void
      */
-    public function testHasMethod()
+    public function testHasMethod(): void
     {
         $Article = new Article();
         $Article->Behaviors = $this->getMock('BehaviorCollection');
@@ -2457,7 +2457,7 @@ class ModelIntegrationTest extends BaseModelTest
      *
      * @return void
      */
-    public function testMultischemaFixture()
+    public function testMultischemaFixture(): void
     {
         $config = ConnectionManager::enumConnectionObjects();
         $this->skipIf($this->db instanceof Sqlite, 'This test is not compatible with Sqlite.');
@@ -2488,7 +2488,7 @@ class ModelIntegrationTest extends BaseModelTest
      *
      * @return void
      */
-    public function testMultischemaFixtureWithThreeDatabases()
+    public function testMultischemaFixtureWithThreeDatabases(): void
     {
         $config = ConnectionManager::enumConnectionObjects();
         $this->skipIf($this->db instanceof Sqlite, 'This test is not compatible with Sqlite.');
@@ -2536,7 +2536,7 @@ class ModelIntegrationTest extends BaseModelTest
      *
      * @return void
      */
-    public function testSchemaNoDB()
+    public function testSchemaNoDB(): void
     {
         $model = $this->getMock('Article', ['getDataSource']);
         $model->useTable = false;
@@ -2550,7 +2550,7 @@ class ModelIntegrationTest extends BaseModelTest
      *
      * @return void
      */
-    public function testGetColumnTypeNoDB()
+    public function testGetColumnTypeNoDB(): void
     {
         $model = $this->getMock('Example', ['getDataSource']);
         $model->expects($this->never())->method('getDataSource');

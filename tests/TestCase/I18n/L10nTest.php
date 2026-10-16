@@ -53,7 +53,7 @@ class L10nTest extends CakeTestCase
      *
      * @return void
      */
-    public function testGet()
+    public function testGet(): void
     {
         $localize = new L10n();
 
@@ -98,7 +98,7 @@ class L10nTest extends CakeTestCase
      *
      * @return void
      */
-    public function testGetAutoLanguage()
+    public function testGetAutoLanguage(): void
     {
         $serverBackup = $_SERVER;
         $_SERVER['HTTP_ACCEPT_LANGUAGE'] = 'inexistent,en-ca';
@@ -140,7 +140,7 @@ class L10nTest extends CakeTestCase
      *
      * @return void
      */
-    public function testGetWithDeprecatedConstant()
+    public function testGetWithDeprecatedConstant(): void
     {
         $this->skipIf(defined('DEFAULT_LANGUAGE'), 'Cannot re-define already defined constant.');
 
@@ -169,7 +169,7 @@ class L10nTest extends CakeTestCase
      *
      * @return void
      */
-    public function testMap()
+    public function testMap(): void
     {
         $localize = new L10n();
 
@@ -507,7 +507,7 @@ class L10nTest extends CakeTestCase
      *
      * @return void
      */
-    public function testCatalog()
+    public function testCatalog(): void
     {
         $localize = new L10n();
 

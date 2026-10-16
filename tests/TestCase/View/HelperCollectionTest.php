@@ -60,7 +60,7 @@ class HelperCollectionTest extends CakeTestCase
      *
      * @return void
      */
-    public function testLoad()
+    public function testLoad(): void
     {
         $result = $this->Helpers->load('Html');
         $this->assertInstanceOf('HtmlHelper', $result);
@@ -77,7 +77,7 @@ class HelperCollectionTest extends CakeTestCase
      *
      * @return void
      */
-    public function testLazyLoad()
+    public function testLazyLoad(): void
     {
         $result = $this->Helpers->Html;
         $this->assertInstanceOf('HtmlHelper', $result);
@@ -97,7 +97,7 @@ class HelperCollectionTest extends CakeTestCase
      *
      * @return void
      */
-    public function testLazyLoadException()
+    public function testLazyLoadException(): void
     {
         $this->expectException(MissingHelperException::class);
         $this->Helpers->NotAHelper;
@@ -108,7 +108,7 @@ class HelperCollectionTest extends CakeTestCase
      *
      * @return void
      */
-    public function testLoadWithAlias()
+    public function testLoadWithAlias(): void
     {
         $result = $this->Helpers->load('Html', ['className' => 'HtmlAlias']);
         $this->assertInstanceOf('HtmlAliasHelper', $result);
@@ -138,7 +138,7 @@ class HelperCollectionTest extends CakeTestCase
      *
      * @return void
      */
-    public function testLoadWithEnabledFalse()
+    public function testLoadWithEnabledFalse(): void
     {
         $result = $this->Helpers->load('Html', ['enabled' => false]);
         $this->assertInstanceOf('HtmlHelper', $result);
@@ -152,7 +152,7 @@ class HelperCollectionTest extends CakeTestCase
      *
      * @return void
      */
-    public function testLoadMissingHelper()
+    public function testLoadMissingHelper(): void
     {
         $this->expectException(MissingHelperException::class);
         $this->Helpers->load('ThisHelperShouldAlwaysBeMissing');
@@ -163,7 +163,7 @@ class HelperCollectionTest extends CakeTestCase
      *
      * @return void
      */
-    public function testLoadPluginHelper()
+    public function testLoadPluginHelper(): void
     {
         App::build([
             'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS],
@@ -181,7 +181,7 @@ class HelperCollectionTest extends CakeTestCase
      *
      * @return void
      */
-    public function testUnload()
+    public function testUnload(): void
     {
         $this->Helpers->load('Form');
         $this->Helpers->load('Html');

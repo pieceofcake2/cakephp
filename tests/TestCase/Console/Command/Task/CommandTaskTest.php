@@ -67,7 +67,7 @@ class CommandTaskTest extends CakeTestCase
      *
      * @return void
      */
-    public function testGetShellList()
+    public function testGetShellList(): void
     {
         $result = $this->CommandTask->getShellList();
 
@@ -104,7 +104,7 @@ class CommandTaskTest extends CakeTestCase
      *
      * @return void
      */
-    public function testCommands()
+    public function testCommands(): void
     {
         $result = $this->CommandTask->commands();
 
@@ -133,7 +133,7 @@ class CommandTaskTest extends CakeTestCase
      *
      * @return void
      */
-    public function testSubCommands()
+    public function testSubCommands(): void
     {
         $result = $this->CommandTask->subCommands('acl');
 
@@ -159,7 +159,7 @@ class CommandTaskTest extends CakeTestCase
      *
      * @return void
      */
-    public function testSubCommandsUnknownCommand()
+    public function testSubCommandsUnknownCommand(): void
     {
         $result = $this->CommandTask->subCommands('yoghurt');
 
@@ -172,7 +172,7 @@ class CommandTaskTest extends CakeTestCase
      *
      * @return void
      */
-    public function testGetShell()
+    public function testGetShell(): void
     {
         $result = $this->CommandTask->getShell('acl');
         $this->assertInstanceOf('AclShell', $result);
@@ -183,7 +183,7 @@ class CommandTaskTest extends CakeTestCase
      *
      * @return void
      */
-    public function testGetShellNonExisting()
+    public function testGetShellNonExisting(): void
     {
         $result = $this->CommandTask->getShell('strawberry');
         $this->assertFalse($result);
@@ -194,7 +194,7 @@ class CommandTaskTest extends CakeTestCase
      *
      * @return void
      */
-    public function testGetShellCore()
+    public function testGetShellCore(): void
     {
         $result = $this->CommandTask->getShell('core.acl');
         $this->assertInstanceOf('AclShell', $result);
@@ -205,7 +205,7 @@ class CommandTaskTest extends CakeTestCase
      *
      * @return void
      */
-    public function testOptions()
+    public function testOptions(): void
     {
         $result = $this->CommandTask->options('bake');
 
@@ -225,7 +225,7 @@ class CommandTaskTest extends CakeTestCase
      *
      * @return void
      */
-    public function testOptionsUnknownCommand()
+    public function testOptionsUnknownCommand(): void
     {
         $result = $this->CommandTask->options('pie');
 

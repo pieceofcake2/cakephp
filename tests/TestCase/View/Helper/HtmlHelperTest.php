@@ -55,7 +55,7 @@ class TestHtmlHelper extends HtmlHelper
      * @param string $insertAfter
      * @return void
      */
-    public function parseAttributes($options, $exclude = null, $insertBefore = ' ', $insertAfter = null)
+    public function parseAttributes($options, $exclude = null, $insertBefore = ' ', $insertAfter = null): mixed
     {
         return $this->_parseAttributes($options, $exclude, $insertBefore, $insertAfter);
     }
@@ -66,7 +66,7 @@ class TestHtmlHelper extends HtmlHelper
      * @param string $attribute
      * @return mixed
      */
-    public function getAttribute($attribute)
+    public function getAttribute($attribute): mixed
     {
         if (!isset($this->{$attribute})) {
             return null;
@@ -170,7 +170,7 @@ class HtmlHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testDocType()
+    public function testDocType(): void
     {
         $result = $this->Html->docType();
         $expected = '<!DOCTYPE html>';
@@ -188,7 +188,7 @@ class HtmlHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testLink()
+    public function testLink(): void
     {
         Router::connect('/:controller/:action/*');
 
@@ -398,7 +398,7 @@ class HtmlHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testImageTag()
+    public function testImageTag(): void
     {
         $this->Html->request->webroot = '';
 
@@ -423,7 +423,7 @@ class HtmlHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testImageQueryString()
+    public function testImageQueryString(): void
     {
         $result = $this->Html->image('test.gif?one=two&three=four');
         $this->assertTags($result, ['img' => ['src' => 'img/test.gif?one=two&amp;three=four', 'alt' => '']]);
@@ -442,7 +442,7 @@ class HtmlHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testImagePathPrefix()
+    public function testImagePathPrefix(): void
     {
         $result = $this->Html->image('test.gif', ['pathPrefix' => '/my/custom/path/']);
         $this->assertTags($result, ['img' => ['src' => '/my/custom/path/test.gif', 'alt' => '']]);
@@ -465,7 +465,7 @@ class HtmlHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testImageWithFullBase()
+    public function testImageWithFullBase(): void
     {
         $result = $this->Html->image('test.gif', ['fullBase' => true]);
         $here = $this->Html->url('/', true);
@@ -490,7 +490,7 @@ class HtmlHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testImageWithTimestampping()
+    public function testImageWithTimestampping(): void
     {
         Configure::write('Asset.timestamp', 'force');
 
@@ -517,7 +517,7 @@ class HtmlHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testImageTagWithTheme()
+    public function testImageTagWithTheme(): void
     {
         $this->skipIf(!is_writable(WWW_ROOT), 'Cannot write to webroot.');
         $themeExists = is_dir(WWW_ROOT . 'theme');
@@ -561,7 +561,7 @@ class HtmlHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testBase64ImageTag()
+    public function testBase64ImageTag(): void
     {
         $this->Html->request->webroot = '';
 
@@ -585,7 +585,7 @@ class HtmlHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testBase64InvalidArgumentException()
+    public function testBase64InvalidArgumentException(): void
     {
         $this->expectException(InvalidArgumentException::class);
         $this->Html->request->webroot = '';
@@ -597,7 +597,7 @@ class HtmlHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testThemeAssetsInMainWebrootPath()
+    public function testThemeAssetsInMainWebrootPath(): void
     {
         App::build([
             'View' => [CORE_TESTS . DS . 'test_app' . DS . 'View' . DS],
@@ -627,7 +627,7 @@ class HtmlHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testStyle()
+    public function testStyle(): void
     {
         $result = $this->Html->style('display: none;');
         $this->assertEquals('display: none;', $result);
@@ -647,7 +647,7 @@ class HtmlHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testCssLink()
+    public function testCssLink(): void
     {
         Configure::write('Asset.filter.css', false);
 
@@ -748,7 +748,7 @@ class HtmlHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testCssLinkOnce()
+    public function testCssLinkOnce(): void
     {
         Configure::write('Asset.filter.css', false);
 
@@ -774,7 +774,7 @@ class HtmlHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testCssLinkBC()
+    public function testCssLinkBC(): void
     {
         Configure::write('Asset.filter.css', false);
 
@@ -810,7 +810,7 @@ class HtmlHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testCssWithFullBase()
+    public function testCssWithFullBase(): void
     {
         Configure::write('Asset.filter.css', false);
         $here = $this->Html->url('/', true);
@@ -827,7 +827,7 @@ class HtmlHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testPluginCssLink()
+    public function testPluginCssLink(): void
     {
         Configure::write('Asset.filter.css', false);
         CakePlugin::load('TestPlugin');
@@ -871,7 +871,7 @@ class HtmlHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testCssTimestamping()
+    public function testCssTimestamping(): void
     {
         Configure::write('debug', 2);
         Configure::write('Asset.timestamp', true);
@@ -912,7 +912,7 @@ class HtmlHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testPluginCssTimestamping()
+    public function testPluginCssTimestamping(): void
     {
         CakePlugin::load('TestPlugin');
 
@@ -957,7 +957,7 @@ class HtmlHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testBufferedCssAndScriptWithIdenticalResourceName()
+    public function testBufferedCssAndScriptWithIdenticalResourceName(): void
     {
         $appendCalls = [];
         $this->View->expects($this->exactly(2))
@@ -981,7 +981,7 @@ class HtmlHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testScriptTimestamping()
+    public function testScriptTimestamping(): void
     {
         $this->skipIf(!is_writable(WWW_ROOT . 'js'), 'webroot/js is not Writable, timestamp testing has been skipped.');
 
@@ -1007,7 +1007,7 @@ class HtmlHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testPluginScriptTimestamping()
+    public function testPluginScriptTimestamping(): void
     {
         CakePlugin::load('TestPlugin');
 
@@ -1040,7 +1040,7 @@ class HtmlHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testScript()
+    public function testScript(): void
     {
         $result = $this->Html->script('foo');
         $expected = [
@@ -1136,7 +1136,7 @@ class HtmlHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testPluginScript()
+    public function testPluginScript(): void
     {
         CakePlugin::load('TestPlugin');
 
@@ -1202,7 +1202,7 @@ class HtmlHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testScriptWithBlocks()
+    public function testScriptWithBlocks(): void
     {
         $appendCalls = [];
         $this->View->expects($this->exactly(3))
@@ -1235,7 +1235,7 @@ class HtmlHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testScriptAssetFilter()
+    public function testScriptAssetFilter(): void
     {
         Configure::write('Asset.filter.js', 'js.php');
 
@@ -1257,7 +1257,7 @@ class HtmlHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testScriptWithFullBase()
+    public function testScriptWithFullBase(): void
     {
         $here = $this->Html->url('/', true);
 
@@ -1282,7 +1282,7 @@ class HtmlHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testScriptInTheme()
+    public function testScriptInTheme(): void
     {
         $this->skipIf(!is_writable(WWW_ROOT), 'Cannot write to webroot.');
         $themeExists = is_dir(WWW_ROOT . 'theme');
@@ -1315,7 +1315,7 @@ class HtmlHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testScriptBlock()
+    public function testScriptBlock(): void
     {
         $result = $this->Html->scriptBlock('window.foo = 2;');
         $expected = [
@@ -1388,7 +1388,7 @@ class HtmlHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testScriptStartAndScriptEnd()
+    public function testScriptStartAndScriptEnd(): void
     {
         $result = $this->Html->scriptStart(['safe' => true]);
         $this->assertNull($result);
@@ -1445,7 +1445,7 @@ class HtmlHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testCharsetTag()
+    public function testCharsetTag(): void
     {
         Configure::write('App.encoding', null);
         $result = $this->Html->charset();
@@ -1464,7 +1464,7 @@ class HtmlHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testBreadcrumb()
+    public function testBreadcrumb(): void
     {
         $this->assertNull($this->Html->getCrumbs());
 
@@ -1574,7 +1574,7 @@ class HtmlHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testGetCrumbFirstLink()
+    public function testGetCrumbFirstLink(): void
     {
         $result = $this->Html->getCrumbList(null, 'Home');
         $this->assertTags(
@@ -1613,7 +1613,7 @@ class HtmlHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testNestedList()
+    public function testNestedList(): void
     {
         $list = [
             'Item 1',
@@ -1827,7 +1827,7 @@ class HtmlHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testMeta()
+    public function testMeta(): void
     {
         $result = $this->Html->meta('this is an rss feed', ['controller' => 'posts', 'ext' => 'rss']);
         $this->assertTags($result, ['link' => ['href' => 'preg:/.*\/posts\.rss/', 'type' => 'application/rss+xml', 'rel' => 'alternate', 'title' => 'this is an rss feed']]);
@@ -1872,7 +1872,7 @@ class HtmlHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testMetaIcon()
+    public function testMetaIcon(): void
     {
         $result = $this->Html->meta('icon', 'favicon.ico');
         $expected = [
@@ -1920,7 +1920,7 @@ class HtmlHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testMetaWithBlocks()
+    public function testMetaWithBlocks(): void
     {
         $appendCalls = [];
         $this->View->expects($this->exactly(2))
@@ -1947,7 +1947,7 @@ class HtmlHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testTableHeaders()
+    public function testTableHeaders(): void
     {
         $result = $this->Html->tableHeaders(['ID', 'Name', 'Date']);
         $expected = ['<tr', '<th', 'ID', '/th', '<th', 'Name', '/th', '<th', 'Date', '/th', '/tr'];
@@ -1971,7 +1971,7 @@ class HtmlHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testTableCells()
+    public function testTableCells(): void
     {
         $tr = [
             'td content 1',
@@ -2060,7 +2060,7 @@ class HtmlHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testTag()
+    public function testTag(): void
     {
         $result = $this->Html->tag('div');
         $this->assertTags($result, '<div');
@@ -2086,7 +2086,7 @@ class HtmlHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testUseTag()
+    public function testUseTag(): void
     {
         $result = $this->Html->useTag('unknowntag');
         $this->assertEquals('', $result);
@@ -2106,7 +2106,7 @@ class HtmlHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testDiv()
+    public function testDiv(): void
     {
         $result = $this->Html->div('class-name');
         $this->assertTags($result, ['div' => ['class' => 'class-name']]);
@@ -2123,7 +2123,7 @@ class HtmlHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testPara()
+    public function testPara(): void
     {
         $result = $this->Html->para('class-name', '');
         $this->assertTags($result, ['p' => ['class' => 'class-name']]);
@@ -2140,7 +2140,7 @@ class HtmlHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testMedia()
+    public function testMedia(): void
     {
         $result = $this->Html->media('video.webm');
         $expected = ['video' => ['src' => 'files/video.webm'], '/video'];
@@ -2208,7 +2208,7 @@ class HtmlHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testCrumbList()
+    public function testCrumbList(): void
     {
         $this->assertNull($this->Html->getCrumbList());
 
@@ -2241,7 +2241,7 @@ class HtmlHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testCrumbListFirstLink()
+    public function testCrumbListFirstLink(): void
     {
         $this->Html->addCrumb('First', '#first');
         $this->Html->addCrumb('Second', '#second');
@@ -2288,7 +2288,7 @@ class HtmlHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testCrumbListBootstrapStyle()
+    public function testCrumbListBootstrapStyle(): void
     {
         $this->Html->addCrumb('Home', '/', ['class' => 'home']);
         $this->Html->addCrumb('Library', '/lib');
@@ -2322,7 +2322,7 @@ class HtmlHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testCrumbListZurbStyle()
+    public function testCrumbListZurbStyle(): void
     {
         $this->Html->addCrumb('Home', '#');
         $this->Html->addCrumb('Features', '#');
@@ -2359,7 +2359,7 @@ class HtmlHelperTest extends CakeTestCase
      * @return void
      */
 
-    public function testLoadConfig()
+    public function testLoadConfig(): void
     {
         $path = CORE_TESTS . DS . 'test_app' . DS . 'Config' . DS;
 
@@ -2390,7 +2390,7 @@ class HtmlHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testLoadConfigWrongFile()
+    public function testLoadConfigWrongFile(): void
     {
         $this->expectException(ConfigureException::class);
         $this->Html->loadConfig('wrong_file');
@@ -2401,7 +2401,7 @@ class HtmlHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testLoadConfigWrongReader()
+    public function testLoadConfigWrongReader(): void
     {
         $this->expectException(ConfigureException::class);
         $path = CORE_TESTS . DS . 'test_app' . DS . 'Config' . DS;
@@ -2413,7 +2413,7 @@ class HtmlHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testParseAttributeCompact()
+    public function testParseAttributeCompact(): void
     {
         $helper = new TestHtmlHelper($this->View);
         $compact = ['compact', 'checked', 'declare', 'readonly', 'disabled',

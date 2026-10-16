@@ -32,7 +32,7 @@ class AllTestSuiteTest extends TestSuite
      *
      * @return void
      */
-    public static function suite()
+    public static function suite(): mixed
     {
         $suite = new CakeTestSuite('All Test Suite classes tests');
 

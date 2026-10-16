@@ -44,7 +44,7 @@ class AppModel extends Model
      *
      * @return array
      */
-    protected function _findPublished($state, $query, $results = [])
+    protected function _findPublished($state, $query, $results = []): mixed
     {
         if ($state === 'before') {
             $query['conditions']['published'] = 'Y';
@@ -170,7 +170,7 @@ class TestValidate extends CakeTestModel
      * @param mixed $options
      * @return void
      */
-    public function validateNumber($value, $options)
+    public function validateNumber($value, $options): mixed
     {
         $options += ['min' => 0, 'max' => 100];
         $valid = ($value['number'] >= $options['min'] && $value['number'] <= $options['max']);
@@ -184,7 +184,7 @@ class TestValidate extends CakeTestModel
      * @param mixed $value
      * @return void
      */
-    public function validateTitle($value)
+    public function validateTitle($value): mixed
     {
         return !empty($value) && str_starts_with(strtolower($value['title']), 'title-');
     }
@@ -217,7 +217,7 @@ class User extends CakeTestModel
      * @return bool
      * @throws Exception
      */
-    public function beforeFind($queryData)
+    public function beforeFind($queryData): mixed
     {
         if (!empty($queryData['lazyLoad'])) {
             if (!isset($this->Article, $this->Comment, $this->ArticleFeatured)) {
@@ -287,7 +287,7 @@ class Article extends CakeTestModel
      *
      * @return void
      */
-    public function beforeSave($options = [])
+    public function beforeSave($options = []): mixed
     {
         return $this->beforeSaveReturn;
     }
@@ -298,7 +298,7 @@ class Article extends CakeTestModel
      * @param string $title
      * @return void
      */
-    public static function titleDuplicate($title)
+    public static function titleDuplicate($title): mixed
     {
         if ($title === 'My Article Title') {
             return false;
@@ -320,7 +320,7 @@ class BeforeDeleteComment extends CakeTestModel
 
     public $useTable = 'comments';
 
-    public function beforeDelete($cascade = true)
+    public function beforeDelete($cascade = true): mixed
     {
         $db = $this->getDataSource();
         $db->delete($this, [$this->alias . '.' . $this->primaryKey => [1, 3]]);
@@ -566,7 +566,7 @@ class ModifiedComment extends CakeTestModel
      *
      * @return void
      */
-    public function afterFind($results, $primary = false)
+    public function afterFind($results, $primary = false): mixed
     {
         if (isset($results[0])) {
             $results[0]['Comment']['callback'] = 'Fire';
@@ -612,7 +612,7 @@ class AgainModifiedComment extends CakeTestModel
      *
      * @return void
      */
-    public function afterFind($results, $primary = false)
+    public function afterFind($results, $primary = false): mixed
     {
         if (isset($results[0])) {
             $results[0]['Comment']['querytype'] = $this->findQueryType;
@@ -735,7 +735,7 @@ class ModifiedAttachment extends CakeTestModel
      *
      * @return void
      */
-    public function afterFind($results, $primary = false)
+    public function afterFind($results, $primary = false): mixed
     {
         if ($this->useConsistentAfterFind) {
             if (isset($results[0][$this->alias]['id'])) {
@@ -944,7 +944,7 @@ class Post extends CakeTestModel
      * @param array $queryData
      * @return bool true
      */
-    public function beforeFind($queryData)
+    public function beforeFind($queryData): mixed
     {
         if (isset($queryData['connection'])) {
             $this->useDbConfig = $queryData['connection'];
@@ -958,7 +958,7 @@ class Post extends CakeTestModel
      * @param bool $primary
      * @return array results
      */
-    public function afterFind($results, $primary = false)
+    public function afterFind($results, $primary = false): mixed
     {
         $this->useDbConfig = 'test';
 
@@ -993,7 +993,7 @@ class Author extends CakeTestModel
      * @param array $results
      * @return void
      */
-    public function afterFind($results, $primary = false)
+    public function afterFind($results, $primary = false): mixed
     {
         $results[0]['Author']['test'] = 'working';
 
@@ -1021,7 +1021,7 @@ class ModifiedAuthor extends Author
      * @param array $results
      * @return void
      */
-    public function afterFind($results, $primary = false)
+    public function afterFind($results, $primary = false): mixed
     {
         foreach ($results as $index => $result) {
             $results[$index]['Author']['user'] .= ' (CakePHP)';
@@ -1243,7 +1243,7 @@ class NodeAfterFind extends CakeTestModel
      * @param mixed $results
      * @return array
      */
-    public function afterFind($results, $primary = false)
+    public function afterFind($results, $primary = false): mixed
     {
         return $results;
     }
@@ -1532,7 +1532,7 @@ class SomethingElse extends CakeTestModel
      * @param bool $primary
      * @return array
      */
-    public function afterFind($results, $primary = false)
+    public function afterFind($results, $primary = false): mixed
     {
         foreach ($results as $key => $result) {
             if (!empty($result[$this->alias]) && is_array($result[$this->alias])) {
@@ -1572,7 +1572,7 @@ class JoinThing extends CakeTestModel
      * @param bool $primary
      * @return array
      */
-    public function afterFind($results, $primary = false)
+    public function afterFind($results, $primary = false): mixed
     {
         foreach ($results as $key => $result) {
             if (!empty($result[$this->alias]) && is_array($result[$this->alias])) {
@@ -2091,7 +2091,7 @@ class CallbackPostTestModel extends CakeTestModel
      *
      * @return bool
      */
-    public function beforeSave($options = [])
+    public function beforeSave($options = []): mixed
     {
         return $this->beforeSaveReturn;
     }
@@ -2103,7 +2103,7 @@ class CallbackPostTestModel extends CakeTestModel
      * @return bool True if validate operation should continue, false to abort
      * @see Model::save()
      */
-    public function beforeValidate($options = [])
+    public function beforeValidate($options = []): mixed
     {
         return $this->beforeValidateReturn;
     }
@@ -2113,7 +2113,7 @@ class CallbackPostTestModel extends CakeTestModel
      *
      * @return bool
      */
-    public function beforeDelete($cascade = true)
+    public function beforeDelete($cascade = true): mixed
     {
         return $this->beforeDeleteReturn;
     }
@@ -2235,7 +2235,7 @@ class ValidationTest1 extends CakeTestModel
      * @param mixed $data
      * @return void
      */
-    public function customValidationMethod($data)
+    public function customValidationMethod($data): mixed
     {
         return $data === 1;
     }
@@ -2245,7 +2245,7 @@ class ValidationTest1 extends CakeTestModel
      *
      * @return array
      */
-    public function customValidatorWithParams($data, $validator, $or = true, $ignoreOnSame = 'id')
+    public function customValidatorWithParams($data, $validator, $or = true, $ignoreOnSame = 'id'): mixed
     {
         $this->validatorParams = get_defined_vars();
         unset($this->validatorParams['this']);
@@ -2258,7 +2258,7 @@ class ValidationTest1 extends CakeTestModel
      *
      * @return array
      */
-    public function customValidatorWithMessage($data)
+    public function customValidatorWithMessage($data): mixed
     {
         return 'This field will *never* validate! Muhahaha!';
     }
@@ -2268,7 +2268,7 @@ class ValidationTest1 extends CakeTestModel
      *
      * @return void
      */
-    public function customValidatorWithSixParams($data, $one = 1, $two = 2, $three = 3, $four = 4, $five = 5, $six = 6)
+    public function customValidatorWithSixParams($data, $one = 1, $two = 2, $three = 3, $four = 4, $five = 5, $six = 6): mixed
     {
         $this->validatorParams = get_defined_vars();
         unset($this->validatorParams['this']);
@@ -2319,7 +2319,7 @@ class ValidationTest2 extends CakeTestModel
      * @param mixed $data
      * @return void
      */
-    public function customValidationMethod($data)
+    public function customValidationMethod($data): mixed
     {
         return $data === 1;
     }
@@ -2329,7 +2329,7 @@ class ValidationTest2 extends CakeTestModel
      *
      * @return void
      */
-    public function schema($field = false)
+    public function schema($field = false): mixed
     {
         return [];
     }
@@ -2631,7 +2631,7 @@ class NumberTree extends CakeTestModel
      * @param bool $hierarchal
      * @return void
      */
-    public function initialize($levelLimit = 3, $childLimit = 3, $currentLevel = null, $parentId = null, $prefix = '1', $hierarchal = true)
+    public function initialize($levelLimit = 3, $childLimit = 3, $currentLevel = null, $parentId = null, $prefix = '1', $hierarchal = true): void
     {
         if (!$parentId) {
             $db = ConnectionManager::getDataSource($this->useDbConfig);
@@ -2815,7 +2815,7 @@ class AfterTree extends NumberTree
      * @param array $options
      * @return void
      */
-    public function afterSave($created, $options = [])
+    public function afterSave($created, $options = []): void
     {
         if ($created && isset($this->data['AfterTree'])) {
             $this->data['AfterTree']['name'] = 'Six and One Half Changed in AfterTree::afterSave() but not in database';
@@ -3628,7 +3628,7 @@ class TransactionTestModel extends CakeTestModel
 
     public $useTable = 'samples';
 
-    public function afterSave($created, $options = [])
+    public function afterSave($created, $options = []): void
     {
         $data = [
             ['apple_id' => 1, 'name' => 'sample6'],
@@ -3643,7 +3643,7 @@ class TransactionManyTestModel extends CakeTestModel
 
     public $useTable = 'samples';
 
-    public function afterSave($created, $options = [])
+    public function afterSave($created, $options = []): void
     {
         $data = [
             ['apple_id' => 1, 'name' => 'sample6'],
@@ -3730,7 +3730,7 @@ class TestModel extends CakeTestModel
      * @param mixed $recursive
      * @return void
      */
-    public function find($conditions = null, $fields = null, $order = null, $recursive = null)
+    public function find($conditions = null, $fields = null, $order = null, $recursive = null): mixed
     {
         return [$conditions, $fields];
     }
@@ -3744,7 +3744,7 @@ class TestModel extends CakeTestModel
      * @param mixed $recursive
      * @return void
      */
-    public function findAll($conditions = null, $fields = null, $order = null, $recursive = null)
+    public function findAll($conditions = null, $fields = null, $order = null, $recursive = null): mixed
     {
         return $conditions;
     }
@@ -3864,7 +3864,7 @@ class TestModel4 extends CakeTestModel
      *
      * @return void
      */
-    public function schema($field = false)
+    public function schema($field = false): mixed
     {
         if (!isset($this->_schema)) {
             $this->_schema = [
@@ -3912,7 +3912,7 @@ class TestModel4TestModel7 extends CakeTestModel
      *
      * @return void
      */
-    public function schema($field = false)
+    public function schema($field = false): mixed
     {
         if (!isset($this->_schema)) {
             $this->_schema = [
@@ -3978,7 +3978,7 @@ class TestModel5 extends CakeTestModel
      *
      * @return void
      */
-    public function schema($field = false)
+    public function schema($field = false): mixed
     {
         if (!isset($this->_schema)) {
             $this->_schema = [
@@ -4039,7 +4039,7 @@ class TestModel6 extends CakeTestModel
      *
      * @return void
      */
-    public function schema($field = false)
+    public function schema($field = false): mixed
     {
         if (!isset($this->_schema)) {
             $this->_schema = [
@@ -4088,7 +4088,7 @@ class TestModel7 extends CakeTestModel
      *
      * @return void
      */
-    public function schema($field = false)
+    public function schema($field = false): mixed
     {
         if (!isset($this->_schema)) {
             $this->_schema = [
@@ -4149,7 +4149,7 @@ class TestModel8 extends CakeTestModel
      *
      * @return void
      */
-    public function schema($field = false)
+    public function schema($field = false): mixed
     {
         if (!isset($this->_schema)) {
             $this->_schema = [
@@ -4211,7 +4211,7 @@ class TestModel9 extends CakeTestModel
      *
      * @return void
      */
-    public function schema($field = false)
+    public function schema($field = false): mixed
     {
         if (!isset($this->_schema)) {
             $this->_schema = [
@@ -4274,7 +4274,7 @@ class Level extends CakeTestModel
      *
      * @return void
      */
-    public function schema($field = false)
+    public function schema($field = false): mixed
     {
         if (!isset($this->_schema)) {
             $this->_schema = [
@@ -4334,7 +4334,7 @@ class Group extends CakeTestModel
      *
      * @return void
      */
-    public function schema($field = false)
+    public function schema($field = false): mixed
     {
         if (!isset($this->_schema)) {
             $this->_schema = [
@@ -4406,7 +4406,7 @@ class User2 extends CakeTestModel
      *
      * @return void
      */
-    public function schema($field = false)
+    public function schema($field = false): mixed
     {
         if (!isset($this->_schema)) {
             $this->_schema = [
@@ -4487,7 +4487,7 @@ class Category2 extends CakeTestModel
      *
      * @return void
      */
-    public function schema($field = false)
+    public function schema($field = false): mixed
     {
         if (!isset($this->_schema)) {
             $this->_schema = [
@@ -4548,7 +4548,7 @@ class Article2 extends CakeTestModel
      *
      * @return void
      */
-    public function schema($field = false)
+    public function schema($field = false): mixed
     {
         if (!isset($this->_schema)) {
             $this->_schema = [
@@ -4611,7 +4611,7 @@ class CategoryFeatured2 extends CakeTestModel
      *
      * @return void
      */
-    public function schema($field = false)
+    public function schema($field = false): mixed
     {
         if (!isset($this->_schema)) {
             $this->_schema = [
@@ -4671,7 +4671,7 @@ class Featured2 extends CakeTestModel
      *
      * @return void
      */
-    public function schema($field = false)
+    public function schema($field = false): mixed
     {
         if (!isset($this->_schema)) {
             $this->_schema = [
@@ -4726,7 +4726,7 @@ class Comment2 extends CakeTestModel
      *
      * @return void
      */
-    public function schema($field = false)
+    public function schema($field = false): mixed
     {
         if (!isset($this->_schema)) {
             $this->_schema = [
@@ -4802,7 +4802,7 @@ class ArticleFeatured2 extends CakeTestModel
      *
      * @return void
      */
-    public function schema($field = false)
+    public function schema($field = false): mixed
     {
         if (!isset($this->_schema)) {
             $this->_schema = [
@@ -4852,7 +4852,7 @@ class MysqlTestModel extends Model
      * @param mixed $recursive
      * @return void
      */
-    public function find($conditions = null, $fields = null, $order = null, $recursive = null)
+    public function find($conditions = null, $fields = null, $order = null, $recursive = null): mixed
     {
         return $conditions;
     }
@@ -4866,7 +4866,7 @@ class MysqlTestModel extends Model
      * @param mixed $recursive
      * @return void
      */
-    public function findAll($conditions = null, $fields = null, $order = null, $recursive = null)
+    public function findAll($conditions = null, $fields = null, $order = null, $recursive = null): mixed
     {
         return $conditions;
     }
@@ -4876,7 +4876,7 @@ class MysqlTestModel extends Model
      *
      * @return void
      */
-    public function schema($field = false)
+    public function schema($field = false): mixed
     {
         return [
             'id' => ['type' => 'integer', 'null' => '', 'default' => '', 'length' => '8'],
@@ -5139,7 +5139,7 @@ class CustomArticle extends AppModel
      *
      * @return array
      */
-    protected function _findUnPublished($state, $query, $results = [])
+    protected function _findUnPublished($state, $query, $results = []): mixed
     {
         if ($state === 'before') {
             $query['conditions']['published'] = 'N';
@@ -5157,7 +5157,7 @@ class CustomArticle extends AppModel
      * @return bool True if validate operation should continue, false to abort
      * @see Model::save()
      */
-    public function beforeValidate($options = [])
+    public function beforeValidate($options = []): void
     {
         $this->data[$this->alias]['title'] = 'foo';
         if ($this->findMethods['unPublished'] === true) {

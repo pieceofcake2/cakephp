@@ -110,7 +110,7 @@ class RegisterPrefixedDs extends ClassRegisterModel
  */
 abstract class ClassRegistryAbstractModel extends ClassRegisterModel
 {
-    abstract public function doSomething();
+    abstract public function doSomething(): mixed;
 }
 
 /**
@@ -118,7 +118,7 @@ abstract class ClassRegistryAbstractModel extends ClassRegisterModel
  */
 interface ClassRegistryInterfaceTest
 {
-    public function doSomething();
+    public function doSomething(): mixed;
 }
 
 /**
@@ -133,7 +133,7 @@ class ClassRegistryTest extends CakeTestCase
      *
      * @return void
      */
-    public function testAddModel()
+    public function testAddModel(): void
     {
         $Tag = ClassRegistry::init('RegisterArticleTag');
         $this->assertInstanceOf('RegisterArticleTag', $Tag);
@@ -189,7 +189,7 @@ class ClassRegistryTest extends CakeTestCase
      *
      * @return void
      */
-    public function testAddModelWithAlias()
+    public function testAddModelWithAlias(): void
     {
         $tag = ClassRegistry::init(['class' => 'RegisterArticleTag', 'alias' => 'NewTag']);
         $this->assertInstanceOf('RegisterArticleTag', $tag);
@@ -207,7 +207,7 @@ class ClassRegistryTest extends CakeTestCase
      *
      * @return void
      */
-    public function testAddModelWithAliasAco()
+    public function testAddModelWithAliasAco(): void
     {
         $aco = ClassRegistry::init(['class' => 'Aco', 'alias' => 'CustomAco']);
         $this->assertInstanceOf('Aco', $aco);
@@ -220,7 +220,7 @@ class ClassRegistryTest extends CakeTestCase
      *
      * @return void
      */
-    public function testClassRegistryFlush()
+    public function testClassRegistryFlush(): void
     {
         ClassRegistry::init('RegisterArticleTag');
 
@@ -238,7 +238,7 @@ class ClassRegistryTest extends CakeTestCase
      *
      * @return void
      */
-    public function testAddMultipleModels()
+    public function testAddMultipleModels(): void
     {
         $Article = ClassRegistry::isKeySet('Article');
         $this->assertFalse($Article);
@@ -280,7 +280,7 @@ class ClassRegistryTest extends CakeTestCase
      *
      * @return void
      */
-    public function testPluginAppModel()
+    public function testPluginAppModel(): void
     {
         $TestRegistryPluginModel = ClassRegistry::isKeySet('TestRegistryPluginModel');
         $this->assertFalse($TestRegistryPluginModel);
@@ -306,7 +306,7 @@ class ClassRegistryTest extends CakeTestCase
      *
      * @return void
      */
-    public function testPrefixedTestDatasource()
+    public function testPrefixedTestDatasource(): void
     {
         ClassRegistry::config(['testing' => true]);
         $Model = ClassRegistry::init('RegisterPrefixedDs');
@@ -327,7 +327,7 @@ class ClassRegistryTest extends CakeTestCase
      *
      * @return void
      */
-    public function testInitStrict()
+    public function testInitStrict(): void
     {
         $this->assertFalse(ClassRegistry::init('NonExistent', true));
     }
@@ -337,7 +337,7 @@ class ClassRegistryTest extends CakeTestCase
      *
      * @return void
      */
-    public function testInitAbstractClass()
+    public function testInitAbstractClass(): void
     {
         $this->expectException(CakeException::class);
         ClassRegistry::init('ClassRegistryAbstractModel');
@@ -348,7 +348,7 @@ class ClassRegistryTest extends CakeTestCase
      *
      * @return void
      */
-    public function testInitInterface()
+    public function testInitInterface(): void
     {
         $this->expectException(CakeException::class);
         ClassRegistry::init('ClassRegistryInterfaceTest');
@@ -359,7 +359,7 @@ class ClassRegistryTest extends CakeTestCase
      *
      * @return void
      */
-    public function testGetObjectUnknownKey()
+    public function testGetObjectUnknownKey(): void
     {
         $this->assertFalse(ClassRegistry::getObject('ThisKeyIsNotRegistered'));
     }

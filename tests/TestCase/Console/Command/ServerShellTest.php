@@ -59,7 +59,7 @@ class ServerShellTest extends CakeTestCase
      *
      * @return void
      */
-    public function testMainDefaults()
+    public function testMainDefaults(): void
     {
         $this->assertSame(8765, ServerShell::DEFAULT_PORT);
 
@@ -81,7 +81,7 @@ class ServerShellTest extends CakeTestCase
      *
      * @return void
      */
-    public function testMainHostAndPort()
+    public function testMainHostAndPort(): void
     {
         $this->Shell->initialize();
         $this->Shell->params = ['host' => '0.0.0.0', 'port' => '8080'];
@@ -102,7 +102,7 @@ class ServerShellTest extends CakeTestCase
      *
      * @return void
      */
-    public function testMainPort80()
+    public function testMainPort80(): void
     {
         $this->Shell->initialize();
         $this->Shell->params = ['port' => '80'];
@@ -123,7 +123,7 @@ class ServerShellTest extends CakeTestCase
      *
      * @return void
      */
-    public function testOptionParserHelp()
+    public function testOptionParserHelp(): void
     {
         $help = $this->Shell->getOptionParser()->help();
 

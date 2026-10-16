@@ -84,7 +84,7 @@ class MyAppSchema extends CakeSchema
      * @param string $var Name of var
      * @return mixed
      */
-    public function getVar($var)
+    public function getVar($var): mixed
     {
         if (!isset($this->$var)) {
             return null;
@@ -192,7 +192,7 @@ class TestAppSchema extends CakeSchema
      * @param mixed $version
      * @return void
      */
-    public function setup($version)
+    public function setup($version): void
     {
     }
 
@@ -202,7 +202,7 @@ class TestAppSchema extends CakeSchema
      * @param mixed $version
      * @return void
      */
-    public function teardown($version)
+    public function teardown($version): void
     {
     }
 }
@@ -480,7 +480,7 @@ class CakeSchemaTest extends CakeTestCase
      *
      * @return void
      */
-    public function testSchemaName()
+    public function testSchemaName(): void
     {
         $Schema = new CakeSchema();
         $this->assertEquals('App', $Schema->name);
@@ -491,7 +491,7 @@ class CakeSchemaTest extends CakeTestCase
      *
      * @return void
      */
-    public function testSchemaRead()
+    public function testSchemaRead(): void
     {
         $read = $this->Schema->read([
             'connection' => 'test',
@@ -545,7 +545,7 @@ class CakeSchemaTest extends CakeTestCase
      *
      * @return void
      */
-    public function testSchemaReadWithAppModel()
+    public function testSchemaReadWithAppModel(): void
     {
         $connections = ConnectionManager::enumConnectionObjects();
         ConnectionManager::drop('default');
@@ -574,7 +574,7 @@ class CakeSchemaTest extends CakeTestCase
      *
      * @return void
      */
-    public function testSchemaReadWithOddTablePrefix()
+    public function testSchemaReadWithOddTablePrefix(): void
     {
         $config = ConnectionManager::getDataSource('test')->config;
         $this->skipIf(!empty($config['prefix']), 'This test can not be executed with datasource prefix set.');
@@ -596,7 +596,7 @@ class CakeSchemaTest extends CakeTestCase
      *
      * @return void
      */
-    public function testSchemaReadWithTablePrefix()
+    public function testSchemaReadWithTablePrefix(): void
     {
         $config = ConnectionManager::getDataSource('test')->config;
         $this->skipIf(!empty($config['prefix']), 'This test can not be executed with datasource prefix set.');
@@ -616,7 +616,7 @@ class CakeSchemaTest extends CakeTestCase
      *
      * @return void
      */
-    public function testSchemaReadWithConfigPrefix()
+    public function testSchemaReadWithConfigPrefix(): void
     {
         $this->skipIf($this->db instanceof Sqlite, 'Cannot open 2 connections to Sqlite');
 
@@ -643,7 +643,7 @@ class CakeSchemaTest extends CakeTestCase
      *
      * @return void
      */
-    public function testSchemaReadWithPlugins()
+    public function testSchemaReadWithPlugins(): void
     {
         App::objects('model', null, false);
         App::build([
@@ -673,7 +673,7 @@ class CakeSchemaTest extends CakeTestCase
      *
      * @return void
      */
-    public function testSchemaReadWithCrossDatabase()
+    public function testSchemaReadWithCrossDatabase(): void
     {
         $config = ConnectionManager::enumConnectionObjects();
         $this->skipIf(
@@ -717,7 +717,7 @@ class CakeSchemaTest extends CakeTestCase
      *
      * @return void
      */
-    public function testSchemaReadWithNonConventionalPrimaryKey()
+    public function testSchemaReadWithNonConventionalPrimaryKey(): void
     {
         $db = ConnectionManager::getDataSource('test');
         $fixture = new NonConventionalPrimaryKeyFixture();
@@ -745,7 +745,7 @@ class CakeSchemaTest extends CakeTestCase
      *
      * @return void
      */
-    public function testGenerateTable()
+    public function testGenerateTable(): void
     {
         $posts = [
             'id' => ['type' => 'integer', 'null' => false, 'default' => 0, 'key' => 'primary'],
@@ -783,7 +783,7 @@ class CakeSchemaTest extends CakeTestCase
      *
      * @return void
      */
-    public function testGenerateInvalidTable()
+    public function testGenerateInvalidTable(): void
     {
         $invalidTableName = 'invalid name !@#$%^&*()';
         $expectedException = "Invalid table name '{$invalidTableName}'";
@@ -800,7 +800,7 @@ class CakeSchemaTest extends CakeTestCase
      *
      * @return void
      */
-    public function testSchemaWrite()
+    public function testSchemaWrite(): void
     {
         $write = $this->Schema->write([
             'name' => 'MyOtherApp',
@@ -820,7 +820,7 @@ class CakeSchemaTest extends CakeTestCase
      *
      * @return void
      */
-    public function testSchemaComparison()
+    public function testSchemaComparison(): void
     {
         $New = new MyAppSchema();
         $compare = $New->compare($this->Schema);
@@ -909,7 +909,7 @@ class CakeSchemaTest extends CakeTestCase
      *
      * @return void
      */
-    public function testCompareEmptyStringAndNull()
+    public function testCompareEmptyStringAndNull(): void
     {
         $One = new CakeSchema([
             'posts' => [
@@ -939,7 +939,7 @@ class CakeSchemaTest extends CakeTestCase
      *
      * @return void
      */
-    public function testTableParametersAndIndexComparison()
+    public function testTableParametersAndIndexComparison(): void
     {
         $old = [
             'posts' => [
@@ -1031,7 +1031,7 @@ class CakeSchemaTest extends CakeTestCase
      *
      * @return void
      */
-    public function testCompareVarcharToDatetime()
+    public function testCompareVarcharToDatetime(): void
     {
         $old = [
             'posts' => [
@@ -1080,7 +1080,7 @@ class CakeSchemaTest extends CakeTestCase
      *
      * @return void
      */
-    public function testCompareLimitToDefault()
+    public function testCompareLimitToDefault(): void
     {
         $old = [
             'posts' => [
@@ -1138,7 +1138,7 @@ class CakeSchemaTest extends CakeTestCase
      *
      * @return void
      */
-    public function testSchemaLoading()
+    public function testSchemaLoading(): void
     {
         $Other = $this->Schema->load(['name' => 'MyOtherApp', 'path' => TMP . 'tests']);
         $this->assertEquals('MyOtherApp', $Other->name);
@@ -1150,7 +1150,7 @@ class CakeSchemaTest extends CakeTestCase
      *
      * @return void
      */
-    public function testSchemaLoadingFromPlugin()
+    public function testSchemaLoadingFromPlugin(): void
     {
         App::build([
             'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS],
@@ -1168,7 +1168,7 @@ class CakeSchemaTest extends CakeTestCase
      *
      * @return void
      */
-    public function testSchemaCreateTable()
+    public function testSchemaCreateTable(): void
     {
         $db = ConnectionManager::getDataSource('test');
         $db->cacheSources = false;

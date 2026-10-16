@@ -97,7 +97,7 @@ class MysqlTest extends CakeTestCase
      * @group quoting
      * @return void
      */
-    public function testQuoting()
+    public function testQuoting(): void
     {
         $result = $this->Dbo->fields($this->model);
         $expected = [
@@ -158,7 +158,7 @@ class MysqlTest extends CakeTestCase
      * @group quoting
      * @return void
      */
-    public function testLocalizedFloats()
+    public function testLocalizedFloats(): void
     {
         $this->skipIf(DS === '\\', 'The locale is not supported in Windows and affect the others tests.');
 
@@ -195,7 +195,7 @@ class MysqlTest extends CakeTestCase
      *
      * @return void
      */
-    public function testScientificNotation()
+    public function testScientificNotation(): void
     {
         $result = $this->db->value(2.2E-54, 'float');
         $this->assertEquals('2.2E-54', (string)$result);
@@ -209,7 +209,7 @@ class MysqlTest extends CakeTestCase
      *
      * @return void
      */
-    public function testTinyintCasting()
+    public function testTinyintCasting(): void
     {
         $this->Dbo->cacheSources = false;
         $tableName = 'tinyint_' . uniqid();
@@ -249,7 +249,7 @@ class MysqlTest extends CakeTestCase
      *
      * @return void
      */
-    public function testLastAffected()
+    public function testLastAffected(): void
     {
         $this->Dbo->cacheSources = false;
         $tableName = 'tinyint_' . uniqid();
@@ -275,7 +275,7 @@ class MysqlTest extends CakeTestCase
      * @group indices
      * @return void
      */
-    public function testIndexDetection()
+    public function testIndexDetection(): void
     {
         $this->Dbo->cacheSources = false;
 
@@ -377,7 +377,7 @@ class MysqlTest extends CakeTestCase
      * @group indices
      * @return void
      */
-    public function testIndexOnMySQL4Output()
+    public function testIndexOnMySQL4Output(): void
     {
         $name = $this->Dbo->fullTableName('simple');
 
@@ -484,7 +484,7 @@ class MysqlTest extends CakeTestCase
      *
      * @return void
      */
-    public function testColumn()
+    public function testColumn(): void
     {
         $result = $this->Dbo->column('varchar(50)');
         $expected = 'string';
@@ -557,7 +557,7 @@ class MysqlTest extends CakeTestCase
      * @group indices
      * @return void
      */
-    public function testAlterSchemaIndexes()
+    public function testAlterSchemaIndexes(): void
     {
         $this->Dbo->cacheSources = $this->Dbo->testing = false;
         $table = $this->Dbo->fullTableName('altertest');
@@ -658,7 +658,7 @@ class MysqlTest extends CakeTestCase
      *
      * @return void
      */
-    public function testBlobSaving()
+    public function testBlobSaving(): void
     {
         $this->loadFixtures('BinaryTest');
         $this->Dbo->cacheSources = false;
@@ -676,7 +676,7 @@ class MysqlTest extends CakeTestCase
      *
      * @return void
      */
-    public function testAlteringTableParameters()
+    public function testAlteringTableParameters(): void
     {
         $this->Dbo->cacheSources = $this->Dbo->testing = false;
 
@@ -737,7 +737,7 @@ class MysqlTest extends CakeTestCase
      *
      * @return void
      */
-    public function testAlteringTwoTables()
+    public function testAlteringTwoTables(): void
     {
         $schema1 = new CakeSchema([
             'name' => 'AlterTest1',
@@ -772,7 +772,7 @@ class MysqlTest extends CakeTestCase
      *
      * @return void
      */
-    public function testReadTableParameters()
+    public function testReadTableParameters(): void
     {
         $this->Dbo->cacheSources = $this->Dbo->testing = false;
 
@@ -815,7 +815,7 @@ class MysqlTest extends CakeTestCase
      *
      * @return void
      */
-    public function testBuildTableParameters()
+    public function testBuildTableParameters(): void
     {
         if ($this->Dbo->utf8mb4Supported()) {
             $charset = 'utf8mb4';
@@ -842,7 +842,7 @@ class MysqlTest extends CakeTestCase
      *
      * @return void
      */
-    public function testGetCharsetName()
+    public function testGetCharsetName(): void
     {
         if ($this->Dbo->utf8mb4Supported()) {
             $charset = 'utf8mb4';
@@ -863,7 +863,7 @@ class MysqlTest extends CakeTestCase
      *
      * @return void
      */
-    public function testGetCharsetNameCaching()
+    public function testGetCharsetNameCaching(): void
     {
         $db = $this->getMock('Mysql', ['connect', '_execute', 'getVersion']);
         $queryResult = $this->getMock('PDOStatement');
@@ -892,7 +892,7 @@ class MysqlTest extends CakeTestCase
      *
      * @return void
      */
-    public function testVirtualFieldSeparators()
+    public function testVirtualFieldSeparators(): void
     {
         $this->loadFixtures('BinaryTest');
         $model = new CakeTestModel(['table' => 'binary_tests', 'ds' => 'test', 'name' => 'BinaryTest']);
@@ -912,7 +912,7 @@ class MysqlTest extends CakeTestCase
      *
      * @return void
      */
-    public function testDescribe()
+    public function testDescribe(): void
     {
         $this->loadFixtures('Apple');
 
@@ -933,7 +933,7 @@ class MysqlTest extends CakeTestCase
      *
      * @return void
      */
-    public function testDescribeHandleCurrentTimestamp()
+    public function testDescribeHandleCurrentTimestamp(): void
     {
         $name = $this->Dbo->fullTableName('timestamp_default_values');
         $sql = <<<SQL
@@ -969,7 +969,7 @@ SQL;
      *
      * @return void
      */
-    public function testDescribeHandleCurrentTimestampDatetime()
+    public function testDescribeHandleCurrentTimestampDatetime(): void
     {
         $mysqlVersion = $this->Dbo->query('SELECT VERSION() as version');
         $this->skipIf(version_compare($mysqlVersion[0][0]['version'], '5.6.0', '<'));
@@ -1007,7 +1007,7 @@ SQL;
      *
      * @return void
      */
-    public function testUtf8mb4Supported()
+    public function testUtf8mb4Supported(): void
     {
         $version = $this->Dbo->getVersion();
         $serverType = $this->Dbo->getServerType();
@@ -1031,7 +1031,7 @@ SQL;
      *
      * @return void
      */
-    public function testIntegerDisplayWidthDeprecated()
+    public function testIntegerDisplayWidthDeprecated(): void
     {
         $version = $this->Dbo->getVersion();
         $serverType = $this->Dbo->getServerType();
@@ -1055,7 +1055,7 @@ SQL;
      *
      * @return void
      */
-    public function testUtf8mb4SupportedMariaDB()
+    public function testUtf8mb4SupportedMariaDB(): void
     {
         $db = $this->getMock('Mysql', ['connect', '_execute']);
         $mockConnection = $this->getMock('MockPDO', ['getAttribute']);
@@ -1104,7 +1104,7 @@ SQL;
      *
      * @return void
      */
-    public function testUtf8mb4SupportedAuroraMySQL()
+    public function testUtf8mb4SupportedAuroraMySQL(): void
     {
         $db = $this->getMock('Mysql', ['connect', '_execute']);
         $mockConnection = $this->getMock('MockPDO', ['getAttribute']);
@@ -1153,7 +1153,7 @@ SQL;
      *
      * @return void
      */
-    public function testUtf8mb4SupportedRegularMySQL()
+    public function testUtf8mb4SupportedRegularMySQL(): void
     {
         $db = $this->getMock('Mysql', ['connect', '_execute']);
         $mockConnection = $this->getMock('MockPDO', ['getAttribute']);
@@ -1202,7 +1202,7 @@ SQL;
      *
      * @return void
      */
-    public function testIntegerDisplayWidthDeprecatedMariaDB()
+    public function testIntegerDisplayWidthDeprecatedMariaDB(): void
     {
         $db = $this->getMock('Mysql', ['connect', '_execute']);
         $mockConnection = $this->getMock('MockPDO', ['getAttribute']);
@@ -1251,7 +1251,7 @@ SQL;
      *
      * @return void
      */
-    public function testIntegerDisplayWidthDeprecatedAuroraMySQL()
+    public function testIntegerDisplayWidthDeprecatedAuroraMySQL(): void
     {
         $db = $this->getMock('Mysql', ['connect', '_execute']);
         $mockConnection = $this->getMock('MockPDO', ['getAttribute']);
@@ -1300,7 +1300,7 @@ SQL;
      *
      * @return void
      */
-    public function testIntegerDisplayWidthDeprecatedRegularMySQL()
+    public function testIntegerDisplayWidthDeprecatedRegularMySQL(): void
     {
         $db = $this->getMock('Mysql', ['connect', '_execute']);
         $mockConnection = $this->getMock('MockPDO', ['getAttribute']);
@@ -1349,7 +1349,7 @@ SQL;
      *
      * @return void
      */
-    public function testDescribeGettingFieldParameters()
+    public function testDescribeGettingFieldParameters(): void
     {
         $schema = new CakeSchema([
             'connection' => 'test',
@@ -1385,7 +1385,7 @@ SQL;
      *
      * @return void
      */
-    public function testTwoColumnsWithPrimaryKey()
+    public function testTwoColumnsWithPrimaryKey(): void
     {
         $schema = new CakeSchema([
             'connection' => 'test',
@@ -1425,7 +1425,7 @@ SQL;
      *
      * @return void
      */
-    public function testCreateSchemaAutoPrimaryKey()
+    public function testCreateSchemaAutoPrimaryKey(): void
     {
         $schema = new CakeSchema();
         $schema->tables = [
@@ -1472,7 +1472,7 @@ SQL;
      *
      * @return void
      */
-    public function testListSources()
+    public function testListSources(): void
     {
         $db = $this->getMock('Mysql', ['connect', '_execute']);
         $queryResult = $this->getMock('PDOStatement');
@@ -1497,7 +1497,7 @@ SQL;
      *
      * @return void
      */
-    public function testListDetailedSourcesNamed()
+    public function testListDetailedSourcesNamed(): void
     {
         $this->loadFixtures('Apple');
 
@@ -1514,7 +1514,7 @@ SQL;
      *
      * @return void
      */
-    public function testGetVersion()
+    public function testGetVersion(): void
     {
         $version = $this->Dbo->getVersion();
         $this->assertTrue(is_string($version));
@@ -1530,7 +1530,7 @@ SQL;
      *
      * @return void
      */
-    public function testGetVersionWithMockedResponses()
+    public function testGetVersionWithMockedResponses(): void
     {
         // Test regular MySQL version
         $db = $this->getMock('Mysql', ['connect', '_execute']);
@@ -1700,7 +1700,7 @@ SQL;
      *
      * @return void
      */
-    public function testGetServerType()
+    public function testGetServerType(): void
     {
         $serverType = $this->Dbo->getServerType();
         $this->assertContains($serverType, ['MySQL', 'MariaDB', 'Aurora MySQL']);
@@ -1715,7 +1715,7 @@ SQL;
      *
      * @return void
      */
-    public function testGetServerTypeWithMockedResponses()
+    public function testGetServerTypeWithMockedResponses(): void
     {
         // Test regular MySQL
         $db = $this->getMock('Mysql', ['connect', '_execute']);
@@ -1783,7 +1783,7 @@ SQL;
      *
      * @return void
      */
-    public function testGetEncoding()
+    public function testGetEncoding(): void
     {
         $db = $this->getMock('Mysql', ['connect', '_execute']);
         $queryResult = $this->getMock('PDOStatement');
@@ -1807,7 +1807,7 @@ SQL;
      *
      * @return void
      */
-    public function testFieldDoubleEscaping()
+    public function testFieldDoubleEscaping(): void
     {
         $db = $this->Dbo->config['database'];
         $test = $this->getMock('Mysql', ['connect', '_execute', 'execute']);
@@ -1855,7 +1855,7 @@ SQL;
      *
      * @return void
      */
-    public function testGenerateAssociationQuerySelfJoin()
+    public function testGenerateAssociationQuerySelfJoin(): void
     {
         $this->Dbo = $this->getMock('Mysql', ['connect', '_execute', 'execute']);
         $this->startTime = microtime(true);
@@ -1954,7 +1954,7 @@ SQL;
      * @param Model $model
      * @return void
      */
-    protected function _buildRelatedModels(Model $model)
+    protected function _buildRelatedModels(Model $model): void
     {
         foreach ($model->associations() as $type) {
             foreach ($model->{$type} as $assocData) {
@@ -1977,7 +1977,7 @@ SQL;
      * @param array $binding
      * @return array The prepared association query
      */
-    protected function &_prepareAssociationQuery(Model $model, &$queryData, $binding)
+    protected function &_prepareAssociationQuery(Model $model, &$queryData, $binding): mixed
     {
         $type = $binding['type'];
         $assoc = $binding['model'];
@@ -1999,7 +1999,7 @@ SQL;
      * @param array $data
      * @return array
      */
-    protected function _scrubQueryData($data)
+    protected function _scrubQueryData($data): mixed
     {
         static $base = null;
         if ($base === null) {
@@ -2015,7 +2015,7 @@ SQL;
      *
      * @return void
      */
-    public function testReadCustomJoinsAfterGeneratedJoins()
+    public function testReadCustomJoinsAfterGeneratedJoins(): void
     {
         $db = $this->Dbo->config['database'];
         $test = $this->getMock('Mysql', ['connect', '_execute', 'execute']);
@@ -2059,7 +2059,7 @@ SQL;
      *
      * @return void
      */
-    public function testGenerateInnerJoinAssociationQuery()
+    public function testGenerateInnerJoinAssociationQuery(): void
     {
         $db = $this->Dbo->config['database'];
         $test = $this->getMock('Mysql', ['connect', '_execute', 'execute']);
@@ -2094,7 +2094,7 @@ SQL;
      *
      * @return void
      */
-    public function testGenerateAssociationQuerySelfJoinWithConditionsInHasOneBinding()
+    public function testGenerateAssociationQuerySelfJoinWithConditionsInHasOneBinding(): void
     {
         $this->Model = new TestModel8();
         $this->Model->schema();
@@ -2119,7 +2119,7 @@ SQL;
      *
      * @return void
      */
-    public function testGenerateAssociationQuerySelfJoinWithConditionsInBelongsToBinding()
+    public function testGenerateAssociationQuerySelfJoinWithConditionsInBelongsToBinding(): void
     {
         $this->Model = new TestModel9();
         $this->Model->schema();
@@ -2144,7 +2144,7 @@ SQL;
      *
      * @return void
      */
-    public function testGenerateAssociationQuerySelfJoinWithConditions()
+    public function testGenerateAssociationQuerySelfJoinWithConditions(): void
     {
         $this->Model = new TestModel4();
         $this->Model->schema();
@@ -2202,7 +2202,7 @@ SQL;
      *
      * @return void
      */
-    public function testGenerateAssociationQueryHasOne()
+    public function testGenerateAssociationQueryHasOne(): void
     {
         $this->Model = new TestModel4();
         $this->Model->schema();
@@ -2234,7 +2234,7 @@ SQL;
      *
      * @return void
      */
-    public function testGenerateAssociationQueryHasOneWithConditions()
+    public function testGenerateAssociationQueryHasOneWithConditions(): void
     {
         $this->Model = new TestModel4();
         $this->Model->schema();
@@ -2262,7 +2262,7 @@ SQL;
      *
      * @return void
      */
-    public function testGenerateAssociationQueryBelongsTo()
+    public function testGenerateAssociationQueryBelongsTo(): void
     {
         $this->Model = new TestModel5();
         $this->Model->schema();
@@ -2293,7 +2293,7 @@ SQL;
      *
      * @return void
      */
-    public function testGenerateAssociationQueryBelongsToWithConditions()
+    public function testGenerateAssociationQueryBelongsToWithConditions(): void
     {
         $this->Model = new TestModel5();
         $this->Model->schema();
@@ -2324,7 +2324,7 @@ SQL;
      *
      * @return void
      */
-    public function testGenerateAssociationQueryHasMany()
+    public function testGenerateAssociationQueryHasMany(): void
     {
         $this->Model = new TestModel5();
         $this->Model->schema();
@@ -2352,7 +2352,7 @@ SQL;
      *
      * @return void
      */
-    public function testGenerateAssociationQueryHasManyWithLimit()
+    public function testGenerateAssociationQueryHasManyWithLimit(): void
     {
         $this->Model = new TestModel5();
         $this->Model->schema();
@@ -2392,7 +2392,7 @@ SQL;
      *
      * @return void
      */
-    public function testGenerateAssociationQueryHasManyWithConditions()
+    public function testGenerateAssociationQueryHasManyWithConditions(): void
     {
         $this->Model = new TestModel5();
         $this->Model->schema();
@@ -2419,7 +2419,7 @@ SQL;
      *
      * @return void
      */
-    public function testGenerateAssociationQueryHasManyWithOffsetAndLimit()
+    public function testGenerateAssociationQueryHasManyWithOffsetAndLimit(): void
     {
         $this->Model = new TestModel5();
         $this->Model->schema();
@@ -2455,7 +2455,7 @@ SQL;
      *
      * @return void
      */
-    public function testGenerateAssociationQueryHasManyWithPageAndLimit()
+    public function testGenerateAssociationQueryHasManyWithPageAndLimit(): void
     {
         $this->Model = new TestModel5();
         $this->Model->schema();
@@ -2489,7 +2489,7 @@ SQL;
      *
      * @return void
      */
-    public function testGenerateAssociationQueryHasManyWithFields()
+    public function testGenerateAssociationQueryHasManyWithFields(): void
     {
         $this->Model = new TestModel5();
         $this->Model->schema();
@@ -2603,7 +2603,7 @@ SQL;
      *
      * @return void
      */
-    public function testGenerateAssociationQueryHasManyAndAggregateFunction()
+    public function testGenerateAssociationQueryHasManyAndAggregateFunction(): void
     {
         $this->Model = new TestModel5();
         $this->Model->schema();
@@ -2623,7 +2623,7 @@ SQL;
      *
      * @return void
      */
-    public function testGenerateAssociationQueryHasAndBelongsToMany()
+    public function testGenerateAssociationQueryHasAndBelongsToMany(): void
     {
         $this->Model = new TestModel4();
         $this->Model->schema();
@@ -2653,7 +2653,7 @@ SQL;
      *
      * @return void
      */
-    public function testGenerateAssociationQueryHasAndBelongsToManyWithConditions()
+    public function testGenerateAssociationQueryHasAndBelongsToManyWithConditions(): void
     {
         $this->Model = new TestModel4();
         $this->Model->schema();
@@ -2680,7 +2680,7 @@ SQL;
      *
      * @return void
      */
-    public function testGenerateAssociationQueryHasAndBelongsToManyWithOffsetAndLimit()
+    public function testGenerateAssociationQueryHasAndBelongsToManyWithOffsetAndLimit(): void
     {
         $this->Model = new TestModel4();
         $this->Model->schema();
@@ -2715,7 +2715,7 @@ SQL;
      *
      * @return void
      */
-    public function testGenerateAssociationQueryHasAndBelongsToManyWithPageAndLimit()
+    public function testGenerateAssociationQueryHasAndBelongsToManyWithPageAndLimit(): void
     {
         $this->Model = new TestModel4();
         $this->Model->schema();
@@ -2750,7 +2750,7 @@ SQL;
      *
      * @return void
      */
-    public function testSelectDistict()
+    public function testSelectDistict(): void
     {
         $this->Model = new TestModel4();
         $result = $this->Dbo->fields($this->Model, 'Vendor', 'DISTINCT Vendor.id, Vendor.name');
@@ -2763,7 +2763,7 @@ SQL;
      *
      * @return void
      */
-    public function testStringConditionsParsing()
+    public function testStringConditionsParsing(): void
     {
         $result = $this->Dbo->conditions('ProjectBid.project_id = Project.id');
         $expected = ' WHERE `ProjectBid`.`project_id` = `Project`.`id`';
@@ -2887,7 +2887,7 @@ SQL;
      *
      * @return void
      */
-    public function testQuotesInStringConditions()
+    public function testQuotesInStringConditions(): void
     {
         $result = $this->Dbo->conditions('Member.email = \'mariano@cricava.com\'');
         $expected = ' WHERE `Member`.`email` = \'mariano@cricava.com\'';
@@ -2911,7 +2911,7 @@ SQL;
      *
      * @return void
      */
-    public function testHypenInStringConditionsAndFieldNames()
+    public function testHypenInStringConditionsAndFieldNames(): void
     {
         $result = $this->Dbo->conditions('I18n__title_pt-br.content = "test"');
         $this->assertEquals(' WHERE `I18n__title_pt-br`.`content` = "test"', $result);
@@ -2931,7 +2931,7 @@ SQL;
      *
      * @return void
      */
-    public function testParenthesisInStringConditions()
+    public function testParenthesisInStringConditions(): void
     {
         $result = $this->Dbo->conditions('Member.name = \'(lu\'');
         $this->assertMatchesRegularExpression('/^\s+WHERE\s+`Member`.`name`\s+=\s+\'\(lu\'$/', $result);
@@ -2981,7 +2981,7 @@ SQL;
      *
      * @return void
      */
-    public function testParenthesisInArrayConditions()
+    public function testParenthesisInArrayConditions(): void
     {
         $result = $this->Dbo->conditions(['Member.name' => '(lu']);
         $this->assertMatchesRegularExpression('/^\s+WHERE\s+`Member`.`name`\s+=\s+\'\(lu\'$/', $result);
@@ -3031,7 +3031,7 @@ SQL;
      *
      * @return void
      */
-    public function testArrayConditionsParsing()
+    public function testArrayConditionsParsing(): void
     {
         $this->loadFixtures('Post', 'Author');
         $result = $this->Dbo->conditions(['Stereo.type' => 'in dash speakers']);
@@ -3287,7 +3287,7 @@ SQL;
      *
      * @return void
      */
-    public function testConditionsWithReplacements()
+    public function testConditionsWithReplacements(): void
     {
         $result = $this->Dbo->conditions([
             'score BETWEEN :0 AND :1' => [90.1, 95.7],
@@ -3307,7 +3307,7 @@ SQL;
      *
      * @return void
      */
-    public function testArrayConditionsOneElement()
+    public function testArrayConditionsOneElement(): void
     {
         $conditions = ['id' => [1]];
         $result = $this->Dbo->conditions($conditions);
@@ -3325,7 +3325,7 @@ SQL;
      *
      * @return void
      */
-    public function testArrayConditionsParsingComplexKeys()
+    public function testArrayConditionsParsingComplexKeys(): void
     {
         $result = $this->Dbo->conditions([
             'CAST(Book.created AS DATE)' => '2008-08-02',
@@ -3351,7 +3351,7 @@ SQL;
      *
      * @return void
      */
-    public function testMixedConditionsParsing()
+    public function testMixedConditionsParsing(): void
     {
         $conditions[] = 'User.first_name = \'Firstname\'';
         $conditions[] = ['User.last_name' => 'Lastname'];
@@ -3373,7 +3373,7 @@ SQL;
      *
      * @return void
      */
-    public function testConditionsOptionalArguments()
+    public function testConditionsOptionalArguments(): void
     {
         $result = $this->Dbo->conditions(['Member.name' => 'Mariano'], true, false);
         $this->assertMatchesRegularExpression('/^\s*`Member`.`name`\s*=\s*\'Mariano\'\s*$/', $result);
@@ -3387,7 +3387,7 @@ SQL;
      *
      * @return void
      */
-    public function testConditionsWithModel()
+    public function testConditionsWithModel(): void
     {
         $this->Model = new Article2();
 
@@ -3421,7 +3421,7 @@ SQL;
      *
      * @return void
      */
-    public function testFieldParsing()
+    public function testFieldParsing(): void
     {
         $this->Model = new TestModel();
         $result = $this->Dbo->fields($this->Model, 'Vendor', 'Vendor.id, COUNT(Model.vendor_id) AS `Vendor`.`count`');
@@ -3549,7 +3549,7 @@ SQL;
      *
      * @return void
      */
-    public function testFieldsWithExpression()
+    public function testFieldsWithExpression(): void
     {
         $this->Model = new TestModel();
         $expression = $this->Dbo->expression("CASE Sample.id WHEN 1 THEN 'Id One' ELSE 'Other Id' END AS case_col");
@@ -3566,7 +3566,7 @@ SQL;
      *
      * @return void
      */
-    public function testRenderStatement()
+    public function testRenderStatement(): void
     {
         $result = $this->Dbo->renderStatement('select', [
             'fields' => 'id', 'table' => 'table', 'conditions' => 'WHERE 1=1',
@@ -3592,7 +3592,7 @@ SQL;
      *
      * @return void
      */
-    public function testSchema()
+    public function testSchema(): void
     {
         $Schema = new CakeSchema();
         $Schema->tables = ['table' => [], 'anotherTable' => []];
@@ -3610,7 +3610,7 @@ SQL;
      * @return void
      * @throws Error
      */
-    public function testDropSchemaNoSchema()
+    public function testDropSchemaNoSchema(): void
     {
         $this->expectException(Error::class);
         try {
@@ -3626,7 +3626,7 @@ SQL;
      *
      * @return void
      */
-    public function testOrderParsing()
+    public function testOrderParsing(): void
     {
         $result = $this->Dbo->order("ADDTIME(Event.time_begin, '-06:00:00') ASC");
         $expected = " ORDER BY ADDTIME(`Event`.`time_begin`, '-06:00:00') ASC";
@@ -3707,7 +3707,7 @@ SQL;
      * @param array $errors The collected deprecation messages.
      * @return string The ORDER BY clause.
      */
-    protected function _orderCollectingDeprecations(array $args, &$errors)
+    protected function _orderCollectingDeprecations(array $args, &$errors): mixed
     {
         $errors = [];
         set_error_handler(function ($errno, $errstr) use (&$errors) {
@@ -3720,6 +3720,8 @@ SQL;
         } finally {
             restore_error_handler();
         }
+
+        return null;
     }
 
     /**
@@ -3728,7 +3730,7 @@ SQL;
      *
      * @return void
      */
-    public function testOrderDirectionDeprecation()
+    public function testOrderDirectionDeprecation(): void
     {
         $result = $this->_orderCollectingDeprecations([['Post.title' => ' Desc ', 'Post.id' => 'asc']], $errors);
         $this->assertSame(' ORDER BY `Post`.`title` Desc, `Post`.`id` asc', $result);
@@ -3760,7 +3762,7 @@ SQL;
      *
      * @return void
      */
-    public function testFindWithOrderDirection()
+    public function testFindWithOrderDirection(): void
     {
         $this->loadFixtures('Article');
         $Article = ClassRegistry::init('Article');
@@ -3785,7 +3787,7 @@ SQL;
      *
      * @return void
      */
-    public function testComplexSortExpression()
+    public function testComplexSortExpression(): void
     {
         $result = $this->Dbo->order(['(Model.field > 100) DESC', 'Model.field ASC']);
         $this->assertMatchesRegularExpression("/^\s*ORDER BY\s+\(`Model`\.`field`\s+>\s+100\)\s+DESC,\s+`Model`\.`field`\s+ASC\s*$/", $result);
@@ -3796,7 +3798,7 @@ SQL;
      *
      * @return void
      */
-    public function testCalculations()
+    public function testCalculations(): void
     {
         $this->Model = new TestModel();
         $result = $this->Dbo->calculate($this->Model, 'count');
@@ -3839,7 +3841,7 @@ SQL;
      *
      * @return void
      */
-    public function testLength()
+    public function testLength(): void
     {
         $result = $this->Dbo->length('varchar(255)');
         $expected = 255;
@@ -3874,7 +3876,7 @@ SQL;
      *
      * @return void
      */
-    public function testLengthEnum()
+    public function testLengthEnum(): void
     {
         $result = $this->Dbo->length("enum('test','me','now')");
         $this->assertNull($result);
@@ -3885,7 +3887,7 @@ SQL;
      *
      * @return void
      */
-    public function testLengthSet()
+    public function testLengthSet(): void
     {
         $result = $this->Dbo->length("set('a','b','cd')");
         $this->assertNull($result);
@@ -3896,7 +3898,7 @@ SQL;
      *
      * @return void
      */
-    public function testBuildIndex()
+    public function testBuildIndex(): void
     {
         $data = [
             'PRIMARY' => ['column' => 'id'],
@@ -3946,7 +3948,7 @@ SQL;
      *
      * @return void
      */
-    public function testBuildColumn()
+    public function testBuildColumn(): void
     {
         $data = [
             'name' => 'testName',
@@ -4050,7 +4052,7 @@ SQL;
      *
      * @return void
      */
-    public function testBuildColumnBadType()
+    public function testBuildColumnBadType(): void
     {
         $data = [
             'name' => 'testName',
@@ -4084,7 +4086,7 @@ SQL;
      * @return void
      * @dataProvider buildColumnUnsignedProvider
      */
-    public function testBuildColumnUnsigned($data, $expected)
+    public function testBuildColumnUnsigned($data, $expected): void
     {
         $result = $this->Dbo->buildColumn($data);
         $this->assertEquals($expected, $result);
@@ -4095,7 +4097,7 @@ SQL;
      *
      * @return array
      */
-    public function buildColumnUnsignedProvider()
+    public function buildColumnUnsignedProvider(): mixed
     {
         return [
             // unsigned int
@@ -4212,7 +4214,7 @@ SQL;
      *
      * @return void
      */
-    public function testSchemaUnsigned()
+    public function testSchemaUnsigned(): void
     {
         $this->loadFixtures('Unsigned');
         $Model = ClassRegistry::init('Model');
@@ -4233,7 +4235,7 @@ SQL;
      *
      * @return void
      */
-    public function testHasAny()
+    public function testHasAny(): void
     {
         $db = $this->Dbo->config['database'];
         $this->Dbo = $this->getMock('Mysql', ['connect', '_execute', 'execute', 'value']);
@@ -4267,7 +4269,7 @@ SQL;
      *
      * @return void
      */
-    public function testVirtualFields()
+    public function testVirtualFields(): void
     {
         $this->loadFixtures('Article', 'Comment', 'Tag');
         $this->Dbo->virtualFieldSeparator = '__';
@@ -4340,7 +4342,7 @@ SQL;
      *
      * @return void
      */
-    public function testVirtualFieldsWithSubquery()
+    public function testVirtualFieldsWithSubquery(): void
     {
         $this->loadFixtures('Article', 'Comment', 'User', 'Tag', 'ArticlesTag');
         $this->Dbo->virtualFieldSeparator = '__';
@@ -4370,7 +4372,7 @@ SQL;
      *
      * @return void
      */
-    public function testVirtualFieldsInConditions()
+    public function testVirtualFieldsInConditions(): void
     {
         $Article = ClassRegistry::init('Article');
         $commentsTable = $this->Dbo->fullTableName('comments', false, false);
@@ -4407,7 +4409,7 @@ SQL;
      *
      * @return void
      */
-    public function testConditionsWithComplexVirtualFields()
+    public function testConditionsWithComplexVirtualFields(): void
     {
         $Article = ClassRegistry::init('Article', 'Comment');
         $Article->virtualFields = [
@@ -4431,7 +4433,7 @@ SQL;
      *
      * @return void
      */
-    public function testVirtualFieldsInCalculate()
+    public function testVirtualFieldsInCalculate(): void
     {
         $Article = ClassRegistry::init('Article');
         $commentsTable = $this->Dbo->fullTableName('comments', false, false);
@@ -4456,7 +4458,7 @@ SQL;
      *
      * @return void
      */
-    public function testReadVirtualFieldsWithNewLines()
+    public function testReadVirtualFieldsWithNewLines(): void
     {
         $Article = new Article();
         $Article->recursive = 1;
@@ -4475,7 +4477,7 @@ SQL;
      *
      * @return void
      */
-    public function testVirtualFieldsInGroup()
+    public function testVirtualFieldsInGroup(): void
     {
         $Article = ClassRegistry::init('Article');
         $Article->virtualFields = [
@@ -4493,7 +4495,7 @@ SQL;
      *
      * @return void
      */
-    public function testFieldsWithComplexVirtualFields()
+    public function testFieldsWithComplexVirtualFields(): void
     {
         $Article = new Article();
         $Article->virtualFields = [
@@ -4521,7 +4523,7 @@ SQL;
      *
      * @return void
      */
-    public function testExecute()
+    public function testExecute(): void
     {
         $query = 'SELECT * FROM ' . $this->Dbo->fullTableName('articles') . ' WHERE 1 = 1';
         $this->Dbo->took = null;
@@ -4542,7 +4544,7 @@ SQL;
      *
      * @return void
      */
-    public function testVirtualFieldsFetch()
+    public function testVirtualFieldsFetch(): void
     {
         $this->loadFixtures('Article', 'Comment');
 
@@ -4567,7 +4569,7 @@ SQL;
      *
      * @return void
      */
-    public function testVirtualFieldsComplexRead()
+    public function testVirtualFieldsComplexRead(): void
     {
         $this->loadFixtures('DataTest', 'Article', 'Comment', 'User', 'Tag', 'ArticlesTag');
 
@@ -4601,7 +4603,7 @@ SQL;
      *
      * @return void
      */
-    public function testIntrospectType()
+    public function testIntrospectType(): void
     {
         // There is a bug that DboSource::value() does not quote an integer or flat
         // that contains a blank string on either side.
@@ -4764,7 +4766,7 @@ SQL;
      *
      * @return void
      */
-    public function testRealQueries()
+    public function testRealQueries(): void
     {
         $this->loadFixtures('Apple', 'Article', 'User', 'Comment', 'Tag', 'Sample', 'ArticlesTag');
 
@@ -4832,7 +4834,7 @@ SQL;
     /**
      * @return void
      */
-    public function testExceptionOnBrokenConnection()
+    public function testExceptionOnBrokenConnection(): void
     {
         $this->expectException(MissingConnectionException::class);
         new Mysql([
@@ -4849,7 +4851,7 @@ SQL;
      *
      * @return void
      */
-    public function testUpdateStatements()
+    public function testUpdateStatements(): void
     {
         $this->loadFixtures('Article', 'User');
         $test = ConnectionManager::getDatasource('test');
@@ -4881,7 +4883,7 @@ SQL;
      *
      * @return void
      */
-    public function testDeleteStatements()
+    public function testDeleteStatements(): void
     {
         $this->loadFixtures('Article', 'User');
         $test = ConnectionManager::getDatasource('test');
@@ -4913,7 +4915,7 @@ SQL;
      *
      * @return void
      */
-    public function testDeleteNoComplexCondition()
+    public function testDeleteNoComplexCondition(): void
     {
         $this->loadFixtures('Article', 'User');
         $test = ConnectionManager::getDatasource('test');
@@ -4941,7 +4943,7 @@ SQL;
      *
      * @return void
      */
-    public function testTruncateStatements()
+    public function testTruncateStatements(): void
     {
         $this->loadFixtures('Article', 'User');
         $db = ConnectionManager::getDatasource('test');
@@ -4982,7 +4984,7 @@ SQL;
      *
      * @return void
      */
-    public function testNestedTransaction()
+    public function testNestedTransaction(): void
     {
         $nested = $this->Dbo->useNestedTransactions;
         $this->Dbo->useNestedTransactions = true;
@@ -5023,7 +5025,7 @@ SQL;
      *
      * @return void
      */
-    public function testSetValue()
+    public function testSetValue(): void
     {
         $column = "set('a','b','c')";
         $result = $this->Dbo->value('1', $column);
@@ -5041,7 +5043,7 @@ SQL;
      *
      * @return void
      */
-    public function testIsConnected()
+    public function testIsConnected(): void
     {
         $this->Dbo->disconnect();
         $this->assertFalse($this->Dbo->isConnected(), 'Not connected now.');
@@ -5055,7 +5057,7 @@ SQL;
      *
      * @return void
      */
-    public function testInsertMultiId()
+    public function testInsertMultiId(): void
     {
         $this->loadFixtures('Article');
         $Article = ClassRegistry::init('Article');
@@ -5113,7 +5115,7 @@ SQL;
      *
      * @return void
      */
-    public function testListSourcesQueryFailure()
+    public function testListSourcesQueryFailure(): void
     {
         $db = $this->getMock('Mysql', ['_execute'], [['database' => 'cake_test'], false]);
         $db->cacheSources = false;
@@ -5129,7 +5131,7 @@ SQL;
      *
      * @return void
      */
-    public function testListDetailedSourcesQueryFailure()
+    public function testListDetailedSourcesQueryFailure(): void
     {
         $db = new Mysql(['database' => 'cake_test'], false);
         $connection = $this->getMock('PDO', ['query'], [], '', false);

@@ -23,12 +23,12 @@
  */
 class TimeHelperTestObject extends TimeHelper
 {
-    public function attach(CakeTimeMock $cakeTime)
+    public function attach(CakeTimeMock $cakeTime): void
     {
         $this->_engine = $cakeTime;
     }
 
-    public function engine()
+    public function engine(): mixed
     {
         return $this->_engine;
     }
@@ -82,7 +82,7 @@ class TimeHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testTimeHelperProxyMethodCalls()
+    public function testTimeHelperProxyMethodCalls(): void
     {
         $methods = [
             'convertSpecifiers', 'convert', 'serverOffset', 'fromString',
@@ -136,7 +136,7 @@ class TimeHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testEngineOverride()
+    public function testEngineOverride(): void
     {
         App::build([
             'Utility' => [CORE_TESTS . DS . 'test_app' . DS . 'Utility' . DS],
@@ -158,7 +158,7 @@ class TimeHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testTimeAgoInWords()
+    public function testTimeAgoInWords(): void
     {
         $Time = new TimeHelper($this->View);
         $timestamp = strtotime('+8 years, +4 months +2 weeks +3 days');
@@ -215,7 +215,7 @@ class TimeHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testNiceFormatMagicAccess()
+    public function testNiceFormatMagicAccess(): void
     {
         $Time = new TimeHelper($this->View);
         $original = CakeTime::$niceFormat;

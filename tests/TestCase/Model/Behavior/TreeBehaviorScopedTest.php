@@ -60,7 +60,7 @@ class TreeBehaviorScopedTest extends CakeTestCase
      *
      * @return void
      */
-    public function testStringScope()
+    public function testStringScope(): void
     {
         $this->Tree = new FlagTree();
         $this->Tree->order = null;
@@ -98,7 +98,7 @@ class TreeBehaviorScopedTest extends CakeTestCase
      *
      * @return void
      */
-    public function testArrayScope()
+    public function testArrayScope(): void
     {
         $this->Tree = new FlagTree();
         $this->Tree->order = null;
@@ -139,7 +139,7 @@ class TreeBehaviorScopedTest extends CakeTestCase
      *
      * @return void
      */
-    public function testSaveWithParentAndInvalidScope()
+    public function testSaveWithParentAndInvalidScope(): void
     {
         $this->Tree = new FlagTree();
         $this->Tree->order = null;
@@ -160,7 +160,7 @@ class TreeBehaviorScopedTest extends CakeTestCase
      *
      * @return void
      */
-    public function testMoveUpWithScope()
+    public function testMoveUpWithScope(): void
     {
         $this->Ad = new Ad();
         $this->Ad->order = null;
@@ -178,7 +178,7 @@ class TreeBehaviorScopedTest extends CakeTestCase
      *
      * @return void
      */
-    public function testMoveDownWithScope()
+    public function testMoveDownWithScope(): void
     {
         $this->Ad = new Ad();
         $this->Ad->order = null;
@@ -197,7 +197,7 @@ class TreeBehaviorScopedTest extends CakeTestCase
      *
      * @return void
      */
-    public function testTranslatingTree()
+    public function testTranslatingTree(): void
     {
         $this->Tree = new FlagTree();
         $this->Tree->order = null;
@@ -316,7 +316,7 @@ class TreeBehaviorScopedTest extends CakeTestCase
      *
      * @return void
      */
-    public function testAliasesWithScopeInTwoTreeAssociations()
+    public function testAliasesWithScopeInTwoTreeAssociations(): void
     {
         extract($this->settings);
         $this->Tree = new $modelClass();
@@ -375,7 +375,7 @@ class TreeBehaviorScopedTest extends CakeTestCase
      *
      * @return void
      */
-    public function testGenerateTreeListWithScope()
+    public function testGenerateTreeListWithScope(): void
     {
         extract($this->settings);
         $this->Tree = new $modelClass();
@@ -415,7 +415,7 @@ class TreeBehaviorScopedTest extends CakeTestCase
      *
      * @return void
      */
-    public function testRecoverUsingParentMode()
+    public function testRecoverUsingParentMode(): void
     {
         extract($this->settings);
         $this->Tree = new $modelClass();
@@ -476,7 +476,7 @@ class TreeBehaviorScopedTest extends CakeTestCase
      *
      * @return void
      */
-    public function testRecoverFromMissingParent()
+    public function testRecoverFromMissingParent(): void
     {
         extract($this->settings);
         $this->Tree = new $modelClass();
@@ -508,7 +508,7 @@ class TreeBehaviorScopedTest extends CakeTestCase
      *
      * @return void
      */
-    public function testDetectInvalidParents()
+    public function testDetectInvalidParents(): void
     {
         extract($this->settings);
         $this->Tree = new $modelClass();
@@ -539,7 +539,7 @@ class TreeBehaviorScopedTest extends CakeTestCase
      *
      * @return void
      */
-    public function testDetectInvalidLftsRghts()
+    public function testDetectInvalidLftsRghts(): void
     {
         extract($this->settings);
         $this->Tree = new $modelClass();
@@ -569,7 +569,7 @@ class TreeBehaviorScopedTest extends CakeTestCase
      *
      * @return void
      */
-    public function testDetectEqualLftsRghts()
+    public function testDetectEqualLftsRghts(): void
     {
         extract($this->settings);
         $this->Tree = new $modelClass();

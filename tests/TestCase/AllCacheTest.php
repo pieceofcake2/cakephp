@@ -32,7 +32,7 @@ class AllCacheTest extends TestSuite
      *
      * @return void
      */
-    public static function suite()
+    public static function suite(): mixed
     {
         $suite = new CakeTestSuite('All Cache related class tests');
         $suite->addTestDirectory(CORE_TESTS . DS . 'TestCase' . DS . 'Cache');

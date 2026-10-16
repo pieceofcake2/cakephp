@@ -57,7 +57,7 @@ class TestSource extends DataSource
      *
      * @return bool
      */
-    public function listSources($data = \null)
+    public function listSources($data = \null): mixed
     {
         return null;
     }
@@ -68,7 +68,7 @@ class TestSource extends DataSource
      * @param Model $Model
      * @return array
      */
-    public function describe(Model $Model)
+    public function describe(Model $Model): mixed
     {
         return $this->_schema;
     }
@@ -82,7 +82,7 @@ class TestSource extends DataSource
      * @param type $params
      * @return array
      */
-    public function calculate(Model $Model, $func, $params = [])
+    public function calculate(Model $Model, $func, $params = []): mixed
     {
         return $func;
     }
@@ -146,7 +146,7 @@ class DataSourceTest extends CakeTestCase
      *
      * @return void
      */
-    public function testCreate()
+    public function testCreate(): void
     {
         $data = [
             $this->Model->alias => [
@@ -173,7 +173,7 @@ class DataSourceTest extends CakeTestCase
      *
      * @return void
      */
-    public function testRead()
+    public function testRead(): void
     {
         $expected = [
             'conditions' => ['status' => 'test'],
@@ -204,7 +204,7 @@ class DataSourceTest extends CakeTestCase
      *
      * @return void
      */
-    public function testUpdate()
+    public function testUpdate(): void
     {
         $data = [
             $this->Model->alias => [
@@ -237,7 +237,7 @@ class DataSourceTest extends CakeTestCase
      *
      * @return void
      */
-    public function testDelete()
+    public function testDelete(): void
     {
         $this->Source->expects($this->any())
             ->method('read')

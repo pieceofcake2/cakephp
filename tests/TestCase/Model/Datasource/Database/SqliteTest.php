@@ -40,7 +40,7 @@ class DboSqliteTestDb extends Sqlite
      * @param mixed $sql
      * @return void
      */
-    protected function _execute($sql, $params = [], $prepareOptions = [])
+    protected function _execute($sql, $params = [], $prepareOptions = []): mixed
     {
         $this->simulated[] = $sql;
 
@@ -52,7 +52,7 @@ class DboSqliteTestDb extends Sqlite
      *
      * @return void
      */
-    public function getLastQuery()
+    public function getLastQuery(): mixed
     {
         return $this->simulated[count($this->simulated) - 1];
     }
@@ -118,7 +118,7 @@ class SqliteTest extends CakeTestCase
      *
      * @return void
      */
-    public function testTableListCacheDisabling()
+    public function testTableListCacheDisabling(): void
     {
         $this->assertFalse(in_array('foo_test', $this->Dbo->listSources()));
 
@@ -135,7 +135,7 @@ class SqliteTest extends CakeTestCase
      *
      * @return void
      */
-    public function testIndex()
+    public function testIndex(): void
     {
         $name = $this->Dbo->fullTableName('with_a_key', false, false);
         $this->Dbo->query('CREATE TABLE ' . $name . ' ("id" int(11) PRIMARY KEY, "bool" int(1), "small_char" varchar(50), "description" varchar(40) );');
@@ -167,7 +167,7 @@ class SqliteTest extends CakeTestCase
      *
      * @return void
      */
-    public function testCacheKeyName()
+    public function testCacheKeyName(): void
     {
         Configure::write('Cache.disable', false);
 
@@ -203,7 +203,7 @@ class SqliteTest extends CakeTestCase
      *
      * @return void
      */
-    public function testBuildColumn()
+    public function testBuildColumn(): void
     {
         $data = [
             'name' => 'int_field',
@@ -319,7 +319,7 @@ class SqliteTest extends CakeTestCase
      *
      * @return void
      */
-    public function testDescribe()
+    public function testDescribe(): void
     {
         $this->loadFixtures('User');
         $Model = new Model([
@@ -379,7 +379,7 @@ class SqliteTest extends CakeTestCase
      *
      * @return void
      */
-    public function testDatatypes()
+    public function testDatatypes(): void
     {
         $this->loadFixtures('Datatype');
         $Model = new Model([
@@ -447,7 +447,7 @@ class SqliteTest extends CakeTestCase
      *
      * @return void
      */
-    public function testDescribeWithUuidPrimaryKey()
+    public function testDescribeWithUuidPrimaryKey(): void
     {
         $tableName = 'uuid_tests';
         $this->Dbo->query("CREATE TABLE {$tableName} (id VARCHAR(36) PRIMARY KEY, name VARCHAR, created DATETIME, modified DATETIME)");
@@ -483,7 +483,7 @@ class SqliteTest extends CakeTestCase
      *
      * @return void
      */
-    public function testDescribeHandleCurrentTimestamp()
+    public function testDescribeHandleCurrentTimestamp(): void
     {
         $name = $this->Dbo->fullTableName('timestamp_default_values');
         $sql = <<<SQL
@@ -518,7 +518,7 @@ SQL;
      *
      * @return void
      */
-    public function testVirtualFieldWithFunction()
+    public function testVirtualFieldWithFunction(): void
     {
         $this->loadFixtures('User');
         $User = ClassRegistry::init('User');
@@ -536,7 +536,7 @@ SQL;
      *
      * @return void
      */
-    public function testUuidPrimaryKeyInsertion()
+    public function testUuidPrimaryKeyInsertion(): void
     {
         $this->loadFixtures('Uuid');
         $Model = ClassRegistry::init('Uuid');
@@ -558,7 +558,7 @@ SQL;
      *
      * @return void
      */
-    public function testNestedTransaction()
+    public function testNestedTransaction(): void
     {
         $this->Dbo->useNestedTransactions = true;
         $this->skipIf($this->Dbo->nestedTransactionSupported() === false, 'The Sqlite version do not support nested transaction');
@@ -593,7 +593,7 @@ SQL;
      *
      * @return void
      */
-    public function testLimit()
+    public function testLimit(): void
     {
         $db = $this->Dbo;
 
@@ -619,7 +619,7 @@ SQL;
      *
      * @return void
      */
-    public function testFetchRowColumnParsing()
+    public function testFetchRowColumnParsing(): void
     {
         $this->loadFixtures('User');
         $sql = 'SELECT "User"."id", "User"."user", "User"."password", "User"."created", (1 + 1) AS "two" ' .
@@ -662,7 +662,7 @@ SQL;
      *
      * @return void
      */
-    public function testFetchColumnRowParsingMoreComplex()
+    public function testFetchColumnRowParsingMoreComplex(): void
     {
         $this->loadFixtures('User');
         $sql = 'SELECT
@@ -688,7 +688,7 @@ SQL;
      *
      * @return void
      */
-    public function testBuildStatementWithoutLockingHint()
+    public function testBuildStatementWithoutLockingHint(): void
     {
         $model = new TestModel();
         $sql = $this->Dbo->buildStatement(
@@ -713,7 +713,7 @@ SQL;
      * @param array $errors The collected deprecation messages.
      * @return string The ORDER BY clause.
      */
-    protected function _orderCollectingDeprecations(array $args, &$errors)
+    protected function _orderCollectingDeprecations(array $args, &$errors): mixed
     {
         $errors = [];
         set_error_handler(function ($errno, $errstr) use (&$errors) {
@@ -726,6 +726,8 @@ SQL;
         } finally {
             restore_error_handler();
         }
+
+        return null;
     }
 
     /**
@@ -734,7 +736,7 @@ SQL;
      *
      * @return void
      */
-    public function testOrderDirectionDeprecation()
+    public function testOrderDirectionDeprecation(): void
     {
         $result = $this->_orderCollectingDeprecations([['Post.title' => ' Desc ', 'Post.id' => 'asc nulls first']], $errors);
         $this->assertSame(' ORDER BY "Post"."title" Desc, "Post"."id" asc nulls first', $result);
@@ -762,7 +764,7 @@ SQL;
      *
      * @return void
      */
-    public function testFindWithOrderDirection()
+    public function testFindWithOrderDirection(): void
     {
         $this->loadFixtures('Article');
         $Article = ClassRegistry::init('Article');

@@ -40,7 +40,7 @@ class RedirectRouteTest extends CakeTestCase
      *
      * @return void
      */
-    public function testParsing()
+    public function testParsing(): void
     {
         $route = new RedirectRoute('/home', ['controller' => 'posts']);
         $route->stop = false;

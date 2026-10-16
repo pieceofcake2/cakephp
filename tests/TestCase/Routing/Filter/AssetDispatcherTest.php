@@ -44,7 +44,7 @@ class AssetDispatcherTest extends CakeTestCase
      * @triggers DispatcherTest $this, compact('request', 'response')
      * @triggers DispatcherTest $this, compact('request', 'response')
      */
-    public function testAssetFilterForThemeAndPlugins()
+    public function testAssetFilterForThemeAndPlugins(): void
     {
         $filter = new AssetDispatcher();
         $response = $this->getMock('CakeResponse', ['_sendHeader']);
@@ -95,7 +95,7 @@ class AssetDispatcherTest extends CakeTestCase
      * @return void
      * @triggers DispatcherTest $this, compact('request', 'response')
      */
-    public function testNoHandleRoutedExtension()
+    public function testNoHandleRoutedExtension(): void
     {
         $filter = new AssetDispatcher();
         $response = $this->getMock('CakeResponse', ['_sendHeader']);
@@ -125,7 +125,7 @@ class AssetDispatcherTest extends CakeTestCase
      * @triggers DispatcherTest $this, compact('request', 'response')
      * @triggers DispatcherTest $this, compact('request', 'response')
      */
-    public function testNotModified()
+    public function testNotModified(): void
     {
         $filter = new AssetDispatcher();
         Configure::write('Asset.filter', [
@@ -169,7 +169,7 @@ class AssetDispatcherTest extends CakeTestCase
      * @return void
      * @triggers Dispatcher.beforeRequest $this, compact('request', 'response')
      */
-    public function test404OnDoubleSlash()
+    public function test404OnDoubleSlash(): void
     {
         $filter = new AssetDispatcher();
 
@@ -187,7 +187,7 @@ class AssetDispatcherTest extends CakeTestCase
      * @return void
      * @triggers Dispatcher.beforeRequest $this, compact('request', 'response')
      */
-    public function test404OnDoubleDot()
+    public function test404OnDoubleDot(): void
     {
         App::build([
             'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS],
@@ -207,7 +207,7 @@ class AssetDispatcherTest extends CakeTestCase
      * @return void
      * @triggers Dispatcher.beforeRequest $this, compact('request', 'response')
      */
-    public function test404OnDoubleDotEncoded()
+    public function test404OnDoubleDotEncoded(): void
     {
         App::build([
             'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS],
@@ -233,7 +233,7 @@ class AssetDispatcherTest extends CakeTestCase
      * @outputBuffering enabled
      * @return void
      */
-    public function testAssetContentLength()
+    public function testAssetContentLength(): void
     {
         Router::reload();
         Configure::write('Dispatcher.filters', ['AssetDispatcher']);

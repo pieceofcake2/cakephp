@@ -53,7 +53,7 @@ class CakeFixtureManagerTest extends CakeTestCase
      *
      * @return void
      */
-    public function testLoadTruncatesTable()
+    public function testLoadTruncatesTable(): void
     {
         $MockFixture = $this->getMock('UuidFixture', ['truncate', 'insert']);
         // The table name is derived from the class name, which is the mock class name here.
@@ -104,7 +104,7 @@ class CakeFixtureManagerTest extends CakeTestCase
      *
      * @return void
      */
-    public function testLoadSingleTruncatesTable()
+    public function testLoadSingleTruncatesTable(): void
     {
         $MockFixture = $this->getMock('UuidFixture', ['truncate']);
         // The table name is derived from the class name, which is the mock class name here.

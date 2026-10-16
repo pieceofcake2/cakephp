@@ -52,7 +52,7 @@ class ConsoleErrorHandlerTest extends CakeTestCase
      *
      * @return void
      */
-    public function testHandleError()
+    public function testHandleError(): void
     {
         $content = "<error>Notice Error:</error> This is a notice error in [/some/file, line 275]\n";
         ConsoleErrorHandler::$stderr->expects($this->once())->method('write')
@@ -66,7 +66,7 @@ class ConsoleErrorHandlerTest extends CakeTestCase
      *
      * @return void
      */
-    public function testHandleFatalError()
+    public function testHandleFatalError(): void
     {
         $content = "<error>Fatal Error Error:</error> This is a fatal error in [/some/file, line 275]\n";
         ConsoleErrorHandler::$stderr->expects($this->once())->method('write')
@@ -84,7 +84,7 @@ class ConsoleErrorHandlerTest extends CakeTestCase
      *
      * @return void
      */
-    public function testCakeErrors()
+    public function testCakeErrors(): void
     {
         $exception = new MissingActionException('Missing action');
         ConsoleErrorHandler::$stderr->expects($this->once())->method('write')
@@ -102,7 +102,7 @@ class ConsoleErrorHandlerTest extends CakeTestCase
      *
      * @return void
      */
-    public function testNonCakeExceptions()
+    public function testNonCakeExceptions(): void
     {
         $exception = new InvalidArgumentException('Too many parameters.');
 
@@ -121,7 +121,7 @@ class ConsoleErrorHandlerTest extends CakeTestCase
      *
      * @return void
      */
-    public function testError404Exception()
+    public function testError404Exception(): void
     {
         $exception = new NotFoundException('dont use me in cli.');
 
@@ -140,7 +140,7 @@ class ConsoleErrorHandlerTest extends CakeTestCase
      *
      * @return void
      */
-    public function testError500Exception()
+    public function testError500Exception(): void
     {
         $exception = new InternalErrorException('dont use me in cli.');
 
@@ -159,7 +159,7 @@ class ConsoleErrorHandlerTest extends CakeTestCase
      *
      * @return void
      */
-    public function testNonIntegerExceptionCode()
+    public function testNonIntegerExceptionCode(): void
     {
         $exception = new Exception('Non-integer exception code');
 

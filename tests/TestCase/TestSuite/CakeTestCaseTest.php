@@ -95,7 +95,7 @@ class CakeTestCaseTest extends CakeTestCase
      *
      * @return void
      */
-    public function testAssertTagsBasic()
+    public function testAssertTagsBasic(): void
     {
         $test = new AssertTagsTestCase('testAssertTagsQuotes');
         $result = $test->run();
@@ -109,7 +109,7 @@ class CakeTestCaseTest extends CakeTestCase
      *
      * @return void
      */
-    public function testAssertTagsQuoting()
+    public function testAssertTagsQuoting(): void
     {
         $input = '<a href="/test.html" class="active">My link</a>';
         $pattern = [
@@ -161,7 +161,7 @@ class CakeTestCaseTest extends CakeTestCase
      *
      * @return void
      */
-    public function testAssertTagsRuntimeComplexity()
+    public function testAssertTagsRuntimeComplexity(): void
     {
         $pattern = [
             'div' => [
@@ -189,7 +189,7 @@ class CakeTestCaseTest extends CakeTestCase
      *
      * @return void
      */
-    public function testNumericValuesInExpectationForAssertTags()
+    public function testNumericValuesInExpectationForAssertTags(): void
     {
         $test = new AssertTagsTestCase('testNumericValuesInExpectationForAssertTags');
         $result = $test->run();
@@ -203,7 +203,7 @@ class CakeTestCaseTest extends CakeTestCase
      *
      * @return void
      */
-    public function testBadAssertTags()
+    public function testBadAssertTags(): void
     {
         $test = new AssertTagsTestCase('testBadAssertTags');
         $result = $test->run();
@@ -223,7 +223,7 @@ class CakeTestCaseTest extends CakeTestCase
      *
      * @return void
      */
-    public function testLoadFixtures()
+    public function testLoadFixtures(): void
     {
         $test = new FixturizedTestCase('testFixturePresent');
         $manager = $this->getMock('CakeFixtureManager');
@@ -242,7 +242,7 @@ class CakeTestCaseTest extends CakeTestCase
      *
      * @return void
      */
-    public function testLoadFixturesOnDemand()
+    public function testLoadFixturesOnDemand(): void
     {
         $test = new FixturizedTestCase('testFixtureLoadOnDemand');
         $test->autoFixtures = false;
@@ -259,7 +259,7 @@ class CakeTestCaseTest extends CakeTestCase
      *
      * @return void
      */
-    public function testUnoadFixturesAfterFailure()
+    public function testUnoadFixturesAfterFailure(): void
     {
         $test = new FixturizedTestCase('testFixtureLoadOnDemand');
         $test->autoFixtures = false;
@@ -277,7 +277,7 @@ class CakeTestCaseTest extends CakeTestCase
      *
      * @return void
      */
-    public function testThrowException()
+    public function testThrowException(): void
     {
         $test = new FixturizedTestCase('testThrowException');
         $test->autoFixtures = false;
@@ -293,7 +293,7 @@ class CakeTestCaseTest extends CakeTestCase
      *
      * @return void
      */
-    public function testSkipIf()
+    public function testSkipIf(): void
     {
         $test = new FixturizedTestCase('testSkipIfTrue');
         $result = $test->run();
@@ -309,7 +309,7 @@ class CakeTestCaseTest extends CakeTestCase
      *
      * @return void
      */
-    public function testSetupBackUpValues()
+    public function testSetupBackUpValues(): void
     {
         $this->assertArrayHasKey('debug', $this->_configure);
         $this->assertArrayHasKey('Plugin', $this->_pathRestore);
@@ -320,7 +320,7 @@ class CakeTestCaseTest extends CakeTestCase
      *
      * @return void
      */
-    public function testAssertTextNotEquals()
+    public function testAssertTextNotEquals(): void
     {
         $one = "\r\nOne\rTwooo";
         $two = "\nOne\nTwo";
@@ -332,7 +332,7 @@ class CakeTestCaseTest extends CakeTestCase
      *
      * @return void
      */
-    public function testAssertTextEquals()
+    public function testAssertTextEquals(): void
     {
         $one = "\r\nOne\rTwo";
         $two = "\nOne\nTwo";
@@ -344,7 +344,7 @@ class CakeTestCaseTest extends CakeTestCase
      *
      * @return void
      */
-    public function testAssertTextStartsWith()
+    public function testAssertTextStartsWith(): void
     {
         $stringDirty = "some\nstring\r\nwith\rdifferent\nline endings!";
 
@@ -361,7 +361,7 @@ class CakeTestCaseTest extends CakeTestCase
      *
      * @return void
      */
-    public function testAssertTextStartsNotWith()
+    public function testAssertTextStartsNotWith(): void
     {
         $stringDirty = "some\nstring\r\nwith\rdifferent\nline endings!";
         $this->assertTextStartsNotWith("some\nstring\nwithout", $stringDirty);
@@ -372,7 +372,7 @@ class CakeTestCaseTest extends CakeTestCase
      *
      * @return void
      */
-    public function testAssertTextEndsWith()
+    public function testAssertTextEndsWith(): void
     {
         $stringDirty = "some\nstring\r\nwith\rdifferent\nline endings!";
         $this->assertTextEndsWith("string\nwith\r\ndifferent\rline endings!", $stringDirty);
@@ -384,7 +384,7 @@ class CakeTestCaseTest extends CakeTestCase
      *
      * @return void
      */
-    public function testAssertTextEndsNotWith()
+    public function testAssertTextEndsNotWith(): void
     {
         $stringDirty = "some\nstring\r\nwith\rdifferent\nline endings!";
         $this->assertStringEndsNotWith("different\nline endings", $stringDirty);
@@ -396,7 +396,7 @@ class CakeTestCaseTest extends CakeTestCase
      *
      * @return void
      */
-    public function testAssertTextContains()
+    public function testAssertTextContains(): void
     {
         $stringDirty = "some\nstring\r\nwith\rdifferent\nline endings!";
         $this->assertStringContainsString('different', $stringDirty);
@@ -409,7 +409,7 @@ class CakeTestCaseTest extends CakeTestCase
      *
      * @return void
      */
-    public function testAssertTextNotContains()
+    public function testAssertTextNotContains(): void
     {
         $stringDirty = "some\nstring\r\nwith\rdifferent\nline endings!";
         $this->assertTextNotContains("different\rlines", $stringDirty);
@@ -420,7 +420,7 @@ class CakeTestCaseTest extends CakeTestCase
      *
      * @return void
      */
-    public function testGetMockForModel()
+    public function testGetMockForModel(): void
     {
         App::build([
             'Model' => [
@@ -445,7 +445,7 @@ class CakeTestCaseTest extends CakeTestCase
      *
      * @return void
      */
-    public function testGetMockForModelSecondaryDatasource()
+    public function testGetMockForModelSecondaryDatasource(): void
     {
         App::build([
             'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS],
@@ -468,7 +468,7 @@ class CakeTestCaseTest extends CakeTestCase
      *
      * @return void
      */
-    public function testGetMockForModelConstructorDatasource()
+    public function testGetMockForModelConstructorDatasource(): void
     {
         $post = $this->getMockForModel('ConstructorPost', ['save'], ['ds' => 'test']);
         $this->assertEquals('test', $post->useDbConfig);
@@ -479,7 +479,7 @@ class CakeTestCaseTest extends CakeTestCase
      *
      * @return void
      */
-    public function testGetMockForModelWithPlugin()
+    public function testGetMockForModelWithPlugin(): void
     {
         App::build([
             'Plugin' => [
@@ -509,7 +509,7 @@ class CakeTestCaseTest extends CakeTestCase
      *
      * @return void
      */
-    public function testGetMockForModelModel()
+    public function testGetMockForModelModel(): void
     {
         $Mock = $this->getMockForModel('Model', ['save', 'setDataSource'], ['name' => 'Comment']);
 
@@ -529,7 +529,7 @@ class CakeTestCaseTest extends CakeTestCase
      *
      * @return void
      */
-    public function testGetMockForModelDoesNotExist()
+    public function testGetMockForModelDoesNotExist(): void
     {
         $this->expectException(MissingModelException::class);
         $this->expectExceptionMessage('Model IDoNotExist could not be found');
@@ -542,7 +542,7 @@ class CakeTestCaseTest extends CakeTestCase
      *
      * @return void
      */
-    public function testAssertTagsFullDebug()
+    public function testAssertTagsFullDebug(): void
     {
         $failed = false;
         ob_start();
@@ -562,7 +562,7 @@ class CakeTestCaseTest extends CakeTestCase
      *
      * @return void
      */
-    public function testConsoleOutputStubWriteReturnsBytesWritten()
+    public function testConsoleOutputStubWriteReturnsBytesWritten(): void
     {
         $stub = new ConsoleOutputStub();
 
@@ -575,7 +575,7 @@ class CakeTestCaseTest extends CakeTestCase
      *
      * @return void
      */
-    public function testCompatibilityAssertions()
+    public function testCompatibilityAssertions(): void
     {
         $this->assertTextContains('FOO', "foo\r\nbar", '', true);
         $this->assertTextNotContains('BAZ', "foo\r\nbar", '', true);

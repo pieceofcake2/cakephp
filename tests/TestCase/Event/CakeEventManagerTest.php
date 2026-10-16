@@ -28,9 +28,11 @@ class CakeEventTestListener
      *
      * @return void
      */
-    public function listenerFunction()
+    public function listenerFunction(): mixed
     {
         $this->callStack[] = __FUNCTION__;
+
+        return null;
     }
 
     /**
@@ -38,9 +40,11 @@ class CakeEventTestListener
      *
      * @return void
      */
-    public function secondListenerFunction($some)
+    public function secondListenerFunction($some): mixed
     {
         $this->callStack[] = __FUNCTION__;
+
+        return null;
     }
 
     /**
@@ -49,9 +53,11 @@ class CakeEventTestListener
      * @param CakeEvent $event
      * @return void
      */
-    public function stopListener($event)
+    public function stopListener($event): mixed
     {
         $event->stopPropagation();
+
+        return null;
     }
 }
 
@@ -62,7 +68,7 @@ class CakeEventTestListener
  */
 class CustomTestEventListener extends CakeEventTestListener implements CakeEventListener
 {
-    public function implementedEvents()
+    public function implementedEvents(): mixed
     {
         return [
             'fake.event' => 'listenerFunction',
@@ -79,9 +85,11 @@ class CustomTestEventListener extends CakeEventTestListener implements CakeEvent
      *
      * @return void
      */
-    public function thirdListenerFunction()
+    public function thirdListenerFunction(): mixed
     {
         $this->callStack[] = __FUNCTION__;
+
+        return null;
     }
 }
 
@@ -95,7 +103,7 @@ class CakeEventManagerTest extends CakeTestCase
      *
      * @return void
      */
-    public function testAttachListeners()
+    public function testAttachListeners(): void
     {
         $manager = new CakeEventManager();
         $manager->attach('fakeFunction', 'fake.event');
@@ -128,7 +136,7 @@ class CakeEventManagerTest extends CakeTestCase
      *
      * @return void
      */
-    public function testAttachMultipleEventKeys()
+    public function testAttachMultipleEventKeys(): void
     {
         $manager = new CakeEventManager();
         $manager->attach('fakeFunction', 'fake.event');
@@ -151,7 +159,7 @@ class CakeEventManagerTest extends CakeTestCase
      *
      * @return void
      */
-    public function testDetach()
+    public function testDetach(): void
     {
         $manager = new CakeEventManager();
         $manager->attach(['AClass', 'aMethod'], 'fake.event');
@@ -176,7 +184,7 @@ class CakeEventManagerTest extends CakeTestCase
      *
      * @return void
      */
-    public function testDetachFromAll()
+    public function testDetachFromAll(): void
     {
         $manager = new CakeEventManager();
         $manager->attach(['AClass', 'aMethod'], 'fake.event');
@@ -197,7 +205,7 @@ class CakeEventManagerTest extends CakeTestCase
      * @return void
      * @triggers fake.event
      */
-    public function testDispatch()
+    public function testDispatch(): void
     {
         $manager = new CakeEventManager();
         $listener = $this->getMock('CakeEventTestListener');
@@ -216,7 +224,7 @@ class CakeEventManagerTest extends CakeTestCase
      *
      * @return void
      */
-    public function testDispatchWithKeyName()
+    public function testDispatchWithKeyName(): void
     {
         $manager = new CakeEventManager();
         $listener = new CakeEventTestListener();
@@ -234,7 +242,7 @@ class CakeEventManagerTest extends CakeTestCase
      * @return void
      * @triggers fake.event
      */
-    public function testDispatchReturnValue()
+    public function testDispatchReturnValue(): void
     {
         $manager = new CakeEventManager();
         $listener = $this->getMock('CakeEventTestListener');
@@ -259,7 +267,7 @@ class CakeEventManagerTest extends CakeTestCase
      * @return void
      * @triggers fake.event
      */
-    public function testDispatchFalseStopsEvent()
+    public function testDispatchFalseStopsEvent(): void
     {
         $manager = new CakeEventManager();
         $listener = $this->getMock('CakeEventTestListener');
@@ -283,7 +291,7 @@ class CakeEventManagerTest extends CakeTestCase
      * @return void
      * @triggers fake.event
      */
-    public function testDispatchPrioritized()
+    public function testDispatchPrioritized(): void
     {
         $manager = new CakeEventManager();
         $listener = new CakeEventTestListener();
@@ -302,7 +310,7 @@ class CakeEventManagerTest extends CakeTestCase
      * @return void
      * @triggers fake.event $this, array('some' => 'data')
      */
-    public function testDispatchPassingParams()
+    public function testDispatchPassingParams(): void
     {
         $manager = new CakeEventManager();
         $listener = $this->getMock('CakeEventTestListener');
@@ -324,7 +332,7 @@ class CakeEventManagerTest extends CakeTestCase
      * @triggers another.event $this, array('some' => 'data')
      * @triggers multiple.handlers
      */
-    public function testAttachSubscriber()
+    public function testAttachSubscriber(): void
     {
         $manager = new CakeEventManager();
         $listener = $this->getMock('CustomTestEventListener', ['secondListenerFunction']);
@@ -354,7 +362,7 @@ class CakeEventManagerTest extends CakeTestCase
      *
      * @return void
      */
-    public function testDetachSubscriber()
+    public function testDetachSubscriber(): void
     {
         $manager = new CakeEventManager();
         $listener = $this->getMock('CustomTestEventListener', ['secondListenerFunction']);
@@ -377,7 +385,7 @@ class CakeEventManagerTest extends CakeTestCase
      *
      * @return void
      */
-    public function testGlobalDispatcherGetter()
+    public function testGlobalDispatcherGetter(): void
     {
         $this->assertInstanceOf('CakeEventManager', CakeEventManager::instance());
         $manager = new CakeEventManager();
@@ -392,7 +400,7 @@ class CakeEventManagerTest extends CakeTestCase
      * @return void
      * @triggers fake.event
      */
-    public function testDispatchWithGlobal()
+    public function testDispatchWithGlobal(): void
     {
         $generalManager = $this->getMock('CakeEventManager', ['prioritisedListeners']);
         $manager = new CakeEventManager();
@@ -410,7 +418,7 @@ class CakeEventManagerTest extends CakeTestCase
      * @return void
      * @triggers fake.event
      */
-    public function testStopPropagation()
+    public function testStopPropagation(): void
     {
         $generalManager = $this->getMock('CakeEventManager');
         $manager = new CakeEventManager();
@@ -439,7 +447,7 @@ class CakeEventManagerTest extends CakeTestCase
      * @return void
      * @triggers fake.event
      */
-    public function testDispatchPrioritizedWithGlobal()
+    public function testDispatchPrioritizedWithGlobal(): void
     {
         $generalManager = $this->getMock('CakeEventManager');
         $manager = new CakeEventManager();
@@ -472,7 +480,7 @@ class CakeEventManagerTest extends CakeTestCase
      * @return void
      * @triggers fake.event
      */
-    public function testDispatchGlobalBeforeLocal()
+    public function testDispatchGlobalBeforeLocal(): void
     {
         $generalManager = $this->getMock('CakeEventManager');
         $manager = new CakeEventManager();
@@ -501,7 +509,7 @@ class CakeEventManagerTest extends CakeTestCase
     /**
      * test callback
      */
-    public function onMyEvent($event)
+    public function onMyEvent($event): void
     {
         $event->data['callback'] = 'ok';
     }
@@ -512,7 +520,7 @@ class CakeEventManagerTest extends CakeTestCase
      *
      * @triggers my_event $manager
      */
-    public function testDispatchLocalHandledByGlobal()
+    public function testDispatchLocalHandledByGlobal(): void
     {
         $callback = [$this, 'onMyEvent'];
         CakeEventManager::instance()->attach($callback, 'my_event');
@@ -529,7 +537,7 @@ class CakeEventManagerTest extends CakeTestCase
      * @return void
      * @triggers fake.event $this
      */
-    public function testDispatchWithGlobalAndLocalEvents()
+    public function testDispatchWithGlobalAndLocalEvents(): void
     {
         $listener = new CustomTestEventListener();
         CakeEventManager::instance()->attach($listener);

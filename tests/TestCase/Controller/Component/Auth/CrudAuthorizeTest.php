@@ -45,7 +45,7 @@ class CrudAuthorizeTest extends CakeTestCase
      *
      * @return void
      */
-    protected function _mockAcl()
+    protected function _mockAcl(): void
     {
         $this->Components->expects($this->any())
             ->method('load')
@@ -58,7 +58,7 @@ class CrudAuthorizeTest extends CakeTestCase
      *
      * @return void
      */
-    public function testAuthorizeNoMappedAction()
+    public function testAuthorizeNoMappedAction(): void
     {
         $request = new CakeRequest('/posts/foobar', false);
         $request->addParams([
@@ -95,7 +95,7 @@ class CrudAuthorizeTest extends CakeTestCase
      *
      * @return void
      */
-    public function testAuthorizeCheckSuccess()
+    public function testAuthorizeCheckSuccess(): void
     {
         $request = new CakeRequest('posts/index', false);
         $request->addParams([
@@ -118,7 +118,7 @@ class CrudAuthorizeTest extends CakeTestCase
      *
      * @return void
      */
-    public function testAuthorizeCheckFailure()
+    public function testAuthorizeCheckFailure(): void
     {
         $request = new CakeRequest('posts/index', false);
         $request->addParams([
@@ -141,7 +141,7 @@ class CrudAuthorizeTest extends CakeTestCase
      *
      * @return void
      */
-    public function testMapActionsGet()
+    public function testMapActionsGet(): void
     {
         $result = $this->auth->mapActions();
         $expected = [
@@ -163,7 +163,7 @@ class CrudAuthorizeTest extends CakeTestCase
      *
      * @return void
      */
-    public function testMapActionsSet()
+    public function testMapActionsSet(): void
     {
         $map = [
             'create' => ['generate'],
@@ -198,7 +198,7 @@ class CrudAuthorizeTest extends CakeTestCase
      *
      * @return void
      */
-    public function testAutoPrefixMapActions()
+    public function testAutoPrefixMapActions(): void
     {
         Configure::write('Routing.prefixes', ['admin', 'manager']);
         Router::reload();

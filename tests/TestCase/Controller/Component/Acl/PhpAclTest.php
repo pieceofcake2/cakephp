@@ -46,7 +46,7 @@ class PhpAclTest extends CakeTestCase
      *
      * @return void
      */
-    public function testRoleInheritance()
+    public function testRoleInheritance(): void
     {
         $roles = $this->Acl->Aro->roles('User/peter');
         $this->assertEquals(['Role/accounting'], $roles[0]);
@@ -64,7 +64,7 @@ class PhpAclTest extends CakeTestCase
      *
      * @return void
      */
-    public function testAddRole()
+    public function testAddRole(): void
     {
         $this->assertEquals([[PhpAro::DEFAULT_ROLE]], $this->Acl->Aro->roles('foobar'));
         $this->Acl->Aro->addRole(['User/foobar' => 'Role/accounting']);
@@ -76,7 +76,7 @@ class PhpAclTest extends CakeTestCase
      *
      * @return void
      */
-    public function testAroResolve()
+    public function testAroResolve(): void
     {
         $this->Acl->Aro->map = [
             'User' => 'FooModel/nickname',
@@ -103,7 +103,7 @@ class PhpAclTest extends CakeTestCase
      *
      * @return void
      */
-    public function testAroAliases()
+    public function testAroAliases(): void
     {
         $this->Acl->Aro->map = [
             'User' => 'User/username',
@@ -156,7 +156,7 @@ class PhpAclTest extends CakeTestCase
      *
      * @return void
      */
-    public function testCheck()
+    public function testCheck(): void
     {
         $this->assertTrue($this->Acl->check('jan', '/controllers/users/Dashboard'));
         $this->assertTrue($this->Acl->check('some_unknown_role', '/controllers/users/Dashboard'));
@@ -208,7 +208,7 @@ class PhpAclTest extends CakeTestCase
      *
      * @return void
      */
-    public function testCheckIsCaseInsensitive()
+    public function testCheckIsCaseInsensitive(): void
     {
         $this->assertTrue($this->Acl->check('hardy', 'controllers/forms/new'));
         $this->assertTrue($this->Acl->check('Role/data_acquirer', 'controllers/forms/new'));
@@ -221,7 +221,7 @@ class PhpAclTest extends CakeTestCase
      *
      * @return void
      */
-    public function testAllow()
+    public function testAllow(): void
     {
         $this->assertFalse($this->Acl->check('jeff', 'foo/bar'));
 
@@ -244,7 +244,7 @@ class PhpAclTest extends CakeTestCase
      *
      * @return void
      */
-    public function testDeny()
+    public function testDeny(): void
     {
         $this->assertTrue($this->Acl->check('stan', 'controllers/baz/manager_foo'));
 
@@ -261,7 +261,7 @@ class PhpAclTest extends CakeTestCase
      *
      * @return void
      */
-    public function testDenyRuleIsStrongerThanAllowRule()
+    public function testDenyRuleIsStrongerThanAllowRule(): void
     {
         $this->assertFalse($this->Acl->check('peter', 'baz/bam'));
         $this->Acl->allow('peter', 'baz/bam');
@@ -288,7 +288,7 @@ class PhpAclTest extends CakeTestCase
      *
      * @return void
      */
-    public function testInvalidConfigWithAroMissing()
+    public function testInvalidConfigWithAroMissing(): void
     {
         $this->expectException('AclException');
         $this->expectExceptionMessage('"roles" section not found in configuration');
@@ -296,7 +296,7 @@ class PhpAclTest extends CakeTestCase
         $this->PhpAcl->build($config);
     }
 
-    public function testInvalidConfigWithAcosMissing()
+    public function testInvalidConfigWithAcosMissing(): void
     {
         $this->expectException('AclException');
         $this->expectExceptionMessage('Neither "allow" nor "deny" rules were provided in configuration.');
@@ -313,7 +313,7 @@ class PhpAclTest extends CakeTestCase
      *
      * @return void
      */
-    public function testAcoResolve()
+    public function testAcoResolve(): void
     {
         $this->assertEquals(['foo', 'bar'], $this->Acl->Aco->resolve('foo/bar'));
         $this->assertEquals(['foo', 'bar'], $this->Acl->Aco->resolve('foo/bar'));
@@ -335,7 +335,7 @@ class PhpAclTest extends CakeTestCase
      *
      * @return void
      */
-    public function testAroDeclarationContainsCycles()
+    public function testAroDeclarationContainsCycles(): void
     {
         $config = [
             'roles' => [
@@ -379,7 +379,7 @@ class PhpAclTest extends CakeTestCase
      *
      * @return void
      */
-    public function testPolicy()
+    public function testPolicy(): void
     {
         // allow by default
         $this->Acl->settings['adapter']['policy'] = PhpAcl::ALLOW;

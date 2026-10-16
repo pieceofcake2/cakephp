@@ -49,7 +49,7 @@ class ControllerAuthorizeTest extends CakeTestCase
      * @return void
      * @throws Error
      */
-    public function testControllerTypeError()
+    public function testControllerTypeError(): void
     {
         $this->expectException(Error::class);
         try {
@@ -65,7 +65,7 @@ class ControllerAuthorizeTest extends CakeTestCase
      *
      * @return void
      */
-    public function testControllerErrorOnMissingMethod()
+    public function testControllerErrorOnMissingMethod(): void
     {
         $this->expectException(CakeException::class);
         $this->auth->controller(new Controller());
@@ -76,7 +76,7 @@ class ControllerAuthorizeTest extends CakeTestCase
      *
      * @return void
      */
-    public function testAuthorizeFailure()
+    public function testAuthorizeFailure(): void
     {
         $user = [];
         $request = new CakeRequest('/posts/index', false);
@@ -88,7 +88,7 @@ class ControllerAuthorizeTest extends CakeTestCase
      *
      * @return void
      */
-    public function testAuthorizeSuccess()
+    public function testAuthorizeSuccess(): void
     {
         $user = ['User' => ['username' => 'mark']];
         $request = new CakeRequest('/posts/index', false);

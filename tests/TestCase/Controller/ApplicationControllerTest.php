@@ -37,7 +37,7 @@ class TransSessionIdController extends AppController
      *
      * @return CakeResponse|null
      */
-    public function next()
+    public function next(): mixed
     {
         $sessionName = session_name();
         $sessionId = $this->Session->id();
@@ -90,7 +90,7 @@ class ApplicationControllerTest extends ControllerTestCase
      *
      * @return void
      */
-    public function testRedirect()
+    public function testRedirect(): void
     {
         $sessionId = 'o7k64tlhil9pakp89j6d8ovlqk';
 

@@ -28,7 +28,7 @@ class FileLogTest extends CakeTestCase
      *
      * @return void
      */
-    public function testLogFileWriting()
+    public function testLogFileWriting(): void
     {
         $this->_deleteLogs(LOGS);
 
@@ -57,7 +57,7 @@ class FileLogTest extends CakeTestCase
      *
      * @return void
      */
-    public function testPathSetting()
+    public function testPathSetting(): void
     {
         $path = TMP . 'tests' . DS;
         $this->_deleteLogs($path);
@@ -72,7 +72,7 @@ class FileLogTest extends CakeTestCase
      *
      * @return void
      */
-    public function testRotation()
+    public function testRotation(): void
     {
         $path = TMP . 'tests' . DS;
         $this->_deleteLogs($path);
@@ -151,7 +151,7 @@ class FileLogTest extends CakeTestCase
         $this->assertEquals(0, count(glob($path . 'debug.log.*')));
     }
 
-    public function testMaskSetting()
+    public function testMaskSetting(): void
     {
         if (DS === '\\') {
             $this->markTestSkipped('File permission testing does not work on Windows.');
@@ -187,7 +187,7 @@ class FileLogTest extends CakeTestCase
      *
      * @return void
      */
-    protected function _deleteLogs($dir)
+    protected function _deleteLogs($dir): void
     {
         $files = array_merge(glob($dir . '*.log'), glob($dir . '*.log.*'));
         foreach ($files as $file) {

@@ -72,7 +72,7 @@ class SanitizeTest extends CakeTestCase
      *
      * @return void
      */
-    public function testEscapeAlphaNumeric()
+    public function testEscapeAlphaNumeric(): void
     {
         $resultAlpha = Sanitize::escape('abc', 'test');
         $this->assertEquals('abc', $resultAlpha);
@@ -104,7 +104,7 @@ class SanitizeTest extends CakeTestCase
      *
      * @return void
      */
-    public function testClean()
+    public function testClean(): void
     {
         $string = 'test & "quote" \'other\' ;.$ symbol.' . "\r" . 'another line';
         $expected = 'test &amp; &quot;quote&quot; &#039;other&#039; ;.$ symbol.another line';
@@ -185,7 +185,7 @@ class SanitizeTest extends CakeTestCase
      *
      * @return void
      */
-    public function testHtml()
+    public function testHtml(): void
     {
         $string = '<p>This is a <em>test string</em> & so is this</p>';
         $expected = 'This is a test string &amp; so is this';
@@ -227,7 +227,7 @@ class SanitizeTest extends CakeTestCase
      *
      * @return void
      */
-    public function testStripWhitespace()
+    public function testStripWhitespace(): void
     {
         $string = "This     sentence \t\t\t has lots of \n\n white\nspace \rthat \r\n needs to be    \t    \n trimmed.";
         $expected = 'This sentence has lots of whitespace that needs to be trimmed.';
@@ -245,7 +245,7 @@ class SanitizeTest extends CakeTestCase
      *
      * @return void
      */
-    public function testParanoid()
+    public function testParanoid(): void
     {
         $string = 'I would like to !%@#% & dance & sing ^$&*()-+';
         $expected = 'Iwouldliketodancesing';
@@ -287,7 +287,7 @@ class SanitizeTest extends CakeTestCase
      *
      * @return void
      */
-    public function testStripImages()
+    public function testStripImages(): void
     {
         $string = '<img src="/img/test.jpg" alt="my image" />';
         $expected = 'my image<br />';
@@ -315,7 +315,7 @@ class SanitizeTest extends CakeTestCase
      *
      * @return void
      */
-    public function testStripScripts()
+    public function testStripScripts(): void
     {
         $string = '<link href="/css/styles.css" media="screen" rel="stylesheet" />';
         $expected = '';
@@ -384,7 +384,7 @@ HTML;
      *
      * @return void
      */
-    public function testStripAll()
+    public function testStripAll(): void
     {
         $string = '<img """><script>alert("xss")</script>"/>';
         $expected = '"/>';
@@ -415,7 +415,7 @@ HTML;
      *
      * @return void
      */
-    public function testStripTags()
+    public function testStripTags(): void
     {
         $string = '<h2>Headline</h2><p><a href="http://example.com">My Link</a> could go to a bad site</p>';
         $expected = 'Headline<p>My Link could go to a bad site</p>';

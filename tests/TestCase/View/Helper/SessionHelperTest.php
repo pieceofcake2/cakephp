@@ -96,7 +96,7 @@ class SessionHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testRead()
+    public function testRead(): void
     {
         $result = $this->Session->read('Deeply.nested.key');
         $this->assertEquals('value', $result);
@@ -110,7 +110,7 @@ class SessionHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testCheck()
+    public function testCheck(): void
     {
         $this->assertTrue($this->Session->check('test'));
 
@@ -126,7 +126,7 @@ class SessionHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testFlash()
+    public function testFlash(): void
     {
         $result = $this->Session->flash('flash');
         $expected = '<div id="flashMessage" class="message">This is a calling</div>';
@@ -157,7 +157,7 @@ class SessionHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testFlashWithNoParams()
+    public function testFlashWithNoParams(): void
     {
         $result = $this->Session->flash();
         $expected = '<div id="flashMessage" class="message">This is a calling</div>';
@@ -170,7 +170,7 @@ class SessionHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testFlashAttributes()
+    public function testFlashAttributes(): void
     {
         $result = $this->Session->flash('flash', ['params' => ['class' => 'test-message']]);
         $expected = '<div id="flashMessage" class="test-message">This is a calling</div>';
@@ -183,7 +183,7 @@ class SessionHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testFlashElementInAttrs()
+    public function testFlashElementInAttrs(): void
     {
         App::build([
             'View' => [CORE_TESTS . DS . 'test_app' . DS . 'View' . DS],
@@ -201,7 +201,7 @@ class SessionHelperTest extends CakeTestCase
      *
      * @return void
      */
-    public function testFlashWithPluginElement()
+    public function testFlashWithPluginElement(): void
     {
         App::build([
             'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS],

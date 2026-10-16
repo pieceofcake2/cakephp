@@ -77,7 +77,7 @@ class DigestAuthenticateTest extends CakeTestCase
      *
      * @return void
      */
-    public function testConstructor()
+    public function testConstructor(): void
     {
         $object = new DigestAuthenticate($this->Collection, [
             'userModel' => 'AuthUser',
@@ -95,7 +95,7 @@ class DigestAuthenticateTest extends CakeTestCase
      *
      * @return void
      */
-    public function testAuthenticateNoData()
+    public function testAuthenticateNoData(): void
     {
         $request = new CakeRequest('posts/index', false);
 
@@ -110,7 +110,7 @@ class DigestAuthenticateTest extends CakeTestCase
      *
      * @return void
      */
-    public function testAuthenticateWrongUsername()
+    public function testAuthenticateWrongUsername(): void
     {
         $this->expectException(UnauthorizedException::class);
         $this->expectExceptionCode(401);
@@ -137,7 +137,7 @@ DIGEST;
      *
      * @return void
      */
-    public function testAuthenticateChallenge()
+    public function testAuthenticateChallenge(): void
     {
         $request = new CakeRequest('posts/index', false);
         $request->addParams(['pass' => [], 'named' => []]);
@@ -158,7 +158,7 @@ DIGEST;
      *
      * @return void
      */
-    public function testAuthenticateSuccess()
+    public function testAuthenticateSuccess(): void
     {
         $request = new CakeRequest('posts/index', false);
         $request->addParams(['pass' => [], 'named' => []]);
@@ -190,7 +190,7 @@ DIGEST;
      *
      * @return void
      */
-    public function testAuthenticateFailReChallenge()
+    public function testAuthenticateFailReChallenge(): void
     {
         $this->expectException(UnauthorizedException::class);
         $this->expectExceptionCode(401);
@@ -218,7 +218,7 @@ DIGEST;
      *
      * @return void
      */
-    public function testParseAuthData()
+    public function testParseAuthData(): void
     {
         $digest = <<<DIGEST
 			Digest username="Mufasa",
@@ -254,7 +254,7 @@ DIGEST;
      *
      * @return void
      */
-    public function testParseAuthDataFullUri()
+    public function testParseAuthDataFullUri(): void
     {
         $digest = <<<DIGEST
 			Digest username="admin",
@@ -278,7 +278,7 @@ DIGEST;
      *
      * @return void
      */
-    public function testParseAuthEmailAddress()
+    public function testParseAuthEmailAddress(): void
     {
         $digest = <<<DIGEST
 			Digest username="mark@example.com",
@@ -311,7 +311,7 @@ DIGEST;
      *
      * @return void
      */
-    public function testPassword()
+    public function testPassword(): void
     {
         $result = DigestAuthenticate::password('mark', 'password', 'localhost');
         $expected = md5('mark:localhost:password');

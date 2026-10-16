@@ -32,7 +32,7 @@ class AllDbRelatedTest extends TestSuite
      *
      * @return void
      */
-    public static function suite()
+    public static function suite(): mixed
     {
         $suite = new TestSuite('All Db Related Tests');
 

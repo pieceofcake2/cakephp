@@ -85,7 +85,7 @@ class ContainableBehaviorTest extends CakeTestCase
      *
      * @return void
      */
-    public function testContainments()
+    public function testContainments(): void
     {
         $r = $this->_containments($this->Article, ['Comment' => ['conditions' => ['Comment.user_id' => 2]]]);
         $this->assertTrue(Set::matches('/Article/keep/Comment/conditions[Comment.user_id=2]', $r));
@@ -155,7 +155,7 @@ class ContainableBehaviorTest extends CakeTestCase
      *
      * @return void
      */
-    public function testInvalidContainments()
+    public function testInvalidContainments(): void
     {
         $warningTriggered = false;
         $warningMessage = '';
@@ -185,7 +185,7 @@ class ContainableBehaviorTest extends CakeTestCase
      *
      * @return void
      */
-    public function testInvalidContainmentsNoNotices()
+    public function testInvalidContainmentsNoNotices(): void
     {
         $this->Article->Behaviors->load('Containable', ['notices' => false]);
 
@@ -214,7 +214,7 @@ class ContainableBehaviorTest extends CakeTestCase
      *
      * @return void
      */
-    public function testBeforeFind()
+    public function testBeforeFind(): void
     {
         $r = $this->Article->find('all', ['contain' => ['Comment']]);
         $this->assertFalse(Set::matches('/User', $r));
@@ -286,7 +286,7 @@ class ContainableBehaviorTest extends CakeTestCase
      *
      * @return void
      */
-    public function testBeforeFindWithNonExistingBinding()
+    public function testBeforeFindWithNonExistingBinding(): void
     {
         $warningTriggered = false;
         $warningMessage = '';
@@ -316,7 +316,7 @@ class ContainableBehaviorTest extends CakeTestCase
      *
      * @return void
      */
-    public function testContain()
+    public function testContain(): void
     {
         $this->Article->contain('Comment.User');
         $r = $this->Article->find('all');
@@ -332,7 +332,7 @@ class ContainableBehaviorTest extends CakeTestCase
      *
      * @return void
      */
-    public function testContainFindList()
+    public function testContainFindList(): void
     {
         $this->Article->contain('Comment.User');
         $result = $this->Article->find('list');
@@ -357,7 +357,7 @@ class ContainableBehaviorTest extends CakeTestCase
      *
      * @return void
      */
-    public function testContainAndContainOption()
+    public function testContainAndContainOption(): void
     {
         $this->Article->contain();
         $r = $this->Article->find('all', [
@@ -371,7 +371,7 @@ class ContainableBehaviorTest extends CakeTestCase
      *
      * @return void
      */
-    public function testFindEmbeddedNoBindings()
+    public function testFindEmbeddedNoBindings(): void
     {
         $result = $this->Article->find('all', ['contain' => false]);
         $expected = [
@@ -396,7 +396,7 @@ class ContainableBehaviorTest extends CakeTestCase
      *
      * @return void
      */
-    public function testFindFirstLevel()
+    public function testFindFirstLevel(): void
     {
         $this->Article->contain('User');
         $result = $this->Article->find('all', ['recursive' => 1]);
@@ -505,7 +505,7 @@ class ContainableBehaviorTest extends CakeTestCase
      *
      * @return void
      */
-    public function testFindEmbeddedFirstLevel()
+    public function testFindEmbeddedFirstLevel(): void
     {
         $result = $this->Article->find('all', ['contain' => ['User']]);
         $expected = [
@@ -612,7 +612,7 @@ class ContainableBehaviorTest extends CakeTestCase
      *
      * @return void
      */
-    public function testFindSecondLevel()
+    public function testFindSecondLevel(): void
     {
         $this->Article->contain(['Comment' => 'User']);
         $result = $this->Article->find('all', ['recursive' => 2]);
@@ -1018,7 +1018,7 @@ class ContainableBehaviorTest extends CakeTestCase
      *
      * @return void
      */
-    public function testFindEmbeddedSecondLevel()
+    public function testFindEmbeddedSecondLevel(): void
     {
         $result = $this->Article->find('all', ['contain' => ['Comment' => 'User']]);
         $expected = [
@@ -1361,7 +1361,7 @@ class ContainableBehaviorTest extends CakeTestCase
      *
      * @return void
      */
-    public function testFindThirdLevel()
+    public function testFindThirdLevel(): void
     {
         $this->User->contain(['ArticleFeatured' => ['Featured' => 'Category']]);
         $result = $this->User->find('all', ['recursive' => 3]);
@@ -1682,7 +1682,7 @@ class ContainableBehaviorTest extends CakeTestCase
      *
      * @return void
      */
-    public function testFindEmbeddedThirdLevel()
+    public function testFindEmbeddedThirdLevel(): void
     {
         $result = $this->User->find('all', ['contain' => ['ArticleFeatured' => ['Featured' => 'Category']]]);
         $expected = [
@@ -2000,7 +2000,7 @@ class ContainableBehaviorTest extends CakeTestCase
      *
      * @return void
      */
-    public function testSettingsThirdLevel()
+    public function testSettingsThirdLevel(): void
     {
         $result = $this->User->find('all', ['contain' => ['ArticleFeatured' => ['Featured' => ['Category' => ['id', 'name']]]]]);
         $expected = [
@@ -2247,7 +2247,7 @@ class ContainableBehaviorTest extends CakeTestCase
      *
      * @return void
      */
-    public function testFindThirdLevelNonReset()
+    public function testFindThirdLevelNonReset(): void
     {
         $this->User->contain(false, ['ArticleFeatured' => ['Featured' => 'Category']]);
         $result = $this->User->find('all', ['recursive' => 3]);
@@ -2572,7 +2572,7 @@ class ContainableBehaviorTest extends CakeTestCase
      *
      * @return void
      */
-    public function testFindEmbeddedThirdLevelNonReset()
+    public function testFindEmbeddedThirdLevelNonReset(): void
     {
         $result = $this->User->find('all', ['reset' => false, 'contain' => ['ArticleFeatured' => ['Featured' => 'Category']]]);
         $expected = [
@@ -3062,7 +3062,7 @@ class ContainableBehaviorTest extends CakeTestCase
      *
      * @return void
      */
-    public function testEmbeddedFindFields()
+    public function testEmbeddedFindFields(): void
     {
         $result = $this->Article->find('all', [
             'contain' => ['User(user)'],
@@ -3137,7 +3137,7 @@ class ContainableBehaviorTest extends CakeTestCase
      *
      * @return void
      */
-    public function testHasOneFieldsInContain()
+    public function testHasOneFieldsInContain(): void
     {
         $this->Article->unbindModel([
             'hasMany' => ['Comment'],
@@ -3172,7 +3172,7 @@ class ContainableBehaviorTest extends CakeTestCase
      *
      * @return void
      */
-    public function testFindConditionalBinding()
+    public function testFindConditionalBinding(): void
     {
         $this->Article->contain([
             'User(user)',
@@ -3316,7 +3316,7 @@ class ContainableBehaviorTest extends CakeTestCase
      *
      * @return void
      */
-    public function testOtherFinds()
+    public function testOtherFinds(): void
     {
         $result = $this->Article->find('count');
         $expected = 3;
@@ -3380,7 +3380,7 @@ class ContainableBehaviorTest extends CakeTestCase
      *
      * @return void
      */
-    public function testOriginalAssociations()
+    public function testOriginalAssociations(): void
     {
         $this->Article->Comment->Behaviors->load('Containable');
 
@@ -3473,7 +3473,7 @@ class ContainableBehaviorTest extends CakeTestCase
      *
      * @return void
      */
-    public function testResetAddedAssociation()
+    public function testResetAddedAssociation(): void
     {
         $this->assertTrue(empty($this->Article->hasMany['ArticlesTag']));
 
@@ -3516,7 +3516,7 @@ class ContainableBehaviorTest extends CakeTestCase
      *
      * @return void
      */
-    public function testResetAssociation()
+    public function testResetAssociation(): void
     {
         $this->Article->Behaviors->load('Containable');
         $this->Article->Comment->Behaviors->load('Containable');
@@ -3549,7 +3549,7 @@ class ContainableBehaviorTest extends CakeTestCase
      *
      * @return void
      */
-    public function testResetDeeperHasOneAssociations()
+    public function testResetDeeperHasOneAssociations(): void
     {
         $this->Article->User->unbindModel([
             'hasMany' => ['ArticleFeatured', 'Comment'],
@@ -3611,7 +3611,7 @@ class ContainableBehaviorTest extends CakeTestCase
      *
      * @return void
      */
-    public function testResetMultipleHabtmAssociations()
+    public function testResetMultipleHabtmAssociations(): void
     {
         $articleHabtm = [
             'hasAndBelongsToMany' => [
@@ -3704,7 +3704,7 @@ class ContainableBehaviorTest extends CakeTestCase
      *
      * @return void
      */
-    public function testBindMultipleTimesWithFind()
+    public function testBindMultipleTimesWithFind(): void
     {
         $binding = [
             'hasOne' => [
@@ -3742,7 +3742,7 @@ class ContainableBehaviorTest extends CakeTestCase
      *
      * @return void
      */
-    public function testAutoFieldsWithMultipleDatabases()
+    public function testAutoFieldsWithMultipleDatabases(): void
     {
         $config = new DATABASE_CONFIG();
 
@@ -3772,7 +3772,7 @@ class ContainableBehaviorTest extends CakeTestCase
      *
      * @return void
      */
-    public function testAutoFieldsWithRecursiveNegativeOne()
+    public function testAutoFieldsWithRecursiveNegativeOne(): void
     {
         $this->Article->recursive = -1;
         $result = $this->Article->field('title', ['Article.title' => 'First Article']);
@@ -3785,7 +3785,7 @@ class ContainableBehaviorTest extends CakeTestCase
      *
      * @return void
      */
-    public function testFindAllReturn()
+    public function testFindAllReturn(): void
     {
         $result = $this->Article->find('all', [
             'conditions' => ['Article.id' => 999999999],
@@ -3798,7 +3798,7 @@ class ContainableBehaviorTest extends CakeTestCase
      *
      * @return void
      */
-    public function testLazyLoad()
+    public function testLazyLoad(): void
     {
         // Local set up
         $this->User = ClassRegistry::init('User');
@@ -3824,7 +3824,7 @@ class ContainableBehaviorTest extends CakeTestCase
      * @param array $contain
      * @return void
      */
-    protected function _containments($Model, $contain = [])
+    protected function _containments($Model, $contain = []): mixed
     {
         if (!is_array($Model)) {
             $result = $Model->containments($contain);
@@ -3846,7 +3846,7 @@ class ContainableBehaviorTest extends CakeTestCase
      * @param array $expected
      * @return void
      */
-    protected function _assertBindings(Model $Model, $expected = [])
+    protected function _assertBindings(Model $Model, $expected = []): void
     {
         $expected = array_merge([
             'belongsTo' => [],

@@ -60,7 +60,7 @@ class HtmlCoverageReportTest extends CakeTestCase
      *
      * @return void
      */
-    public function testGetPathFilter()
+    public function testGetPathFilter(): void
     {
         $this->Coverage->appTest = false;
         $result = $this->Coverage->getPathFilter();
@@ -81,7 +81,7 @@ class HtmlCoverageReportTest extends CakeTestCase
      *
      * @return void
      */
-    public function testFilterCoverageDataByPathRemovingElements()
+    public function testFilterCoverageDataByPathRemovingElements(): void
     {
         $data = [
             CAKE . 'dispatcher.php' => [
@@ -104,7 +104,7 @@ class HtmlCoverageReportTest extends CakeTestCase
      *
      * @return void
      */
-    public function testGenerateDiff()
+    public function testGenerateDiff(): void
     {
         $file = [
             'line 1',
@@ -152,7 +152,7 @@ class HtmlCoverageReportTest extends CakeTestCase
      *
      * @return void
      */
-    public function testPhpunit36Compatibility()
+    public function testPhpunit36Compatibility(): void
     {
         $file = [
             'line 1',
@@ -201,7 +201,7 @@ class HtmlCoverageReportTest extends CakeTestCase
      *
      * @return void
      */
-    public function testCoveredLinesTitleAttributes()
+    public function testCoveredLinesTitleAttributes(): void
     {
         $file = [
             'line 1',
@@ -258,7 +258,7 @@ class HtmlCoverageReportTest extends CakeTestCase
      * @param string $file The covered file.
      * @return TestResult
      */
-    protected function _resultWithCoverage($file)
+    protected function _resultWithCoverage($file): mixed
     {
         $driver = new class extends Driver {
             public function nameAndVersion(): string
@@ -291,7 +291,7 @@ class HtmlCoverageReportTest extends CakeTestCase
      *
      * @return void
      */
-    public function testTextReporterPaintsCoverage()
+    public function testTextReporterPaintsCoverage(): void
     {
         $reporter = new CakeTextReporter(null, ['codeCoverage' => true, 'app' => false, 'plugin' => false]);
 
@@ -308,7 +308,7 @@ class HtmlCoverageReportTest extends CakeTestCase
      *
      * @return void
      */
-    public function testHtmlReporterPaintsCoverage()
+    public function testHtmlReporterPaintsCoverage(): void
     {
         $reporter = new CakeHtmlReporter(null, ['codeCoverage' => true, 'app' => false, 'plugin' => false, 'baseDir' => '', 'baseUrl' => '/', 'core' => true, 'case' => 'Basics']);
 

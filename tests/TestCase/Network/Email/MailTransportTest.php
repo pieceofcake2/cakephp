@@ -38,7 +38,7 @@ class MailTransportTest extends CakeTestCase
      *
      * @return void
      */
-    public function testSendData()
+    public function testSendData(): void
     {
         $email = $this->getMock('CakeEmail', ['message'], []);
         $email->from('noreply@cakephp.org', 'CakePHP Test');
@@ -95,7 +95,7 @@ class MailTransportTest extends CakeTestCase
      *
      * @return void
      */
-    public function testSendStripsLineBreaksFromHeaders()
+    public function testSendStripsLineBreaksFromHeaders(): void
     {
         $email = $this->getMock('CakeEmail', ['message'], []);
         $email->from('noreply@cakephp.org', 'CakePHP Test');
