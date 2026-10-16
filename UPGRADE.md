@@ -182,7 +182,7 @@ The fallback `config/core.php` of the core (used only when the application has n
 
 **Migrating to `'aes'`:**
 
-1. Create a random key of at least 32 bytes for the cookies, separate from `Security.salt`, and keep it out of version control, e.g. as `COOKIE_KEY` in `.env`: `php -r 'echo bin2hex(random_bytes(32)), PHP_EOL;'` prints 64 hex characters.
+1. Create a random key of at least 32 bytes for the cookies, separate from `Security.salt`, and keep it out of version control, e.g. as `COOKIE_KEY` in `config/.env.local` (ignored by Git in the pieceofcake2/app skeleton) or as a real environment variable: `php -r 'echo bin2hex(random_bytes(32)), PHP_EOL;'` prints 64 hex characters.
 2. In `config/core.php`, enable OpenSSL (without it, `'aes'` calls mcrypt functions, which fail unless the mcrypt extension is installed from PECL) and set the default type and key:
 
    ```php
