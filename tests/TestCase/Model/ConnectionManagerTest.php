@@ -49,6 +49,31 @@ class ConnectionManagerTest extends CakeTestCase
     }
 
     /**
+     * With APP_ENV=test, the "test" connection is the default one.
+     *
+     * @return void
+     */
+    public function testGetDataSourceTestWithAppEnvTest(): void
+    {
+        App::build([
+            'Model/Datasource' => [
+                CORE_TESTS . DS . 'test_app' . DS . 'Model' . DS . 'Datasource' . DS,
+            ],
+        ]);
+        $created = empty(ConnectionManager::$config->default);
+        if ($created) {
+            ConnectionManager::create('default', ['datasource' => 'Test2Source']);
+        }
+        $_SERVER['APP_ENV'] = 'test';
+
+        $this->assertSame(ConnectionManager::getDataSource('default'), ConnectionManager::getDataSource('test'));
+
+        if ($created) {
+            ConnectionManager::drop('default');
+        }
+    }
+
+    /**
      * testGetDataSource method
      *
      * @return void

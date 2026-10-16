@@ -441,6 +441,29 @@ class CakeTestCaseTest extends CakeTestCase
     }
 
     /**
+     * With APP_ENV=test, getMockForModel() keeps the connection of the model.
+     *
+     * @return void
+     */
+    public function testGetMockForModelWithAppEnvTest(): void
+    {
+        App::build([
+            'Model/Datasource/Database' => [
+                CORE_TESTS . DS . 'test_app' . DS . 'Model' . DS . 'Datasource' . DS . 'Database' . DS,
+            ],
+        ], App::RESET);
+        ConnectionManager::create('secondary', [
+            'datasource' => 'Database/TestLocalDriver',
+            'prefix' => '',
+        ]);
+        $_SERVER['APP_ENV'] = 'test';
+
+        $post = $this->getMockForModel('SecondaryPost', ['save']);
+        $this->assertSame('secondary', $post->useDbConfig);
+        ConnectionManager::drop('secondary');
+    }
+
+    /**
      * Test getMockForModel on secondary datasources.
      *
      * @return void

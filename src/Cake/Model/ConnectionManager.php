@@ -106,6 +106,10 @@ class ConnectionManager
         if (empty(static::$_init)) {
             static::_init();
         }
+        // With APP_ENV=test, the default connection is the test database, so "test" is the same connection.
+        if ($name === 'test' && env('APP_ENV') === 'test') {
+            $name = 'default';
+        }
 
         if (!empty(static::$_dataSources[$name])) {
             return static::$_dataSources[$name];

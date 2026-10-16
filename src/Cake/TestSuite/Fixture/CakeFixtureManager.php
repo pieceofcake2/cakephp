@@ -66,7 +66,8 @@ class CakeFixtureManager
      */
     public function fixturize($test)
     {
-        if (!$this->_initialized) {
+        // With APP_ENV=test, the connections of the .env files are the test ones: models keep their own.
+        if (!$this->_initialized && env('APP_ENV') !== 'test') {
             ClassRegistry::config('Model', ['ds' => 'test', 'testing' => true]);
         }
         if (empty($test->fixtures) || !empty($this->_processed[$test::class])) {

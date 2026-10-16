@@ -864,14 +864,17 @@ abstract class CakeTestCase extends TestCase
         }
         $mock = $this->getMock($name, $methods, [$config]);
 
-        $availableDs = array_keys(ConnectionManager::enumConnectionObjects());
+        // With APP_ENV=test, the connections of the .env files are the test ones: keep the model's own.
+        if (env('APP_ENV') !== 'test') {
+            $availableDs = array_keys(ConnectionManager::enumConnectionObjects());
 
-        if ($mock->useDbConfig !== 'test' && in_array('test_' . $mock->useDbConfig, $availableDs)) {
-            $mock->useDbConfig = 'test_' . $mock->useDbConfig;
-            $mock->setDataSource($mock->useDbConfig);
-        } else {
-            $mock->useDbConfig = 'test';
-            $mock->setDataSource('test');
+            if ($mock->useDbConfig !== 'test' && in_array('test_' . $mock->useDbConfig, $availableDs)) {
+                $mock->useDbConfig = 'test_' . $mock->useDbConfig;
+                $mock->setDataSource($mock->useDbConfig);
+            } else {
+                $mock->useDbConfig = 'test';
+                $mock->setDataSource('test');
+            }
         }
 
         ClassRegistry::removeObject($name);

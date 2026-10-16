@@ -112,7 +112,8 @@ class CakeTestFixture
         $connection = 'test';
         if (!empty($this->useDbConfig)) {
             $connection = $this->useDbConfig;
-            if (!str_starts_with($connection, 'test')) {
+            // With APP_ENV=test, the connections of the .env files are the test ones: any of them may be used.
+            if (env('APP_ENV') !== 'test' && !str_starts_with($connection, 'test')) {
                 $message = __d(
                     'cake_dev',
                     'Invalid datasource name "%s" for "%s" fixture. Fixture datasource names must begin with "test".',
@@ -156,7 +157,9 @@ class CakeTestFixture
                 $this->fields[$model->primaryKey]['key'] = 'primary';
                 $this->table = $db->fullTableName($model, false, false);
                 $this->primaryKey = $model->primaryKey;
-                ClassRegistry::config('Model', ['ds' => 'test']);
+                if (env('APP_ENV') !== 'test') {
+                    ClassRegistry::config('Model', ['ds' => 'test']);
+                }
                 ClassRegistry::flush();
             } elseif (isset($import['table'])) {
                 $model = new Model(null, $import['table'], $import['connection']);

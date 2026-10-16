@@ -152,6 +152,18 @@ class InvalidTestFixture extends CakeTestFixture
 }
 
 /**
+ * A fixture on a connection whose name does not begin with "test"
+ */
+class OtherConnectionTestFixture extends CakeTestFixture
+{
+    public $useDbConfig = 'other';
+
+    public $fields = [
+        'id' => ['type' => 'integer', 'key' => 'primary'],
+    ];
+}
+
+/**
  * CakeTestFixtureImportFixture class
  *
  * @package       Cake.Test.Case.TestSuite
@@ -266,6 +278,31 @@ class CakeTestFixtureTest extends CakeTestCase
         $Fixture->primaryKey = 'my_random_key';
         $Fixture->init();
         $this->assertEquals('my_random_key', $Fixture->primaryKey);
+    }
+
+    /**
+     * Without APP_ENV=test, a fixture connection must begin with "test".
+     *
+     * @return void
+     */
+    public function testConnectionMustBeginWithTest(): void
+    {
+        $this->expectException(CakeException::class);
+        $this->expectExceptionMessage('Fixture datasource names must begin with "test"');
+        new OtherConnectionTestFixture();
+    }
+
+    /**
+     * With APP_ENV=test, a fixture connection may have any name.
+     *
+     * @return void
+     */
+    public function testConnectionWithAppEnvTest(): void
+    {
+        $_SERVER['APP_ENV'] = 'test';
+
+        $Fixture = new OtherConnectionTestFixture();
+        $this->assertSame('other', $Fixture->useDbConfig);
     }
 
     /**

@@ -130,4 +130,21 @@ class CakeFixtureManagerTest extends CakeTestCase
 
         $fixtureManager->loadSingle('Uuid', $db, false);
     }
+
+    /**
+     * With APP_ENV=test, fixturize() leaves the models on their own connections.
+     *
+     * @return void
+     */
+    public function testFixturizeKeepsModelConnectionsWithAppEnvTest(): void
+    {
+        $config = ClassRegistry::config('Model');
+        ClassRegistry::config('Model', null);
+        $_SERVER['APP_ENV'] = 'test';
+
+        $this->fixtureManager->fixturize($this);
+        $this->assertNull(ClassRegistry::config('Model'));
+
+        ClassRegistry::config('Model', $config);
+    }
 }

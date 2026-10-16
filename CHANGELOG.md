@@ -1,5 +1,17 @@
 ## CHANGELOG
 
+## Unreleased
+
+### Tests: Connections with `APP_ENV=test`
+
+When the `APP_ENV` environment variable is `test` (as in the tests of pieceofcake2/app and the plugins), the `.env` files already point the connections to the test databases, so:
+
+- **`test` is the `default` connection**: `ConnectionManager::getDataSource('test')` returns the `default` datasource. Fixtures, `CakeTestModel` and tests that name the `test` connection use it, and `DATABASE_CONFIG` does not need a `$test` connection
+- **Models keep their own connections**: The test suite no longer switches models to the `test` or `test_*` connections (`ClassRegistry` in the fixture manager, `CakeTestCase::getMockForModel()`), so a model with a datasource that is not a database (e.g. a file datasource) keeps it
+- **Fixtures**: A fixture may set `$useDbConfig` to a connection whose name does not begin with `test`
+
+Without `APP_ENV=test`, nothing changes.
+
 ## v2.12.8 (2026-10-16)
 
 No changes to the framework code: this release only updates the tests, the development dependencies and the documentation.
