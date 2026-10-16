@@ -362,7 +362,7 @@ class ConnectionManagerTest extends CakeTestCase
      *
      * @return array
      */
-    public static function parseDsnProvider()
+    public static function parseDsnProvider(): array
     {
         return [
             'mysql' => [
@@ -504,7 +504,7 @@ class ConnectionManagerTest extends CakeTestCase
      * @return void
      * @dataProvider parseDsnProvider
      */
-    public function testParseDsn($dsn, $expected)
+    public function testParseDsn($dsn, $expected): void
     {
         $result = ConnectionManager::parseDsn($dsn);
         ksort($expected);
@@ -517,7 +517,7 @@ class ConnectionManagerTest extends CakeTestCase
      *
      * @return void
      */
-    public function testParseDsnUnknownScheme()
+    public function testParseDsnUnknownScheme(): void
     {
         $this->expectException(CakeException::class);
         $this->expectExceptionMessage('The DSN scheme "oracle" is not supported.');
@@ -529,7 +529,7 @@ class ConnectionManagerTest extends CakeTestCase
      *
      * @return void
      */
-    public function testParseDsnInvalid()
+    public function testParseDsnInvalid(): void
     {
         try {
             ConnectionManager::parseDsn('not a dsn://user:secret@host');
@@ -545,7 +545,7 @@ class ConnectionManagerTest extends CakeTestCase
      *
      * @return void
      */
-    public function testCreateWithDsnMergesExplicitKeys()
+    public function testCreateWithDsnMergesExplicitKeys(): void
     {
         $name = 'test_dsn_merge';
         ConnectionManager::create($name, [
@@ -576,7 +576,7 @@ class ConnectionManagerTest extends CakeTestCase
      *
      * @return void
      */
-    public function testCreateWithEmptyDsn()
+    public function testCreateWithEmptyDsn(): void
     {
         foreach ([null, '', false] as $i => $dsn) {
             $name = 'test_dsn_empty_' . $i;
@@ -600,7 +600,7 @@ class ConnectionManagerTest extends CakeTestCase
      *
      * @return void
      */
-    public function testCreateWithInvalidDsn()
+    public function testCreateWithInvalidDsn(): void
     {
         $this->expectException(CakeException::class);
         $this->expectExceptionMessage('Invalid "dsn" of the "test_dsn_invalid" datasource configuration');
@@ -613,7 +613,7 @@ class ConnectionManagerTest extends CakeTestCase
      *
      * @return void
      */
-    public function testGetDataSourceWithDatabaseUrl()
+    public function testGetDataSourceWithDatabaseUrl(): void
     {
         $this->skipIf(!extension_loaded('pdo_sqlite'), 'pdo_sqlite is required.');
 
@@ -663,7 +663,7 @@ class ConnectionManagerTest extends CakeTestCase
      * @param array $map The map to restore.
      * @return void
      */
-    protected function _restoreDsnClassMap($map)
+    protected function _restoreDsnClassMap($map): void
     {
         $property = new ReflectionProperty('ConnectionManager', '_dsnClassMap');
         $property->setAccessible(true);
@@ -675,7 +675,7 @@ class ConnectionManagerTest extends CakeTestCase
      *
      * @return void
      */
-    public function testGetDsnClassMap()
+    public function testGetDsnClassMap(): void
     {
         $map = ConnectionManager::getDsnClassMap();
         $this->assertSame('Database/Mysql', $map['mysql']);
@@ -689,7 +689,7 @@ class ConnectionManagerTest extends CakeTestCase
      *
      * @return void
      */
-    public function testSetDsnClassMap()
+    public function testSetDsnClassMap(): void
     {
         $original = ConnectionManager::getDsnClassMap();
         try {
@@ -734,7 +734,7 @@ class ConnectionManagerTest extends CakeTestCase
      *
      * @return void
      */
-    public function testDsnClassMapIsReadWhenTheConnectionIsCreated()
+    public function testDsnClassMapIsReadWhenTheConnectionIsCreated(): void
     {
         $this->skipIf(!extension_loaded('pdo_sqlite'), 'pdo_sqlite is required.');
 
@@ -767,7 +767,7 @@ class ConnectionManagerTest extends CakeTestCase
      *
      * @return void
      */
-    public function testDsnClassMapCallableMustReturnArray()
+    public function testDsnClassMapCallableMustReturnArray(): void
     {
         $original = ConnectionManager::getDsnClassMap();
         ConnectionManager::setDsnClassMap(['broken' => function () {

@@ -2701,7 +2701,7 @@ HTML;
      *
      * @return array
      */
-    public static function parseDsnProvider()
+    public static function parseDsnProvider(): array
     {
         return [
             'smtp' => [
@@ -2800,7 +2800,7 @@ HTML;
      * @return void
      * @dataProvider parseDsnProvider
      */
-    public function testParseDsn($dsn, $expected)
+    public function testParseDsn($dsn, $expected): void
     {
         $result = CakeEmail::parseDsn($dsn);
         ksort($expected);
@@ -2813,7 +2813,7 @@ HTML;
      *
      * @return void
      */
-    public function testParseDsnUnknownScheme()
+    public function testParseDsnUnknownScheme(): void
     {
         $this->expectException(ConfigureException::class);
         $this->expectExceptionMessage('The DSN scheme "ses+api" is not supported.');
@@ -2825,7 +2825,7 @@ HTML;
      *
      * @return void
      */
-    public function testParseDsnInvalid()
+    public function testParseDsnInvalid(): void
     {
         try {
             CakeEmail::parseDsn('smtp:/user:secret@host');
@@ -2842,7 +2842,7 @@ HTML;
      *
      * @return void
      */
-    public function testConfigStringWithDsn()
+    public function testConfigStringWithDsn(): void
     {
         $this->CakeEmail->config('dsn');
 
@@ -2867,7 +2867,7 @@ HTML;
      *
      * @return void
      */
-    public function testConfigStringWithEmptyDsn()
+    public function testConfigStringWithEmptyDsn(): void
     {
         $this->CakeEmail->config('dsnEmpty');
 
@@ -2889,7 +2889,7 @@ HTML;
      *
      * @return void
      */
-    public function testConfigArrayWithNullDsn()
+    public function testConfigArrayWithNullDsn(): void
     {
         $this->CakeEmail->config([
             'dsn' => 'null://null',
@@ -2909,7 +2909,7 @@ HTML;
      *
      * @return void
      */
-    public function testConfigWithMailerDsnEnv()
+    public function testConfigWithMailerDsnEnv(): void
     {
         $previous = getenv('MAILER_DSN');
         putenv('MAILER_DSN=smtps://user:secret@smtp.example.com');
@@ -2930,7 +2930,7 @@ HTML;
      *
      * @return void
      */
-    protected function _resetDsnClassMap()
+    protected function _resetDsnClassMap(): void
     {
         $property = new ReflectionProperty('CakeEmail', '_dsnClassMap');
         $property->setAccessible(true);
@@ -2942,7 +2942,7 @@ HTML;
      *
      * @return void
      */
-    public function testGetDsnClassMap()
+    public function testGetDsnClassMap(): void
     {
         $this->assertSame(['smtp', 'smtps', 'sendmail', 'native', 'null'], array_keys(CakeEmail::getDsnClassMap()));
     }
@@ -2952,7 +2952,7 @@ HTML;
      *
      * @return void
      */
-    public function testSetDsnClassMap()
+    public function testSetDsnClassMap(): void
     {
         try {
             CakeEmail::setDsnClassMap([
@@ -2999,7 +2999,7 @@ HTML;
      *
      * @return void
      */
-    public function testConfigWithRegisteredScheme()
+    public function testConfigWithRegisteredScheme(): void
     {
         try {
             CakeEmail::setDsnClassMap([
@@ -3020,7 +3020,7 @@ HTML;
      *
      * @return void
      */
-    public function testConfigStringWithInvalidDsn()
+    public function testConfigStringWithInvalidDsn(): void
     {
         try {
             $this->CakeEmail->config('dsnBroken');

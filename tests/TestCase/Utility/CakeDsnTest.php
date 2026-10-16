@@ -28,7 +28,7 @@ class CakeDsnTest extends CakeTestCase
      *
      * @return array
      */
-    public static function parseProvider()
+    public static function parseProvider(): array
     {
         return [
             'full' => [
@@ -78,7 +78,7 @@ class CakeDsnTest extends CakeTestCase
      * @return void
      * @dataProvider parseProvider
      */
-    public function testParse($dsn, $expected)
+    public function testParse($dsn, $expected): void
     {
         $this->assertSame($expected, CakeDsn::parse($dsn));
     }
@@ -88,7 +88,7 @@ class CakeDsnTest extends CakeTestCase
      *
      * @return void
      */
-    public function testParseInvalid()
+    public function testParseInvalid(): void
     {
         foreach (['', 'localhost', 'mysql:/user:secret@host', 'mysql://host:port/db'] as $dsn) {
             try {
@@ -106,7 +106,7 @@ class CakeDsnTest extends CakeTestCase
      *
      * @return void
      */
-    public function testRedact()
+    public function testRedact(): void
     {
         $this->assertSame('mysql://****@db/app', CakeDsn::redact('mysql://user:p@ss@db/app'));
         $this->assertSame('mysql:****@db/app', CakeDsn::redact('mysql:/user:secret@db/app'));
@@ -118,7 +118,7 @@ class CakeDsnTest extends CakeTestCase
      *
      * @return void
      */
-    public function testToConfig()
+    public function testToConfig(): void
     {
         $generic = function (array $parts) {
             $config = [];
@@ -172,7 +172,7 @@ class CakeDsnTest extends CakeTestCase
      *
      * @return void
      */
-    public function testMergeClassMap()
+    public function testMergeClassMap(): void
     {
         $this->assertSame(
             ['a' => 'A2', 'c' => 'C', 'my+api' => 'M'],
@@ -185,7 +185,7 @@ class CakeDsnTest extends CakeTestCase
      *
      * @return void
      */
-    public function testExpandConfig()
+    public function testExpandConfig(): void
     {
         $parser = function ($dsn, $config) {
             if ($dsn === 'bad') {
