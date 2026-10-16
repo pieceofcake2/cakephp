@@ -41,6 +41,9 @@ class IntegrationTestTraitTest extends CakeTestCase
         ], App::RESET);
         Configure::write('debug', 2);
         Configure::write('Exception.renderer', 'ExceptionRenderer');
+        // Test the core cookie defaults, not the Cookie.type and Cookie.key of the application.
+        Configure::delete('Cookie.key');
+        Configure::delete('Cookie.type');
     }
 
     /**
