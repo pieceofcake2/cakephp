@@ -564,6 +564,10 @@ class ControllerTest extends CakeTestCase
         $request->webroot = '/';
         $request->base = '/';
 
+        // Render the core flash layout, not the one of the application.
+        App::build([
+            'View' => [CORE_ROOT . DS . 'templates' . DS],
+        ], App::RESET);
         $Controller = new Controller($request, $this->getMock('CakeResponse', ['_sendHeader']));
         $Controller->flash('this should work', '/flash');
         $result = $Controller->response->body();

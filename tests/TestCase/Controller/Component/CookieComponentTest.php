@@ -95,6 +95,9 @@ class CookieComponentTest extends CakeTestCase
     public function setUp(): void
     {
         parent::setUp();
+        // Test the core defaults, not the Cookie.type and Cookie.key of the application.
+        Configure::delete('Cookie.key');
+        Configure::delete('Cookie.type');
         $_COOKIE = [];
         $this->Controller = new CookieComponentTestController(new CakeRequest(), new CakeResponse());
         $this->Controller->constructClasses();
