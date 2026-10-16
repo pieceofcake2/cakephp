@@ -207,6 +207,7 @@ class Cache
      *
      * @param array<string, mixed> $map Scheme => engine class name or callable.
      * @return void
+     * @since 2.12.7
      */
     public static function setDsnClassMap($map)
     {
@@ -217,6 +218,7 @@ class Cache
      * Returns the cache DSN class map (scheme => engine class name or callable).
      *
      * @return array<string, mixed>
+     * @since 2.12.7
      */
     public static function getDsnClassMap()
     {
@@ -330,6 +332,7 @@ class Cache
      * @param array $config The configuration the DSN is merged into (passed to a callable of the map).
      * @return array The cache configuration.
      * @throws CacheException When the DSN cannot be parsed or its scheme is not supported.
+     * @since 2.12.7
      */
     public static function parseDsn($dsn, $config = [])
     {

@@ -258,6 +258,7 @@ class CakeLog
      *
      * @param array<string, mixed> $map Scheme => log engine class name or callable.
      * @return void
+     * @since 2.12.7
      */
     public static function setDsnClassMap($map)
     {
@@ -268,6 +269,7 @@ class CakeLog
      * Returns the log DSN class map (scheme => log engine class name or callable).
      *
      * @return array<string, mixed>
+     * @since 2.12.7
      */
     public static function getDsnClassMap()
     {
@@ -334,6 +336,7 @@ class CakeLog
      * @param array $config The configuration the DSN is merged into (passed to a callable of the map).
      * @return array The log configuration.
      * @throws CakeLogException When the DSN cannot be parsed or its scheme is not supported.
+     * @since 2.12.7
      */
     public static function parseDsn($dsn, $config = [])
     {

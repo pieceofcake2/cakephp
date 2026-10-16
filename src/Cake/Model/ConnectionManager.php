@@ -281,6 +281,7 @@ class ConnectionManager
      *
      * @param array<string, mixed> $map Scheme => datasource class name or callable.
      * @return void
+     * @since 2.12.7
      */
     public static function setDsnClassMap($map)
     {
@@ -291,6 +292,7 @@ class ConnectionManager
      * Returns the DSN class map (scheme => datasource class name or callable).
      *
      * @return array<string, mixed>
+     * @since 2.12.7
      */
     public static function getDsnClassMap()
     {
@@ -336,6 +338,7 @@ class ConnectionManager
      * @param array $config The configuration the DSN is merged into (passed to a callable of the map).
      * @return array The datasource configuration.
      * @throws CakeException When the DSN cannot be parsed or its scheme is not supported.
+     * @since 2.12.7
      */
     public static function parseDsn($dsn, $config = [])
     {

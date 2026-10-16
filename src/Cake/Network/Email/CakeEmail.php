@@ -1401,6 +1401,7 @@ class CakeEmail
      *
      * @param array<string, mixed> $map Scheme => transport class name or callable.
      * @return void
+     * @since 2.12.7
      */
     public static function setDsnClassMap($map)
     {
@@ -1411,6 +1412,7 @@ class CakeEmail
      * Returns the mailer DSN class map (scheme => transport class name or callable).
      *
      * @return array<string, mixed>
+     * @since 2.12.7
      */
     public static function getDsnClassMap()
     {
@@ -1529,6 +1531,7 @@ class CakeEmail
      * @param array $config The configuration the DSN is merged into (passed to a callable of the map).
      * @return array The email configuration.
      * @throws ConfigureException When the DSN cannot be parsed or its scheme is not supported.
+     * @since 2.12.7
      */
     public static function parseDsn($dsn, $config = [])
     {
