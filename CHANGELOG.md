@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-### Enhancements: `raw()` ([PR #NN](https://github.com/pieceofcake2/cakephp/pull/NN))
+### Enhancements: `raw()` ([PR #84](https://github.com/pieceofcake2/cakephp/pull/84))
 
 - **raw()**: A new global function, the opposite of `h()`: it returns a value as it is, as a string, to print HTML without escaping on purpose, e.g. `<?= raw($bodyHtml) ?>`. It marks the places that print unescaped HTML, so that they can be found and reviewed; pieceofcake2/security-sast lists them. It takes a string, a number, a boolean, `null` (an empty string) or an object with `__toString()`, and throws `InvalidArgumentException` for an array. As the other global functions, it is defined only when no function of that name exists
 

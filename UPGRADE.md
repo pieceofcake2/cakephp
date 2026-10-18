@@ -17,7 +17,7 @@ Before migrating to this fork, ensure:
 
 ## Unreleased
 
-### `raw()` ([PR #NN](https://github.com/pieceofcake2/cakephp/pull/NN))
+### `raw()` ([PR #84](https://github.com/pieceofcake2/cakephp/pull/84))
 
 A new global function `raw()` returns a value as it is, to print HTML without escaping on purpose. Nothing changes for an application that does not call it.
 
