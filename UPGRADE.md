@@ -15,6 +15,15 @@ Before migrating to this fork, ensure:
 4. **Upgrade PHP**: Update your PHP version to 8.0 or newer
 5. **Test Thoroughly**: Run your application's test suite to ensure compatibility
 
+## Unreleased
+
+### `raw()` ([PR #NN](https://github.com/pieceofcake2/cakephp/pull/NN))
+
+A new global function `raw()` returns a value as it is, to print HTML without escaping on purpose. Nothing changes for an application that does not call it.
+
+- An application or a package that already defines a global `raw()` keeps its own function: as the other global functions of CakePHP, `raw()` is defined only when no function of that name exists. Check that yours does what the docs of CakePHP describe before you use them together, or rename yours.
+- Use it where a view prints HTML on purpose, instead of a bare `echo`: `<?= raw($bodyHtml) ?>`. The HTML must be built by the application or sanitized, never a value of the request.
+
 ## v2.12.7
 
 ### DSN Configuration: `DATABASE_URL` and `MAILER_DSN` ([PR #69](https://github.com/pieceofcake2/cakephp/pull/69))

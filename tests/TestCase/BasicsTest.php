@@ -178,6 +178,27 @@ class BasicsTest extends CakeTestCase
      *
      * @return void
      */
+    public function testRaw(): void
+    {
+        // As it is, unlike h()
+        $this->assertSame('<p>Which one</p>', raw('<p>Which one</p>'));
+        $this->assertSame('', raw(null));
+        $this->assertSame('12', raw(12));
+        $this->assertSame('1.5', raw(1.5));
+
+        $object = new class {
+            public function __toString(): string
+            {
+                return '<b>bold</b>';
+            }
+        };
+        $this->assertSame('<b>bold</b>', raw($object));
+
+        $this->expectException(InvalidArgumentException::class);
+        $this->expectExceptionMessage('raw() takes a string, not array.');
+        raw(['<p>']);
+    }
+
     public function testH(): void
     {
         $string = '<foo>';
