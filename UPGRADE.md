@@ -17,7 +17,7 @@ Before migrating to this fork, ensure:
 
 ## Unreleased
 
-### HTML5 Script, Link and Style Tags
+### HTML5 Script, Link and Style Tags ([PR #86](https://github.com/pieceofcake2/cakephp/pull/86))
 
 `HtmlHelper` now outputs the tags of HTML5: `<script src="...">`, `<link rel="stylesheet" href="...">`, `<style>`, and script blocks without `type="text/javascript"` and without CDATA. Browsers treat both forms the same, so the pages do not change.
 
