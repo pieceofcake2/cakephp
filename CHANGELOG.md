@@ -1,6 +1,10 @@
 ## CHANGELOG
 
-## Unreleased
+## v2.12.11 (2026-10-19)
+
+### Security Fixes
+
+- **CakeRequest**: The request URL loses all its leading slashes and backslashes, not only the first slash, so `CakeRequest::$url` never starts with `/` or `\` and `CakeRequest::$here` / `here()` never start with `//` or `/\`. A request to `//example.com/posts` was routed as `/example.com/posts`, but `here` was the protocol-relative URL `//example.com/posts`: `FormHelper::create()` without a `url` printed `<form action="//example.com/posts">`, so the form was submitted to another host, and `$this->redirect($this->request->here(false))` redirected there. With a base path, `here(false)` of `/base//example.com/posts` had the same problem. `here()` also collapses the leading slashes of a `$here` changed by the application. Routing is unchanged ([GHSA-wh43-gc93-wh4c](https://github.com/pieceofcake2/cakephp/security/advisories/GHSA-wh43-gc93-wh4c), [PR #90](https://github.com/pieceofcake2/cakephp/pull/90))
 
 ### Enhancements: HTML5 Script, Link and Style Tags ([PR #86](https://github.com/pieceofcake2/cakephp/pull/86))
 
