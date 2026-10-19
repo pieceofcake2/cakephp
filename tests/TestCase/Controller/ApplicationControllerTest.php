@@ -92,6 +92,8 @@ class ApplicationControllerTest extends ControllerTestCase
      */
     public function testRedirect(): void
     {
+        // Use the default cache limiter of CakeSession, not the one of the application skeleton
+        Configure::delete('Session.cacheLimiter');
         $sessionId = 'o7k64tlhil9pakp89j6d8ovlqk';
 
         $level = ob_get_level();
