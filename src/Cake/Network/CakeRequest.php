@@ -140,9 +140,11 @@ class CakeRequest implements ArrayAccess
         if (empty($url)) {
             $url = $this->_url();
         }
-        if ($url[0] === '/') {
-            $url = substr($url, 1);
-        }
+        // Remove all the leading slashes and backslashes, not only the first slash. A request
+        // to `//example.com/posts` is routed as `/example.com/posts`, but `here` would be the
+        // protocol-relative URL `//example.com/posts` (browsers treat `/\` as `//`), so forms
+        // and redirects to the current URL would go to another host.
+        $url = ltrim($url, '/\\');
         $this->url = $url;
 
         if ($parseEnvironment) {
