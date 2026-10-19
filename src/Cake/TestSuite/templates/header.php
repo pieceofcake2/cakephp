@@ -1,7 +1,7 @@
 <?php
 use PHPUnit\Runner\Version;
 ?></title>
-        <style type="text/css">
+        <style>
             body h2 {color: #777;}
             h3 {font-size: 170%; padding-top: 1em}
             a {font-size: 120%}
@@ -113,7 +113,7 @@ use PHPUnit\Runner\Version;
                 padding-left: 20px;
             }
         </style>
-        <link rel="stylesheet" type="text/css" href="<?php echo $baseDir; ?>css/cake.generic.css" />
+        <link rel="stylesheet" href="<?php echo $baseDir; ?>css/cake.generic.css" />
     </head>
     <body>
         <div id="container">

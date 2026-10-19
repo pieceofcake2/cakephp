@@ -6,6 +6,11 @@
 
 - **CakeRequest**: The request URL loses all its leading slashes and backslashes, not only the first slash, so `CakeRequest::$url` never starts with `/` or `\` and `CakeRequest::$here` / `here()` never start with `//` or `/\`. A request to `//example.com/posts` was routed as `/example.com/posts`, but `here` was the protocol-relative URL `//example.com/posts`: `FormHelper::create()` without a `url` printed `<form action="//example.com/posts">`, so the form was submitted to another host, and `$this->redirect($this->request->here(false))` redirected there. With a base path, `here(false)` of `/base//example.com/posts` had the same problem. `here()` also collapses the leading slashes of a `$here` changed by the application. Routing is unchanged ([GHSA-wh43-gc93-wh4c](https://github.com/pieceofcake2/cakephp/security/advisories/GHSA-wh43-gc93-wh4c), [PR #90](https://github.com/pieceofcake2/cakephp/pull/90))
 
+### Enhancements: HTML5 Script, Link and Style Tags ([PR #86](https://github.com/pieceofcake2/cakephp/pull/86))
+
+- **HtmlHelper `html5` setting**: `HtmlHelper` outputs the tags of HTML5 by default: `script()`, `css()` and the `<style>` of `css()` with `rel` `import` have no `type` attribute, and `scriptBlock()` and `scriptStart()` neither add `type="text/javascript"` nor wrap the script in CDATA. Set `'html5' => false` in the settings of the helper for the former output: `public $helpers = ['Html' => ['html5' => false]];`. The `safe` option of `scriptBlock()`, `scriptStart()` and the methods of `JsHelper` still adds the CDATA when it is `true`; its default follows the setting
+- **Test pages**: The test runner and the code coverage report of the web test runner use the tags of HTML5
+
 ### Tests ([PR #87](https://github.com/pieceofcake2/cakephp/pull/87))
 
 - **Independent of the skeleton defaults**: `ApplicationControllerTest::testRedirect()` clears `Session.cacheLimiter`, so the `'nocache'` default of pieceofcake2/app v2.5.3 no longer makes it fail

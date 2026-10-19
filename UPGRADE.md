@@ -24,6 +24,19 @@ Before migrating to this fork, ensure:
 - A request to `//posts/view/1` or `///posts/view/1` is routed as before, and one to `/\posts/view/1` is now routed as `/posts/view/1`. In both cases `$this->request->url` is now `posts/view/1` instead of `/posts/view/1`, and `here` is `/posts/view/1` instead of `//posts/view/1`. URLs with a single leading slash are not affected.
 - Forms created without a `url` and redirects to `$this->request->here()` stay on the site. If the application checked `here` for a leading `//` itself, that check is no longer needed.
 
+### HTML5 Script, Link and Style Tags ([PR #86](https://github.com/pieceofcake2/cakephp/pull/86))
+
+`HtmlHelper` now outputs the tags of HTML5: `<script src="...">`, `<link rel="stylesheet" href="...">`, `<style>`, and script blocks without `type="text/javascript"` and without CDATA. Browsers treat both forms the same, so the pages do not change.
+
+- Tests that compare the HTML of a page or of a helper, e.g. with `assertTags()` or `assertSame()`, may need the new tags.
+- To keep the former output, e.g. for pages served as XHTML (`application/xhtml+xml`), set `html5` to `false` in the settings of the helper:
+
+  ```php
+  public $helpers = ['Html' => ['html5' => false]];
+  ```
+
+- `JsHelper` follows the setting: its script blocks have no CDATA unless `safe` is `true` or `html5` is `false`.
+
 ## v2.12.10
 
 ### `raw()` ([PR #84](https://github.com/pieceofcake2/cakephp/pull/84))
