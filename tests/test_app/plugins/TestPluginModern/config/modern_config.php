@@ -1,7 +1,5 @@
 <?php
 /**
- * Test Suite TestPluginModern AppController
- *
  * CakePHP(tm) Tests <https://book.cakephp.org/2.0/en/development/testing.html>
  * Copyright (c) Cake Software Foundation, Inc. (https://cakefoundation.org)
  *
@@ -14,11 +12,4 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('AppController', 'Controller');
-
-/**
- * TestPluginModernAppController
- */
-class TestPluginModernAppController extends AppController
-{
-}
+$config['ModernConfig'] = 'read from config/modern_config.php';

@@ -19,10 +19,11 @@ Before migrating to this fork, ensure:
 
 ### Plugins in the CakePHP 5 Layout ([PR #88](https://github.com/pieceofcake2/cakephp/pull/88))
 
-A plugin may put its classes in `src/`, its views in `templates/`, its translations in `resources/locales/` and its vendor files in `vendor/`. CakePHP searches these directories after the directories of the CakePHP 2 layout, so nothing changes for a plugin that does not have them.
+A plugin may use the CakePHP 5 layout: namespaced classes in `src/`, views in `templates/`, translations in `resources/locales/`, vendor files in `vendor/` and `bootstrap.php`, `routes.php`, configuration files and schemas in `config/`. CakePHP searches these directories after the directories of the CakePHP 2 layout, so nothing changes for a plugin that does not have them.
 
-- A plugin that already has one of these directories for another purpose gets more search paths. For example, `App::objects('MyPlugin.Controller')` also lists the classes in `src/Controller/`, and `App::import('Vendor', 'MyPlugin.foo')` also looks in the Composer `vendor/` directory of a plugin checked out for development.
-- To move a plugin to the new layout, move `Controller/`, `Model/`, `View/Helper/`, `Lib/` and the other class directories into `src/`, the view files from `View/` into `templates/` and `Locale/` to `resources/locales/`. The classes of a plugin installed with Composer are usually loaded by its `autoload` setting; `App::uses()` finds them in `src/` either way.
+- The classes in `src/` are namespaced classes, e.g. `MyPlugin\Controller\Component\GreetingComponent` in `src/Controller/Component/GreetingComponent.php`, loaded by Composer with the `psr-4` entry of the plugin (`"MyPlugin\\": "src/"`). `App::uses()` does not look in `src/`.
+- A plugin that already has one of these directories for another purpose gets more search paths. For example, `App::objects('MyPlugin.Controller')` also lists the files in `src/Controller/`, and `App::import('Vendor', 'MyPlugin.foo')` also looks in the Composer `vendor/` directory of a plugin checked out for development.
+- A plugin with both `Config/` and `config/` (only possible on a case-sensitive file system) uses `Config/`.
 
 ## v2.12.10
 

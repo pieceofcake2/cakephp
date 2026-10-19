@@ -4,7 +4,8 @@
 
 ### Enhancements: Plugins in the CakePHP 5 Layout ([PR #88](https://github.com/pieceofcake2/cakephp/pull/88))
 
-- **Plugin directories**: Plugins may use the directories of the CakePHP 5 layout, as the application already does: `src/` for the classes (`src/Controller/`, `src/Model/`, `src/Lib/`, ...), `templates/` for the views, `resources/locales/` for the translations and `vendor/` for the vendor files. `App::path()` and `App::load()` search them after the directories of the CakePHP 2 layout (`Controller/`, `View/`, `Locale/`, `Vendor/`), and only when they exist, so a file found today is still found first. `I18n` reads the translations of a plugin from `App::path('Locale', $plugin)`
+- **Plugin directories**: Plugins may use the directories of the CakePHP 5 layout, as the application already does: `src/` for the namespaced classes (`src/Controller/`, `src/Model/`, ..., loaded by Composer), `templates/` for the views, `resources/locales/` for the translations, `vendor/` for the vendor files and `config/` for `bootstrap.php`, `routes.php`, configuration files and schemas. `App::path()` and `I18n` search them after the directories of the CakePHP 2 layout (`Controller/`, `View/`, `Locale/`, `Vendor/`), and only when they exist, so a file found today is still found first. `App::uses()` and `App::load()` keep loading global classes from the CakePHP 2 directories
+- **CakePlugin::configPath()**: A new method returns the `Config/` directory of a plugin, or `config/` when the plugin has no `Config/`; `CakePlugin::bootstrap()`, `CakePlugin::routes()`, `PhpReader`, `IniReader` and `CakeSchema` use it
 
 ### Tests ([PR #87](https://github.com/pieceofcake2/cakephp/pull/87))
 

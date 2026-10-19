@@ -110,6 +110,43 @@ class CakePluginTest extends CakeTestCase
     }
 
     /**
+     * Tests loading the bootstrap and routes files from the config directory of a plugin
+     *
+     * @return void
+     */
+    public function testLoadWithConfigDirectory(): void
+    {
+        App::build([
+            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
+        ]);
+        CakePlugin::load('TestPluginModern', ['bootstrap' => true, 'routes' => true]);
+        $this->assertSame('loaded from config/bootstrap.php', Configure::read('TestPluginModern.bootstrap'));
+
+        Router::reload();
+        CakePlugin::routes('TestPluginModern');
+        $this->assertSame('/modern', Router::url(['plugin' => 'test_plugin_modern', 'controller' => 'modern', 'action' => 'index']));
+    }
+
+    /**
+     * Tests configPath() with the config directory of the CakePHP 5 layout and the Config directory of CakePHP 2
+     *
+     * @return void
+     */
+    public function testConfigPath(): void
+    {
+        App::build([
+            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
+        ]);
+        CakePlugin::load(['TestPlugin', 'TestPluginModern']);
+
+        $expected = CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS . 'TestPlugin' . DS . 'Config' . DS;
+        $this->assertSame($expected, CakePlugin::configPath('TestPlugin'));
+
+        // config/ (also found as Config/ on case-insensitive file systems)
+        $this->assertFileExists(CakePlugin::configPath('TestPluginModern') . 'modern_config.php');
+    }
+
+    /**
      * Tests loading multiple plugins at once
      *
      * @return void

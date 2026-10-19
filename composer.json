@@ -46,8 +46,7 @@
             "vendor/pieceofcake2/app/src/Controller/AppController.php",
             "vendor/pieceofcake2/app/src/Controller/PagesController.php",
             "vendor/pieceofcake2/app/src/Console/Command/AppShell.php",
-            "vendor/pieceofcake2/app/src/Model/AppModel.php",
-            "tests/test_app/plugins/TestPluginModern/src/Lib/"
+            "vendor/pieceofcake2/app/src/Model/AppModel.php"
         ]
     },
     "bin": [

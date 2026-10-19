@@ -589,10 +589,6 @@ class App
             $pluginPath = CakePlugin::path($plugin);
             $paths[] = $pluginPath . 'Lib' . DS . $package . DS;
             $paths[] = $pluginPath . $package . DS;
-            if (is_dir($pluginPath . 'src')) {
-                $paths[] = $pluginPath . 'src' . DS . 'Lib' . DS . $package . DS;
-                $paths[] = $pluginPath . 'src' . DS . $package . DS;
-            }
         }
 
         $normalizedClassName = str_replace('\\', DS, $className);

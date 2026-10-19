@@ -912,23 +912,19 @@ class AppTest extends CakeTestCase
     }
 
     /**
-     * Test that classes, objects and vendor files are found in a plugin with the modern layout.
+     * Test that objects and vendor files are found in a plugin with the modern layout.
      *
      * @return void
      */
-    public function testModernPluginLayoutClasses(): void
+    public function testModernPluginLayoutObjects(): void
     {
         App::build([
             'plugins' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
         ], App::RESET);
         CakePlugin::load('TestPluginModern');
 
-        App::uses('ModernUtility', 'TestPluginModern.Utility');
-        $this->assertFalse(class_exists('ModernUtility', false));
-        $this->assertTrue(class_exists('ModernUtility'));
-
-        $result = App::objects('TestPluginModern.Controller');
-        $this->assertSame(['TestPluginModernAppController'], $result);
+        $result = App::objects('TestPluginModern.Controller/Component');
+        $this->assertSame(['ModernComponent'], $result);
 
         $this->assertTrue(App::import('Vendor', 'TestPluginModern.sample/modern_vendor'));
         $this->assertTrue(defined('TEST_PLUGIN_MODERN_VENDOR_LOADED'));
