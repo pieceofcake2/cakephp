@@ -193,7 +193,8 @@ class JsHelper extends AppHelper
      * - `cache` - Set to true to have scripts cached to a file and linked in (default false)
      * - `clear` - Set to false to prevent script cache from being cleared (default true)
      * - `onDomReady` - wrap cached scripts in domready event (default true)
-     * - `safe` - if an inline block is generated should it be wrapped in <![CDATA[ ... ]]> (default true)
+     * - `safe` - if an inline block is generated should it be wrapped in <![CDATA[ ... ]]> (default false, or true
+     *   when the `html5` setting of HtmlHelper is false)
      *
      * @param array $options options for the code block
      * @return mixed Completed javascript tag if there are scripts, if there are no buffered
@@ -205,7 +206,7 @@ class JsHelper extends AppHelper
         $domReady = !$this->request->is('ajax');
         $defaults = [
             'onDomReady' => $domReady, 'inline' => true,
-            'cache' => false, 'clear' => true, 'safe' => true,
+            'cache' => false, 'clear' => true, 'safe' => empty($this->Html->settings['html5']),
         ];
         $options += $defaults;
         $script = implode("\n", $this->getBuffer($options['clear']));
@@ -322,7 +323,7 @@ class JsHelper extends AppHelper
             unset($options['confirm']);
         }
         $buffer = $options['buffer'] ?? null;
-        $safe = $options['safe'] ?? true;
+        $safe = $options['safe'] ?? empty($this->Html->settings['html5']);
         unset($options['buffer'], $options['safe']);
 
         $requestString .= $this->request($url, $options);
@@ -416,7 +417,7 @@ class JsHelper extends AppHelper
         $options['dataExpression'] = true;
 
         $buffer = $options['buffer'] ?? null;
-        $safe = $options['safe'] ?? true;
+        $safe = $options['safe'] ?? empty($this->Html->settings['html5']);
         unset($options['buffer'], $options['safe']);
 
         $requestString .= $this->request($url, $options);

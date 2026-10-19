@@ -181,7 +181,7 @@ HTML;
     public function coverageScript()
     {
         return <<<HTML
-		<script type="text/javascript">
+		<script>
 		function coverage_show_hide(selector) {
 			var element = document.getElementById(selector);
 			element.style.display = (element.style.display === 'none') ? '' : 'none';
