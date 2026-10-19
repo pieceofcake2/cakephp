@@ -1371,6 +1371,12 @@ class BehaviorCollectionTest extends CakeTestCase
         $Model->Behaviors->load('Namespaced', ['className' => NamespacedBehavior::class]);
         $this->assertInstanceOf(NamespacedBehavior::class, $Model->Behaviors->Namespaced);
 
+        $Model->Behaviors->load('WithoutSuffix', ['className' => 'TestApp\Model\Behavior\Namespaced']);
+        $this->assertInstanceOf(NamespacedBehavior::class, $Model->Behaviors->WithoutSuffix);
+
+        $Model->Behaviors->load('Containable');
+        $this->assertInstanceOf('ContainableBehavior', $Model->Behaviors->Containable);
+
         $Model->Behaviors->unload('Namespaced');
         Configure::write('App.namespace', 'TestApp');
         $Model->Behaviors->load('Namespaced');

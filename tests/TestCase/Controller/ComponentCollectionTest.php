@@ -199,6 +199,8 @@ class ComponentCollectionTest extends CakeTestCase
         $result = $this->Components->load('Legacy', ['className' => 'TestApp\Controller\Component\Namespaced']);
         $this->assertInstanceOf(NamespacedComponent::class, $result);
 
+        $this->assertInstanceOf('CookieComponent', $this->Components->load('Cookie'));
+
         Configure::write('App.namespace', 'TestApp');
         $Components = new ComponentCollection();
         $this->assertInstanceOf(NamespacedComponent::class, $Components->load('Namespaced'));

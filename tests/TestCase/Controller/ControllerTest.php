@@ -1636,7 +1636,11 @@ class ControllerTest extends CakeTestCase
         }
         $Controller->viewClass = NamespacedView::class;
         $this->assertInstanceOf(NamespacedView::class, $getViewObject->invoke($Controller));
+        $Controller->viewClass = 'TestApp\View\Namespaced';
+        $this->assertInstanceOf(NamespacedView::class, $getViewObject->invoke($Controller));
         $Controller->viewClass = 'Namespaced';
         $this->assertInstanceOf(NamespacedView::class, $getViewObject->invoke($Controller));
+        $Controller->viewClass = 'Json';
+        $this->assertInstanceOf('JsonView', $getViewObject->invoke($Controller));
     }
 }

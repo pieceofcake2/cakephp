@@ -1120,5 +1120,10 @@ TEXT;
     {
         $helper = $this->Shell->helper(NamespacedShellHelper::class);
         $this->assertInstanceOf(NamespacedShellHelper::class, $helper);
+
+        $helper = $this->Shell->helper('TestApp\Console\Helper\Namespaced');
+        $this->assertInstanceOf(NamespacedShellHelper::class, $helper);
+
+        $this->assertInstanceOf('ProgressShellHelper', $this->Shell->helper('progress'));
     }
 }
