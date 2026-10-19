@@ -527,14 +527,13 @@ class AuthComponent extends Component
      * `$this->Auth->allow('edit', 'add');` or
      * `$this->Auth->allow();` to allow all actions
      *
-     * @param array|string|null $action Controller action name or array of actions
+     * @param array|string|null ...$args Controller action names, or an array of them
      * @return void
      * @link https://book.cakephp.org/2.0/en/core-libraries/components/authentication.html#making-actions-public
      */
-    public function allow($action = null)
+    public function allow(...$args)
     {
-        $args = func_get_args();
-        if (empty($args) || $action === null) {
+        if (empty($args) || $args[0] === null) {
             $this->allowedActions = $this->_methods;
 
             return;
@@ -554,15 +553,14 @@ class AuthComponent extends Component
      * `$this->Auth->deny('edit', 'add');` or
      * `$this->Auth->deny();` to remove all items from the allowed list
      *
-     * @param array|string|null $action Controller action name or array of actions
+     * @param array|string|null ...$args Controller action names, or an array of them
      * @return void
      * @see AuthComponent::allow()
      * @link https://book.cakephp.org/2.0/en/core-libraries/components/authentication.html#making-actions-require-authorization
      */
-    public function deny($action = null)
+    public function deny(...$args)
     {
-        $args = func_get_args();
-        if (empty($args) || $action === null) {
+        if (empty($args) || $args[0] === null) {
             $this->allowedActions = [];
 
             return;

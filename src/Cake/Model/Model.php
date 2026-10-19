@@ -3486,9 +3486,11 @@ class Model extends CakeObject implements CakeEventListener
      *
      * @param array $fields Field/value pairs to search (if no values specified, they are pulled from $this->data)
      * @param array|bool $or If false, all fields specified must match in order for a false return value
+     * @param mixed ...$args More field names, then `$or`, when the fields are given as separate arguments; as a
+     *   validation method, `$or` is the rule and the first of them the fields
      * @return bool False if any records matching any fields are found
      */
-    public function isUnique($fields, $or = true)
+    public function isUnique($fields, $or = true, ...$args)
     {
         if (is_array($or)) {
             $isRule = (
@@ -3497,13 +3499,12 @@ class Model extends CakeObject implements CakeEventListener
                 array_key_exists('message', $or)
             );
             if (!$isRule) {
-                $args = func_get_args();
-                $fields = $args[1];
-                $or = $args[2] ?? true;
+                $fields = $or;
+                $or = $args[0] ?? true;
             }
         }
         if (!is_array($fields)) {
-            $fields = func_get_args();
+            $fields = [$fields, $or, ...$args];
             $fieldCount = count($fields) - 1;
             if (is_bool($fields[$fieldCount])) {
                 $or = $fields[$fieldCount];
@@ -3553,12 +3554,13 @@ class Model extends CakeObject implements CakeEventListener
      * default `$cacheQueries` value is used.
      *
      * @param string $sql SQL statement
+     * @param mixed ...$params The parameters of the prepared statement and the query cache flag, see above
      * @return mixed Resultset array or boolean indicating success / failure depending on the query executed
      * @link https://book.cakephp.org/2.0/en/models/retrieving-your-data.html#model-query
      */
-    public function query($sql)
+    public function query($sql, ...$params)
     {
-        $params = func_get_args();
+        $params = [$sql, ...$params];
         // use $this->cacheQueries as default when argument not explicitly given already
         if (count($params) === 1 || count($params) === 2 && !is_bool($params[1])) {
             $params[] = $this->cacheQueries;

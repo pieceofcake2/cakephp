@@ -600,11 +600,11 @@ class DboSource extends DataSource
     /**
      * DataSource Query abstraction
      *
+     * @param mixed ...$args An SQL statement, or the method and the arguments of a magic findBy/findAllBy call
      * @return mixed Resultset array, the result of a magic findBy/findAllBy call, or false/null on failure
      */
-    public function query()
+    public function query(...$args)
     {
-        $args = func_get_args();
         $fields = null;
         $order = null;
         $limit = null;

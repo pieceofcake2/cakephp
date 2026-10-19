@@ -1024,13 +1024,13 @@ class CakeRequest implements ArrayAccess
      * will be created for you.
      *
      * @param string $name Dot separated name of the value to read/write, one or more args.
+     * @param mixed ...$args The value to write, if any
      * @return self|mixed Either the value being read, or $this so you can chain consecutive writes.
      */
-    public function data($name)
+    public function data($name, ...$args)
     {
-        $args = func_get_args();
-        if (count($args) === 2) {
-            $this->data = Hash::insert($this->data, $name, $args[1]);
+        if (count($args) === 1) {
+            $this->data = Hash::insert($this->data, $name, $args[0]);
 
             return $this;
         }
@@ -1042,14 +1042,14 @@ class CakeRequest implements ArrayAccess
      * Safely access the values in $this->params.
      *
      * @param string $name The name of the parameter to get.
+     * @param mixed ...$args The value to write, if any
      * @return mixed The value of the provided parameter. Will
      *   return false if the parameter doesn't exist or is falsey.
      */
-    public function param($name)
+    public function param($name, ...$args)
     {
-        $args = func_get_args();
-        if (count($args) === 2) {
-            $this->params = Hash::insert($this->params, $name, $args[1]);
+        if (count($args) === 1) {
+            $this->params = Hash::insert($this->params, $name, $args[0]);
 
             return $this;
         }
@@ -1077,17 +1077,14 @@ class CakeRequest implements ArrayAccess
      * @param string $callback A decoding callback that will convert the string data to another
      *     representation. Leave empty to access the raw input data. You can also
      *     supply additional parameters for the decoding callback using var args, see above.
+     * @param mixed ...$args The additional parameters of the callback
      * @return mixed The decoded/processed request data.
      */
-    public function input($callback = null)
+    public function input($callback = null, ...$args)
     {
         $input = $this->_readInput();
-        $args = func_get_args();
-        if (!empty($args)) {
-            $callback = array_shift($args);
-            array_unshift($args, $input);
-
-            return call_user_func_array($callback, $args);
+        if ($callback !== null) {
+            return call_user_func_array($callback, [$input, ...$args]);
         }
 
         return $input;
@@ -1119,13 +1116,14 @@ class CakeRequest implements ArrayAccess
      * and a 405 error will be returned.
      *
      * @param array|string $methods Allowed HTTP request methods.
+     * @param string ...$args More allowed HTTP request methods, when $methods is a string
      * @return bool true
      * @throws MethodNotAllowedException
      */
-    public function allowMethod($methods)
+    public function allowMethod($methods, ...$args)
     {
         if (!is_array($methods)) {
-            $methods = func_get_args();
+            $methods = [$methods, ...$args];
         }
         foreach ($methods as $method) {
             if ($this->is($method)) {
@@ -1142,15 +1140,16 @@ class CakeRequest implements ArrayAccess
      * Alias of CakeRequest::allowMethod() for backwards compatibility.
      *
      * @param array|string $methods Allowed HTTP request methods.
+     * @param string ...$args More allowed HTTP request methods, when $methods is a string
      * @return bool true
      * @throws MethodNotAllowedException
      * @see CakeRequest::allowMethod()
      * @deprecated 3.0.0 Since 2.5, use CakeRequest::allowMethod() instead.
      */
-    public function onlyAllow($methods)
+    public function onlyAllow($methods, ...$args)
     {
         if (!is_array($methods)) {
-            $methods = func_get_args();
+            $methods = [$methods, ...$args];
         }
 
         return $this->allowMethod($methods);

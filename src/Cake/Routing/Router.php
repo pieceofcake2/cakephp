@@ -1289,14 +1289,15 @@ class Router
      * If no parameters are given, anything after the first . (dot) after the last / in the URL will be
      * parsed, excluding querystring parameters (i.e. ?q=...).
      *
+     * @param string ...$extensions The extensions to parse, or none for any
      * @return void
      * @see RequestHandler::startup()
      */
-    public static function parseExtensions()
+    public static function parseExtensions(...$extensions)
     {
         static::$_parseExtensions = true;
-        if (func_num_args() > 0) {
-            static::setExtensions(func_get_args(), false);
+        if (count($extensions) > 0) {
+            static::setExtensions($extensions, false);
         }
     }
 

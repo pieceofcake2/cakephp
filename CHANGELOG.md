@@ -1,5 +1,11 @@
 ## CHANGELOG
 
+## Unreleased
+
+### Breaking Changes: Variadic Arguments
+
+- **`func_get_args()` replaced with variadic parameters**: The methods that took a variable number of arguments declare them as `...$args`, so that PHP and static analysis see them: `Shell::dispatchShell()`, `AuthComponent::allow()` / `deny()`, `SecurityComponent::require*()`, `Controller::setAction()` / `validate()` / `validateErrors()`, `ContainableBehavior::contain()`, `DboSource::query()`, `Model::isUnique()` / `query()`, `CakeRequest::data()` / `param()` / `input()` / `allowMethod()` / `onlyAllow()`, `Router::parseExtensions()`, `CakeTestCase::loadFixtures()`, `Hash::merge()`, `Sanitize::stripTags()`, `Set::merge()`, `HtmlHelper::css()` / `useTag()`. The calls do not change. A class that overrides one of these methods with the former signature fails with a fatal error: see UPGRADE
+
 ## v2.12.10 (2026-10-19)
 
 ### Enhancements: `raw()` ([PR #84](https://github.com/pieceofcake2/cakephp/pull/84))

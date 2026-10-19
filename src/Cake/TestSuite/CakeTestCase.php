@@ -191,16 +191,16 @@ abstract class CakeTestCase extends TestCase
      *
      * Each parameter is a model name that corresponds to a fixture, i.e. 'Post', 'Author', etc.
      *
+     * @param string ...$args The names of the fixtures
      * @return void
      * @see CakeTestCase::$autoFixtures
      * @throws Exception when no fixture manager is available.
      */
-    public function loadFixtures()
+    public function loadFixtures(...$args)
     {
         if (empty($this->fixtureManager)) {
             throw new Exception(__d('cake_dev', 'No fixture manager to load the test fixture'));
         }
-        $args = func_get_args();
         foreach ($args as $class) {
             $this->fixtureManager->loadSingle($class, null, $this->dropTables);
         }
