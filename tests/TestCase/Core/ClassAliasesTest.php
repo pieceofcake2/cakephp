@@ -81,6 +81,21 @@ class ClassAliasesTest extends CakeTestCase
     }
 
     /**
+     * Test that global names are case-insensitive, as class names in PHP.
+     *
+     * @return void
+     */
+    public function testGlobalNameCaseInsensitive(): void
+    {
+        $output = $this->_run(
+            'echo get_class(new hash()), "\n";' . "\n" .
+            'echo HASH::get(["a" => 1], "a"), "\n";' . "\n" .
+            'echo var_export(new HASH() instanceof Hash, true), "\n";' . "\n",
+        );
+        $this->assertSame("Cake\\Utility\\Hash\n1\ntrue\n", $output);
+    }
+
+    /**
      * Runs code in a new PHP process with the autoloader of Composer.
      *
      * @param string $code The code to run
