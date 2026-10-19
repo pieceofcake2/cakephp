@@ -277,7 +277,6 @@ class AppTest extends CakeTestCase
         $result = App::path('View', 'TestPluginModern');
         $expected = [
             $pluginPath . 'templates' . DS,
-            $pluginPath . 'src' . DS . 'View' . DS,
             $pluginPath . 'View' . DS,
         ];
         $this->assertSame($expected, $result);
@@ -285,13 +284,20 @@ class AppTest extends CakeTestCase
         $result = App::path('Locale', 'TestPluginModern');
         $expected = [
             $pluginPath . 'resources' . DS . 'locales' . DS,
-            $pluginPath . 'src' . DS . 'Locale' . DS,
             $pluginPath . 'Locale' . DS,
         ];
         $this->assertSame($expected, $result);
 
         $result = App::path('Vendor', 'TestPluginModern');
         $this->assertSame($pluginPath . 'vendor' . DS, $result[0]);
+        $this->assertNotContains($pluginPath . 'src' . DS . 'Vendor' . DS, $result);
+
+        $result = App::path('View/Helper', 'TestPluginModern');
+        $expected = [
+            $pluginPath . 'src' . DS . 'View' . DS . 'Helper' . DS,
+            $pluginPath . 'View' . DS . 'Helper' . DS,
+        ];
+        $this->assertSame($expected, $result);
     }
 
     /**

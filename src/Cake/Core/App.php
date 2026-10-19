@@ -234,8 +234,10 @@ class App
                     $path[] = $pluginPath . $modernPaths[$type] . DS;
                 }
 
+                // src/ holds classes only: the templates, translations and vendor files of the CakePHP 5
+                // layout are in the directories above, so src/View/ is never searched for templates
                 $basePaths = [$pluginPath];
-                if (is_dir($pluginPath . 'src')) {
+                if (!isset($modernPaths[$type]) && is_dir($pluginPath . 'src')) {
                     array_unshift($basePaths, $pluginPath . 'src' . DS);
                 }
                 foreach ($basePaths as $basePath) {

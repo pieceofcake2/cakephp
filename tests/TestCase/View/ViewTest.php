@@ -830,6 +830,27 @@ class ViewTest extends CakeTestCase
     }
 
     /**
+     * Test that the src directory of a plugin, which holds its view classes, is not searched for templates.
+     *
+     * @return void
+     */
+    public function testPluginPathsExcludeSrc(): void
+    {
+        App::build([
+            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
+        ]);
+        CakePlugin::load('TestPluginModern');
+        $pluginPath = CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS . 'TestPluginModern' . DS;
+
+        $View = new TestView($this->Controller);
+        $paths = $View->paths('TestPluginModern', false);
+        $this->assertContains($pluginPath . 'templates' . DS, $paths);
+        foreach ($paths as $path) {
+            $this->assertStringNotContainsString($pluginPath . 'src' . DS, $path);
+        }
+    }
+
+    /**
      * Test element method
      *
      * @return void
