@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-### Enhancements: Plugins in the CakePHP 5 Layout
+### Enhancements: Plugins in the CakePHP 5 Layout ([PR #88](https://github.com/pieceofcake2/cakephp/pull/88))
 
 - **Plugin directories**: Plugins may use the directories of the CakePHP 5 layout, as the application already does: `src/` for the classes (`src/Controller/`, `src/Model/`, `src/Lib/`, ...), `templates/` for the views, `resources/locales/` for the translations and `vendor/` for the vendor files. `App::path()` and `App::load()` search them after the directories of the CakePHP 2 layout (`Controller/`, `View/`, `Locale/`, `Vendor/`), and only when they exist, so a file found today is still found first. `I18n` reads the translations of a plugin from `App::path('Locale', $plugin)`
 

@@ -17,7 +17,7 @@ Before migrating to this fork, ensure:
 
 ## Unreleased
 
-### Plugins in the CakePHP 5 Layout
+### Plugins in the CakePHP 5 Layout ([PR #88](https://github.com/pieceofcake2/cakephp/pull/88))
 
 A plugin may put its classes in `src/`, its views in `templates/`, its translations in `resources/locales/` and its vendor files in `vendor/`. CakePHP searches these directories after the directories of the CakePHP 2 layout, so nothing changes for a plugin that does not have them.
 
