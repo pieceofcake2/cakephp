@@ -14,6 +14,15 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Console\Command;
+
+use Cake\Console\ConsoleOptionParser;
+use Cake\Console\ConsoleOutput;
+use Cake\Core\App;
+use Cake\Core\CakePlugin;
+use Cake\Utility\Inflector;
+use SimpleXmlElement;
+
 App::uses('AppShell', 'Console/Command');
 
 /**
@@ -145,3 +154,5 @@ class CommandListShell extends AppShell
         return $parser;
     }
 }
+
+class_alias(CommandListShell::class, 'CommandListShell');

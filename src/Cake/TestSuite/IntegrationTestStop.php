@@ -13,6 +13,11 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\TestSuite;
+
+use Cake\Network\CakeResponse;
+use Error;
+
 /**
  * Thrown by `IntegrationTestResponse::send()` to stop a request dispatched by
  * `IntegrationTestTrait`.
@@ -58,3 +63,5 @@ class IntegrationTestStop extends Error
         return $this->_response;
     }
 }
+
+class_alias(IntegrationTestStop::class, 'IntegrationTestStop');

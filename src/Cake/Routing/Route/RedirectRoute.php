@@ -14,6 +14,11 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Routing\Route;
+
+use Cake\Network\CakeResponse;
+use Cake\Routing\Router;
+
 /**
  * Redirect route will perform an immediate redirect. Redirect routes
  * are useful when you want to have Routing layer redirects occur in your
@@ -125,3 +130,5 @@ class RedirectRoute extends CakeRoute
         }
     }
 }
+
+class_alias(RedirectRoute::class, 'RedirectRoute');

@@ -14,6 +14,14 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Model;
+
+use AppModel;
+use Cake\Core\App;
+use Cake\Core\Configure;
+use Cake\Error\AclException;
+use Cake\Utility\Hash;
+
 App::uses('AppModel', 'Model');
 
 /**
@@ -275,3 +283,5 @@ class Permission extends AppModel
         return $newKeys;
     }
 }
+
+class_alias(Permission::class, 'Permission');

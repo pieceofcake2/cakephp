@@ -13,6 +13,10 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\TestSuite\Constraint\Email;
+
+use Cake\Core\App;
+
 App::uses('MailConstraintBase', 'TestSuite/Constraint/Email');
 
 /**
@@ -46,3 +50,5 @@ class MailCountConstraint extends MailConstraintBase
         return 'emails were sent';
     }
 }
+
+class_alias(MailCountConstraint::class, 'MailCountConstraint');

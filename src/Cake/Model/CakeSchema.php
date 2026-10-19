@@ -16,6 +16,19 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Model;
+
+use AppModel;
+use Cake\Core\App;
+use Cake\Core\CakeObject;
+use Cake\Core\CakePlugin;
+use Cake\Core\Configure;
+use Cake\Error\CakeException;
+use Cake\Utility\ClassRegistry;
+use Cake\Utility\File;
+use Cake\Utility\Inflector;
+use Exception;
+
 App::uses('AppModel', 'Model');
 
 /**
@@ -77,7 +90,7 @@ class CakeSchema extends CakeObject
         parent::__construct();
 
         if (empty($options['name'])) {
-            $this->name = preg_replace('/schema$/i', '', static::class);
+            $this->name = preg_replace('/schema$/i', '', substr(static::class, (int)strrpos('\\' . static::class, '\\')));
         }
         if (!empty($options['plugin'])) {
             $this->plugin = $options['plugin'];
@@ -779,3 +792,5 @@ class CakeSchema extends CakeObject
         return false;
     }
 }
+
+class_alias(CakeSchema::class, 'CakeSchema');

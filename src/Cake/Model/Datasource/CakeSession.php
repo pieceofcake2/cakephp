@@ -21,6 +21,14 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Model\Datasource;
+
+use Cake\Core\App;
+use Cake\Core\Configure;
+use Cake\Error\CakeSessionException;
+use Cake\Model\Datasource\Session\CakeSessionHandlerInterface;
+use Cake\Utility\Hash;
+
 /**
  * Session class for CakePHP.
  *
@@ -858,3 +866,5 @@ class CakeSession
         static::$lastError = $errorNumber;
     }
 }
+
+class_alias(CakeSession::class, 'CakeSession');

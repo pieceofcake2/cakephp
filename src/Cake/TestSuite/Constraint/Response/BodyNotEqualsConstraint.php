@@ -13,6 +13,10 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\TestSuite\Constraint\Response;
+
+use Cake\Core\App;
+
 App::uses('BodyEqualsConstraint', 'TestSuite/Constraint/Response');
 
 /**
@@ -46,3 +50,5 @@ class BodyNotEqualsConstraint extends BodyEqualsConstraint
         return 'does not match response body';
     }
 }
+
+class_alias(BodyNotEqualsConstraint::class, 'BodyNotEqualsConstraint');

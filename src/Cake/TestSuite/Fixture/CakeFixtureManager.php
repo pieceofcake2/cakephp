@@ -16,6 +16,16 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\TestSuite\Fixture;
+
+use Cake\Core\CakePlugin;
+use Cake\Model\ConnectionManager;
+use Cake\Model\Datasource\DataSource;
+use Cake\TestSuite\CakeTestCase;
+use Cake\Utility\ClassRegistry;
+use Cake\Utility\Inflector;
+use UnexpectedValueException;
+
 /**
  * A factory class to manage the life cycle of test fixtures
  *
@@ -320,3 +330,5 @@ class CakeFixtureManager
         }
     }
 }
+
+class_alias(CakeFixtureManager::class, 'CakeFixtureManager');

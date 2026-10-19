@@ -32,7 +32,8 @@
         "ext-intl": "Required to use IntlDateFormatter instead of strftime, if not Symfony polyfill will be used."
     },
     "autoload": {
-        "classmap": ["src/"]
+        "classmap": ["src/"],
+        "files": ["src/Cake/aliases.php"]
     },
     "config": {
         "sort-packages": true,

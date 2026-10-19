@@ -14,6 +14,17 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Core;
+
+use Cake\Cache\Cache;
+use Cake\Configure\ConfigReaderInterface;
+use Cake\Configure\PhpReader;
+use Cake\Console\ConsoleErrorHandler;
+use Cake\Error\ConfigureException;
+use Cake\Utility\CakeText;
+use Cake\Utility\Debugger;
+use Cake\Utility\Hash;
+
 /**
  * Configuration class. Used for managing runtime configuration information.
  *
@@ -503,3 +514,5 @@ class Configure
         }
     }
 }
+
+class_alias(Configure::class, 'Configure');

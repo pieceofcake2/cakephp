@@ -16,6 +16,8 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Network\Http;
+
 /**
  * Digest authentication
  *
@@ -107,3 +109,5 @@ class DigestAuthentication
         return $authHeader;
     }
 }
+
+class_alias(DigestAuthentication::class, 'DigestAuthentication');

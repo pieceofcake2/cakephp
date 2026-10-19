@@ -15,6 +15,12 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Network\Http;
+
+use ArrayAccess;
+use Cake\Error\SocketException;
+use Cake\Utility\Inflector;
+
 /**
  * HTTP Response from HttpSocket.
  *
@@ -485,3 +491,5 @@ class HttpSocketResponse implements ArrayAccess
         return $this->body();
     }
 }
+
+class_alias(HttpSocketResponse::class, 'HttpSocketResponse');

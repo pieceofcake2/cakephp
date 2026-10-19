@@ -16,6 +16,26 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Model\Datasource;
+
+use Cake\Cache\Cache;
+use Cake\Core\Configure;
+use Cake\Error\CakeException;
+use Cake\Error\MissingConnectionException;
+use Cake\Model\CakeSchema;
+use Cake\Model\ConnectionManager;
+use Cake\Model\Model;
+use Cake\Utility\CakeText;
+use Cake\Utility\ClassRegistry;
+use Cake\Utility\Hash;
+use Cake\Utility\Inflector;
+use Cake\View\View;
+use Exception;
+use PDO;
+use PDOException;
+use PDOStatement;
+use stdClass;
+
 /**
  * DboSource
  *
@@ -4146,3 +4166,5 @@ class DboSource extends DataSource
         parent::__destruct();
     }
 }
+
+class_alias(DboSource::class, 'DboSource');

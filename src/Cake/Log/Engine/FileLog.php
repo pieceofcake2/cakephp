@@ -16,6 +16,12 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Log\Engine;
+
+use Cake\Core\Configure;
+use Cake\Utility\CakeNumber;
+use Cake\Utility\Hash;
+
 /**
  * File Storage stream for Logging. Writes logs to different files
  * based on the type of log it is.
@@ -218,3 +224,5 @@ class FileLog extends BaseLog
         return $result;
     }
 }
+
+class_alias(FileLog::class, 'FileLog');

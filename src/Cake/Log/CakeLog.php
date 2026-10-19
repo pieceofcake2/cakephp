@@ -18,6 +18,11 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Log;
+
+use Cake\Error\CakeLogException;
+use Cake\Log\Engine\BaseLog;
+
 /**
  * Logs messages to configured Log adapters.
  *
@@ -569,3 +574,5 @@ class CakeLog
         return static::write(static::$_levelMap['info'], $message, $scope);
     }
 }
+
+class_alias(CakeLog::class, 'CakeLog');

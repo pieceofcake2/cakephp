@@ -15,7 +15,13 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\TestSuite\Reporter;
+
+use Cake\TestSuite\Coverage\TextCoverageReport;
+use Cake\Utility\Inflector;
+use Exception;
 use PHPUnit\Framework\TestResult;
+use Throwable;
 
 /**
  * CakeTextReporter contains reporting features used for plain text based output
@@ -194,3 +200,5 @@ class CakeTextReporter extends CakeBaseReporter
         echo $reporter->report();
     }
 }
+
+class_alias(CakeTextReporter::class, 'CakeTextReporter');

@@ -1,5 +1,19 @@
 <?php
 
+namespace Cake\TestSuite;
+
+use AllowDynamicProperties;
+use Cake\Core\App;
+use Cake\Core\Configure;
+use Cake\Error\MissingModelException;
+use Cake\Model\ConnectionManager;
+use Cake\Model\Datasource\DataSource;
+use Cake\Model\Model;
+use Cake\Routing\Router;
+use Cake\TestSuite\Fixture\CakeFixtureManager;
+use Cake\Utility\ClassRegistry;
+use Exception;
+use InvalidArgumentException;
 use PHPUnit\Framework\TestCase;
 
 /**
@@ -25,7 +39,7 @@ use PHPUnit\Framework\TestCase;
  * @package       Cake.TestSuite
  * @property DataSource|null $db The default test datasource, set by CakeFixtureManager::fixturize()
  */
-#[\AllowDynamicProperties]
+#[AllowDynamicProperties]
 abstract class CakeTestCase extends TestCase
 {
     /**
@@ -879,3 +893,5 @@ abstract class CakeTestCase extends TestCase
         return $mock;
     }
 }
+
+class_alias(CakeTestCase::class, 'CakeTestCase');

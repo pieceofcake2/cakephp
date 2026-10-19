@@ -13,6 +13,10 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\TestSuite\Constraint\Response;
+
+use Cake\Core\App;
+
 App::uses('HeaderSetConstraint', 'TestSuite/Constraint/Response');
 
 /**
@@ -46,3 +50,5 @@ class HeaderNotSetConstraint extends HeaderSetConstraint
         return sprintf('did not have header `%s`', $this->headerName);
     }
 }
+
+class_alias(HeaderNotSetConstraint::class, 'HeaderNotSetConstraint');

@@ -13,6 +13,11 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\TestSuite\Constraint\Response;
+
+use Cake\Core\App;
+use Cake\Network\CakeResponse;
+
 App::uses('ResponseConstraintBase', 'TestSuite/Constraint/Response');
 
 /**
@@ -76,3 +81,5 @@ class HeaderSetConstraint extends ResponseConstraintBase
         return $this->toString();
     }
 }
+
+class_alias(HeaderSetConstraint::class, 'HeaderSetConstraint');

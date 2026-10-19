@@ -15,6 +15,11 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Console;
+
+use Cake\Error\ConsoleException;
+use Cake\Utility\Inflector;
+
 /**
  * Handles parsing the ARGV in the command line and provides support
  * for GetOpt compatible option definition. Provides a builder pattern implementation
@@ -710,3 +715,5 @@ class ConsoleOptionParser
         return $this->_tokens[0] ?? '';
     }
 }
+
+class_alias(ConsoleOptionParser::class, 'ConsoleOptionParser');

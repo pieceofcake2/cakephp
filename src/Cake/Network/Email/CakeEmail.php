@@ -14,6 +14,22 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Network\Email;
+
+use Cake\Core\App;
+use Cake\Core\Configure;
+use Cake\Error\CakeException;
+use Cake\Error\ConfigureException;
+use Cake\Error\SocketException;
+use Cake\I18n\Multibyte;
+use Cake\Log\CakeLog;
+use Cake\Utility\CakeDsn;
+use Cake\Utility\CakeText;
+use Cake\Utility\File;
+use Cake\Utility\Hash;
+use Cake\View\View;
+use EmailConfig;
+
 /**
  * CakePHP email class.
  *
@@ -2120,3 +2136,5 @@ class CakeEmail
         return strtoupper($this->charset);
     }
 }
+
+class_alias(CakeEmail::class, 'CakeEmail');

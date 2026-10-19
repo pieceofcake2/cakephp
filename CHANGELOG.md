@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+### Enhancements: The Framework in the `Cake` Namespace
+
+- **Namespaced classes**: The classes of the framework are in the `Cake` namespace, following their directories: `Cake\Controller\Controller`, `Cake\Network\CakeRequest`, `Cake\Utility\Hash`, ... Applications and plugins can `use` them, e.g. `use Cake\Controller\Component;`
+- **Global names**: The global names of CakePHP 2 keep working as aliases of the same classes (`class_alias()`). Each class file declares its alias when the class is loaded, and `src/Cake/aliases.php`, loaded by Composer, loads the namespaced class when an application uses the global name first. `Controller` and `Cake\Controller\Controller` are the same class: `extends`, `instanceof`, type declarations, `catch` blocks and `App::uses()` work with either name
+- **Class names in output**: `get_class()`, `::class` and the messages, logs, debug output and error pages that show them use the namespaced names, e.g. `[Cake\Error\NotFoundException]` in the error log
+- **phpcs**: `SlevomatCodingStandard.Namespaces.UnusedUses` counts the class names in annotations, as the core imports the classes that its docblocks name
+
 ### Enhancements: Classes in a Namespace (`App::className()`, `App.namespace`) ([PR #91](https://github.com/pieceofcake2/cakephp/pull/91))
 
 - **App::className()**: A new method, backported from CakePHP 3 and later, returns the class name for a name used in the configuration, or `null`. A name with a backslash is a fully qualified class name; the suffix is added only when the name does not end with it, so `GreetingComponent::class` and `'Acme\Controller\Component\Greeting'` both return `Acme\Controller\Component\GreetingComponent`. Other names are looked up in the namespace of the plugin or of `App.namespace` (`<Namespace>\<Type>\<Name><Suffix>`), then as the global class declared with `App::uses()`, as before

@@ -13,6 +13,8 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\TestSuite\Constraint\View;
+
 use PHPUnit\Framework\Constraint\Constraint;
 
 /**
@@ -63,3 +65,5 @@ class TemplateFileEqualsConstraint extends Constraint
         return sprintf('equals template file `%s`', (string)$this->filename);
     }
 }
+
+class_alias(TemplateFileEqualsConstraint::class, 'TemplateFileEqualsConstraint');

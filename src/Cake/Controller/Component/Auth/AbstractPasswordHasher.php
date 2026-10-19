@@ -13,6 +13,8 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Controller\Component\Auth;
+
 /**
  * Abstract password hashing class
  *
@@ -72,3 +74,5 @@ abstract class AbstractPasswordHasher
      */
     abstract public function check($password, $hashedPassword);
 }
+
+class_alias(AbstractPasswordHasher::class, 'AbstractPasswordHasher');

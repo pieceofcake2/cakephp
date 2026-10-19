@@ -16,6 +16,16 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Controller\Component;
+
+use Cake\Controller\Component;
+use Cake\Controller\ComponentCollection;
+use Cake\Error\InternalErrorException;
+use Cake\Model\Datasource\CakeSession;
+use Cake\Utility\Hash;
+use Cake\Utility\Inflector;
+use Exception;
+
 /**
  * The CakePHP FlashComponent provides a way for you to write a flash variable
  * to the session from your controllers, to be rendered in a view with the
@@ -126,3 +136,5 @@ class FlashComponent extends Component
         $this->set($args[0], $options);
     }
 }
+
+class_alias(FlashComponent::class, 'FlashComponent');

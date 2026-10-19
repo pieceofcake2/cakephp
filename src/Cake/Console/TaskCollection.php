@@ -16,6 +16,13 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Console;
+
+use Cake\Console\Command\AppShell;
+use Cake\Core\App;
+use Cake\Error\MissingTaskException;
+use Cake\Utility\ObjectCollection;
+
 /**
  * Collection object for Tasks. Provides features
  * for lazily loading tasks, and firing callbacks on loaded tasks.
@@ -97,3 +104,5 @@ class TaskCollection extends ObjectCollection
         return $this->_loaded[$alias];
     }
 }
+
+class_alias(TaskCollection::class, 'TaskCollection');

@@ -17,6 +17,16 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Console\Command;
+
+use Cake\Console\ConsoleOptionParser;
+use Cake\Console\Shell;
+use Cake\TestSuite\CakeTestLoader;
+use Cake\TestSuite\CakeTestSuiteCommand;
+use Cake\TestSuite\CakeTestSuiteDispatcher;
+use Cake\Utility\Inflector;
+use Exception;
+
 /**
  * Provides a CakePHP wrapper around PHPUnit.
  * Adds in CakePHP's fixtures and gives access to plugin, app and core test cases
@@ -456,3 +466,5 @@ class TestShell extends Shell
         return 'app';
     }
 }
+
+class_alias(TestShell::class, 'TestShell');

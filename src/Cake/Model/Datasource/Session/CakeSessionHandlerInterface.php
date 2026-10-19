@@ -14,6 +14,8 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Model\Datasource\Session;
+
 /**
  * Interface for Session handlers. Custom session handler classes should implement
  * this interface as it allows CakeSession know how to map methods to session_set_save_handler()
@@ -70,3 +72,5 @@ interface CakeSessionHandlerInterface
      */
     public function gc($expires = null);
 }
+
+class_alias(CakeSessionHandlerInterface::class, 'CakeSessionHandlerInterface');

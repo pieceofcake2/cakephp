@@ -18,6 +18,15 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\View\Helper;
+
+use AppHelper;
+use Cake\Core\App;
+use Cake\Error\CakeException;
+use Cake\Utility\CakeNumber;
+use Cake\Utility\Hash;
+use Cake\View\View;
+
 App::uses('AppHelper', 'View/Helper');
 
 /**
@@ -189,3 +198,5 @@ class NumberHelper extends AppHelper
         return $this->_engine->defaultCurrency($currency);
     }
 }
+
+class_alias(NumberHelper::class, 'NumberHelper');

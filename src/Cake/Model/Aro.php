@@ -14,6 +14,8 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Model;
+
 /**
  * Access Request Object
  *
@@ -35,3 +37,5 @@ class Aro extends AclNode
      */
     public $hasAndBelongsToMany = ['Aco' => ['with' => 'Permission']];
 }
+
+class_alias(Aro::class, 'Aro');

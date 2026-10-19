@@ -12,6 +12,12 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Controller\Component\Auth;
+
+use Cake\Controller\Component\AuthComponent;
+use Cake\Network\CakeRequest;
+use Cake\Network\CakeResponse;
+
 /**
  * An authentication adapter for AuthComponent. Provides the ability to authenticate using POST
  * data. Can be used by configuring AuthComponent to use it via the AuthComponent::$authenticate setting.
@@ -81,3 +87,5 @@ class FormAuthenticate extends BaseAuthenticate
         );
     }
 }
+
+class_alias(FormAuthenticate::class, 'FormAuthenticate');

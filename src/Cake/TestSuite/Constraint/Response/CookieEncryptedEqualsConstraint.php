@@ -13,6 +13,12 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\TestSuite\Constraint\Response;
+
+use Cake\Core\App;
+use Cake\Network\CakeResponse;
+use Cake\TestSuite\CookieCryptTrait;
+
 App::uses('CookieEqualsConstraint', 'TestSuite/Constraint/Response');
 
 /**
@@ -91,3 +97,5 @@ class CookieEncryptedEqualsConstraint extends CookieEqualsConstraint
         return $this->key;
     }
 }
+
+class_alias(CookieEncryptedEqualsConstraint::class, 'CookieEncryptedEqualsConstraint');

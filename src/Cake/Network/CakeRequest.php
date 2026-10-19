@@ -15,6 +15,14 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Network;
+
+use ArrayAccess;
+use Cake\Core\Configure;
+use Cake\Error\CakeException;
+use Cake\Error\MethodNotAllowedException;
+use Cake\Utility\Hash;
+
 /**
  * A class that helps wrap Request information and particulars about a single request.
  * Provides methods commonly used to introspect on the request headers and request body.
@@ -1232,3 +1240,5 @@ class CakeRequest implements ArrayAccess
         unset($this->params[$name]);
     }
 }
+
+class_alias(CakeRequest::class, 'CakeRequest');

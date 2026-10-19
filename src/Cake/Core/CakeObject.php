@@ -14,6 +14,16 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Core;
+
+use AllowDynamicProperties;
+use Cake\Log\CakeLog;
+use Cake\Network\CakeRequest;
+use Cake\Network\CakeResponse;
+use Cake\Routing\Dispatcher;
+use Cake\Routing\Router;
+use Cake\Utility\Hash;
+
 /**
  * CakeObject class provides a few generic methods used in several subclasses.
  *
@@ -22,7 +32,7 @@
  *
  * @package       Cake.Core
  */
-#[\AllowDynamicProperties]
+#[AllowDynamicProperties]
 class CakeObject
 {
     /**
@@ -216,3 +226,5 @@ class CakeObject
         }
     }
 }
+
+class_alias(CakeObject::class, 'CakeObject');

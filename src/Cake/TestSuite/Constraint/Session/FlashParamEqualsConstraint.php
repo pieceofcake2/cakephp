@@ -13,6 +13,9 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\TestSuite\Constraint\Session;
+
+use Cake\Utility\Hash;
 use PHPUnit\Framework\AssertionFailedError;
 use PHPUnit\Framework\Constraint\Constraint;
 
@@ -136,3 +139,5 @@ class FlashParamEqualsConstraint extends Constraint
         return sprintf("is in '%s' %s", $this->key, $this->param);
     }
 }
+
+class_alias(FlashParamEqualsConstraint::class, 'FlashParamEqualsConstraint');

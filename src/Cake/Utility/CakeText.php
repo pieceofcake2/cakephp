@@ -16,6 +16,10 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Utility;
+
+use Cake\Core\Configure;
+
 /**
  * String handling methods.
  *
@@ -675,3 +679,5 @@ class CakeText
         return array_pop($list);
     }
 }
+
+class_alias(CakeText::class, 'CakeText');

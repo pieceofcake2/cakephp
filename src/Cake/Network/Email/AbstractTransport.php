@@ -16,6 +16,8 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Network\Email;
+
 /**
  * Abstract transport for sending email
  *
@@ -76,3 +78,5 @@ abstract class AbstractTransport
         return $out;
     }
 }
+
+class_alias(AbstractTransport::class, 'AbstractTransport');

@@ -18,6 +18,14 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Controller;
+
+use AppController;
+use Cake\Core\App;
+use Cake\Network\CakeRequest;
+use Cake\Network\CakeResponse;
+use Cake\Routing\Router;
+
 App::uses('AppController', 'Controller');
 
 /**
@@ -61,3 +69,5 @@ class CakeErrorController extends AppController
         $this->_set(['cacheAction' => false, 'viewPath' => 'Errors']);
     }
 }
+
+class_alias(CakeErrorController::class, 'CakeErrorController');

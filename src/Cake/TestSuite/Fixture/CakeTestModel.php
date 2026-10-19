@@ -14,6 +14,10 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\TestSuite\Fixture;
+
+use Cake\Model\Model;
+
 /**
  * A model to extend from to help you during testing.
  *
@@ -56,3 +60,5 @@ class CakeTestModel extends Model
         return parent::save($data, $validate, $fieldList);
     }
 }
+
+class_alias(CakeTestModel::class, 'CakeTestModel');

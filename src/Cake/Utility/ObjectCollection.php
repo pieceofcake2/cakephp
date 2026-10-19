@@ -12,6 +12,12 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Utility;
+
+use Cake\Core\CakeObject;
+use Cake\Error\CakeException;
+use Cake\Event\CakeEvent;
+
 /**
  * Deals with Collections of objects. Keeping registries of those objects,
  * loading and constructing new objects and triggering callbacks. Each subclass needs
@@ -360,3 +366,5 @@ abstract class ObjectCollection
         return $normal;
     }
 }
+
+class_alias(ObjectCollection::class, 'ObjectCollection');

@@ -18,6 +18,15 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Utility;
+
+use Cake\Core\Configure;
+use Cake\Error\CakeException;
+use Cake\Log\CakeLog;
+use InvalidArgumentException;
+use ReflectionObject;
+use ReflectionProperty;
+
 /**
  * Provide custom logging and error handling.
  *
@@ -997,3 +1006,5 @@ class Debugger
         }
     }
 }
+
+class_alias(Debugger::class, 'Debugger');

@@ -1,5 +1,13 @@
 <?php
 
+namespace Cake\TestSuite;
+
+use Cake\Core\App;
+use Cake\Core\CakePlugin;
+use Cake\Error\MissingPluginException;
+use Cake\Error\MissingTestLoaderException;
+use Cake\TestSuite\Reporter\CakeBaseReporter;
+use Exception;
 use PHPUnit\TextUI\Command;
 
 /**
@@ -163,3 +171,5 @@ class CakeTestSuiteCommand extends Command
         return $result;
     }
 }
+
+class_alias(CakeTestSuiteCommand::class, 'CakeTestSuiteCommand');

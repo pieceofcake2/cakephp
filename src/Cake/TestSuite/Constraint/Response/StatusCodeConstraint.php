@@ -13,6 +13,10 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\TestSuite\Constraint\Response;
+
+use Cake\Core\App;
+
 App::uses('StatusCodeConstraintBase', 'TestSuite/Constraint/Response');
 
 /**
@@ -46,3 +50,5 @@ class StatusCodeConstraint extends StatusCodeConstraintBase
         return '`' . $other . '` ' . $this->toString();
     }
 }
+
+class_alias(StatusCodeConstraint::class, 'StatusCodeConstraint');

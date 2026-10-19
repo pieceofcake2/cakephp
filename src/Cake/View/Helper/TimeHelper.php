@@ -16,6 +16,17 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\View\Helper;
+
+use AppHelper;
+use Cake\Core\App;
+use Cake\Error\CakeException;
+use Cake\Utility\CakeTime;
+use Cake\Utility\Hash;
+use Cake\View\View;
+use DateTime;
+use DateTimeZone;
+
 App::uses('AppHelper', 'View/Helper');
 
 /**
@@ -527,3 +538,5 @@ class TimeHelper extends AppHelper
         return $this->_engine->i18nFormat($date, $format, $invalid, $timezone);
     }
 }
+
+class_alias(TimeHelper::class, 'TimeHelper');

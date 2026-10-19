@@ -16,6 +16,14 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Cache\Engine;
+
+use Cake\Cache\CacheEngine;
+use Cake\Error\CacheException;
+use Cake\Utility\Inflector;
+use Redis;
+use RedisException;
+
 /**
  * Redis storage engine for cache.
  *
@@ -271,3 +279,5 @@ class RedisEngine extends CacheEngine
         return false;
     }
 }
+
+class_alias(RedisEngine::class, 'RedisEngine');

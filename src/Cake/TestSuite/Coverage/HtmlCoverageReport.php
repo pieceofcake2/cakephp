@@ -16,6 +16,10 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\TestSuite\Coverage;
+
+use ReflectionClass;
+
 /**
  * Generates code coverage reports in HTML from data obtained from PHPUnit
  *
@@ -236,3 +240,5 @@ HTML;
         return '</pre></div></div>';
     }
 }
+
+class_alias(HtmlCoverageReport::class, 'HtmlCoverageReport');

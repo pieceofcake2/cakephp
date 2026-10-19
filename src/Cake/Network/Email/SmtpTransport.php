@@ -16,6 +16,11 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Network\Email;
+
+use Cake\Error\SocketException;
+use Cake\Network\CakeSocket;
+
 /**
  * Send mail using SMTP protocol
  *
@@ -423,3 +428,5 @@ class SmtpTransport extends AbstractTransport
         return null;
     }
 }
+
+class_alias(SmtpTransport::class, 'SmtpTransport');

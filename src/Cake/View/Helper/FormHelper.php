@@ -1,5 +1,21 @@
 <?php
 
+namespace Cake\View\Helper;
+
+use AppHelper;
+use Cake\Controller\Component\SecurityComponent;
+use Cake\Core\App;
+use Cake\Core\Configure;
+use Cake\Error\CakeException;
+use Cake\Model\Model;
+use Cake\Model\Validator\CakeValidationSet;
+use Cake\Utility\ClassRegistry;
+use Cake\Utility\Hash;
+use Cake\Utility\Inflector;
+use Cake\Utility\Security;
+use Cake\View\View;
+use DateTime;
+use Exception;
 use function PHP81_BC\strftime;
 
 /**
@@ -3299,3 +3315,5 @@ class FormHelper extends AppHelper
         return $this->_inputDefaults;
     }
 }
+
+class_alias(FormHelper::class, 'FormHelper');

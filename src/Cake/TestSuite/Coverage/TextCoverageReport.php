@@ -18,6 +18,8 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\TestSuite\Coverage;
+
 /**
  * Generates code coverage reports in Simple plain text from data obtained from PHPUnit
  *
@@ -63,3 +65,5 @@ class TextCoverageReport extends BaseCoverageReport
         return "$filename : $percentCovered%\n";
     }
 }
+
+class_alias(TextCoverageReport::class, 'TextCoverageReport');

@@ -16,6 +16,16 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Controller\Component\Acl;
+
+use Cake\Configure\PhpReader;
+use Cake\Controller\Component;
+use Cake\Controller\Component\AclComponent;
+use Cake\Core\CakeObject;
+use Cake\Error\AclException;
+use Cake\Utility\Hash;
+use Cake\Utility\Inflector;
+
 /**
  * PhpAcl implements an access control system using a plain PHP configuration file.
  * An example file can be found in app/Config/acl.php
@@ -203,6 +213,8 @@ class PhpAcl extends CakeObject implements AclInterface
     }
 }
 
+class_alias(PhpAcl::class, 'PhpAcl');
+
 /**
  * Access Control Object
  */
@@ -371,6 +383,8 @@ class PhpAco
         }
     }
 }
+
+class_alias(PhpAco::class, 'PhpAco');
 
 /**
  * Access Request Object
@@ -579,3 +593,5 @@ class PhpAro
         $this->addRole($aros);
     }
 }
+
+class_alias(PhpAro::class, 'PhpAro');

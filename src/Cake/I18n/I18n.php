@@ -16,6 +16,17 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\I18n;
+
+use Cake\Cache\Cache;
+use Cake\Core\App;
+use Cake\Core\CakePlugin;
+use Cake\Core\Configure;
+use Cake\Error\CakeException;
+use Cake\Model\Datasource\CakeSession;
+use Cake\Utility\Hash;
+use Cake\Utility\Inflector;
+
 /**
  * I18n handles translation of Text and time format strings.
  *
@@ -781,3 +792,5 @@ class I18n
         return $format;
     }
 }
+
+class_alias(I18n::class, 'I18n');

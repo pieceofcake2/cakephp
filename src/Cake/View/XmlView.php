@@ -12,6 +12,14 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\View;
+
+use Cake\Controller\Controller;
+use Cake\Core\Configure;
+use Cake\Network\CakeResponse;
+use Cake\Utility\Hash;
+use Cake\Utility\Xml;
+
 /**
  * A view class that is used for creating XML responses.
  *
@@ -151,3 +159,5 @@ class XmlView extends View
         return Xml::fromArray($data, $options)->asXML();
     }
 }
+
+class_alias(XmlView::class, 'XmlView');

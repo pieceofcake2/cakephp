@@ -16,6 +16,15 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Routing;
+
+use Cake\Core\Configure;
+use Cake\Error\RouterException;
+use Cake\Network\CakeRequest;
+use Cake\Routing\Route\CakeRoute;
+use Cake\Utility\Hash;
+use Cake\Utility\Inflector;
+
 /**
  * Parses the request URL into controller, action, and parameters. Uses the connected routes
  * to match the incoming URL string to parameters that will allow the request to be dispatched. Also
@@ -1349,6 +1358,8 @@ class Router
         include CONFIG . 'routes.php';
     }
 }
+
+class_alias(Router::class, 'Router');
 
 //Save the initial state
 Router::reload();

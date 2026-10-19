@@ -14,6 +14,10 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Controller;
+
+use Cake\Core\CakeObject;
+
 /**
  * Base class for an individual Component. Components provide reusable bits of
  * controller logic that can be composed into a controller. Components also
@@ -167,3 +171,5 @@ class Component extends CakeObject
         return null;
     }
 }
+
+class_alias(Component::class, 'Component');

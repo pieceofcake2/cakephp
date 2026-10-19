@@ -16,6 +16,14 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Controller\Component;
+
+use Cake\Controller\Component;
+use Cake\Controller\ComponentCollection;
+use Cake\Controller\Controller;
+use Cake\Core\Configure;
+use Cake\Network\Email\CakeEmail;
+
 /**
  * EmailComponent
  *
@@ -473,3 +481,5 @@ class EmailComponent extends Component
         return $value;
     }
 }
+
+class_alias(EmailComponent::class, 'EmailComponent');

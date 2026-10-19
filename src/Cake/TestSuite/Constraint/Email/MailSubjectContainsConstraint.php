@@ -13,6 +13,12 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\TestSuite\Constraint\Email;
+
+use Cake\Core\App;
+use Cake\Network\Email\CakeEmail;
+use InvalidArgumentException;
+
 App::uses('MailConstraintBase', 'TestSuite/Constraint/Email');
 
 /**
@@ -92,3 +98,5 @@ class MailSubjectContainsConstraint extends MailConstraintBase
         return 'is in an email subject' . $this->getAssertedMessages();
     }
 }
+
+class_alias(MailSubjectContainsConstraint::class, 'MailSubjectContainsConstraint');

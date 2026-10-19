@@ -16,6 +16,11 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\I18n;
+
+use Cake\Core\Configure;
+use Cake\Network\CakeRequest;
+
 /**
  * Localization
  *
@@ -518,3 +523,5 @@ class L10n
         return $this->_l10nCatalog;
     }
 }
+
+class_alias(L10n::class, 'L10n');

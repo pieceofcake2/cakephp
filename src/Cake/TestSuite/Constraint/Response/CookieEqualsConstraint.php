@@ -13,6 +13,11 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\TestSuite\Constraint\Response;
+
+use Cake\Core\App;
+use Cake\Network\CakeResponse;
+
 App::uses('ResponseConstraintBase', 'TestSuite/Constraint/Response');
 
 /**
@@ -67,3 +72,5 @@ class CookieEqualsConstraint extends ResponseConstraintBase
         return sprintf("is in cookie '%s'", $this->cookieName);
     }
 }
+
+class_alias(CookieEqualsConstraint::class, 'CookieEqualsConstraint');

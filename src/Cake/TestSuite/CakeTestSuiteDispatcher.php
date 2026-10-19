@@ -16,11 +16,15 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\TestSuite;
+
+use Cake\Error\MissingConnectionException;
+use Cake\TestSuite\Reporter\CakeBaseReporter;
+use PHPUnit\Framework\TestCase;
+
 /**
  * Path to the tests directory of the app.
  */
-
-use PHPUnit\Framework\TestCase;
 
 /**
  * CakeTestSuiteDispatcher handles web requests to the test suite and runs the correct action.
@@ -273,3 +277,5 @@ class CakeTestSuiteDispatcher
         return date($format, static::time());
     }
 }
+
+class_alias(CakeTestSuiteDispatcher::class, 'CakeTestSuiteDispatcher');

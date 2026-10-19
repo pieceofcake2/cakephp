@@ -13,6 +13,19 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\TestSuite;
+
+use Cake\Controller\Controller;
+use Cake\Core\App;
+use Cake\Error\MissingControllerException;
+use Cake\Event\CakeEvent;
+use Cake\Network\CakeRequest;
+use Cake\Network\CakeResponse;
+use Cake\Routing\Dispatcher;
+use Cake\Routing\Route\RedirectRoute;
+use Cake\Routing\Router;
+use Cake\Utility\Inflector;
+
 App::uses('Dispatcher', 'Routing');
 App::uses('IntegrationTestResponse', 'TestSuite');
 App::uses('RedirectRoute', 'Routing/Route');
@@ -151,3 +164,5 @@ class IntegrationTestDispatcher extends Dispatcher
         return $controller;
     }
 }
+
+class_alias(IntegrationTestDispatcher::class, 'IntegrationTestDispatcher');

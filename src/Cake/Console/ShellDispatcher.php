@@ -15,6 +15,18 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Console;
+
+use Cake\Core\App;
+use Cake\Core\Configure;
+use Cake\Error\CakeException;
+use Cake\Error\ConfigureException;
+use Cake\Error\MissingShellException;
+use Cake\Error\MissingShellMethodException;
+use Cake\Utility\Debugger;
+use Cake\Utility\Inflector;
+use ReflectionClass;
+
 /**
  * Shell dispatcher handles dispatching cli commands.
  *
@@ -449,3 +461,5 @@ class ShellDispatcher
         exit($status);
     }
 }
+
+class_alias(ShellDispatcher::class, 'ShellDispatcher');

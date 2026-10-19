@@ -19,6 +19,21 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Routing;
+
+use Cake\Controller\Controller;
+use Cake\Core\App;
+use Cake\Core\Configure;
+use Cake\Error\MissingControllerException;
+use Cake\Error\MissingDispatcherFilterException;
+use Cake\Event\CakeEvent;
+use Cake\Event\CakeEventListener;
+use Cake\Event\CakeEventManager;
+use Cake\Network\CakeRequest;
+use Cake\Network\CakeResponse;
+use Cake\Utility\Inflector;
+use ReflectionClass;
+
 /**
  * Dispatcher converts Requests into controller actions. It uses the dispatched Request
  * to locate and load the correct controller. If found, the requested action is called on
@@ -273,3 +288,5 @@ class Dispatcher implements CakeEventListener
         return false;
     }
 }
+
+class_alias(Dispatcher::class, 'Dispatcher');

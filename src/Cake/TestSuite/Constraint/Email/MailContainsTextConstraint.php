@@ -13,6 +13,11 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\TestSuite\Constraint\Email;
+
+use Cake\Core\App;
+use Cake\Network\Email\CakeEmail;
+
 App::uses('MailContainsConstraint', 'TestSuite/Constraint/Email');
 
 /**
@@ -46,3 +51,5 @@ class MailContainsTextConstraint extends MailContainsConstraint
         return 'is in the text message of an email' . $this->getAssertedMessages();
     }
 }
+
+class_alias(MailContainsTextConstraint::class, 'MailContainsTextConstraint');

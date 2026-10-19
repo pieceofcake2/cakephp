@@ -13,6 +13,9 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\TestSuite\Constraint\Session;
+
+use Cake\Utility\Hash;
 use PHPUnit\Framework\Constraint\Constraint;
 
 /**
@@ -65,3 +68,5 @@ class SessionEqualsConstraint extends Constraint
         return sprintf("is in session path '%s'", $this->path);
     }
 }
+
+class_alias(SessionEqualsConstraint::class, 'SessionEqualsConstraint');

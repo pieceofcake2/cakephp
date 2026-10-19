@@ -13,7 +13,54 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\TestSuite;
+
+use Cake\Controller\Component\CookieComponent;
+use Cake\Controller\Controller;
+use Cake\Core\App;
+use Cake\Core\Configure;
+use Cake\Error\ExceptionRenderer;
+use Cake\Event\CakeEvent;
+use Cake\Model\Datasource\CakeSession;
+use Cake\Network\CakeRequest;
+use Cake\Network\CakeResponse;
+use Cake\Routing\Router;
+use Cake\TestSuite\Constraint\Response\BodyContainsConstraint;
+use Cake\TestSuite\Constraint\Response\BodyEmptyConstraint;
+use Cake\TestSuite\Constraint\Response\BodyEqualsConstraint;
+use Cake\TestSuite\Constraint\Response\BodyNotContainsConstraint;
+use Cake\TestSuite\Constraint\Response\BodyNotEmptyConstraint;
+use Cake\TestSuite\Constraint\Response\BodyNotEqualsConstraint;
+use Cake\TestSuite\Constraint\Response\BodyNotRegExpConstraint;
+use Cake\TestSuite\Constraint\Response\BodyRegExpConstraint;
+use Cake\TestSuite\Constraint\Response\ContentTypeConstraint;
+use Cake\TestSuite\Constraint\Response\CookieEncryptedEqualsConstraint;
+use Cake\TestSuite\Constraint\Response\CookieEqualsConstraint;
+use Cake\TestSuite\Constraint\Response\CookieNotSetConstraint;
+use Cake\TestSuite\Constraint\Response\CookieSetConstraint;
+use Cake\TestSuite\Constraint\Response\FileSentAsConstraint;
+use Cake\TestSuite\Constraint\Response\FileSentConstraint;
+use Cake\TestSuite\Constraint\Response\HeaderContainsConstraint;
+use Cake\TestSuite\Constraint\Response\HeaderEqualsConstraint;
+use Cake\TestSuite\Constraint\Response\HeaderNotContainsConstraint;
+use Cake\TestSuite\Constraint\Response\HeaderNotSetConstraint;
+use Cake\TestSuite\Constraint\Response\HeaderSetConstraint;
+use Cake\TestSuite\Constraint\Response\StatusCodeConstraint;
+use Cake\TestSuite\Constraint\Response\StatusErrorConstraint;
+use Cake\TestSuite\Constraint\Response\StatusFailureConstraint;
+use Cake\TestSuite\Constraint\Response\StatusOkConstraint;
+use Cake\TestSuite\Constraint\Response\StatusSuccessConstraint;
+use Cake\TestSuite\Constraint\Session\FlashParamContainsConstraint;
+use Cake\TestSuite\Constraint\Session\FlashParamEqualsConstraint;
+use Cake\TestSuite\Constraint\Session\SessionEqualsConstraint;
+use Cake\TestSuite\Constraint\Session\SessionHasKeyConstraint;
+use Cake\TestSuite\Constraint\View\LayoutFileEqualsConstraint;
+use Cake\TestSuite\Constraint\View\TemplateFileEqualsConstraint;
+use Cake\Utility\Hash;
+use Cake\Utility\Security;
 use PHPUnit\Exception as PHPUnitException;
+use ReflectionProperty;
+use Throwable;
 
 App::uses('CakeRequest', 'Network');
 App::uses('CakeSession', 'Model/Datasource');
@@ -1848,3 +1895,5 @@ trait IntegrationTestTrait
         return PHP_EOL . '------' . PHP_EOL . ($this->_response ? $this->_response->body() : '') . PHP_EOL . '------' . PHP_EOL;
     }
 }
+
+class_alias(IntegrationTestTrait::class, 'IntegrationTestTrait');

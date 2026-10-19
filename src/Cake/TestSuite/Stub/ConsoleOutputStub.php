@@ -13,6 +13,10 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\TestSuite\Stub;
+
+use Cake\Console\ConsoleOutput;
+
 /**
  * StubOutput makes testing shell commands/shell helpers easier.
  *
@@ -91,3 +95,5 @@ class ConsoleOutputStub extends ConsoleOutput
         return $this->_out;
     }
 }
+
+class_alias(ConsoleOutputStub::class, 'ConsoleOutputStub');

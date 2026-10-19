@@ -13,6 +13,10 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\TestSuite\Constraint\Response;
+
+use Cake\Core\App;
+
 App::uses('BodyEmptyConstraint', 'TestSuite/Constraint/Response');
 
 /**
@@ -46,3 +50,5 @@ class BodyNotEmptyConstraint extends BodyEmptyConstraint
         return 'response body is not empty';
     }
 }
+
+class_alias(BodyNotEmptyConstraint::class, 'BodyNotEmptyConstraint');

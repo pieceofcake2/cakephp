@@ -14,6 +14,13 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Routing;
+
+use Cake\Event\CakeEvent;
+use Cake\Event\CakeEventListener;
+use Cake\Network\CakeResponse;
+use Cake\Utility\Hash;
+
 /**
  * This abstract class represents a filter to be applied to a dispatcher cycle. It acts as as
  * event listener with the ability to alter the request or response as needed before it is handled
@@ -101,3 +108,5 @@ abstract class DispatcherFilter implements CakeEventListener
     {
     }
 }
+
+class_alias(DispatcherFilter::class, 'DispatcherFilter');

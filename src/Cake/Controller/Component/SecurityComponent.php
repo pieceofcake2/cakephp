@@ -16,6 +16,18 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Controller\Component;
+
+use Cake\Controller\Component;
+use Cake\Controller\Controller;
+use Cake\Core\Configure;
+use Cake\Error\AuthSecurityException;
+use Cake\Error\BadRequestException;
+use Cake\Error\SecurityException;
+use Cake\Network\CakeRequest;
+use Cake\Utility\Hash;
+use Cake\Utility\Security;
+
 /**
  * The Security Component creates an easy way to integrate tighter security in
  * your application. It provides methods for various tasks like:
@@ -996,3 +1008,5 @@ class SecurityComponent extends Component
         return hash_equals($expectedHmac, $providedHmac);
     }
 }
+
+class_alias(SecurityComponent::class, 'SecurityComponent');

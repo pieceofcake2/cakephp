@@ -12,6 +12,13 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Controller\Component\Auth;
+
+use Cake\Controller\Component\AuthComponent;
+use Cake\Controller\Controller;
+use Cake\Error\CakeException;
+use Cake\Network\CakeRequest;
+
 /**
  * An authorization adapter for AuthComponent. Provides the ability to authorize using a controller callback.
  * Your controller's isAuthorized() method should return a boolean to indicate whether or not the user is authorized.
@@ -64,3 +71,5 @@ class ControllerAuthorize extends BaseAuthorize
         return (bool)$this->_Controller->isAuthorized($user);
     }
 }
+
+class_alias(ControllerAuthorize::class, 'ControllerAuthorize');

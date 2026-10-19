@@ -15,6 +15,19 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Console\Command\Task;
+
+use Cake\Console\Command\AppShell;
+use Cake\Console\ConsoleOptionParser;
+use Cake\Console\Shell;
+use Cake\Core\App;
+use Cake\Core\CakePlugin;
+use Cake\Utility\File;
+use Cake\Utility\Folder;
+use Cake\Utility\Hash;
+use Cake\Utility\Inflector;
+use ReflectionClass;
+
 App::uses('AppShell', 'Console/Command');
 
 /**
@@ -872,3 +885,5 @@ class ExtractTask extends AppShell
         return is_dir($path) && is_writable($path);
     }
 }
+
+class_alias(ExtractTask::class, 'ExtractTask');

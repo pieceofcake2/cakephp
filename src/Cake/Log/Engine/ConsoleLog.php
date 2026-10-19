@@ -16,6 +16,12 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Log\Engine;
+
+use Cake\Console\ConsoleOutput;
+use Cake\Error\CakeLogException;
+use Cake\Utility\Hash;
+
 /**
  * Console logging. Writes logs to console output.
  *
@@ -86,3 +92,5 @@ class ConsoleLog extends BaseLog
         return $this->_output->write(sprintf('<%s>%s</%s>', $type, $output, $type), 0);
     }
 }
+
+class_alias(ConsoleLog::class, 'ConsoleLog');

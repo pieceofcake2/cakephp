@@ -14,6 +14,15 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Utility;
+
+use Cake\Core\App;
+use Cake\Core\Configure;
+use Cake\Error\CakeException;
+use Cake\Model\ConnectionManager;
+use Cake\Model\Model;
+use ReflectionClass;
+
 /**
  * Included libraries.
  */
@@ -405,3 +414,5 @@ class ClassRegistry
         $_this->_map = [];
     }
 }
+
+class_alias(ClassRegistry::class, 'ClassRegistry');

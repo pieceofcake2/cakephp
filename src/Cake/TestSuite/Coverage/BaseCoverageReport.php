@@ -19,6 +19,12 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\TestSuite\Coverage;
+
+use Cake\Core\CakePlugin;
+use Cake\TestSuite\Reporter\CakeBaseReporter;
+use Cake\Utility\Inflector;
+
 /**
  * Abstract class for common CoverageReport methods.
  * Provides several template methods for custom output.
@@ -185,3 +191,5 @@ abstract class BaseCoverageReport
      */
     abstract public function generateDiff($filename, $fileLines, $coverageData);
 }
+
+class_alias(BaseCoverageReport::class, 'BaseCoverageReport');

@@ -13,6 +13,17 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Console\Command\Task;
+
+use Cake\Console\Command\AppShell;
+use Cake\Console\ConsoleOptionParser;
+use Cake\Console\TaskCollection;
+use Cake\Core\App;
+use Cake\Core\CakePlugin;
+use Cake\Utility\Inflector;
+use ReflectionClass;
+use ReflectionMethod;
+
 App::uses('AppShell', 'Console/Command');
 
 /**
@@ -187,3 +198,5 @@ class CommandTask extends AppShell
         return $options;
     }
 }
+
+class_alias(CommandTask::class, 'CommandTask');

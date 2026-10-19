@@ -14,6 +14,20 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Controller\Component;
+
+use Cake\Controller\Component;
+use Cake\Controller\Component\Acl\AclInterface;
+use Cake\Controller\Component\Acl\PhpAco;
+use Cake\Controller\Component\Acl\PhpAro;
+use Cake\Controller\ComponentCollection;
+use Cake\Core\App;
+use Cake\Core\Configure;
+use Cake\Error\CakeException;
+use Cake\Model\Aco;
+use Cake\Model\Aro;
+use Cake\Model\Model;
+
 /**
  * Access Control List factory class.
  *
@@ -186,3 +200,5 @@ class AclComponent extends Component
         return $this->_Instance->deny($aro, $aco, $action);
     }
 }
+
+class_alias(AclComponent::class, 'AclComponent');

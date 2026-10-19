@@ -17,6 +17,13 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Controller;
+
+use Cake\Core\App;
+use Cake\Error\MissingComponentException;
+use Cake\Event\CakeEventListener;
+use Cake\Utility\ObjectCollection;
+
 /**
  * Components collection is used as a registry for loaded components and handles loading
  * and constructing component class objects.
@@ -138,3 +145,5 @@ class ComponentCollection extends ObjectCollection implements CakeEventListener
         ];
     }
 }
+
+class_alias(ComponentCollection::class, 'ComponentCollection');

@@ -18,6 +18,17 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Model;
+
+use Cake\Core\App;
+use Cake\Error\CakeException;
+use Cake\Error\MissingDatasourceConfigException;
+use Cake\Error\MissingDatasourceException;
+use Cake\Model\Datasource\DataSource;
+use Cake\Utility\CakeDsn;
+use DATABASE_CONFIG;
+use Throwable;
+
 /**
  * Manages loaded instances of DataSource objects
  *
@@ -442,3 +453,5 @@ class ConnectionManager
         return compact('package', 'classname', 'plugin');
     }
 }
+
+class_alias(ConnectionManager::class, 'ConnectionManager');

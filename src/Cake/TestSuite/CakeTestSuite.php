@@ -1,5 +1,8 @@
 <?php
 
+namespace Cake\TestSuite;
+
+use Cake\Utility\Folder;
 use PHPUnit\Framework\TestSuite;
 
 /**
@@ -62,3 +65,5 @@ class CakeTestSuite extends TestSuite
         }
     }
 }
+
+class_alias(CakeTestSuite::class, 'CakeTestSuite');

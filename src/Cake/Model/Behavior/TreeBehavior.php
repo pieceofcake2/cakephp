@@ -18,6 +18,13 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Model\Behavior;
+
+use Cake\Model\ConnectionManager;
+use Cake\Model\Model;
+use Cake\Model\ModelBehavior;
+use Cake\Utility\Hash;
+
 /**
  * Tree Behavior.
  *
@@ -1360,3 +1367,5 @@ class TreeBehavior extends ModelBehavior
         $Model->recursive = $ModelRecursive;
     }
 }
+
+class_alias(TreeBehavior::class, 'TreeBehavior');

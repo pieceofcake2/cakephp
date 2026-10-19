@@ -1,10 +1,14 @@
 <?php
 
+namespace Cake\TestSuite\Fixture;
+
+use Cake\TestSuite\CakeTestCase;
 use PHPUnit\Framework\AssertionFailedError;
 use PHPUnit\Framework\Test;
 use PHPUnit\Framework\TestListener;
 use PHPUnit\Framework\TestSuite;
 use PHPUnit\Framework\Warning;
+use Throwable;
 
 /**
  * @property CakeFixtureManager $_fixtureManager
@@ -76,3 +80,5 @@ class CakeFixtureInjector implements TestListener
     {
     }
 }
+
+class_alias(CakeFixtureInjector::class, 'CakeFixtureInjector');

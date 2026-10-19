@@ -18,6 +18,12 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\View;
+
+use Cake\Core\Configure;
+use Cake\Error\MissingViewException;
+use Cake\Utility\Inflector;
+
 /**
  * ScaffoldView provides specific view file loading features for scaffolded views.
  *
@@ -87,3 +93,5 @@ class ScaffoldView extends View
         throw new MissingViewException($paths[0] . $name . $this->ext);
     }
 }
+
+class_alias(ScaffoldView::class, 'ScaffoldView');

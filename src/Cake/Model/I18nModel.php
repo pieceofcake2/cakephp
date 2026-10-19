@@ -14,6 +14,11 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Model;
+
+use AppModel;
+use Cake\Core\App;
+
 App::uses('AppModel', 'Model');
 
 /**
@@ -44,3 +49,5 @@ class I18nModel extends AppModel
      */
     public $displayField = 'field';
 }
+
+class_alias(I18nModel::class, 'I18nModel');

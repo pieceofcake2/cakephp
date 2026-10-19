@@ -13,6 +13,9 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\TestSuite\Constraint\Session;
+
+use Cake\Utility\Hash;
 use PHPUnit\Framework\Constraint\Constraint;
 
 /**
@@ -65,3 +68,5 @@ class SessionHasKeyConstraint extends Constraint
         return 'is a path present in the session';
     }
 }
+
+class_alias(SessionHasKeyConstraint::class, 'SessionHasKeyConstraint');

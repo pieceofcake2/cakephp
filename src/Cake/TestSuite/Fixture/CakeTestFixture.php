@@ -14,6 +14,21 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\TestSuite\Fixture;
+
+use Cake\Core\App;
+use Cake\Error\CakeException;
+use Cake\Error\MissingModelException;
+use Cake\Log\CakeLog;
+use Cake\Model\CakeSchema;
+use Cake\Model\ConnectionManager;
+use Cake\Model\Datasource\DataSource;
+use Cake\Model\Model;
+use Cake\Utility\ClassRegistry;
+use Cake\Utility\Hash;
+use Cake\Utility\Inflector;
+use Exception;
+
 /**
  * CakeTestFixture is responsible for building and destroying tables to be used
  * during testing.
@@ -350,3 +365,5 @@ class CakeTestFixture
         return $return;
     }
 }
+
+class_alias(CakeTestFixture::class, 'CakeTestFixture');

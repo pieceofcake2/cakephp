@@ -13,6 +13,10 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\TestSuite\Constraint\Email;
+
+use Cake\Core\App;
+
 App::uses('MailContainsConstraint', 'TestSuite/Constraint/Email');
 
 /**
@@ -82,3 +86,5 @@ class MailContainsAttachmentConstraint extends MailContainsConstraint
         return "'" . $expectedFilename . "' " . $this->toString();
     }
 }
+
+class_alias(MailContainsAttachmentConstraint::class, 'MailContainsAttachmentConstraint');

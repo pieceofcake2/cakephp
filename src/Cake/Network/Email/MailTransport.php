@@ -16,6 +16,10 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Network\Email;
+
+use Cake\Error\SocketException;
+
 /**
  * Send mail using mail() function
  *
@@ -91,3 +95,5 @@ class MailTransport extends AbstractTransport
         }
     }
 }
+
+class_alias(MailTransport::class, 'MailTransport');

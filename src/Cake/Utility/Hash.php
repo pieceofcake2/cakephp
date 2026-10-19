@@ -14,6 +14,11 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Utility;
+
+use Cake\Error\CakeException;
+use InvalidArgumentException;
+
 /**
  * Library of array functions for manipulating and extracting data
  * from arrays or 'sets' of data.
@@ -1192,3 +1197,5 @@ class Hash
         return array_values($return);
     }
 }
+
+class_alias(Hash::class, 'Hash');

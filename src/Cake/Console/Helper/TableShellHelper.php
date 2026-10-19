@@ -13,6 +13,8 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Console\Helper;
+
 /**
  * Create a visually pleasing ASCII art table
  * from 2 dimensional array data.
@@ -127,3 +129,5 @@ class TableShellHelper extends BaseShellHelper
         return '<' . $style . '>' . $text . '</' . $style . '>';
     }
 }
+
+class_alias(TableShellHelper::class, 'TableShellHelper');

@@ -16,6 +16,17 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Model\Datasource\Database;
+
+use Cake\Error\MissingConnectionException;
+use Cake\Model\Datasource\DboSource;
+use Cake\Model\Model;
+use Cake\Utility\CakeText;
+use Exception;
+use PDO;
+use PDOException;
+use PDOStatement;
+
 /**
  * DBO implementation for the SQLite3 DBMS.
  *
@@ -658,3 +669,5 @@ class Sqlite extends DboSource
         return null;
     }
 }
+
+class_alias(Sqlite::class, 'Sqlite');

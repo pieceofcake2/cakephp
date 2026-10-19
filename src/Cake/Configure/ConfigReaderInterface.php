@@ -14,6 +14,8 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Configure;
+
 /**
  * An interface for creating objects compatible with Configure::load()
  *
@@ -40,3 +42,5 @@ interface ConfigReaderInterface
      */
     public function dump($key, $data);
 }
+
+class_alias(ConfigReaderInterface::class, 'ConfigReaderInterface');

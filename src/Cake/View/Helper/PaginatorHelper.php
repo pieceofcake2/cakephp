@@ -18,6 +18,14 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\View\Helper;
+
+use AppHelper;
+use Cake\Core\App;
+use Cake\Error\CakeException;
+use Cake\Utility\Inflector;
+use Cake\View\View;
+
 App::uses('AppHelper', 'View/Helper');
 
 /**
@@ -1095,3 +1103,5 @@ class PaginatorHelper extends AppHelper
         return null;
     }
 }
+
+class_alias(PaginatorHelper::class, 'PaginatorHelper');

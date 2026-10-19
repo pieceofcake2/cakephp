@@ -17,6 +17,13 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Console\Command;
+
+use Cake\Console\ConsoleOptionParser;
+use Cake\Core\App;
+use Cake\Utility\Inflector;
+use ReflectionClass;
+
 App::uses('AppShell', 'Console/Command');
 
 /**
@@ -227,7 +234,7 @@ class ApiShell extends AppShell
             if (!$method->isPublic() || str_starts_with($method->getName(), '_')) {
                 continue;
             }
-            if ($method->getDeclaringClass()->getName() != $class) {
+            if ($method->getDeclaringClass()->getName() != $reflection->getName()) {
                 continue;
             }
             $args = [];
@@ -249,3 +256,5 @@ class ApiShell extends AppShell
         return $parsed;
     }
 }
+
+class_alias(ApiShell::class, 'ApiShell');

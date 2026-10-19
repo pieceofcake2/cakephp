@@ -16,6 +16,10 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Utility;
+
+use Cake\Error\CakeException;
+
 /**
  * Splits a DSN such as `mysql://user:secret@localhost:3306/app?encoding=utf8mb4`
  * into its parts.
@@ -239,3 +243,5 @@ REGEXP;
         return $parsed + $config;
     }
 }
+
+class_alias(CakeDsn::class, 'CakeDsn');

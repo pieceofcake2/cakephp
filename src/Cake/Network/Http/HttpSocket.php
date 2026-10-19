@@ -16,6 +16,14 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Network\Http;
+
+use Cake\Core\App;
+use Cake\Error\SocketException;
+use Cake\Network\CakeSocket;
+use Cake\Utility\Hash;
+use Cake\Utility\Inflector;
+
 /**
  * CakePHP network socket connection class.
  *
@@ -1084,3 +1092,5 @@ class HttpSocket extends CakeSocket
         return true;
     }
 }
+
+class_alias(HttpSocket::class, 'HttpSocket');

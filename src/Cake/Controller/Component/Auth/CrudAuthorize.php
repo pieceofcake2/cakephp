@@ -12,6 +12,14 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Controller\Component\Auth;
+
+use Cake\Controller\Component\AclComponent;
+use Cake\Controller\Component\AuthComponent;
+use Cake\Controller\ComponentCollection;
+use Cake\Network\CakeRequest;
+use Cake\Routing\Router;
+
 /**
  * An authorization adapter for AuthComponent. Provides the ability to authorize using CRUD mappings.
  * CRUD mappings allow you to translate controller actions into *C*reate *R*ead *U*pdate *D*elete actions.
@@ -102,3 +110,5 @@ class CrudAuthorize extends BaseAuthorize
         );
     }
 }
+
+class_alias(CrudAuthorize::class, 'CrudAuthorize');

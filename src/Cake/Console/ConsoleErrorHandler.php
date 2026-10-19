@@ -15,6 +15,13 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Console;
+
+use Cake\Core\Configure;
+use Cake\Error\ErrorHandler;
+use Cake\Log\CakeLog;
+use Throwable;
+
 /**
  * Error Handler for Cake console. Does simple printing of the
  * exception that occurred and the stack trace of the error.
@@ -108,3 +115,5 @@ class ConsoleErrorHandler
         exit($code);
     }
 }
+
+class_alias(ConsoleErrorHandler::class, 'ConsoleErrorHandler');

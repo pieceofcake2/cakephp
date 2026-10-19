@@ -12,6 +12,15 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Controller\Component\Auth;
+
+use Cake\Controller\Component\AuthComponent;
+use Cake\Controller\ComponentCollection;
+use Cake\Controller\Controller;
+use Cake\Network\CakeRequest;
+use Cake\Utility\Hash;
+use Cake\Utility\Inflector;
+
 /**
  * Abstract base authorization adapter for AuthComponent.
  *
@@ -166,3 +175,5 @@ abstract class BaseAuthorize
         }
     }
 }
+
+class_alias(BaseAuthorize::class, 'BaseAuthorize');

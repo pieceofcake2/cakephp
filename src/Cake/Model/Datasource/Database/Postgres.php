@@ -14,6 +14,16 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Model\Datasource\Database;
+
+use Cake\Error\MissingConnectionException;
+use Cake\Model\Datasource\DboSource;
+use Cake\Model\Model;
+use Cake\Utility\Hash;
+use PDO;
+use PDOException;
+use PDOStatement;
+
 /**
  * PostgreSQL layer for DBO.
  *
@@ -1107,3 +1117,5 @@ class Postgres extends DboSource
         return $this->_version;
     }
 }
+
+class_alias(Postgres::class, 'Postgres');

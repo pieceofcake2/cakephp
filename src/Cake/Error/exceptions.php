@@ -17,6 +17,12 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Error;
+
+use Cake\Network\CakeResponse;
+use Exception;
+use RuntimeException;
+
 /**
  * Base class that all Exceptions extend.
  *
@@ -54,18 +60,23 @@ class CakeBaseException extends RuntimeException
     }
 }
 
-if (!class_exists(HttpException::class, false)) {
-    /**
-     * Parent class for all of the HTTP related exceptions in CakePHP.
-     *
-     * All HTTP status/error related exceptions should extend this class so
-     * catch blocks can be specifically typed.
-     *
-     * @package       Cake.Error
-     */
-    class HttpException extends CakeBaseException
-    {
-    }
+class_alias(CakeBaseException::class, 'CakeBaseException');
+
+/**
+ * Parent class for all of the HTTP related exceptions in CakePHP.
+ *
+ * All HTTP status/error related exceptions should extend this class so
+ * catch blocks can be specifically typed.
+ *
+ * @package       Cake.Error
+ */
+class HttpException extends CakeBaseException
+{
+}
+
+// pecl/http 1.x declares a global HttpException
+if (!class_exists('HttpException', false)) {
+    class_alias(HttpException::class, 'HttpException');
 }
 
 /**
@@ -90,6 +101,8 @@ class BadRequestException extends HttpException
     }
 }
 
+class_alias(BadRequestException::class, 'BadRequestException');
+
 /**
  * Represents an HTTP 401 error.
  *
@@ -111,6 +124,8 @@ class UnauthorizedException extends HttpException
         parent::__construct($message, $code);
     }
 }
+
+class_alias(UnauthorizedException::class, 'UnauthorizedException');
 
 /**
  * Represents an HTTP 403 error.
@@ -134,6 +149,8 @@ class ForbiddenException extends HttpException
     }
 }
 
+class_alias(ForbiddenException::class, 'ForbiddenException');
+
 /**
  * Represents an HTTP 404 error.
  *
@@ -155,6 +172,8 @@ class NotFoundException extends HttpException
         parent::__construct($message, $code);
     }
 }
+
+class_alias(NotFoundException::class, 'NotFoundException');
 
 /**
  * Represents an HTTP 405 error.
@@ -178,6 +197,8 @@ class MethodNotAllowedException extends HttpException
     }
 }
 
+class_alias(MethodNotAllowedException::class, 'MethodNotAllowedException');
+
 /**
  * Represents an HTTP 500 error.
  *
@@ -199,6 +220,8 @@ class InternalErrorException extends HttpException
         parent::__construct($message, $code);
     }
 }
+
+class_alias(InternalErrorException::class, 'InternalErrorException');
 
 /**
  * CakeException is used a base class for CakePHP's internal exceptions.
@@ -253,6 +276,8 @@ class CakeException extends CakeBaseException
     }
 }
 
+class_alias(CakeException::class, 'CakeException');
+
 /**
  * Missing Controller exception - used when a controller
  * cannot be found.
@@ -273,6 +298,8 @@ class MissingControllerException extends CakeException
 //@codingStandardsIgnoreEnd
 }
 
+class_alias(MissingControllerException::class, 'MissingControllerException');
+
 /**
  * Missing Action exception - used when a controller action
  * cannot be found.
@@ -292,6 +319,8 @@ class MissingActionException extends CakeException
 
 //@codingStandardsIgnoreEnd
 }
+
+class_alias(MissingActionException::class, 'MissingActionException');
 
 /**
  * Private Action exception - used when a controller action
@@ -319,6 +348,8 @@ class PrivateActionException extends CakeException
 //@codingStandardsIgnoreEnd
 }
 
+class_alias(PrivateActionException::class, 'PrivateActionException');
+
 /**
  * Used when a component cannot be found.
  *
@@ -328,6 +359,8 @@ class MissingComponentException extends CakeException
 {
     protected $_messageTemplate = 'Component class %s could not be found.';
 }
+
+class_alias(MissingComponentException::class, 'MissingComponentException');
 
 /**
  * Used when a behavior cannot be found.
@@ -339,6 +372,8 @@ class MissingBehaviorException extends CakeException
     protected $_messageTemplate = 'Behavior class %s could not be found.';
 }
 
+class_alias(MissingBehaviorException::class, 'MissingBehaviorException');
+
 /**
  * Used when a view file cannot be found.
  *
@@ -348,6 +383,8 @@ class MissingViewException extends CakeException
 {
     protected $_messageTemplate = 'View file "%s" is missing.';
 }
+
+class_alias(MissingViewException::class, 'MissingViewException');
 
 /**
  * Used when a layout file cannot be found.
@@ -359,6 +396,8 @@ class MissingLayoutException extends CakeException
     protected $_messageTemplate = 'Layout file "%s" is missing.';
 }
 
+class_alias(MissingLayoutException::class, 'MissingLayoutException');
+
 /**
  * Used when a helper cannot be found.
  *
@@ -369,6 +408,8 @@ class MissingHelperException extends CakeException
     protected $_messageTemplate = 'Helper class %s could not be found.';
 }
 
+class_alias(MissingHelperException::class, 'MissingHelperException');
+
 /**
  * Runtime Exceptions for ConnectionManager
  *
@@ -378,6 +419,8 @@ class MissingDatabaseException extends CakeException
 {
     protected $_messageTemplate = 'Database connection "%s" could not be found.';
 }
+
+class_alias(MissingDatabaseException::class, 'MissingDatabaseException');
 
 /**
  * Used when no connections can be found.
@@ -406,6 +449,8 @@ class MissingConnectionException extends CakeException
     }
 }
 
+class_alias(MissingConnectionException::class, 'MissingConnectionException');
+
 /**
  * Used when a Task cannot be found.
  *
@@ -415,6 +460,8 @@ class MissingTaskException extends CakeException
 {
     protected $_messageTemplate = 'Task class %s could not be found.';
 }
+
+class_alias(MissingTaskException::class, 'MissingTaskException');
 
 /**
  * Used when a shell method cannot be found.
@@ -426,6 +473,8 @@ class MissingShellMethodException extends CakeException
     protected $_messageTemplate = "Unknown command %1\$s %2\$s.\nFor usage try `cake %1\$s --help`";
 }
 
+class_alias(MissingShellMethodException::class, 'MissingShellMethodException');
+
 /**
  * Used when a shell cannot be found.
  *
@@ -435,6 +484,8 @@ class MissingShellException extends CakeException
 {
     protected $_messageTemplate = 'Shell class %s could not be found.';
 }
+
+class_alias(MissingShellException::class, 'MissingShellException');
 
 /**
  * Exception class to be thrown when a datasource configuration is not found
@@ -446,6 +497,8 @@ class MissingDatasourceConfigException extends CakeException
     protected $_messageTemplate = 'The datasource configuration "%s" was not found in database.php';
 }
 
+class_alias(MissingDatasourceConfigException::class, 'MissingDatasourceConfigException');
+
 /**
  * Used when a datasource cannot be found.
  *
@@ -455,6 +508,8 @@ class MissingDatasourceException extends CakeException
 {
     protected $_messageTemplate = 'Datasource class %s could not be found. %s';
 }
+
+class_alias(MissingDatasourceException::class, 'MissingDatasourceException');
 
 /**
  * Exception class to be thrown when a database table is not found in the datasource
@@ -466,6 +521,8 @@ class MissingTableException extends CakeException
     protected $_messageTemplate = 'Table %s for model %s was not found in datasource %s.';
 }
 
+class_alias(MissingTableException::class, 'MissingTableException');
+
 /**
  * Exception raised when a Model could not be found.
  *
@@ -475,6 +532,8 @@ class MissingModelException extends CakeException
 {
     protected $_messageTemplate = 'Model %s could not be found.';
 }
+
+class_alias(MissingModelException::class, 'MissingModelException');
 
 /**
  * Exception raised when a test loader could not be found
@@ -486,6 +545,8 @@ class MissingTestLoaderException extends CakeException
     protected $_messageTemplate = 'Test loader %s could not be found.';
 }
 
+class_alias(MissingTestLoaderException::class, 'MissingTestLoaderException');
+
 /**
  * Exception raised when a plugin could not be found
  *
@@ -495,6 +556,8 @@ class MissingPluginException extends CakeException
 {
     protected $_messageTemplate = 'Plugin %s could not be found.';
 }
+
+class_alias(MissingPluginException::class, 'MissingPluginException');
 
 /**
  * Exception raised when a Dispatcher filter could not be found
@@ -506,6 +569,8 @@ class MissingDispatcherFilterException extends CakeException
     protected $_messageTemplate = 'Dispatcher filter %s could not be found.';
 }
 
+class_alias(MissingDispatcherFilterException::class, 'MissingDispatcherFilterException');
+
 /**
  * Exception class for AclComponent and Interface implementations.
  *
@@ -514,6 +579,8 @@ class MissingDispatcherFilterException extends CakeException
 class AclException extends CakeException
 {
 }
+
+class_alias(AclException::class, 'AclException');
 
 /**
  * Exception class for Cache. This exception will be thrown from Cache when it
@@ -525,6 +592,8 @@ class CacheException extends CakeException
 {
 }
 
+class_alias(CacheException::class, 'CacheException');
+
 /**
  * Exception class for Router. This exception will be thrown from Router when it
  * encounters an error.
@@ -534,6 +603,8 @@ class CacheException extends CakeException
 class RouterException extends CakeException
 {
 }
+
+class_alias(RouterException::class, 'RouterException');
 
 /**
  * Exception class for CakeLog. This exception will be thrown from CakeLog when it
@@ -545,6 +616,8 @@ class CakeLogException extends CakeException
 {
 }
 
+class_alias(CakeLogException::class, 'CakeLogException');
+
 /**
  * Exception class for CakeSession. This exception will be thrown from CakeSession when it
  * encounters an error.
@@ -554,6 +627,8 @@ class CakeLogException extends CakeException
 class CakeSessionException extends CakeException
 {
 }
+
+class_alias(CakeSessionException::class, 'CakeSessionException');
 
 /**
  * Exception class for Configure. This exception will be thrown from Configure when it
@@ -565,6 +640,8 @@ class ConfigureException extends CakeException
 {
 }
 
+class_alias(ConfigureException::class, 'ConfigureException');
+
 /**
  * Exception class for Socket. This exception will be thrown from CakeSocket, CakeEmail, HttpSocket
  * SmtpTransport, MailTransport and HttpResponse when it encounters an error.
@@ -574,6 +651,8 @@ class ConfigureException extends CakeException
 class SocketException extends CakeException
 {
 }
+
+class_alias(SocketException::class, 'SocketException');
 
 /**
  * Exception class for Xml. This exception will be thrown from Xml when it
@@ -585,6 +664,8 @@ class XmlException extends CakeException
 {
 }
 
+class_alias(XmlException::class, 'XmlException');
+
 /**
  * Exception class for Console libraries. This exception will be thrown from Console library
  * classes when they encounter an error.
@@ -594,6 +675,8 @@ class XmlException extends CakeException
 class ConsoleException extends CakeException
 {
 }
+
+class_alias(ConsoleException::class, 'ConsoleException');
 
 /**
  * Represents a fatal error
@@ -622,6 +705,8 @@ class FatalErrorException extends CakeException
     }
 }
 
+class_alias(FatalErrorException::class, 'FatalErrorException');
+
 /**
  * Not Implemented Exception - used when an API method is not implemented
  *
@@ -640,6 +725,8 @@ class NotImplementedException extends CakeException
 
 //@codingStandardsIgnoreEnd
 }
+
+class_alias(NotImplementedException::class, 'NotImplementedException');
 
 /**
  * Security exception - used when SecurityComponent detects any issue with the current request
@@ -705,6 +792,8 @@ class SecurityException extends BadRequestException
     }
 }
 
+class_alias(SecurityException::class, 'SecurityException');
+
 /**
  * Auth Security exception - used when SecurityComponent detects any issue with the current request
  *
@@ -719,3 +808,5 @@ class AuthSecurityException extends SecurityException
      */
     protected $_type = 'auth';
 }
+
+class_alias(AuthSecurityException::class, 'AuthSecurityException');

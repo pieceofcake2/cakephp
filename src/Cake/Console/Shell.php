@@ -15,7 +15,24 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Console;
+
+use Cake\Console\Helper\BaseShellHelper;
+use Cake\Core\App;
+use Cake\Core\CakeObject;
+use Cake\Core\CakePlugin;
+use Cake\Core\Configure;
+use Cake\Error\ConsoleException;
+use Cake\Error\MissingModelException;
+use Cake\Log\CakeLog;
+use Cake\Utility\CakeText;
+use Cake\Utility\ClassRegistry;
+use Cake\Utility\File;
+use Cake\Utility\Inflector;
 use PHPUnit\Framework\TestCase;
+use ReflectionException;
+use ReflectionMethod;
+use RuntimeException;
 
 /**
  * Base class for command-line utilities for automating programmer chores.
@@ -370,7 +387,7 @@ class Shell extends CakeObject
             if (!$method->isPublic() || str_starts_with($name, '_')) {
                 return false;
             }
-            if ($method->getDeclaringClass()->name === 'Shell') {
+            if ($method->getDeclaringClass()->name === self::class) {
                 return false;
             }
 
@@ -1085,3 +1102,5 @@ class Shell extends CakeObject
         return in_array($logger, $configured);
     }
 }
+
+class_alias(Shell::class, 'Shell');

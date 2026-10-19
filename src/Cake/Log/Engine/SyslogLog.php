@@ -16,6 +16,8 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Log\Engine;
+
 /**
  * Syslog stream for Logging. Writes logs to the system logger
  *
@@ -158,3 +160,5 @@ class SyslogLog extends BaseLog
         closelog();
     }
 }
+
+class_alias(SyslogLog::class, 'SyslogLog');

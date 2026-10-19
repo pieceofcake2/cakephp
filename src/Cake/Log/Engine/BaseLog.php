@@ -16,6 +16,10 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Log\Engine;
+
+use Cake\Log\CakeLogInterface;
+
 /**
  * Base log engine class.
  *
@@ -65,3 +69,5 @@ abstract class BaseLog implements CakeLogInterface
         return $this->_config;
     }
 }
+
+class_alias(BaseLog::class, 'BaseLog');

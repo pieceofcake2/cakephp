@@ -15,6 +15,8 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Console;
+
 /**
  * Object wrapper for outputting information from a shell application.
  * Can be connected to any stream resource that can be used with fopen()
@@ -361,3 +363,5 @@ class ConsoleOutput
         }
     }
 }
+
+class_alias(ConsoleOutput::class, 'ConsoleOutput');

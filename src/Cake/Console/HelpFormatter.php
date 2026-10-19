@@ -14,6 +14,11 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Console;
+
+use Cake\Utility\CakeText;
+use SimpleXmlElement;
+
 /**
  * HelpFormatter formats help for console shells. Can format to either
  * text or XML formats. Uses ConsoleOptionParser methods to generate help.
@@ -212,3 +217,5 @@ class HelpFormatter
         return $string ? $xml->asXml() : $xml;
     }
 }
+
+class_alias(HelpFormatter::class, 'HelpFormatter');

@@ -16,6 +16,35 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\View;
+
+use Cake\Cache\Cache;
+use Cake\Controller\Controller;
+use Cake\Core\App;
+use Cake\Core\CakeObject;
+use Cake\Core\CakePlugin;
+use Cake\Core\Configure;
+use Cake\Error\CakeException;
+use Cake\Error\MissingLayoutException;
+use Cake\Error\MissingViewException;
+use Cake\Event\CakeEvent;
+use Cake\Event\CakeEventManager;
+use Cake\Network\CakeRequest;
+use Cake\Network\CakeResponse;
+use Cake\Routing\Router;
+use Cake\Utility\Inflector;
+use Cake\View\Helper\CacheHelper;
+use Cake\View\Helper\FormHelper;
+use Cake\View\Helper\HtmlHelper;
+use Cake\View\Helper\JsHelper;
+use Cake\View\Helper\NumberHelper;
+use Cake\View\Helper\PaginatorHelper;
+use Cake\View\Helper\RssHelper;
+use Cake\View\Helper\SessionHelper;
+use Cake\View\Helper\TextHelper;
+use Cake\View\Helper\TimeHelper;
+use LogicException;
+
 App::uses('AppHelper', 'View/Helper');
 
 /**
@@ -1343,3 +1372,5 @@ class View extends CakeObject
         return $element;
     }
 }
+
+class_alias(View::class, 'View');

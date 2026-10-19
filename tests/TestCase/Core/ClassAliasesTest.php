@@ -1,0 +1,130 @@
+<?php
+
+use Composer\Autoload\ClassLoader;
+
+/**
+ * ClassAliasesTest file
+ *
+ * CakePHP(tm) Tests <https://book.cakephp.org/2.0/en/development/testing.html>
+ * Copyright (c) Cake Software Foundation, Inc. (https://cakefoundation.org)
+ *
+ * Licensed under The MIT License
+ * For full copyright and license information, please see the LICENSE.txt
+ * Redistributions of files must retain the above copyright notice
+ *
+ * @copyright     Copyright (c) Cake Software Foundation, Inc. (https://cakefoundation.org)
+ * @link          https://book.cakephp.org/2.0/en/development/testing.html CakePHP(tm) Tests
+ * @license       https://opensource.org/licenses/mit-license.php MIT License
+ */
+
+/**
+ * Tests the global class names of CakePHP 2 for the classes in the Cake namespace.
+ */
+class ClassAliasesTest extends CakeTestCase
+{
+    /**
+     * Test that each class of the framework can be used by its global name.
+     *
+     * @return void
+     */
+    public function testEveryClassHasItsGlobalName(): void
+    {
+        $classes = array_filter(
+            array_keys($this->_classLoader()->getClassMap()),
+            fn($class) => str_starts_with($class, 'Cake\\'),
+        );
+        $this->assertGreaterThan(250, count($classes));
+
+        foreach ($classes as $class) {
+            $global = substr($class, strrpos($class, '\\') + 1);
+            $this->assertTrue(
+                class_exists($global) || interface_exists($global) || trait_exists($global),
+                "$global is not declared",
+            );
+            $this->assertSame($class, (new ReflectionClass($global))->getName(), "$global is not $class");
+        }
+    }
+
+    /**
+     * Test that the global name is declared as soon as the namespaced class is loaded,
+     * so that it works where PHP does not autoload, e.g. in a catch block.
+     *
+     * @return void
+     */
+    public function testGlobalNameWithoutAutoloading(): void
+    {
+        $output = $this->_run(
+            '$loaded = class_exists("Cake\\\\Utility\\\\Xml");' . "\n" .
+            'echo var_export(class_exists("Xml", false), true), "\n";' . "\n" .
+            'try {' . "\n" .
+            '    throw new Cake\\Error\\NotFoundException("Kaboom");' . "\n" .
+            '} catch (NotFoundException $e) {' . "\n" .
+            '    echo get_class($e), "\n";' . "\n" .
+            '}' . "\n",
+        );
+        $this->assertSame("true\nCake\\Error\\NotFoundException\n", $output);
+    }
+
+    /**
+     * Test that a global name loads the namespaced class when it is used first.
+     *
+     * @return void
+     */
+    public function testGlobalNameFirst(): void
+    {
+        $output = $this->_run(
+            'class TestHash extends Hash {}' . "\n" .
+            'echo get_parent_class(new TestHash()), "\n";' . "\n" .
+            'echo var_export(new TestHash() instanceof Cake\\Utility\\Hash, true), "\n";' . "\n",
+        );
+        $this->assertSame("Cake\\Utility\\Hash\ntrue\n", $output);
+    }
+
+    /**
+     * Runs code in a new PHP process with the autoloader of Composer.
+     *
+     * @param string $code The code to run
+     * @return string The output
+     */
+    protected function _run(string $code): string
+    {
+        $this->skipIf(!function_exists('proc_open'), 'proc_open() is not available.');
+
+        $file = TMP . 'tests' . DS . 'class_aliases_' . uniqid() . '.php';
+        $autoload = dirname((new ReflectionClass(ClassLoader::class))->getFileName(), 2) . DS . 'autoload.php';
+        file_put_contents($file, '<?php' . "\n" . 'require ' . var_export($autoload, true) . ';' . "\n" . $code);
+
+        try {
+            $process = proc_open(
+                [PHP_BINARY, '-d', 'display_errors=stderr', $file],
+                [1 => ['pipe', 'w'], 2 => ['pipe', 'w']],
+                $pipes,
+            );
+            $output = stream_get_contents($pipes[1]);
+            $errors = stream_get_contents($pipes[2]);
+            fclose($pipes[1]);
+            fclose($pipes[2]);
+            proc_close($process);
+        } finally {
+            unlink($file);
+        }
+        $this->assertSame('', $errors);
+
+        return $output;
+    }
+
+    /**
+     * Returns the class loader of Composer.
+     *
+     * @return ClassLoader
+     */
+    protected function _classLoader(): ClassLoader
+    {
+        foreach (spl_autoload_functions() as $function) {
+            if (is_array($function) && $function[0] instanceof ClassLoader) {
+                return $function[0];
+            }
+        }
+        $this->fail('The class loader of Composer is not registered.');
+    }
+}

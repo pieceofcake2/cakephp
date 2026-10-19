@@ -13,6 +13,11 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\TestSuite\Constraint\Response;
+
+use Cake\Core\App;
+use Cake\Network\CakeResponse;
+
 App::uses('ResponseConstraintBase', 'TestSuite/Constraint/Response');
 
 /**
@@ -70,3 +75,5 @@ class BodyContainsConstraint extends ResponseConstraintBase
         return 'is in response body';
     }
 }
+
+class_alias(BodyContainsConstraint::class, 'BodyContainsConstraint');

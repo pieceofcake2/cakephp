@@ -1,5 +1,11 @@
 <?php
 
+namespace Cake\Utility;
+
+use Cake\Core\Configure;
+use Cake\I18n\Multibyte;
+use DateTime;
+use DateTimeZone;
 use function PHP81_BC\strftime;
 
 /**
@@ -1272,3 +1278,5 @@ class CakeTime
         return $result;
     }
 }
+
+class_alias(CakeTime::class, 'CakeTime');

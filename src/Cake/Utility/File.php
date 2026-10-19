@@ -16,6 +16,8 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Utility;
+
 /**
  * Convenience class for reading, writing and appending to files.
  *
@@ -661,3 +663,5 @@ class File
         return $replaced;
     }
 }
+
+class_alias(File::class, 'File');

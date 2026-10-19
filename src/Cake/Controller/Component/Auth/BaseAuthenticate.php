@@ -12,6 +12,18 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Controller\Component\Auth;
+
+use Cake\Controller\ComponentCollection;
+use Cake\Core\App;
+use Cake\Error\CakeException;
+use Cake\Event\CakeEventListener;
+use Cake\Network\CakeRequest;
+use Cake\Network\CakeResponse;
+use Cake\Utility\ClassRegistry;
+use Cake\Utility\Hash;
+use Cake\Utility\Security;
+
 /**
  * Base Authentication class with common methods and properties.
  *
@@ -244,3 +256,5 @@ abstract class BaseAuthenticate implements CakeEventListener
     {
     }
 }
+
+class_alias(BaseAuthenticate::class, 'BaseAuthenticate');

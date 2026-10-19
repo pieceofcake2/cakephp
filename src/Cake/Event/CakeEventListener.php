@@ -14,6 +14,8 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Event;
+
 /**
  * Objects implementing this interface should declare the `implementedEvents` function
  * to notify the event manager what methods should be called when an event is triggered.
@@ -43,3 +45,5 @@ interface CakeEventListener
      */
     public function implementedEvents();
 }
+
+class_alias(CakeEventListener::class, 'CakeEventListener');

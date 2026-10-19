@@ -18,6 +18,13 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\View\Helper;
+
+use AppHelper;
+use Cake\Core\App;
+use Cake\Utility\Xml;
+use DateTime;
+
 App::uses('AppHelper', 'View/Helper');
 
 /**
@@ -361,3 +368,5 @@ class RssHelper extends AppHelper
         return $xml;
     }
 }
+
+class_alias(RssHelper::class, 'RssHelper');

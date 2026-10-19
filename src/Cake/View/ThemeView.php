@@ -16,6 +16,8 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\View;
+
 /**
  * Theme view class
  *
@@ -27,3 +29,5 @@
 class ThemeView extends View
 {
 }
+
+class_alias(ThemeView::class, 'ThemeView');

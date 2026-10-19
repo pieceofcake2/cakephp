@@ -14,6 +14,12 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Cache;
+
+use Cake\Core\App;
+use Cake\Core\Configure;
+use Cake\Error\CacheException;
+
 /**
  * Cache provides a consistent interface to Caching in your application. It allows you
  * to use several different Cache engines, without coupling your application to a specific
@@ -660,3 +666,5 @@ class Cache
         return null;
     }
 }
+
+class_alias(Cache::class, 'Cache');

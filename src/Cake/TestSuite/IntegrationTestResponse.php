@@ -13,6 +13,11 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\TestSuite;
+
+use Cake\Core\App;
+use Cake\Network\CakeResponse;
+
 App::uses('CakeResponse', 'Network');
 App::uses('IntegrationTestStop', 'TestSuite');
 
@@ -68,3 +73,5 @@ class IntegrationTestResponse extends CakeResponse
     {
     }
 }
+
+class_alias(IntegrationTestResponse::class, 'IntegrationTestResponse');

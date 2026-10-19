@@ -16,6 +16,16 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Model\Datasource\Database;
+
+use Cake\Error\CakeException;
+use Cake\Error\MissingConnectionException;
+use Cake\Model\Datasource\DboSource;
+use Cake\Model\Model;
+use PDO;
+use PDOException;
+use PDOStatement;
+
 /**
  * MySQL DBO driver object
  *
@@ -1093,3 +1103,5 @@ class Mysql extends DboSource
         return $this->_version;
     }
 }
+
+class_alias(Mysql::class, 'Mysql');

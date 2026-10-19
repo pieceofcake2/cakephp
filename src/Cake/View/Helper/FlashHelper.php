@@ -16,6 +16,13 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\View\Helper;
+
+use AppHelper;
+use Cake\Core\App;
+use Cake\Model\Datasource\CakeSession;
+use UnexpectedValueException;
+
 App::uses('AppHelper', 'View/Helper');
 
 /**
@@ -97,3 +104,5 @@ class FlashHelper extends AppHelper
         return $out;
     }
 }
+
+class_alias(FlashHelper::class, 'FlashHelper');

@@ -13,6 +13,8 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Routing\Route;
+
 /**
  * Plugin short route, that copies the plugin param to the controller parameters
  * It is used for supporting /:plugin routes.
@@ -58,3 +60,5 @@ class PluginShortRoute extends CakeRoute
         return $result;
     }
 }
+
+class_alias(PluginShortRoute::class, 'PluginShortRoute');

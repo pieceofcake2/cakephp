@@ -13,6 +13,15 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Routing\Filter;
+
+use Cake\Core\Configure;
+use Cake\Event\CakeEvent;
+use Cake\Network\CakeResponse;
+use Cake\Routing\DispatcherFilter;
+use Cake\Utility\Inflector;
+use Cake\View\View;
+
 /**
  * This filter will check whether the response was previously cached in the file system
  * and served it back to the client if appropriate.
@@ -72,3 +81,5 @@ class CacheDispatcher extends DispatcherFilter
         return null;
     }
 }
+
+class_alias(CacheDispatcher::class, 'CacheDispatcher');

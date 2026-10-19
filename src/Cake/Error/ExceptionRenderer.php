@@ -19,6 +19,24 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Error;
+
+use AppController;
+use Cake\Controller\CakeErrorController;
+use Cake\Controller\Controller;
+use Cake\Core\App;
+use Cake\Core\Configure;
+use Cake\Event\CakeEvent;
+use Cake\Network\CakeRequest;
+use Cake\Network\CakeResponse;
+use Cake\Routing\Dispatcher;
+use Cake\Routing\Router;
+use Cake\Utility\Inflector;
+use Cake\View\View;
+use Exception;
+use PDOException;
+use Throwable;
+
 /**
  * Exception Renderer.
  *
@@ -92,7 +110,8 @@ class ExceptionRenderer
 
             return;
         }
-        $method = $template = Inflector::variable(str_replace('Exception', '', $exception::class));
+        $exceptionClass = substr($exception::class, (int)strrpos('\\' . $exception::class, '\\'));
+        $method = $template = Inflector::variable(str_replace('Exception', '', $exceptionClass));
         $code = $exception->getCode();
 
         $methodExists = method_exists($this, $method);
@@ -355,3 +374,5 @@ class ExceptionRenderer
         $Dispatcher->getEventManager()->dispatch($afterDispatchEvent);
     }
 }
+
+class_alias(ExceptionRenderer::class, 'ExceptionRenderer');

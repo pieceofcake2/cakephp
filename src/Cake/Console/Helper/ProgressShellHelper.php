@@ -13,6 +13,10 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Console\Helper;
+
+use RuntimeException;
+
 /**
  * Create a progress bar using a supplied callback.
  */
@@ -123,3 +127,5 @@ class ProgressShellHelper extends BaseShellHelper
         $this->_consoleOutput->overwrite($bar, 0);
     }
 }
+
+class_alias(ProgressShellHelper::class, 'ProgressShellHelper');

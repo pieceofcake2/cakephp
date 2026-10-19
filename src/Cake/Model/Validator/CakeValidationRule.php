@@ -18,6 +18,10 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Model\Validator;
+
+use Cake\Utility\Validation;
+
 /**
  * CakeValidationRule object. Represents a validation method, error message and
  * rules for applying such method to a field.
@@ -366,3 +370,5 @@ class CakeValidationRule
         }
     }
 }
+
+class_alias(CakeValidationRule::class, 'CakeValidationRule');

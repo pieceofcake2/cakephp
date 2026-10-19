@@ -13,6 +13,21 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\TestSuite;
+
+use Cake\Core\App;
+use Cake\Network\Email\TestEmailTransport;
+use Cake\TestSuite\Constraint\Email\MailContainsAttachmentConstraint;
+use Cake\TestSuite\Constraint\Email\MailContainsConstraint;
+use Cake\TestSuite\Constraint\Email\MailContainsHtmlConstraint;
+use Cake\TestSuite\Constraint\Email\MailContainsTextConstraint;
+use Cake\TestSuite\Constraint\Email\MailCountConstraint;
+use Cake\TestSuite\Constraint\Email\MailSentFromConstraint;
+use Cake\TestSuite\Constraint\Email\MailSentToConstraint;
+use Cake\TestSuite\Constraint\Email\MailSentWithConstraint;
+use Cake\TestSuite\Constraint\Email\MailSubjectContainsConstraint;
+use Cake\TestSuite\Constraint\Email\NoMailSentConstraint;
+
 App::uses('CakeEmail', 'Network/Email');
 App::uses('TestEmailTransport', 'Network/Email');
 
@@ -310,3 +325,5 @@ trait EmailTrait
         $this->assertThat($contents, new MailSubjectContainsConstraint($at), $message);
     }
 }
+
+class_alias(EmailTrait::class, 'EmailTrait');

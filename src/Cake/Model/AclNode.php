@@ -14,6 +14,13 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Model;
+
+use Cake\Core\Configure;
+use Cake\Error\CakeException;
+use Cake\Utility\ClassRegistry;
+use Cake\Utility\Inflector;
+
 /**
  * ACL Node
  *
@@ -186,3 +193,5 @@ class AclNode extends Model
         return $result;
     }
 }
+
+class_alias(AclNode::class, 'AclNode');

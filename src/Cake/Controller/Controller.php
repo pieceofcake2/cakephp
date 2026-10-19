@@ -14,6 +14,37 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Controller;
+
+use Cake\Controller\Component\AclComponent;
+use Cake\Controller\Component\AuthComponent;
+use Cake\Controller\Component\CookieComponent;
+use Cake\Controller\Component\EmailComponent;
+use Cake\Controller\Component\FlashComponent;
+use Cake\Controller\Component\PaginatorComponent;
+use Cake\Controller\Component\RequestHandlerComponent;
+use Cake\Controller\Component\SecurityComponent;
+use Cake\Controller\Component\SessionComponent;
+use Cake\Core\App;
+use Cake\Core\CakeObject;
+use Cake\Core\Configure;
+use Cake\Error\MissingActionException;
+use Cake\Error\MissingModelException;
+use Cake\Error\PrivateActionException;
+use Cake\Event\CakeEvent;
+use Cake\Event\CakeEventListener;
+use Cake\Event\CakeEventManager;
+use Cake\Model\Model;
+use Cake\Network\CakeRequest;
+use Cake\Network\CakeResponse;
+use Cake\Routing\Router;
+use Cake\Utility\ClassRegistry;
+use Cake\Utility\Inflector;
+use Cake\View\View;
+use ReflectionException;
+use ReflectionMethod;
+use RuntimeException;
+
 /**
  * Application controller class for organization of business logic.
  * Provides basic functionality, such as rendering views inside layouts,
@@ -1329,3 +1360,5 @@ class Controller extends CakeObject implements CakeEventListener
         return new $viewClass($this);
     }
 }
+
+class_alias(Controller::class, 'Controller');

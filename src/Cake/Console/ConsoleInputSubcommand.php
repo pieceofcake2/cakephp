@@ -15,6 +15,10 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Console;
+
+use SimpleXmlElement;
+
 /**
  * An object to represent a single subcommand used in the command line.
  * Created when you call ConsoleOptionParser::addSubcommand()
@@ -125,3 +129,5 @@ class ConsoleInputSubcommand
         return $parent;
     }
 }
+
+class_alias(ConsoleInputSubcommand::class, 'ConsoleInputSubcommand');

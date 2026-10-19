@@ -16,6 +16,12 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Log;
+
+use Cake\Core\App;
+use Cake\Error\CakeLogException;
+use Cake\Utility\ObjectCollection;
+
 /**
  * Registry of loaded log engines
  *
@@ -73,3 +79,5 @@ class LogEngineCollection extends ObjectCollection
         return $loggerName;
     }
 }
+
+class_alias(LogEngineCollection::class, 'LogEngineCollection');

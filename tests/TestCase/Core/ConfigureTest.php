@@ -87,7 +87,7 @@ class ConfigureTest extends CakeTestCase
     {
         $result = $this->_bootstrapInSeparateProcess([]);
         $this->assertSame(
-            "ConfigureException: Can't find application core file. Please create " . $result['config'] . 'core.php, and make sure it is readable by PHP.',
+            "Cake\\Error\\ConfigureException: Can't find application core file. Please create " . $result['config'] . 'core.php, and make sure it is readable by PHP.',
             $result['output'],
         );
     }
@@ -101,7 +101,7 @@ class ConfigureTest extends CakeTestCase
     {
         $result = $this->_bootstrapInSeparateProcess(['core.php' => '<?php return true;']);
         $this->assertSame(
-            "ConfigureException: Can't find application bootstrap file. Please create " . $result['config'] . 'bootstrap.php, and make sure it is readable by PHP.',
+            "Cake\\Error\\ConfigureException: Can't find application bootstrap file. Please create " . $result['config'] . 'bootstrap.php, and make sure it is readable by PHP.',
             $result['output'],
         );
     }

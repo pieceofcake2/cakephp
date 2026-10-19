@@ -18,6 +18,16 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Error;
+
+use Cake\Core\App;
+use Cake\Core\Configure;
+use Cake\Log\CakeLog;
+use Cake\Routing\Router;
+use Cake\Utility\Debugger;
+use Exception;
+use Throwable;
+
 /**
  * Error Handler provides basic error and exception handling for your application. It captures and
  * handles all unhandled exceptions and errors. Displays helpful framework errors when debug > 1.
@@ -341,3 +351,5 @@ class ErrorHandler
         return $message;
     }
 }
+
+class_alias(ErrorHandler::class, 'ErrorHandler');

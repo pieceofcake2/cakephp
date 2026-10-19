@@ -14,6 +14,17 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Routing\Filter;
+
+use Cake\Core\App;
+use Cake\Core\CakePlugin;
+use Cake\Core\Configure;
+use Cake\Error\NotFoundException;
+use Cake\Event\CakeEvent;
+use Cake\Network\CakeResponse;
+use Cake\Routing\DispatcherFilter;
+use Cake\Utility\Inflector;
+
 /**
  * Filters a request and tests whether it is a file in the webroot folder or not and
  * serves the file to the client if appropriate.
@@ -178,3 +189,5 @@ class AssetDispatcher extends DispatcherFilter
         }
     }
 }
+
+class_alias(AssetDispatcher::class, 'AssetDispatcher');

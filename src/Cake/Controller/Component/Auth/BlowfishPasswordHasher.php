@@ -13,6 +13,10 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Controller\Component\Auth;
+
+use Cake\Utility\Security;
+
 /**
  * Blowfish password hashing class.
  *
@@ -44,3 +48,5 @@ class BlowfishPasswordHasher extends AbstractPasswordHasher
         return $hashedPassword === Security::hash($password, 'blowfish', $hashedPassword);
     }
 }
+
+class_alias(BlowfishPasswordHasher::class, 'BlowfishPasswordHasher');

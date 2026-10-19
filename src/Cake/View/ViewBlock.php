@@ -13,6 +13,10 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\View;
+
+use Cake\Error\CakeException;
+
 /**
  * ViewBlock implements the concept of Blocks or Slots in the View layer.
  * Slots or blocks are combined with extending views and layouts to afford slots
@@ -248,3 +252,5 @@ class ViewBlock
         return $this->_active;
     }
 }
+
+class_alias(ViewBlock::class, 'ViewBlock');

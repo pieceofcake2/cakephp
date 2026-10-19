@@ -13,6 +13,10 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Console\Helper;
+
+use Cake\Console\ConsoleOutput;
+
 abstract class BaseShellHelper
 {
     /**
@@ -82,3 +86,5 @@ abstract class BaseShellHelper
      */
     abstract public function output($args);
 }
+
+class_alias(BaseShellHelper::class, 'BaseShellHelper');

@@ -16,6 +16,14 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Core;
+
+use Cake\Cache\Cache;
+use Cake\Error\ErrorHandler;
+use Cake\Utility\Inflector;
+use DirectoryIterator;
+use RegexIterator;
+
 /**
  * App is responsible for path management, class location and class loading.
  *
@@ -1064,3 +1072,5 @@ class App
         call_user_func($errorHandler, $lastError['type'], $lastError['message'], $lastError['file'], $lastError['line'], []);
     }
 }
+
+class_alias(App::class, 'App');

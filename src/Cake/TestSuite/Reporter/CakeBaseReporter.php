@@ -15,12 +15,17 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\TestSuite\Reporter;
+
+use Cake\TestSuite\CakeTestLoader;
+use Exception;
 use PHPUnit\Framework\AssertionFailedError;
 use PHPUnit\Framework\Test;
 use PHPUnit\Framework\TestResult;
 use PHPUnit\Framework\TestSuite;
 use PHPUnit\Framework\Warning;
 use PHPUnit\TextUI\ResultPrinter;
+use Throwable;
 
 /**
  * CakeBaseReporter contains common reporting features used in the CakePHP Test suite
@@ -296,3 +301,5 @@ abstract class CakeBaseReporter implements ResultPrinter
     {
     }
 }
+
+class_alias(CakeBaseReporter::class, 'CakeBaseReporter');

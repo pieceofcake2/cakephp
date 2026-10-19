@@ -2,6 +2,13 @@
 
 declare(strict_types=1);
 
+namespace Cake\Model\Datasource;
+
+use Cake\Model\Datasource\Session\CakeSessionHandlerInterface;
+use SessionHandlerInterface;
+use SessionIdInterface;
+use SessionUpdateTimestampHandlerInterface;
+
 /**
  * SessionHandlerAdapter
  *
@@ -131,3 +138,5 @@ class SessionHandlerAdapter implements SessionHandlerInterface, SessionIdInterfa
         return (bool)$this->write($id, $data);
     }
 }
+
+class_alias(SessionHandlerAdapter::class, 'SessionHandlerAdapter');

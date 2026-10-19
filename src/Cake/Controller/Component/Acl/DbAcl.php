@@ -14,6 +14,16 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Controller\Component\Acl;
+
+use Cake\Controller\Component;
+use Cake\Controller\Component\AclComponent;
+use Cake\Core\CakeObject;
+use Cake\Model\Aco;
+use Cake\Model\Aro;
+use Cake\Model\Permission;
+use Cake\Utility\ClassRegistry;
+
 /**
  * DbAcl implements an ACL control system in the database. ARO's and ACO's are
  * structured into trees and a linking table is used to define permissions. You
@@ -168,3 +178,5 @@ class DbAcl extends CakeObject implements AclInterface
         return $this->Permission->getAcoKeys($keys);
     }
 }
+
+class_alias(DbAcl::class, 'DbAcl');

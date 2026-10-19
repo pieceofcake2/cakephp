@@ -14,6 +14,18 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Model\Behavior;
+
+use Cake\Core\Configure;
+use Cake\Error\CakeException;
+use Cake\I18n\I18n;
+use Cake\Model\ConnectionManager;
+use Cake\Model\Model;
+use Cake\Model\ModelBehavior;
+use Cake\Utility\CakeText;
+use Cake\Utility\ClassRegistry;
+use StdClass;
+
 /**
  * Translate behavior
  *
@@ -810,3 +822,5 @@ class TranslateBehavior extends ModelBehavior
         return true;
     }
 }
+
+class_alias(TranslateBehavior::class, 'TranslateBehavior');

@@ -18,6 +18,14 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Model\Validator;
+
+use ArrayAccess;
+use ArrayIterator;
+use Countable;
+use IteratorAggregate;
+use Traversable;
+
 /**
  * CakeValidationSet object. Holds all validation rules for a field and exposes
  * methods to dynamically add or remove validation rules
@@ -389,3 +397,5 @@ class CakeValidationSet implements ArrayAccess, IteratorAggregate, Countable
         return count($this->_rules);
     }
 }
+
+class_alias(CakeValidationSet::class, 'CakeValidationSet');

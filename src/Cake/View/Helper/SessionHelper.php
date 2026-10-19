@@ -16,6 +16,12 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\View\Helper;
+
+use AppHelper;
+use Cake\Core\App;
+use Cake\Model\Datasource\CakeSession;
+
 App::uses('AppHelper', 'View/Helper');
 
 /**
@@ -196,3 +202,5 @@ class SessionHelper extends AppHelper
         return $out;
     }
 }
+
+class_alias(SessionHelper::class, 'SessionHelper');

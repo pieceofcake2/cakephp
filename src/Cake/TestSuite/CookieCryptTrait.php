@@ -13,6 +13,12 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\TestSuite;
+
+use Cake\Core\App;
+use Cake\Utility\Security;
+use InvalidArgumentException;
+
 App::uses('Security', 'Utility');
 
 /**
@@ -170,3 +176,5 @@ trait CookieCryptTrait
         return $array;
     }
 }
+
+class_alias(CookieCryptTrait::class, 'CookieCryptTrait');

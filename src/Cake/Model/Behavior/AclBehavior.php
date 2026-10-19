@@ -18,6 +18,13 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Model\Behavior;
+
+use Cake\Model\Model;
+use Cake\Model\ModelBehavior;
+use Cake\Utility\ClassRegistry;
+use Cake\Utility\Hash;
+
 /**
  * ACL behavior
  *
@@ -145,3 +152,5 @@ class AclBehavior extends ModelBehavior
         }
     }
 }
+
+class_alias(AclBehavior::class, 'AclBehavior');

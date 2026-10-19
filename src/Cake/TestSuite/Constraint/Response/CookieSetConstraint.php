@@ -13,6 +13,10 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\TestSuite\Constraint\Response;
+
+use Cake\Core\App;
+
 App::uses('ResponseConstraintBase', 'TestSuite/Constraint/Response');
 
 /**
@@ -48,3 +52,5 @@ class CookieSetConstraint extends ResponseConstraintBase
         return 'cookie is set';
     }
 }
+
+class_alias(CookieSetConstraint::class, 'CookieSetConstraint');

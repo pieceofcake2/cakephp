@@ -18,6 +18,25 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Controller\Component;
+
+use Cake\Controller\Component;
+use Cake\Controller\Component\Auth\BaseAuthenticate;
+use Cake\Controller\Component\Auth\BaseAuthorize;
+use Cake\Controller\Controller;
+use Cake\Core\App;
+use Cake\Core\Configure;
+use Cake\Error\CakeException;
+use Cake\Error\ForbiddenException;
+use Cake\Event\CakeEvent;
+use Cake\Model\Datasource\CakeSession;
+use Cake\Network\CakeRequest;
+use Cake\Network\CakeResponse;
+use Cake\Routing\Router;
+use Cake\Utility\Debugger;
+use Cake\Utility\Hash;
+use Cake\Utility\Security;
+
 /**
  * Authentication control component class
  *
@@ -890,3 +909,5 @@ class AuthComponent extends Component
         $this->Flash->set($message, $this->flash);
     }
 }
+
+class_alias(AuthComponent::class, 'AuthComponent');

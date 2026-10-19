@@ -13,6 +13,10 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\TestSuite\Constraint\Email;
+
+use Cake\Core\App;
+
 App::uses('MailConstraintBase', 'TestSuite/Constraint/Email');
 
 /**
@@ -96,3 +100,5 @@ class MailSentWithConstraint extends MailConstraintBase
         return sprintf('is in an email `%s`', $this->method);
     }
 }
+
+class_alias(MailSentWithConstraint::class, 'MailSentWithConstraint');

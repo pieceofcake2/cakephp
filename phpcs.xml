@@ -17,6 +17,13 @@
         <exclude name="SlevomatCodingStandard.TypeHints"/>
     </rule>
 
+    <!-- The core imports the classes that it names in annotations, as PHPStan resolves them in the namespace -->
+    <rule ref="SlevomatCodingStandard.Namespaces.UnusedUses">
+        <properties>
+            <property name="searchAnnotations" value="true"/>
+        </properties>
+    </rule>
+
     <rule ref="Generic.PHP.DeprecatedFunctions.Deprecated">
         <!-- Using the deprecated libxml_disable_entity_loader functions. -->
         <exclude-pattern>src/Cake/Utility/Xml.php</exclude-pattern>

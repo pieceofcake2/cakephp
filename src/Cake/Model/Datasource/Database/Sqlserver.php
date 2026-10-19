@@ -16,6 +16,18 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Model\Datasource\Database;
+
+use Cake\Error\CakeException;
+use Cake\Error\MissingConnectionException;
+use Cake\Model\Datasource\DboSource;
+use Cake\Model\Datasource\PDOExceptionWithQueryString;
+use Cake\Model\Model;
+use InvalidArgumentException;
+use PDO;
+use PDOException;
+use PDOStatement;
+
 /**
  * Dbo layer for Microsoft's official SQLServer driver
  *
@@ -975,3 +987,5 @@ class Sqlserver extends DboSource
         return ' WITH (UPDLOCK)';
     }
 }
+
+class_alias(Sqlserver::class, 'Sqlserver');

@@ -16,6 +16,13 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Cache\Engine;
+
+use Cake\Cache\CacheEngine;
+use Cake\Error\CacheException;
+use Cake\Utility\Inflector;
+use Memcache;
+
 /**
  * Memcache storage engine for cache. Memcache has some limitations in the amount of
  * control you have over expire times far in the future. See MemcacheEngine::write() for
@@ -331,3 +338,5 @@ class MemcacheEngine extends CacheEngine
         return $this->_Memcache->add($key, $value, $this->settings['compress'], $duration);
     }
 }
+
+class_alias(MemcacheEngine::class, 'MemcacheEngine');

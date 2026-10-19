@@ -18,6 +18,14 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Model;
+
+use Cake\Core\App;
+use Cake\Error\MissingBehaviorException;
+use Cake\Event\CakeEventListener;
+use Cake\Utility\ClassRegistry;
+use Cake\Utility\ObjectCollection;
+
 /**
  * Model behavior collection class.
  *
@@ -302,3 +310,5 @@ class BehaviorCollection extends ObjectCollection implements CakeEventListener
         ];
     }
 }
+
+class_alias(BehaviorCollection::class, 'BehaviorCollection');

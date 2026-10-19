@@ -15,6 +15,11 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Configure;
+
+use Cake\Core\CakePlugin;
+use Cake\Error\ConfigureException;
+
 /**
  * PHP Reader allows Configure to load configuration values from
  * files containing simple PHP arrays.
@@ -119,3 +124,5 @@ class PhpReader implements ConfigReaderInterface
         return $file;
     }
 }
+
+class_alias(PhpReader::class, 'PhpReader');

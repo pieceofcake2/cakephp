@@ -22,6 +22,11 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\View\Helper;
+
+use Cake\Core\App;
+use Cake\Core\Configure;
+
 App::uses('AppHelper', 'View/Helper');
 
 /**
@@ -379,3 +384,5 @@ class JqueryEngineHelper extends JsBaseEngineHelper
         return $selector . $method;
     }
 }
+
+class_alias(JqueryEngineHelper::class, 'JqueryEngineHelper');

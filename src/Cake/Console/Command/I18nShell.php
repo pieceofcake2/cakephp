@@ -15,6 +15,11 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Console\Command;
+
+use Cake\Console\ConsoleOptionParser;
+use Cake\Core\App;
+
 App::uses('AppShell', 'Console/Command');
 
 /**
@@ -130,3 +135,5 @@ class I18nShell extends AppShell
         return $parser;
     }
 }
+
+class_alias(I18nShell::class, 'I18nShell');

@@ -13,6 +13,11 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Routing\Route;
+
+use Cake\Routing\Router;
+use Cake\Utility\Hash;
+
 /**
  * A single Route used by the Router to connect requests to
  * parameter maps.
@@ -583,3 +588,5 @@ class CakeRoute
         return $obj;
     }
 }
+
+class_alias(CakeRoute::class, 'CakeRoute');

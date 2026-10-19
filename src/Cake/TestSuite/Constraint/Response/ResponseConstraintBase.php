@@ -13,8 +13,13 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\TestSuite\Constraint\Response;
+
+use Cake\Network\CakeResponse;
+use Cake\Utility\File;
 use PHPUnit\Framework\AssertionFailedError;
 use PHPUnit\Framework\Constraint\Constraint;
+use ReflectionProperty;
 
 /**
  * Base class for constraints that inspect a `CakeResponse`.
@@ -149,3 +154,5 @@ abstract class ResponseConstraintBase extends Constraint
         return $file instanceof File ? $file : null;
     }
 }
+
+class_alias(ResponseConstraintBase::class, 'ResponseConstraintBase');

@@ -1,10 +1,18 @@
 <?php
 
+namespace Cake\TestSuite\Reporter;
+
+use Cake\Core\App;
+use Cake\Core\Configure;
+use Cake\TestSuite\Coverage\HtmlCoverageReport;
+use Cake\Utility\Inflector;
+use Exception;
 use PHPUnit\Framework\Test;
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\TestResult;
 use PHPUnit\Framework\TestSuite;
 use SebastianBergmann\Diff\Differ;
+use Throwable;
 
 /**
  * CakeHtmlReporter
@@ -443,3 +451,5 @@ class CakeHtmlReporter extends CakeBaseReporter
         return [$show, $query];
     }
 }
+
+class_alias(CakeHtmlReporter::class, 'CakeHtmlReporter');

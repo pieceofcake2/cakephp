@@ -13,6 +13,10 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\TestSuite\Constraint\Response;
+
+use Cake\Core\App;
+
 App::uses('StatusCodeConstraintBase', 'TestSuite/Constraint/Response');
 
 /**
@@ -42,3 +46,5 @@ class StatusSuccessConstraint extends StatusCodeConstraintBase
         return sprintf('%d is between 200 and 308', $this->response->statusCode());
     }
 }
+
+class_alias(StatusSuccessConstraint::class, 'StatusSuccessConstraint');

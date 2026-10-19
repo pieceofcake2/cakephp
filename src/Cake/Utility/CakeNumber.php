@@ -18,6 +18,11 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Utility;
+
+use Cake\Error\CakeException;
+use Cake\View\Helper\NumberHelper;
+
 /**
  * Number helper library.
  *
@@ -413,3 +418,5 @@ class CakeNumber
         return static::$_defaultCurrency;
     }
 }
+
+class_alias(CakeNumber::class, 'CakeNumber');

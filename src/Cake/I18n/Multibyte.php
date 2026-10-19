@@ -16,6 +16,11 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\I18n;
+
+use Cake\Configure\PhpReader;
+use Cake\Core\Configure;
+
 /**
  * Multibyte handling methods.
  *
@@ -553,3 +558,5 @@ class Multibyte
         return false;
     }
 }
+
+class_alias(Multibyte::class, 'Multibyte');

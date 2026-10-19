@@ -13,6 +13,10 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\TestSuite\Constraint\Response;
+
+use Cake\Core\App;
+
 App::uses('ResponseConstraintBase', 'TestSuite/Constraint/Response');
 
 /**
@@ -57,3 +61,5 @@ class ContentTypeConstraint extends ResponseConstraintBase
         return 'is set as the Content-Type (`' . $this->response->type() . '`)';
     }
 }
+
+class_alias(ContentTypeConstraint::class, 'ContentTypeConstraint');

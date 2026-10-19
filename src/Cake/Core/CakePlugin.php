@@ -16,6 +16,11 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Core;
+
+use Cake\Error\MissingPluginException;
+use Cake\Utility\Inflector;
+
 /**
  * CakePlugin is responsible for loading and unloading plugins.
  *
@@ -300,3 +305,5 @@ class CakePlugin
         return include $file;
     }
 }
+
+class_alias(CakePlugin::class, 'CakePlugin');

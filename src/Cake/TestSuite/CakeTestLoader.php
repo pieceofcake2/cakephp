@@ -18,8 +18,16 @@
  * @package Cake.TestSuite
  */
 
+namespace Cake\TestSuite;
+
+use Cake\Core\CakePlugin;
+use Cake\Error\MissingPluginException;
 use PHPUnit\Runner\StandardTestSuiteLoader;
 use PHPUnit\Runner\TestSuiteLoader;
+use RecursiveDirectoryIterator;
+use RecursiveIteratorIterator;
+use ReflectionClass;
+use RegexIterator;
 
 /**
  * TestLoader for CakePHP Test suite.
@@ -180,3 +188,5 @@ class CakeTestLoader implements TestSuiteLoader
         return $this->loader->reload($aClass);
     }
 }
+
+class_alias(CakeTestLoader::class, 'CakeTestLoader');

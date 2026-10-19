@@ -18,6 +18,29 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Model;
+
+use AllowDynamicProperties;
+use AppModel;
+use Cake\Core\CakeObject;
+use Cake\Core\Configure;
+use Cake\Error\MissingConnectionException;
+use Cake\Error\MissingTableException;
+use Cake\Event\CakeEvent;
+use Cake\Event\CakeEventListener;
+use Cake\Event\CakeEventManager;
+use Cake\Model\Datasource\DataSource;
+use Cake\Utility\CakeText;
+use Cake\Utility\ClassRegistry;
+use Cake\Utility\Hash;
+use Cake\Utility\Inflector;
+use Cake\Utility\Set;
+use Cake\Utility\Xml;
+use DOMNode;
+use Exception;
+use PDOException;
+use SimpleXMLElement;
+
 /**
  * Object-relational mapper.
  *
@@ -4033,3 +4056,5 @@ class Model extends CakeObject implements CakeEventListener
         return $this->_validator;
     }
 }
+
+class_alias(Model::class, 'Model');

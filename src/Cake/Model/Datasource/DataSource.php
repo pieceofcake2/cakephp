@@ -16,6 +16,15 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Model\Datasource;
+
+use Cake\Cache\Cache;
+use Cake\Core\CakeObject;
+use Cake\Model\CakeSchema;
+use Cake\Model\ConnectionManager;
+use Cake\Model\Model;
+use stdClass;
+
 /**
  * DataSource base class
  *
@@ -481,3 +490,5 @@ class DataSource extends CakeObject
         }
     }
 }
+
+class_alias(DataSource::class, 'DataSource');

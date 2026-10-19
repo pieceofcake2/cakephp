@@ -16,6 +16,8 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Network\Email;
+
 /**
  * Debug Transport class, useful for emulate the email sending process and inspect the resulted
  * email message before actually send it during development
@@ -39,3 +41,5 @@ class DebugTransport extends AbstractTransport
         return ['headers' => $headers, 'message' => $message];
     }
 }
+
+class_alias(DebugTransport::class, 'DebugTransport');

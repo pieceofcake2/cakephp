@@ -13,6 +13,11 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\TestSuite\Constraint\Response;
+
+use Cake\Core\App;
+use Cake\Network\CakeResponse;
+
 App::uses('ResponseConstraintBase', 'TestSuite/Constraint/Response');
 
 /**
@@ -67,3 +72,5 @@ class HeaderEqualsConstraint extends ResponseConstraintBase
         return sprintf("equals content in header '%s' (`%s`)", $this->headerName, $responseHeader);
     }
 }
+
+class_alias(HeaderEqualsConstraint::class, 'HeaderEqualsConstraint');

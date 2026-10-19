@@ -12,6 +12,13 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Controller\Component\Auth;
+
+use Cake\Controller\ComponentCollection;
+use Cake\Error\UnauthorizedException;
+use Cake\Network\CakeRequest;
+use Cake\Network\CakeResponse;
+
 /**
  * Basic Authentication adapter for AuthComponent.
  *
@@ -124,3 +131,5 @@ class BasicAuthenticate extends BaseAuthenticate
         return sprintf('WWW-Authenticate: Basic realm="%s"', $this->settings['realm']);
     }
 }
+
+class_alias(BasicAuthenticate::class, 'BasicAuthenticate');

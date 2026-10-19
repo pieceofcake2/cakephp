@@ -16,6 +16,8 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Console;
+
 /**
  * Object wrapper for interacting with stdin
  *
@@ -87,3 +89,5 @@ class ConsoleInput
         return $readyFds > 0;
     }
 }
+
+class_alias(ConsoleInput::class, 'ConsoleInput');

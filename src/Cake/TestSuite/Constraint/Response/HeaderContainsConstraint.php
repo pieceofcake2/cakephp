@@ -13,6 +13,10 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\TestSuite\Constraint\Response;
+
+use Cake\Core\App;
+
 App::uses('HeaderEqualsConstraint', 'TestSuite/Constraint/Response');
 
 /**
@@ -50,3 +54,5 @@ class HeaderContainsConstraint extends HeaderEqualsConstraint
         );
     }
 }
+
+class_alias(HeaderContainsConstraint::class, 'HeaderContainsConstraint');

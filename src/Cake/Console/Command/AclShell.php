@@ -15,6 +15,16 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Console\Command;
+
+use Cake\Console\ConsoleOptionParser;
+use Cake\Controller\Component\AclComponent;
+use Cake\Controller\ComponentCollection;
+use Cake\Controller\Controller;
+use Cake\Core\App;
+use Cake\Core\Configure;
+use Cake\Utility\Hash;
+
 App::uses('AppShell', 'Console/Command');
 
 /**
@@ -636,3 +646,5 @@ class AclShell extends AppShell
         return $vars;
     }
 }
+
+class_alias(AclShell::class, 'AclShell');

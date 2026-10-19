@@ -14,6 +14,10 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Controller\Component\Acl;
+
+use Cake\Controller\Component;
+
 /**
  * Access Control List interface.
  * Implementing classes are used by AclComponent to perform ACL checks in Cake.
@@ -70,3 +74,5 @@ interface AclInterface
      */
     public function initialize(Component $component);
 }
+
+class_alias(AclInterface::class, 'AclInterface');

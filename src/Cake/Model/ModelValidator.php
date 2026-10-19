@@ -18,6 +18,19 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Model;
+
+use AllowDynamicProperties;
+use ArrayAccess;
+use ArrayIterator;
+use Cake\Event\CakeEvent;
+use Cake\Model\Validator\CakeValidationRule;
+use Cake\Model\Validator\CakeValidationSet;
+use Cake\Utility\Hash;
+use Countable;
+use IteratorAggregate;
+use Traversable;
+
 /**
  * ModelValidator object encapsulates all methods related to data validations for a model
  * It also provides an API to dynamically change validation rules for each model field.
@@ -29,7 +42,7 @@
  * @link          https://book.cakephp.org/2.0/en/data-validation.html
  * @property array $validationErrors Reset by _validationList(); validation errors are stored in Model::$validationErrors
  */
-#[\AllowDynamicProperties]
+#[AllowDynamicProperties]
 class ModelValidator implements ArrayAccess, IteratorAggregate, Countable
 {
     /**
@@ -639,3 +652,5 @@ class ModelValidator implements ArrayAccess, IteratorAggregate, Countable
         return $this;
     }
 }
+
+class_alias(ModelValidator::class, 'ModelValidator');

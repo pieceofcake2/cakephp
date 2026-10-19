@@ -14,6 +14,13 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\View\Helper;
+
+use AppHelper;
+use Cake\Core\App;
+use Cake\I18n\Multibyte;
+use Cake\Routing\Router;
+
 App::uses('AppHelper', 'View/Helper');
 
 /**
@@ -612,3 +619,5 @@ abstract class JsBaseEngineHelper extends AppHelper
         return $out;
     }
 }
+
+class_alias(JsBaseEngineHelper::class, 'JsBaseEngineHelper');

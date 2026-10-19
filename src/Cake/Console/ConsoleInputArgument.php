@@ -15,6 +15,11 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Console;
+
+use Cake\Error\ConsoleException;
+use SimpleXmlElement;
+
 /**
  * An object to represent a single argument used in the command line.
  * ConsoleOptionParser creates these when you use addArgument()
@@ -183,3 +188,5 @@ class ConsoleInputArgument
         return $parent;
     }
 }
+
+class_alias(ConsoleInputArgument::class, 'ConsoleInputArgument');

@@ -14,6 +14,8 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Utility;
+
 /**
  * Pluralize and singularize English words.
  *
@@ -610,6 +612,8 @@ class Inflector
         return preg_replace(array_keys($map), array_values($map), $string);
     }
 }
+
+class_alias(Inflector::class, 'Inflector');
 
 // Store the initial state
 Inflector::reset();

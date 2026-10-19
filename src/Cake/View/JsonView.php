@@ -12,6 +12,13 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\View;
+
+use Cake\Controller\Controller;
+use Cake\Core\Configure;
+use Cake\Error\CakeException;
+use Cake\Network\CakeResponse;
+
 /**
  * A view class that is used for JSON responses.
  *
@@ -175,3 +182,5 @@ class JsonView extends View
         return $json;
     }
 }
+
+class_alias(JsonView::class, 'JsonView');

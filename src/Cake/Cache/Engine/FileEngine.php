@@ -19,6 +19,18 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Cache\Engine;
+
+use Cake\Cache\CacheEngine;
+use Cake\Core\Configure;
+use Cake\Error\CacheException;
+use Cake\Utility\Inflector;
+use Exception;
+use RecursiveDirectoryIterator;
+use RecursiveIteratorIterator;
+use SplFileInfo;
+use SplFileObject;
+
 /**
  * File Storage engine for cache. Filestorage is the slowest cache storage
  * to read and write. However, it is good for servers that don't have other storage
@@ -482,3 +494,5 @@ class FileEngine extends CacheEngine
         return false;
     }
 }
+
+class_alias(FileEngine::class, 'FileEngine');

@@ -16,6 +16,13 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Model\Datasource\Session;
+
+use Cake\Core\Configure;
+use Cake\Model\Model;
+use Cake\Utility\ClassRegistry;
+use PDOException;
+
 /**
  * DatabaseSession provides methods to be used with CakeSession.
  *
@@ -170,3 +177,5 @@ class DatabaseSession implements CakeSessionHandlerInterface
         return true;
     }
 }
+
+class_alias(DatabaseSession::class, 'DatabaseSession');

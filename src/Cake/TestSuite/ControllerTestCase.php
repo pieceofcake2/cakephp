@@ -1,5 +1,23 @@
 <?php
 
+namespace Cake\TestSuite;
+
+use BadMethodCallException;
+use Cake\Controller\Component;
+use Cake\Controller\Controller;
+use Cake\Core\App;
+use Cake\Error\MissingComponentException;
+use Cake\Error\MissingControllerException;
+use Cake\Event\CakeEvent;
+use Cake\Network\CakeRequest;
+use Cake\Network\CakeResponse;
+use Cake\Routing\Dispatcher;
+use Cake\Routing\Route\RedirectRoute;
+use Cake\Routing\Router;
+use Cake\Utility\ClassRegistry;
+use Cake\Utility\Inflector;
+use Cake\View\Helper;
+
 /**
  * ControllerTestCase file
  *
@@ -86,6 +104,8 @@ class ControllerTestDispatcher extends Dispatcher
     }
 }
 
+class_alias(ControllerTestDispatcher::class, 'ControllerTestDispatcher');
+
 /**
  * InterceptContentHelper class
  *
@@ -105,6 +125,8 @@ class InterceptContentHelper extends Helper
         $this->_View->Helpers->unload('InterceptContent');
     }
 }
+
+class_alias(InterceptContentHelper::class, 'InterceptContentHelper');
 
 /**
  * ControllerTestCase class
@@ -452,3 +474,5 @@ abstract class ControllerTestCase extends CakeTestCase
         );
     }
 }
+
+class_alias(ControllerTestCase::class, 'ControllerTestCase');

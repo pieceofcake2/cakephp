@@ -16,6 +16,12 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Model\Datasource\Session;
+
+use Cake\Cache\Cache;
+use Cake\Core\Configure;
+use Cake\Model\Datasource\CakeSession;
+
 /**
  * CacheSession provides method for saving sessions into a Cache engine. Used with CakeSession
  *
@@ -99,3 +105,5 @@ class CacheSession implements CakeSessionHandlerInterface
         return (bool)Cache::gc(Configure::read('Session.handler.config'), $expires);
     }
 }
+
+class_alias(CacheSession::class, 'CacheSession');

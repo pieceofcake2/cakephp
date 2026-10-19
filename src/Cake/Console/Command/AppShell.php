@@ -15,6 +15,10 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Console\Command;
+
+use Cake\Console\Shell;
+
 /**
  * Application Shell
  *
@@ -26,3 +30,5 @@
 class AppShell extends Shell
 {
 }
+
+class_alias(AppShell::class, 'AppShell');

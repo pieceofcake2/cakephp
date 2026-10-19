@@ -12,6 +12,11 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Controller\Component\Auth;
+
+use Cake\Controller\Component\AuthComponent;
+use Cake\Controller\ComponentCollection;
+
 /**
  * An authentication adapter for AuthComponent. Provides the ability to authenticate using POST data using Blowfish
  * hashing. Can be used by configuring AuthComponent to use it via the AuthComponent::$authenticate setting.
@@ -49,3 +54,5 @@ class BlowfishAuthenticate extends FormAuthenticate
         parent::__construct($collection, $settings);
     }
 }
+
+class_alias(BlowfishAuthenticate::class, 'BlowfishAuthenticate');

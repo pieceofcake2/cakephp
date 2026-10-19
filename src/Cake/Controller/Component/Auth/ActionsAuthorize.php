@@ -12,6 +12,12 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Controller\Component\Auth;
+
+use Cake\Controller\Component\AclComponent;
+use Cake\Controller\Component\AuthComponent;
+use Cake\Network\CakeRequest;
+
 /**
  * An authorization adapter for AuthComponent. Provides the ability to authorize using the AclComponent,
  * If AclComponent is not already loaded it will be loaded using the Controller's ComponentCollection.
@@ -38,3 +44,5 @@ class ActionsAuthorize extends BaseAuthorize
         return $Acl->check($user, $this->action($request));
     }
 }
+
+class_alias(ActionsAuthorize::class, 'ActionsAuthorize');

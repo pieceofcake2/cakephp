@@ -17,6 +17,15 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\View;
+
+use Cake\Core\App;
+use Cake\Error\CakeException;
+use Cake\Error\MissingHelperException;
+use Cake\Event\CakeEvent;
+use Cake\Event\CakeEventListener;
+use Cake\Utility\ObjectCollection;
+
 /**
  * Helpers collection is used as a registry for loaded helpers and handles loading
  * and constructing helper class objects.
@@ -206,3 +215,5 @@ class HelperCollection extends ObjectCollection implements CakeEventListener
         return parent::trigger($callback, $params, $options);
     }
 }
+
+class_alias(HelperCollection::class, 'HelperCollection');

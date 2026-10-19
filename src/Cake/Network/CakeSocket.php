@@ -16,7 +16,13 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Network;
+
+use Cake\Error\SocketException;
+use Cake\Utility\Validation;
 use Composer\CaBundle\CaBundle;
+use Exception;
+use InvalidArgumentException;
 
 /**
  * CakePHP network socket connection class.
@@ -547,3 +553,5 @@ class CakeSocket
         throw new SocketException($errorMessage);
     }
 }
+
+class_alias(CakeSocket::class, 'CakeSocket');

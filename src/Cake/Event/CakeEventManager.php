@@ -14,6 +14,10 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Event;
+
+use InvalidArgumentException;
+
 /**
  * The event manager is responsible for keeping track of event listeners, passing the correct
  * data to them, and firing them in the correct order, when associated events are triggered. You
@@ -312,3 +316,5 @@ class CakeEventManager
         return $this->_listeners[$eventKey];
     }
 }
+
+class_alias(CakeEventManager::class, 'CakeEventManager');

@@ -13,6 +13,10 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\TestSuite\Constraint\Email;
+
+use Cake\Network\Email\CakeEmail;
+use Cake\Network\Email\TestEmailTransport;
 use PHPUnit\Framework\Constraint\Constraint;
 
 /**
@@ -64,3 +68,5 @@ abstract class MailConstraintBase extends Constraint
         return $messages;
     }
 }
+
+class_alias(MailConstraintBase::class, 'MailConstraintBase');

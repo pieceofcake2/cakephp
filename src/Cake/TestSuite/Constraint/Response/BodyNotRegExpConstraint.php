@@ -13,6 +13,10 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\TestSuite\Constraint\Response;
+
+use Cake\Core\App;
+
 App::uses('BodyRegExpConstraint', 'TestSuite/Constraint/Response');
 
 /**
@@ -46,3 +50,5 @@ class BodyNotRegExpConstraint extends BodyRegExpConstraint
         return 'PCRE pattern not found in response body';
     }
 }
+
+class_alias(BodyNotRegExpConstraint::class, 'BodyNotRegExpConstraint');

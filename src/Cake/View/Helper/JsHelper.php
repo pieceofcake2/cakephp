@@ -16,6 +16,13 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\View\Helper;
+
+use AppHelper;
+use Cake\Core\App;
+use Cake\Core\Configure;
+use Cake\View\View;
+
 App::uses('AppHelper', 'View/Helper');
 
 /**
@@ -461,3 +468,5 @@ class JsHelper extends AppHelper
         return [$options, $htmlOptions];
     }
 }
+
+class_alias(JsHelper::class, 'JsHelper');

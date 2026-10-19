@@ -14,6 +14,11 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Model;
+
+use AppModel;
+use Cake\Core\App;
+
 App::uses('AppModel', 'Model');
 
 /**
@@ -37,3 +42,5 @@ class AcoAction extends AppModel
      */
     public $belongsTo = ['Aco'];
 }
+
+class_alias(AcoAction::class, 'AcoAction');

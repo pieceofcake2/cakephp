@@ -16,6 +16,8 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Network\Http;
+
 /**
  * Basic authentication
  *
@@ -65,3 +67,5 @@ class BasicAuthentication
         return 'Basic ' . base64_encode($user . ':' . $pass);
     }
 }
+
+class_alias(BasicAuthentication::class, 'BasicAuthentication');

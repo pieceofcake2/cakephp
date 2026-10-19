@@ -16,6 +16,15 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Network;
+
+use Cake\Core\Configure;
+use Cake\Error\CakeException;
+use Cake\Error\NotFoundException;
+use Cake\Utility\File;
+use DateTime;
+use DateTimeZone;
+
 /**
  * CakeResponse is responsible for managing the response text, status and headers of a HTTP response.
  *
@@ -1591,3 +1600,5 @@ class CakeResponse
         //@codingStandardsIgnoreEnd
     }
 }
+
+class_alias(CakeResponse::class, 'CakeResponse');

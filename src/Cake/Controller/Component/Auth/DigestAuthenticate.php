@@ -12,6 +12,11 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Controller\Component\Auth;
+
+use Cake\Controller\ComponentCollection;
+use Cake\Network\CakeRequest;
+
 /**
  * Digest Authentication adapter for AuthComponent.
  *
@@ -232,3 +237,5 @@ class DigestAuthenticate extends BasicAuthenticate
         return 'WWW-Authenticate: Digest ' . implode(',', $opts);
     }
 }
+
+class_alias(DigestAuthenticate::class, 'DigestAuthenticate');

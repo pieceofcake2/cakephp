@@ -16,6 +16,13 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Utility;
+
+use ArrayAccess;
+use SimpleXMLElement;
+use stdClass;
+use Traversable;
+
 /**
  * Class used for manipulation of arrays.
  *
@@ -1160,3 +1167,5 @@ class Set
         return Hash::get($input, $keys);
     }
 }
+
+class_alias(Set::class, 'Set');

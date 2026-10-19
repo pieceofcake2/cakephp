@@ -13,6 +13,10 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Utility;
+
+use Cake\Error\CakeException;
+
 /**
  * Validation Class. Used for validation of model data
  *
@@ -1208,3 +1212,5 @@ class Validation
         static::$errors = [];
     }
 }
+
+class_alias(Validation::class, 'Validation');

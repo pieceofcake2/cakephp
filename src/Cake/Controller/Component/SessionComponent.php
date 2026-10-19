@@ -16,6 +16,11 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Controller\Component;
+
+use Cake\Controller\Component;
+use Cake\Model\Datasource\CakeSession;
+
 /**
  * The CakePHP SessionComponent provides a way to persist client data between
  * page requests. It acts as a wrapper for the `$_SESSION` as well as providing
@@ -216,3 +221,5 @@ class SessionComponent extends Component
         return CakeSession::started();
     }
 }
+
+class_alias(SessionComponent::class, 'SessionComponent');

@@ -1,5 +1,9 @@
 <?php
 
+namespace Cake\Model\Datasource;
+
+use PDOException;
+
 class PDOExceptionWithQueryString extends PDOException
 {
     public string $queryString = '';
@@ -17,3 +21,5 @@ class PDOExceptionWithQueryString extends PDOException
         $this->code = $e->code;
     }
 }
+
+class_alias(PDOExceptionWithQueryString::class, 'PDOExceptionWithQueryString');

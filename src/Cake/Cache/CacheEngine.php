@@ -14,6 +14,8 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Cache;
+
 /**
  * Storage engine for CakePHP caching
  *
@@ -198,3 +200,5 @@ abstract class CacheEngine
         return $prefix . $key;
     }
 }
+
+class_alias(CacheEngine::class, 'CacheEngine');

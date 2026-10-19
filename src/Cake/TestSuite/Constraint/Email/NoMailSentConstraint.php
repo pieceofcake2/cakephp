@@ -13,6 +13,10 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\TestSuite\Constraint\Email;
+
+use Cake\Core\App;
+
 App::uses('MailConstraintBase', 'TestSuite/Constraint/Email');
 
 /**
@@ -57,3 +61,5 @@ class NoMailSentConstraint extends MailConstraintBase
         return $this->toString();
     }
 }
+
+class_alias(NoMailSentConstraint::class, 'NoMailSentConstraint');

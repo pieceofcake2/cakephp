@@ -14,6 +14,14 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Utility;
+
+use DirectoryIterator;
+use Exception;
+use InvalidArgumentException;
+use RecursiveDirectoryIterator;
+use RecursiveIteratorIterator;
+
 /**
  * Folder structure browser, lists folders and files.
  * Provides an Object interface for Common directory related tasks.
@@ -962,3 +970,5 @@ class Folder
         return $lastChar === '/' || $lastChar === '\\';
     }
 }
+
+class_alias(Folder::class, 'Folder');

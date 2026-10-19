@@ -16,6 +16,16 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Controller\Component;
+
+use Cake\Controller\Component;
+use Cake\Controller\ComponentCollection;
+use Cake\Controller\Controller;
+use Cake\Error\MissingModelException;
+use Cake\Error\NotFoundException;
+use Cake\Model\Model;
+use Cake\Utility\Hash;
+
 /**
  * This component is used to handle automatic model data pagination. The primary way to use this
  * component is to call the paginate() method. There is a convenience wrapper on Controller as well.
@@ -483,3 +493,5 @@ class PaginatorComponent extends Component
         return $options;
     }
 }
+
+class_alias(PaginatorComponent::class, 'PaginatorComponent');

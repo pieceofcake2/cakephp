@@ -16,6 +16,8 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Log;
+
 /**
  * CakeLogStreamInterface is the interface that should be implemented
  * by all classes that are going to be used as Log streams.
@@ -33,3 +35,5 @@ interface CakeLogInterface
      */
     public function write($type, $message);
 }
+
+class_alias(CakeLogInterface::class, 'CakeLogInterface');

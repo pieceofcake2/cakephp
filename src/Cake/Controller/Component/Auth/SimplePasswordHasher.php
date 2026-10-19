@@ -13,6 +13,10 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Controller\Component\Auth;
+
+use Cake\Utility\Security;
+
 /**
  * Simple password hashing class.
  *
@@ -51,3 +55,5 @@ class SimplePasswordHasher extends AbstractPasswordHasher
         return $hashedPassword === $this->hash($password);
     }
 }
+
+class_alias(SimplePasswordHasher::class, 'SimplePasswordHasher');

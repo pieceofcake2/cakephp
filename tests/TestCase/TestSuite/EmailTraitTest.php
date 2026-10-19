@@ -99,7 +99,7 @@ class EmailTraitTest extends CakeTestCase
         $this->assertInstanceOf(DebugTransport::class, $email->transportClass());
 
         TestEmailTransport::replaceAllTransports();
-        $this->assertSame('TestEmailTransport', get_class($email->transportClass()), 'A cached transport is replaced');
+        $this->assertInstanceOf('TestEmailTransport', $email->transportClass(), 'A cached transport is replaced');
         $other = new CakeEmail(['transport' => 'Debug']);
         $transport = $other->transportClass();
         $this->assertInstanceOf(TestEmailTransport::class, $transport);

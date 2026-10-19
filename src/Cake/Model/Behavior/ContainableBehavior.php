@@ -18,6 +18,12 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Model\Behavior;
+
+use Cake\Model\Model;
+use Cake\Model\ModelBehavior;
+use Cake\Utility\Hash;
+
 /**
  * Behavior to allow for dynamic and atomic manipulation of a Model's associations
  * used for a find call. Most useful for limiting the amount of associations and
@@ -440,3 +446,5 @@ class ContainableBehavior extends ModelBehavior
         return $map;
     }
 }
+
+class_alias(ContainableBehavior::class, 'ContainableBehavior');

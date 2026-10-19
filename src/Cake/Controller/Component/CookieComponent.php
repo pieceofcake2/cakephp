@@ -16,6 +16,17 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Controller\Component;
+
+use Cake\Controller\Component;
+use Cake\Controller\ComponentCollection;
+use Cake\Controller\Controller;
+use Cake\Core\Configure;
+use Cake\Network\CakeResponse;
+use Cake\Utility\Hash;
+use Cake\Utility\Security;
+use DateTime;
+
 /**
  * Cookie Component.
  *
@@ -584,3 +595,5 @@ class CookieComponent extends Component
         return $array;
     }
 }
+
+class_alias(CookieComponent::class, 'CookieComponent');

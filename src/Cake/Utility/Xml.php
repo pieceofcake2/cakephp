@@ -18,6 +18,19 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Utility;
+
+use Cake\Core\Configure;
+use Cake\Error\SocketException;
+use Cake\Error\XmlException;
+use Cake\Network\Http\HttpSocket;
+use DOMDocument;
+use DOMElement;
+use DOMNode;
+use DOMText;
+use Exception;
+use SimpleXMLElement;
+
 /**
  * XML handling for CakePHP.
  *
@@ -410,3 +423,5 @@ class Xml
         }
     }
 }
+
+class_alias(Xml::class, 'Xml');

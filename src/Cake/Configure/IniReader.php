@@ -16,6 +16,12 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Configure;
+
+use Cake\Core\CakePlugin;
+use Cake\Error\ConfigureException;
+use Cake\Utility\Hash;
+
 /**
  * Ini file configuration engine.
  *
@@ -234,3 +240,5 @@ class IniReader implements ConfigReaderInterface
         return $file;
     }
 }
+
+class_alias(IniReader::class, 'IniReader');

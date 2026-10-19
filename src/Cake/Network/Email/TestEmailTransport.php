@@ -13,6 +13,11 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Network\Email;
+
+use Cake\Core\App;
+use Cake\TestSuite\EmailTrait;
+
 App::uses('DebugTransport', 'Network/Email');
 
 /**
@@ -109,3 +114,5 @@ class TestEmailTransport extends DebugTransport
         static::$_messages = [];
     }
 }
+
+class_alias(TestEmailTransport::class, 'TestEmailTransport');

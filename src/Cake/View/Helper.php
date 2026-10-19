@@ -14,6 +14,19 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\View;
+
+use Cake\Core\App;
+use Cake\Core\CakeObject;
+use Cake\Core\CakePlugin;
+use Cake\Core\Configure;
+use Cake\Network\CakeRequest;
+use Cake\Routing\Router;
+use Cake\Utility\ClassRegistry;
+use Cake\Utility\Hash;
+use Cake\Utility\Inflector;
+use Cake\Utility\ObjectCollection;
+
 /**
  * Abstract base class for all other Helpers in CakePHP.
  * Provides common methods and features.
@@ -1036,3 +1049,5 @@ class Helper extends CakeObject
         $this->_cleaned = str_replace(['&amp;', '&lt;', '&gt;'], ['&amp;amp;', '&amp;lt;', '&amp;gt;'], $this->_cleaned);
     }
 }
+
+class_alias(Helper::class, 'Helper');

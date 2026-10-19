@@ -16,6 +16,12 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Cache\Engine;
+
+use APCIterator;
+use Cake\Cache\CacheEngine;
+use Cake\Utility\Inflector;
+
 /**
  * APC storage engine for cache
  *
@@ -251,3 +257,5 @@ class ApcEngine extends CacheEngine
         return $func($key, $value, $duration);
     }
 }
+
+class_alias(ApcEngine::class, 'ApcEngine');

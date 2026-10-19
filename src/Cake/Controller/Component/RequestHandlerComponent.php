@@ -20,6 +20,21 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Controller\Component;
+
+use Cake\Controller\Component;
+use Cake\Controller\ComponentCollection;
+use Cake\Controller\Controller;
+use Cake\Core\App;
+use Cake\Core\Configure;
+use Cake\Error\CakeException;
+use Cake\Error\XmlException;
+use Cake\Network\CakeRequest;
+use Cake\Network\CakeResponse;
+use Cake\Routing\Router;
+use Cake\Utility\Inflector;
+use Cake\Utility\Xml;
+
 /**
  * Request object for handling alternative HTTP requests
  *
@@ -838,3 +853,5 @@ class RequestHandlerComponent extends Component
         return $this->_viewClassMap;
     }
 }
+
+class_alias(RequestHandlerComponent::class, 'RequestHandlerComponent');

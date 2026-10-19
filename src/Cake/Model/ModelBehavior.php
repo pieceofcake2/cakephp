@@ -18,6 +18,10 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Model;
+
+use Cake\Core\CakeObject;
+
 /**
  * Model behavior base class.
  *
@@ -250,3 +254,5 @@ class ModelBehavior extends CakeObject
         }
     }
 }
+
+class_alias(ModelBehavior::class, 'ModelBehavior');

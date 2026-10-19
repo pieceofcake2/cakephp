@@ -19,6 +19,10 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\View\Helper;
+
+use Cake\Core\Configure;
+
 /**
  * Prototype Engine Helper for JsHelper
  *
@@ -388,3 +392,5 @@ class PrototypeEngineHelper extends JsBaseEngineHelper
         return $selection . $method;
     }
 }
+
+class_alias(PrototypeEngineHelper::class, 'PrototypeEngineHelper');

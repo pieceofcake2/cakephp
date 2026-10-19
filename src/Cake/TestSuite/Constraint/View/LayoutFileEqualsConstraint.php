@@ -13,6 +13,10 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\TestSuite\Constraint\View;
+
+use Cake\Core\App;
+
 App::uses('TemplateFileEqualsConstraint', 'TestSuite/Constraint/View');
 
 /**
@@ -35,3 +39,5 @@ class LayoutFileEqualsConstraint extends TemplateFileEqualsConstraint
         return sprintf('equals layout file `%s`', (string)$this->filename);
     }
 }
+
+class_alias(LayoutFileEqualsConstraint::class, 'LayoutFileEqualsConstraint');
