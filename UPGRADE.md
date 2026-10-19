@@ -61,6 +61,12 @@ public function query($sql, ...$params)
 }
 ```
 
+The `rector` command of [pieceofcake2/upgrade](https://pieceofcake2.github.io/upgrade/) adds the variadic parameters to the overrides. The changed code also runs on the versions before, so run it before you update:
+
+```bash
+bin/cake upgrade rector --rules variadic-arguments src tests
+```
+
 `CakeRequest::input(null)` now returns the raw input, as `input()` does; it called `null` before.
 
 ## v2.12.10
