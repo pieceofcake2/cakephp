@@ -15,6 +15,21 @@ Before migrating to this fork, ensure:
 4. **Upgrade PHP**: Update your PHP version to 8.0 or newer
 5. **Test Thoroughly**: Run your application's test suite to ensure compatibility
 
+## Unreleased
+
+### HTML5 Script, Link and Style Tags
+
+`HtmlHelper` now outputs the tags of HTML5: `<script src="...">`, `<link rel="stylesheet" href="...">`, `<style>`, and script blocks without `type="text/javascript"` and without CDATA. Browsers treat both forms the same, so the pages do not change.
+
+- Tests that compare the HTML of a page or of a helper, e.g. with `assertTags()` or `assertSame()`, may need the new tags.
+- To keep the former output, e.g. for pages served as XHTML (`application/xhtml+xml`), set `html5` to `false` in the settings of the helper:
+
+  ```php
+  public $helpers = ['Html' => ['html5' => false]];
+  ```
+
+- `JsHelper` follows the setting: its script blocks have no CDATA unless `safe` is `true` or `html5` is `false`.
+
 ## v2.12.10
 
 ### `raw()` ([PR #84](https://github.com/pieceofcake2/cakephp/pull/84))
