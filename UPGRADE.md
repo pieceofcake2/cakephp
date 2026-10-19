@@ -17,7 +17,7 @@ Before migrating to this fork, ensure:
 
 ## Unreleased
 
-### The Framework in the `Cake` Namespace
+### The Framework in the `Cake` Namespace ([PR #92](https://github.com/pieceofcake2/cakephp/pull/92))
 
 The classes of the framework moved into the `Cake` namespace, e.g. `Cake\Controller\Controller`. The global names of CakePHP 2 are aliases of the same classes, so code that extends, type-hints, catches or loads `Controller`, `CakeRequest` or `NotFoundException` keeps working without changes.
 

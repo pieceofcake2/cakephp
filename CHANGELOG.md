@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-### Enhancements: The Framework in the `Cake` Namespace
+### Enhancements: The Framework in the `Cake` Namespace ([PR #92](https://github.com/pieceofcake2/cakephp/pull/92))
 
 - **Namespaced classes**: The classes of the framework are in the `Cake` namespace, following their directories: `Cake\Controller\Controller`, `Cake\Network\CakeRequest`, `Cake\Utility\Hash`, ... Applications and plugins can `use` them, e.g. `use Cake\Controller\Component;`
 - **Global names**: The global names of CakePHP 2 keep working as aliases of the same classes (`class_alias()`). Each class file declares its alias when the class is loaded, and `src/Cake/aliases.php`, loaded by Composer, loads the namespaced class when an application uses the global name first. `Controller` and `Cake\Controller\Controller` are the same class: `extends`, `instanceof`, type declarations, `catch` blocks and `App::uses()` work with either name
