@@ -1,6 +1,6 @@
 ## CHANGELOG
 
-## Unreleased
+## v2.12.11 (2026-10-19)
 
 ### Enhancements: HTML5 Script, Link and Style Tags ([PR #86](https://github.com/pieceofcake2/cakephp/pull/86))
 
