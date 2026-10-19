@@ -4,7 +4,7 @@
 
 ### Security Fixes
 
-- **CakeRequest**: The request URL loses all its leading slashes and backslashes, not only the first slash, so `CakeRequest::$url` never starts with `/` or `\` and `CakeRequest::$here` / `here()` never start with `//` or `/\`. A request to `//example.com/posts` was routed as `/example.com/posts`, but `here` was the protocol-relative URL `//example.com/posts`: `FormHelper::create()` without a `url` printed `<form action="//example.com/posts">`, so the form was submitted to another host, and `$this->redirect($this->request->here(false))` redirected there. With a base path, `here(false)` of `/base//example.com/posts` had the same problem. Routing is unchanged
+- **CakeRequest**: The request URL loses all its leading slashes and backslashes, not only the first slash, so `CakeRequest::$url` never starts with `/` or `\` and `CakeRequest::$here` / `here()` never start with `//` or `/\`. A request to `//example.com/posts` was routed as `/example.com/posts`, but `here` was the protocol-relative URL `//example.com/posts`: `FormHelper::create()` without a `url` printed `<form action="//example.com/posts">`, so the form was submitted to another host, and `$this->redirect($this->request->here(false))` redirected there. With a base path, `here(false)` of `/base//example.com/posts` had the same problem. Routing is unchanged ([PR #90](https://github.com/pieceofcake2/cakephp/pull/90))
 
 ## v2.12.10 (2026-10-19)
 

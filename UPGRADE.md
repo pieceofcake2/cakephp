@@ -17,7 +17,7 @@ Before migrating to this fork, ensure:
 
 ## Unreleased
 
-### Request URLs with Extra Leading Slashes
+### Request URLs with Extra Leading Slashes ([PR #90](https://github.com/pieceofcake2/cakephp/pull/90))
 
 `CakeRequest` removes all the leading slashes and backslashes of the request URL, not only the first one. Most applications only need to update.
 
