@@ -219,6 +219,30 @@ if (!function_exists('h')) {
     }
 }
 
+if (!function_exists('raw')) {
+    /**
+     * Returns a value as it is, to print it without escaping on purpose, the opposite of h(): HTML that the
+     * application built or sanitized, e.g. `<?= raw($bodyHtml) ?>`. It marks the places that print unescaped HTML,
+     * so that they can be found and reviewed.
+     *
+     * @param \Stringable|string|float|int|bool|null $html Value to print; null is an empty string
+     * @return string The value as a string
+     * @throws \InvalidArgumentException When the value is an array, or an object without a `__toString` method
+     * @link https://pieceofcake2.github.io/docs/core-libraries/global-constants-and-functions.html#raw
+     */
+    function raw($html)
+    {
+        if ($html === null) {
+            return '';
+        }
+        if (is_scalar($html) || (is_object($html) && method_exists($html, '__toString'))) {
+            return (string)$html;
+        }
+
+        throw new \InvalidArgumentException(sprintf('raw() takes a string, not %s.', get_debug_type($html)));
+    }
+}
+
 if (!function_exists('pluginSplit')) {
     /**
      * Splits a dot syntax plugin name into its plugin and class name.
