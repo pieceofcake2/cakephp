@@ -794,6 +794,10 @@ class CakeRequest implements ArrayAccess
         if (!$base) {
             $url = preg_replace('/^' . preg_quote($this->base, '/') . '/', '', $url, 1);
         }
+        // Never return a protocol-relative URL (`//host`, `/\host`), even when `$here` was changed by the application
+        if (preg_match('#^[/\\\\]{2}#', $url)) {
+            $url = '/' . ltrim($url, '/\\');
+        }
 
         return $url;
     }

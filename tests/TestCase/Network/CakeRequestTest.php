@@ -2472,6 +2472,30 @@ class CakeRequestTest extends CakeTestCase
     }
 
     /**
+     * Test that here() collapses the leading slashes of a `$here` set by the application.
+     *
+     * @return void
+     */
+    public function testHereCollapsesLeadingSlashesOfHere(): void
+    {
+        Configure::write('App.base', '');
+        $_GET = [];
+        $request = new CakeRequest('posts');
+
+        $request->here = '//evil.example.com/posts';
+        $this->assertSame('/evil.example.com/posts', $request->here());
+        $this->assertSame('/evil.example.com/posts', $request->here(false));
+
+        $request->here = '/\\evil.example.com/posts';
+        $this->assertSame('/evil.example.com/posts', $request->here());
+
+        $request->base = '/admin';
+        $request->here = '/admin//evil.example.com/posts';
+        $this->assertSame('/evil.example.com/posts', $request->here(false));
+        $this->assertSame('/admin//evil.example.com/posts', $request->here());
+    }
+
+    /**
      * Test that a request URI with extra leading slashes is routed as before,
      * and here() is a path on the same host.
      *
