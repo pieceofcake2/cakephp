@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-### Enhancements: Templates in the CakePHP 5 Style
+### Enhancements: Templates in the CakePHP 5 Style ([PR #94](https://github.com/pieceofcake2/cakephp/pull/94))
 
 - **`.php` templates**: In `templates/` directories (of the application, of plugins, of themes), templates, layouts and elements may use the `.php` extension of CakePHP 5. In each directory a `.php` template comes before the `.ctp` template of the same name, and the order of the directories is unchanged, so themes and plugins still override the templates of the application. The `View/` directories of the CakePHP 2 layout, which also hold the view and helper classes, are not searched for `.php` templates
 - **CakePHP 5 directory names**: In `templates/` directories, `layout/`, `element/`, `email/` and `Error/` are searched before `Layouts/`, `Elements/`, `Emails/` and `Errors/`. Email templates may be in `templates/email/html/` and `templates/email/text/`, and their layouts in `templates/layout/email/html/` and `templates/layout/email/text/`

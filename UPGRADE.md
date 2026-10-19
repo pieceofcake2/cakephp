@@ -17,7 +17,7 @@ Before migrating to this fork, ensure:
 
 ## Unreleased
 
-### Templates in the CakePHP 5 Style
+### Templates in the CakePHP 5 Style ([PR #94](https://github.com/pieceofcake2/cakephp/pull/94))
 
 Templates in `templates/` may use the `.php` extension and the directory names of CakePHP 5 (`layout/`, `element/`, `email/`, `Error/`). Nothing changes for `.ctp` templates and for the `View/` directories of the CakePHP 2 layout.
 
