@@ -253,6 +253,61 @@ class AppTest extends CakeTestCase
     }
 
     /**
+     * Test that App::path() finds the src/, templates/, resources/locales/ and vendor/
+     * directories of a plugin after the legacy directories.
+     *
+     * @return void
+     */
+    public function testPathWithModernPluginLayout(): void
+    {
+        $basepath = CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS;
+        App::build([
+            'Plugin' => [$basepath],
+        ]);
+        CakePlugin::load('TestPluginModern');
+        $pluginPath = $basepath . 'TestPluginModern' . DS;
+
+        $result = App::path('Controller', 'TestPluginModern');
+        $expected = [
+            $pluginPath . 'Controller' . DS,
+            $pluginPath . 'src' . DS . 'Controller' . DS,
+        ];
+        $this->assertSame($expected, $result);
+
+        $result = App::path('View', 'TestPluginModern');
+        $expected = [
+            $pluginPath . 'View' . DS,
+            $pluginPath . 'src' . DS . 'View' . DS,
+            $pluginPath . 'templates' . DS,
+        ];
+        $this->assertSame($expected, $result);
+
+        $result = App::path('Locale', 'TestPluginModern');
+        $this->assertSame($pluginPath . 'resources' . DS . 'locales' . DS, end($result));
+
+        $result = App::path('Vendor', 'TestPluginModern');
+        $this->assertSame($pluginPath . 'vendor' . DS, end($result));
+    }
+
+    /**
+     * Test that App::path() does not add the src/ or templates/ directory of a plugin
+     * that does not have it.
+     *
+     * @return void
+     */
+    public function testPathWithLegacyPluginLayout(): void
+    {
+        $basepath = CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS;
+        App::build([
+            'Plugin' => [$basepath],
+        ]);
+        CakePlugin::load('TestPlugin');
+
+        $result = App::path('View', 'TestPlugin');
+        $this->assertSame([$basepath . 'TestPlugin' . DS . 'View' . DS], $result);
+    }
+
+    /**
      * testBuildWithReset method
      *
      * @return void
@@ -854,6 +909,29 @@ class AppTest extends CakeTestCase
         CakePlugin::load(['TestPlugin', 'TestPluginTwo']);
         $this->assertFalse(class_exists('TestPluginOtherLibrary', false));
         $this->assertTrue(class_exists('TestPluginOtherLibrary'));
+    }
+
+    /**
+     * Test that classes, objects and vendor files are found in a plugin with the modern layout.
+     *
+     * @return void
+     */
+    public function testModernPluginLayoutClasses(): void
+    {
+        App::build([
+            'plugins' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
+        ], App::RESET);
+        CakePlugin::load('TestPluginModern');
+
+        App::uses('ModernUtility', 'TestPluginModern.Utility');
+        $this->assertFalse(class_exists('ModernUtility', false));
+        $this->assertTrue(class_exists('ModernUtility'));
+
+        $result = App::objects('TestPluginModern.Controller');
+        $this->assertSame(['TestPluginModernAppController'], $result);
+
+        $this->assertTrue(App::import('Vendor', 'TestPluginModern.sample/modern_vendor'));
+        $this->assertTrue(defined('TEST_PLUGIN_MODERN_VENDOR_LOADED'));
     }
 
     /**

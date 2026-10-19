@@ -814,6 +814,22 @@ class ViewTest extends CakeTestCase
     }
 
     /**
+     * Test that elements are found in the templates directory of a plugin.
+     *
+     * @return void
+     */
+    public function testElementInPluginTemplates(): void
+    {
+        App::build([
+            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
+        ]);
+        CakePlugin::load('TestPluginModern');
+
+        $result = $this->View->element('TestPluginModern.modern_element');
+        $this->assertSame('this is the element in the templates directory of a plugin', $result);
+    }
+
+    /**
      * Test element method
      *
      * @return void

@@ -225,11 +225,26 @@ class App
             $pluginPath = CakePlugin::path($plugin);
             $packageFormat = static::_packageFormat();
             if (!empty($packageFormat[$type])) {
-                foreach ($packageFormat[$type] as $f) {
-                    $_path = sprintf($f, $pluginPath);
-                    if ($f !== $_path) {
-                        $path[] = $_path;
+                $basePaths = [$pluginPath];
+                if (is_dir($pluginPath . 'src')) {
+                    $basePaths[] = $pluginPath . 'src' . DS;
+                }
+                foreach ($basePaths as $basePath) {
+                    foreach ($packageFormat[$type] as $f) {
+                        $_path = sprintf($f, $basePath);
+                        if ($f !== $_path) {
+                            $path[] = $_path;
+                        }
                     }
+                }
+
+                $modernPaths = [
+                    'View' => 'templates',
+                    'Locale' => 'resources' . DS . 'locales',
+                    'Vendor' => 'vendor',
+                ];
+                if (isset($modernPaths[$type]) && is_dir($pluginPath . $modernPaths[$type])) {
+                    $path[] = $pluginPath . $modernPaths[$type] . DS;
                 }
             }
 
@@ -574,6 +589,10 @@ class App
             $pluginPath = CakePlugin::path($plugin);
             $paths[] = $pluginPath . 'Lib' . DS . $package . DS;
             $paths[] = $pluginPath . $package . DS;
+            if (is_dir($pluginPath . 'src')) {
+                $paths[] = $pluginPath . 'src' . DS . 'Lib' . DS . $package . DS;
+                $paths[] = $pluginPath . 'src' . DS . $package . DS;
+            }
         }
 
         $normalizedClassName = str_replace('\\', DS, $className);

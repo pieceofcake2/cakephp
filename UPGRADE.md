@@ -15,6 +15,15 @@ Before migrating to this fork, ensure:
 4. **Upgrade PHP**: Update your PHP version to 8.0 or newer
 5. **Test Thoroughly**: Run your application's test suite to ensure compatibility
 
+## Unreleased
+
+### Plugins in the CakePHP 5 Layout
+
+A plugin may put its classes in `src/`, its views in `templates/`, its translations in `resources/locales/` and its vendor files in `vendor/`. CakePHP searches these directories after the directories of the CakePHP 2 layout, so nothing changes for a plugin that does not have them.
+
+- A plugin that already has one of these directories for another purpose gets more search paths. For example, `App::objects('MyPlugin.Controller')` also lists the classes in `src/Controller/`, and `App::import('Vendor', 'MyPlugin.foo')` also looks in the Composer `vendor/` directory of a plugin checked out for development.
+- To move a plugin to the new layout, move `Controller/`, `Model/`, `View/Helper/`, `Lib/` and the other class directories into `src/`, the view files from `View/` into `templates/` and `Locale/` to `resources/locales/`. The classes of a plugin installed with Composer are usually loaded by its `autoload` setting; `App::uses()` finds them in `src/` either way.
+
 ## v2.12.10
 
 ### `raw()` ([PR #84](https://github.com/pieceofcake2/cakephp/pull/84))
