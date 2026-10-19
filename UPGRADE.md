@@ -15,9 +15,9 @@ Before migrating to this fork, ensure:
 4. **Upgrade PHP**: Update your PHP version to 8.0 or newer
 5. **Test Thoroughly**: Run your application's test suite to ensure compatibility
 
-## Unreleased
+## v2.12.11
 
-### Request URLs with Extra Leading Slashes ([PR #90](https://github.com/pieceofcake2/cakephp/pull/90))
+### Request URLs with Extra Leading Slashes ([GHSA-wh43-gc93-wh4c](https://github.com/pieceofcake2/cakephp/security/advisories/GHSA-wh43-gc93-wh4c), [PR #90](https://github.com/pieceofcake2/cakephp/pull/90))
 
 `CakeRequest` removes all the leading slashes and backslashes of the request URL, not only the first one. Most applications only need to update.
 
