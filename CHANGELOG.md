@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-### Enhancements: Classes in a Namespace (`App::className()`, `App.namespace`)
+### Enhancements: Classes in a Namespace (`App::className()`, `App.namespace`) ([PR #91](https://github.com/pieceofcake2/cakephp/pull/91))
 
 - **App::className()**: A new method, backported from CakePHP 3 and later, returns the class name for a name used in the configuration, or `null`. A name with a backslash is a fully qualified class name; the suffix is added only when the name does not end with it, so `GreetingComponent::class` and `'Acme\Controller\Component\Greeting'` both return `Acme\Controller\Component\GreetingComponent`. Other names are looked up in the namespace of the plugin or of `App.namespace` (`<Namespace>\<Type>\<Name><Suffix>`), then as the global class declared with `App::uses()`, as before
 - **Fully qualified class names**: Cache engines, email transports, `AuthComponent` `authenticate`/`authorize` objects, password hashers, view classes (`Controller::$viewClass`, `CakeEmail::viewRender()`, `RequestHandlerComponent::viewClassMap()`), components, helpers, behaviors, shell tasks, shell helpers and the `PaginatorHelper` `ajax` helper use `App::className()`. They accept `Foo::class`, where the suffix was added a second time before (`MemoryEngine::class` looked for `MemoryEngineEngine`)

@@ -17,7 +17,7 @@ Before migrating to this fork, ensure:
 
 ## Unreleased
 
-### Classes in a Namespace: `App::className()` and `App.namespace`
+### Classes in a Namespace: `App::className()` and `App.namespace` ([PR #91](https://github.com/pieceofcake2/cakephp/pull/91))
 
 Nothing changes for an application that uses only global class names and does not set `App.namespace`.
 
