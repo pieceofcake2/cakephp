@@ -225,9 +225,18 @@ class App
             $pluginPath = CakePlugin::path($plugin);
             $packageFormat = static::_packageFormat();
             if (!empty($packageFormat[$type])) {
+                $modernPaths = [
+                    'View' => 'templates',
+                    'Locale' => 'resources' . DS . 'locales',
+                    'Vendor' => 'vendor',
+                ];
+                if (isset($modernPaths[$type]) && is_dir($pluginPath . $modernPaths[$type])) {
+                    $path[] = $pluginPath . $modernPaths[$type] . DS;
+                }
+
                 $basePaths = [$pluginPath];
                 if (is_dir($pluginPath . 'src')) {
-                    $basePaths[] = $pluginPath . 'src' . DS;
+                    array_unshift($basePaths, $pluginPath . 'src' . DS);
                 }
                 foreach ($basePaths as $basePath) {
                     foreach ($packageFormat[$type] as $f) {
@@ -236,15 +245,6 @@ class App
                             $path[] = $_path;
                         }
                     }
-                }
-
-                $modernPaths = [
-                    'View' => 'templates',
-                    'Locale' => 'resources' . DS . 'locales',
-                    'Vendor' => 'vendor',
-                ];
-                if (isset($modernPaths[$type]) && is_dir($pluginPath . $modernPaths[$type])) {
-                    $path[] = $pluginPath . $modernPaths[$type] . DS;
                 }
             }
 

@@ -1,5 +1,12 @@
 ## CHANGELOG
 
+## Unreleased
+
+### Enhancements: Plugins in the CakePHP 5 Layout ([PR #88](https://github.com/pieceofcake2/cakephp/pull/88))
+
+- **Plugin directories**: Plugins may use the directories of the CakePHP 5 layout, as the application already does: `src/` for the namespaced classes (`src/Controller/`, `src/Model/`, ..., loaded by Composer), `templates/` for the views, `resources/locales/` for the translations, `vendor/` for the vendor files and `config/` for `bootstrap.php`, `routes.php`, configuration files and schemas. `App::path()` and `I18n` search them, when they exist, before the directories of the CakePHP 2 layout (`Controller/`, `View/`, `Locale/`, `Vendor/`), which are still searched. `App::uses()` and `App::load()` keep loading global classes from the CakePHP 2 directories
+- **CakePlugin::configPath()**: A new method returns the `config/` directory of a plugin, or `Config/` when the plugin has no `config/`; `CakePlugin::bootstrap()`, `CakePlugin::routes()`, `PhpReader`, `IniReader` and `CakeSchema` use it
+
 ## v2.12.11 (2026-10-19)
 
 ### Security Fixes
@@ -10,11 +17,6 @@
 
 - **HtmlHelper `html5` setting**: `HtmlHelper` outputs the tags of HTML5 by default: `script()`, `css()` and the `<style>` of `css()` with `rel` `import` have no `type` attribute, and `scriptBlock()` and `scriptStart()` neither add `type="text/javascript"` nor wrap the script in CDATA. Set `'html5' => false` in the settings of the helper for the former output: `public $helpers = ['Html' => ['html5' => false]];`. The `safe` option of `scriptBlock()`, `scriptStart()` and the methods of `JsHelper` still adds the CDATA when it is `true`; its default follows the setting
 - **Test pages**: The test runner and the code coverage report of the web test runner use the tags of HTML5
-
-### Enhancements: Plugins in the CakePHP 5 Layout ([PR #88](https://github.com/pieceofcake2/cakephp/pull/88))
-
-- **Plugin directories**: Plugins may use the directories of the CakePHP 5 layout, as the application already does: `src/` for the namespaced classes (`src/Controller/`, `src/Model/`, ..., loaded by Composer), `templates/` for the views, `resources/locales/` for the translations, `vendor/` for the vendor files and `config/` for `bootstrap.php`, `routes.php`, configuration files and schemas. `App::path()` and `I18n` search them after the directories of the CakePHP 2 layout (`Controller/`, `View/`, `Locale/`, `Vendor/`), and only when they exist, so a file found today is still found first. `App::uses()` and `App::load()` keep loading global classes from the CakePHP 2 directories
-- **CakePlugin::configPath()**: A new method returns the `Config/` directory of a plugin, or `config/` when the plugin has no `Config/`; `CakePlugin::bootstrap()`, `CakePlugin::routes()`, `PhpReader`, `IniReader` and `CakeSchema` use it
 
 ### Tests ([PR #87](https://github.com/pieceofcake2/cakephp/pull/87))
 

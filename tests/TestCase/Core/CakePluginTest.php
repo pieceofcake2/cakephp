@@ -140,10 +140,11 @@ class CakePluginTest extends CakeTestCase
         CakePlugin::load(['TestPlugin', 'TestPluginModern']);
 
         $expected = CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS . 'TestPlugin' . DS . 'Config' . DS;
-        $this->assertSame($expected, CakePlugin::configPath('TestPlugin'));
+        // Config/ is also found as config/ on case-insensitive file systems
+        $this->assertEqualsIgnoringCase($expected, CakePlugin::configPath('TestPlugin'));
 
-        // config/ (also found as Config/ on case-insensitive file systems)
-        $this->assertFileExists(CakePlugin::configPath('TestPluginModern') . 'modern_config.php');
+        $expected = CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS . 'TestPluginModern' . DS . 'config' . DS;
+        $this->assertSame($expected, CakePlugin::configPath('TestPluginModern'));
     }
 
     /**

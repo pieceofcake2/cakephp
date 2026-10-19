@@ -249,12 +249,12 @@ class AppTest extends CakeTestCase
         CakePlugin::load('TestPlugin');
 
         $result = App::path('Vendor', 'TestPlugin');
-        $this->assertEquals($basepath . 'TestPlugin' . DS . 'Vendor' . DS, $result[0]);
+        $this->assertContains($basepath . 'TestPlugin' . DS . 'Vendor' . DS, $result);
     }
 
     /**
      * Test that App::path() finds the src/, templates/, resources/locales/ and vendor/
-     * directories of a plugin after the legacy directories.
+     * directories of a plugin before the legacy directories.
      *
      * @return void
      */
@@ -269,24 +269,29 @@ class AppTest extends CakeTestCase
 
         $result = App::path('Controller', 'TestPluginModern');
         $expected = [
-            $pluginPath . 'Controller' . DS,
             $pluginPath . 'src' . DS . 'Controller' . DS,
+            $pluginPath . 'Controller' . DS,
         ];
         $this->assertSame($expected, $result);
 
         $result = App::path('View', 'TestPluginModern');
         $expected = [
-            $pluginPath . 'View' . DS,
-            $pluginPath . 'src' . DS . 'View' . DS,
             $pluginPath . 'templates' . DS,
+            $pluginPath . 'src' . DS . 'View' . DS,
+            $pluginPath . 'View' . DS,
         ];
         $this->assertSame($expected, $result);
 
         $result = App::path('Locale', 'TestPluginModern');
-        $this->assertSame($pluginPath . 'resources' . DS . 'locales' . DS, end($result));
+        $expected = [
+            $pluginPath . 'resources' . DS . 'locales' . DS,
+            $pluginPath . 'src' . DS . 'Locale' . DS,
+            $pluginPath . 'Locale' . DS,
+        ];
+        $this->assertSame($expected, $result);
 
         $result = App::path('Vendor', 'TestPluginModern');
-        $this->assertSame($pluginPath . 'vendor' . DS, end($result));
+        $this->assertSame($pluginPath . 'vendor' . DS, $result[0]);
     }
 
     /**

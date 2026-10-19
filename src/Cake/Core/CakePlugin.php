@@ -188,8 +188,8 @@ class CakePlugin
     }
 
     /**
-     * Returns the filesystem path for the configuration files of a plugin: `Config/` in the CakePHP 2 layout,
-     * else `config/` of the CakePHP 5 layout.
+     * Returns the filesystem path for the configuration files of a plugin: `config/` of the CakePHP 5 layout,
+     * else `Config/` of the CakePHP 2 layout.
      *
      * @param string $plugin name of the plugin in CamelCase format
      * @return string path to the configuration folder of the plugin
@@ -199,7 +199,7 @@ class CakePlugin
     {
         $path = static::path($plugin);
 
-        return $path . (is_dir($path . 'Config') ? 'Config' : 'config') . DS;
+        return $path . (is_dir($path . 'config') ? 'config' : 'Config') . DS;
     }
 
     /**
