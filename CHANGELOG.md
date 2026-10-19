@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-### Tests
+### Tests ([PR #87](https://github.com/pieceofcake2/cakephp/pull/87))
 
 - **Independent of the skeleton defaults**: `ApplicationControllerTest::testRedirect()` clears `Session.cacheLimiter`, so the `'nocache'` default of pieceofcake2/app v2.5.3 no longer makes it fail
 
