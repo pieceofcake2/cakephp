@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+### Enhancements: HTML5 Script, Link and Style Tags ([PR #86](https://github.com/pieceofcake2/cakephp/pull/86))
+
+- **HtmlHelper `html5` setting**: `HtmlHelper` outputs the tags of HTML5 by default: `script()`, `css()` and the `<style>` of `css()` with `rel` `import` have no `type` attribute, and `scriptBlock()` and `scriptStart()` neither add `type="text/javascript"` nor wrap the script in CDATA. Set `'html5' => false` in the settings of the helper for the former output: `public $helpers = ['Html' => ['html5' => false]];`. The `safe` option of `scriptBlock()`, `scriptStart()` and the methods of `JsHelper` still adds the CDATA when it is `true`; its default follows the setting
+- **Test pages**: The test runner and the code coverage report of the web test runner use the tags of HTML5
+
 ### Tests ([PR #87](https://github.com/pieceofcake2/cakephp/pull/87))
 
 - **Independent of the skeleton defaults**: `ApplicationControllerTest::testRedirect()` clears `Session.cacheLimiter`, so the `'nocache'` default of pieceofcake2/app v2.5.3 no longer makes it fail
