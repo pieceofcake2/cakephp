@@ -15,6 +15,16 @@ Before migrating to this fork, ensure:
 4. **Upgrade PHP**: Update your PHP version to 8.0 or newer
 5. **Test Thoroughly**: Run your application's test suite to ensure compatibility
 
+## Unreleased
+
+### Templates in the CakePHP 5 Style
+
+Templates in `templates/` may use the `.php` extension and the directory names of CakePHP 5 (`layout/`, `element/`, `email/`, `Error/`). Nothing changes for `.ctp` templates and for the `View/` directories of the CakePHP 2 layout.
+
+- In a `templates/` directory, a `foo.php` template is used instead of a `foo.ctp` template next to it, and `layout/default.php` or `layout/default.ctp` instead of `Layouts/default.ctp`. Check that no `.php` files other than templates are left in `templates/`.
+- `View/` directories are not searched for `.php` files, as they also hold view and helper classes. A view that sets `$ext = '.php'` still finds its templates there, as before.
+- To move templates, rename `.ctp` to `.php`, and `Layouts/`, `Elements/`, `Emails/` and `Errors/` to `layout/`, `element/`, `email/` and `Error/`; email layouts move from `Layouts/Emails/html/` to `layout/email/html/`.
+
 ## v2.12.11
 
 ### Request URLs with Extra Leading Slashes ([GHSA-wh43-gc93-wh4c](https://github.com/pieceofcake2/cakephp/security/advisories/GHSA-wh43-gc93-wh4c), [PR #90](https://github.com/pieceofcake2/cakephp/pull/90))
