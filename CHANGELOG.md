@@ -1,6 +1,6 @@
 ## CHANGELOG
 
-## Unreleased
+## v2.12.10 (2026-10-19)
 
 ### Enhancements: `raw()` ([PR #84](https://github.com/pieceofcake2/cakephp/pull/84))
 
