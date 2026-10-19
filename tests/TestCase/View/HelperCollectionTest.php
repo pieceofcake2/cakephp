@@ -1,4 +1,7 @@
 <?php
+
+use TestApp\View\Helper\NamespacedHelper;
+
 /**
  * HelperCollectionTest file
  *
@@ -195,5 +198,21 @@ class HelperCollectionTest extends CakeTestCase
 
         $result = $this->Helpers->loaded();
         $this->assertEquals(['Form'], $result, 'loaded helpers is wrong');
+    }
+
+    /**
+     * Test loading helpers by fully qualified class name and from App.namespace.
+     *
+     * @return void
+     */
+    public function testLoadNamespaced(): void
+    {
+        $result = $this->Helpers->load('Namespaced', ['className' => NamespacedHelper::class]);
+        $this->assertInstanceOf(NamespacedHelper::class, $result);
+        $this->assertSame($result, $this->Helpers->Namespaced);
+
+        Configure::write('App.namespace', 'TestApp');
+        $Helpers = new HelperCollection($this->View);
+        $this->assertInstanceOf(NamespacedHelper::class, $Helpers->load('Namespaced'));
     }
 }

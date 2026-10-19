@@ -501,10 +501,9 @@ class AuthComponent extends Component
             unset($config[AuthComponent::ALL]);
         }
         foreach ($config as $class => $settings) {
-            [$plugin, $class] = pluginSplit($class, true);
-            $className = $class . 'Authorize';
-            App::uses($className, $plugin . 'Controller/Component/Auth');
-            if (!class_exists($className)) {
+            $className = App::className($class, 'Controller/Component/Auth', 'Authorize');
+            if ($className === null) {
+                [, $class] = pluginSplit($class);
                 throw new CakeException(__d('cake_dev', 'Authorization adapter "%s" was not found.', $class));
             }
             if (!method_exists($className, 'authorize')) {
@@ -834,10 +833,9 @@ class AuthComponent extends Component
                 $class = $settings['className'];
                 unset($settings['className']);
             }
-            [$plugin, $class] = pluginSplit($class, true);
-            $className = $class . 'Authenticate';
-            App::uses($className, $plugin . 'Controller/Component/Auth');
-            if (!class_exists($className)) {
+            $className = App::className($class, 'Controller/Component/Auth', 'Authenticate');
+            if ($className === null) {
+                [, $class] = pluginSplit($class);
                 throw new CakeException(__d('cake_dev', 'Authentication adapter "%s" was not found.', $class));
             }
             if (!method_exists($className, 'authenticate')) {

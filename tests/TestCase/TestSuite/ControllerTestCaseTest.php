@@ -1,4 +1,9 @@
 <?php
+
+use TestApp\Controller\Component\NamespacedComponent;
+use TestApp\Controller\NamespacedController;
+use TestApp\Model\NamespacedPost;
+
 /**
  * ControllerTestCaseTest file
  *
@@ -826,5 +831,25 @@ class ControllerTestCaseTest extends CakeTestCase
         }
         $this->assertSame([], $deprecations);
         $this->assertSame($response, $Dispatch->response);
+    }
+
+    /**
+     * Test generate() and getMockForModel() with classes in App.namespace.
+     *
+     * @return void
+     */
+    public function testGenerateNamespaced(): void
+    {
+        Configure::write('App.namespace', 'TestApp');
+        $Controller = $this->Case->generate('Namespaced', [
+            'components' => ['Namespaced'],
+        ]);
+        $this->assertInstanceOf(NamespacedController::class, $Controller);
+        $this->assertSame('Namespaced', $Controller->name);
+        $this->assertInstanceOf(NamespacedComponent::class, $Controller->Components->Namespaced);
+
+        $Model = $this->Case->getMockForModel('NamespacedPost', ['save']);
+        $this->assertInstanceOf(NamespacedPost::class, $Model);
+        $this->assertSame('NamespacedPost', $Model->name);
     }
 }

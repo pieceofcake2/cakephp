@@ -166,10 +166,8 @@ class Cache
     {
         $config = static::$_config[$name];
 
-        [$plugin, $class] = pluginSplit($config['engine'], true);
-        $cacheClass = $class . 'Engine';
-        App::uses($cacheClass, $plugin . 'Cache/Engine');
-        if (!class_exists($cacheClass)) {
+        $cacheClass = App::className($config['engine'], 'Cache/Engine', 'Engine');
+        if ($cacheClass === null) {
             throw new CacheException(__d('cake_dev', 'Cache engine %s is not available.', $name));
         }
         if (!is_subclass_of($cacheClass, 'CacheEngine')) {

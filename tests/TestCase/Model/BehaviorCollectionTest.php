@@ -1,4 +1,8 @@
 <?php
+
+use TestApp\Model\Behavior\NamespacedBehavior;
+use TestApp\Model\NamespacedPost;
+
 /**
  * BehaviorTest file
  *
@@ -1354,5 +1358,22 @@ class BehaviorCollectionTest extends CakeTestCase
 
         $Apple->Behaviors->detach('Test');
         $this->assertEquals([], $Apple->Behaviors->loaded());
+    }
+
+    /**
+     * Test loading behaviors by fully qualified class name and from App.namespace.
+     *
+     * @return void
+     */
+    public function testLoadNamespaced(): void
+    {
+        $Model = ClassRegistry::init(['class' => NamespacedPost::class, 'alias' => 'NamespacedPost']);
+        $Model->Behaviors->load('Namespaced', ['className' => NamespacedBehavior::class]);
+        $this->assertInstanceOf(NamespacedBehavior::class, $Model->Behaviors->Namespaced);
+
+        $Model->Behaviors->unload('Namespaced');
+        Configure::write('App.namespace', 'TestApp');
+        $Model->Behaviors->load('Namespaced');
+        $this->assertInstanceOf(NamespacedBehavior::class, $Model->Behaviors->Namespaced);
     }
 }

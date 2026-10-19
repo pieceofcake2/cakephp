@@ -1,4 +1,7 @@
 <?php
+
+use TestApp\Controller\Component\Auth\NamespacedPasswordHasher;
+
 /**
  * CakePHP(tm) : Rapid Development Framework (https://cakephp.org)
  * Copyright (c) Cake Software Foundation, Inc. (https://cakefoundation.org)
@@ -350,5 +353,18 @@ class FormAuthenticateTest extends CakeTestCase
             'hashType' => 'sha1',
         ];
         $this->assertFalse($this->auth->authenticate($request, $this->response));
+    }
+
+    /**
+     * Test that a password hasher can be set by fully qualified class name.
+     *
+     * @return void
+     */
+    public function testNamespacedPasswordHasher(): void
+    {
+        $auth = new FormAuthenticate($this->Collection, [
+            'passwordHasher' => NamespacedPasswordHasher::class,
+        ]);
+        $this->assertInstanceOf(NamespacedPasswordHasher::class, $auth->passwordHasher());
     }
 }

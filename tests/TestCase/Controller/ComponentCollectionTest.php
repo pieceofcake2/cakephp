@@ -1,4 +1,7 @@
 <?php
+
+use TestApp\Controller\Component\NamespacedComponent;
+
 /**
  * ComponentCollectionTest file
  *
@@ -180,5 +183,24 @@ class ComponentCollectionTest extends CakeTestCase
         $result = $this->Components->getController();
 
         $this->assertSame($controller, $result);
+    }
+
+    /**
+     * Test loading components by fully qualified class name and from App.namespace.
+     *
+     * @return void
+     */
+    public function testLoadNamespaced(): void
+    {
+        $result = $this->Components->load('Namespaced', ['className' => NamespacedComponent::class]);
+        $this->assertInstanceOf(NamespacedComponent::class, $result);
+        $this->assertSame($result, $this->Components->Namespaced);
+
+        $result = $this->Components->load('Legacy', ['className' => 'TestApp\Controller\Component\Namespaced']);
+        $this->assertInstanceOf(NamespacedComponent::class, $result);
+
+        Configure::write('App.namespace', 'TestApp');
+        $Components = new ComponentCollection();
+        $this->assertInstanceOf(NamespacedComponent::class, $Components->load('Namespaced'));
     }
 }

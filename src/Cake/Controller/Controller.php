@@ -321,7 +321,7 @@ class Controller extends CakeObject implements CakeEventListener
     public function __construct($request = null, $response = null)
     {
         if ($this->name === null) {
-            $this->name = substr(static::class, 0, -10);
+            $this->name = substr(static::class, (int)strrpos('\\' . static::class, '\\'), -10);
         }
 
         if (!$this->viewPath) {
@@ -566,7 +566,11 @@ class Controller extends CakeObject implements CakeEventListener
     protected function _mergeControllerVars()
     {
         $pluginController = $pluginDot = null;
-        $mergeParent = is_subclass_of($this, $this->_mergeParent);
+        $mergeParentClass = $this->_mergeParent;
+        if (!is_subclass_of($this, $mergeParentClass) && Configure::read('App.namespace')) {
+            $mergeParentClass = App::className($mergeParentClass, 'Controller') ?? $mergeParentClass;
+        }
+        $mergeParent = is_subclass_of($this, $mergeParentClass);
         $pluginVars = [];
         $appVars = [];
 
@@ -584,9 +588,9 @@ class Controller extends CakeObject implements CakeEventListener
         }
 
         if ($mergeParent || !empty($pluginController)) {
-            $appVars = get_class_vars($this->_mergeParent);
+            $appVars = get_class_vars($mergeParentClass);
             $merge = ['components', 'helpers'];
-            $this->_mergeVars($merge, $this->_mergeParent, true);
+            $this->_mergeVars($merge, $mergeParentClass, true);
         }
 
         if ($this->uses === null) {
@@ -1318,9 +1322,8 @@ class Controller extends CakeObject implements CakeEventListener
     {
         $viewClass = $this->viewClass;
         if ($this->viewClass !== 'View') {
-            [$plugin, $viewClass] = pluginSplit($viewClass, true);
-            $viewClass = $viewClass . 'View';
-            App::uses($viewClass, $plugin . 'View');
+            [, $name] = pluginSplit($viewClass);
+            $viewClass = App::className($viewClass, 'View', 'View') ?? $name . 'View';
         }
 
         return new $viewClass($this);

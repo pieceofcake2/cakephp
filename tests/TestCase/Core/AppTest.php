@@ -1,4 +1,9 @@
 <?php
+
+use TestApp\Controller\Component\NamespacedComponent;
+use TestApp\Model\NamespacedPost;
+use TestApp\View\Helper\NamespacedHelper;
+
 /**
  * AppTest file.
  *
@@ -888,5 +893,65 @@ class AppTest extends CakeTestCase
             ['1G', 1, '1048577K'],
             ['-1', 100000, '-1'],
         ];
+    }
+
+    /**
+     * Test that App::className() returns the global class declared with App::uses().
+     *
+     * @return void
+     */
+    public function testClassName(): void
+    {
+        $this->assertSame('AuthComponent', App::className('Auth', 'Controller/Component', 'Component'));
+        $this->assertSame('FileEngine', App::className('File', 'Cache/Engine', 'Engine'));
+        $this->assertNull(App::className('DoesNotExist', 'Controller/Component', 'Component'));
+
+        App::build(['Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS]], App::RESET);
+        CakePlugin::load('TestPlugin');
+        $this->assertSame('OtherComponent', App::className('TestPlugin.Other', 'Controller/Component', 'Component'));
+    }
+
+    /**
+     * Test that App::className() accepts fully qualified class names with or without the suffix.
+     *
+     * @return void
+     */
+    public function testClassNameFullyQualified(): void
+    {
+        $expected = NamespacedComponent::class;
+        $this->assertSame($expected, App::className($expected, 'Controller/Component', 'Component'));
+        $this->assertSame($expected, App::className('TestApp\Controller\Component\Namespaced', 'Controller/Component', 'Component'));
+        $this->assertSame($expected, App::className('\\' . $expected, 'Controller/Component', 'Component'));
+        $this->assertSame(NamespacedPost::class, App::className(NamespacedPost::class, 'Model'));
+        $this->assertNull(App::className('TestApp\Controller\Component\DoesNotExist', 'Controller/Component', 'Component'));
+        $this->assertNull(App::className(NamespacedPost::class, 'Controller/Component', 'Component'));
+    }
+
+    /**
+     * Test that App::className() looks in the App.namespace namespace first.
+     *
+     * @return void
+     */
+    public function testClassNameAppNamespace(): void
+    {
+        Configure::write('App.namespace', 'TestApp');
+
+        $result = App::className('Namespaced', 'Controller/Component', 'Component');
+        $this->assertSame(NamespacedComponent::class, $result);
+        $this->assertSame(NamespacedPost::class, App::className('NamespacedPost', 'Model'));
+        $this->assertSame('AuthComponent', App::className('Auth', 'Controller/Component', 'Component'));
+    }
+
+    /**
+     * Test that App::className() looks in the namespace of a plugin.
+     *
+     * @return void
+     */
+    public function testClassNamePluginNamespace(): void
+    {
+        Configure::write('App.namespace', 'Other');
+
+        $result = App::className('TestApp.Namespaced', 'View/Helper', 'Helper');
+        $this->assertSame(NamespacedHelper::class, $result);
     }
 }

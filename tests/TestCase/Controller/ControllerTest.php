@@ -1,4 +1,8 @@
 <?php
+
+use TestApp\Controller\NamespacedController;
+use TestApp\View\NamespacedView;
+
 /**
  * CakePHP(tm) : Rapid Development Framework (https://cakephp.org)
  * Copyright (c) Cake Software Foundation, Inc. (https://cakefoundation.org)
@@ -1607,5 +1611,32 @@ class ControllerTest extends CakeTestCase
         $Controller = new TestController($url, $response);
         $result = $Controller->invokeAction($url);
         $this->assertEquals('I am from the controller.', $result);
+    }
+
+    /**
+     * Test a controller in a namespace: its name, the view class and the vars merged from
+     * the AppController in App.namespace.
+     *
+     * @return void
+     */
+    public function testNamespacedController(): void
+    {
+        Configure::write('App.namespace', 'TestApp');
+        $request = new CakeRequest('namespaced/index');
+        $Controller = new NamespacedController($request, new CakeResponse());
+        $this->assertSame('Namespaced', $Controller->name);
+        $this->assertSame('Namespaced', $Controller->viewPath);
+
+        $Controller->constructClasses();
+        $this->assertContains('Namespaced', $Controller->helpers);
+
+        $getViewObject = new ReflectionMethod($Controller, '_getViewObject');
+        if (PHP_VERSION_ID < 80100) {
+            $getViewObject->setAccessible(true);
+        }
+        $Controller->viewClass = NamespacedView::class;
+        $this->assertInstanceOf(NamespacedView::class, $getViewObject->invoke($Controller));
+        $Controller->viewClass = 'Namespaced';
+        $this->assertInstanceOf(NamespacedView::class, $getViewObject->invoke($Controller));
     }
 }

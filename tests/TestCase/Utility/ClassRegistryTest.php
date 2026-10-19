@@ -1,4 +1,7 @@
 <?php
+
+use TestApp\Model\NamespacedPost;
+
 /**
  * ClassRegistryTest file
  *
@@ -362,5 +365,19 @@ class ClassRegistryTest extends CakeTestCase
     public function testGetObjectUnknownKey(): void
     {
         $this->assertFalse(ClassRegistry::getObject('ThisKeyIsNotRegistered'));
+    }
+
+    /**
+     * Test that models are found in App.namespace and named without the namespace.
+     *
+     * @return void
+     */
+    public function testInitNamespacedModel(): void
+    {
+        Configure::write('App.namespace', 'TestApp');
+        $result = ClassRegistry::init('NamespacedPost');
+        $this->assertInstanceOf(NamespacedPost::class, $result);
+        $this->assertSame('NamespacedPost', $result->name);
+        $this->assertSame('NamespacedPost', $result->alias);
     }
 }

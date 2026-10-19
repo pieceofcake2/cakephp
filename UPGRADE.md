@@ -15,6 +15,17 @@ Before migrating to this fork, ensure:
 4. **Upgrade PHP**: Update your PHP version to 8.0 or newer
 5. **Test Thoroughly**: Run your application's test suite to ensure compatibility
 
+## Unreleased
+
+### Classes in a Namespace: `App::className()` and `App.namespace`
+
+Nothing changes for an application that uses only global class names and does not set `App.namespace`.
+
+- Fully qualified class names may be written with the suffix (`GreetingComponent::class`) or without it (`'Acme\Controller\Component\Greeting'`) in the settings of cache engines, email transports, Auth objects, password hashers, view classes, components, helpers, behaviors, shell tasks and shell helpers.
+- `Controller::$name`, `Model::$name` and `Shell::$name` no longer contain the namespace of a class in a namespace that does not set them, e.g. `Post` instead of `Acme\Model\Post`. Before, the name with the backslashes gave wrong table names and view paths; set `$name` if you relied on it.
+- `App.namespace` is new and not set by default. When you set it, CakePHP first looks for controllers, shells, models, components, helpers, behaviors and the other classes above in that namespace, e.g. `App\Model\Post` for `ClassRegistry::init('Post')`, then for the global classes. A class in the namespace with the same short name as a global class is used instead of it.
+- Not changed: `$uses`, `$components`, `$helpers` and `$actsAs` keys written as fully qualified class names still become aliases with backslashes. Use a short alias with `'className'`, e.g. `'Greeting' => ['className' => GreetingComponent::class]`.
+
 ## v2.12.10
 
 ### `raw()` ([PR #84](https://github.com/pieceofcake2/cakephp/pull/84))

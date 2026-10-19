@@ -1,4 +1,7 @@
 <?php
+
+use TestApp\Console\Helper\NamespacedShellHelper;
+
 /**
  * ShellTest file
  *
@@ -1106,5 +1109,16 @@ TEXT;
         }
         $this->assertSame([], $deprecations);
         $this->assertSame(DS . 'src' . DS . 'Model' . DS . 'Post.php', $result);
+    }
+
+    /**
+     * Test loading a shell helper by fully qualified class name.
+     *
+     * @return void
+     */
+    public function testHelperNamespaced(): void
+    {
+        $helper = $this->Shell->helper(NamespacedShellHelper::class);
+        $this->assertInstanceOf(NamespacedShellHelper::class, $helper);
     }
 }

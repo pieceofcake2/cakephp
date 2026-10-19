@@ -164,10 +164,10 @@ class ClassRegistry
                 }
 
                 App::uses($plugin . 'AppModel', $pluginPath . 'Model');
-                App::uses($class, $pluginPath . 'Model');
+                $className = App::className($pluginPath . $class, 'Model') ?? $class;
 
-                if (class_exists($class) || interface_exists($class)) {
-                    $reflection = new ReflectionClass($class);
+                if (class_exists($className) || interface_exists($className)) {
+                    $reflection = new ReflectionClass($className);
                     if ($reflection->isAbstract() || $reflection->isInterface()) {
                         throw new CakeException(__d('cake_dev', 'Cannot create instance of %s, as it is abstract or is an interface', $class));
                     }
@@ -203,6 +203,8 @@ class ClassRegistry
                         return false;
                     } elseif ($plugin && class_exists($plugin . 'AppModel')) {
                         $appModel = $plugin . 'AppModel';
+                    } elseif (Configure::read('App.namespace')) {
+                        $appModel = App::className('AppModel', 'Model') ?? 'AppModel';
                     }
 
                     $settings['name'] = $class;

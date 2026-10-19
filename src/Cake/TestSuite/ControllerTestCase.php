@@ -358,8 +358,8 @@ abstract class ControllerTestCase extends CakeTestCase
             App::uses($plugin . 'AppController', $plugin . '.Controller');
             $plugin .= '.';
         }
-        App::uses($controller . 'Controller', $plugin . 'Controller');
-        if (!class_exists($controller . 'Controller')) {
+        $controllerClass = App::className($plugin . $controller, 'Controller', 'Controller');
+        if ($controllerClass === null) {
             throw new MissingControllerException([
                 'class' => $controller . 'Controller',
                 'plugin' => substr($plugin, 0, -1),
@@ -373,9 +373,9 @@ abstract class ControllerTestCase extends CakeTestCase
             'components' => [],
         ], (array)$mocks);
 
-        [$plugin, $name] = pluginSplit($controller);
+        $name = substr($controllerClass, (int)strrpos('\\' . $controllerClass, '\\'), -10);
         /** @var Controller|\PHPUnit\Framework\MockObject\MockObject $controllerObj */
-        $controllerObj = $this->getMock($name . 'Controller', $mocks['methods'], [], '', false);
+        $controllerObj = $this->getMock($controllerClass, $mocks['methods'], [], '', false);
         $controllerObj->name = $name;
         /** @var CakeRequest|\PHPUnit\Framework\MockObject\MockObject $request */
         $request = $this->getMock('CakeRequest');
@@ -409,15 +409,14 @@ abstract class ControllerTestCase extends CakeTestCase
                 $alias = $component;
                 $component = $config['className'];
             }
-            [$plugin, $name] = pluginSplit($component, true);
+            [, $name] = pluginSplit($component, true);
             if (!isset($alias)) {
                 $alias = $name;
             }
-            $componentClass = $name . 'Component';
-            App::uses($componentClass, $plugin . 'Controller/Component');
-            if (!class_exists($componentClass)) {
+            $componentClass = App::className($component, 'Controller/Component', 'Component');
+            if ($componentClass === null) {
                 throw new MissingComponentException([
-                    'class' => $componentClass,
+                    'class' => $name . 'Component',
                 ]);
             }
             /** @var Component|\PHPUnit\Framework\MockObject\MockObject $componentObj */

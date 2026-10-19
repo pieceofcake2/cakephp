@@ -194,7 +194,8 @@ class Shell extends CakeObject
     public function __construct($stdout = null, $stderr = null, $stdin = null)
     {
         if (!$this->name) {
-            $this->name = Inflector::camelize(str_replace(['Shell', 'Task'], '', static::class));
+            $className = substr(static::class, (int)strrpos('\\' . static::class, '\\'));
+            $this->name = Inflector::camelize(str_replace(['Shell', 'Task'], '', $className));
         }
         $this->Tasks = new TaskCollection($this);
 
@@ -853,9 +854,12 @@ class Shell extends CakeObject
             return $this->_helpers[$name];
         }
         [$plugin, $helperClassName] = pluginSplit($name, true);
-        $helperClassNameShellHelper = Inflector::camelize($helperClassName) . 'ShellHelper';
-        App::uses($helperClassNameShellHelper, $plugin . 'Console/Helper');
-        if (!class_exists($helperClassNameShellHelper)) {
+        if (str_contains($helperClassName, '\\')) {
+            $helperClassNameShellHelper = App::className($helperClassName, 'Console/Helper', 'ShellHelper');
+        } else {
+            $helperClassNameShellHelper = App::className($plugin . Inflector::camelize($helperClassName), 'Console/Helper', 'ShellHelper');
+        }
+        if ($helperClassNameShellHelper === null) {
             throw new RuntimeException('Class ' . $helperClassName . ' not found');
         }
         $helper = new $helperClassNameShellHelper($this->stdout);

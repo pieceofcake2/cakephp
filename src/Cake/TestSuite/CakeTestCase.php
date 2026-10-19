@@ -854,15 +854,14 @@ abstract class CakeTestCase extends TestCase
         $defaults = ClassRegistry::config('Model');
         unset($defaults['ds']);
 
-        [$plugin, $name] = pluginSplit($model, true);
-        App::uses($name, $plugin . 'Model');
-
-        $config = array_merge($defaults, (array)$config, ['name' => $name]);
-
-        if (!class_exists($name)) {
+        $className = App::className($model, 'Model');
+        if ($className === null) {
             throw new MissingModelException([$model]);
         }
-        $mock = $this->getMock($name, $methods, [$config]);
+        $name = substr($className, (int)strrpos('\\' . $className, '\\'));
+
+        $config = array_merge($defaults, (array)$config, ['name' => $name]);
+        $mock = $this->getMock($className, $methods, [$config]);
 
         $availableDs = array_keys(ConnectionManager::enumConnectionObjects());
 

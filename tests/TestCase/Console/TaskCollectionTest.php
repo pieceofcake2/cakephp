@@ -1,4 +1,7 @@
 <?php
+
+use TestApp\Console\Command\Task\NamespacedTask;
+
 /**
  * TaskCollectionTest file
  *
@@ -171,5 +174,22 @@ class TaskCollectionTest extends CakeTestCase
         $this->assertEquals(['Extract', 'SomeTask'], $result, 'loaded() results are wrong.');
 
         CakePlugin::unload();
+    }
+
+    /**
+     * Test loading tasks by fully qualified class name and from App.namespace.
+     *
+     * @return void
+     */
+    public function testLoadNamespaced(): void
+    {
+        $result = $this->Tasks->load('Namespaced', ['className' => NamespacedTask::class]);
+        $this->assertInstanceOf(NamespacedTask::class, $result);
+        $this->assertSame('Namespaced', $result->name);
+
+        Configure::write('App.namespace', 'TestApp');
+        $shell = $this->getMock('Shell', [], [], '', false);
+        $Tasks = new TaskCollection($shell);
+        $this->assertInstanceOf(NamespacedTask::class, $Tasks->load('Namespaced'));
     }
 }

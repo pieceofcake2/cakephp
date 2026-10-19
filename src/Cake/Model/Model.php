@@ -715,7 +715,7 @@ class Model extends CakeObject implements CakeEventListener
         }
 
         if ($this->name === null) {
-            $this->name = ($name ?? static::class);
+            $this->name = ($name ?? substr(static::class, (int)strrpos('\\' . static::class, '\\')));
         }
 
         if ($this->alias === null) {
