@@ -366,5 +366,13 @@ class FormAuthenticateTest extends CakeTestCase
             'passwordHasher' => NamespacedPasswordHasher::class,
         ]);
         $this->assertInstanceOf(NamespacedPasswordHasher::class, $auth->passwordHasher());
+
+        $auth = new FormAuthenticate($this->Collection, [
+            'passwordHasher' => 'TestApp\Controller\Component\Auth\Namespaced',
+        ]);
+        $this->assertInstanceOf(NamespacedPasswordHasher::class, $auth->passwordHasher());
+
+        $auth = new FormAuthenticate($this->Collection, ['passwordHasher' => 'Blowfish']);
+        $this->assertInstanceOf('BlowfishPasswordHasher', $auth->passwordHasher());
     }
 }

@@ -2002,5 +2002,15 @@ class AuthComponentTest extends CakeTestCase
         $this->Auth->authorize = [NamespacedAuthorize::class];
         $result = $this->Auth->constructAuthorize();
         $this->assertInstanceOf(NamespacedAuthorize::class, $result[0]);
+
+        $this->Auth->authenticate = ['TestApp\Controller\Component\Auth\Namespaced', 'Form'];
+        $result = $this->Auth->constructAuthenticate();
+        $this->assertInstanceOf(NamespacedAuthenticate::class, $result[0]);
+        $this->assertInstanceOf('FormAuthenticate', $result[1]);
+
+        $this->Auth->authorize = ['TestApp\Controller\Component\Auth\Namespaced', 'Controller'];
+        $result = $this->Auth->constructAuthorize();
+        $this->assertInstanceOf(NamespacedAuthorize::class, $result[0]);
+        $this->assertInstanceOf('ControllerAuthorize', $result[1]);
     }
 }

@@ -187,6 +187,11 @@ class TaskCollectionTest extends CakeTestCase
         $this->assertInstanceOf(NamespacedTask::class, $result);
         $this->assertSame('Namespaced', $result->name);
 
+        $result = $this->Tasks->load('WithoutSuffix', ['className' => 'TestApp\Console\Command\Task\Namespaced']);
+        $this->assertInstanceOf(NamespacedTask::class, $result);
+
+        $this->assertInstanceOf('CommandTask', $this->Tasks->load('Command'));
+
         Configure::write('App.namespace', 'TestApp');
         $shell = $this->getMock('Shell', [], [], '', false);
         $Tasks = new TaskCollection($shell);

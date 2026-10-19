@@ -211,6 +211,11 @@ class HelperCollectionTest extends CakeTestCase
         $this->assertInstanceOf(NamespacedHelper::class, $result);
         $this->assertSame($result, $this->Helpers->Namespaced);
 
+        $result = $this->Helpers->load('WithoutSuffix', ['className' => 'TestApp\View\Helper\Namespaced']);
+        $this->assertInstanceOf(NamespacedHelper::class, $result);
+
+        $this->assertInstanceOf('HtmlHelper', $this->Helpers->load('Html'));
+
         Configure::write('App.namespace', 'TestApp');
         $Helpers = new HelperCollection($this->View);
         $this->assertInstanceOf(NamespacedHelper::class, $Helpers->load('Namespaced'));

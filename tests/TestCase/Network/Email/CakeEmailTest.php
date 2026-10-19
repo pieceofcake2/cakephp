@@ -3044,5 +3044,11 @@ HTML;
     {
         $this->CakeEmail->transport(NamespacedTransport::class);
         $this->assertInstanceOf(NamespacedTransport::class, $this->CakeEmail->transportClass());
+
+        $this->CakeEmail->transport('TestApp\Network\Email\Namespaced');
+        $this->assertInstanceOf(NamespacedTransport::class, $this->CakeEmail->transportClass());
+
+        $this->CakeEmail->transport('Debug');
+        $this->assertInstanceOf('DebugTransport', $this->CakeEmail->transportClass());
     }
 }
