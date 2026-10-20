@@ -103,10 +103,11 @@ class CakeTestFixture
     public function __construct()
     {
         if ($this->name === null) {
-            if (preg_match('/^(.*)Fixture$/', static::class, $matches)) {
+            $className = substr(static::class, (int)strrpos('\\' . static::class, '\\'));
+            if (preg_match('/^(.*)Fixture$/', $className, $matches)) {
                 $this->name = $matches[1];
             } else {
-                $this->name = static::class;
+                $this->name = $className;
             }
         }
         $connection = 'test';
