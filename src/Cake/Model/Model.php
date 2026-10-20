@@ -1062,9 +1062,9 @@ class Model extends CakeObject implements CakeEventListener
                         $association[$assoc] = ['className' => $plugin . $assoc] + $value;
                     }
 
-                    if (!isset($value['className']) && str_contains($assoc, '\\')) {
+                    if (str_contains($assoc, '\\')) {
                         unset($association[$assoc]);
-                        $className = $assoc;
+                        $className = $value['className'] ?? $assoc;
                         $assoc = substr($assoc, strrpos($assoc, '\\') + 1);
                         $association[$assoc] = ['className' => $className] + $value;
                     }

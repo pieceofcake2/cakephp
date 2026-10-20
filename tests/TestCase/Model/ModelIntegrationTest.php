@@ -2612,6 +2612,40 @@ class ModelIntegrationTest extends BaseModelTest
     }
 
     /**
+     * Test that a fully qualified class name as association key with className gives the short
+     * name as alias and keeps the className, like the short name with className.
+     *
+     * @return void
+     */
+    public function testNamespacedClassNameAssociationsWithClassName(): void
+    {
+        foreach (['belongsTo', 'hasOne', 'hasMany', 'hasAndBelongsToMany'] as $type) {
+            $expected = null;
+            $cases = [
+                ['NamespacedComment' => ['className' => NamespacedPost::class, 'joinTable' => 'posts_tags']],
+                [NamespacedComment::class => ['className' => NamespacedPost::class, 'joinTable' => 'posts_tags']],
+                ['TestApp\Model\NamespacedComment' => ['className' => NamespacedPost::class, 'joinTable' => 'posts_tags']],
+            ];
+            foreach ($cases as $association) {
+                $Model = $this->_namespacedArticle([$type => $association]);
+                $expected ??= $Model->{$type};
+                $this->assertSame($expected, $Model->{$type});
+                $this->assertSame(NamespacedPost::class, $Model->{$type}['NamespacedComment']['className']);
+                $this->assertSame(['NamespacedComment' => $type], $Model->getAssociated());
+                $this->assertInstanceOf(NamespacedPost::class, $Model->NamespacedComment);
+                $this->assertSame('NamespacedComment', $Model->NamespacedComment->alias);
+                ClassRegistry::flush();
+
+                $Model = $this->_namespacedArticle();
+                $Model->bindModel([$type => $association]);
+                $this->assertSame($expected, $Model->{$type});
+                $this->assertInstanceOf(NamespacedPost::class, $Model->NamespacedComment);
+                ClassRegistry::flush();
+            }
+        }
+    }
+
+    /**
      * Test that a fully qualified class name as join model of a hasAndBelongsToMany association
      * works like the short name.
      *
