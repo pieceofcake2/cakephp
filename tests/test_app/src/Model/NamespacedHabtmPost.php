@@ -34,13 +34,5 @@ class NamespacedHabtmPost extends Model
     /**
      * @var array
      */
-    public $hasAndBelongsToMany = [
-        'NamespacedHabtmTag' => [
-            'className' => NamespacedHabtmTag::class,
-            'joinTable' => 'posts_tags',
-            'foreignKey' => 'post_id',
-            'associationForeignKey' => 'tag_id',
-            'with' => NamespacedPostsTag::class,
-        ],
-    ];
+    public $hasAndBelongsToMany = [NamespacedHabtmTag::class => ['with' => NamespacedPostsTag::class]];
 }
