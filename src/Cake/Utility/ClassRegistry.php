@@ -165,6 +165,15 @@ class ClassRegistry
 
                 App::uses($plugin . 'AppModel', $pluginPath . 'Model');
                 $className = App::className($pluginPath . $class, 'Model') ?? $class;
+                // The object stored for the alias may be of a namespaced class, e.g. App\Model\Post for Post
+                if ($className !== $class) {
+                    $model = $_this->_duplicate($alias, $className);
+                    if ($model) {
+                        $_this->map($alias, $class);
+
+                        return $model;
+                    }
+                }
 
                 if (class_exists($className) || interface_exists($className)) {
                     $reflection = new ReflectionClass($className);

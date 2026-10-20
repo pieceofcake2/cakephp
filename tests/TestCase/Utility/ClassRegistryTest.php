@@ -402,4 +402,17 @@ class ClassRegistryTest extends CakeTestCase
         $this->assertInstanceOf(TestPluginTwoAppModel::class, $Model);
         CakePlugin::unload();
     }
+
+    /**
+     * Test that the object stored for an alias is returned for a model in App.namespace.
+     *
+     * @return void
+     */
+    public function testDuplicateNamespacedModel(): void
+    {
+        Configure::write('App.namespace', 'TestApp');
+        $post = ClassRegistry::init(['class' => 'NamespacedPost', 'alias' => 'Article']);
+        $this->assertInstanceOf(NamespacedPost::class, $post);
+        $this->assertSame($post, ClassRegistry::init(['class' => 'NamespacedPost', 'alias' => 'Article']));
+    }
 }
