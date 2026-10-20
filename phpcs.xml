@@ -113,39 +113,12 @@
         <exclude-pattern>tests_legacy/test_app/Config/var_test2.php</exclude-pattern>
     </rule>
 
-    <!-- tests_legacy/ is checked like tests/, for which the CakePHP and CakePHP2 standards exclude or include these sniffs -->
-    <rule ref="PSR1.Files.SideEffects">
-        <exclude-pattern>*/tests_legacy/*</exclude-pattern>
-    </rule>
-    <rule ref="PSR1.Methods.CamelCapsMethodName">
-        <exclude-pattern>*/tests_legacy/*</exclude-pattern>
-    </rule>
-    <rule ref="Generic.Files.LineLength">
-        <exclude-pattern>*/tests_legacy/*</exclude-pattern>
-    </rule>
-    <rule ref="CakePHP.Commenting.FunctionComment">
-        <exclude-pattern>*/tests_legacy/*</exclude-pattern>
-    </rule>
-    <rule ref="CakePHP.Commenting.TypeHint">
-        <exclude-pattern>*/tests_legacy/*</exclude-pattern>
-    </rule>
-    <rule ref="SlevomatCodingStandard.Namespaces.FullyQualifiedClassNameInAnnotation">
-        <exclude-pattern>*/tests_legacy/*</exclude-pattern>
-    </rule>
-    <rule ref="SlevomatCodingStandard.TypeHints.ParameterTypeHint">
-        <exclude-pattern>*/tests_legacy/*</exclude-pattern>
-    </rule>
-    <rule ref="SlevomatCodingStandard.TypeHints.ReturnTypeHint">
-        <exclude-pattern>*/tests_legacy/*</exclude-pattern>
-    </rule>
-    <rule ref="SlevomatCodingStandard.TypeHints.PropertyTypeHint">
-        <exclude-pattern>*/tests_legacy/*</exclude-pattern>
-    </rule>
-    <rule ref="SlevomatCodingStandard.TypeHints.DNFTypeHintFormat">
-        <exclude-pattern>*/tests_legacy/*</exclude-pattern>
+    <!-- tests_legacy/ is checked like tests/ (see the CakePHP2 standard) -->
+    <rule ref="CakePHP.Commenting.FunctionComment.Missing">
+        <exclude-pattern>*/tests_legacy/TestCase/*</exclude-pattern>
     </rule>
     <rule ref="PSR1.Classes.ClassDeclaration.MultipleClasses">
-        <exclude-pattern>*/tests_legacy/*</exclude-pattern>
+        <exclude-pattern>*/tests_legacy/TestCase/*</exclude-pattern>
     </rule>
     <rule ref="CakePHP2.TypeHints.TestReturnTypeHint">
         <include-pattern>*/tests_legacy/TestCase/*</include-pattern>

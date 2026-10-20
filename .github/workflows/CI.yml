@@ -180,6 +180,11 @@ jobs:
       - name: Run Tests
         run: ./vendor/bin/phpunit --coverage-clover coverage.xml --log-junit junit.xml --colors=always
 
+      # The main suite leaves its keys in memcached, which MemcacheEngine::clear() looks through
+      - name: Flush memcached
+        if: ${{ !cancelled() }}
+        run: printf 'flush_all\r\nquit\r\n' | nc -q 1 127.0.0.1 11211
+
       - name: Run Legacy Tests
         if: ${{ !cancelled() }}
         run: ./vendor/bin/phpunit -c phpunit.legacy.xml.dist --log-junit junit-legacy.xml --colors=always

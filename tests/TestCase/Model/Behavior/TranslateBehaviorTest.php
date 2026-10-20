@@ -26,7 +26,6 @@ use App\Model\User;
 use Cake\Core\App;
 use Cake\Core\Configure;
 use Cake\Error\CakeException;
-use Cake\Model\Behavior\TranslateBehavior;
 use Cake\Model\ConnectionManager;
 use Cake\Model\Datasource\Database\Mysql;
 use Cake\TestSuite\CakeTestCase;
@@ -1626,7 +1625,7 @@ class TranslateBehaviorTest extends CakeTestCase
             'callbacks' => true,
             'recursive' => 0,
         ];
-        $translateBehavior = ClassRegistry::getObject(TranslateBehavior::class);
+        $translateBehavior = ClassRegistry::getObject('TranslateBehavior');
         $result = $translateBehavior->beforeFind($TestModel, $query);
         $this->assertEquals($expected, $result);
     }
@@ -1710,7 +1709,7 @@ class TranslateBehaviorTest extends CakeTestCase
             'callbacks' => true,
             'recursive' => 0,
         ];
-        $translateBehavior = ClassRegistry::getObject(TranslateBehavior::class);
+        $translateBehavior = ClassRegistry::getObject('TranslateBehavior');
         $result = $translateBehavior->beforeFind($TestModel, $query);
         $this->assertEquals($expected, $result);
     }
