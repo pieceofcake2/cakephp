@@ -314,7 +314,8 @@ class ClassRegistry
     /**
      * Returns the key in the registry for a key or a fully qualified class name. An object stored with
      * the short name of a class, e.g. TranslateBehavior or the alias Post, is also found by the fully
-     * qualified name of its class, e.g. TranslateBehavior::class or Post::class.
+     * qualified name of its class, e.g. TranslateBehavior::class or Post::class. Otherwise the key of
+     * the only object of exactly that class is returned, e.g. for the alias Article of a Post.
      *
      * @param string $key Key or class name
      * @return string The key in the registry
@@ -330,8 +331,18 @@ class ClassRegistry
         if (isset($this->_objects[$short]) && $this->_objects[$short] instanceof $class) {
             return $short;
         }
+        if (!class_exists($class)) {
+            return $underscored;
+        }
+        $class = (new ReflectionClass($class))->getName();
+        $keys = [];
+        foreach ($this->_objects as $objectKey => $object) {
+            if ($object::class === $class) {
+                $keys[] = $objectKey;
+            }
+        }
 
-        return $underscored;
+        return count($keys) === 1 ? $keys[0] : $underscored;
     }
 
     /**
