@@ -28,11 +28,17 @@ class NamespacedFilter extends DispatcherFilter
     public static $called = false;
 
     /**
+     * @var array
+     */
+    public static $calledSettings = [];
+
+    /**
      * @param \CakeEvent $event The event
      * @return void
      */
     public function beforeDispatch(CakeEvent $event)
     {
         static::$called = true;
+        static::$calledSettings = $this->settings;
     }
 }

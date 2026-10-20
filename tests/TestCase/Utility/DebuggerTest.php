@@ -377,6 +377,7 @@ object(Cake\View\View) {
 	Blocks => object(Cake\View\ViewBlock) {}
 	plugin => null
 	name => ''
+	controllerClass => 'Cake\Controller\Controller'
 	passedArgs => array()
 	helpers => array(
 		(int) 0 => 'Html',
@@ -417,7 +418,8 @@ object(Cake\View\View) {
 		(int) 10 => 'request',
 		(int) 11 => 'plugin',
 		(int) 12 => 'passedArgs',
-		(int) 13 => 'cacheAction'
+		(int) 13 => 'cacheAction',
+		(int) 14 => 'controllerClass'
 	)
 	[protected] _scripts => array()
 	[protected] _paths => array()

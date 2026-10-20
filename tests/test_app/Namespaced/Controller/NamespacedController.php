@@ -25,6 +25,11 @@ class NamespacedController extends AppController
     public $uses = [];
 
     /**
+     * @var array
+     */
+    public $helpers = ['Html'];
+
+    /**
      * @return void
      */
     public function index()

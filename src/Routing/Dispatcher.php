@@ -106,7 +106,7 @@ class Dispatcher implements CakeEventListener
 
         foreach ($filters as $index => $filter) {
             $settings = [];
-            if (is_array($filter) && !is_int($index) && class_exists($index)) {
+            if (is_array($filter) && !is_int($index) && App::className($index, 'Routing/Filter') !== null) {
                 $settings = $filter;
                 $filter = $index;
             }
