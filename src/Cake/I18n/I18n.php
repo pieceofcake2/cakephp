@@ -411,7 +411,13 @@ class I18n
                 if (is_file($localeDef)) {
                     $definitions = static::loadLocaleDefinition($localeDef);
                     if ($definitions !== false) {
-                        $this->_domains[$domain][$this->_lang][$this->category] = $definitions;
+                        if ($this->_domains[$domain][$this->_lang] === false) {
+                            $this->_domains[$domain][$this->_lang] = [
+                                $this->category => $definitions,
+                            ];
+                        } else {
+                            $this->_domains[$domain][$this->_lang][$this->category] = $definitions;
+                        }
                         $this->_noLocale = false;
 
                         return $domain;
@@ -430,7 +436,13 @@ class I18n
                     }
 
                     if ($translations !== false) {
-                        $this->_domains[$domain][$this->_lang][$this->category] = $translations;
+                        if ($this->_domains[$domain][$this->_lang] === false) {
+                            $this->_domains[$domain][$this->_lang] = [
+                                $this->category => $translations,
+                            ];
+                        } else {
+                            $this->_domains[$domain][$this->_lang][$this->category] = $translations;
+                        }
                         $merge[$domain][$this->_lang][$this->category] = $this->_domains[$domain][$this->_lang][$this->category];
                         $this->_noLocale = false;
                         $core = null;

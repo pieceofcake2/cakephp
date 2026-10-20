@@ -285,6 +285,9 @@ class CakeRoute
         $rules = $namedConfig['rules'];
         if (!empty($this->options['named'])) {
             $greedy = isset($this->options['greedyNamed']) && $this->options['greedyNamed'] === true;
+            if ($rules === false) {
+                $rules = [];
+            }
             foreach ((array)$this->options['named'] as $key => $val) {
                 if (is_numeric($key)) {
                     $rules[$val] = true;
