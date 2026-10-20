@@ -399,7 +399,10 @@ class TestShell extends Shell
         $file = substr($file, 0, -4);
         if ($category === 'core') {
             $testCase = str_replace(DS, '/', $file);
-            $testCase = preg_replace('@.*src/Cake/@', '', $testCase);
+            $cake = str_replace(DS, '/', CAKE);
+            if (str_starts_with($testCase, $cake)) {
+                $testCase = substr($testCase, strlen($cake));
+            }
             $testCase[0] = strtoupper($testCase[0]);
             $testFile = CORE_TESTS . '/TestCase/' . $testCase . 'Test.php';
 
@@ -457,7 +460,7 @@ class TestShell extends Shell
         }
 
         $file = str_replace(DS, '/', $file);
-        if (str_contains($file, 'src/Cake/') || str_contains($file, CORE_TESTS)) {
+        if (str_starts_with($file, str_replace(DS, '/', CAKE)) || str_contains($file, CORE_TESTS)) {
             return 'core';
         } elseif (preg_match('@(?:plugins|Plugin)/([^/]*)@', $file, $match)) {
             return $match[1];

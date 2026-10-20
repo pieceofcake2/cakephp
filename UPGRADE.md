@@ -21,6 +21,8 @@ Before migrating to this fork, ensure:
 
 The classes of the framework moved into the `Cake` namespace, e.g. `Cake\Controller\Controller`. The global names of CakePHP 2 are aliases of the same classes, so code that extends, type-hints, catches or loads `Controller`, `CakeRequest` or `NotFoundException` keeps working without changes.
 
+- **`src/Cake/` moved to `src/`**: e.g. `src/Controller/Controller.php`, loaded with PSR-4. The `CAKE` constant is `src/`, and `Debugger` shows the core files as `CORE/Controller/Controller.php`. `src/Cake/bootstrap.php` (named by `webroot/index.php` and `webroot/test.php` of the application skeleton) and `src/Cake/TestSuite/Fixture/CakeFixtureInjector.php` (named by the listener of `phpunit.xml.dist`) still work; update them to `src/bootstrap.php` and `src/TestSuite/Fixture/CakeFixtureInjector.php` when you can. Code that builds other paths below `src/Cake/` must drop `Cake/`.
+
 - **Class names as strings**: `get_class()`, `static::class`, `ReflectionClass::getName()` and `CakeObject::toString()` return the namespaced name, e.g. `Cake\Network\CakeRequest`. Compare classes with `instanceof` or `is_a()`, not with the string of the global name (`get_class($x) === 'CakeRequest'` is now false).
 - **Logs and messages**: The error log, `Debugger` output and the debug error pages show the namespaced names, e.g. `Error: [Cake\Error\NotFoundException] ...`. Update log filters or alerts that match `[NotFoundException]`.
 - **Serialized objects**: Objects serialized before the update (`O:12:"CakeResponse"`) still unserialize, as instances of the namespaced class. Objects serialized after it use the namespaced names and cannot be read by an older version.

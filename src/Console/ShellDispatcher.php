@@ -97,7 +97,7 @@ class ShellDispatcher
             define('CAKEPHP_SHELL', true);
         }
 
-        require_once dirname(__DIR__, 3) . '/config/init.php';
+        require_once dirname(__DIR__, 2) . '/config/init.php';
     }
 
     /**
@@ -115,7 +115,7 @@ class ShellDispatcher
 
         if (!isset($this->args[0]) || !isset($this->params['working'])) {
             $message = "This file has been loaded incorrectly and cannot continue.\n" .
-                'Please make sure that ' . DS . 'src' . DS . 'Cake' . DS . "Console is in your system path,\n" .
+                'Please make sure that ' . DS . 'src' . DS . "Console is in your system path,\n" .
                 "and check the cookbook for the correct usage of this command.\n" .
                 '(https://book.cakephp.org/)';
             throw new CakeException($message);
@@ -153,13 +153,13 @@ class ShellDispatcher
             define('WWW_ROOT', $webroot . DS);
         }
 
-        require_once dirname(__DIR__, 3) . '/config/define.php';
+        require_once dirname(__DIR__, 2) . '/config/define.php';
 
         // $boot is used by Cake/bootstrap.php file. Without an application core.php,
         // Configure::bootstrap() is skipped and the default core.php is loaded below.
         $boot = file_exists(CONFIG . 'core.php'); // phpcs:ignore SlevomatCodingStandard.Variables.UnusedVariable.UnusedVariable -- read by Cake/bootstrap.php
         try {
-            require_once CORE_PATH . 'Cake' . DS . 'bootstrap.php';
+            require_once CORE_PATH . 'bootstrap.php';
         } catch (ConfigureException $e) {
             // A missing application core or bootstrap file. The console error handlers may not be
             // set up yet, so print the message instead of leaving an uncaught exception.

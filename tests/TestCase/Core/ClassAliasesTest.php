@@ -29,10 +29,16 @@ class ClassAliasesTest extends CakeTestCase
      */
     public function testEveryClassHasItsGlobalName(): void
     {
-        $classes = array_filter(
-            array_keys($this->_classLoader()->getClassMap()),
-            fn($class) => str_starts_with($class, 'Cake\\'),
-        );
+        $classes = [];
+        $files = new RecursiveIteratorIterator(new RecursiveDirectoryIterator(CAKE, FilesystemIterator::SKIP_DOTS));
+        foreach ($files as $file) {
+            $path = substr($file->getPathname(), strlen(CAKE));
+            // The class files, by PSR-4; not the functions, the templates or the former paths in Cake/
+            if ($file->getExtension() !== 'php' || !ctype_upper($file->getBasename()[0]) || str_starts_with($path, 'Cake' . DS) || str_contains($path, 'templates')) {
+                continue;
+            }
+            $classes[] = 'Cake\\' . str_replace(DS, '\\', substr($path, 0, -4));
+        }
         $this->assertGreaterThan(250, count($classes));
 
         foreach ($classes as $class) {
@@ -126,20 +132,5 @@ class ClassAliasesTest extends CakeTestCase
         $this->assertSame('', $errors);
 
         return $output;
-    }
-
-    /**
-     * Returns the class loader of Composer.
-     *
-     * @return ClassLoader
-     */
-    protected function _classLoader(): ClassLoader
-    {
-        foreach (spl_autoload_functions() as $function) {
-            if (is_array($function) && $function[0] instanceof ClassLoader) {
-                return $function[0];
-            }
-        }
-        $this->fail('The class loader of Composer is not registered.');
     }
 }

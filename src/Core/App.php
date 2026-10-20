@@ -970,13 +970,13 @@ class App
                     '%s' . 'Vendor' . DS,
                     ROOT . DS . 'vendor' . DS,
                     ROOT . DS . 'vendors' . DS,
-                    dirname(CAKE, 2) . DS . 'vendor' . DS,
-                    dirname(CAKE, 2) . DS . 'vendors' . DS,
+                    dirname(CAKE) . DS . 'vendor' . DS,
+                    dirname(CAKE) . DS . 'vendors' . DS,
                 ],
                 'Plugin' => [
                     APP . 'Plugin' . DS,
                     ROOT . DS . 'plugins' . DS,
-                    dirname(CAKE, 2) . DS . 'plugins' . DS,
+                    dirname(CAKE) . DS . 'plugins' . DS,
                 ],
             ];
         }
