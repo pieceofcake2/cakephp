@@ -19,10 +19,6 @@
 
 namespace Cake\Error;
 
-use Cake\Network\CakeResponse;
-use Exception;
-use RuntimeException;
-
 /**
  * Auth Security exception - used when SecurityComponent detects any issue with the current request
  *

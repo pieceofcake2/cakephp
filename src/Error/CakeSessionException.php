@@ -19,10 +19,6 @@
 
 namespace Cake\Error;
 
-use Cake\Network\CakeResponse;
-use Exception;
-use RuntimeException;
-
 /**
  * Exception class for CakeSession. This exception will be thrown from CakeSession when it
  * encounters an error.

@@ -18,11 +18,6 @@
 
 namespace Cake\Controller\Component\Acl;
 
-use Cake\Configure\PhpReader;
-use Cake\Controller\Component;
-use Cake\Controller\Component\AclComponent;
-use Cake\Core\CakeObject;
-use Cake\Error\AclException;
 use Cake\Utility\Hash;
 use Cake\Utility\Inflector;
 

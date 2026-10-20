@@ -19,10 +19,6 @@
 
 namespace Cake\Error;
 
-use Cake\Network\CakeResponse;
-use Exception;
-use RuntimeException;
-
 /**
  * Parent class for all of the HTTP related exceptions in CakePHP.
  *

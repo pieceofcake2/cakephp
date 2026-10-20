@@ -19,10 +19,6 @@
 
 namespace Cake\Error;
 
-use Cake\Network\CakeResponse;
-use Exception;
-use RuntimeException;
-
 /**
  * Exception class for Router. This exception will be thrown from Router when it
  * encounters an error.

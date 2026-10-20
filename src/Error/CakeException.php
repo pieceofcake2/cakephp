@@ -19,10 +19,6 @@
 
 namespace Cake\Error;
 
-use Cake\Network\CakeResponse;
-use Exception;
-use RuntimeException;
-
 /**
  * CakeException is used a base class for CakePHP's internal exceptions.
  * In general framework errors are interpreted as 500 code errors.

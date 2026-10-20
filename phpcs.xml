@@ -38,13 +38,12 @@
     </rule>
 
     <rule ref="CakePHP.Commenting.FunctionComment.Missing">
-                <exclude-pattern>src/TestSuite/Fixture/CakeFixtureInjector.php</exclude-pattern>
+        <exclude-pattern>src/Error/MissingActionException.php</exclude-pattern>
+        <exclude-pattern>src/Error/MissingControllerException.php</exclude-pattern>
+        <exclude-pattern>src/Error/NotImplementedException.php</exclude-pattern>
+        <exclude-pattern>src/Error/PrivateActionException.php</exclude-pattern>
+        <exclude-pattern>src/TestSuite/Fixture/CakeFixtureInjector.php</exclude-pattern>
         <exclude-pattern>tests/test_app/*</exclude-pattern>
-    </rule>
-
-    <!-- Core files that declare several classes -->
-    <rule ref="PSR1.Classes.ClassDeclaration.MultipleClasses">
-                        <exclude-pattern>src/TestSuite/ControllerTestCase.ph</exclude-pattern>
     </rule>
 
     <!-- Further underscored method names (CakePHP2 covers Controller/, Console/Command/ and Model/Behavior/) -->
