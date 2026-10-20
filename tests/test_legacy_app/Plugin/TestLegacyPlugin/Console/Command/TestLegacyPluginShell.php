@@ -15,11 +15,11 @@
  */
 
 /**
- * TestPluginShell
+ * TestLegacyPluginShell
  *
  * @package       Cake.Test.TestApp.Plugin.TestLegacyPlugin.Console.Command
  */
-class TestPluginShell extends Shell
+class TestLegacyPluginShell extends Shell
 {
     /**
      * main method
@@ -28,6 +28,6 @@ class TestPluginShell extends Shell
      */
     public function main()
     {
-        $this->out('This is the main method called from TestLegacyPlugin.TestPluginShell');
+        $this->out('This is the main method called from TestLegacyPlugin.TestLegacyPluginShell');
     }
 }
