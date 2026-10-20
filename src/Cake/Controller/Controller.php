@@ -579,7 +579,6 @@ class Controller extends CakeObject implements CakeEventListener
             $mergeParentClass = App::className($mergeParentClass, 'Controller') ?? $mergeParentClass;
         }
         if (!is_subclass_of($this, $mergeParentClass) && !str_contains($this->_mergeParent, '\\')) {
-            // A parent class of the same name in any namespace, e.g. Acme\Controller\AppController
             foreach (class_parents($this) as $parent) {
                 if (substr($parent, (int)strrpos('\\' . $parent, '\\')) === $this->_mergeParent) {
                     $mergeParentClass = $parent;
@@ -594,7 +593,6 @@ class Controller extends CakeObject implements CakeEventListener
         if (!empty($this->plugin)) {
             $pluginController = $this->plugin . 'AppController';
             if (!is_subclass_of($this, $pluginController)) {
-                // The plugin AppController in the namespace of the plugin, e.g. DebugKit\Controller\DebugKitAppController
                 $pluginController = str_replace('/', '\\', $this->plugin) . '\\Controller\\' . $pluginController;
                 if (!class_exists($pluginController) || !is_subclass_of($this, $pluginController)) {
                     $pluginController = null;
