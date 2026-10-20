@@ -161,7 +161,7 @@ class ClassRegistry
                 }
 
                 if (empty($settings['alias'])) {
-                    $settings['alias'] = $class;
+                    $settings['alias'] = substr($class, (int)strrpos('\\' . $class, '\\'));
                 }
                 $alias = $settings['alias'];
 
