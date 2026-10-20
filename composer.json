@@ -51,7 +51,8 @@
             "TestPlugin\\": "tests/test_app/plugins/TestPlugin/src/",
             "TestPluginTwo\\": "tests/test_app/plugins/TestPluginTwo/src/",
             "PluginJs\\": "tests/test_app/plugins/PluginJs/src/",
-            "TestPluginModern\\": "tests/test_app/plugins/TestPluginModern/src/"
+            "TestPluginModern\\": "tests/test_app/plugins/TestPluginModern/src/",
+            "TestNamespacedPlugin\\": "tests/test_legacy_app/plugins/TestNamespacedPlugin/src/"
         },
         "exclude-from-classmap": [
             "vendor/pieceofcake2/app/src/Controller/AppController.php",

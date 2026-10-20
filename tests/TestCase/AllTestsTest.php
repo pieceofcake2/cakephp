@@ -36,7 +36,7 @@ class AllTestsTest extends TestSuite
      */
     public static function suite(): mixed
     {
-        $suite = new TestSuite('All Tests');
+        $suite = new TestSuite('AllTests');
 
         $path = CORE_TESTS . DS . 'TestCase' . DS;
 

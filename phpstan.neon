@@ -9,7 +9,10 @@ parameters:
     excludePaths:
         - src/TestSuite/templates/*
     bootstrapFiles:
-        - tests_legacy/bootstrap.php
+        - tests/bootstrap.php
+        # The application classes that the core extends, from the skeleton application
+        - vendor/pieceofcake2/app/src/Controller/AppController.php
+        - vendor/pieceofcake2/app/src/Model/AppModel.php
     treatPhpDocTypesAsCertain: false
     # Constants whose values depend on the platform (DS) or on the application layout
     # (APP_DIR, WEBROOT_DIR), so their values at analysis time must not be assumed.

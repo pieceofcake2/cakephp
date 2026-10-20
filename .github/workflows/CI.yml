@@ -187,7 +187,7 @@ jobs:
 
       - name: Run Legacy Tests
         if: ${{ !cancelled() }}
-        run: ./vendor/bin/phpunit -c phpunit.legacy.xml.dist --log-junit junit-legacy.xml --colors=always
+        run: ./vendor/bin/phpunit --testsuite AllLegacyTests --log-junit junit-legacy.xml --colors=always
 
       - name: Legacy test summary
         if: ${{ !cancelled() }}

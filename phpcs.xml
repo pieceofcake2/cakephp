@@ -11,7 +11,6 @@
     <file>./config/</file>
     <file>./src/</file>
     <file>./tests/</file>
-    <file>./tests_legacy/</file>
 
     <rule ref="CakePHP2">
         <!-- The core keeps native types out of all signatures, tests included -->
@@ -34,10 +33,8 @@
         <exclude-pattern>src/View/Helper/FormHelper.php</exclude-pattern>
         <exclude-pattern>src/Utility/CakeTime.php</exclude-pattern>
         <exclude-pattern>tests/TestCase/Utility/CakeTimeTest.php</exclude-pattern>
-        <exclude-pattern>tests_legacy/TestCase/Utility/CakeTimeTest.php</exclude-pattern>
         <!-- Using the deprecated utf8_decode functions. -->
         <exclude-pattern>tests/TestCase/Utility/ValidationTest.php</exclude-pattern>
-        <exclude-pattern>tests_legacy/TestCase/Utility/ValidationTest.php</exclude-pattern>
     </rule>
 
     <rule ref="CakePHP.Commenting.FunctionComment.Missing">
@@ -47,21 +44,16 @@
         <exclude-pattern>src/Error/PrivateActionException.php</exclude-pattern>
         <exclude-pattern>src/TestSuite/Fixture/CakeFixtureInjector.php</exclude-pattern>
         <exclude-pattern>tests/test_app/*</exclude-pattern>
-        <exclude-pattern>tests_legacy/test_app/*</exclude-pattern>
+        <exclude-pattern>tests/test_legacy_app/*</exclude-pattern>
     </rule>
 
     <!-- Further underscored method names (CakePHP2 covers Controller/, Console/Command/ and Model/Behavior/) -->
     <rule ref="PSR1.Methods.CamelCapsMethodName.NotCamelCaps">
         <exclude-pattern>tests/TestCase/Console/ShellTest.php</exclude-pattern>
-        <exclude-pattern>tests_legacy/TestCase/Console/ShellTest.php</exclude-pattern>
         <exclude-pattern>tests/TestCase/Core/CakeObjectTest.php</exclude-pattern>
-        <exclude-pattern>tests_legacy/TestCase/Core/CakeObjectTest.php</exclude-pattern>
         <exclude-pattern>tests/TestCase/View/ViewTest.php</exclude-pattern>
-        <exclude-pattern>tests_legacy/TestCase/View/ViewTest.php</exclude-pattern>
         <exclude-pattern>tests/TestCase/View/Helper/CacheHelperTest.php</exclude-pattern>
-        <exclude-pattern>tests_legacy/TestCase/View/Helper/CacheHelperTest.php</exclude-pattern>
         <exclude-pattern>tests/TestCase/Routing/DispatcherTest.php</exclude-pattern>
-        <exclude-pattern>tests_legacy/TestCase/Routing/DispatcherTest.php</exclude-pattern>
     </rule>
 
     <!-- Allow @ error suppression in specific files where it's necessary -->
@@ -76,15 +68,10 @@
         <exclude-pattern>src/View/Helper.php</exclude-pattern>
         <exclude-pattern>src/View/View.php</exclude-pattern>
         <exclude-pattern>tests/TestCase/Cache/CacheTest.php</exclude-pattern>
-        <exclude-pattern>tests_legacy/TestCase/Cache/CacheTest.php</exclude-pattern>
         <exclude-pattern>tests/TestCase/Cache/Engine/MemcacheEngineTest.php</exclude-pattern>
-        <exclude-pattern>tests_legacy/TestCase/Cache/Engine/MemcacheEngineTest.php</exclude-pattern>
         <exclude-pattern>tests/TestCase/Cache/Engine/MemcachedEngineTest.php</exclude-pattern>
-        <exclude-pattern>tests_legacy/TestCase/Cache/Engine/MemcachedEngineTest.php</exclude-pattern>
         <exclude-pattern>tests/TestCase/Cache/Engine/RedisEngineTest.php</exclude-pattern>
-        <exclude-pattern>tests_legacy/TestCase/Cache/Engine/RedisEngineTest.php</exclude-pattern>
         <exclude-pattern>tests/TestCase/Error/ErrorHandlerTest.php</exclude-pattern>
-        <exclude-pattern>tests_legacy/TestCase/Error/ErrorHandlerTest.php</exclude-pattern>
     </rule>
 
     <!-- Allow eval() in ConsoleShell for interactive console functionality -->
@@ -95,32 +82,19 @@
     <!-- Allow public methods with underscore in test files -->
     <rule ref="CakePHP.NamingConventions.ValidFunctionName.PublicWithUnderscore">
         <exclude-pattern>tests/TestCase/Controller/ControllerTest.php</exclude-pattern>
-        <exclude-pattern>tests_legacy/TestCase/Controller/ControllerTest.php</exclude-pattern>
     </rule>
 
     <!-- Allow unused variables in test files for testing purposes -->
     <rule ref="SlevomatCodingStandard.Variables.UnusedVariable.UnusedVariable">
         <exclude-pattern>src/TestSuite/Reporter/CakeHtmlReporter.php</exclude-pattern>
         <exclude-pattern>tests/TestCase/Error/ErrorHandlerTest.php</exclude-pattern>
-        <exclude-pattern>tests_legacy/TestCase/Error/ErrorHandlerTest.php</exclude-pattern>
         <exclude-pattern>tests/TestCase/Utility/DebuggerTest.php</exclude-pattern>
-        <exclude-pattern>tests_legacy/TestCase/Utility/DebuggerTest.php</exclude-pattern>
         <exclude-pattern>tests/test_app/Config/htmlhelper_tags.php</exclude-pattern>
-        <exclude-pattern>tests_legacy/test_app/Config/htmlhelper_tags.php</exclude-pattern>
+        <exclude-pattern>tests/test_legacy_app/Config/htmlhelper_tags.php</exclude-pattern>
         <exclude-pattern>tests/test_app/Config/var_test.php</exclude-pattern>
-        <exclude-pattern>tests_legacy/test_app/Config/var_test.php</exclude-pattern>
+        <exclude-pattern>tests/test_legacy_app/Config/var_test.php</exclude-pattern>
         <exclude-pattern>tests/test_app/Config/var_test2.php</exclude-pattern>
-        <exclude-pattern>tests_legacy/test_app/Config/var_test2.php</exclude-pattern>
+        <exclude-pattern>tests/test_legacy_app/Config/var_test2.php</exclude-pattern>
     </rule>
 
-    <!-- tests_legacy/ is checked like tests/ (see the CakePHP2 standard) -->
-    <rule ref="CakePHP.Commenting.FunctionComment.Missing">
-        <exclude-pattern>*/tests_legacy/TestCase/*</exclude-pattern>
-    </rule>
-    <rule ref="PSR1.Classes.ClassDeclaration.MultipleClasses">
-        <exclude-pattern>*/tests_legacy/TestCase/*</exclude-pattern>
-    </rule>
-    <rule ref="CakePHP2.TypeHints.TestReturnTypeHint">
-        <include-pattern>*/tests_legacy/TestCase/*</include-pattern>
-    </rule>
 </ruleset>

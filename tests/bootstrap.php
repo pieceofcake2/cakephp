@@ -39,7 +39,7 @@ if (isset($GLOBALS['_composer_autoload_path'])) {
 
 new ShellDispatcher([$_SERVER['argv'][0]]);
 
-// tests/ and tests_legacy/ have classes of the same names in other files, so the files
+// AllTests and AllLegacyTests have classes of the same names in other files, so the files
 // that the other test suite cached for them are not used
 Cache::delete('file_map', '_cake_core_');
 Cache::delete('object_map', '_cake_core_');
