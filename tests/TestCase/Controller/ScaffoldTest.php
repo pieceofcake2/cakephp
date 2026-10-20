@@ -27,14 +27,12 @@ use Cake\Model\Datasource\CakeSession;
 use Cake\Network\CakeRequest;
 use Cake\Network\CakeResponse;
 use Cake\Routing\Router;
-use Cake\Test\TestCase\Model\ScaffoldMock;
 use Cake\TestSuite\CakeTestCase;
 use Cake\Utility\ClassRegistry;
 use TestApp\Model\NamespacedPost;
+use TestApp\Model\ScaffoldMock;
 
 App::uses('AppModel', 'Model');
-
-require_once dirname(__DIR__) . DS . 'Model' . DS . 'models.php';
 
 /**
  * ScaffoldMockController class
@@ -185,6 +183,7 @@ class ScaffoldTest extends CakeTestCase
     public function setUp(): void
     {
         parent::setUp();
+        Configure::write('App.namespace', 'TestApp');
         Configure::write('Config.language', 'eng');
         $request = new CakeRequest(null, false);
         $this->Controller = new ScaffoldMockController($request);

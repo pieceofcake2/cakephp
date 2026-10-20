@@ -23,138 +23,10 @@ use Cake\Controller\Component\AclComponent;
 use Cake\Controller\ComponentCollection;
 use Cake\Core\Configure;
 use Cake\Error\CakeException;
-use Cake\Model\AclNode;
-use Cake\Model\Permission;
 use Cake\TestSuite\CakeTestCase;
-
-require_once dirname(__DIR__, 3) . DS . 'Model' . DS . 'models.php';
-
-/**
- * AclNodeTwoTestBase class
- *
- * @package       Cake.Test.Case.Controller.Component.Acl
- */
-class AclNodeTwoTestBase extends AclNode
-{
-    /**
-     * useDbConfig property
-     *
-     * @var string
-     */
-    public $useDbConfig = 'test';
-
-    /**
-     * cacheSources property
-     *
-     * @var bool
-     */
-    public $cacheSources = false;
-}
-class_alias(AclNodeTwoTestBase::class, 'App\\Model\\AclNodeTwoTestBase');
-
-/**
- * AroTwoTest class
- *
- * @package       Cake.Test.Case.Controller.Component.Acl
- */
-class AroTwoTest extends AclNodeTwoTestBase
-{
-    /**
-     * name property
-     *
-     * @var string|null
-     */
-    public $name = 'AroTwoTest';
-
-    /**
-     * useTable property
-     *
-     * @var string|bool|null
-     */
-    public $useTable = 'aro_twos';
-
-    /**
-     * hasAndBelongsToMany property
-     *
-     * @var array
-     */
-    public $hasAndBelongsToMany = ['AcoTwoTest' => ['with' => 'PermissionTwoTest']];
-}
-class_alias(AroTwoTest::class, 'App\\Controller\\Component\\Acl\\AroTwoTest');
-
-/**
- * AcoTwoTest class
- *
- * @package       Cake.Test.Case.Controller.Component.Acl
- */
-class AcoTwoTest extends AclNodeTwoTestBase
-{
-    /**
-     * name property
-     *
-     * @var string|null
-     */
-    public $name = 'AcoTwoTest';
-
-    /**
-     * useTable property
-     *
-     * @var string|bool|null
-     */
-    public $useTable = 'aco_twos';
-
-    /**
-     * hasAndBelongsToMany property
-     *
-     * @var array
-     */
-    public $hasAndBelongsToMany = ['AroTwoTest' => ['with' => 'PermissionTwoTest']];
-}
-class_alias(AcoTwoTest::class, 'App\\Model\\AcoTwoTest');
-
-/**
- * PermissionTwoTest class
- *
- * @package       Cake.Test.Case.Controller.Component.Acl
- */
-class PermissionTwoTest extends Permission
-{
-    /**
-     * name property
-     *
-     * @var string|null
-     */
-    public $name = 'PermissionTwoTest';
-
-    /**
-     * useTable property
-     *
-     * @var string|bool|null
-     */
-    public $useTable = 'aros_aco_twos';
-
-    /**
-     * cacheQueries property
-     *
-     * @var bool
-     */
-    public $cacheQueries = false;
-
-    /**
-     * belongsTo property
-     *
-     * @var array
-     */
-    public $belongsTo = ['AroTwoTest' => ['foreignKey' => 'aro_id'], 'AcoTwoTest' => ['foreignKey' => 'aco_id']];
-
-    /**
-     * actsAs property
-     *
-     * @var array<string|array<string, array>>
-     */
-    public $actsAs = [];
-}
-class_alias(PermissionTwoTest::class, 'App\\Model\\PermissionTwoTest');
+use TestApp\Controller\Component\Acl\AroTwoTest;
+use TestApp\Model\AcoTwoTest;
+use TestApp\Model\PermissionTwoTest;
 
 /**
  * DbAclTwoTest class
@@ -205,6 +77,7 @@ class DbAclTest extends CakeTestCase
     public function setUp(): void
     {
         parent::setUp();
+        Configure::write('App.namespace', 'TestApp');
         Configure::write('Acl.classname', DbAclTwoTest::class);
         Configure::write('Acl.database', 'test');
         $collection = new ComponentCollection();

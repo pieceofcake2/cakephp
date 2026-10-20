@@ -29,25 +29,7 @@ use Cake\Model\Datasource\Session\DatabaseSession;
 use Cake\TestSuite\CakeTestCase;
 use TestApp\Model\Datasource\Session\NamespacedSession;
 use TestApp\Model\Datasource\Session\TestAppLibSession;
-
-/**
- * TestCakeSession
- *
- * @package       Cake.Test.Case.Model.Datasource
- */
-class TestCakeSession extends CakeSession
-{
-    public static function setUserAgent($value): void
-    {
-        static::$_userAgent = $value;
-    }
-
-    public static function setHost($host): void
-    {
-        static::_setHost($host);
-    }
-}
-class_alias(TestCakeSession::class, 'TestApp\\Model\\Datasource\\Session\\TestCakeSession');
+use TestApp\Model\Datasource\Session\TestCakeSession;
 
 /**
  * TestCacheSession
@@ -82,8 +64,6 @@ class TestDatabaseSession extends DatabaseSession
  */
 class CakeSessionTest extends CakeTestCase
 {
-    protected ?string $_appNamespace = null;
-
     protected static $_gcDivisor;
 
     /**
@@ -127,7 +107,6 @@ class CakeSessionTest extends CakeTestCase
     {
         parent::setUp();
 
-        $this->_appNamespace = Configure::read('App.namespace');
         Configure::write('App.namespace', 'TestApp');
 
         Configure::write('Session', [
@@ -150,8 +129,6 @@ class CakeSessionTest extends CakeTestCase
             session_write_close();
         }
         unset($_SESSION);
-
-        Configure::write('App.namespace', $this->_appNamespace);
 
         parent::tearDown();
     }

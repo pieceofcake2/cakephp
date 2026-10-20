@@ -20,12 +20,19 @@ namespace Cake\Test\TestCase\Model;
 
 use Cake\Core\App;
 use Cake\Core\Configure;
-use Cake\Model\Model;
-use Cake\Model\ModelBehavior;
 use Cake\Model\ModelValidator;
 use Cake\Model\Validator\CakeValidationSet;
 use Cake\Utility\ClassRegistry;
 use PHPUnit\Framework\Error;
+use TestApp\Model\Article;
+use TestApp\Model\Author;
+use TestApp\Model\Comment;
+use TestApp\Model\CustomArticle;
+use TestApp\Model\Something;
+use TestApp\Model\TestValidate;
+use TestApp\Model\TheVoid;
+use TestApp\Model\User;
+use TestApp\Model\ValidationTest1;
 use TypeError;
 
 /**
@@ -2672,23 +2679,3 @@ class ModelValidationTest extends BaseModelTest
         $this->assertFalse($Article->validates(), 'Contains a dupe');
     }
 }
-
-/**
- * Behavior for testing validation rules.
- */
-class ValidationRuleBehavior extends ModelBehavior
-{
-    public function setup(Model $Model, $config = []): void
-    {
-        $this->settings[$Model->alias] = $config;
-    }
-
-    public function beforeValidate(Model $Model, $options = []): void
-    {
-        $fields = $this->settings[$Model->alias]['fields'];
-        foreach ($fields as $field) {
-            $Model->whitelist[] = $field;
-        }
-    }
-}
-class_alias(ValidationRuleBehavior::class, 'App\\Model\\Behavior\\ValidationRuleBehavior');

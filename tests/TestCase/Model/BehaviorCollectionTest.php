@@ -28,517 +28,24 @@ use Cake\Error\MissingBehaviorException;
 use Cake\Model\Behavior\ContainableBehavior;
 use Cake\Model\BehaviorCollection;
 use Cake\Model\Datasource\Database\Sqlserver;
-use Cake\Model\Model;
-use Cake\Model\ModelBehavior;
 use Cake\TestSuite\CakeTestCase;
 use Cake\Utility\ClassRegistry;
 use Cake\Utility\Hash;
+use TestApp\Model\Apple;
+use TestApp\Model\Article;
+use TestApp\Model\Behavior\FirstBehavior;
 use TestApp\Model\Behavior\NamespacedBehavior;
+use TestApp\Model\Behavior\SecondBehavior;
+use TestApp\Model\Behavior\TestAliasBehavior;
+use TestApp\Model\Behavior\TestBehavior;
+use TestApp\Model\Behavior\ThirdBehavior;
+use TestApp\Model\Comment;
 use TestApp\Model\NamespacedArticle;
 use TestApp\Model\NamespacedPost;
+use TestApp\Model\Sample;
 use TestPlugin\Model\Behavior\TestPluginPersisterOneBehavior;
 
 App::uses('AppModel', 'Model');
-
-require_once __DIR__ . DS . 'models.php';
-
-/**
- * TestBehavior class
- *
- * @package       Cake.Test.Case.Model
- */
-class TestBehavior extends ModelBehavior
-{
-    /**
-     * mapMethods property
-     *
-     * @var array
-     */
-    public $mapMethods = ['/test(\w+)/' => 'testMethod', '/look for\s+(.+)/' => 'speakEnglish'];
-
-    /**
-     * setup method
-     *
-     * @param Model $model
-     * @param array $config
-     * @return void
-     */
-    public function setup(Model $model, $config = []): void
-    {
-        parent::setup($model, $config);
-        if (isset($config['mangle'])) {
-            $config['mangle'] .= ' mangled';
-        }
-        $this->settings[$model->alias] = array_merge(['beforeFind' => 'on', 'afterFind' => 'off'], $config);
-    }
-
-    /**
-     * beforeFind method
-     *
-     * @param Model $model
-     * @param array $query
-     * @return array|bool|null
-     */
-    public function beforeFind(Model $model, $query): mixed
-    {
-        $settings = $this->settings[$model->alias];
-        if (!isset($settings['beforeFind']) || $settings['beforeFind'] === 'off') {
-            return parent::beforeFind($model, $query);
-        }
-        switch ($settings['beforeFind']) {
-            case 'on':
-                return false;
-            case 'test':
-                return null;
-            case 'modify':
-                $query['fields'] = [$model->alias . '.id', $model->alias . '.name', $model->alias . '.mytime'];
-                $query['recursive'] = -1;
-
-                return $query;
-        }
-
-        return null;
-    }
-
-    /**
-     * afterFind method
-     *
-     * @param Model $model
-     * @param array $results
-     * @param bool $primary
-     * @return array|bool
-     */
-    public function afterFind(Model $model, $results, $primary = false): mixed
-    {
-        $settings = $this->settings[$model->alias];
-        if (!isset($settings['afterFind']) || $settings['afterFind'] === 'off') {
-            return parent::afterFind($model, $results, $primary);
-        }
-        switch ($settings['afterFind']) {
-            case 'on':
-                return [];
-            case 'test':
-                return true;
-            case 'test2':
-                return null;
-            case 'modify':
-                return Hash::extract($results, "{n}.{$model->alias}");
-        }
-
-        return null;
-    }
-
-    /**
-     * beforeSave method
-     *
-     * @param Model $model Model using this behavior
-     * @param array $options Options passed from Model::save().
-     * @return bool|null False if the operation should abort. Any other result will continue.
-     * @see Model::save()
-     */
-    public function beforeSave(Model $model, $options = []): mixed
-    {
-        $settings = $this->settings[$model->alias];
-        if (!isset($settings['beforeSave']) || $settings['beforeSave'] === 'off') {
-            return parent::beforeSave($model, $options);
-        }
-        switch ($settings['beforeSave']) {
-            case 'on':
-                return false;
-            case 'test':
-                return true;
-            case 'modify':
-                $model->data[$model->alias]['name'] .= ' modified before';
-
-                return true;
-        }
-
-        return null;
-    }
-
-    /**
-     * afterSave method
-     *
-     * @param Model $model
-     * @param bool $created
-     * @param array $options Options passed from Model::save().
-     * @return bool|null
-     */
-    public function afterSave(Model $model, $created, $options = []): mixed
-    {
-        $settings = $this->settings[$model->alias];
-        if (!isset($settings['afterSave']) || $settings['afterSave'] === 'off') {
-            parent::afterSave($model, $created, $options);
-
-            return null;
-        }
-
-        $string = 'modified after';
-        if ($created) {
-            $string .= ' on create';
-        }
-        switch ($settings['afterSave']) {
-            case 'on':
-                $model->data[$model->alias]['aftersave'] = $string;
-                break;
-            case 'test':
-                unset($model->data[$model->alias]['name']);
-                break;
-            case 'test2':
-                break;
-            case 'modify':
-                $model->data[$model->alias]['name'] .= ' ' . $string;
-                break;
-        }
-
-        return null;
-    }
-
-    /**
-     * beforeValidate Callback
-     *
-     * @param Model $model Model invalidFields was called on.
-     * @param array $options Options passed from Model::save().
-     * @return bool|null
-     * @see Model::save()
-     */
-    public function beforeValidate(Model $model, $options = []): mixed
-    {
-        $settings = $this->settings[$model->alias];
-        if (!isset($settings['validate']) || $settings['validate'] === 'off') {
-            return parent::beforeValidate($model, $options);
-        }
-        switch ($settings['validate']) {
-            case 'on':
-                $model->invalidate('name');
-
-                return true;
-            case 'test':
-                return null;
-            case 'whitelist':
-                $this->_addToWhitelist($model, ['name']);
-
-                return true;
-            case 'stop':
-                $model->invalidate('name');
-
-                return false;
-        }
-
-        return null;
-    }
-
-    /**
-     * afterValidate method
-     *
-     * @param Model $model
-     * @return bool|null
-     */
-    public function afterValidate(Model $model): mixed
-    {
-        $settings = $this->settings[$model->alias];
-        if (!isset($settings['afterValidate']) || $settings['afterValidate'] === 'off') {
-            return parent::afterValidate($model);
-        }
-        switch ($settings['afterValidate']) {
-            case 'on':
-                return false;
-            case 'test':
-                $model->data = ['foo'];
-
-                return true;
-        }
-
-        return null;
-    }
-
-    /**
-     * beforeDelete method
-     *
-     * @param Model $model
-     * @param bool $cascade
-     * @return bool|null
-     */
-    public function beforeDelete(Model $model, $cascade = true): mixed
-    {
-        $settings = $this->settings[$model->alias];
-        if (!isset($settings['beforeDelete']) || $settings['beforeDelete'] === 'off') {
-            return parent::beforeDelete($model, $cascade);
-        }
-        switch ($settings['beforeDelete']) {
-            case 'on':
-                return false;
-            case 'test':
-                return null;
-            case 'test2':
-                echo 'beforeDelete success';
-                if ($cascade) {
-                    echo ' (cascading) ';
-                }
-
-                return true;
-        }
-
-        return null;
-    }
-
-    /**
-     * afterDelete method
-     *
-     * @param Model $model
-     * @return bool|null
-     */
-    public function afterDelete(Model $model): mixed
-    {
-        $settings = $this->settings[$model->alias];
-        if (!isset($settings['afterDelete']) || $settings['afterDelete'] === 'off') {
-            parent::afterDelete($model);
-
-            return null;
-        }
-        switch ($settings['afterDelete']) {
-            case 'on':
-                echo 'afterDelete success';
-                break;
-        }
-
-        return null;
-    }
-
-    /**
-     * onError method
-     *
-     * @param Model $model
-     * @return void
-     */
-    public function onError(Model $model, $error): mixed
-    {
-        $settings = $this->settings[$model->alias];
-        if (!isset($settings['onError']) || $settings['onError'] === 'off') {
-            return parent::onError($model, $error);
-        }
-        echo 'onError trigger success';
-
-        return null;
-    }
-
-    /**
-     * beforeTest method
-     *
-     * @param Model $model
-     * @return string
-     */
-    public function beforeTest(Model $model): mixed
-    {
-        if (!isset($model->beforeTestResult)) {
-            $model->beforeTestResult = [];
-        }
-        $model->beforeTestResult[] = strtolower(static::class);
-
-        return strtolower(static::class);
-    }
-
-    /**
-     * testMethod method
-     *
-     * @param Model $model
-     * @param bool $param
-     * @return string|void
-     */
-    public function testMethod(Model $model, $param = true): mixed
-    {
-        if ($param === true) {
-            return 'working';
-        }
-
-        return null;
-    }
-
-    /**
-     * testData method
-     *
-     * @param Model $model
-     * @return bool
-     */
-    public function testData(Model $model): mixed
-    {
-        if (!isset($model->data['Apple']['field'])) {
-            return false;
-        }
-        $model->data['Apple']['field_2'] = true;
-
-        return true;
-    }
-
-    /**
-     * validateField method
-     *
-     * @param Model $model
-     * @param array|string $field
-     * @return bool
-     */
-    public function validateField(Model $model, $field): mixed
-    {
-        return current($field) === 'Orange';
-    }
-
-    /**
-     * speakEnglish method
-     *
-     * @param Model $model
-     * @param string $method
-     * @param string $query
-     * @return string
-     */
-    public function speakEnglish(Model $model, $method, $query): mixed
-    {
-        $method = preg_replace('/look for\s+/', 'Item.name = \'', $method);
-        $query = preg_replace('/^in\s+/', 'Location.name = \'', $query);
-
-        return $method . '\' AND ' . $query . '\'';
-    }
-}
-class_alias(TestBehavior::class, 'App\\Model\\Behavior\\TestBehavior');
-
-/**
- * Test2Behavior class
- *
- * @package       Cake.Test.Case.Model
- */
-class Test2Behavior extends TestBehavior
-{
-    public $mapMethods = ['/mappingRobot(\w+)/' => 'mapped'];
-
-    public function resolveMethod(Model $model, $stuff): void
-    {
-    }
-
-    public function mapped(Model $model, $method, $query): void
-    {
-    }
-}
-class_alias(Test2Behavior::class, 'App\\Model\\Behavior\\Test2Behavior');
-
-/**
- * Test3Behavior class
- *
- * @package       Cake.Test.Case.Model
- */
-class Test3Behavior extends TestBehavior
-{
-}
-class_alias(Test3Behavior::class, 'App\\Model\\Behavior\\Test3Behavior');
-
-/**
- * Test4Behavior class
- *
- * @package       Cake.Test.Case.Model
- */
-class Test4Behavior extends ModelBehavior
-{
-    public function setup(Model $model, $config = null): void
-    {
-        $model->bindModel(
-            ['hasMany' => ['Comment']],
-        );
-    }
-}
-class_alias(Test4Behavior::class, 'App\\Model\\Behavior\\Test4Behavior');
-
-/**
- * Test5Behavior class
- *
- * @package       Cake.Test.Case.Model
- */
-class Test5Behavior extends ModelBehavior
-{
-    public function setup(Model $model, $config = null): void
-    {
-        $model->bindModel(
-            ['belongsTo' => ['User']],
-        );
-    }
-}
-class_alias(Test5Behavior::class, 'App\\Model\\Behavior\\Test5Behavior');
-
-/**
- * Test6Behavior class
- *
- * @package       Cake.Test.Case.Model
- */
-class Test6Behavior extends ModelBehavior
-{
-    public function setup(Model $model, $config = null): void
-    {
-        $model->bindModel(
-            ['hasAndBelongsToMany' => ['Tag']],
-        );
-    }
-}
-class_alias(Test6Behavior::class, 'App\\Model\\Behavior\\Test6Behavior');
-
-/**
- * Test7Behavior class
- *
- * @package       Cake.Test.Case.Model
- */
-class Test7Behavior extends ModelBehavior
-{
-    public function setup(Model $model, $config = null): void
-    {
-        $model->bindModel(
-            ['hasOne' => ['Attachment']],
-        );
-    }
-}
-class_alias(Test7Behavior::class, 'App\\Model\\Behavior\\Test7Behavior');
-
-/**
- * Extended TestBehavior
- */
-class TestAliasBehavior extends TestBehavior
-{
-}
-class_alias(TestAliasBehavior::class, 'App\\Model\\Behavior\\TestAliasBehavior');
-
-/**
- * FirstBehavior
- */
-class FirstBehavior extends ModelBehavior
-{
-    public function beforeFind(Model $model, $query = []): mixed
-    {
-        $model->called[] = static::class;
-
-        return $query;
-    }
-}
-class_alias(FirstBehavior::class, 'App\\Model\\Behavior\\FirstBehavior');
-
-/**
- * SecondBehavior
- */
-class SecondBehavior extends FirstBehavior
-{
-}
-class_alias(SecondBehavior::class, 'App\\Model\\Behavior\\SecondBehavior');
-
-/**
- * ThirdBehavior
- */
-class ThirdBehavior extends FirstBehavior
-{
-}
-class_alias(ThirdBehavior::class, 'App\\Model\\Behavior\\ThirdBehavior');
-
-/**
- * Orangutan Model
- */
-class Orangutan extends Monkey
-{
-    public $called = [];
-}
-class_alias(Orangutan::class, 'App\\Model\\Orangutan');
 
 /**
  * BehaviorCollection class
@@ -564,6 +71,17 @@ class BehaviorCollectionTest extends CakeTestCase
         'core.translate',
         'core.device',
     ];
+
+    /**
+     * setUp method
+     *
+     * @return void
+     */
+    public function setUp(): void
+    {
+        parent::setUp();
+        Configure::write('App.namespace', 'TestApp');
+    }
 
     /**
      * Test load() with enabled => false
@@ -1417,7 +935,6 @@ class BehaviorCollectionTest extends CakeTestCase
         $this->assertInstanceOf(ContainableBehavior::class, $Model->Behaviors->Containable);
 
         $Model->Behaviors->unload('Namespaced');
-        Configure::write('App.namespace', 'TestApp');
         $Model->Behaviors->load('Namespaced');
         $this->assertInstanceOf(NamespacedBehavior::class, $Model->Behaviors->Namespaced);
     }
@@ -1459,7 +976,6 @@ class BehaviorCollectionTest extends CakeTestCase
      */
     public function testMergeActsAsNamespacedClassName(): void
     {
-        Configure::write('App.namespace', 'TestApp');
         $Model = new class extends NamespacedArticle {
             public $actsAs = ['Namespaced' => ['foo' => 'bar']];
         };

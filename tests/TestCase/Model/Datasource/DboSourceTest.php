@@ -18,11 +18,6 @@
 
 namespace Cake\Test\TestCase\Model\Datasource;
 
-use App\Model\Article;
-use App\Model\Attachment;
-use App\Model\Comment;
-use App\Model\Tag;
-use App\Model\Test;
 use Cake\Cache\Cache;
 use Cake\Core\App;
 use Cake\Core\Configure;
@@ -32,10 +27,6 @@ use Cake\Model\Datasource\Database\Postgres;
 use Cake\Model\Datasource\Database\Sqlserver;
 use Cake\Model\Datasource\DataSource;
 use Cake\Model\Datasource\DboSource;
-use Cake\Test\TestCase\Model\Author;
-use Cake\Test\TestCase\Model\Post;
-use Cake\Test\TestCase\Model\TestModel;
-use Cake\Test\TestCase\Model\User;
 use Cake\TestSuite\CakeTestCase;
 use Cake\Utility\ClassRegistry;
 use Cake\Utility\Hash;
@@ -43,10 +34,19 @@ use PDO;
 use PDOException;
 use PDOStatement;
 use ReflectionProperty;
+use TestApp\Model\Article;
+use TestApp\Model\Attachment;
+use TestApp\Model\Author;
+use TestApp\Model\Comment;
+use TestApp\Model\Datasource\DboFourthTestSource;
+use TestApp\Model\Datasource\DboThirdTestSource;
+use TestApp\Model\Post;
+use TestApp\Model\Tag;
+use TestApp\Model\Test;
+use TestApp\Model\TestModel;
+use TestApp\Model\User;
 
 App::uses('AppModel', 'Model');
-
-require_once dirname(__DIR__) . DS . 'models.php';
 
 /**
  * MockPDO
@@ -140,56 +140,6 @@ class DboSecondTestSource extends DboSource
 }
 
 /**
- * DboThirdTestSource
- *
- * @package       Cake.Test.Case.Model.Datasource
- */
-class DboThirdTestSource extends DboSource
-{
-    public function connect($config = []): void
-    {
-        $this->connected = true;
-    }
-
-    public function cacheMethodHasher($value): mixed
-    {
-        return hash('sha1', $value);
-    }
-}
-class_alias(DboThirdTestSource::class, 'App\\Model\\Datasource\\DboThirdTestSource');
-
-/**
- * DboFourthTestSource
- *
- * @package       Cake.Test.Case.Model.Datasource
- */
-class DboFourthTestSource extends DboSource
-{
-    public function connect($config = []): void
-    {
-        $this->connected = true;
-    }
-
-    public function cacheMethodFilter($method, $key, $value): mixed
-    {
-        if ($method === 'name') {
-            if ($value === '`menus`') {
-                return false;
-            } elseif ($key === '1fca740733997f1ebbedacfc7678592a') {
-                return false;
-            }
-        } elseif ($method === 'fields') {
-            $endsWithName = preg_grep('/`name`$/', $value);
-
-            return count($endsWithName) === 0;
-        }
-
-        return true;
-    }
-}
-class_alias(DboFourthTestSource::class, 'App\\Model\\Datasource\\DboFourthTestSource');
-
-/**
  * DboSourceTest class
  *
  * @package       Cake.Test.Case.Model.Datasource
@@ -230,6 +180,7 @@ class DboSourceTest extends CakeTestCase
     public function setUp(): void
     {
         parent::setUp();
+        Configure::write('App.namespace', 'TestApp');
 
         $this->testDb = new DboTestSource();
         $this->testDb->cacheSources = false;

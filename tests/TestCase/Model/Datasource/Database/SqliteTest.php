@@ -27,16 +27,14 @@ use Cake\Model\ConnectionManager;
 use Cake\Model\Datasource\Database\Sqlite;
 use Cake\Model\Datasource\DboSource;
 use Cake\Model\Model;
-use Cake\Test\TestCase\Model\TestModel;
-use Cake\Test\TestCase\Model\User;
 use Cake\TestSuite\CakeTestCase;
 use Cake\Utility\ClassRegistry;
 use Cake\Utility\Validation;
 use PDOStatement;
+use TestApp\Model\TestModel;
+use TestApp\Model\User;
 
 App::uses('AppModel', 'Model');
-
-require_once dirname(__DIR__, 2) . DS . 'models.php';
 
 /**
  * DboSqliteTestDb class
@@ -114,6 +112,7 @@ class SqliteTest extends CakeTestCase
     public function setUp(): void
     {
         parent::setUp();
+        Configure::write('App.namespace', 'TestApp');
         Configure::write('Cache.disable', true);
         $this->Dbo = ConnectionManager::getDataSource('test');
         if (!$this->Dbo instanceof Sqlite) {

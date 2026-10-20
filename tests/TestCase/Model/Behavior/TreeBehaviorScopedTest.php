@@ -20,16 +20,14 @@
 
 namespace Cake\Test\TestCase\Model\Behavior;
 
-use App\Model\Ad;
-use App\Model\FlagTree;
-use App\Model\NumberTreeTwo;
 use Cake\Core\App;
 use Cake\TestSuite\CakeTestCase;
 use Cake\Utility\Hash;
+use TestApp\Model\Ad;
+use TestApp\Model\FlagTree;
+use TestApp\Model\NumberTreeTwo;
 
 App::uses('AppModel', 'Model');
-
-require_once dirname(__DIR__) . DS . 'models.php';
 
 /**
  * TreeBehaviorScopedTest class

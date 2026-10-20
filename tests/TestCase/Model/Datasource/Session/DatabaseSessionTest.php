@@ -21,20 +21,9 @@ namespace Cake\Test\TestCase\Model\Datasource\Session;
 use Cake\Core\Configure;
 use Cake\Model\Datasource\Database\Sqlite;
 use Cake\Model\Datasource\Session\DatabaseSession;
-use Cake\Model\Model;
 use Cake\TestSuite\CakeTestCase;
 use Cake\Utility\ClassRegistry;
-
-/**
- * SessionTestModel
- *
- * @package       Cake.Test.Case.Model.Datasource.Session
- */
-class SessionTestModel extends Model
-{
-    public $useTable = 'sessions';
-}
-class_alias(SessionTestModel::class, 'App\\Model\\SessionTestModel');
+use TestApp\Model\SessionTestModel;
 
 /**
  * Database session test.
@@ -86,6 +75,7 @@ class DatabaseSessionTest extends CakeTestCase
     public function setUp(): void
     {
         parent::setUp();
+        Configure::write('App.namespace', 'TestApp');
         $this->storage = new DatabaseSession();
     }
 

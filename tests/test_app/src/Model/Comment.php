@@ -1,34 +1,46 @@
 <?php
 /**
- * Test App Comment Model
- *
- * CakePHP : Rapid Development Framework (https://cakephp.org)
+ * CakePHP(tm) Tests <https://book.cakephp.org/2.0/en/development/testing.html>
  * Copyright (c) Cake Software Foundation, Inc. (https://cakefoundation.org)
  *
  * Licensed under The MIT License
  * For full copyright and license information, please see the LICENSE.txt
- * Redistributions of files must retain the above copyright notice.
+ * Redistributions of files must retain the above copyright notice
  *
  * @copyright     Copyright (c) Cake Software Foundation, Inc. (https://cakefoundation.org)
- * @link          https://cakephp.org CakePHP Project
- * @package       Cake.Test.TestApp.Model
- * @since         CakePHP v 1.2.0.7726
+ * @link          https://book.cakephp.org/2.0/en/development/testing.html CakePHP(tm) Tests
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
 namespace TestApp\Model;
 
+use Cake\TestSuite\Fixture\CakeTestModel;
+
 /**
- * Comment Model
+ * Comment class
  *
- * @package       Cake.Test.TestApp.Model
+ * @package       Cake.Test.Case.Model
  */
-class Comment extends AppModel
+class Comment extends CakeTestModel
 {
     /**
-     * Table name
+     * name property
      *
-     * @var string|bool|null
+     * @var string|null
      */
-    public $useTable = 'comments';
+    public $name = 'Comment';
+
+    /**
+     * belongsTo property
+     *
+     * @var array
+     */
+    public $belongsTo = ['Article', 'User'];
+
+    /**
+     * hasOne property
+     *
+     * @var array
+     */
+    public $hasOne = ['Attachment' => ['dependent' => true]];
 }

@@ -18,8 +18,24 @@
 
 namespace Cake\Test\TestCase\Model;
 
+use Cake\Core\App;
+use Cake\Core\CakePlugin;
 use Cake\Utility\ClassRegistry;
 use PDOException;
+use TestApp\Model\Article;
+use TestApp\Model\Article10;
+use TestApp\Model\ArticleB;
+use TestApp\Model\BeforeDeleteComment;
+use TestApp\Model\Bidding;
+use TestApp\Model\Book;
+use TestApp\Model\CallbackPostTestModel;
+use TestApp\Model\Cd;
+use TestApp\Model\CounterCacheUser;
+use TestApp\Model\JoinA;
+use TestApp\Model\OverallFavorite;
+use TestApp\Model\Portfolio;
+use TestApp\Model\ThePaper;
+use TestApp\Model\Uuid;
 
 /**
  * ModelDeleteTest
@@ -654,6 +670,11 @@ class ModelDeleteTest extends BaseModelTest
      */
     public function testDeleteLinksWithPLuginJoinModel(): void
     {
+        App::build([
+            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
+        ], App::RESET);
+        CakePlugin::load('TestPlugin');
+
         $this->loadFixtures('Article', 'ArticlesTag', 'Tag', 'Comment', 'Attachment');
         $article = new Article();
         $article->unbindModel(['hasAndBelongsToMany' => ['Tag']], false);
@@ -664,6 +685,7 @@ class ModelDeleteTest extends BaseModelTest
 
         $article->ArticlesTag->order = null;
         $this->assertTrue($article->delete(1));
+        CakePlugin::unload();
     }
 
     /**

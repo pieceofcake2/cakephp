@@ -19,6 +19,7 @@
 namespace Cake\Test\TestCase\Model\Behavior;
 
 use Cake\Core\App;
+use Cake\Core\Configure;
 use Cake\Model\ConnectionManager;
 use Cake\Model\Model;
 use Cake\TestSuite\CakeTestCase;
@@ -29,8 +30,6 @@ use DATABASE_CONFIG;
 use Exception;
 
 App::uses('AppModel', 'Model');
-
-require_once dirname(__DIR__) . DS . 'models.php';
 
 /**
  * ContainableTest class
@@ -70,6 +69,7 @@ class ContainableBehaviorTest extends CakeTestCase
     public function setUp(): void
     {
         parent::setUp();
+        Configure::write('App.namespace', 'TestApp');
         $this->User = ClassRegistry::init('User');
         $this->Article = ClassRegistry::init('Article');
         $this->Tag = ClassRegistry::init('Tag');

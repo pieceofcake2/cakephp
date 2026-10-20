@@ -20,14 +20,12 @@
 
 namespace Cake\Test\TestCase\Model\Behavior;
 
-use App\Model\NumberTree;
-use App\Model\Person;
 use Cake\Core\App;
 use Cake\TestSuite\CakeTestCase;
+use TestApp\Model\NumberTree;
+use TestApp\Model\Person;
 
 App::uses('AppModel', 'Model');
-
-require_once dirname(__DIR__) . DS . 'models.php';
 
 /**
  * TreeBehaviorNumberTest class

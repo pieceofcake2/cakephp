@@ -46,8 +46,6 @@ use TestPlugin\Model\Datasource\TestSource;
  */
 class ConnectionManagerTest extends CakeTestCase
 {
-    protected ?string $_appNamespace = null;
-
     /**
      * @return void
      */
@@ -55,7 +53,6 @@ class ConnectionManagerTest extends CakeTestCase
     {
         parent::setUp();
 
-        $this->_appNamespace = Configure::read('App.namespace');
         Configure::write('App.namespace', 'TestApp');
     }
 
@@ -67,7 +64,6 @@ class ConnectionManagerTest extends CakeTestCase
     public function tearDown(): void
     {
         CakePlugin::unload();
-        Configure::write('App.namespace', $this->_appNamespace);
 
         parent::tearDown();
     }
@@ -830,7 +826,6 @@ class ConnectionManagerTest extends CakeTestCase
      */
     public function testNamespacedDatasource(): void
     {
-        Configure::write('App.namespace', 'TestApp');
         $source = ConnectionManager::create('namespaced_source', ['datasource' => 'NamespacedSource']);
         $this->assertInstanceOf(NamespacedSource::class, $source);
         ConnectionManager::drop('namespaced_source');

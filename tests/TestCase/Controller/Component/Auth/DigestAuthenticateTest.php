@@ -29,8 +29,6 @@ use Cake\Utility\ClassRegistry;
 
 App::uses('AppModel', 'Model');
 
-require_once CORE_TESTS . DS . 'TestCase' . DS . 'Model' . DS . 'models.php';
-
 /**
  * Test case for DigestAuthentication
  *

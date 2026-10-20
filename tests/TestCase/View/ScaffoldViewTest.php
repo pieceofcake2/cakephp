@@ -27,54 +27,10 @@ use Cake\Network\CakeRequest;
 use Cake\Network\CakeResponse;
 use Cake\Routing\Router;
 use Cake\TestSuite\CakeTestCase;
-use Cake\View\ScaffoldView;
+use TestApp\Controller\ScaffoldViewMockController;
+use TestApp\View\TestScaffoldView;
 
 App::uses('AppModel', 'Model');
-
-require_once dirname(__DIR__) . DS . 'Model' . DS . 'models.php';
-
-/**
- * TestScaffoldView class
- *
- * @package       Cake.Test.Case.Controller
- */
-class TestScaffoldView extends ScaffoldView
-{
-    /**
-     * testGetFilename method
-     *
-     * @param string $action
-     * @return string
-     */
-    public function testGetFilename($action): mixed
-    {
-        return $this->_getViewFileName($action);
-    }
-}
-class_alias(TestScaffoldView::class, 'App\\View\\TestScaffoldView');
-
-/**
- * ScaffoldViewMockController class
- *
- * @package       Cake.Test.Case.Controller
- */
-class ScaffoldViewMockController extends Controller
-{
-    /**
-     * name property
-     *
-     * @var string|null
-     */
-    public $name = 'ScaffoldMock';
-
-    /**
-     * scaffold property
-     *
-     * @var string|null|false
-     */
-    public $scaffold = null;
-}
-class_alias(ScaffoldViewMockController::class, 'App\\Controller\\ScaffoldViewMockController');
 
 /**
  * ScaffoldViewTest class
@@ -107,6 +63,7 @@ class ScaffoldViewTest extends CakeTestCase
     public function setUp(): void
     {
         parent::setUp();
+        Configure::write('App.namespace', 'TestApp');
         $this->request = new CakeRequest(null, false);
         $this->Controller = new ScaffoldViewMockController($this->request);
         $this->Controller->response = $this->getMock(CakeResponse::class, ['_sendHeader']);

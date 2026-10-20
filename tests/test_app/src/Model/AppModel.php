@@ -38,4 +38,37 @@ class AppModel extends Model
      * @var array
      */
     public $actsAs = ['Containable'];
+
+    /**
+     * findMethods property
+     *
+     * @var array
+     */
+    public $findMethods = ['published' => true];
+
+    /**
+     * useDbConfig property
+     *
+     * @var array
+     */
+    public $useDbConfig = 'test';
+
+    /**
+     * _findPublished custom find
+     *
+     * @param string $state
+     * @param array $query
+     * @param array $results
+     * @return array
+     */
+    protected function _findPublished($state, $query, $results = []): mixed
+    {
+        if ($state === 'before') {
+            $query['conditions']['published'] = 'Y';
+
+            return $query;
+        }
+
+        return $results;
+    }
 }

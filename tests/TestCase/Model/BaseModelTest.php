@@ -22,8 +22,6 @@ use Cake\Core\Configure;
 use Cake\TestSuite\CakeTestCase;
 use Cake\Utility\ClassRegistry;
 
-require_once __DIR__ . DS . 'models.php';
-
 /**
  * ModelBaseTest
  *
@@ -165,6 +163,7 @@ abstract class BaseModelTest extends CakeTestCase
     {
         $this->debug = Configure::read('debug');
         parent::setUp();
+        Configure::write('App.namespace', 'TestApp');
     }
 
     /**

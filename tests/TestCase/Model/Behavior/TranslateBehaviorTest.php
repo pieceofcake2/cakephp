@@ -15,14 +15,6 @@
 
 namespace Cake\Test\TestCase\Model\Behavior;
 
-use App\Model\Tag;
-use App\Model\TranslatedArticle;
-use App\Model\TranslatedItem;
-use App\Model\TranslatedItem2;
-use App\Model\TranslatedItemLeftJoin;
-use App\Model\TranslatedItemWithTable;
-use App\Model\TranslateTestModel;
-use App\Model\User;
 use Cake\Core\App;
 use Cake\Core\Configure;
 use Cake\Error\CakeException;
@@ -33,10 +25,16 @@ use Cake\TestSuite\CakeTestCase;
 use Cake\Utility\ClassRegistry;
 use Cake\Utility\Hash;
 use TestApp\Model\Datasource\Test2Source;
+use TestApp\Model\Tag;
+use TestApp\Model\TranslatedArticle;
+use TestApp\Model\TranslatedItem;
+use TestApp\Model\TranslatedItem2;
+use TestApp\Model\TranslatedItemLeftJoin;
+use TestApp\Model\TranslatedItemWithTable;
+use TestApp\Model\TranslateTestModel;
+use TestApp\Model\User;
 
 App::uses('AppModel', 'Model');
-
-require_once dirname(__DIR__) . DS . 'models.php';
 
 /**
  * TranslateBehaviorTest class
@@ -69,6 +67,17 @@ class TranslateBehaviorTest extends CakeTestCase
         'core.articles_tag',
         'core.translate_with_prefix',
     ];
+
+    /**
+     * setUp method
+     *
+     * @return void
+     */
+    public function setUp(): void
+    {
+        parent::setUp();
+        Configure::write('App.namespace', 'TestApp');
+    }
 
     /**
      * Test that count queries with conditions get the correct joins

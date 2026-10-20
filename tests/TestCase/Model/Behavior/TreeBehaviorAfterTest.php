@@ -18,13 +18,11 @@
 
 namespace Cake\Test\TestCase\Model\Behavior;
 
-use App\Model\AfterTree;
 use Cake\Core\App;
 use Cake\TestSuite\CakeTestCase;
+use TestApp\Model\AfterTree;
 
 App::uses('AppModel', 'Model');
-
-require_once dirname(__DIR__) . DS . 'models.php';
 
 /**
  * TreeBehaviorAfterTest class

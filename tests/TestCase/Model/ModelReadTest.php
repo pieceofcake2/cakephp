@@ -27,6 +27,34 @@ use Cake\Model\Datasource\Database\Sqlserver;
 use Cake\Utility\ClassRegistry;
 use Cake\Utility\Hash;
 use PDOException;
+use TestApp\Model\AgainModifiedComment;
+use TestApp\Model\Apple;
+use TestApp\Model\Article;
+use TestApp\Model\Article10;
+use TestApp\Model\Author;
+use TestApp\Model\Basket;
+use TestApp\Model\Category;
+use TestApp\Model\CategoryThread;
+use TestApp\Model\Comment;
+use TestApp\Model\CustomArticle;
+use TestApp\Model\DeviceType;
+use TestApp\Model\Featured;
+use TestApp\Model\Home;
+use TestApp\Model\JoinThing;
+use TestApp\Model\ModifiedAuthor;
+use TestApp\Model\MyUser;
+use TestApp\Model\NodeAfterFind;
+use TestApp\Model\NodeNoAfterFind;
+use TestApp\Model\NumericArticle;
+use TestApp\Model\Person;
+use TestApp\Model\Portfolio;
+use TestApp\Model\Post;
+use TestApp\Model\Product;
+use TestApp\Model\Project;
+use TestApp\Model\Something;
+use TestApp\Model\Thread;
+use TestApp\Model\TranslatedArticle;
+use TestApp\Model\User;
 
 /**
  * ModelReadTest

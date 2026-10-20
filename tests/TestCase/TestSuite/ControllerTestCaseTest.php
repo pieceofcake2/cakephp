@@ -21,10 +21,7 @@
 
 namespace Cake\Test\TestCase\TestSuite;
 
-use App\Model\Post;
-use App\Model\TestPluginComment;
 use Cake\Controller\Component\EmailComponent;
-use Cake\Controller\Controller;
 use Cake\Core\App;
 use Cake\Core\CakePlugin;
 use Cake\Core\Configure;
@@ -41,84 +38,12 @@ use PHPUnit\Framework\MockObject\MockObject;
 use TestApp\Controller\Component\NamespacedComponent;
 use TestApp\Controller\NamespacedController;
 use TestApp\Model\NamespacedPost;
+use TestApp\Model\Post;
 use TestPlugin\Controller\Component\PluginsComponent;
 use TestPlugin\Controller\Component\TestPluginEmailComponent;
+use TestPlugin\Model\TestPluginComment;
 
 App::uses('AppModel', 'Model');
-
-require_once dirname(__DIR__) . DS . 'Model' . DS . 'models.php';
-
-/**
- * AppController class
- *
- * @package       Cake.Test.Case.TestSuite
- */
-class AppController extends Controller
-{
-    /**
-     * helpers property
-     *
-     * @var array
-     */
-    public $helpers = ['Html'];
-
-    /**
-     * uses property
-     *
-     * @var array|bool|null
-     */
-    public $uses = ['ControllerPost'];
-
-    /**
-     * components property
-     *
-     * @var array
-     */
-    public $components = ['Cookie'];
-}
-
-/**
- * PostsController
- *
- * @package       Cake.Test.Case.TestSuite
- * @property TestPluginEmailComponent $AliasedPluginEmail
- */
-class PostsController extends AppController
-{
-    /**
-     * Components array
-     *
-     * @var array
-     */
-    public $components = [
-        'RequestHandler',
-        'Email',
-        'AliasedEmail' => [
-            'className' => 'Email',
-        ],
-        'AliasedPluginEmail' => [
-            'className' => 'TestPlugin.TestPluginEmail',
-        ],
-        'Auth',
-    ];
-}
-class_alias(PostsController::class, 'TestApp\\Controller\\PostsController');
-
-/**
- * ControllerTestCaseTest controller
- *
- * @package       Cake.Test.Case.TestSuite
- */
-class ControllerTestCaseTestController extends AppController
-{
-    /**
-     * Uses array
-     *
-     * @var array|bool|null
-     */
-    public $uses = ['TestPlugin.TestPluginComment'];
-}
-class_alias(ControllerTestCaseTestController::class, 'TestApp\\Controller\\ControllerTestCaseTestController');
 
 /**
  * ControllerTestCaseTest
@@ -127,8 +52,6 @@ class_alias(ControllerTestCaseTestController::class, 'TestApp\\Controller\\Contr
  */
 class ControllerTestCaseTest extends CakeTestCase
 {
-    protected ?string $_appNamespace = null;
-
     /**
      * fixtures property
      *
@@ -151,7 +74,6 @@ class ControllerTestCaseTest extends CakeTestCase
     {
         parent::setUp();
 
-        $this->_appNamespace = Configure::read('App.namespace');
         Configure::write('App.namespace', 'TestApp');
 
         App::build([
@@ -177,7 +99,6 @@ class ControllerTestCaseTest extends CakeTestCase
     {
         CakePlugin::unload();
         $this->Case->controller = null;
-        Configure::write('App.namespace', $this->_appNamespace);
 
         parent::tearDown();
     }
@@ -872,7 +793,6 @@ class ControllerTestCaseTest extends CakeTestCase
      */
     public function testGenerateNamespaced(): void
     {
-        Configure::write('App.namespace', 'TestApp');
         $Controller = $this->Case->generate('Namespaced', [
             'components' => ['Namespaced'],
         ]);

@@ -25,7 +25,6 @@ use Cake\Model\Datasource\Database\Mysql;
 use Cake\Model\Datasource\Database\Postgres;
 use Cake\Model\Datasource\Database\Sqlite;
 use Cake\Model\Datasource\Database\Sqlserver;
-use Cake\Model\Datasource\DataSource;
 use Cake\Model\Datasource\DboSource;
 use Cake\Model\Model;
 use Cake\Utility\ClassRegistry;
@@ -35,98 +34,49 @@ use Cake\Utility\Xml;
 use Exception;
 use PDOException;
 use PHPUnit\Framework\MockObject\MockObject;
-
-require_once __DIR__ . DS . 'models.php';
-
-/**
- * Helper class for testing with mocked datasources
- *
- * @property Post $Post
- */
-class TestAuthor extends Author
-{
-    public $hasMany = [
-        'Post' => [
-            'className' => 'TestPost',
-        ],
-    ];
-
-    protected $_dataSourceObject = null;
-
-    public $dataForAfterSave = [];
-
-    /**
-     * Helper method to set a datasource object
-     *
-     * @param DataSource $object The datasource object
-     * @return void
-     */
-    public function setDataSourceObject($object): void
-    {
-        $this->_dataSourceObject = $object;
-    }
-
-    /**
-     * Overwritten in order to return the directly set datasource object if
-     * available
-     *
-     * @return DataSource
-     */
-    public function getDataSource(): mixed
-    {
-        if ($this->_dataSourceObject !== null) {
-            return $this->_dataSourceObject;
-        }
-
-        return parent::getDataSource();
-    }
-}
-class_alias(TestAuthor::class, 'App\\Model\\TestAuthor');
-
-/**
- * Helper class for testing with mocked datasources
- *
- * @property Author $Author
- */
-class TestPost extends Post
-{
-    public $belongsTo = [
-        'Author' => [
-            'className' => 'TestAuthor',
-        ],
-    ];
-
-    protected $_dataSourceObject = null;
-
-    public $dataForAfterSave = [];
-
-    /**
-     * Helper method to set a datasource object
-     *
-     * @param DataSource $object The datasource object
-     * @return void
-     */
-    public function setDataSourceObject($object): void
-    {
-        $this->_dataSourceObject = $object;
-    }
-
-    /**
-     * Overwritten in order to return the directly set datasource object if
-     * available
-     *
-     * @return DataSource
-     */
-    public function getDataSource(): mixed
-    {
-        if ($this->_dataSourceObject !== null) {
-            return $this->_dataSourceObject;
-        }
-
-        return parent::getDataSource();
-    }
-}
-class_alias(TestPost::class, 'App\\Model\\TestPost');
+use TestApp\Model\Article;
+use TestApp\Model\ArticleFeatured;
+use TestApp\Model\ArticlesTagBelongsToArticle;
+use TestApp\Model\Attachment;
+use TestApp\Model\Author;
+use TestApp\Model\Bidding;
+use TestApp\Model\CallbackPostTestModel;
+use TestApp\Model\CategoryThread;
+use TestApp\Model\Comment;
+use TestApp\Model\CounterCachePost;
+use TestApp\Model\CounterCachePostNonstandardPrimaryKey;
+use TestApp\Model\CounterCacheUser;
+use TestApp\Model\CounterCacheUserNonstandardPrimaryKey;
+use TestApp\Model\DataTest;
+use TestApp\Model\Fruit;
+use TestApp\Model\FruitNoWith;
+use TestApp\Model\Item;
+use TestApp\Model\JoinA;
+use TestApp\Model\Node;
+use TestApp\Model\OverallFavorite;
+use TestApp\Model\Portfolio;
+use TestApp\Model\Post;
+use TestApp\Model\PrimaryModel;
+use TestApp\Model\ProductUpdateAll;
+use TestApp\Model\Something;
+use TestApp\Model\Story;
+use TestApp\Model\Syfile;
+use TestApp\Model\TestAuthor;
+use TestApp\Model\TestPost;
+use TestApp\Model\ThePaper;
+use TestApp\Model\TheVoid;
+use TestApp\Model\TransactionManyTestModel;
+use TestApp\Model\TransactionTestModel;
+use TestApp\Model\UnderscoreField;
+use TestApp\Model\User;
+use TestApp\Model\UserHasOneArticle;
+use TestApp\Model\Uuid;
+use TestApp\Model\Uuiditem;
+use TestApp\Model\UuidNative;
+use TestApp\Model\Uuidnativeitem;
+use TestApp\Model\Uuidnativeportfolio;
+use TestApp\Model\Uuidportfolio;
+use TestApp\Model\ValidationTest1;
 
 /**
  * ModelWriteTest

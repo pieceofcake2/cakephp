@@ -26,17 +26,6 @@ use Cake\Model\ConnectionManager;
 use Cake\Model\Datasource\Database\Mysql;
 use Cake\Model\Datasource\DboSource;
 use Cake\Model\Model;
-use Cake\Test\TestCase\Model\Apple;
-use Cake\Test\TestCase\Model\Article;
-use Cake\Test\TestCase\Model\Article2;
-use Cake\Test\TestCase\Model\Category2;
-use Cake\Test\TestCase\Model\Featured2;
-use Cake\Test\TestCase\Model\Post;
-use Cake\Test\TestCase\Model\TestModel;
-use Cake\Test\TestCase\Model\TestModel4;
-use Cake\Test\TestCase\Model\TestModel5;
-use Cake\Test\TestCase\Model\TestModel8;
-use Cake\Test\TestCase\Model\TestModel9;
 use Cake\TestSuite\CakeTestCase;
 use Cake\TestSuite\Fixture\CakeTestModel;
 use Cake\Utility\ClassRegistry;
@@ -47,11 +36,20 @@ use PHPUnit\Framework\Error;
 use ReflectionClass;
 use ReflectionProperty;
 use stdClass;
+use TestApp\Model\Apple;
+use TestApp\Model\Article;
+use TestApp\Model\Article2;
+use TestApp\Model\Category2;
+use TestApp\Model\Featured2;
+use TestApp\Model\Post;
+use TestApp\Model\TestModel;
+use TestApp\Model\TestModel4;
+use TestApp\Model\TestModel5;
+use TestApp\Model\TestModel8;
+use TestApp\Model\TestModel9;
 use TypeError;
 
 App::uses('AppModel', 'Model');
-
-require_once dirname(__DIR__, 2) . DS . 'models.php';
 
 /**
  * DboMysqlTest class

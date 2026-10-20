@@ -27,7 +27,6 @@ use Cake\Model\ConnectionManager;
 use Cake\Model\Datasource\Database\Sqlite;
 use Cake\TestSuite\CakeTestCase;
 use Cake\TestSuite\Fixture\CakeTestFixture;
-use Cake\TestSuite\Fixture\CakeTestModel;
 use Cake\Utility\ClassRegistry;
 use Exception;
 use MyOtherAppSchema;
@@ -109,7 +108,6 @@ class MyAppSchema extends CakeSchema
         return $this->$var;
     }
 }
-class_alias(MyAppSchema::class, 'MyAppSchema');
 
 /**
  * TestAppSchema class
@@ -223,137 +221,6 @@ class TestAppSchema extends CakeSchema
     {
     }
 }
-class_alias(TestAppSchema::class, 'TestAppSchema');
-
-/**
- * SchemaPost class
- *
- * @package       Cake.Test.Case.Model
- */
-class SchemaPost extends CakeTestModel
-{
-    /**
-     * useTable property
-     *
-     * @var string|bool|null
-     */
-    public $useTable = 'posts';
-
-    /**
-     * hasMany property
-     *
-     * @var array
-     */
-    public $hasMany = ['SchemaComment'];
-
-    /**
-     * hasAndBelongsToMany property
-     *
-     * @var array
-     */
-    public $hasAndBelongsToMany = ['SchemaTag'];
-}
-class_alias(SchemaPost::class, 'App\\Model\\SchemaPost');
-
-/**
- * SchemaComment class
- *
- * @package       Cake.Test.Case.Model
- */
-class SchemaComment extends CakeTestModel
-{
-    /**
-     * useTable property
-     *
-     * @var string|bool|null
-     */
-    public $useTable = 'comments';
-
-    /**
-     * belongsTo property
-     *
-     * @var array
-     */
-    public $belongsTo = ['SchemaPost'];
-}
-class_alias(SchemaComment::class, 'App\\Model\\SchemaComment');
-
-/**
- * SchemaTag class
- *
- * @package       Cake.Test.Case.Model
- */
-class SchemaTag extends CakeTestModel
-{
-    /**
-     * useTable property
-     *
-     * @var string|bool|null
-     */
-    public $useTable = 'tags';
-
-    /**
-     * hasAndBelongsToMany property
-     *
-     * @var array
-     */
-    public $hasAndBelongsToMany = ['SchemaPost'];
-}
-class_alias(SchemaTag::class, 'App\\Model\\SchemaTag');
-
-/**
- * SchemaDatatype class
- *
- * @package       Cake.Test.Case.Model
- */
-class SchemaDatatype extends CakeTestModel
-{
-    /**
-     * useTable property
-     *
-     * @var string|bool|null
-     */
-    public $useTable = 'datatypes';
-}
-class_alias(SchemaDatatype::class, 'App\\Model\\SchemaDatatype');
-
-/**
- * Testdescribe class
- *
- * This class is defined purely to inherit the cacheSources variable otherwise
- * testSchemaCreateTable will fail if listSources has already been called and
- * its source cache populated - I.e. if the test is run within a group
- *
- * @uses          CakeTestModel
- * @package       Cake.Test.Case.Model
- */
-class Testdescribe extends CakeTestModel
-{
-}
-class_alias(Testdescribe::class, 'App\\Model\\Testdescribe');
-
-/**
- * SchemaCrossDatabase class
- *
- * @package       Cake.Test.Case.Model
- */
-class SchemaCrossDatabase extends CakeTestModel
-{
-    /**
-     * useTable property
-     *
-     * @var string|bool|null
-     */
-    public $useTable = 'cross_database';
-
-    /**
-     * useDbConfig property
-     *
-     * @var string
-     */
-    public $useDbConfig = 'test2';
-}
-class_alias(SchemaCrossDatabase::class, 'App\\Model\\SchemaCrossDatabase');
 
 /**
  * SchemaCrossDatabaseFixture class
@@ -431,29 +298,6 @@ class NonConventionalPrimaryKeyFixture extends CakeTestFixture
 }
 
 /**
- * SchemaPrefixAuthUser class
- *
- * @package       Cake.Test.Case.Model
- */
-class SchemaPrefixAuthUser extends CakeTestModel
-{
-    /**
-     * table prefix
-     *
-     * @var string|null
-     */
-    public $tablePrefix = 'auth_';
-
-    /**
-     * useTable
-     *
-     * @var string|bool|null
-     */
-    public $useTable = 'users';
-}
-class_alias(SchemaPrefixAuthUser::class, 'App\\Model\\SchemaPrefixAuthUser');
-
-/**
  * CakeSchemaTest
  *
  * @package       Cake.Test.Case.Model
@@ -487,6 +331,7 @@ class CakeSchemaTest extends CakeTestCase
     public function setUp(): void
     {
         parent::setUp();
+        Configure::write('App.namespace', 'TestApp');
         ConnectionManager::getDataSource('test')->cacheSources = false;
         $this->Schema = new TestAppSchema();
     }
@@ -802,7 +647,6 @@ class CakeSchemaTest extends CakeTestCase
      */
     public function testSchemaReadWithNamespacedJoinModel(): void
     {
-        Configure::write('App.namespace', 'TestApp');
         $Schema = new CakeSchema();
         $read = $Schema->read([
             'connection' => 'test',

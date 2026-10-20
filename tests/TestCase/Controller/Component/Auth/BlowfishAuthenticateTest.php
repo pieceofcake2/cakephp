@@ -31,8 +31,6 @@ use Cake\Utility\Security;
 
 App::uses('AppModel', 'Model');
 
-require_once CORE_TESTS . DS . 'TestCase' . DS . 'Model' . DS . 'models.php';
-
 /**
  * Test case for BlowfishAuthentication
  *

@@ -24,152 +24,9 @@ use Cake\Core\Configure;
 use Cake\Model\Aco;
 use Cake\Model\Aro;
 use Cake\TestSuite\CakeTestCase;
-use Cake\TestSuite\Fixture\CakeTestModel;
-
-/**
- * Test Person class - self joined model
- *
- * @package       Cake.Test.Case.Model.Behavior
- */
-class AclPerson extends CakeTestModel
-{
-    /**
-     * useTable property
-     *
-     * @var string|bool|null
-     */
-    public $useTable = 'people';
-
-    /**
-     * actsAs property
-     *
-     * @var array
-     */
-    public $actsAs = ['Acl' => 'both'];
-
-    /**
-     * belongsTo property
-     *
-     * @var array
-     */
-    public $belongsTo = [
-        'Mother' => [
-            'className' => 'AclPerson',
-            'foreignKey' => 'mother_id',
-        ],
-    ];
-
-    /**
-     * hasMany property
-     *
-     * @var array
-     */
-    public $hasMany = [
-        'Child' => [
-            'className' => 'AclPerson',
-            'foreignKey' => 'mother_id',
-        ],
-    ];
-
-    /**
-     * parentNode method
-     *
-     * @return array[]|null
-     */
-    public function parentNode(): mixed
-    {
-        if (!$this->id && empty($this->data)) {
-            return null;
-        }
-        $motherId = $this->data['AclPerson']['mother_id'] ?? $this->field('mother_id');
-        if (!$motherId) {
-            return null;
-        }
-
-        return ['AclPerson' => ['id' => $motherId]];
-    }
-}
-class_alias(AclPerson::class, 'App\\Model\\AclPerson');
-
-/**
- * AclUser class
- *
- * @package       Cake.Test.Case.Model.Behavior
- */
-class AclUser extends CakeTestModel
-{
-    /**
-     * name property
-     *
-     * @var string|null
-     */
-    public $name = 'User';
-
-    /**
-     * useTable property
-     *
-     * @var string|bool|null
-     */
-    public $useTable = 'users';
-
-    /**
-     * actsAs property
-     *
-     * @var array
-     */
-    public $actsAs = ['Acl' => ['type' => 'requester']];
-
-    /**
-     * parentNode
-     *
-     * @return null
-     */
-    public function parentNode(): mixed
-    {
-        return null;
-    }
-}
-class_alias(AclUser::class, 'App\\Model\\AclUser');
-
-/**
- * AclPost class
- *
- * @package       Cake.Test.Case.Model.Behavior
- */
-class AclPost extends CakeTestModel
-{
-    /**
-     * name property
-     *
-     * @var string|null
-     */
-    public $name = 'Post';
-
-    /**
-     * useTable property
-     *
-     * @var string|bool|null
-     */
-    public $useTable = 'posts';
-
-    /**
-     * actsAs property
-     *
-     * @var array
-     */
-    public $actsAs = ['Acl' => ['type' => 'Controlled']];
-
-    /**
-     * parentNode
-     *
-     * @return null
-     */
-    public function parentNode(): mixed
-    {
-        return null;
-    }
-}
-class_alias(AclPost::class, 'App\\Model\\AclPost');
+use TestApp\Model\AclPerson;
+use TestApp\Model\AclPost;
+use TestApp\Model\AclUser;
 
 /**
  * AclBehaviorTest class
@@ -214,6 +71,7 @@ class AclBehaviorTest extends CakeTestCase
     public function setUp(): void
     {
         parent::setUp();
+        Configure::write('App.namespace', 'TestApp');
         Configure::write('Acl.database', 'test');
 
         $this->Aco = new Aco();

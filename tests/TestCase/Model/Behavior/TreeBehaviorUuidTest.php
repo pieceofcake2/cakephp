@@ -20,14 +20,12 @@
 
 namespace Cake\Test\TestCase\Model\Behavior;
 
-use App\Model\UuidTree;
 use Cake\Core\App;
 use Cake\TestSuite\CakeTestCase;
 use Cake\Utility\CakeText;
+use TestApp\Model\UuidTree;
 
 App::uses('AppModel', 'Model');
-
-require_once dirname(__DIR__) . DS . 'models.php';
 
 /**
  * TreeBehaviorUuidTest class
