@@ -9159,6 +9159,36 @@ class FormHelperTest extends CakeTestCase
     }
 
     /**
+     * Test that the default action of create() is not a protocol-relative URL
+     * when the request URL starts with `//` or `/\`.
+     *
+     * @return void
+     */
+    public function testCreateDefaultActionProtocolRelative(): void
+    {
+        $cases = [
+            ['', '//evil.example.com/contacts/add', '/evil.example.com/contacts/add'],
+            ['', '/\\evil.example.com/contacts/add', '/evil.example.com/contacts/add'],
+            ['/admin', '//evil.example.com/contacts/add', '/admin/evil.example.com/contacts/add'],
+        ];
+        foreach ($cases as [$base, $url, $expected]) {
+            Configure::write('App.base', $base);
+            $request = new CakeRequest($url, false);
+            $request->addParams(['controller' => 'contacts', 'action' => 'add', 'plugin' => null]);
+            $this->Form->request = $request;
+            Router::setRequestInfo($request);
+
+            $result = $this->Form->create(false);
+            $this->assertMatchesRegularExpression(
+                '#<form action="' . preg_quote($expected, '#') . '"#',
+                $result,
+                'Request URL: ' . $url,
+            );
+            $this->Form->end();
+        }
+    }
+
+    /**
      * Test that the action key still uses the model as the implicit controller
      * when the url option is undefined. While the action parameter is deprecated
      * we need it to continue working for the duration of 2.x

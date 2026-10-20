@@ -321,6 +321,8 @@ class CakeSchemaTest extends CakeTestCase
         'core.user',
         'core.comment',
         'core.prefix_test',
+        'core.article',
+        'core.articles_tag',
     ];
 
     /**
@@ -651,10 +653,10 @@ class CakeSchemaTest extends CakeTestCase
         $read = $Schema->read([
             'connection' => 'test',
             'name' => 'TestApp',
-            'models' => ['NamespacedHabtmPost'],
+            'models' => ['NamespacedHabtmArticle'],
         ]);
-        $this->assertArrayHasKey('posts', $read['tables']);
-        $this->assertArrayHasKey('posts_tags', $read['tables']);
+        $this->assertArrayHasKey('articles', $read['tables']);
+        $this->assertArrayHasKey('articles_tags', $read['tables']);
         ClassRegistry::flush();
     }
 

@@ -352,10 +352,8 @@ class JsHelperTest extends CakeTestCase
         $this->Js->buffer('two = 2;');
         $result = $this->Js->writeBuffer(['onDomReady' => false, 'cache' => false, 'clear' => false]);
         $expected = [
-            'script' => ['type' => 'text/javascript'],
-            $this->cDataStart,
+            '<script',
             "one = 1;\ntwo = 2;",
-            $this->cDataEnd,
             '/script',
         ];
         $this->assertTags($result, $expected);
@@ -370,6 +368,29 @@ class JsHelperTest extends CakeTestCase
     }
 
     /**
+     * With the html5 setting of HtmlHelper off, the script blocks of the buffer have their type and CDATA
+     *
+     * @return void
+     */
+    public function testWriteScriptsXhtml(): void
+    {
+        $this->_useMock();
+        $request = $this->Js->Html->request;
+        $this->Js->Html = new HtmlHelper($this->View, ['html5' => false]);
+        $this->Js->Html->request = $request;
+        $this->Js->buffer('one = 1;');
+        $result = $this->Js->writeBuffer(['onDomReady' => false, 'cache' => false]);
+        $expected = [
+            'script' => ['type' => 'text/javascript'],
+            $this->cDataStart,
+            'one = 1;',
+            $this->cDataEnd,
+            '/script',
+        ];
+        $this->assertTags($result, $expected);
+    }
+
+    /**
      * test that writing the buffer with inline = false includes a script tag.
      *
      * @return void
@@ -380,7 +401,7 @@ class JsHelperTest extends CakeTestCase
 
         $this->View->expects($this->once())
             ->method('append')
-            ->with('script', $this->matchesRegularExpression('#<script type="text\/javascript">window.app \= \{"foo"\:1\}\;<\/script>#'));
+            ->with('script', $this->matchesRegularExpression('#<script>window.app \= \{"foo"\:1\}\;<\/script>#'));
 
         $this->Js->writeBuffer(['onDomReady' => false, 'inline' => false, 'safe' => false]);
     }
@@ -426,7 +447,7 @@ class JsHelperTest extends CakeTestCase
         $this->Js->buffer('two = 2;');
         $result = $this->Js->writeBuffer(['onDomReady' => false, 'cache' => true]);
         $expected = [
-            'script' => ['type' => 'text/javascript', 'src' => 'preg:/(.)*\.js/'],
+            'script' => ['src' => 'preg:/(.)*\.js/'],
         ];
         $this->assertTags($result, $expected);
         preg_match('/src="(.*\.js)"/', $result, $filename);
@@ -599,10 +620,8 @@ class JsHelperTest extends CakeTestCase
             'a' => ['id' => 'preg:/link-\d+/', 'href' => '/posts/view/1'],
             'test link',
             '/a',
-            'script' => ['type' => 'text/javascript'],
-            $this->cDataStart,
+            '<script',
             '-event handler-',
-            $this->cDataEnd,
             '/script',
         ];
         $this->assertTags($result, $expected);
@@ -650,7 +669,7 @@ class JsHelperTest extends CakeTestCase
             'a' => ['id' => 'preg:/link-\d+/', 'href' => '/posts/view/1'],
             'test link',
             '/a',
-            'script' => ['type' => 'text/javascript'],
+            '<script',
             '-event handler-',
             '/script',
         ];
@@ -853,7 +872,7 @@ class JsHelperTest extends CakeTestCase
             'div' => ['class' => 'submit'],
             'input' => ['type' => 'submit', 'id' => $options['id'], 'value' => 'Save'],
             '/div',
-            'script' => ['type' => 'text/javascript'],
+            '<script',
             'event-handler',
             '/script',
         ];

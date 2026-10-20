@@ -454,6 +454,32 @@ class DispatcherTest extends CakeTestCase
     }
 
     /**
+     * Test that a request URL with extra leading slashes is dispatched as before,
+     * and here() of the dispatched request is a path on the same host.
+     *
+     * @return void
+     */
+    public function testDispatchProtocolRelativeUrl(): void
+    {
+        App::build([
+            'View' => [CORE_TESTS . DS . 'test_app' . DS . 'View' . DS],
+        ]);
+        $Dispatcher = new TestDispatcher();
+        Configure::write('App.baseUrl', false);
+        Configure::write('App.base', '');
+        $response = $this->getMock('CakeResponse');
+
+        foreach (['//pages/home/param:value', '///pages/home/param:value', '/\\pages/home/param:value'] as $url) {
+            $request = new CakeRequest($url);
+            $Dispatcher->dispatch($request, $response, ['return' => 1]);
+
+            $this->assertEquals('Pages', $Dispatcher->controller->name, 'URL: ' . $url);
+            $this->assertSame(['0' => 'home', 'param' => 'value'], $Dispatcher->controller->passedArgs, 'URL: ' . $url);
+            $this->assertSame('/pages/home/param:value', $Dispatcher->controller->request->here(false), 'URL: ' . $url);
+        }
+    }
+
+    /**
      * Test that Dispatcher handles actions that return response objects.
      *
      * @return void

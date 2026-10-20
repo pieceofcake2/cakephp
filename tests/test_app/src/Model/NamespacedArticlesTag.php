@@ -17,9 +17,9 @@ namespace TestApp\Model;
 use Cake\Model\Model;
 
 /**
- * Join model of the posts_tags table in a namespace
+ * Join model of the articles_tags table in a namespace
  */
-class NamespacedPostsTag extends Model
+class NamespacedArticlesTag extends Model
 {
     /**
      * @var string
@@ -29,7 +29,7 @@ class NamespacedPostsTag extends Model
     /**
      * @var string|false
      */
-    public $useTable = 'posts_tags';
+    public $useTable = 'articles_tags';
 
     /**
      * @var array

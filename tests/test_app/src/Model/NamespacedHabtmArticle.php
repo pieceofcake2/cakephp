@@ -17,9 +17,9 @@ namespace TestApp\Model;
 use Cake\Model\Model;
 
 /**
- * Model of the posts table in a namespace with a join model named by its class name
+ * Model of the articles table in a namespace with a join model named by its class name
  */
-class NamespacedHabtmPost extends Model
+class NamespacedHabtmArticle extends Model
 {
     /**
      * @var string
@@ -29,10 +29,10 @@ class NamespacedHabtmPost extends Model
     /**
      * @var string|false
      */
-    public $useTable = 'posts';
+    public $useTable = 'articles';
 
     /**
      * @var array
      */
-    public $hasAndBelongsToMany = [NamespacedHabtmTag::class => ['with' => NamespacedPostsTag::class]];
+    public $hasAndBelongsToMany = [NamespacedHabtmTag::class => ['with' => NamespacedArticlesTag::class]];
 }
