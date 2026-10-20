@@ -19,10 +19,6 @@
 
 namespace Cake\Error;
 
-use Cake\Network\CakeResponse;
-use Exception;
-use RuntimeException;
-
 /**
  * Exception class for CakeLog. This exception will be thrown from CakeLog when it
  * encounters an error.

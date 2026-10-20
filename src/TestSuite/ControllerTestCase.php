@@ -11,12 +11,10 @@ use Cake\Error\MissingControllerException;
 use Cake\Event\CakeEvent;
 use Cake\Network\CakeRequest;
 use Cake\Network\CakeResponse;
-use Cake\Routing\Dispatcher;
 use Cake\Routing\Route\RedirectRoute;
 use Cake\Routing\Router;
 use Cake\Utility\ClassRegistry;
 use Cake\Utility\Inflector;
-use Cake\View\Helper;
 
 /**
  * ControllerTestCase file

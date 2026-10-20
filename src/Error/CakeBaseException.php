@@ -20,7 +20,6 @@
 namespace Cake\Error;
 
 use Cake\Network\CakeResponse;
-use Exception;
 use RuntimeException;
 
 /**
