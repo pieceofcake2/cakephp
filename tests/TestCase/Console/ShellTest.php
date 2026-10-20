@@ -1,6 +1,7 @@
 <?php
 
 use TestApp\Console\Helper\NamespacedShellHelper;
+use TestApp\Model\NamespacedPost;
 
 /**
  * ShellTest file
@@ -248,6 +249,40 @@ class ShellTest extends CakeTestCase
         CakePlugin::unload('TestPlugin');
 
         App::build();
+    }
+
+    /**
+     * Test that loadModel() and $uses give the short name as property and alias
+     * for a fully qualified class name like for the short name.
+     *
+     * @return void
+     */
+    public function testLoadModelNamespacedClassName(): void
+    {
+        foreach (['NamespacedPost', NamespacedPost::class, 'TestApp\Model\NamespacedPost'] as $model) {
+            Configure::write('App.namespace', $model === 'NamespacedPost' ? 'TestApp' : null);
+
+            $Shell = new Shell($this->getMock('ConsoleOutput'), $this->getMock('ConsoleOutput'), $this->getMock('ConsoleInput'));
+            $Shell->loadModel($model);
+            $this->assertInstanceOf(NamespacedPost::class, $Shell->NamespacedPost);
+            $this->assertSame('NamespacedPost', $Shell->NamespacedPost->alias);
+            $this->assertSame('NamespacedPost', $Shell->modelClass);
+            ClassRegistry::flush();
+
+            $Shell = new Shell($this->getMock('ConsoleOutput'), $this->getMock('ConsoleOutput'), $this->getMock('ConsoleInput'));
+            $Shell->uses = [$model];
+            $this->assertTrue(isset($Shell->NamespacedPost));
+            $this->assertInstanceOf(NamespacedPost::class, $Shell->NamespacedPost);
+            ClassRegistry::flush();
+
+            $Shell = new Shell($this->getMock('ConsoleOutput'), $this->getMock('ConsoleOutput'), $this->getMock('ConsoleInput'));
+            $Shell->uses = [$model];
+            $Shell->initialize();
+            $this->assertSame('NamespacedPost', $Shell->modelClass);
+            $this->assertInstanceOf(NamespacedPost::class, $Shell->NamespacedPost);
+            $this->assertSame('NamespacedPost', $Shell->NamespacedPost->alias);
+            ClassRegistry::flush();
+        }
     }
 
     /**
