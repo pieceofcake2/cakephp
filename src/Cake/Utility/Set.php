@@ -517,7 +517,7 @@ class Set
             $val = $data[$key];
 
             if ($op === '=' && $expected && $expected[0] === '/') {
-                return preg_match($expected, $val);
+                return preg_match($expected, (string)$val);
             }
             if ($op === '=' && $val != $expected) {
                 return false;

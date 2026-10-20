@@ -102,11 +102,11 @@ class Xml
 
         if (is_array($input) || is_object($input)) {
             return static::fromArray((array)$input, $options);
-        } elseif (str_contains($input, '<')) {
+        } elseif (str_contains((string)$input, '<')) {
             return static::_loadXml($input, $options);
-        } elseif ($options['readFile'] && file_exists($input)) {
+        } elseif ($options['readFile'] && file_exists((string)$input)) {
             return static::_loadXml(file_get_contents($input), $options);
-        } elseif ($options['readFile'] && (str_starts_with($input, 'http://') || str_starts_with($input, 'https://'))) {
+        } elseif ($options['readFile'] && (str_starts_with((string)$input, 'http://') || str_starts_with((string)$input, 'https://'))) {
             try {
                 $socket = new HttpSocket(['request' => ['redirect' => 10]]);
                 $response = $socket->get($input);
@@ -224,7 +224,7 @@ class Xml
         ];
         $options += $defaults;
 
-        $dom = new DOMDocument($options['version'], $options['encoding']);
+        $dom = new DOMDocument($options['version'], (string)$options['encoding']);
         if ($options['pretty']) {
             $dom->formatOutput = true;
         }

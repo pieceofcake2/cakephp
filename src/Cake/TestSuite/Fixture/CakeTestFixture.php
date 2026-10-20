@@ -171,7 +171,7 @@ class CakeTestFixture
                 ClassRegistry::flush();
             }
 
-            if (!empty($db->config['prefix']) && str_starts_with($this->table, $db->config['prefix'])) {
+            if (!empty($db->config['prefix']) && str_starts_with((string)$this->table, $db->config['prefix'])) {
                 $this->table = str_replace($db->config['prefix'], '', $this->table);
             }
 

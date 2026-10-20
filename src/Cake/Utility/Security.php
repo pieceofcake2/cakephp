@@ -139,7 +139,7 @@ class Security
         if (empty($type)) {
             $type = static::$hashType;
         }
-        $type = strtolower($type);
+        $type = strtolower((string)$type);
 
         if ($type === 'blowfish') {
             return static::_crypt($string, $salt);
@@ -285,7 +285,7 @@ class Security
         restore_error_handler();
         $out = '';
         $keyLength = strlen($key);
-        for ($i = 0, $textLength = strlen($text); $i < $textLength; $i++) {
+        for ($i = 0, $textLength = strlen((string)$text); $i < $textLength; $i++) {
             $j = ord(substr($key, $i % $keyLength, 1));
             while ($j--) {
                 mt_rand(0, 255);

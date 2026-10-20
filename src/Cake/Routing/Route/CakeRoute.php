@@ -526,10 +526,10 @@ class CakeRoute
                 if (is_array($value)) {
                     $flat = Hash::flatten($value, '%5D%5B');
                     foreach ($flat as $namedKey => $namedValue) {
-                        $named[] = $key . "%5B{$namedKey}%5D" . $separator . rawurlencode($namedValue);
+                        $named[] = $key . "%5B{$namedKey}%5D" . $separator . rawurlencode((string)$namedValue);
                     }
                 } else {
-                    $named[] = $key . $separator . rawurlencode($value);
+                    $named[] = $key . $separator . rawurlencode((string)$value);
                 }
             }
             $params['pass'] = $params['pass'] . '/' . implode('/', $named);

@@ -201,7 +201,7 @@ class CakeSession
     protected static function _setHost($host)
     {
         static::$host = $host;
-        if (str_contains(static::$host, ':')) {
+        if (str_contains((string)static::$host, ':')) {
             static::$host = substr(static::$host, 0, strpos(static::$host, ':'));
         }
     }

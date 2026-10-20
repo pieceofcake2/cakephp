@@ -174,10 +174,10 @@ class CakeRequest implements ArrayAccess
             $this->data = $_POST;
         } elseif (
             ($this->is('put') || $this->is('delete')) &&
-            str_starts_with($this->contentType(), 'application/x-www-form-urlencoded')
+            str_starts_with((string)$this->contentType(), 'application/x-www-form-urlencoded')
         ) {
                 $data = $this->_readInput();
-                parse_str($data, $this->data);
+                parse_str((string)$data, $this->data);
         }
 
         $override = null;

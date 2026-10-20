@@ -209,7 +209,7 @@ class Configure
      */
     public static function consume($var)
     {
-        $simple = !str_contains($var, '.');
+        $simple = !str_contains((string)$var, '.');
         if ($simple && !isset(static::$_values[$var])) {
             return null;
         }

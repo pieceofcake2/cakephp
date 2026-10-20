@@ -418,7 +418,7 @@ class File
     {
         if ($this->path === null) {
             $dir = $this->Folder->pwd();
-            if (is_dir($dir)) {
+            if (is_dir((string)$dir)) {
                 $this->path = $this->Folder->slashTerm($dir) . $this->name;
             }
         }
@@ -436,7 +436,7 @@ class File
     {
         $this->clearStatCache();
 
-        return file_exists($this->path) && is_file($this->path);
+        return file_exists((string)$this->path) && is_file($this->path);
     }
 
     /**
@@ -629,7 +629,7 @@ class File
      */
     public function clearStatCache($all = false): void
     {
-        clearstatcache(true, $this->path);
+        clearstatcache(true, (string)$this->path);
     }
 
     /**

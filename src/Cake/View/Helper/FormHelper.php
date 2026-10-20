@@ -1765,7 +1765,7 @@ class FormHelper extends AppHelper
                 ]);
             }
         }
-        $out = $hidden . implode($separator, $out);
+        $out = $hidden . implode((string)$separator, $out);
 
         if (is_array($between)) {
             $between = '';
@@ -2403,7 +2403,7 @@ class FormHelper extends AppHelper
         $attributes += ['empty' => true, 'value' => null];
         $attributes = $this->_dateTimeSelected('day', $fieldName, $attributes);
 
-        if (strlen($attributes['value']) > 2) {
+        if (strlen((string)$attributes['value']) > 2) {
             $date = date_create($attributes['value']);
             $attributes['value'] = null;
             if ($date) {
@@ -2450,7 +2450,7 @@ class FormHelper extends AppHelper
             }
         }
 
-        if (strlen($attributes['value']) > 4 || $attributes['value'] === 'now') {
+        if (strlen((string)$attributes['value']) > 4 || $attributes['value'] === 'now') {
             $date = date_create($attributes['value']);
             $attributes['value'] = null;
             if ($date) {
@@ -2493,7 +2493,7 @@ class FormHelper extends AppHelper
         $attributes += ['empty' => true, 'value' => null];
         $attributes = $this->_dateTimeSelected('month', $fieldName, $attributes);
 
-        if (strlen($attributes['value']) > 2) {
+        if (strlen((string)$attributes['value']) > 2) {
             $date = date_create($attributes['value']);
             $attributes['value'] = null;
             if ($date) {
@@ -2539,7 +2539,7 @@ class FormHelper extends AppHelper
         $attributes += ['empty' => true, 'value' => null];
         $attributes = $this->_dateTimeSelected('hour', $fieldName, $attributes);
 
-        if (strlen($attributes['value']) > 2) {
+        if (strlen((string)$attributes['value']) > 2) {
             try {
                 $date = new DateTime($attributes['value']);
                 if ($format24Hours) {
@@ -2587,7 +2587,7 @@ class FormHelper extends AppHelper
         $attributes += ['empty' => true, 'value' => null];
         $attributes = $this->_dateTimeSelected('min', $fieldName, $attributes);
 
-        if (strlen($attributes['value']) > 2) {
+        if (strlen((string)$attributes['value']) > 2) {
             $date = date_create($attributes['value']);
             $attributes['value'] = null;
             if ($date) {
