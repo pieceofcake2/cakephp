@@ -32,6 +32,11 @@ class TaskCollection extends ObjectCollection
     protected $_Shell;
 
     /**
+     * @var string
+     */
+    protected static $_suffix = 'Task';
+
+    /**
      * The directory inside each shell path that contains tasks.
      *
      * @var string
@@ -76,6 +81,7 @@ class TaskCollection extends ObjectCollection
         if (!isset($alias)) {
             $alias = $name;
         }
+        $alias = static::_alias($alias);
 
         if (isset($this->_loaded[$alias])) {
             return $this->_loaded[$alias];

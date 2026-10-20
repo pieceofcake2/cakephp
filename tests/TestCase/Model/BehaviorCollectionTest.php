@@ -1382,4 +1382,33 @@ class BehaviorCollectionTest extends CakeTestCase
         $Model->Behaviors->load('Namespaced');
         $this->assertInstanceOf(NamespacedBehavior::class, $Model->Behaviors->Namespaced);
     }
+
+    /**
+     * Test that a fully qualified class name as the name or as key of $actsAs gives
+     * the short name as alias like the short name with className.
+     *
+     * @return void
+     */
+    public function testLoadNamespacedClassName(): void
+    {
+        $cases = [
+            ['Namespaced', ['className' => NamespacedBehavior::class, 'priority' => 5]],
+            [NamespacedBehavior::class, ['priority' => 5]],
+            ['TestApp\Model\Behavior\Namespaced', ['priority' => 5]],
+        ];
+        foreach ($cases as $i => [$name, $config]) {
+            $Model = ClassRegistry::init(['class' => NamespacedPost::class, 'alias' => 'NamespacedPost' . $i]);
+            $Model->Behaviors->load($name, $config);
+            $this->assertInstanceOf(NamespacedBehavior::class, $Model->Behaviors->Namespaced);
+            $this->assertSame(['Namespaced'], $Model->Behaviors->loaded());
+            $this->assertSame(5, $Model->Behaviors->Namespaced->settings['priority']);
+            $this->assertTrue($Model->Behaviors->enabled(NamespacedBehavior::class));
+            $Model->Behaviors->unload(NamespacedBehavior::class);
+            $this->assertSame([], $Model->Behaviors->loaded());
+
+            $Model->Behaviors->init($Model->alias, [$name => $config]);
+            $this->assertSame(['Namespaced'], $Model->Behaviors->loaded());
+            $this->assertSame(5, $Model->Behaviors->Namespaced->settings['priority']);
+        }
+    }
 }

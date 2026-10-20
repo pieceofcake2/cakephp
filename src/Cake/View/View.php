@@ -954,9 +954,8 @@ class View extends CakeObject
     public function loadHelpers()
     {
         $helpers = HelperCollection::normalizeObjectArray($this->helpers);
-        foreach ($helpers as $properties) {
-            [, $class] = pluginSplit($properties['class']);
-            $this->{$class} = $this->Helpers->load($properties['class'], $properties['settings']);
+        foreach ($helpers as $name => $properties) {
+            $this->{$name} = $this->Helpers->load($properties['class'], $properties['settings']);
         }
     }
 

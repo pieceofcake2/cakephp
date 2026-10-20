@@ -42,6 +42,11 @@ class BehaviorCollection extends ObjectCollection implements CakeEventListener
     protected $_methods = [];
 
     /**
+     * @var string
+     */
+    protected static $_suffix = 'Behavior';
+
+    /**
      * Keeps a list of all methods which have been mapped with regular expressions
      *
      * @var array
@@ -113,6 +118,7 @@ class BehaviorCollection extends ObjectCollection implements CakeEventListener
         if (!isset($alias)) {
             $alias = $name;
         }
+        $alias = static::_alias($alias);
 
         $class = App::className($behavior, 'Model/Behavior', 'Behavior');
         if ($class === null) {
@@ -184,6 +190,7 @@ class BehaviorCollection extends ObjectCollection implements CakeEventListener
     public function unload($name)
     {
         [, $name] = pluginSplit($name);
+        $name = static::_alias($name);
         if (isset($this->_loaded[$name])) {
             $this->_loaded[$name]->cleanup(ClassRegistry::getObject($this->modelName));
             parent::unload($name);
