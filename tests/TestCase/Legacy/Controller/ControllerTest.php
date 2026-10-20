@@ -323,8 +323,13 @@ class ControllerTest extends CakeTestCase
     public function testRender(): void
     {
         App::build([
+            'Model' => [CORE_TESTS . DS . 'test_legacy_app' . DS . 'Model' . DS],
             'View' => [CORE_TESTS . DS . 'test_legacy_app' . DS . 'View' . DS],
+            'Plugin' => [CORE_TESTS . DS . 'test_legacy_app' . DS . 'Plugin' . DS],
         ], App::RESET);
+        CakePlugin::load('TestLegacyPlugin');
+        App::uses('ControllerComment', 'Model');
+        $this->assertTrue(class_exists('ControllerComment'));
         ClassRegistry::flush();
         $request = new CakeRequest('controller_posts/index');
         $request->params['action'] = 'index';

@@ -149,6 +149,7 @@ class ConnectionManagerTest extends CakeTestCase
                 CORE_TESTS . DS . 'test_legacy_app' . DS . 'Model' . DS . 'Datasource' . DS . 'Database' . DS,
             ],
         ]);
+        CakePlugin::load('TestLegacyPlugin');
 
         $name = 'test_plugin_source_and_local_driver';
         $config = ['datasource' => 'Database/TestLocalDriver'];

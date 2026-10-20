@@ -185,6 +185,8 @@ class BehaviorCollectionTest extends CakeTestCase
      */
     public function testDetachWithPluginNames(): void
     {
+        App::uses('TestBehavior', 'Model/Behavior');
+        $this->assertTrue(class_exists('TestBehavior'));
         $Apple = new Apple();
         $Apple->Behaviors->load('Plugin.Test');
         $this->assertTrue(isset($Apple->Behaviors->Test), 'Missing behavior');

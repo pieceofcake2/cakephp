@@ -950,7 +950,7 @@ class ModelReadTest extends BaseModelTest
      */
     public function testfindCustom(): void
     {
-        $this->loadFixtures('Article');
+        $this->loadFixtures('Article', 'User');
         $Article = new CustomArticle();
         $data = ['user_id' => 3, 'title' => 'Fourth Article', 'body' => 'Article Body, unpublished', 'published' => 'N'];
         $Article->create($data);

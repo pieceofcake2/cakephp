@@ -610,7 +610,7 @@ class DispatcherTest extends CakeTestCase
             'TestFilterDispatcher' => ['service' => 'google.com'],
         ]);
         $Dispatcher = new Dispatcher();
-        $url = new CakeRequest('some_pages/index');
+        $url = new CakeRequest('tests_apps/index');
         $response = $this->getMock('CakeResponse');
         $Dispatcher->dispatch($url, $response, ['return' => 1]);
         $settings = $url->param('settings');
