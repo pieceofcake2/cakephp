@@ -16,7 +16,7 @@
 
 ### Tests
 
-- **Deprecations reported**: The tests report deprecations and fail on them. `ConfigureTest::testBootstrap()` restores the error level after `Configure::bootstrap()`, which had hidden deprecations from the following tests, and the tests no longer create dynamic properties, return `null` from mocked request methods to string functions, or use `utf8_decode()`, `new DateTime(null)`, `str_getcsv()` without the escape character or `session.referer_check`. The `DATABASE_CONFIG` of the tests allows dynamic properties, which `ConnectionManager::create()` adds. The test helpers call `setAccessible()` of reflection only before PHP 8.1
+- **Deprecations reported**: The tests report deprecations and fail on them. `ConfigureTest::testBootstrap()` restores the error level after `Configure::bootstrap()`, which had hidden deprecations from the following tests, and the tests no longer create dynamic properties, return `null` from mocked request methods to string functions, or use `utf8_decode()`, `new DateTime(null)`, `str_getcsv()` without the escape character or `session.referer_check`. The `DATABASE_CONFIG` of the tests allows dynamic properties, which `ConnectionManager::create()` adds. The test helpers call `setAccessible()` of reflection only before PHP 8.1. `ApplicationControllerTest` tests the redirect without cookies on every version, and the session ID in the URL, which needs `session.use_trans_sid` deprecated since PHP 8.4, only before PHP 8.4
 
 ## v2.12.11 (2026-10-19)
 
