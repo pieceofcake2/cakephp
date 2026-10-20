@@ -16,6 +16,15 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\Utility;
+
+use Cake\Core\Configure;
+use Cake\Error\CakeException;
+use Cake\TestSuite\CakeTestCase;
+use Cake\Utility\File;
+use Cake\Utility\Validation;
+use stdClass;
+
 /**
  * CustomValidator class
  *
@@ -26,7 +35,7 @@ class CustomValidator
     /**
      * Makes sure that a given $email address is valid and unique
      *
-     * @param string $check Email to check.
+     * @param string|null $check Email to check.
      * @return bool
      */
     public static function customValidate($check): mixed
@@ -47,8 +56,8 @@ class TestNlValidation
     /**
      * postal function, for testing postal pass through.
      *
-     * @param string $check
-     * @return void
+     * @param string|null $check
+     * @return bool
      */
     public static function postal($check): mixed
     {
@@ -58,13 +67,15 @@ class TestNlValidation
     /**
      * ssn function for testing ssn pass through
      *
-     * @return void
+     * @param string|null $check
+     * @return bool
      */
     public static function ssn($check): mixed
     {
         return true;
     }
 }
+class_alias(TestNlValidation::class, 'App\\Utility\\TestNlValidation');
 
 /**
  * TestDeValidation class
@@ -78,14 +89,15 @@ class TestDeValidation
     /**
      * phone function, for testing phone pass through.
      *
-     * @param string $check
-     * @return void
+     * @param string|null $check
+     * @return bool
      */
     public static function phone($check): mixed
     {
         return true;
     }
 }
+class_alias(TestDeValidation::class, 'App\\Utility\\TestDeValidation');
 
 /**
  * ValidationStub
@@ -97,8 +109,8 @@ class ValidationStub extends Validation
     /**
      * Stub out is_uploaded_file check
      *
-     * @param string $path
-     * @return void
+     * @param string|null $path
+     * @return bool
      */
     protected static function _isUploadedFile($path): mixed
     {
@@ -113,6 +125,9 @@ class ValidationStub extends Validation
  */
 class ValidationTest extends CakeTestCase
 {
+    protected ?string $_appEncoding = null;
+    protected array $_appLocale = [];
+
     /**
      * setUp method
      *
@@ -124,7 +139,7 @@ class ValidationTest extends CakeTestCase
         $this->_appEncoding = Configure::read('App.encoding');
         $this->_appLocale = [];
         foreach ([LC_MONETARY, LC_NUMERIC, LC_TIME] as $category) {
-            $this->_appLocale[$category] = setlocale($category, 0);
+            $this->_appLocale[$category] = setlocale($category, '0');
             setlocale($category, 'en_US');
         }
     }
@@ -2379,14 +2394,10 @@ class ValidationTest extends CakeTestCase
         $warningTriggered = false;
         $warningMessage = '';
         set_error_handler(function ($errno, $errstr) use (&$warningTriggered, &$warningMessage) {
-            if ($errno === E_WARNING || $errno === E_USER_WARNING) {
-                $warningTriggered = true;
-                $warningMessage = $errstr;
+            $warningTriggered = true;
+            $warningMessage = $errstr;
 
-                return true;
-            }
-
-            return false;
+            return true;
         }, E_WARNING | E_USER_WARNING);
 
         try {
@@ -2396,7 +2407,8 @@ class ValidationTest extends CakeTestCase
         }
 
         $this->assertTrue($warningTriggered, 'Expected warning was not triggered');
-        $this->assertSame('Method phone does not exist on TestNlValidation unable to complete validation.', $warningMessage);
+        // The class from App.namespace, an alias of TestNlValidation
+        $this->assertSame('Method phone does not exist on App\\Utility\\TestNlValidation unable to complete validation.', $warningMessage);
     }
 
     /**
@@ -2409,14 +2421,10 @@ class ValidationTest extends CakeTestCase
         $warningTriggered = false;
         $warningMessage = '';
         set_error_handler(function ($errno, $errstr) use (&$warningTriggered, &$warningMessage) {
-            if ($errno === E_WARNING || $errno === E_USER_WARNING) {
-                $warningTriggered = true;
-                $warningMessage = $errstr;
+            $warningTriggered = true;
+            $warningMessage = $errstr;
 
-                return true;
-            }
-
-            return false;
+            return true;
         }, E_WARNING | E_USER_WARNING);
 
         try {

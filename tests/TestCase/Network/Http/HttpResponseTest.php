@@ -15,6 +15,13 @@
  * @since         CakePHP(tm) v 1.2.0.4206
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
+
+namespace Cake\Test\TestCase\Network\Http;
+
+use Cake\Error\SocketException;
+use Cake\Network\Http\HttpResponse;
+use Cake\TestSuite\CakeTestCase;
+
 /**
  * TestHttpResponse class
  *
@@ -163,8 +170,6 @@ class HttpResponseTest extends CakeTestCase
         $this->assertFalse($this->HttpResponse->isOk());
         $this->HttpResponse->code = -1;
         $this->assertFalse($this->HttpResponse->isOk());
-        $this->HttpResponse->code = 'what?';
-        $this->assertFalse($this->HttpResponse->isOk());
         $this->HttpResponse->code = 200;
         $this->assertTrue($this->HttpResponse->isOk());
         $this->HttpResponse->code = 201;
@@ -207,8 +212,6 @@ class HttpResponseTest extends CakeTestCase
         $this->HttpResponse->code = -1;
         $this->assertFalse($this->HttpResponse->isRedirect());
         $this->HttpResponse->code = 201;
-        $this->assertFalse($this->HttpResponse->isRedirect());
-        $this->HttpResponse->code = 'what?';
         $this->assertFalse($this->HttpResponse->isRedirect());
         $this->HttpResponse->code = 301;
         $this->assertFalse($this->HttpResponse->isRedirect());

@@ -16,6 +16,17 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\Core;
+
+use Cake\Controller\Controller;
+use Cake\Core\App;
+use Cake\Core\CakeObject;
+use Cake\Core\CakePlugin;
+use Cake\Core\Configure;
+use Cake\Routing\Router;
+use Cake\TestSuite\CakeTestCase;
+use Cake\TestSuite\Fixture\CakeTestModel;
+
 /**
  * RequestActionPost class
  *
@@ -26,10 +37,11 @@ class RequestActionPost extends CakeTestModel
     /**
      * useTable property
      *
-     * @var string
+     * @var string|bool|null
      */
     public $useTable = 'posts';
 }
+class_alias(RequestActionPost::class, 'TestApp\\Model\\RequestActionPost');
 
 /**
  * RequestActionController class
@@ -41,14 +53,14 @@ class RequestActionController extends Controller
     /**
      * uses property
      *
-     * @var array
+     * @var array|bool|null
      */
     public $uses = ['RequestActionPost'];
 
     /**
      * test_request_action method
      *
-     * @return void
+     * @return string
      */
     public function test_request_action(): mixed
     {
@@ -58,9 +70,9 @@ class RequestActionController extends Controller
     /**
      * another_ra_test method
      *
-     * @param mixed $id
-     * @param mixed $other
-     * @return void
+     * @param string|int $id
+     * @param string|int $other
+     * @return string|int
      */
     public function another_ra_test($id, $other): mixed
     {
@@ -112,7 +124,7 @@ class RequestActionController extends Controller
     /**
      * test param passing and parsing.
      *
-     * @return array
+     * @return CakeRequest
      */
     public function params_pass(): mixed
     {
@@ -129,6 +141,7 @@ class RequestActionController extends Controller
         $this->response->body($content);
     }
 }
+class_alias(RequestActionController::class, 'TestApp\\Controller\\RequestActionController');
 
 /**
  * TestCakeObject class
@@ -262,14 +275,29 @@ class TestCakeObject extends CakeObject
     }
 
     /**
-     * Set properties.
+     * set method - public wrapper for _set()
      *
-     * @param array $properties The $properties.
+     * @param array|string|null $properties Properties to set
      * @return void
      */
     public function set($properties = []): mixed
     {
         return parent::_set($properties);
+    }
+
+    /**
+     * toString method - override to return just class name without namespace
+     *
+     * @return string
+     */
+    public function toString(): string
+    {
+        $class = static::class;
+        if (str_contains($class, '\\')) {
+            $class = substr($class, strrpos($class, '\\') + 1);
+        }
+
+        return $class;
     }
 }
 
@@ -282,20 +310,32 @@ class ObjectTestModel extends CakeTestModel
 {
     public $useTable = false;
 }
+class_alias(ObjectTestModel::class, 'TestApp\\Model\\ObjectTestModel');
 
 /**
  * CakeObject Test class
  *
  * @package       Cake.Test.Case.Core
  */
-class ObjectTest extends CakeTestCase
+class CakeObjectTest extends CakeTestCase
 {
+    protected ?string $_appNamespace = null;
+
     /**
      * fixtures
      *
-     * @var string
+     * @var array<string>
      */
-    public $fixtures = ['core.post', 'core.test_plugin_comment', 'core.comment'];
+    public array $fixtures = [
+        'core.post',
+        'core.test_plugin_comment',
+        'core.comment',
+    ];
+
+    /**
+     * @var TestCakeObject
+     */
+    public TestCakeObject $object;
 
     /**
      * setUp method
@@ -305,6 +345,9 @@ class ObjectTest extends CakeTestCase
     public function setUp(): void
     {
         parent::setUp();
+
+        $this->_appNamespace = Configure::read('App.namespace');
+        Configure::write('App.namespace', 'TestApp');
         $this->object = new TestCakeObject();
     }
 
@@ -317,6 +360,7 @@ class ObjectTest extends CakeTestCase
     {
         CakePlugin::unload();
         unset($this->object);
+        Configure::write('App.namespace', $this->_appNamespace);
 
         parent::tearDown();
     }
@@ -459,9 +503,12 @@ class ObjectTest extends CakeTestCase
     public function testRequestAction(): void
     {
         App::build([
-            'Model' => [CORE_TESTS . DS . 'test_app' . DS . 'Model' . DS],
-            'View' => [CORE_TESTS . DS . 'test_app' . DS . 'View' . DS],
-            'Controller' => [CORE_TESTS . DS . 'test_app' . DS . 'Controller' . DS],
+            'Model' => [CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'Model' . DS],
+            'View' => [
+                CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'View' . DS,
+                CORE_TESTS . DS . 'test_app' . DS . 'templates' . DS,
+            ],
+            'Controller' => [CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'Controller' . DS],
         ], App::RESET);
         $this->assertNull(Router::getRequest(), 'request stack should be empty.');
 
@@ -520,7 +567,7 @@ class ObjectTest extends CakeTestCase
     public function testRequestActionPlugins(): void
     {
         App::build([
-            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS],
+            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
         ], App::RESET);
         CakePlugin::load('TestPlugin');
         Router::reload();
@@ -559,10 +606,13 @@ class ObjectTest extends CakeTestCase
     public function testRequestActionArray(): void
     {
         App::build([
-            'Model' => [CORE_TESTS . DS . 'test_app' . DS . 'Model' . DS],
-            'View' => [CORE_TESTS . DS . 'test_app' . DS . 'View' . DS],
-            'Controller' => [CORE_TESTS . DS . 'test_app' . DS . 'Controller' . DS],
-            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS],
+            'Model' => [CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'Model' . DS],
+            'View' => [
+                CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'View' . DS,
+                CORE_TESTS . DS . 'test_app' . DS . 'templates' . DS,
+            ],
+            'Controller' => [CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'Controller' . DS],
+            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
         ], App::RESET);
         CakePlugin::load(['TestPlugin']);
 

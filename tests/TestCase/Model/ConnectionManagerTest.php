@@ -1,7 +1,5 @@
 <?php
 
-use TestApp\Model\Datasource\NamespacedSource;
-
 /**
  * Connection Manager tests
  *
@@ -18,6 +16,26 @@ use TestApp\Model\Datasource\NamespacedSource;
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\Model;
+
+use Cake\Core\App;
+use Cake\Core\CakePlugin;
+use Cake\Core\Configure;
+use Cake\Error\CakeException;
+use Cake\Error\MissingDatasourceConfigException;
+use Cake\Error\MissingDatasourceException;
+use Cake\Model\ConnectionManager;
+use Cake\Model\Datasource\DboSource;
+use Cake\Model\Model;
+use Cake\TestSuite\CakeTestCase;
+use ReflectionProperty;
+use stdClass;
+use TestApp\Model\Datasource\Database\TestLocalDriver;
+use TestApp\Model\Datasource\NamespacedSource;
+use TestPlugin\Model\Datasource\Database\DboDummy;
+use TestPlugin\Model\Datasource\Database\TestDriver;
+use TestPlugin\Model\Datasource\TestSource;
+
 /**
  * ConnectionManagerTest
  *
@@ -25,6 +43,19 @@ use TestApp\Model\Datasource\NamespacedSource;
  */
 class ConnectionManagerTest extends CakeTestCase
 {
+    protected ?string $_appNamespace = null;
+
+    /**
+     * @return void
+     */
+    public function setUp(): void
+    {
+        parent::setUp();
+
+        $this->_appNamespace = Configure::read('App.namespace');
+        Configure::write('App.namespace', 'TestApp');
+    }
+
     /**
      * tearDown method
      *
@@ -33,6 +64,7 @@ class ConnectionManagerTest extends CakeTestCase
     public function tearDown(): void
     {
         CakePlugin::unload();
+        Configure::write('App.namespace', $this->_appNamespace);
 
         parent::tearDown();
     }
@@ -60,7 +92,7 @@ class ConnectionManagerTest extends CakeTestCase
     {
         App::build([
             'Model/Datasource' => [
-                CORE_TESTS . DS . 'test_app' . DS . 'Model' . DS . 'Datasource' . DS,
+                CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'Model' . DS . 'Datasource' . DS,
             ],
         ]);
 
@@ -95,14 +127,14 @@ class ConnectionManagerTest extends CakeTestCase
     public function testGetPluginDataSource(): void
     {
         App::build([
-            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS],
+            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
         ], App::RESET);
         CakePlugin::load('TestPlugin');
         $name = 'test_source';
         $config = ['datasource' => 'TestPlugin.TestSource'];
         $connection = ConnectionManager::create($name, $config);
 
-        $this->assertTrue(class_exists('TestSource'));
+        $this->assertTrue(class_exists(TestSource::class, false));
         $this->assertEquals($connection->configKeyName, $name);
         $this->assertEquals($connection->config, $config);
 
@@ -117,7 +149,7 @@ class ConnectionManagerTest extends CakeTestCase
     public function testGetPluginDataSourceAndPluginDriver(): void
     {
         App::build([
-            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS],
+            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
         ], App::RESET);
         CakePlugin::load('TestPlugin');
         $name = 'test_plugin_source_and_driver';
@@ -125,8 +157,8 @@ class ConnectionManagerTest extends CakeTestCase
 
         $connection = ConnectionManager::create($name, $config);
 
-        $this->assertTrue(class_exists('TestSource'));
-        $this->assertTrue(class_exists('TestDriver'));
+        $this->assertTrue(class_exists(TestSource::class, false));
+        $this->assertTrue(class_exists(TestDriver::class, false));
         $this->assertEquals($connection->configKeyName, $name);
         $this->assertEquals($connection->config, $config);
 
@@ -141,7 +173,7 @@ class ConnectionManagerTest extends CakeTestCase
     public function testGetLocalDataSourceAndPluginDriver(): void
     {
         App::build([
-            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS],
+            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
         ]);
         CakePlugin::load('TestPlugin');
         $name = 'test_local_source_and_plugin_driver';
@@ -149,8 +181,8 @@ class ConnectionManagerTest extends CakeTestCase
 
         $connection = ConnectionManager::create($name, $config);
 
-        $this->assertTrue(class_exists('DboSource'));
-        $this->assertTrue(class_exists('DboDummy'));
+        $this->assertTrue(class_exists(DboSource::class, false));
+        $this->assertTrue(class_exists(DboDummy::class, false));
         $this->assertEquals($connection->configKeyName, $name);
 
         ConnectionManager::drop($name);
@@ -164,9 +196,9 @@ class ConnectionManagerTest extends CakeTestCase
     public function testGetPluginDataSourceAndLocalDriver(): void
     {
         App::build([
-            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS],
+            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
             'Model/Datasource/Database' => [
-                CORE_TESTS . DS . 'test_app' . DS . 'Model' . DS . 'Datasource' . DS . 'Database' . DS,
+                CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'Model' . DS . 'Datasource' . DS . 'Database' . DS,
             ],
         ]);
 
@@ -175,8 +207,8 @@ class ConnectionManagerTest extends CakeTestCase
 
         $connection = ConnectionManager::create($name, $config);
 
-        $this->assertTrue(class_exists('TestSource'));
-        $this->assertTrue(class_exists('TestLocalDriver'));
+        $this->assertTrue(class_exists(TestSource::class, false));
+        $this->assertTrue(class_exists(TestLocalDriver::class, false));
         $this->assertEquals($connection->configKeyName, $name);
         $this->assertEquals($connection->config, $config);
         ConnectionManager::drop($name);
@@ -207,7 +239,7 @@ class ConnectionManagerTest extends CakeTestCase
 
         $this->assertEquals('test', $result);
 
-        $source = new StdClass();
+        $source = new stdClass();
         $result = ConnectionManager::getSourceName($source);
         $this->assertNull($result);
     }
@@ -285,9 +317,9 @@ class ConnectionManagerTest extends CakeTestCase
     public function testConnectionData(): void
     {
         App::build([
-            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS],
+            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
             'Model/Datasource' => [
-                CORE_TESTS . DS . 'test_app' . DS . 'Model' . DS . 'Datasource' . DS,
+                CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'Model' . DS . 'Datasource' . DS,
             ],
         ], App::RESET);
         CakePlugin::load(['TestPlugin', 'TestPluginTwo']);
@@ -348,7 +380,7 @@ class ConnectionManagerTest extends CakeTestCase
     {
         App::build([
             'Model/Datasource' => [
-                CORE_TESTS . DS . 'test_app' . DS . 'Model' . DS . 'Datasource' . DS,
+                CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'Model' . DS . 'Datasource' . DS,
             ],
         ]);
         ConnectionManager::create('droppable', ['datasource' => 'Test2Source']);

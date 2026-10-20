@@ -1,7 +1,5 @@
 <?php
 
-use TestApp\Error\NamespacedRenderer;
-
 /**
  * ErrorHandlerTest file
  *
@@ -18,6 +16,25 @@ use TestApp\Error\NamespacedRenderer;
  * @since         CakePHP(tm) v 1.2.0.5432
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
+
+namespace Cake\Test\TestCase\Error;
+
+use Cake\Core\App;
+use Cake\Core\CakePlugin;
+use Cake\Core\Configure;
+use Cake\Error\ErrorHandler;
+use Cake\Error\ExceptionRenderer;
+use Cake\Error\FatalErrorException;
+use Cake\Error\ForbiddenException;
+use Cake\Error\InternalErrorException;
+use Cake\Error\NotFoundException;
+use Cake\Log\CakeLog;
+use Cake\Network\CakeRequest;
+use Cake\Routing\Router;
+use Cake\TestSuite\CakeTestCase;
+use Cake\Utility\Debugger;
+use Exception;
+use TestApp\Error\NamespacedRenderer;
 
 /**
  * A faulty ExceptionRenderer to test nesting.
@@ -55,7 +72,8 @@ class ErrorHandlerTest extends CakeTestCase
         parent::setUp();
         App::build([
             'View' => [
-                CORE_TESTS . DS . 'test_app' . DS . 'View' . DS,
+                CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'View' . DS,
+                CORE_TESTS . DS . 'test_app' . DS . 'templates' . DS,
             ],
         ], App::RESET);
         Router::reload();
@@ -118,7 +136,7 @@ class ErrorHandlerTest extends CakeTestCase
     /**
      * provides errors for mapping tests.
      *
-     * @return void
+     * @return array
      */
     public static function errorProvider(): mixed
     {
@@ -159,9 +177,7 @@ class ErrorHandlerTest extends CakeTestCase
         $this->_restoreError = true;
 
         ob_start();
-        //@codingStandardsIgnoreStart
-        @include 'invalid.file';
-        //@codingStandardsIgnoreEnd
+        @include 'invalid.file'; // phpcs:ignore
         $result = ob_get_clean();
         $this->assertTrue(empty($result));
     }
@@ -219,7 +235,7 @@ class ErrorHandlerTest extends CakeTestCase
             $result[0],
         );
         $this->assertMatchesRegularExpression('/^Trace:/', $result[1]);
-        $this->assertMatchesRegularExpression('/^ErrorHandlerTest\:\:testHandleErrorLoggingTrace\(\)/', $result[3]);
+        $this->assertMatchesRegularExpression('/^Cake\\\\Test\\\\TestCase\\\\Error\\\\ErrorHandlerTest\:\:testHandleErrorLoggingTrace\(\)/', $result[3]);
         if (file_exists(LOGS . 'debug.log')) {
             unlink(LOGS . 'debug.log');
         }
@@ -273,7 +289,7 @@ class ErrorHandlerTest extends CakeTestCase
             unlink(LOGS . 'error.log');
         }
         Configure::write('Exception.log', true);
-        Configure::write('Exception.skipLog', ['NotFoundException']);
+        Configure::write('Exception.skipLog', [NotFoundException::class]);
         $notFound = new NotFoundException('Kaboom!');
         $forbidden = new ForbiddenException('Fooled you!');
 
@@ -301,7 +317,7 @@ class ErrorHandlerTest extends CakeTestCase
     {
         App::build([
             'Plugin' => [
-                CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS,
+                CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS,
             ],
         ], App::RESET);
         CakePlugin::load('TestPlugin');
@@ -388,7 +404,7 @@ class ErrorHandlerTest extends CakeTestCase
     public function testExceptionRendererNestingDebug(): void
     {
         Configure::write('debug', 2);
-        Configure::write('Exception.renderer', 'FaultyExceptionRenderer');
+        Configure::write('Exception.renderer', FaultyExceptionRenderer::class);
 
         $result = false;
         try {
@@ -411,7 +427,7 @@ class ErrorHandlerTest extends CakeTestCase
     public function testExceptionRendererNestingProduction(): void
     {
         Configure::write('debug', 0);
-        Configure::write('Exception.renderer', 'FaultyExceptionRenderer');
+        Configure::write('Exception.renderer', FaultyExceptionRenderer::class);
 
         $result = false;
         try {

@@ -16,6 +16,22 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\Model\Datasource\Database;
+
+use ArrayIterator;
+use Cake\Core\App;
+use Cake\Model\ConnectionManager;
+use Cake\Model\Datasource\Database\Sqlserver;
+use Cake\Model\Datasource\DboSource;
+use Cake\Model\Model;
+use Cake\TestSuite\CakeTestCase;
+use Cake\TestSuite\Fixture\CakeTestModel;
+use Cake\Utility\ClassRegistry;
+use PDOException;
+use PDOStatement;
+use ReflectionMethod;
+use ReflectionProperty;
+
 App::uses('AppModel', 'Model');
 
 require_once dirname(__DIR__, 2) . DS . 'models.php';
@@ -49,16 +65,16 @@ class SqlserverTestDb extends Sqlserver
     /**
      * execute method
      *
-     * @param mixed $sql
-     * @param mixed $params
-     * @param mixed $prepareOptions
-     * @return mixed
+     * @param string $sql
+     * @param array $params
+     * @param array $prepareOptions
+     * @return PDOStatement|bool
      */
     protected function _execute($sql, $params = [], $prepareOptions = []): mixed
     {
         $this->simulated[] = $sql;
 
-        return empty($this->executeResultsStack) ? null : array_pop($this->executeResultsStack);
+        return empty($this->executeResultsStack) ? false : array_pop($this->executeResultsStack);
     }
 
     /**
@@ -68,8 +84,10 @@ class SqlserverTestDb extends Sqlserver
      * @param mixed $conditions
      * @return string
      */
-    protected function _matchRecords(Model $model, $conditions = null): string
-    {
+    protected function _matchRecords(
+        Model $model,
+        $conditions = null,
+    ): string {
         return $this->conditions(['id' => [1, 2]]);
     }
 
@@ -107,14 +125,15 @@ class SqlserverTestDb extends Sqlserver
     /**
      * describe method
      *
-     * @param Model|string $model
-     * @return array
+     * @param string|Model $model
+     * @return array|false|null
      */
     public function describe($model): array
     {
         return empty($this->describe) ? parent::describe($model) : $this->describe;
     }
 }
+class_alias(SqlserverTestDb::class, 'App\\Model\\Datasource\\Database\\SqlserverTestDb');
 
 /**
  * SqlserverTestModel class
@@ -126,7 +145,7 @@ class SqlserverTestModel extends CakeTestModel
     /**
      * useTable property
      *
-     * @var bool
+     * @var string|bool|null
      */
     public $useTable = false;
 
@@ -170,17 +189,18 @@ class SqlserverTestModel extends CakeTestModel
     /**
      * find method
      *
-     * @param mixed $conditions
-     * @param mixed $fields
+     * @param string|null $type
+     * @param array|null $query
      * @param mixed $order
      * @param mixed $recursive
-     * @return mixed
+     * @return array|int|false|null
      */
     public function find($conditions = null, $fields = null, $order = null, $recursive = null): mixed
     {
         return $conditions;
     }
 }
+class_alias(SqlserverTestModel::class, 'App\\Model\\SqlserverTestModel');
 
 /**
  * SqlserverClientTestModel class
@@ -192,7 +212,7 @@ class SqlserverClientTestModel extends CakeTestModel
     /**
      * useTable property
      *
-     * @var bool
+     * @var string|bool|null
      */
     public $useTable = false;
 
@@ -253,7 +273,7 @@ class SqlserverTest extends CakeTestCase
     /**
      * The Dbo instance to be tested
      *
-     * @var DboSource
+     * @var DboSource|null
      */
     public $db = null;
 
@@ -267,9 +287,14 @@ class SqlserverTest extends CakeTestCase
     /**
      * fixtures property
      *
-     * @var array
+     * @var array<string>
      */
-    public $fixtures = ['core.user', 'core.category', 'core.author', 'core.post'];
+    public $fixtures = [
+        'core.user',
+        'core.category',
+        'core.author',
+        'core.post',
+    ];
 
     /**
      * Sets up a Dbo class instance for testing
@@ -436,7 +461,7 @@ class SqlserverTest extends CakeTestCase
      */
     public function testDescribe(): void
     {
-        $SqlserverTableDescription = new SqlserverTestResultIterator([
+        $tableData = [
             (object)[
                 'Default' => '((0))',
                 'Field' => 'count',
@@ -489,8 +514,24 @@ class SqlserverTest extends CakeTestCase
                 'Null' => 'YES',
                 'Size' => '0',
             ],
-        ]);
-        $this->db->executeResultsStack = [$SqlserverTableDescription];
+        ];
+
+        $sqlserverTableDescription = $this->getMockBuilder(PDOStatement::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $index = 0;
+        $sqlserverTableDescription->expects($this->any())
+            ->method('fetch')
+            ->willReturnCallback(function () use ($tableData, &$index) {
+                if ($index >= count($tableData)) {
+                    return false;
+                }
+
+                return $tableData[$index++];
+            });
+
+        $this->db->executeResultsStack = [$sqlserverTableDescription];
         $dummyModel = $this->model;
         $result = $this->db->describe($dummyModel);
         $expected = [
@@ -761,7 +802,7 @@ SQL;
      */
     public function testBuildStatementWithHaving(): void
     {
-        $db = $this->getMock('SqlserverTestDb', ['getVersion'], [$this->Dbo->config]);
+        $db = $this->getMock(SqlserverTestDb::class, ['getVersion'], [$this->Dbo->config]);
 
         $db->expects($this->any())
             ->method('getVersion')
@@ -793,7 +834,7 @@ SQL;
      */
     public function testBuildStatementWithLockingHint(): void
     {
-        $db = $this->getMock('SqlserverTestDb', ['getVersion'], [$this->Dbo->config]);
+        $db = $this->getMock(SqlserverTestDb::class, ['getVersion'], [$this->Dbo->config]);
 
         $db->expects($this->any())
             ->method('getVersion')
@@ -824,7 +865,7 @@ SQL;
      */
     public function testBuildStatementWithHavingForLegacyVersion(): void
     {
-        $db = $this->getMock('SqlserverTestDb', ['getVersion'], [$this->Dbo->config]);
+        $db = $this->getMock(SqlserverTestDb::class, ['getVersion'], [$this->Dbo->config]);
 
         $db->expects($this->any())
             ->method('getVersion')
@@ -863,7 +904,7 @@ SQL;
      */
     public function testBuildStatementWithLockingHintForLegacyVersion(): void
     {
-        $db = $this->getMock('SqlserverTestDb', ['getVersion'], [$this->Dbo->config]);
+        $db = $this->getMock(SqlserverTestDb::class, ['getVersion'], [$this->Dbo->config]);
 
         $db->expects($this->any())
             ->method('getVersion')

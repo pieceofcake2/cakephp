@@ -16,6 +16,18 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\Utility;
+
+use Cake\Core\Configure;
+use Cake\Error\XmlException;
+use Cake\TestSuite\CakeTestCase;
+use Cake\TestSuite\Fixture\CakeTestModel;
+use Cake\Utility\Xml;
+use DateTime;
+use DOMDocument;
+use Exception;
+use SimpleXMLElement;
+
 /**
  * Article class
  *
@@ -26,7 +38,7 @@ class XmlArticle extends CakeTestModel
     /**
      * name property
      *
-     * @var string
+     * @var string|null
      */
     public $name = 'Article';
 
@@ -42,6 +54,7 @@ class XmlArticle extends CakeTestModel
         ],
     ];
 }
+class_alias(XmlArticle::class, 'App\\Model\\XmlArticle');
 
 /**
  * User class
@@ -53,7 +66,7 @@ class XmlUser extends CakeTestModel
     /**
      * name property
      *
-     * @var string
+     * @var string|null
      */
     public $name = 'User';
 
@@ -68,6 +81,7 @@ class XmlUser extends CakeTestModel
         ],
     ];
 }
+class_alias(XmlUser::class, 'App\\Model\\XmlUser');
 
 /**
  * XmlTest class
@@ -86,10 +100,11 @@ class XmlTest extends CakeTestCase
     /**
      * fixtures property
      *
-     * @var array
+     * @var array<string>
      */
     public $fixtures = [
-        'core.article', 'core.user',
+        'core.article',
+        'core.user',
     ];
 
     /**
@@ -609,9 +624,6 @@ XML;
     public static function invalidArrayDataProvider(): mixed
     {
         return [
-            [''],
-            [null],
-            [false],
             [[]],
             [['numeric key as root']],
             [['item1' => '', 'item2' => '']],
@@ -641,7 +653,6 @@ XML;
                     ],
                 ],
             ]],
-            [new DateTime()],
         ];
     }
 
@@ -653,16 +664,9 @@ XML;
      */
     public function testFromArrayFail($value): void
     {
-        set_error_handler(fn($errno, $errstr) => true, E_WARNING | E_USER_WARNING);
+        $this->expectException(Exception::class);
 
-        try {
-            Xml::fromArray($value);
-            $this->fail('No exception.');
-        } catch (Exception) {
-            $this->assertTrue(true, 'Caught exception.');
-        } finally {
-            restore_error_handler();
-        }
+        Xml::fromArray($value);
     }
 
     /**

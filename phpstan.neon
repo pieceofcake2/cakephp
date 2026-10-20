@@ -9,7 +9,7 @@ parameters:
     excludePaths:
         - src/TestSuite/templates/*
     bootstrapFiles:
-        - tests/bootstrap.php
+        - tests_legacy/bootstrap.php
     treatPhpDocTypesAsCertain: false
     # Constants whose values depend on the platform (DS) or on the application layout
     # (APP_DIR, WEBROOT_DIR), so their values at analysis time must not be assumed.

@@ -16,12 +16,20 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\Log;
+
+use Cake\Error\CakeLogException;
+use Cake\Log\Engine\FileLog;
+use Cake\Log\LogEngineCollection;
+use Cake\TestSuite\CakeTestCase;
+
 /**
  * LoggerEngineLog class
  */
 class LoggerEngineLog extends FileLog
 {
 }
+class_alias(LoggerEngineLog::class, 'App\\Log\\Engine\\LoggerEngineLog');
 
 /**
  * LogEngineCollectionTest class

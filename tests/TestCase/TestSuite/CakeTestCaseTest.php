@@ -18,7 +18,23 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\TestSuite;
+
+use Cake\Core\App;
+use Cake\Core\CakePlugin;
+use Cake\Core\Configure;
+use Cake\Error\MissingModelException;
+use Cake\Model\ConnectionManager;
+use Cake\Model\Model;
+use Cake\Test\Fixture\AssertTagsTestCase;
+use Cake\Test\Fixture\FixturizedTestCase;
+use Cake\TestSuite\CakeTestCase;
+use Cake\TestSuite\Fixture\CakeFixtureManager;
+use Cake\TestSuite\Stub\ConsoleOutputStub;
+use Cake\Utility\ClassRegistry;
 use PHPUnit\Framework\AssertionFailedError;
+use TestApp\Model\Post;
+use TestPlugin\Model\TestPluginComment;
 
 /**
  * Secondary Post stub class.
@@ -26,7 +42,7 @@ use PHPUnit\Framework\AssertionFailedError;
 class SecondaryPost extends Model
 {
     /**
-     * @var string
+     * @var string|bool|null
      */
     public $useTable = 'posts';
 
@@ -42,7 +58,7 @@ class SecondaryPost extends Model
 class ConstructorPost extends Model
 {
     /**
-     * @var string
+     * @var string|bool|null
      */
     public $useTable = 'posts';
 
@@ -60,22 +76,28 @@ class ConstructorPost extends Model
  */
 class CakeTestCaseTest extends CakeTestCase
 {
+    protected ?string $_appNamespace = null;
+
     /**
      * fixtures property
      *
-     * @var array
+     * @var array<string>
      */
-    public $fixtures = ['core.post', 'core.author', 'core.test_plugin_comment'];
+    public $fixtures = [
+        'core.post',
+        'core.author',
+        'core.test_plugin_comment',
+    ];
 
     /**
-     * CakeTestCaseTest::setUpBeforeClass()
-     *
      * @return void
      */
-    public static function setUpBeforeClass(): void
+    public function setUp(): void
     {
-        require_once CORE_TESTS . DS . 'Fixture' . DS . 'AssertTagsTestCase.php';
-        require_once CORE_TESTS . DS . 'Fixture' . DS . 'FixturizedTestCase.php';
+        parent::setUp();
+
+        $this->_appNamespace = Configure::read('App.namespace');
+        Configure::write('App.namespace', 'TestApp');
     }
 
     /**
@@ -86,6 +108,7 @@ class CakeTestCaseTest extends CakeTestCase
     public function tearDown(): void
     {
         unset($this->Result);
+        Configure::write('App.namespace', $this->_appNamespace);
 
         parent::tearDown();
     }
@@ -226,7 +249,7 @@ class CakeTestCaseTest extends CakeTestCase
     public function testLoadFixtures(): void
     {
         $test = new FixturizedTestCase('testFixturePresent');
-        $manager = $this->getMock('CakeFixtureManager');
+        $manager = $this->getMock(CakeFixtureManager::class);
         $manager->fixturize($test);
         $test->fixtureManager = $manager;
         $manager->expects($this->never())->method('load');
@@ -246,7 +269,7 @@ class CakeTestCaseTest extends CakeTestCase
     {
         $test = new FixturizedTestCase('testFixtureLoadOnDemand');
         $test->autoFixtures = false;
-        $manager = $this->getMock('CakeFixtureManager');
+        $manager = $this->getMock(CakeFixtureManager::class);
         $manager->fixturize($test);
         $test->fixtureManager = $manager;
         $manager->expects($this->once())->method('loadSingle');
@@ -263,7 +286,7 @@ class CakeTestCaseTest extends CakeTestCase
     {
         $test = new FixturizedTestCase('testFixtureLoadOnDemand');
         $test->autoFixtures = false;
-        $manager = $this->getMock('CakeFixtureManager');
+        $manager = $this->getMock(CakeFixtureManager::class);
         $manager->fixturize($test);
         $test->fixtureManager = $manager;
         $manager->expects($this->never())->method('unload');
@@ -281,7 +304,7 @@ class CakeTestCaseTest extends CakeTestCase
     {
         $test = new FixturizedTestCase('testThrowException');
         $test->autoFixtures = false;
-        $manager = $this->getMock('CakeFixtureManager');
+        $manager = $this->getMock(CakeFixtureManager::class);
         $manager->fixturize($test);
         $test->fixtureManager = $manager;
         $result = $test->run();
@@ -424,12 +447,12 @@ class CakeTestCaseTest extends CakeTestCase
     {
         App::build([
             'Model' => [
-                CORE_TESTS . DS . 'test_app' . DS . 'Model' . DS,
+                CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'Model' . DS,
             ],
         ], App::RESET);
         $Post = $this->getMockForModel('Post');
         $this->assertEquals('test', $Post->useDbConfig);
-        $this->assertInstanceOf('Post', $Post);
+        $this->assertInstanceOf(Post::class, $Post);
         $this->assertNull($Post->save([]));
         $this->assertNull($Post->find('all'));
         $this->assertEquals('posts', $Post->useTable);
@@ -448,9 +471,9 @@ class CakeTestCaseTest extends CakeTestCase
     public function testGetMockForModelSecondaryDatasource(): void
     {
         App::build([
-            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS],
+            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
             'Model/Datasource/Database' => [
-                CORE_TESTS . DS . 'test_app' . DS . 'Model' . DS . 'Datasource' . DS . 'Database' . DS,
+                CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'Model' . DS . 'Datasource' . DS . 'Database' . DS,
             ],
         ], App::RESET);
         CakePlugin::load('TestPlugin');
@@ -458,7 +481,7 @@ class CakeTestCaseTest extends CakeTestCase
             'datasource' => 'Database/TestLocalDriver',
             'prefix' => '',
         ]);
-        $post = $this->getMockForModel('SecondaryPost', ['save']);
+        $post = $this->getMockForModel(SecondaryPost::class, ['save']);
         $this->assertEquals('test_secondary', $post->useDbConfig);
         ConnectionManager::drop('test_secondary');
     }
@@ -470,7 +493,7 @@ class CakeTestCaseTest extends CakeTestCase
      */
     public function testGetMockForModelConstructorDatasource(): void
     {
-        $post = $this->getMockForModel('ConstructorPost', ['save'], ['ds' => 'test']);
+        $post = $this->getMockForModel(ConstructorPost::class, ['save'], ['ds' => 'test']);
         $this->assertEquals('test', $post->useDbConfig);
     }
 
@@ -483,25 +506,23 @@ class CakeTestCaseTest extends CakeTestCase
     {
         App::build([
             'Plugin' => [
-                CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS,
+                CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS,
             ],
         ], App::RESET);
         CakePlugin::load('TestPlugin');
-        $this->getMockForModel('TestPlugin.TestPluginAppModel');
-        $this->getMockForModel('TestPlugin.TestPluginComment');
+        new TestPluginComment();
 
         $result = ClassRegistry::init('TestPlugin.TestPluginComment');
-        $this->assertInstanceOf('TestPluginComment', $result);
+        $this->assertInstanceOf(TestPluginComment::class, $result);
         $this->assertEquals('test', $result->useDbConfig);
 
-        $TestPluginComment = $this->getMockForModel('TestPlugin.TestPluginComment', ['save']);
-
-        $this->assertInstanceOf('TestPluginComment', $TestPluginComment);
-        $TestPluginComment->expects($this->exactly(2))
+        $testPluginComment = $this->getMockForModel('TestPlugin.TestPluginComment', ['save']);
+        $this->assertInstanceOf(TestPluginComment::class, $testPluginComment);
+        $testPluginComment->expects($this->exactly(2))
             ->method('save')
             ->willReturnOnConsecutiveCalls(true, false);
-        $this->assertTrue($TestPluginComment->save([]));
-        $this->assertFalse($TestPluginComment->save([]));
+        $this->assertTrue($testPluginComment->save([]));
+        $this->assertFalse($testPluginComment->save([]));
     }
 
     /**

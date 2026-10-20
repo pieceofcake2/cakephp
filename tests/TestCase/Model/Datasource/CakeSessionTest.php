@@ -1,7 +1,5 @@
 <?php
 
-use TestApp\Model\Datasource\Session\NamespacedSession;
-
 /**
  * SessionTest file
  *
@@ -18,6 +16,18 @@ use TestApp\Model\Datasource\Session\NamespacedSession;
  * @since         CakePHP(tm) v 1.2.0.4206
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
+
+namespace Cake\Test\TestCase\Model\Datasource;
+
+use Cake\Cache\Cache;
+use Cake\Core\App;
+use Cake\Core\CakePlugin;
+use Cake\Core\Configure;
+use Cake\Model\Datasource\CakeSession;
+use Cake\Model\Datasource\Session\CacheSession;
+use Cake\Model\Datasource\Session\DatabaseSession;
+use Cake\TestSuite\CakeTestCase;
+use TestApp\Model\Datasource\Session\NamespacedSession;
 
 /**
  * TestCakeSession
@@ -36,6 +46,7 @@ class TestCakeSession extends CakeSession
         static::_setHost($host);
     }
 }
+class_alias(TestCakeSession::class, 'TestApp\\Model\\Datasource\\Session\\TestCakeSession');
 
 /**
  * TestCacheSession
@@ -49,6 +60,7 @@ class TestCacheSession extends CacheSession
         return true;
     }
 }
+class_alias(TestCacheSession::class, 'TestApp\\Model\\Datasource\\Session\\TestCacheSession');
 
 /**
  * TestDatabaseSession
@@ -62,6 +74,7 @@ class TestDatabaseSession extends DatabaseSession
         return true;
     }
 }
+class_alias(TestDatabaseSession::class, 'TestApp\\Model\\Datasource\\Session\\TestDatabaseSession');
 
 /**
  * CakeSessionTest class
@@ -70,14 +83,18 @@ class TestDatabaseSession extends DatabaseSession
  */
 class CakeSessionTest extends CakeTestCase
 {
+    protected ?string $_appNamespace = null;
+
     protected static $_gcDivisor;
 
     /**
      * Fixtures used in the SessionTest
      *
-     * @var array
+     * @var array<string>
      */
-    public $fixtures = ['core.session'];
+    public $fixtures = [
+        'core.session',
+    ];
 
     /**
      * setup before class.
@@ -110,6 +127,10 @@ class CakeSessionTest extends CakeTestCase
     public function setUp(): void
     {
         parent::setUp();
+
+        $this->_appNamespace = Configure::read('App.namespace');
+        Configure::write('App.namespace', 'TestApp');
+
         Configure::write('Session', [
             'defaults' => 'php',
             'cookie' => 'cakephp',
@@ -130,6 +151,8 @@ class CakeSessionTest extends CakeTestCase
             session_write_close();
         }
         unset($_SESSION);
+
+        Configure::write('App.namespace', $this->_appNamespace);
 
         parent::tearDown();
     }
@@ -650,9 +673,9 @@ class CakeSessionTest extends CakeTestCase
     {
         App::build([
             'Model/Datasource/Session' => [
-                CORE_TESTS . DS . 'test_app' . DS . 'Model' . DS . 'Datasource' . DS . 'Session' . DS,
+                CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'Model' . DS . 'Datasource' . DS . 'Session' . DS,
             ],
-            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS],
+            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
         ], App::RESET);
         Configure::write('Session', [
             'defaults' => 'cake',
@@ -678,7 +701,7 @@ class CakeSessionTest extends CakeTestCase
     public function testUsingPluginHandler(): void
     {
         App::build([
-            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS],
+            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
         ], App::RESET);
         CakePlugin::load('TestPlugin');
 

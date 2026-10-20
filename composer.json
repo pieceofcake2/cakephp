@@ -44,7 +44,15 @@
         }
     },
     "autoload-dev": {
-        "classmap": ["tests/test_app/"],
+        "psr-4": {
+            "Cake\\Test\\Fixture\\": "tests/Fixture/",
+            "Cake\\Test\\TestCase\\": "tests/TestCase/",
+            "TestApp\\": "tests/test_app/src/",
+            "TestPlugin\\": "tests/test_app/plugins/TestPlugin/src/",
+            "TestPluginTwo\\": "tests/test_app/plugins/TestPluginTwo/src/",
+            "PluginJs\\": "tests/test_app/plugins/PluginJs/src/",
+            "TestPluginModern\\": "tests/test_app/plugins/TestPluginModern/src/"
+        },
         "exclude-from-classmap": [
             "vendor/pieceofcake2/app/src/Controller/AppController.php",
             "vendor/pieceofcake2/app/src/Controller/PagesController.php",

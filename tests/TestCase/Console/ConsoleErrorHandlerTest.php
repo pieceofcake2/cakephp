@@ -16,6 +16,18 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\Console;
+
+use Cake\Console\ConsoleErrorHandler;
+use Cake\Console\ConsoleOutput;
+use Cake\Error\InternalErrorException;
+use Cake\Error\MissingActionException;
+use Cake\Error\NotFoundException;
+use Cake\TestSuite\CakeTestCase;
+use Exception;
+use InvalidArgumentException;
+use ReflectionClass;
+
 /**
  * ConsoleErrorHandler Test case.
  *
@@ -26,13 +38,13 @@ class ConsoleErrorHandlerTest extends CakeTestCase
     /**
      * setup, create mocks
      *
-     * @return Mock object
+     * @return void
      */
     public function setUp(): void
     {
         parent::setUp();
-        $this->Error = $this->getMock('ConsoleErrorHandler', ['_stop']);
-        ConsoleErrorHandler::$stderr = $this->getMock('ConsoleOutput', [], [], '', false);
+        $this->Error = $this->getMock(ConsoleErrorHandler::class, ['_stop']);
+        ConsoleErrorHandler::$stderr = $this->getMock(ConsoleOutput::class, [], [], '', false);
     }
 
     /**
@@ -55,7 +67,9 @@ class ConsoleErrorHandlerTest extends CakeTestCase
     public function testHandleError(): void
     {
         $content = "<error>Notice Error:</error> This is a notice error in [/some/file, line 275]\n";
-        ConsoleErrorHandler::$stderr->expects($this->once())->method('write')
+        ConsoleErrorHandler::$stderr
+            ->expects($this->once())
+            ->method('write')
             ->with($content);
 
         $this->Error->handleError(E_NOTICE, 'This is a notice error', '/some/file', 275);
@@ -69,7 +83,9 @@ class ConsoleErrorHandlerTest extends CakeTestCase
     public function testHandleFatalError(): void
     {
         $content = "<error>Fatal Error Error:</error> This is a fatal error in [/some/file, line 275]\n";
-        ConsoleErrorHandler::$stderr->expects($this->once())->method('write')
+        ConsoleErrorHandler::$stderr
+            ->expects($this->once())
+            ->method('write')
             ->with($content);
 
         $this->Error->expects($this->once())
@@ -87,7 +103,9 @@ class ConsoleErrorHandlerTest extends CakeTestCase
     public function testCakeErrors(): void
     {
         $exception = new MissingActionException('Missing action');
-        ConsoleErrorHandler::$stderr->expects($this->once())->method('write')
+        ConsoleErrorHandler::$stderr
+            ->expects($this->once())
+            ->method('write')
             ->with($this->stringContains('Missing action'));
 
         $this->Error->expects($this->once())
@@ -106,7 +124,9 @@ class ConsoleErrorHandlerTest extends CakeTestCase
     {
         $exception = new InvalidArgumentException('Too many parameters.');
 
-        ConsoleErrorHandler::$stderr->expects($this->once())->method('write')
+        ConsoleErrorHandler::$stderr
+            ->expects($this->once())
+            ->method('write')
             ->with($this->stringContains('Too many parameters.'));
 
         $this->Error->expects($this->once())
@@ -125,7 +145,9 @@ class ConsoleErrorHandlerTest extends CakeTestCase
     {
         $exception = new NotFoundException('dont use me in cli.');
 
-        ConsoleErrorHandler::$stderr->expects($this->once())->method('write')
+        ConsoleErrorHandler::$stderr
+            ->expects($this->once())
+            ->method('write')
             ->with($this->stringContains('dont use me in cli.'));
 
         $this->Error->expects($this->once())
@@ -144,7 +166,9 @@ class ConsoleErrorHandlerTest extends CakeTestCase
     {
         $exception = new InternalErrorException('dont use me in cli.');
 
-        ConsoleErrorHandler::$stderr->expects($this->once())->method('write')
+        ConsoleErrorHandler::$stderr
+            ->expects($this->once())
+            ->method('write')
             ->with($this->stringContains('dont use me in cli.'));
 
         $this->Error->expects($this->once())
@@ -168,7 +192,9 @@ class ConsoleErrorHandlerTest extends CakeTestCase
         $property->setAccessible(true);
         $property->setValue($exception, '42S22');
 
-        ConsoleErrorHandler::$stderr->expects($this->once())->method('write')
+        ConsoleErrorHandler::$stderr
+            ->expects($this->once())
+            ->method('write')
             ->with($this->stringContains('Non-integer exception code'));
 
         $this->Error->expects($this->once())

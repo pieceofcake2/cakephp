@@ -16,6 +16,15 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\Console\Command;
+
+use Cake\Console\ConsoleInput;
+use Cake\Console\ConsoleOutput;
+use Cake\Core\App;
+use Cake\Core\CakePlugin;
+use Cake\Core\Configure;
+use Cake\TestSuite\CakeTestCase;
+
 /**
  * TestStringOutput
  *
@@ -38,6 +47,8 @@ class TestStringOutput extends ConsoleOutput
  */
 class CommandListShellTest extends CakeTestCase
 {
+    protected ?string $_appNamespace = null;
+
     /**
      * setUp method
      *
@@ -46,18 +57,22 @@ class CommandListShellTest extends CakeTestCase
     public function setUp(): void
     {
         parent::setUp();
+
+        $this->_appNamespace = Configure::read('App.namespace');
+        Configure::write('App.namespace', 'TestApp');
+
         App::build([
             'Plugin' => [
-                CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS,
+                CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS,
             ],
             'Console/Command' => [
-                CORE_TESTS . DS . 'test_app' . DS . 'Console' . DS . 'Command' . DS,
+                CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'Console' . DS . 'Command' . DS,
             ],
         ], App::RESET);
         CakePlugin::load(['TestPlugin', 'TestPluginTwo']);
 
         $out = new TestStringOutput();
-        $in = $this->getMock('ConsoleInput', [], [], '', false);
+        $in = $this->getMock(ConsoleInput::class, [], [], '', false);
 
         $this->Shell = $this->getMock(
             'CommandListShell',
@@ -82,6 +97,8 @@ class CommandListShellTest extends CakeTestCase
         unset($this->Shell);
         CakePlugin::unload();
 
+        Configure::write('App.namespace', $this->_appNamespace);
+
         parent::tearDown();
     }
 
@@ -104,7 +121,7 @@ class CommandListShellTest extends CakeTestCase
         $expected = "/\[.*CORE.*\] acl, api, command_list, completion, console, i18n, schema, server, test, testsuite/";
         $this->assertMatchesRegularExpression($expected, $output);
 
-        $expected = "/\[.*app.*\] sample/";
+        $expected = "/\[.*app.*\] namespaced, sample/";
         $this->assertMatchesRegularExpression($expected, $output);
     }
 

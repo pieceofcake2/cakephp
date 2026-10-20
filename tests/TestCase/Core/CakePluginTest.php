@@ -16,6 +16,15 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\Core;
+
+use Cake\Core\App;
+use Cake\Core\CakePlugin;
+use Cake\Core\Configure;
+use Cake\Error\MissingPluginException;
+use Cake\Routing\Router;
+use Cake\TestSuite\CakeTestCase;
+
 /**
  * CakePluginTest class
  */
@@ -30,7 +39,7 @@ class CakePluginTest extends CakeTestCase
     {
         parent::setUp();
         App::build([
-            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS],
+            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
         ], App::RESET);
         App::objects('plugins', null, false);
     }
@@ -110,44 +119,6 @@ class CakePluginTest extends CakeTestCase
     }
 
     /**
-     * Tests loading the bootstrap and routes files from the config directory of a plugin
-     *
-     * @return void
-     */
-    public function testLoadWithConfigDirectory(): void
-    {
-        App::build([
-            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
-        ]);
-        CakePlugin::load('TestPluginModern', ['bootstrap' => true, 'routes' => true]);
-        $this->assertSame('loaded from config/bootstrap.php', Configure::read('TestPluginModern.bootstrap'));
-
-        Router::reload();
-        CakePlugin::routes('TestPluginModern');
-        $this->assertSame('/modern', Router::url(['plugin' => 'test_plugin_modern', 'controller' => 'modern', 'action' => 'index']));
-    }
-
-    /**
-     * Tests configPath() with the config directory of the CakePHP 5 layout and the Config directory of CakePHP 2
-     *
-     * @return void
-     */
-    public function testConfigPath(): void
-    {
-        App::build([
-            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
-        ]);
-        CakePlugin::load(['TestPlugin', 'TestPluginModern']);
-
-        $expected = CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS . 'TestPlugin' . DS . 'Config' . DS;
-        // Config/ is also found as config/ on case-insensitive file systems
-        $this->assertEqualsIgnoringCase($expected, CakePlugin::configPath('TestPlugin'));
-
-        $expected = CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS . 'TestPluginModern' . DS . 'config' . DS;
-        $this->assertSame($expected, CakePlugin::configPath('TestPluginModern'));
-    }
-
-    /**
      * Tests loading multiple plugins at once
      *
      * @return void
@@ -223,13 +194,9 @@ class CakePluginTest extends CakeTestCase
     {
         $warningTriggered = false;
         set_error_handler(function ($errno, $errstr) use (&$warningTriggered) {
-            if ($errno === E_WARNING || $errno === E_USER_WARNING) {
-                $warningTriggered = true;
+            $warningTriggered = true;
 
-                return true;
-            }
-
-            return false;
+            return true;
         }, E_WARNING | E_USER_WARNING);
 
         try {
@@ -251,13 +218,9 @@ class CakePluginTest extends CakeTestCase
     {
         $warningTriggered = false;
         set_error_handler(function ($errno, $errstr) use (&$warningTriggered) {
-            if ($errno === E_WARNING || $errno === E_USER_WARNING) {
-                $warningTriggered = true;
+            $warningTriggered = true;
 
-                return true;
-            }
-
-            return false;
+            return true;
         }, E_WARNING | E_USER_WARNING);
 
         try {
@@ -296,10 +259,10 @@ class CakePluginTest extends CakeTestCase
     public function testPath(): void
     {
         CakePlugin::load(['TestPlugin', 'TestPluginTwo']);
-        $expected = CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS . 'TestPlugin' . DS;
+        $expected = CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS . 'TestPlugin' . DS;
         $this->assertEquals($expected, CakePlugin::path('TestPlugin'));
 
-        $expected = CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS . 'TestPluginTwo' . DS;
+        $expected = CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS . 'TestPluginTwo' . DS;
         $this->assertEquals($expected, CakePlugin::path('TestPluginTwo'));
     }
 
@@ -322,7 +285,7 @@ class CakePluginTest extends CakeTestCase
     public function testLoadAll(): void
     {
         CakePlugin::loadAll();
-        $expected = ['PluginJs', 'TestPlugin', 'TestPluginTwo'];
+        $expected = ['PluginJs', 'TestPlugin', 'TestPluginModern', 'TestPluginTwo'];
         $this->assertEquals($expected, CakePlugin::loaded());
     }
 
@@ -335,7 +298,7 @@ class CakePluginTest extends CakeTestCase
     {
         $defaults = ['bootstrap' => true];
         CakePlugin::loadAll([$defaults]);
-        $expected = ['PluginJs', 'TestPlugin', 'TestPluginTwo'];
+        $expected = ['PluginJs', 'TestPlugin', 'TestPluginModern', 'TestPluginTwo'];
         $this->assertEquals($expected, CakePlugin::loaded());
         $this->assertEquals('loaded js plugin bootstrap', Configure::read('CakePluginTest.js_plugin.bootstrap'));
         $this->assertEquals('loaded plugin bootstrap', Configure::read('CakePluginTest.test_plugin.bootstrap'));
@@ -353,7 +316,7 @@ class CakePluginTest extends CakeTestCase
         CakePlugin::loadAll([['bootstrap' => true], 'TestPlugin' => ['routes' => true]]);
         CakePlugin::routes();
 
-        $expected = ['PluginJs', 'TestPlugin', 'TestPluginTwo'];
+        $expected = ['PluginJs', 'TestPlugin', 'TestPluginModern', 'TestPluginTwo'];
         $this->assertEquals($expected, CakePlugin::loaded());
         $this->assertEquals('loaded js plugin bootstrap', Configure::read('CakePluginTest.js_plugin.bootstrap'));
         $this->assertEquals('loaded plugin routes', Configure::read('CakePluginTest.test_plugin.routes'));
@@ -372,7 +335,7 @@ class CakePluginTest extends CakeTestCase
         CakePlugin::loadAll([['bootstrap' => true], 'TestPlugin' => ['routes' => true, 'bootstrap' => false]]);
         CakePlugin::routes();
 
-        $expected = ['PluginJs', 'TestPlugin', 'TestPluginTwo'];
+        $expected = ['PluginJs', 'TestPlugin', 'TestPluginModern', 'TestPluginTwo'];
         $this->assertEquals($expected, CakePlugin::loaded());
         $this->assertEquals('loaded js plugin bootstrap', Configure::read('CakePluginTest.js_plugin.bootstrap'));
         $this->assertEquals('loaded plugin routes', Configure::read('CakePluginTest.test_plugin.routes'));
@@ -388,5 +351,43 @@ class CakePluginTest extends CakeTestCase
     public function pluginBootstrap(): void
     {
         Configure::write('CakePluginTest.test_plugin.bootstrap', 'called plugin bootstrap callback');
+    }
+
+    /**
+     * Tests loading the bootstrap and routes files from the config directory of a plugin
+     *
+     * @return void
+     */
+    public function testLoadWithConfigDirectory(): void
+    {
+        App::build([
+            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
+        ]);
+        CakePlugin::load('TestPluginModern', ['bootstrap' => true, 'routes' => true]);
+        $this->assertSame('loaded from config/bootstrap.php', Configure::read('TestPluginModern.bootstrap'));
+
+        Router::reload();
+        CakePlugin::routes('TestPluginModern');
+        $this->assertSame('/modern', Router::url(['plugin' => 'test_plugin_modern', 'controller' => 'modern', 'action' => 'index']));
+    }
+
+    /**
+     * Tests configPath() with the config directory of the CakePHP 5 layout and the Config directory of CakePHP 2
+     *
+     * @return void
+     */
+    public function testConfigPath(): void
+    {
+        App::build([
+            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
+        ]);
+        CakePlugin::load(['TestPlugin', 'TestPluginModern']);
+
+        $expected = CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS . 'TestPlugin' . DS . 'Config' . DS;
+        // Config/ is also found as config/ on case-insensitive file systems
+        $this->assertEqualsIgnoringCase($expected, CakePlugin::configPath('TestPlugin'));
+
+        $expected = CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS . 'TestPluginModern' . DS . 'config' . DS;
+        $this->assertSame($expected, CakePlugin::configPath('TestPluginModern'));
     }
 }

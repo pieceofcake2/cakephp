@@ -1,8 +1,5 @@
 <?php
 
-use TestApp\Test\Fixture\NamespacedArticleFixture;
-use TestPluginTwo\Test\Fixture\NamespacedCommentFixture;
-
 /**
  * CakeFixtureManager file
  *
@@ -19,6 +16,21 @@ use TestPluginTwo\Test\Fixture\NamespacedCommentFixture;
  * @since         CakePHP v 2.5
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
+
+namespace Cake\Test\TestCase\TestSuite\Fixture;
+
+use Cake\Core\App;
+use Cake\Core\CakePlugin;
+use Cake\Core\Configure;
+use Cake\Model\ConnectionManager;
+use Cake\Test\Fixture\UuidFixture;
+use Cake\TestSuite\CakeTestCase;
+use Cake\TestSuite\Fixture\CakeFixtureManager;
+use ReflectionClass;
+use ReflectionMethod;
+use ReflectionProperty;
+use TestApp\Test\Fixture\NamespacedArticleFixture;
+use TestPluginTwo\Test\Fixture\NamespacedCommentFixture;
 
 /**
  * Test Case for CakeFixtureManager class
@@ -59,7 +71,7 @@ class CakeFixtureManagerTest extends CakeTestCase
      */
     public function testLoadTruncatesTable(): void
     {
-        $MockFixture = $this->getMock('UuidFixture', ['truncate', 'insert']);
+        $MockFixture = $this->getMock(UuidFixture::class, ['truncate', 'insert']);
         // The table name is derived from the class name, which is the mock class name here.
         $MockFixture->table = 'uuids';
         $MockFixture
@@ -88,7 +100,7 @@ class CakeFixtureManagerTest extends CakeTestCase
         $loadedProperty->setAccessible(true);
         $loadedProperty->setValue($fixtureManager, ['core.uuid' => $MockFixture]);
 
-        $TestCase = $this->getMock('CakeTestCase');
+        $TestCase = $this->getMock(CakeTestCase::class);
         $TestCase->fixtures = ['core.uuid'];
         $TestCase->autoFixtures = true;
         $TestCase->dropTables = false;
@@ -110,7 +122,7 @@ class CakeFixtureManagerTest extends CakeTestCase
      */
     public function testLoadSingleTruncatesTable(): void
     {
-        $MockFixture = $this->getMock('UuidFixture', ['truncate']);
+        $MockFixture = $this->getMock(UuidFixture::class, ['truncate']);
         // The table name is derived from the class name, which is the mock class name here.
         $MockFixture->table = 'uuids';
         $MockFixture
@@ -143,7 +155,7 @@ class CakeFixtureManagerTest extends CakeTestCase
     public function testLoadNamespacedFixtures(): void
     {
         Configure::write('App.namespace', 'TestApp');
-        App::build(['Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS]], App::RESET);
+        App::build(['Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS]], App::RESET);
         CakePlugin::load('TestPluginTwo');
 
         $loadFixtures = new ReflectionMethod($this->fixtureManager, '_loadFixtures');

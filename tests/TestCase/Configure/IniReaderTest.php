@@ -16,6 +16,14 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\Configure;
+
+use Cake\Configure\IniReader;
+use Cake\Core\App;
+use Cake\Core\CakePlugin;
+use Cake\Error\ConfigureException;
+use Cake\TestSuite\CakeTestCase;
+
 /**
  * IniReaderTest
  *
@@ -51,7 +59,7 @@ class IniReaderTest extends CakeTestCase
     public function setUp(): void
     {
         parent::setUp();
-        $this->path = CORE_TESTS . DS . 'test_app' . DS . 'Config' . DS;
+        $this->path = CORE_TESTS . DS . 'test_app' . DS . 'config' . DS;
     }
 
     /**
@@ -225,7 +233,7 @@ class IniReaderTest extends CakeTestCase
     public function testReadPluginValue(): void
     {
         App::build([
-            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS],
+            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
         ], App::RESET);
         CakePlugin::load('TestPlugin');
         $reader = new IniReader($this->path);
@@ -249,7 +257,7 @@ class IniReaderTest extends CakeTestCase
     public function testReadPluginSpecialAclIniPhpValue(): void
     {
         App::build([
-            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS],
+            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
         ], App::RESET);
         CakePlugin::load('TestPlugin');
         $reader = new IniReader($this->path);

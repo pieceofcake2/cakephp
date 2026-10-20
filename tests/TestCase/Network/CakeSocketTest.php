@@ -16,6 +16,13 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\Network;
+
+use Cake\Error\SocketException;
+use Cake\Network\CakeSocket;
+use Cake\TestSuite\CakeTestCase;
+use InvalidArgumentException;
+
 /**
  * SocketTest class
  *

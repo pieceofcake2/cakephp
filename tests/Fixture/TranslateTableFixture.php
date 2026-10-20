@@ -16,6 +16,10 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\Fixture;
+
+use Cake\TestSuite\Fixture\CakeTestFixture;
+
 /**
  * TranslateTableFixture
  *
@@ -26,7 +30,7 @@ class TranslateTableFixture extends CakeTestFixture
     /**
      * table property
      *
-     * @var string
+     * @var string|null
      */
     public $table = 'another_i18n';
 

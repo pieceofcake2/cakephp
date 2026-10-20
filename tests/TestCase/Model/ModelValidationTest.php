@@ -1,7 +1,4 @@
 <?php
-
-use PHPUnit\Framework\Error;
-
 /**
  * ModelValidationTest file
  *
@@ -19,7 +16,17 @@ use PHPUnit\Framework\Error;
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-require_once __DIR__ . DS . 'ModelTestBase.php';
+namespace Cake\Test\TestCase\Model;
+
+use Cake\Core\App;
+use Cake\Core\Configure;
+use Cake\Model\Model;
+use Cake\Model\ModelBehavior;
+use Cake\Model\ModelValidator;
+use Cake\Model\Validator\CakeValidationSet;
+use Cake\Utility\ClassRegistry;
+use PHPUnit\Framework\Error;
+use TypeError;
 
 /**
  * ModelValidationTest
@@ -214,53 +221,61 @@ class ModelValidationTest extends BaseModelTest
      */
     public function testValidates(): void
     {
-        $TestModel = new TestValidate();
+        $testModel = new TestValidate();
 
-        $TestModel->validate = [
+        $testModel->validate = [
             'user_id' => 'numeric',
             'title' => ['allowEmpty' => false, 'rule' => 'notBlank'],
             'body' => 'notBlank',
         ];
 
-        $data = ['TestValidate' => [
-            'user_id' => '1',
-            'title' => '',
-            'body' => 'body',
-        ]];
-        $result = $TestModel->create($data);
+        $data = [
+            'TestValidate' => [
+                'user_id' => '1',
+                'title' => '',
+                'body' => 'body',
+            ],
+        ];
+        $result = $testModel->create($data);
         $this->assertEquals($data, $result);
-        $result = $TestModel->validates();
+        $result = $testModel->validates();
         $this->assertFalse($result);
 
-        $data = ['TestValidate' => [
-            'user_id' => '1',
-            'title' => 'title',
-            'body' => 'body',
-        ]];
-        $result = $TestModel->create($data) && $TestModel->validates();
+        $data = [
+            'TestValidate' => [
+                'user_id' => '1',
+                'title' => 'title',
+                'body' => 'body',
+            ],
+        ];
+        $result = $testModel->create($data) && $testModel->validates();
         $this->assertTrue($result);
 
-        $data = ['TestValidate' => [
-            'user_id' => '1',
-            'title' => '0',
-            'body' => 'body',
-        ]];
-        $result = $TestModel->create($data);
+        $data = [
+            'TestValidate' => [
+                'user_id' => '1',
+                'title' => '0',
+                'body' => 'body',
+            ],
+        ];
+        $result = $testModel->create($data);
         $this->assertEquals($data, $result);
-        $result = $TestModel->validates();
+        $result = $testModel->validates();
         $this->assertTrue($result);
 
-        $data = ['TestValidate' => [
-            'user_id' => '1',
-            'title' => 0,
-            'body' => 'body',
-        ]];
-        $result = $TestModel->create($data);
+        $data = [
+            'TestValidate' => [
+                'user_id' => '1',
+                'title' => 0,
+                'body' => 'body',
+            ],
+        ];
+        $result = $testModel->create($data);
         $this->assertEquals($data, $result);
-        $result = $TestModel->validates();
+        $result = $testModel->validates();
         $this->assertTrue($result);
 
-        $TestModel->validate['modified'] = ['allowEmpty' => true, 'rule' => 'date'];
+        $testModel->validate['modified'] = ['allowEmpty' => true, 'rule' => 'date'];
 
         $data = ['TestValidate' => [
             'user_id' => '1',
@@ -268,119 +283,135 @@ class ModelValidationTest extends BaseModelTest
             'body' => 'body',
             'modified' => '',
         ]];
-        $result = $TestModel->create($data);
+        $result = $testModel->create($data);
         $this->assertEquals($data, $result);
-        $result = $TestModel->validates();
+        $result = $testModel->validates();
         $this->assertTrue($result);
 
-        $data = ['TestValidate' => [
-            'user_id' => '1',
-            'title' => 0,
-            'body' => 'body',
-            'modified' => '2007-05-01',
-        ]];
-        $result = $TestModel->create($data);
+        $data = [
+            'TestValidate' => [
+                'user_id' => '1',
+                'title' => 0,
+                'body' => 'body',
+                'modified' => '2007-05-01',
+            ],
+        ];
+        $result = $testModel->create($data);
         $this->assertEquals($data, $result);
-        $result = $TestModel->validates();
+        $result = $testModel->validates();
         $this->assertTrue($result);
 
-        $data = ['TestValidate' => [
-            'user_id' => '1',
-            'title' => 0,
-            'body' => 'body',
-            'modified' => 'invalid-date-here',
-        ]];
-        $result = $TestModel->create($data);
+        $data = [
+            'TestValidate' => [
+                'user_id' => '1',
+                'title' => 0,
+                'body' => 'body',
+                'modified' => 'invalid-date-here',
+            ],
+        ];
+        $result = $testModel->create($data);
         $this->assertEquals($data, $result);
-        $result = $TestModel->validates();
+        $result = $testModel->validates();
         $this->assertFalse($result);
 
-        $data = ['TestValidate' => [
-            'user_id' => '1',
-            'title' => 0,
-            'body' => 'body',
-            'modified' => 0,
-        ]];
-        $result = $TestModel->create($data);
+        $data = [
+            'TestValidate' => [
+                'user_id' => '1',
+                'title' => 0,
+                'body' => 'body',
+                'modified' => 0,
+            ],
+        ];
+        $result = $testModel->create($data);
         $this->assertEquals($data, $result);
-        $result = $TestModel->validates();
+        $result = $testModel->validates();
         $this->assertFalse($result);
 
-        $data = ['TestValidate' => [
-            'user_id' => '1',
-            'title' => 0,
-            'body' => 'body',
-            'modified' => '0',
-        ]];
-        $result = $TestModel->create($data);
+        $data = [
+            'TestValidate' => [
+                'user_id' => '1',
+                'title' => 0,
+                'body' => 'body',
+                'modified' => '0',
+            ],
+        ];
+        $result = $testModel->create($data);
         $this->assertEquals($data, $result);
-        $result = $TestModel->validates();
+        $result = $testModel->validates();
         $this->assertFalse($result);
 
-        $TestModel->validate['modified'] = ['allowEmpty' => false, 'rule' => 'date'];
+        $testModel->validate['modified'] = ['allowEmpty' => false, 'rule' => 'date'];
 
         $data = ['TestValidate' => ['modified' => null]];
-        $result = $TestModel->create($data);
+        $result = $testModel->create($data);
         $this->assertEquals($data, $result);
-        $result = $TestModel->validates();
+        $result = $testModel->validates();
         $this->assertFalse($result);
 
         $data = ['TestValidate' => ['modified' => false]];
-        $result = $TestModel->create($data);
+        $result = $testModel->create($data);
         $this->assertEquals($data, $result);
-        $result = $TestModel->validates();
+        $result = $testModel->validates();
         $this->assertFalse($result);
 
         $data = ['TestValidate' => ['modified' => '']];
-        $result = $TestModel->create($data);
+        $result = $testModel->create($data);
         $this->assertEquals($data, $result);
-        $result = $TestModel->validates();
+        $result = $testModel->validates();
         $this->assertFalse($result);
 
-        $data = ['TestValidate' => [
-            'modified' => '2007-05-01',
-        ]];
-        $result = $TestModel->create($data);
+        $data = [
+            'TestValidate' => [
+                'modified' => '2007-05-01',
+            ],
+        ];
+        $result = $testModel->create($data);
         $this->assertEquals($data, $result);
-        $result = $TestModel->validates();
+        $result = $testModel->validates();
         $this->assertTrue($result);
 
-        $TestModel->validate['slug'] = ['allowEmpty' => false, 'rule' => ['maxLength', 45]];
+        $testModel->validate['slug'] = ['allowEmpty' => false, 'rule' => ['maxLength', 45]];
 
-        $data = ['TestValidate' => [
-            'user_id' => '1',
-            'title' => 0,
-            'body' => 'body',
-            'slug' => '',
-        ]];
-        $result = $TestModel->create($data);
+        $data = [
+            'TestValidate' => [
+                'user_id' => '1',
+                'title' => 0,
+                'body' => 'body',
+                'slug' => '',
+            ],
+        ];
+        $result = $testModel->create($data);
         $this->assertEquals($data, $result);
-        $result = $TestModel->validates();
+        $result = $testModel->validates();
         $this->assertFalse($result);
 
-        $data = ['TestValidate' => [
-            'user_id' => '1',
-            'title' => 0,
-            'body' => 'body',
-            'slug' => 'slug-right-here',
-        ]];
-        $result = $TestModel->create($data);
+        $data = [
+            'TestValidate' => [
+                'user_id' => '1',
+                'title' => 0,
+                'body' => 'body',
+                'slug' => 'slug-right-here',
+            ],
+        ];
+        $result = $testModel->create($data);
         $this->assertEquals($data, $result);
-        $result = $TestModel->validates();
+        $result = $testModel->validates();
         $this->assertTrue($result);
 
-        $data = ['TestValidate' => [
-            'user_id' => '1',
-            'title' => 0,
-            'body' => 'body',
-            'slug' => 'abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz',
-        ]];
-        $result = $TestModel->create($data);
+        $data = [
+            'TestValidate' => [
+                'user_id' => '1',
+                'title' => 0,
+                'body' => 'body',
+                'slug' => 'abcdefghijklmnopqrstuvwxyzabcdefghijklmnopqrstuvwxyz',
+            ],
+        ];
+        $result = $testModel->create($data);
         $this->assertEquals($data, $result);
-        $result = $TestModel->validates();
+        $result = $testModel->validates();
         $this->assertFalse($result);
 
-        $TestModel->validate = [
+        $testModel->validate = [
             'number' => [
                 'rule' => 'validateNumber',
                 'min' => 3,
@@ -389,45 +420,54 @@ class ModelValidationTest extends BaseModelTest
             'title' => [
                 'allowEmpty' => false,
                 'rule' => 'notBlank',
-            ]];
+            ],
+        ];
 
-        $data = ['TestValidate' => [
-            'title' => 'title',
-            'number' => '0',
-        ]];
-        $result = $TestModel->create($data);
+        $data = [
+            'TestValidate' => [
+                'title' => 'title',
+                'number' => '0',
+            ],
+        ];
+        $result = $testModel->create($data);
         $this->assertEquals($data, $result);
-        $result = $TestModel->validates();
+        $result = $testModel->validates();
         $this->assertFalse($result);
 
-        $data = ['TestValidate' => [
-            'title' => 'title',
-            'number' => 0,
-        ]];
-        $result = $TestModel->create($data);
+        $data = [
+            'TestValidate' => [
+                'title' => 'title',
+                'number' => 0,
+            ],
+        ];
+        $result = $testModel->create($data);
         $this->assertEquals($data, $result);
-        $result = $TestModel->validates();
+        $result = $testModel->validates();
         $this->assertFalse($result);
 
-        $data = ['TestValidate' => [
-            'title' => 'title',
-            'number' => '3',
-        ]];
-        $result = $TestModel->create($data);
+        $data = [
+            'TestValidate' => [
+                'title' => 'title',
+                'number' => '3',
+            ],
+        ];
+        $result = $testModel->create($data);
         $this->assertEquals($data, $result);
-        $result = $TestModel->validates();
+        $result = $testModel->validates();
         $this->assertTrue($result);
 
-        $data = ['TestValidate' => [
-            'title' => 'title',
-            'number' => 3,
-        ]];
-        $result = $TestModel->create($data);
+        $data = [
+            'TestValidate' => [
+                'title' => 'title',
+                'number' => 3,
+            ],
+        ];
+        $result = $testModel->create($data);
         $this->assertEquals($data, $result);
-        $result = $TestModel->validates();
+        $result = $testModel->validates();
         $this->assertTrue($result);
 
-        $TestModel->validate = [
+        $testModel->validate = [
             'number' => [
                 'rule' => 'validateNumber',
                 'min' => 5,
@@ -436,91 +476,102 @@ class ModelValidationTest extends BaseModelTest
             'title' => [
                 'allowEmpty' => false,
                 'rule' => 'notBlank',
-            ]];
+            ],
+        ];
 
-        $data = ['TestValidate' => [
-            'title' => 'title',
-            'number' => '3',
-        ]];
-        $result = $TestModel->create($data);
+        $data = [
+            'TestValidate' => [
+                'title' => 'title',
+                'number' => '3',
+            ],
+        ];
+        $result = $testModel->create($data);
         $this->assertEquals($data, $result);
-        $result = $TestModel->validates();
+        $result = $testModel->validates();
         $this->assertFalse($result);
 
-        $data = ['TestValidate' => [
-            'title' => 'title',
-            'number' => 3,
-        ]];
-        $result = $TestModel->create($data);
+        $data = [
+            'TestValidate' => [
+                'title' => 'title',
+                'number' => 3,
+            ],
+        ];
+        $result = $testModel->create($data);
         $this->assertEquals($data, $result);
-        $result = $TestModel->validates();
+        $result = $testModel->validates();
         $this->assertFalse($result);
 
-        $TestModel->validate = [
+        $testModel->validate = [
             'title' => [
                 'allowEmpty' => false,
                 'rule' => 'validateTitle',
-            ]];
+            ],
+        ];
 
         $data = ['TestValidate' => ['title' => '']];
-        $result = $TestModel->create($data);
+        $result = $testModel->create($data);
         $this->assertEquals($data, $result);
-        $result = $TestModel->validates();
+        $result = $testModel->validates();
         $this->assertFalse($result);
 
         $data = ['TestValidate' => ['title' => 'new title']];
-        $result = $TestModel->create($data);
+        $result = $testModel->create($data);
         $this->assertEquals($data, $result);
-        $result = $TestModel->validates();
+        $result = $testModel->validates();
         $this->assertFalse($result);
 
         $data = ['TestValidate' => ['title' => 'title-new']];
-        $result = $TestModel->create($data);
+        $result = $testModel->create($data);
         $this->assertEquals($data, $result);
-        $result = $TestModel->validates();
+        $result = $testModel->validates();
         $this->assertTrue($result);
 
-        $TestModel->validate = ['title' => [
+        $testModel->validate = ['title' => [
             'allowEmpty' => true,
             'rule' => 'validateTitle',
         ]];
         $data = ['TestValidate' => ['title' => '']];
-        $result = $TestModel->create($data);
+        $result = $testModel->create($data);
         $this->assertEquals($data, $result);
-        $result = $TestModel->validates();
+        $result = $testModel->validates();
         $this->assertTrue($result);
 
-        $TestModel->validate = [
+        $testModel->validate = [
             'title' => [
                 'length' => [
                     'allowEmpty' => true,
                     'rule' => ['maxLength', 10],
-                ]]];
+                ],
+            ],
+        ];
         $data = ['TestValidate' => ['title' => '']];
-        $result = $TestModel->create($data);
+        $result = $testModel->create($data);
         $this->assertEquals($data, $result);
-        $result = $TestModel->validates();
+        $result = $testModel->validates();
         $this->assertTrue($result);
 
-        $TestModel->validate = [
+        $testModel->validate = [
             'title' => [
-                'rule' => ['userDefined', 'Article', 'titleDuplicate'],
-            ]];
+                'rule' => ['userDefined', Article::class, 'titleDuplicate'],
+            ],
+        ];
         $data = ['TestValidate' => ['title' => 'My Article Title']];
-        $result = $TestModel->create($data);
+        $result = $testModel->create($data);
         $this->assertEquals($data, $result);
-        $result = $TestModel->validates();
+        $result = $testModel->validates();
         $this->assertFalse($result);
 
-        $data = ['TestValidate' => [
-            'title' => 'My Article With a Different Title',
-        ]];
-        $result = $TestModel->create($data);
+        $data = [
+            'TestValidate' => [
+                'title' => 'My Article With a Different Title',
+            ],
+        ];
+        $result = $testModel->create($data);
         $this->assertEquals($data, $result);
-        $result = $TestModel->validates();
+        $result = $testModel->validates();
         $this->assertTrue($result);
 
-        $TestModel->validate = [
+        $testModel->validate = [
             'title' => [
                 'tooShort' => ['rule' => ['minLength', 50]],
                 'onlyLetters' => ['rule' => '/^[a-z]+$/i'],
@@ -529,16 +580,16 @@ class ModelValidationTest extends BaseModelTest
         $data = ['TestValidate' => [
             'title' => 'I am a short string',
         ]];
-        $TestModel->create($data);
-        $result = $TestModel->validates();
+        $testModel->create($data);
+        $result = $testModel->validates();
         $this->assertFalse($result);
-        $result = $TestModel->validationErrors;
+        $result = $testModel->validationErrors;
         $expected = [
             'title' => ['tooShort'],
         ];
         $this->assertEquals($expected, $result);
 
-        $TestModel->validate = [
+        $testModel->validate = [
             'title' => [
                 'tooShort' => [
                     'rule' => ['minLength', 50],
@@ -550,15 +601,15 @@ class ModelValidationTest extends BaseModelTest
         $data = ['TestValidate' => [
             'title' => 'I am a short string',
         ]];
-        $TestModel->create($data);
-        $result = $TestModel->validates();
+        $testModel->create($data);
+        $result = $testModel->validates();
         $this->assertFalse($result);
-        $result = $TestModel->validationErrors;
+        $result = $testModel->validationErrors;
         $expected = [
             'title' => ['tooShort', 'onlyLetters'],
         ];
         $this->assertEquals($expected, $result);
-        $result = $TestModel->validationErrors;
+        $result = $testModel->validationErrors;
         $this->assertEquals($expected, $result);
     }
 
@@ -695,25 +746,25 @@ class ModelValidationTest extends BaseModelTest
      */
     public function testValidateWithFieldListAndBehavior(): void
     {
-        $TestModel = new ValidationTest1();
-        $TestModel->validate = [
+        $testModel = new ValidationTest1();
+        $testModel->validate = [
             'title' => [
                 'rule' => 'notBlank',
             ],
             'name' => [
                 'rule' => 'notBlank',
             ]];
-        $TestModel->Behaviors->attach('ValidationRule', ['fields' => ['name']]);
+        $testModel->Behaviors->attach('ValidationRule', ['fields' => ['name']]);
 
         $data = [
             'title' => '',
             'name' => '',
         ];
-        $result = $TestModel->save($data, ['fieldList' => ['title']]);
+        $result = $testModel->save($data, ['fieldList' => ['title']]);
         $this->assertFalse($result);
 
         $expected = ['title' => ['This field cannot be left blank'], 'name' => ['This field cannot be left blank']];
-        $this->assertEquals($expected, $TestModel->validationErrors);
+        $this->assertEquals($expected, $testModel->validationErrors);
     }
 
     /**
@@ -823,14 +874,10 @@ class ModelValidationTest extends BaseModelTest
         $warningTriggered = false;
         $warningMessage = '';
         set_error_handler(function ($errno, $errstr) use (&$warningTriggered, &$warningMessage) {
-            if ($errno === E_WARNING || $errno === E_USER_WARNING) {
-                $warningTriggered = true;
-                $warningMessage = $errstr;
+            $warningTriggered = true;
+            $warningMessage = $errstr;
 
-                return true;
-            }
-
-            return false;
+            return true;
         }, E_WARNING | E_USER_WARNING);
 
         try {
@@ -904,7 +951,7 @@ class ModelValidationTest extends BaseModelTest
         $lang = Configure::read('Config.language');
         Configure::write('Config.language', 'en');
         App::build([
-            'Locale' => [CORE_TESTS . DS . 'test_app' . DS . 'Locale' . DS],
+            'Locale' => [CORE_TESTS . DS . 'test_app' . DS . 'resources' . DS . 'locales' . DS],
         ], App::RESET);
 
         $TestModel = new ValidationTest1();
@@ -1837,7 +1884,7 @@ class ModelValidationTest extends BaseModelTest
 
         $result = $Validator->getMethods();
 
-        $expected = array_map('strtolower', get_class_methods('Article'));
+        $expected = array_map('strtolower', get_class_methods(Article::class));
         $this->assertEquals($expected, array_keys($result));
     }
 
@@ -1854,7 +1901,7 @@ class ModelValidationTest extends BaseModelTest
 
         $result = $Validator->getMethods();
 
-        $expected = array_map('strtolower', get_class_methods('Article'));
+        $expected = array_map('strtolower', get_class_methods(Article::class));
         $this->assertEquals($expected, array_keys($result));
 
         $TestModel->Behaviors->load('Containable');
@@ -1900,7 +1947,7 @@ class ModelValidationTest extends BaseModelTest
         $Validator = $TestModel->validator();
 
         $result = $Validator->getModel();
-        $this->assertInstanceOf('Article', $result);
+        $this->assertInstanceOf(Article::class, $result);
     }
 
     /**
@@ -2102,12 +2149,14 @@ class ModelValidationTest extends BaseModelTest
      */
     public function testValidateCallbacks(): void
     {
-        $TestModel = $this->getMock('Article', ['beforeValidate', 'afterValidate']);
-        $TestModel->expects($this->once())->method('beforeValidate');
-        $TestModel->expects($this->once())->method('afterValidate');
+        $testModel = $this->getMock(Article::class, ['beforeValidate', 'afterValidate']);
+        $testModel->expects($this->once())
+            ->method('beforeValidate');
+        $testModel->expects($this->once())
+            ->method('afterValidate');
 
-        $TestModel->set(['title' => '', 'body' => 'body']);
-        $TestModel->validates();
+        $testModel->set(['title' => '', 'body' => 'body']);
+        $testModel->validates();
     }
 
     /**
@@ -2410,7 +2459,7 @@ class ModelValidationTest extends BaseModelTest
     {
         $this->loadFixtures('Article');
 
-        $model = $this->getMock('Article', ['isLegit']);
+        $model = $this->getMock(Article::class, ['isLegit']);
         $model->validate = [
             'title' => [
                 'custom' => [
@@ -2642,3 +2691,4 @@ class ValidationRuleBehavior extends ModelBehavior
         }
     }
 }
+class_alias(ValidationRuleBehavior::class, 'App\\Model\\Behavior\\ValidationRuleBehavior');

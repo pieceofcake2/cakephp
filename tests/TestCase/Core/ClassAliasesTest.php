@@ -1,6 +1,13 @@
 <?php
 
+namespace Cake\Test\TestCase\Core;
+
+use Cake\TestSuite\CakeTestCase;
 use Composer\Autoload\ClassLoader;
+use FilesystemIterator;
+use RecursiveDirectoryIterator;
+use RecursiveIteratorIterator;
+use ReflectionClass;
 
 /**
  * ClassAliasesTest file

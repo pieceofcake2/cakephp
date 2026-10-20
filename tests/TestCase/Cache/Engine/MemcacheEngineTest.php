@@ -16,6 +16,14 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\Cache\Engine;
+
+use Cake\Cache\Cache;
+use Cake\Cache\Engine\MemcacheEngine;
+use Cake\Core\Configure;
+use Cake\TestSuite\CakeTestCase;
+use Memcache;
+
 /**
  * TestMemcacheEngine
  *
@@ -117,11 +125,10 @@ class MemcacheEngineTest extends CakeTestCase
 
         foreach ($servers as $server) {
             [$host, $port] = explode(':', $server);
-            //@codingStandardsIgnoreStart
-            if (!@$Memcache->connect($host, $port)) {
+
+            if (!@$Memcache->connect($host, $port)) { // phpcs:ignore
                 $available = false;
             }
-            //@codingStandardsIgnoreEnd
         }
 
         $this->skipIf(!$available, 'Need memcache servers at ' . implode(', ', $servers) . ' to run this test.');
@@ -360,6 +367,7 @@ class MemcacheEngineTest extends CakeTestCase
         $this->assertTrue(Cache::write('duration_test', 'yay', 'long_memcache'));
         $this->assertTrue(Cache::write('short_duration_test', 'boo', 'short_memcache'));
 
+        usleep(500);
         $this->assertEquals('yay', Cache::read('duration_test', 'long_memcache'), 'Value was not read %s');
         $this->assertEquals('boo', Cache::read('short_duration_test', 'short_memcache'), 'Value was not read %s');
 
@@ -430,7 +438,7 @@ class MemcacheEngineTest extends CakeTestCase
         $memcache = new TestMemcacheEngine();
         $memcache->settings['compress'] = false;
 
-        $mock = $this->getMock('Memcache');
+        $mock = $this->getMock(Memcache::class);
         $memcache->setMemcache($mock);
         $mock->expects($this->once())
             ->method('set')

@@ -16,7 +16,17 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-require_once __DIR__ . DS . 'ModelTestBase.php';
+namespace Cake\Test\TestCase\Model;
+
+use Cake\Error\MissingDatasourceConfigException;
+use Cake\Model\ConnectionManager;
+use Cake\Model\Datasource\Database\Mysql;
+use Cake\Model\Datasource\Database\Postgres;
+use Cake\Model\Datasource\Database\Sqlite;
+use Cake\Model\Datasource\Database\Sqlserver;
+use Cake\Utility\ClassRegistry;
+use Cake\Utility\Hash;
+use PDOException;
 
 /**
  * ModelReadTest

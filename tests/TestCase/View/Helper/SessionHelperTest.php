@@ -16,6 +16,15 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\View\Helper;
+
+use Cake\Core\App;
+use Cake\Core\CakePlugin;
+use Cake\Model\Datasource\CakeSession;
+use Cake\TestSuite\CakeTestCase;
+use Cake\View\Helper\SessionHelper;
+use Cake\View\View;
+
 /**
  * SessionHelperTest class
  *
@@ -138,7 +147,10 @@ class SessionHelperTest extends CakeTestCase
         $this->assertEquals($expected, $result);
 
         App::build([
-            'View' => [CORE_TESTS . DS . 'test_app' . DS . 'View' . DS],
+            'View' => [
+                CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'View' . DS,
+                CORE_TESTS . DS . 'test_app' . DS . 'templates' . DS,
+            ],
         ]);
         $result = $this->Session->flash('notification');
         $result = str_replace("\r\n", "\n", $result);
@@ -186,7 +198,10 @@ class SessionHelperTest extends CakeTestCase
     public function testFlashElementInAttrs(): void
     {
         App::build([
-            'View' => [CORE_TESTS . DS . 'test_app' . DS . 'View' . DS],
+            'View' => [
+                CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'View' . DS,
+                CORE_TESTS . DS . 'test_app' . DS . 'templates' . DS,
+            ],
         ]);
         $result = $this->Session->flash('flash', [
             'element' => 'session_helper',
@@ -204,7 +219,7 @@ class SessionHelperTest extends CakeTestCase
     public function testFlashWithPluginElement(): void
     {
         App::build([
-            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS],
+            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
         ]);
         CakePlugin::load('TestPlugin');
 

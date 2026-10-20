@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Test case for HtmlCoverageReport
  *
@@ -19,6 +18,14 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\TestSuite;
+
+use Cake\Core\App;
+use Cake\Core\CakePlugin;
+use Cake\TestSuite\CakeTestCase;
+use Cake\TestSuite\Coverage\HtmlCoverageReport;
+use Cake\TestSuite\Reporter\CakeHtmlReporter;
+use Cake\TestSuite\Reporter\CakeTextReporter;
 use PHPUnit\Framework\TestResult;
 use SebastianBergmann\CodeCoverage\CodeCoverage;
 use SebastianBergmann\CodeCoverage\Driver\Driver;
@@ -33,6 +40,8 @@ use SebastianBergmann\CodeCoverage\RawCodeCoverageData;
  */
 class HtmlCoverageReportTest extends CakeTestCase
 {
+    public ?HtmlCoverageReport $Coverage = null;
+
     /**
      * setUp
      *
@@ -46,13 +55,28 @@ class HtmlCoverageReportTest extends CakeTestCase
         // Therefore, CakeBaseReporter are unnecessary.
         parent::setUp();
         App::build([
-            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS],
+            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
         ], App::RESET);
         CakePlugin::load(['TestPlugin']);
         $reporter = new CakeHtmlReporter();
         $reporter->params = ['app' => false, 'plugin' => false, 'group' => false];
-        $coverage = [];
+        $rawData = RawCodeCoverageData::fromXdebugWithPathCoverage([]);
+        $coverage = new ProcessedCodeCoverageData();
+        $coverage->initializeUnseenData($rawData);
         $this->Coverage = new HtmlCoverageReport($coverage, $reporter);
+    }
+
+    /**
+     * tearDown
+     *
+     * @return void
+     */
+    public function tearDown(): void
+    {
+        CakePlugin::unload();
+        $this->Coverage = null;
+
+        parent::tearDown();
     }
 
     /**
@@ -240,19 +264,6 @@ class HtmlCoverageReportTest extends CakeTestCase
     }
 
     /**
-     * tearDown
-     *
-     * @return void
-     */
-    public function tearDown(): void
-    {
-        CakePlugin::unload();
-        unset($this->Coverage);
-
-        parent::tearDown();
-    }
-
-    /**
      * Creates a test result carrying line coverage data for one file.
      *
      * @param string $file The covered file.
@@ -326,3 +337,4 @@ class HtmlCoverageReportTest extends CakeTestCase
         $this->assertStringContainsString('basics.php', $output);
     }
 }
+class_alias(HtmlCoverageReportTest::class, 'HtmlCoverageReportTest');

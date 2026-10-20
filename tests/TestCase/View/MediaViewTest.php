@@ -16,6 +16,12 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\View;
+
+use Cake\Network\CakeResponse;
+use Cake\TestSuite\CakeTestCase;
+use Cake\View\MediaView;
+
 /**
  * MediaViewTest class
  *
@@ -23,6 +29,8 @@
  */
 class MediaViewTest extends CakeTestCase
 {
+    public ?MediaView $MediaView = null;
+
     /**
      * setUp method
      *
@@ -32,7 +40,7 @@ class MediaViewTest extends CakeTestCase
     {
         parent::setUp();
         $this->MediaView = new MediaView();
-        $this->MediaView->response = $this->getMock('CakeResponse', [
+        $this->MediaView->response = $this->getMock(CakeResponse::class, [
             'cache',
             'type',
             'disableCache',
@@ -49,7 +57,7 @@ class MediaViewTest extends CakeTestCase
      */
     public function tearDown(): void
     {
-        unset($this->MediaView);
+        $this->MediaView = null;
 
         parent::tearDown();
     }
@@ -62,15 +70,17 @@ class MediaViewTest extends CakeTestCase
     public function testRender(): void
     {
         $vars = [
-            'path' => CORE_TESTS . DS . 'test_app' . DS . 'Vendor' . DS . 'css' . DS,
+            'path' => CORE_TESTS . DS . 'test_app' . DS . 'vendor' . DS . 'css' . DS,
             'id' => 'test_asset.css',
         ];
         $this->MediaView->viewVars = $vars;
 
-        $this->MediaView->response->expects($this->once())
+        $this->MediaView->response
+            ->expects($this->once())
             ->method('disableCache');
 
-        $this->MediaView->response->expects($this->once())
+        $this->MediaView->response
+            ->expects($this->once())
             ->method('file')
             ->with(
                 $vars['path'] . $vars['id'],
@@ -88,7 +98,7 @@ class MediaViewTest extends CakeTestCase
     public function testRenderCachingAndName(): void
     {
         $vars = [
-            'path' => CORE_TESTS . DS . 'test_app' . DS . 'Vendor' . DS . 'css' . DS,
+            'path' => CORE_TESTS . DS . 'test_app' . DS . 'vendor' . DS . 'css' . DS,
             'id' => 'test_asset.css',
             'cache' => '+1 day',
             'name' => 'something_special',
@@ -96,14 +106,17 @@ class MediaViewTest extends CakeTestCase
         ];
         $this->MediaView->viewVars = $vars;
 
-        $this->MediaView->response->expects($this->never())
+        $this->MediaView->response
+            ->expects($this->never())
             ->method('disableCache');
 
-        $this->MediaView->response->expects($this->once())
+        $this->MediaView->response
+            ->expects($this->once())
             ->method('cache')
             ->with($this->anything(), $vars['cache']);
 
-        $this->MediaView->response->expects($this->once())
+        $this->MediaView->response
+            ->expects($this->once())
             ->method('file')
             ->with(
                 $vars['path'] . $vars['id'],
@@ -124,11 +137,12 @@ class MediaViewTest extends CakeTestCase
     public function testRenderUpperExtension(): void
     {
         $this->MediaView->viewVars = [
-            'path' => CORE_TESTS . DS . 'test_app' . DS . 'Vendor' . DS . 'img' . DS,
+            'path' => CORE_TESTS . DS . 'test_app' . DS . 'vendor' . DS . 'img' . DS,
             'id' => 'test_2.JPG',
         ];
 
-        $this->MediaView->response->expects($this->any())
+        $this->MediaView->response
+            ->expects($this->any())
             ->method('type')
             ->with('jpg')
             ->will($this->returnArgument(0));

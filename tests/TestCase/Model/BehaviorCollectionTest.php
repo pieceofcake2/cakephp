@@ -1,8 +1,5 @@
 <?php
 
-use TestApp\Model\Behavior\NamespacedBehavior;
-use TestApp\Model\NamespacedPost;
-
 /**
  * BehaviorTest file
  *
@@ -21,6 +18,23 @@ use TestApp\Model\NamespacedPost;
  * @since         1.2
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
+
+namespace Cake\Test\TestCase\Model;
+
+use Cake\Core\App;
+use Cake\Core\CakePlugin;
+use Cake\Core\Configure;
+use Cake\Error\MissingBehaviorException;
+use Cake\Model\BehaviorCollection;
+use Cake\Model\Datasource\Database\Sqlserver;
+use Cake\Model\Model;
+use Cake\Model\ModelBehavior;
+use Cake\TestSuite\CakeTestCase;
+use Cake\Utility\ClassRegistry;
+use Cake\Utility\Hash;
+use TestApp\Model\Behavior\NamespacedBehavior;
+use TestApp\Model\NamespacedPost;
+use TestPlugin\Model\Behavior\TestPluginPersisterOneBehavior;
 
 App::uses('AppModel', 'Model');
 
@@ -61,7 +75,7 @@ class TestBehavior extends ModelBehavior
      *
      * @param Model $model
      * @param array $query
-     * @return void
+     * @return array|bool|null
      */
     public function beforeFind(Model $model, $query): mixed
     {
@@ -90,7 +104,7 @@ class TestBehavior extends ModelBehavior
      * @param Model $model
      * @param array $results
      * @param bool $primary
-     * @return void
+     * @return array|bool
      */
     public function afterFind(Model $model, $results, $primary = false): mixed
     {
@@ -117,7 +131,7 @@ class TestBehavior extends ModelBehavior
      *
      * @param Model $model Model using this behavior
      * @param array $options Options passed from Model::save().
-     * @return mixed False if the operation should abort. Any other result will continue.
+     * @return bool|null False if the operation should abort. Any other result will continue.
      * @see Model::save()
      */
     public function beforeSave(Model $model, $options = []): mixed
@@ -146,14 +160,17 @@ class TestBehavior extends ModelBehavior
      * @param Model $model
      * @param bool $created
      * @param array $options Options passed from Model::save().
-     * @return void
+     * @return bool|null
      */
     public function afterSave(Model $model, $created, $options = []): mixed
     {
         $settings = $this->settings[$model->alias];
         if (!isset($settings['afterSave']) || $settings['afterSave'] === 'off') {
-            return parent::afterSave($model, $created, $options);
+            parent::afterSave($model, $created, $options);
+
+            return null;
         }
+
         $string = 'modified after';
         if ($created) {
             $string .= ' on create';
@@ -166,7 +183,7 @@ class TestBehavior extends ModelBehavior
                 unset($model->data[$model->alias]['name']);
                 break;
             case 'test2':
-                return false;
+                break;
             case 'modify':
                 $model->data[$model->alias]['name'] .= ' ' . $string;
                 break;
@@ -178,9 +195,9 @@ class TestBehavior extends ModelBehavior
     /**
      * beforeValidate Callback
      *
-     * @param Model $Model Model invalidFields was called on.
+     * @param Model $model Model invalidFields was called on.
      * @param array $options Options passed from Model::save().
-     * @return bool
+     * @return bool|null
      * @see Model::save()
      */
     public function beforeValidate(Model $model, $options = []): mixed
@@ -213,8 +230,7 @@ class TestBehavior extends ModelBehavior
      * afterValidate method
      *
      * @param Model $model
-     * @param bool $cascade
-     * @return void
+     * @return bool|null
      */
     public function afterValidate(Model $model): mixed
     {
@@ -239,7 +255,7 @@ class TestBehavior extends ModelBehavior
      *
      * @param Model $model
      * @param bool $cascade
-     * @return void
+     * @return bool|null
      */
     public function beforeDelete(Model $model, $cascade = true): mixed
     {
@@ -268,13 +284,15 @@ class TestBehavior extends ModelBehavior
      * afterDelete method
      *
      * @param Model $model
-     * @return void
+     * @return bool|null
      */
     public function afterDelete(Model $model): mixed
     {
         $settings = $this->settings[$model->alias];
         if (!isset($settings['afterDelete']) || $settings['afterDelete'] === 'off') {
-            return parent::afterDelete($model);
+            parent::afterDelete($model);
+
+            return null;
         }
         switch ($settings['afterDelete']) {
             case 'on':
@@ -306,7 +324,7 @@ class TestBehavior extends ModelBehavior
      * beforeTest method
      *
      * @param Model $model
-     * @return void
+     * @return string
      */
     public function beforeTest(Model $model): mixed
     {
@@ -323,7 +341,7 @@ class TestBehavior extends ModelBehavior
      *
      * @param Model $model
      * @param bool $param
-     * @return void
+     * @return string|void
      */
     public function testMethod(Model $model, $param = true): mixed
     {
@@ -338,7 +356,7 @@ class TestBehavior extends ModelBehavior
      * testData method
      *
      * @param Model $model
-     * @return void
+     * @return bool
      */
     public function testData(Model $model): mixed
     {
@@ -355,7 +373,7 @@ class TestBehavior extends ModelBehavior
      *
      * @param Model $model
      * @param array|string $field
-     * @return void
+     * @return bool
      */
     public function validateField(Model $model, $field): mixed
     {
@@ -368,7 +386,7 @@ class TestBehavior extends ModelBehavior
      * @param Model $model
      * @param string $method
      * @param string $query
-     * @return void
+     * @return string
      */
     public function speakEnglish(Model $model, $method, $query): mixed
     {
@@ -378,6 +396,7 @@ class TestBehavior extends ModelBehavior
         return $method . '\' AND ' . $query . '\'';
     }
 }
+class_alias(TestBehavior::class, 'App\\Model\\Behavior\\TestBehavior');
 
 /**
  * Test2Behavior class
@@ -396,6 +415,7 @@ class Test2Behavior extends TestBehavior
     {
     }
 }
+class_alias(Test2Behavior::class, 'App\\Model\\Behavior\\Test2Behavior');
 
 /**
  * Test3Behavior class
@@ -405,6 +425,7 @@ class Test2Behavior extends TestBehavior
 class Test3Behavior extends TestBehavior
 {
 }
+class_alias(Test3Behavior::class, 'App\\Model\\Behavior\\Test3Behavior');
 
 /**
  * Test4Behavior class
@@ -420,6 +441,7 @@ class Test4Behavior extends ModelBehavior
         );
     }
 }
+class_alias(Test4Behavior::class, 'App\\Model\\Behavior\\Test4Behavior');
 
 /**
  * Test5Behavior class
@@ -435,6 +457,7 @@ class Test5Behavior extends ModelBehavior
         );
     }
 }
+class_alias(Test5Behavior::class, 'App\\Model\\Behavior\\Test5Behavior');
 
 /**
  * Test6Behavior class
@@ -450,6 +473,7 @@ class Test6Behavior extends ModelBehavior
         );
     }
 }
+class_alias(Test6Behavior::class, 'App\\Model\\Behavior\\Test6Behavior');
 
 /**
  * Test7Behavior class
@@ -465,6 +489,7 @@ class Test7Behavior extends ModelBehavior
         );
     }
 }
+class_alias(Test7Behavior::class, 'App\\Model\\Behavior\\Test7Behavior');
 
 /**
  * Extended TestBehavior
@@ -472,6 +497,7 @@ class Test7Behavior extends ModelBehavior
 class TestAliasBehavior extends TestBehavior
 {
 }
+class_alias(TestAliasBehavior::class, 'App\\Model\\Behavior\\TestAliasBehavior');
 
 /**
  * FirstBehavior
@@ -485,6 +511,7 @@ class FirstBehavior extends ModelBehavior
         return $query;
     }
 }
+class_alias(FirstBehavior::class, 'App\\Model\\Behavior\\FirstBehavior');
 
 /**
  * SecondBehavior
@@ -492,6 +519,7 @@ class FirstBehavior extends ModelBehavior
 class SecondBehavior extends FirstBehavior
 {
 }
+class_alias(SecondBehavior::class, 'App\\Model\\Behavior\\SecondBehavior');
 
 /**
  * ThirdBehavior
@@ -499,6 +527,7 @@ class SecondBehavior extends FirstBehavior
 class ThirdBehavior extends FirstBehavior
 {
 }
+class_alias(ThirdBehavior::class, 'App\\Model\\Behavior\\ThirdBehavior');
 
 /**
  * Orangutan Model
@@ -507,6 +536,7 @@ class Orangutan extends Monkey
 {
     public $called = [];
 }
+class_alias(Orangutan::class, 'App\\Model\\Orangutan');
 
 /**
  * BehaviorCollection class
@@ -518,11 +548,18 @@ class BehaviorCollectionTest extends CakeTestCase
     /**
      * fixtures property
      *
-     * @var array
+     * @var array<string>
      */
     public $fixtures = [
-        'core.apple', 'core.sample', 'core.article', 'core.user', 'core.comment',
-        'core.attachment', 'core.tag', 'core.articles_tag', 'core.translate',
+        'core.apple',
+        'core.sample',
+        'core.article',
+        'core.user',
+        'core.comment',
+        'core.attachment',
+        'core.tag',
+        'core.articles_tag',
+        'core.translate',
         'core.device',
     ];
 
@@ -553,17 +590,17 @@ class BehaviorCollectionTest extends CakeTestCase
 
         $Apple->Behaviors->load('Test', ['className' => 'TestAlias', 'somesetting' => true]);
         $this->assertSame(['Test'], $Apple->Behaviors->loaded());
-        $this->assertInstanceOf('TestAliasBehavior', $Apple->Behaviors->Test);
+        $this->assertInstanceOf(TestAliasBehavior::class, $Apple->Behaviors->Test);
         $this->assertTrue($Apple->Behaviors->Test->settings['Apple']['somesetting']);
 
         $this->assertEquals('working', $Apple->Behaviors->Test->testMethod($Apple, true));
         $this->assertEquals('working', $Apple->testMethod(true));
         $this->assertEquals('working', $Apple->Behaviors->dispatchMethod($Apple, 'testMethod'));
 
-        App::build(['Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS]]);
+        App::build(['Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS]]);
         CakePlugin::load('TestPlugin');
         $this->assertTrue($Apple->Behaviors->load('SomeOther', ['className' => 'TestPlugin.TestPluginPersisterOne']));
-        $this->assertInstanceOf('TestPluginPersisterOneBehavior', $Apple->Behaviors->SomeOther);
+        $this->assertInstanceOf(TestPluginPersisterOneBehavior::class, $Apple->Behaviors->SomeOther);
 
         $result = $Apple->Behaviors->loaded();
         $this->assertEquals(['Test', 'SomeOther'], $result, 'loaded() results are wrong.');
@@ -583,7 +620,7 @@ class BehaviorCollectionTest extends CakeTestCase
 
         $Apple->Behaviors->load('Test', ['key' => 'value']);
         $this->assertSame(['Test'], $Apple->Behaviors->loaded());
-        $this->assertEquals('testbehavior', strtolower($Apple->Behaviors->Test::class));
+        $this->assertEquals(TestBehavior::class, $Apple->Behaviors->Test::class);
         $expected = ['beforeFind' => 'on', 'afterFind' => 'off', 'key' => 'value'];
         $this->assertEquals($expected, $Apple->Behaviors->Test->settings['Apple']);
         $this->assertEquals(['priority', 'Apple'], array_keys($Apple->Behaviors->Test->settings));
@@ -616,7 +653,7 @@ class BehaviorCollectionTest extends CakeTestCase
         $Apple->Parent->Behaviors->load('Test', ['key' => 'value', 'key2' => 'value', 'key3' => 'value', 'beforeFind' => 'off']);
         $this->assertNotEquals($Apple->Parent->Behaviors->Test->settings['Parent'], $Apple->Sample->Behaviors->Test->settings['Sample']);
 
-        $Apple->Behaviors->load('Plugin.Test', ['key' => 'new value']);
+        $Apple->Behaviors->load('Test', ['key' => 'new value']);
         $expected = [
             'beforeFind' => 'off', 'afterFind' => 'off', 'key' => 'new value',
             'key2' => 'value2', 'key3' => 'value3',
@@ -645,14 +682,14 @@ class BehaviorCollectionTest extends CakeTestCase
     public function testDetachWithPluginNames(): void
     {
         $Apple = new Apple();
-        $Apple->Behaviors->load('Plugin.Test');
+        $Apple->Behaviors->load('Test');
         $this->assertTrue(isset($Apple->Behaviors->Test), 'Missing behavior');
         $this->assertEquals(['Test'], $Apple->Behaviors->loaded());
 
-        $Apple->Behaviors->unload('Plugin.Test');
+        $Apple->Behaviors->unload('Test');
         $this->assertEquals([], $Apple->Behaviors->loaded());
 
-        $Apple->Behaviors->load('Plugin.Test');
+        $Apple->Behaviors->load('Test');
         $this->assertTrue(isset($Apple->Behaviors->Test), 'Missing behavior');
         $this->assertEquals(['Test'], $Apple->Behaviors->loaded());
 
@@ -1287,9 +1324,9 @@ class BehaviorCollectionTest extends CakeTestCase
 
         $model->find('first');
         $expected = [
-            'FirstBehavior',
-            'SecondBehavior',
-            'ThirdBehavior',
+            FirstBehavior::class,
+            SecondBehavior::class,
+            ThirdBehavior::class,
         ];
         $this->assertEquals($expected, $model->called);
 
@@ -1298,9 +1335,9 @@ class BehaviorCollectionTest extends CakeTestCase
 
         $model->find('first');
         $expected = [
-            'ThirdBehavior',
-            'FirstBehavior',
-            'SecondBehavior',
+            ThirdBehavior::class,
+            FirstBehavior::class,
+            SecondBehavior::class,
         ];
         $this->assertEquals($expected, $model->called);
 
@@ -1309,9 +1346,9 @@ class BehaviorCollectionTest extends CakeTestCase
 
         $model->find('first');
         $expected = [
-            'ThirdBehavior',
-            'SecondBehavior',
-            'FirstBehavior',
+            ThirdBehavior::class,
+            SecondBehavior::class,
+            FirstBehavior::class,
         ];
         $this->assertEquals($expected, $model->called);
 
@@ -1320,8 +1357,8 @@ class BehaviorCollectionTest extends CakeTestCase
 
         $model->find('first');
         $expected = [
-            'SecondBehavior',
-            'FirstBehavior',
+            SecondBehavior::class,
+            FirstBehavior::class,
         ];
         $this->assertEquals($expected, $model->called);
 
@@ -1330,7 +1367,7 @@ class BehaviorCollectionTest extends CakeTestCase
 
         $model->find('first');
         $expected = [
-            'FirstBehavior',
+            FirstBehavior::class,
         ];
         $this->assertEquals($expected, $model->called);
 
@@ -1339,8 +1376,8 @@ class BehaviorCollectionTest extends CakeTestCase
 
         $model->find('first');
         $expected = [
-            'SecondBehavior',
-            'FirstBehavior',
+            SecondBehavior::class,
+            FirstBehavior::class,
         ];
         $this->assertEquals($expected, $model->called);
     }

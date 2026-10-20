@@ -16,6 +16,20 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\Controller\Component;
+
+use Cake\Controller\Component\SecurityComponent;
+use Cake\Controller\Controller;
+use Cake\Core\Configure;
+use Cake\Error\AuthSecurityException;
+use Cake\Error\BadRequestException;
+use Cake\Error\SecurityException;
+use Cake\Network\CakeRequest;
+use Cake\Network\CakeResponse;
+use Cake\TestSuite\CakeTestCase;
+use Cake\Utility\Security;
+use ReflectionClass;
+
 /**
  * TestSecurityComponent
  *
@@ -56,6 +70,7 @@ class TestSecurityComponent extends SecurityComponent
         return $this->_methodsRequired($controller);
     }
 }
+class_alias(TestSecurityComponent::class, 'App\\Controller\\Component\\TestSecurityComponent');
 
 /**
  * SecurityTestController
@@ -98,10 +113,10 @@ class SecurityTestController extends Controller
     /**
      * redirect method
      *
-     * @param array|string $url
-     * @param mixed $code
-     * @param mixed $exit
-     * @return void
+     * @param array|string|null $url
+     * @param array|string|int|null  $code
+     * @param bool $exit
+     * @return CakeResponse|null
      */
     public function redirect($url, $status = null, $exit = true): mixed
     {
@@ -116,9 +131,14 @@ class SecurityTestController extends Controller
      */
     public function header($status): void
     {
-        $this->testHeaders[] = $status;
+        if (is_array($status)) {
+            $this->testHeaders += $status;
+        } elseif (is_string($status)) {
+            $this->testHeaders[] = $status;
+        }
     }
 }
+class_alias(SecurityTestController::class, 'App\\Controller\\SecurityTestController');
 
 class BrokenCallbackController extends Controller
 {
@@ -134,6 +154,7 @@ class BrokenCallbackController extends Controller
     {
     }
 }
+class_alias(BrokenCallbackController::class, 'App\\Controller\\BrokenCallbackController');
 
 /**
  * SecurityComponentTest class
@@ -150,13 +171,6 @@ class SecurityComponentTest extends CakeTestCase
     public $Controller;
 
     /**
-     * oldSalt property
-     *
-     * @var string
-     */
-    public $oldSalt;
-
-    /**
      * setUp method
      *
      * @return void
@@ -166,7 +180,7 @@ class SecurityComponentTest extends CakeTestCase
         parent::setUp();
         $_SERVER['REQUEST_METHOD'] = 'GET';
 
-        $request = $this->getMock('CakeRequest', ['here'], ['posts/index', false]);
+        $request = $this->getMock(CakeRequest::class, ['here'], ['posts/index', false]);
         $request->addParams(['controller' => 'posts', 'action' => 'index']);
         $request->expects($this->any())
             ->method('here')
@@ -1386,7 +1400,7 @@ class SecurityComponentTest extends CakeTestCase
         ];
         $this->assertTrue($this->validatePost());
 
-        $request = $this->getMock('CakeRequest', ['here'], ['articles/edit/1', false]);
+        $request = $this->getMock(CakeRequest::class, ['here'], ['articles/edit/1', false]);
 
         $request->expects($this->exactly(2))
             ->method('here')
@@ -1729,7 +1743,7 @@ class SecurityComponentTest extends CakeTestCase
 
         $this->Security->Session->write('_Token.csrfTokens', ['nonce1' => strtotime('+10 minutes')]);
 
-        $this->Controller->request = $this->getMock('CakeRequest', ['is']);
+        $this->Controller->request = $this->getMock(CakeRequest::class, ['is']);
         $this->Controller->request->params['action'] = 'index';
         $this->Controller->request->data = [
             '_Token' => [

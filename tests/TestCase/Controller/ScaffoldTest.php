@@ -16,6 +16,20 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\Controller;
+
+use Cake\Controller\Controller;
+use Cake\Controller\Scaffold;
+use Cake\Core\App;
+use Cake\Core\CakePlugin;
+use Cake\Core\Configure;
+use Cake\Model\Datasource\CakeSession;
+use Cake\Network\CakeRequest;
+use Cake\Network\CakeResponse;
+use Cake\Routing\Router;
+use Cake\Test\TestCase\Model\ScaffoldMock;
+use Cake\TestSuite\CakeTestCase;
+
 App::uses('AppModel', 'Model');
 
 require_once dirname(__DIR__) . DS . 'Model' . DS . 'models.php';
@@ -30,9 +44,9 @@ class ScaffoldMockController extends Controller
     /**
      * scaffold property
      *
-     * @var mixed
+     * @var string|null|false
      */
-    public $scaffold;
+    public $scaffold = null;
 }
 
 /**
@@ -45,16 +59,16 @@ class ScaffoldMockControllerWithFields extends Controller
     /**
      * name property
      *
-     * @var string
+     * @var string|null
      */
     public $name = 'ScaffoldMock';
 
     /**
      * scaffold property
      *
-     * @var mixed
+     * @var string|null|false
      */
-    public $scaffold;
+    public $scaffold = null;
 
     /**
      * function beforeScaffold
@@ -80,16 +94,16 @@ class ScaffoldMockControllerWithError extends Controller
     /**
      * name property
      *
-     * @var string
+     * @var string|null
      */
     public $name = 'ScaffoldMock';
 
     /**
      * scaffold property
      *
-     * @var mixed
+     * @var string|null|false
      */
-    public $scaffold;
+    public $scaffold = null;
 
     /**
      * function beforeScaffold
@@ -110,6 +124,8 @@ class ScaffoldMockControllerWithError extends Controller
  */
 class TestScaffoldMock extends Scaffold
 {
+    protected ?CakeRequest $_params = null;
+
     /**
      * Overload _scaffold
      *
@@ -124,7 +140,7 @@ class TestScaffoldMock extends Scaffold
     /**
      * Get Params from the Controller.
      *
-     * @return unknown
+     * @return CakeRequest|null
      */
     public function getParams(): mixed
     {
@@ -142,16 +158,22 @@ class ScaffoldTest extends CakeTestCase
     /**
      * Controller property
      *
-     * @var SecurityTestController
+     * @var Controller|null
      */
-    public $Controller;
+    public $Controller = null;
 
     /**
      * fixtures property
      *
-     * @var array
+     * @var array<string>
      */
-    public $fixtures = ['core.article', 'core.user', 'core.comment', 'core.join_thing', 'core.tag'];
+    public $fixtures = [
+        'core.article',
+        'core.user',
+        'core.comment',
+        'core.join_thing',
+        'core.tag',
+    ];
 
     /**
      * setUp method
@@ -164,7 +186,7 @@ class ScaffoldTest extends CakeTestCase
         Configure::write('Config.language', 'eng');
         $request = new CakeRequest(null, false);
         $this->Controller = new ScaffoldMockController($request);
-        $this->Controller->response = $this->getMock('CakeResponse', ['_sendHeader']);
+        $this->Controller->response = $this->getMock(CakeResponse::class, ['_sendHeader']);
     }
 
     /**
@@ -356,7 +378,7 @@ class ScaffoldTest extends CakeTestCase
     {
         $request = new CakeRequest(null, false);
         $this->Controller = new ScaffoldMockControllerWithFields($request);
-        $this->Controller->response = $this->getMock('CakeResponse', ['_sendHeader']);
+        $this->Controller->response = $this->getMock(CakeResponse::class, ['_sendHeader']);
 
         $params = [
             'plugin' => null,
@@ -394,7 +416,7 @@ class ScaffoldTest extends CakeTestCase
     {
         $request = new CakeRequest(null, false);
         $this->Controller = new ScaffoldMockControllerWithError($request);
-        $this->Controller->response = $this->getMock('CakeResponse', ['_sendHeader']);
+        $this->Controller->response = $this->getMock(CakeResponse::class, ['_sendHeader']);
 
         $params = [
             'plugin' => null,
@@ -466,7 +488,7 @@ class ScaffoldTest extends CakeTestCase
         }
         $this->assertSame([], $deprecations);
         $this->assertSame('ScaffoldMock', $Scaffold->modelClass);
-        $this->assertInstanceOf('ScaffoldMock', $Scaffold->ScaffoldModel);
+        $this->assertInstanceOf(ScaffoldMock::class, $Scaffold->ScaffoldModel);
         $this->assertSame(['action' => 'index'], $Scaffold->redirect);
     }
 }

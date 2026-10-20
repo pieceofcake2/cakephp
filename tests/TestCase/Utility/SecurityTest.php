@@ -13,6 +13,16 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\Utility;
+
+use Cake\Core\Configure;
+use Cake\Error\CakeException;
+use Cake\Log\CakeLog;
+use Cake\Log\Engine\BaseLog;
+use Cake\TestSuite\CakeTestCase;
+use Cake\Utility\Security;
+use Closure;
+
 /**
  * Log engine that keeps the messages written by Security::cipher().
  *
@@ -103,7 +113,7 @@ class SecurityTest extends CakeTestCase
     {
         $this->_setCipherReported(false);
         SecurityTestCaptureLog::$messages = [];
-        CakeLog::config('security_test_capture', ['engine' => 'SecurityTestCapture']);
+        CakeLog::config('security_test_capture', ['engine' => SecurityTestCaptureLog::class]);
     }
 
     /**
@@ -287,14 +297,10 @@ class SecurityTest extends CakeTestCase
         $warningMessage = '';
 
         set_error_handler(function ($errno, $errstr) use (&$warningTriggered, &$warningMessage) {
-            if ($errno === E_WARNING || $errno === E_USER_WARNING) {
-                $warningTriggered = true;
-                $warningMessage = $errstr;
+            $warningTriggered = true;
+            $warningMessage = $errstr;
 
-                return true;
-            }
-
-            return false;
+            return true;
         }, E_WARNING | E_USER_WARNING);
 
         try {
@@ -507,7 +513,7 @@ class SecurityTest extends CakeTestCase
         $this->assertCount(1, SecurityTestCaptureLog::$messages);
         $this->assertSame('warning', SecurityTestCaptureLog::$messages[0][0]);
         $this->assertSame(
-            'Security::cipher() (called from SecurityTest::testCipherDeprecationLoggedOnce()) is insecure and deprecated. '
+            'Security::cipher() (called from ' . static::class . '::testCipherDeprecationLoggedOnce()) is insecure and deprecated. '
             . 'Use Security::encrypt() / Security::decrypt() with a key of at least 32 bytes; for CookieComponent, '
             . 'set Configure \'Cookie.type\' to \'aes\' and \'Cookie.key\' to a random value of at least 32 bytes, '
             . 'with Security.useOpenSsl enabled. '
@@ -663,14 +669,10 @@ class SecurityTest extends CakeTestCase
         $warningTriggered = false;
         $warningMessage = '';
         set_error_handler(function ($errno, $errstr) use (&$warningTriggered, &$warningMessage) {
-            if ($errno === E_WARNING || $errno === E_USER_WARNING) {
-                $warningTriggered = true;
-                $warningMessage = $errstr;
+            $warningTriggered = true;
+            $warningMessage = $errstr;
 
-                return true;
-            }
-
-            return false;
+            return true;
         }, E_WARNING | E_USER_WARNING);
 
         try {
@@ -737,14 +739,10 @@ class SecurityTest extends CakeTestCase
         $warningTriggered = false;
         $warningMessage = '';
         set_error_handler(function ($errno, $errstr) use (&$warningTriggered, &$warningMessage) {
-            if ($errno === E_WARNING || $errno === E_USER_WARNING) {
-                $warningTriggered = true;
-                $warningMessage = $errstr;
+            $warningTriggered = true;
+            $warningMessage = $errstr;
 
-                return true;
-            }
-
-            return false;
+            return true;
         }, E_WARNING | E_USER_WARNING);
 
         try {
@@ -769,14 +767,10 @@ class SecurityTest extends CakeTestCase
         $warningTriggered = false;
         $warningMessage = '';
         set_error_handler(function ($errno, $errstr) use (&$warningTriggered, &$warningMessage) {
-            if ($errno === E_WARNING || $errno === E_USER_WARNING) {
-                $warningTriggered = true;
-                $warningMessage = $errstr;
+            $warningTriggered = true;
+            $warningMessage = $errstr;
 
-                return true;
-            }
-
-            return false;
+            return true;
         }, E_WARNING | E_USER_WARNING);
 
         try {

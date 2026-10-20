@@ -16,6 +16,18 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\Model\Behavior;
+
+use Cake\Core\App;
+use Cake\Model\ConnectionManager;
+use Cake\Model\Model;
+use Cake\TestSuite\CakeTestCase;
+use Cake\Utility\ClassRegistry;
+use Cake\Utility\Hash;
+use Cake\Utility\Set;
+use DATABASE_CONFIG;
+use Exception;
+
 App::uses('AppModel', 'Model');
 
 require_once dirname(__DIR__) . DS . 'models.php';
@@ -30,13 +42,24 @@ class ContainableBehaviorTest extends CakeTestCase
     /**
      * Fixtures associated with this test case
      *
-     * @var array
+     * @var array<string>
      */
     public $fixtures = [
-        'core.article', 'core.article_featured', 'core.article_featureds_tags',
-        'core.articles_tag', 'core.attachment', 'core.category',
-        'core.comment', 'core.featured', 'core.tag', 'core.user',
-        'core.join_a', 'core.join_b', 'core.join_c', 'core.join_a_c', 'core.join_a_b',
+        'core.article',
+        'core.article_featured',
+        'core.article_featureds_tags',
+        'core.articles_tag',
+        'core.attachment',
+        'core.category',
+        'core.comment',
+        'core.featured',
+        'core.tag',
+        'core.user',
+        'core.join_a',
+        'core.join_b',
+        'core.join_c',
+        'core.join_a_c',
+        'core.join_a_b',
     ];
 
     /**
@@ -160,14 +183,10 @@ class ContainableBehaviorTest extends CakeTestCase
         $warningTriggered = false;
         $warningMessage = '';
         set_error_handler(function ($errno, $errstr) use (&$warningTriggered, &$warningMessage) {
-            if ($errno === E_WARNING || $errno === E_USER_WARNING) {
-                $warningTriggered = true;
-                $warningMessage = $errstr;
+            $warningTriggered = true;
+            $warningMessage = $errstr;
 
-                return true;
-            }
-
-            return false;
+            return true;
         }, E_WARNING | E_USER_WARNING);
 
         try {
@@ -191,13 +210,9 @@ class ContainableBehaviorTest extends CakeTestCase
 
         $warningTriggered = false;
         set_error_handler(function ($errno, $errstr) use (&$warningTriggered) {
-            if ($errno === E_WARNING || $errno === E_USER_WARNING) {
-                $warningTriggered = true;
+            $warningTriggered = true;
 
-                return true;
-            }
-
-            return false;
+            return true;
         }, E_WARNING | E_USER_WARNING);
 
         try {
@@ -291,14 +306,10 @@ class ContainableBehaviorTest extends CakeTestCase
         $warningTriggered = false;
         $warningMessage = '';
         set_error_handler(function ($errno, $errstr) use (&$warningTriggered, &$warningMessage) {
-            if ($errno === E_WARNING || $errno === E_USER_WARNING) {
-                $warningTriggered = true;
-                $warningMessage = $errstr;
+            $warningTriggered = true;
+            $warningMessage = $errstr;
 
-                return true;
-            }
-
-            return false;
+            return true;
         }, E_WARNING | E_USER_WARNING);
 
         try {
@@ -3820,9 +3831,9 @@ class ContainableBehaviorTest extends CakeTestCase
     /**
      * _containments method
      *
-     * @param Model $Model
+     * @param Model|array $Model
      * @param array $contain
-     * @return void
+     * @return array|Model
      */
     protected function _containments($Model, $contain = []): mixed
     {
@@ -3842,7 +3853,7 @@ class ContainableBehaviorTest extends CakeTestCase
     /**
      * _assertBindings method
      *
-     * @param Model $Model
+     * @param Model $model
      * @param array $expected
      * @return void
      */

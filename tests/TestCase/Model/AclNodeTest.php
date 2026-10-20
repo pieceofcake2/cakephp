@@ -16,6 +16,19 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\Model;
+
+use Cake\Controller\Component\Acl\DbAcl;
+use Cake\Core\App;
+use Cake\Core\CakePlugin;
+use Cake\Core\Configure;
+use Cake\Model\AclNode;
+use Cake\Model\Model;
+use Cake\TestSuite\CakeTestCase;
+use Cake\TestSuite\Fixture\CakeTestModel;
+use Cake\Utility\ClassRegistry;
+use Cake\Utility\Hash;
+
 /**
  * DB ACL wrapper test class
  *
@@ -48,7 +61,7 @@ class DbAroTest extends DbAclNodeTestBase
     /**
      * useTable property
      *
-     * @var string
+     * @var string|bool|null
      */
     public $useTable = 'aros';
 
@@ -59,6 +72,7 @@ class DbAroTest extends DbAclNodeTestBase
      */
     public $hasAndBelongsToMany = ['DbAcoTest' => ['with' => 'DbPermissionTest']];
 }
+class_alias(DbAroTest::class, 'App\\Model\\DbAroTest');
 
 /**
  * Aco Test Wrapper
@@ -70,7 +84,7 @@ class DbAcoTest extends DbAclNodeTestBase
     /**
      * useTable property
      *
-     * @var string
+     * @var string|bool|null
      */
     public $useTable = 'acos';
 
@@ -81,6 +95,7 @@ class DbAcoTest extends DbAclNodeTestBase
      */
     public $hasAndBelongsToMany = ['DbAroTest' => ['with' => 'DbPermissionTest']];
 }
+class_alias(DbAcoTest::class, 'App\\Model\\DbAcoTest');
 
 /**
  * Permission Test Wrapper
@@ -92,7 +107,7 @@ class DbPermissionTest extends CakeTestModel
     /**
      * useTable property
      *
-     * @var string
+     * @var string|bool|null
      */
     public $useTable = 'aros_acos';
 
@@ -110,6 +125,7 @@ class DbPermissionTest extends CakeTestModel
      */
     public $belongsTo = ['DbAroTest' => ['foreignKey' => 'aro_id'], 'DbAcoTest' => ['foreignKey' => 'aco_id']];
 }
+class_alias(DbPermissionTest::class, 'App\\Model\\DbPermissionTest');
 
 /**
  * DboActionTest class
@@ -121,7 +137,7 @@ class DbAcoActionTest extends CakeTestModel
     /**
      * useTable property
      *
-     * @var string
+     * @var string|bool|null
      */
     public $useTable = 'aco_actions';
 
@@ -132,6 +148,7 @@ class DbAcoActionTest extends CakeTestModel
      */
     public $belongsTo = ['DbAcoTest' => ['foreignKey' => 'aco_id']];
 }
+class_alias(DbAcoActionTest::class, 'App\\Model\\DbAcoActionTest');
 
 /**
  * DbAroUserTest class
@@ -143,14 +160,14 @@ class DbAroUserTest extends CakeTestModel
     /**
      * name property
      *
-     * @var string
+     * @var string|null
      */
     public $name = 'AuthUser';
 
     /**
      * useTable property
      *
-     * @var string
+     * @var string|bool|null
      */
     public $useTable = 'auth_users';
 
@@ -171,6 +188,7 @@ class DbAroUserTest extends CakeTestModel
         return null;
     }
 }
+class_alias(DbAroUserTest::class, 'App\\Model\\DbAroUserTest');
 
 /**
  * TestDbAcl class
@@ -187,7 +205,7 @@ class TestDbAcl extends DbAcl
         $this->Aro = new DbAroTest();
         $this->Aro->Permission = new DbPermissionTest();
         $this->Aco = new DbAcoTest();
-        $this->Aro->Permission = new DbPermissionTest();
+        $this->Aco->Permission = new DbPermissionTest();
     }
 }
 
@@ -201,9 +219,15 @@ class AclNodeTest extends CakeTestCase
     /**
      * fixtures property
      *
-     * @var array
+     * @var array<string>
      */
-    public $fixtures = ['core.aro', 'core.aco', 'core.aros_aco', 'core.aco_action', 'core.auth_user'];
+    public $fixtures = [
+        'core.aro',
+        'core.aco',
+        'core.aros_aco',
+        'core.aco_action',
+        'core.auth_user',
+    ];
 
     /**
      * setUp method
@@ -315,6 +339,7 @@ class AclNodeTest extends CakeTestCase
      */
     public function testNodeAliasParenting(): void
     {
+        /** @var DbAcoTest $Aco */
         $Aco = ClassRegistry::init('DbAcoTest');
         $db = $Aco->getDataSource();
         $db->truncate($Aco);
@@ -341,7 +366,7 @@ class AclNodeTest extends CakeTestCase
     public function testNodeActionAuthorize(): void
     {
         App::build([
-            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS],
+            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
         ], App::RESET);
         CakePlugin::load('TestPlugin');
 

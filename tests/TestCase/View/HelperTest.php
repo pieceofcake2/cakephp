@@ -16,6 +16,21 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\View;
+
+use Cake\Core\App;
+use Cake\Core\CakePlugin;
+use Cake\Core\Configure;
+use Cake\Model\Model;
+use Cake\Network\CakeRequest;
+use Cake\Routing\Router;
+use Cake\TestSuite\CakeTestCase;
+use Cake\Utility\ClassRegistry;
+use Cake\View\Helper;
+use Cake\View\Helper\HtmlHelper;
+use Cake\View\View;
+use TestPlugin\View\Helper\OtherHelperHelper;
+
 /**
  * HelperTestPost class
  *
@@ -26,14 +41,14 @@ class HelperTestPost extends Model
     /**
      * useTable property
      *
-     * @var bool
+     * @var string|bool|null
      */
     public $useTable = false;
 
     /**
      * schema method
      *
-     * @return void
+     * @return array|null
      */
     public function schema($field = false): mixed
     {
@@ -68,14 +83,14 @@ class HelperTestComment extends Model
     /**
      * useTable property
      *
-     * @var bool
+     * @var string|bool|null
      */
     public $useTable = false;
 
     /**
      * schema method
      *
-     * @return void
+     * @return array|null
      */
     public function schema($field = false): mixed
     {
@@ -103,14 +118,14 @@ class HelperTestTag extends Model
     /**
      * useTable property
      *
-     * @var bool
+     * @var string|bool|null
      */
     public $useTable = false;
 
     /**
      * schema method
      *
-     * @return void
+     * @return array|null
      */
     public function schema($field = false): mixed
     {
@@ -135,14 +150,14 @@ class HelperTestPostsTag extends Model
     /**
      * useTable property
      *
-     * @var bool
+     * @var string|bool|null
      */
     public $useTable = false;
 
     /**
      * schema method
      *
-     * @return void
+     * @return array|null
      */
     public function schema($field = false): mixed
     {
@@ -196,6 +211,8 @@ class TestHelper extends Helper
  */
 class HelperTest extends CakeTestCase
 {
+    protected ?string $_appNamespace = null;
+
     /**
      * setUp method
      *
@@ -204,6 +221,9 @@ class HelperTest extends CakeTestCase
     public function setUp(): void
     {
         parent::setUp();
+
+        $this->_appNamespace = Configure::read('App.namespace');
+        Configure::write('App.namespace', 'TestApp');
 
         ClassRegistry::flush();
         Router::reload();
@@ -217,7 +237,7 @@ class HelperTest extends CakeTestCase
         ClassRegistry::addObject('HelperTestTag', new HelperTestTag());
 
         App::build([
-            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS],
+            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
         ]);
     }
 
@@ -232,6 +252,8 @@ class HelperTest extends CakeTestCase
 
         CakePlugin::unload();
         unset($this->Helper, $this->View);
+
+        Configure::write('App.namespace', $this->_appNamespace);
 
         parent::tearDown();
     }
@@ -742,7 +764,10 @@ class HelperTest extends CakeTestCase
     {
         Configure::write('Asset.timestamp', 'force');
         App::build([
-            'View' => [CORE_TESTS . DS . 'test_app' . DS . 'View' . DS],
+            'View' => [
+                CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'View' . DS,
+                CORE_TESTS . DS . 'test_app' . DS . 'templates' . DS,
+            ],
         ]);
         CakePlugin::load(['TestPlugin']);
 
@@ -957,7 +982,10 @@ class HelperTest extends CakeTestCase
         $this->Helper->theme = 'test_theme';
 
         App::build([
-            'View' => [CORE_TESTS . DS . 'test_app' . DS . 'View' . DS],
+            'View' => [
+                CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'View' . DS,
+                CORE_TESTS . DS . 'test_app' . DS . 'templates' . DS,
+            ],
         ]);
 
         $result = $this->Helper->webroot('/img/cake.power.gif');
@@ -998,12 +1026,12 @@ class HelperTest extends CakeTestCase
     public function testLazyLoadingHelpers(): void
     {
         App::build([
-            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS],
+            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
         ]);
         CakePlugin::load(['TestPlugin']);
         $Helper = new TestHelper($this->View);
-        $this->assertInstanceOf('OtherHelperHelper', $Helper->OtherHelper);
-        $this->assertInstanceOf('HtmlHelper', $Helper->Html);
+        $this->assertInstanceOf(OtherHelperHelper::class, $Helper->OtherHelper);
+        $this->assertInstanceOf(HtmlHelper::class, $Helper->Html);
         App::build();
     }
 

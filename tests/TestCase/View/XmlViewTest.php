@@ -16,6 +16,17 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\View;
+
+use Cake\Controller\Controller;
+use Cake\Core\App;
+use Cake\Core\Configure;
+use Cake\Network\CakeRequest;
+use Cake\Network\CakeResponse;
+use Cake\TestSuite\CakeTestCase;
+use Cake\Utility\Xml;
+use Cake\View\XmlView;
+
 /**
  * XmlViewTest
  *
@@ -234,12 +245,13 @@ class XmlViewTest extends CakeTestCase
     public function testRenderWithView(): void
     {
         App::build(['View' => [
-            CORE_TESTS . DS . 'test_app' . DS . 'View' . DS,
+            CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'View' . DS,
+            CORE_TESTS . DS . 'test_app' . DS . 'templates' . DS,
         ]]);
-        $Request = new CakeRequest();
-        $Response = new CakeResponse();
-        $Controller = new Controller($Request, $Response);
-        $Controller->name = $Controller->viewPath = 'Posts';
+        $request = new CakeRequest();
+        $response = new CakeResponse();
+        $controller = new Controller($request, $response);
+        $controller->name = $controller->viewPath = 'Posts';
 
         $data = [
             [
@@ -253,17 +265,17 @@ class XmlViewTest extends CakeTestCase
                 ],
             ],
         ];
-        $Controller->set('users', $data);
-        $View = new XmlView($Controller);
-        $output = $View->render('index');
+        $controller->set('users', $data);
+        $view = new XmlView($controller);
+        $output = $view->render('index');
 
         $expected = [
             'users' => ['user' => ['user1', 'user2']],
         ];
         $expected = Xml::build($expected)->asXML();
         $this->assertSame($expected, $output);
-        $this->assertSame('application/xml', $Response->type());
-        $this->assertInstanceOf('HelperCollection', $View->Helpers);
+        $this->assertSame('application/xml', $response->type());
+        $this->assertInstanceOf('HelperCollection', $view->Helpers);
     }
 
     /**

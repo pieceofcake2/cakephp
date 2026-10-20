@@ -1,7 +1,5 @@
 <?php
 
-use TestApp\Cache\Engine\NamespacedEngine;
-
 /**
  * CacheTest file
  *
@@ -19,6 +17,17 @@ use TestApp\Cache\Engine\NamespacedEngine;
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\Cache;
+
+use Cake\Cache\Cache;
+use Cake\Core\App;
+use Cake\Core\CakePlugin;
+use Cake\Core\Configure;
+use Cake\Error\CacheException;
+use Cake\TestSuite\CakeTestCase;
+use stdClass;
+use TestApp\Cache\Engine\NamespacedEngine;
+
 /**
  * CacheTest class
  *
@@ -28,6 +37,8 @@ class CacheTest extends CakeTestCase
 {
     protected $_count = 0;
 
+    protected ?string $_appNamespace = null;
+
     /**
      * setUp method
      *
@@ -36,6 +47,9 @@ class CacheTest extends CakeTestCase
     public function setUp(): void
     {
         parent::setUp();
+
+        $this->_appNamespace = Configure::read('App.namespace');
+        Configure::write('App.namespace', 'TestApp');
         $this->_cacheDisable = Configure::read('Cache.disable');
         Configure::write('Cache.disable', false);
 
@@ -55,6 +69,7 @@ class CacheTest extends CakeTestCase
         Cache::drop('archive');
         Configure::write('Cache.disable', $this->_cacheDisable);
         Cache::config('default', $this->_defaultCacheConfig['settings']);
+        Configure::write('App.namespace', $this->_appNamespace);
 
         parent::tearDown();
     }
@@ -119,8 +134,8 @@ class CacheTest extends CakeTestCase
     public function testConfigWithLibAndPluginEngines(): void
     {
         App::build([
-            'Lib' => [CORE_TESTS . DS . 'test_app' . DS . 'Lib' . DS],
-            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS],
+            'Lib' => [CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'Lib' . DS],
+            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
         ], App::RESET);
         CakePlugin::load('TestPlugin');
 
@@ -158,14 +173,10 @@ class CacheTest extends CakeTestCase
         $warningTriggered = false;
         $warningMessage = '';
         set_error_handler(function ($errno, $errstr) use (&$warningTriggered, &$warningMessage) {
-            if ($errno === E_WARNING || $errno === E_USER_WARNING) {
-                $warningTriggered = true;
-                $warningMessage = $errstr;
+            $warningTriggered = true;
+            $warningMessage = $errstr;
 
-                return true;
-            }
-
-            return false;
+            return true;
         }, E_WARNING | E_USER_WARNING);
 
         try {
@@ -209,7 +220,7 @@ class CacheTest extends CakeTestCase
     public function testAttemptingToConfigureANonCacheEngineClass(): void
     {
         $this->expectException(CacheException::class);
-        $this->getMock('StdClass', [], [], 'RubbishEngine');
+        $this->getMock(stdClass::class, [], [], 'RubbishEngine');
         Cache::config('Garbage', [
             'engine' => 'Rubbish',
         ]);
@@ -399,8 +410,8 @@ class CacheTest extends CakeTestCase
     public function testDrop(): void
     {
         App::build([
-            'Lib' => [CORE_TESTS . DS . 'test_app' . DS . 'Lib' . DS],
-            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS],
+            'Lib' => [CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'Lib' . DS],
+            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
         ], App::RESET);
 
         $result = Cache::drop('some_config_that_does_not_exist');
@@ -453,8 +464,8 @@ class CacheTest extends CakeTestCase
     public function testWriteTriggerError(): void
     {
         App::build([
-            'Lib' => [CORE_TESTS . DS . 'test_app' . DS . 'Lib' . DS],
-            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS],
+            'Lib' => [CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'Lib' . DS],
+            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
         ], App::RESET);
 
         $errorTriggered = false;
@@ -638,10 +649,8 @@ class CacheTest extends CakeTestCase
     public function testEngineSuccessMemcached(): void
     {
         $this->skipIf(!class_exists('Memcached'), 'Memcached is not installed or configured properly.');
-
-        // @codingStandardsIgnoreStart
+        // phpcs:ignore
         $socket = @fsockopen('127.0.0.1', 11211, $errno, $errstr, 1);
-        // @codingStandardsIgnoreEnd
         $this->skipIf(!$socket, 'Memcached is not running.');
         fclose($socket);
 

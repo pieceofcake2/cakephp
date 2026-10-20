@@ -1,5 +1,7 @@
 <?php
 
+namespace Cake\Test\TestCase\Model;
+
 use PHPUnit\Framework\TestSuite;
 
 /**
@@ -30,7 +32,7 @@ class ModelTest extends TestSuite
     /**
      * suite method, defines tests for this suite.
      *
-     * @return void
+     * @return TestSuite
      */
     public static function suite(): mixed
     {

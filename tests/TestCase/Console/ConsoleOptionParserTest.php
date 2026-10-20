@@ -16,6 +16,15 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\Console;
+
+use Cake\Console\ConsoleInputArgument;
+use Cake\Console\ConsoleInputOption;
+use Cake\Console\ConsoleInputSubcommand;
+use Cake\Console\ConsoleOptionParser;
+use Cake\Error\ConsoleException;
+use Cake\TestSuite\CakeTestCase;
+
 /**
  * ConsoleOptionParserTest
  *

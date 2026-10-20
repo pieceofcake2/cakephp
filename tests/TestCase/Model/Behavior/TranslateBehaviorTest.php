@@ -13,6 +13,27 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\Model\Behavior;
+
+use App\Model\Tag;
+use App\Model\TranslatedArticle;
+use App\Model\TranslatedItem;
+use App\Model\TranslatedItem2;
+use App\Model\TranslatedItemLeftJoin;
+use App\Model\TranslatedItemWithTable;
+use App\Model\TranslateTestModel;
+use App\Model\User;
+use Cake\Core\App;
+use Cake\Core\Configure;
+use Cake\Error\CakeException;
+use Cake\Model\Behavior\TranslateBehavior;
+use Cake\Model\ConnectionManager;
+use Cake\Model\Datasource\Database\Mysql;
+use Cake\TestSuite\CakeTestCase;
+use Cake\Utility\ClassRegistry;
+use Cake\Utility\Hash;
+use TestApp\Model\Datasource\Test2Source;
+
 App::uses('AppModel', 'Model');
 
 require_once dirname(__DIR__) . DS . 'models.php';
@@ -34,11 +55,18 @@ class TranslateBehaviorTest extends CakeTestCase
     /**
      * fixtures property
      *
-     * @var array
+     * @var array<string>
      */
     public $fixtures = [
-        'core.translated_item', 'core.translate', 'core.translate_table',
-        'core.translated_article', 'core.translate_article', 'core.user', 'core.comment', 'core.tag', 'core.articles_tag',
+        'core.translated_item',
+        'core.translate',
+        'core.translate_table',
+        'core.translated_article',
+        'core.translate_article',
+        'core.user',
+        'core.comment',
+        'core.tag',
+        'core.articles_tag',
         'core.translate_with_prefix',
     ];
 
@@ -766,7 +794,7 @@ class TranslateBehaviorTest extends CakeTestCase
             ],
             'translated_article_id' => 1,
         ];
-        $Mock = $this->getMockForModel('TranslateTestModel', ['save']);
+        $Mock = $this->getMockForModel(TranslateTestModel::class, ['save']);
         $TestModel->Behaviors->Translate->runtime[$TestModel->alias]['model'] = $Mock;
 
         $contentWith = [
@@ -909,16 +937,16 @@ class TranslateBehaviorTest extends CakeTestCase
     {
         $this->loadFixtures('Translate', 'TranslatedItem');
 
-        $TestModel = new TranslatedItem();
-        $TestModel->locale = 'spa';
+        $testModel = new TranslatedItem();
+        $testModel->locale = 'spa';
         $oldData = ['slug' => 'fourth_translated', 'title' => 'Leyenda #4', 'translated_article_id' => 1];
-        $TestModel->create($oldData);
-        $TestModel->save();
-        $id = $TestModel->id;
+        $testModel->create($oldData);
+        $testModel->save();
+        $id = $testModel->id;
         $newData = ['id' => $id, 'content' => 'Contenido #4'];
-        $TestModel->create($newData);
-        $TestModel->save();
-        $result = $TestModel->read(null, $id);
+        $testModel->create($newData);
+        $testModel->save();
+        $result = $testModel->read(null, $id);
         $expected = ['TranslatedItem' => array_merge($oldData, $newData, ['locale' => 'spa'])];
         $this->assertEquals($expected, $result);
     }
@@ -1145,7 +1173,7 @@ class TranslateBehaviorTest extends CakeTestCase
         ]];
         $TestModel->create();
         $result = $TestModel->save($data);
-        $this->assertFalse(empty($result));
+        $this->assertNotEmpty($result);
     }
 
     /**
@@ -1449,7 +1477,7 @@ class TranslateBehaviorTest extends CakeTestCase
     {
         $this->loadFixtures('Translate', 'TranslatedItem');
         $TestModel = new TranslatedItem();
-        ConnectionManager::create('translate_not_connected', ['datasource' => 'Test2Source']);
+        ConnectionManager::create('translate_not_connected', ['datasource' => Test2Source::class]);
         $TestModel->useDbConfig = 'translate_not_connected';
 
         try {
@@ -1598,8 +1626,8 @@ class TranslateBehaviorTest extends CakeTestCase
             'callbacks' => true,
             'recursive' => 0,
         ];
-        $TranslateBehavior = ClassRegistry::getObject('TranslateBehavior');
-        $result = $TranslateBehavior->beforeFind($TestModel, $query);
+        $translateBehavior = ClassRegistry::getObject(TranslateBehavior::class);
+        $result = $translateBehavior->beforeFind($TestModel, $query);
         $this->assertEquals($expected, $result);
     }
 
@@ -1682,8 +1710,8 @@ class TranslateBehaviorTest extends CakeTestCase
             'callbacks' => true,
             'recursive' => 0,
         ];
-        $TranslateBehavior = ClassRegistry::getObject('TranslateBehavior');
-        $result = $TranslateBehavior->beforeFind($TestModel, $query);
+        $translateBehavior = ClassRegistry::getObject(TranslateBehavior::class);
+        $result = $translateBehavior->beforeFind($TestModel, $query);
         $this->assertEquals($expected, $result);
     }
 }

@@ -1,7 +1,22 @@
 <?php
 
+namespace Cake\Test\TestCase\Core;
+
+use Cake\Cache\Cache;
+use Cake\Configure\PhpReader;
+use Cake\Core\App;
+use Cake\Core\CakePlugin;
+use Cake\Core\Configure;
+use Cake\Error\ConfigureException;
+use Cake\TestSuite\CakeTestCase;
+use Cake\Utility\Folder;
 use Composer\Autoload\ClassLoader;
+use Exception;
 use PHPUnit\Framework\Error;
+use ReflectionClass;
+use RuntimeException;
+use stdClass;
+use TypeError;
 
 /**
  * ConfigureTest file
@@ -419,7 +434,7 @@ class ConfigureTest extends CakeTestCase
      */
     public function testLoadWithMerge(): void
     {
-        Configure::config('test', new PhpReader(CORE_TESTS . DS . 'test_app' . DS . 'Config' . DS));
+        Configure::config('test', new PhpReader(CORE_TESTS . DS . 'test_app' . DS . 'config' . DS));
 
         $result = Configure::load('var_test', 'test');
         $this->assertTrue($result);
@@ -443,7 +458,7 @@ class ConfigureTest extends CakeTestCase
      */
     public function testLoadNoMerge(): void
     {
-        Configure::config('test', new PhpReader(CORE_TESTS . DS . 'test_app' . DS . 'Config' . DS));
+        Configure::config('test', new PhpReader(CORE_TESTS . DS . 'test_app' . DS . 'config' . DS));
 
         $result = Configure::load('var_test', 'test');
         $this->assertTrue($result);
@@ -466,7 +481,7 @@ class ConfigureTest extends CakeTestCase
     public function testLoadPlugin(): void
     {
         App::build([
-            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS],
+            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
         ], App::RESET);
         Configure::config('test', new PhpReader());
         CakePlugin::load('TestPlugin');
@@ -566,7 +581,7 @@ class ConfigureTest extends CakeTestCase
     public function testReaderExceptionOnIncorrectClass(): void
     {
         $this->expectException(Error::class);
-        $reader = new StdClass();
+        $reader = new stdClass();
 
         try {
             Configure::config('test', $reader);

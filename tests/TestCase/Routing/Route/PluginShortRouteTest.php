@@ -16,6 +16,13 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\Routing\Route;
+
+use Cake\Core\Configure;
+use Cake\Routing\Route\PluginShortRoute;
+use Cake\Routing\Router;
+use Cake\TestSuite\CakeTestCase;
+
 /**
  * test case for PluginShortRoute
  *

@@ -16,6 +16,12 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\Utility;
+
+use Cake\TestSuite\CakeTestCase;
+use Cake\TestSuite\Fixture\CakeTestModel;
+use Cake\Utility\Sanitize;
+
 /**
  * DataTest class
  *
@@ -26,10 +32,11 @@ class SanitizeDataTest extends CakeTestModel
     /**
      * useTable property
      *
-     * @var string
+     * @var string|bool|null
      */
     public $useTable = 'data_tests';
 }
+class_alias(SanitizeDataTest::class, 'App\\Model\\SanitizeDataTest');
 
 /**
  * Article class
@@ -41,10 +48,11 @@ class SanitizeArticle extends CakeTestModel
     /**
      * useTable property
      *
-     * @var string
+     * @var string|bool|null
      */
     public $useTable = 'articles';
 }
+class_alias(SanitizeArticle::class, 'App\\Model\\SanitizeArticle');
 
 /**
  * SanitizeTest class
@@ -63,9 +71,12 @@ class SanitizeTest extends CakeTestCase
     /**
      * fixtures property
      *
-     * @var array
+     * @var array<string>
      */
-    public $fixtures = ['core.data_test', 'core.article'];
+    public $fixtures = [
+        'core.data_test',
+        'core.article',
+    ];
 
     /**
      * testEscapeAlphaNumeric method

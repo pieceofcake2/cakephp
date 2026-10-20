@@ -16,6 +16,23 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\Controller\Component;
+
+use Cake\Controller\Component\CookieComponent;
+use Cake\Controller\ComponentCollection;
+use Cake\Controller\Controller;
+use Cake\Core\Configure;
+use Cake\Error\CakeException;
+use Cake\Log\CakeLog;
+use Cake\Log\Engine\BaseLog;
+use Cake\Network\CakeRequest;
+use Cake\Network\CakeResponse;
+use Cake\TestSuite\CakeTestCase;
+use Cake\Utility\Hash;
+use Cake\Utility\Security;
+use Closure;
+use DateTime;
+
 /**
  * CookieComponentTestController class
  *
@@ -442,7 +459,7 @@ class CookieComponentTest extends CakeTestCase
     {
         $this->_setCipherReported(false);
         CookieComponentTestCaptureLog::$messages = [];
-        CakeLog::config('cookie_test_capture', ['engine' => 'CookieComponentTestCapture']);
+        CakeLog::config('cookie_test_capture', ['engine' => CookieComponentTestCaptureLog::class]);
     }
 
     /**

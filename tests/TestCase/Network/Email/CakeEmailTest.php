@@ -1,7 +1,5 @@
 <?php
 
-use TestApp\Network\Email\NamespacedTransport;
-
 /**
  * CakeEmailTest file
  *
@@ -19,6 +17,21 @@ use TestApp\Network\Email\NamespacedTransport;
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\Network\Email;
+
+use Cake\Core\App;
+use Cake\Core\CakePlugin;
+use Cake\Core\Configure;
+use Cake\Error\ConfigureException;
+use Cake\Error\SocketException;
+use Cake\Log\CakeLog;
+use Cake\Network\Email\CakeEmail;
+use Cake\Network\Email\DebugTransport;
+use Cake\TestSuite\CakeTestCase;
+use Cake\Utility\File;
+use ReflectionProperty;
+use TestApp\Network\Email\NamespacedTransport;
+
 /**
  * Help to test CakeEmail
  */
@@ -31,7 +44,7 @@ class TestCakeEmail extends CakeEmail
      *
      * @var string
      */
-    protected $_configClass = 'TestEmailConfig';
+    protected $_configClass = TestEmailConfig::class;
 
     /**
      * Config
@@ -181,6 +194,8 @@ class ExtendTransport
  */
 class CakeEmailTest extends CakeTestCase
 {
+    protected ?string $_appNamespace = null;
+
     /**
      * setUp
      *
@@ -189,6 +204,9 @@ class CakeEmailTest extends CakeTestCase
     public function setUp(): void
     {
         parent::setUp();
+
+        $this->_appNamespace = Configure::read('App.namespace');
+        Configure::write('App.namespace', 'TestApp');
 
         $this->_configFileExists = true;
         $emailConfig = new File(CONFIG . 'email.php');
@@ -200,7 +218,10 @@ class CakeEmailTest extends CakeTestCase
         $this->CakeEmail = new TestCakeEmail();
 
         App::build([
-            'View' => [CORE_TESTS . DS . 'test_app' . DS . 'View' . DS],
+            'View' => [
+                CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'View' . DS,
+                CORE_TESTS . DS . 'test_app' . DS . 'templates' . DS,
+            ],
         ]);
     }
 
@@ -214,6 +235,8 @@ class CakeEmailTest extends CakeTestCase
         if (!$this->_configFileExists) {
             unlink(CONFIG . 'email.php');
         }
+
+        Configure::write('App.namespace', $this->_appNamespace);
 
         parent::tearDown();
     }
@@ -1779,7 +1802,7 @@ class CakeEmailTest extends CakeTestCase
     public function testSendRenderPlugin(): void
     {
         App::build([
-            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS],
+            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
         ]);
         CakePlugin::load(['TestPlugin', 'TestPluginTwo']);
 

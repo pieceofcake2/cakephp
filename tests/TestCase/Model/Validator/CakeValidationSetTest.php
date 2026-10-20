@@ -16,6 +16,13 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\Model\Validator;
+
+use Cake\Core\Configure;
+use Cake\Model\Validator\CakeValidationRule;
+use Cake\Model\Validator\CakeValidationSet;
+use Cake\TestSuite\CakeTestCase;
+
 /**
  * CakeValidationSetTest
  *

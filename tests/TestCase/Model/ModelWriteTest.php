@@ -16,10 +16,32 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-require_once __DIR__ . DS . 'ModelTestBase.php';
+namespace Cake\Test\TestCase\Model;
+
+use Cake\Core\Configure;
+use Cake\Event\CakeEvent;
+use Cake\Model\ConnectionManager;
+use Cake\Model\Datasource\Database\Mysql;
+use Cake\Model\Datasource\Database\Postgres;
+use Cake\Model\Datasource\Database\Sqlite;
+use Cake\Model\Datasource\Database\Sqlserver;
+use Cake\Model\Datasource\DataSource;
+use Cake\Model\Datasource\DboSource;
+use Cake\Model\Model;
+use Cake\Utility\ClassRegistry;
+use Cake\Utility\Hash;
+use Cake\Utility\Set;
+use Cake\Utility\Xml;
+use Exception;
+use PDOException;
+use PHPUnit\Framework\MockObject\MockObject;
+
+require_once __DIR__ . DS . 'models.php';
 
 /**
  * Helper class for testing with mocked datasources
+ *
+ * @property Post $Post
  */
 class TestAuthor extends Author
 {
@@ -29,9 +51,9 @@ class TestAuthor extends Author
         ],
     ];
 
-    protected $_dataSourceObject;
+    protected $_dataSourceObject = null;
 
-    public $dataForAfterSave;
+    public $dataForAfterSave = [];
 
     /**
      * Helper method to set a datasource object
@@ -59,9 +81,12 @@ class TestAuthor extends Author
         return parent::getDataSource();
     }
 }
+class_alias(TestAuthor::class, 'App\\Model\\TestAuthor');
 
 /**
  * Helper class for testing with mocked datasources
+ *
+ * @property Author $Author
  */
 class TestPost extends Post
 {
@@ -71,9 +96,9 @@ class TestPost extends Post
         ],
     ];
 
-    protected $_dataSourceObject;
+    protected $_dataSourceObject = null;
 
-    public $dataForAfterSave;
+    public $dataForAfterSave = [];
 
     /**
      * Helper method to set a datasource object
@@ -101,6 +126,7 @@ class TestPost extends Post
         return parent::getDataSource();
     }
 }
+class_alias(TestPost::class, 'App\\Model\\TestPost');
 
 /**
  * ModelWriteTest
@@ -911,22 +937,22 @@ class ModelWriteTest extends BaseModelTest
     {
         $this->loadFixtures('Post', 'Article');
 
-        $db = $this->getMock('DboSource', ['begin', 'connect', 'rollback', 'describe']);
+        $db = $this->getMock(DboSource::class, ['begin', 'connect', 'rollback', 'describe']);
 
         $db->expects($this->once())
             ->method('describe')
-            ->will($this->returnValue([]));
+            ->willReturn([]);
         $db->expects($this->once())
             ->method('begin')
-            ->will($this->returnValue(true));
+            ->willReturn(true);
         $db->expects($this->once())
             ->method('rollback');
 
-        $Post = new TestPost();
-        $Post->setDataSourceObject($db);
+        $post = new TestPost();
+        $post->setDataSourceObject($db);
 
         $callback = [$this, 'callbackForTestSaveTransaction'];
-        $Post->getEventManager()->attach($callback, 'Model.beforeSave');
+        $post->getEventManager()->attach($callback, 'Model.beforeSave');
 
         $data = [
             'Post' => [
@@ -934,7 +960,7 @@ class ModelWriteTest extends BaseModelTest
                 'title' => 'New Fourth Post',
             ],
         ];
-        $Post->save($data, ['atomic' => true]);
+        $post->save($data, ['atomic' => true]);
     }
 
     /**
@@ -944,7 +970,7 @@ class ModelWriteTest extends BaseModelTest
      */
     public function callbackForTestSaveTransaction($event): mixed
     {
-        $TestModel = new Article();
+        $article = new Article();
 
         // Create record. Do not use same model as in testSaveTransaction
         // to avoid infinite loop.
@@ -957,8 +983,8 @@ class ModelWriteTest extends BaseModelTest
                 'published' => 'Y',
             ],
         ];
-        $TestModel->create();
-        $result = $TestModel->save($data);
+        $article->create();
+        $result = $article->save($data);
         $this->assertTrue((bool)$result);
 
         // force transaction to be rolled back in Post model
@@ -975,19 +1001,19 @@ class ModelWriteTest extends BaseModelTest
     public function testSaveTransaction(): void
     {
         $this->loadFixtures('Post', 'Article');
-        $PostModel = new Post();
+        $postModel = new Post();
 
         // Check if Database supports transactions
 
-        $PostModel->validate = ['title' => 'notBlank'];
+        $postModel->validate = ['title' => 'notBlank'];
         $data = [
             ['author_id' => 1, 'title' => 'New Fourth Post'],
             ['author_id' => 1, 'title' => 'New Fifth Post'],
             ['author_id' => 1, 'title' => ''],
         ];
-        $this->assertFalse($PostModel->saveAll($data));
+        $this->assertFalse($postModel->saveAll($data));
 
-        $result = $PostModel->find('all', ['recursive' => -1]);
+        $result = $postModel->find('all', ['recursive' => -1]);
         $expectedPosts = [
             [
                 'Post' => [
@@ -1038,13 +1064,13 @@ class ModelWriteTest extends BaseModelTest
         ];
 
         $callback = [$this, 'callbackForTestSaveTransaction'];
-        $PostModel->getEventManager()->attach($callback, 'Model.beforeSave');
+        $postModel->getEventManager()->attach($callback, 'Model.beforeSave');
 
-        $PostModel->create();
-        $result = $PostModel->save($data, ['atomic' => true]);
+        $postModel->create();
+        $result = $postModel->save($data, ['atomic' => true]);
         $this->assertFalse($result);
 
-        $result = $PostModel->find('all', ['recursive' => -1]);
+        $result = $postModel->find('all', ['recursive' => -1]);
         $this->assertEquals($expectedPosts, $result);
 
         // Check record we created in callbackForTestSaveTransaction method.
@@ -4717,8 +4743,8 @@ class ModelWriteTest extends BaseModelTest
     {
         $this->loadFixtures('Post', 'Author');
 
-        $Post = new TestPost();
-        $Post->Author->validate = [
+        $post = new TestPost();
+        $post->Author->validate = [
             'user' => ['rule' => ['notBlank']],
         ];
 
@@ -4728,8 +4754,8 @@ class ModelWriteTest extends BaseModelTest
         $db->expects($this->never())->method('commit');
         $db->expects($this->once())->method('rollback');
 
-        $Post->setDataSourceObject($db);
-        $Post->Author->setDataSourceObject($db);
+        $post->setDataSourceObject($db);
+        $post->Author->setDataSourceObject($db);
 
         $data = [
             'Post' => [
@@ -4742,7 +4768,7 @@ class ModelWriteTest extends BaseModelTest
                 'password' => 'sekret',
             ],
         ];
-        $Post->saveAll($data, ['validate' => true]);
+        $post->saveAll($data, ['validate' => true]);
 
         // If exception thrown, rollback() should be called too.
         $db = $this->_getMockDboSource(['begin', 'commit', 'rollback']);
@@ -4750,8 +4776,8 @@ class ModelWriteTest extends BaseModelTest
         $db->expects($this->never())->method('commit');
         $db->expects($this->once())->method('rollback');
 
-        $Post->setDataSourceObject($db);
-        $Post->Author->setDataSourceObject($db);
+        $post->setDataSourceObject($db);
+        $post->Author->setDataSourceObject($db);
 
         $data = [
             'Post' => [
@@ -4766,7 +4792,7 @@ class ModelWriteTest extends BaseModelTest
         ];
 
         try {
-            $Post->saveAll($data, ['validate' => true]);
+            $post->saveAll($data, ['validate' => true]);
             $this->fail('No exception thrown');
         } catch (PDOException) {
         }
@@ -4777,8 +4803,8 @@ class ModelWriteTest extends BaseModelTest
         $db->expects($this->once())->method('commit');
         $db->expects($this->never())->method('rollback');
 
-        $Post->setDataSourceObject($db);
-        $Post->Author->setDataSourceObject($db);
+        $post->setDataSourceObject($db);
+        $post->Author->setDataSourceObject($db);
 
         $data = [
             'Post' => [
@@ -4791,7 +4817,7 @@ class ModelWriteTest extends BaseModelTest
                 'password' => 'sekret',
             ],
         ];
-        $Post->saveAll($data, ['validate' => true]);
+        $post->saveAll($data, ['validate' => true]);
     }
 
     /**
@@ -6258,19 +6284,23 @@ class ModelWriteTest extends BaseModelTest
     {
         $this->loadFixtures('Post', 'Author');
 
-        $Post = new TestPost();
-        $Post->Author->validate = [
+        $post = new TestPost();
+        $post->Author->validate = [
             'user' => ['rule' => ['notBlank']],
         ];
 
         // If validation error occurs, rollback() should be called.
         $db = $this->_getMockDboSource(['begin', 'commit', 'rollback']);
-        $db->expects($this->once())->method('begin')->will($this->returnValue(true));
-        $db->expects($this->never())->method('commit');
-        $db->expects($this->once())->method('rollback');
+        $db->expects($this->once())
+            ->method('begin')
+            ->will($this->returnValue(true));
+        $db->expects($this->never())
+            ->method('commit');
+        $db->expects($this->once())
+            ->method('rollback');
 
-        $Post->setDataSourceObject($db);
-        $Post->Author->setDataSourceObject($db);
+        $post->setDataSourceObject($db);
+        $post->Author->setDataSourceObject($db);
 
         $data = [
             'Post' => [
@@ -6283,7 +6313,7 @@ class ModelWriteTest extends BaseModelTest
                 'password' => 'sekret',
             ],
         ];
-        $Post->saveAssociated($data, ['validate' => true, 'atomic' => true]);
+        $post->saveAssociated($data, ['validate' => true, 'atomic' => true]);
 
         // If exception thrown, commit() should be called.
         $db = $this->_getMockDboSource(['begin', 'commit', 'rollback']);
@@ -6291,8 +6321,8 @@ class ModelWriteTest extends BaseModelTest
         $db->expects($this->never())->method('commit');
         $db->expects($this->once())->method('rollback');
 
-        $Post->setDataSourceObject($db);
-        $Post->Author->setDataSourceObject($db);
+        $post->setDataSourceObject($db);
+        $post->Author->setDataSourceObject($db);
 
         $data = [
             'Post' => [
@@ -6307,7 +6337,7 @@ class ModelWriteTest extends BaseModelTest
         ];
 
         try {
-            $Post->saveAssociated($data, ['validate' => true, 'atomic' => true]);
+            $post->saveAssociated($data, ['validate' => true, 'atomic' => true]);
             $this->fail('No exception thrown');
         } catch (PDOException) {
         }
@@ -6318,8 +6348,8 @@ class ModelWriteTest extends BaseModelTest
         $db->expects($this->once())->method('commit');
         $db->expects($this->never())->method('rollback');
 
-        $Post->setDataSourceObject($db);
-        $Post->Author->setDataSourceObject($db);
+        $post->setDataSourceObject($db);
+        $post->Author->setDataSourceObject($db);
 
         $data = [
             'Post' => [
@@ -6332,7 +6362,7 @@ class ModelWriteTest extends BaseModelTest
                 'password' => 'sekret',
             ],
         ];
-        $Post->saveAssociated($data, ['validate' => true, 'atomic' => true]);
+        $post->saveAssociated($data, ['validate' => true, 'atomic' => true]);
     }
 
     /**
@@ -8239,16 +8269,17 @@ class ModelWriteTest extends BaseModelTest
     {
         $this->loadFixtures('User');
 
-        $User = ClassRegistry::init('User');
-        $this->assertFalse($User->__safeUpdateMode);
+        /** @var Model $user */
+        $user = ClassRegistry::init('User');
+        $this->assertFalse($user->__safeUpdateMode);
 
-        $User->getEventManager()->attach([$this, 'deleteMe'], 'Model.beforeSave');
+        $user->getEventManager()->attach([$this, 'deleteMe'], 'Model.beforeSave');
 
-        $User->id = 1;
-        $User->set(['user' => 'nobody']);
-        $User->save();
+        $user->id = 1;
+        $user->set(['user' => 'nobody']);
+        $user->save();
 
-        $users = $User->find('list', ['fields' => 'User.user']);
+        $users = $user->find('list', ['fields' => 'User.user']);
 
         $expected = [
             2 => 'nate',
@@ -8256,15 +8287,15 @@ class ModelWriteTest extends BaseModelTest
             4 => 'garrett',
         ];
         $this->assertEquals($expected, $users);
-        $this->assertFalse($User->__safeUpdateMode);
+        $this->assertFalse($user->__safeUpdateMode);
 
-        $User->id = 2;
-        $User->set(['user' => $User->getDataSource()->expression('PDO_EXCEPTION()')]);
+        $user->id = 2;
+        $user->set(['user' => $user->getDataSource()->expression('PDO_EXCEPTION()')]);
         try {
-            $User->save(null, false);
+            $user->save(null, false);
             $this->fail('No exception thrown');
         } catch (PDOException) {
-            $this->assertFalse($User->__safeUpdateMode);
+            $this->assertFalse($user->__safeUpdateMode);
         }
     }
 
@@ -8276,8 +8307,9 @@ class ModelWriteTest extends BaseModelTest
      */
     public function deleteMe($event): void
     {
-        $Model = $event->subject;
-        $Model->getDataSource()->delete($Model, [$Model->alias . '.' . $Model->primaryKey => $Model->id]);
+        $model = $event->subject;
+        $model->getDataSource()
+            ->delete($model, [$model->alias . '.' . $model->primaryKey => $model->id]);
     }
 
     /**
@@ -8288,7 +8320,7 @@ class ModelWriteTest extends BaseModelTest
      * This method helps us to avoid this problem.
      *
      * @param array $methods Configurable method names.
-     * @return DboSource
+     * @return DboSource|MockObject
      */
     protected function _getMockDboSource($methods = []): mixed
     {
@@ -8301,7 +8333,7 @@ class ModelWriteTest extends BaseModelTest
             $methods[] = 'connect'; // This will be called by DboSource::__construct().
         }
 
-        $db = $this->getMock('DboSource', $methods);
+        $db = $this->getMock(DboSource::class, $methods);
         $db->columns = $testDb->columns;
         $db->startQuote = $testDb->startQuote;
         $db->endQuote = $testDb->endQuote;
@@ -8323,56 +8355,69 @@ class ModelWriteTest extends BaseModelTest
     public function testTransactionOnNestedSaveMany(): void
     {
         $this->loadFixtures('Post');
-        $Post = new TestPost();
-        $Post->getEventManager()->attach([$this, 'nestedSaveMany'], 'Model.afterSave');
+        $post = new TestPost();
+        $post->getEventManager()
+            ->attach([$this, 'nestedSaveMany'], 'Model.afterSave');
 
         // begin -> [ begin -> commit ] -> commit
         $db = $this->_getMockDboSource(['begin', 'commit', 'rollback']);
-        $db->expects($this->exactly(2))->method('begin')->will($this->returnValue(true));
-        $db->expects($this->exactly(2))->method('commit');
-        $db->expects($this->never())->method('rollback');
-        $Post->setDataSourceObject($db);
+        $db->expects($this->exactly(2))
+            ->method('begin')
+            ->will($this->returnValue(true));
+        $db->expects($this->exactly(2))
+            ->method('commit')
+            ->willReturn(true);
+        $db->expects($this->never())
+            ->method('rollback');
+        $post->setDataSourceObject($db);
 
         $data = [
             ['author_id' => 1, 'title' => 'Outer Post'],
         ];
-        $Post->dataForAfterSave = [
+        $post->dataForAfterSave = [
             ['author_id' => 1, 'title' => 'Inner Post'],
         ];
-        $this->assertTrue($Post->saveMany($data));
+        $this->assertTrue($post->saveMany($data));
 
         // begin -> [  begin(false) ] -> commit
         $db = $this->_getMockDboSource(['begin', 'commit', 'rollback']);
         $db->expects($this->exactly(2))
             ->method('begin')
             ->willReturnOnConsecutiveCalls(true, false);
-        $db->expects($this->once())->method('commit');
-        $db->expects($this->never())->method('rollback');
-        $Post->setDataSourceObject($db);
+        $db->expects($this->once())
+            ->method('commit')
+            ->willReturn(true);
+        $db->expects($this->never())
+            ->method('rollback');
+        $post->setDataSourceObject($db);
 
         $data = [
             ['author_id' => 1, 'title' => 'Outer Post'],
         ];
-        $Post->dataForAfterSave = [
+        $post->dataForAfterSave = [
             ['author_id' => 1, 'title' => 'Inner Post'],
         ];
-        $this->assertTrue($Post->saveMany($data));
+        $this->assertTrue($post->saveMany($data));
 
         // begin -> [ begin -> rollback ] -> rollback
         $db = $this->_getMockDboSource(['begin', 'commit', 'rollback']);
-        $db->expects($this->exactly(2))->method('begin')->will($this->returnValue(true));
-        $db->expects($this->never())->method('commit');
-        $db->expects($this->exactly(2))->method('rollback');
-        $Post->setDataSourceObject($db);
+        $db->expects($this->exactly(2))
+            ->method('begin')
+            ->will($this->returnValue(true));
+        $db->expects($this->never())
+            ->method('commit');
+        $db->expects($this->exactly(2))
+            ->method('rollback');
+        $post->setDataSourceObject($db);
         $data = [
             ['author_id' => 1, 'title' => 'Outer Post'],
         ];
-        $Post->dataForAfterSave = [
+        $post->dataForAfterSave = [
             ['author_id' => 1, 'title' => 'Inner Post', 'body' => $db->expression('PDO_EXCEPTION()')],
         ];
 
         try {
-            $Post->saveMany($data);
+            $post->saveMany($data);
             $this->fail('No exception thrown');
         } catch (Exception) {
         }
@@ -8387,16 +8432,21 @@ class ModelWriteTest extends BaseModelTest
     {
         $this->loadFixtures('Author', 'Post');
 
-        $Author = new TestAuthor();
-        $Author->getEventManager()->attach([$this, 'nestedSaveAssociated'], 'Model.afterSave');
+        $author = new TestAuthor();
+        $author->getEventManager()->attach([$this, 'nestedSaveAssociated'], 'Model.afterSave');
 
         // begin -> [ begin -> commit ] -> commit
         $db = $this->_getMockDboSource(['begin', 'commit', 'rollback']);
-        $db->expects($this->exactly(2))->method('begin')->will($this->returnValue(true));
-        $db->expects($this->exactly(2))->method('commit');
-        $db->expects($this->never())->method('rollback');
-        $Author->setDataSourceObject($db);
-        $Author->Post->setDataSourceObject($db);
+        $db->expects($this->exactly(2))
+            ->method('begin')
+            ->willReturn(true);
+        $db->expects($this->exactly(2))
+            ->method('commit')
+            ->willReturn(true);
+        $db->expects($this->never())
+            ->method('rollback');
+        $author->setDataSourceObject($db);
+        $author->Post->setDataSourceObject($db);
 
         $data = [
             'Author' => ['user' => 'outer'],
@@ -8404,51 +8454,58 @@ class ModelWriteTest extends BaseModelTest
                 ['title' => 'Outer Post'],
             ],
         ];
-        $Author->dataForAfterSave = [
+        $author->dataForAfterSave = [
             'Author' => ['user' => 'inner'],
             'Post' => [
                 ['title' => 'Inner Post'],
             ],
         ];
-        $this->assertTrue($Author->saveAssociated($data));
+        $this->assertTrue($author->saveAssociated($data));
 
         // begin -> [  begin(false) ] -> commit
         $db = $this->_getMockDboSource(['begin', 'commit', 'rollback']);
         $db->expects($this->exactly(2))
             ->method('begin')
             ->willReturnOnConsecutiveCalls(true, false);
-        $db->expects($this->once())->method('commit');
-        $db->expects($this->never())->method('rollback');
-        $Author->setDataSourceObject($db);
-        $Author->Post->setDataSourceObject($db);
+        $db->expects($this->once())
+            ->method('commit')
+            ->willReturn(true);
+        $db->expects($this->never())
+            ->method('rollback');
+        $author->setDataSourceObject($db);
+        $author->Post->setDataSourceObject($db);
         $data = [
             'Author' => ['user' => 'outer'],
             'Post' => [
                 ['title' => 'Outer Post'],
             ],
         ];
-        $Author->dataForAfterSave = [
+        $author->dataForAfterSave = [
             'Author' => ['user' => 'inner'],
             'Post' => [
                 ['title' => 'Inner Post'],
             ],
         ];
-        $this->assertTrue($Author->saveAssociated($data));
+        $this->assertTrue($author->saveAssociated($data));
 
         // begin -> [ begin -> rollback ] -> rollback
         $db = $this->_getMockDboSource(['begin', 'commit', 'rollback']);
-        $db->expects($this->exactly(2))->method('begin')->will($this->returnValue(true));
-        $db->expects($this->never())->method('commit');
-        $db->expects($this->exactly(2))->method('rollback');
-        $Author->setDataSourceObject($db);
-        $Author->Post->setDataSourceObject($db);
+        $db->expects($this->exactly(2))
+            ->method('begin')->will($this->returnValue(true));
+        $db->expects($this->never())
+            ->method('commit')
+            ->willReturn(true);
+        $db->expects($this->exactly(2))
+            ->method('rollback');
+        $author->setDataSourceObject($db);
+        $author->Post->setDataSourceObject($db);
         $data = [
             'Author' => ['user' => 'outer'],
             'Post' => [
                 ['title' => 'Outer Post'],
             ],
         ];
-        $Author->dataForAfterSave = [
+        $author->dataForAfterSave = [
             'Author' => ['user' => 'inner', 'password' => $db->expression('PDO_EXCEPTION()')],
             'Post' => [
                 ['title' => 'Inner Post'],
@@ -8456,7 +8513,7 @@ class ModelWriteTest extends BaseModelTest
         ];
 
         try {
-            $Author->saveAssociated($data);
+            $author->saveAssociated($data);
             $this->fail('No exception thrown');
         } catch (Exception) {
         }
@@ -8470,8 +8527,9 @@ class ModelWriteTest extends BaseModelTest
      */
     public function nestedSaveMany($event): void
     {
-        $Model = $event->subject;
-        $Model->saveMany($Model->dataForAfterSave, ['callbacks' => false]);
+        /** @var Model $model */
+        $model = $event->subject;
+        $model->saveMany($model->dataForAfterSave, ['callbacks' => false]);
     }
 
     /**
@@ -8482,7 +8540,8 @@ class ModelWriteTest extends BaseModelTest
      */
     public function nestedSaveAssociated($event): void
     {
-        $Model = $event->subject;
-        $Model->saveAssociated($Model->dataForAfterSave, ['callbacks' => false]);
+        /** @var Model $model */
+        $model = $event->subject;
+        $model->saveAssociated($model->dataForAfterSave, ['callbacks' => false]);
     }
 }

@@ -15,6 +15,24 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\Model\Datasource\Database;
+
+use AppModel;
+use Cake\Core\App;
+use Cake\Core\Configure;
+use Cake\Model\CakeSchema;
+use Cake\Model\ConnectionManager;
+use Cake\Model\Datasource\Database\Postgres;
+use Cake\Model\Datasource\DboSource;
+use Cake\Model\Model;
+use Cake\Test\TestCase\Model\Article;
+use Cake\TestSuite\CakeTestCase;
+use Cake\TestSuite\Fixture\CakeTestModel;
+use Cake\Utility\ClassRegistry;
+use PDO;
+use PDOStatement;
+use ReflectionClass;
+
 App::uses('AppModel', 'Model');
 
 require_once dirname(__DIR__, 2) . DS . 'models.php';
@@ -36,14 +54,16 @@ class DboPostgresTestDb extends Postgres
     /**
      * execute method
      *
-     * @param mixed $sql
-     * @return void
+     * @param string $sql
+     * @param array $params
+     * @param array $prepareOptions
+     * @return PDOStatement|bool
      */
     protected function _execute($sql, $params = [], $prepareOptions = []): mixed
     {
         $this->simulated[] = $sql;
 
-        return null;
+        return false;
     }
 
     /**
@@ -56,6 +76,7 @@ class DboPostgresTestDb extends Postgres
         return $this->simulated[count($this->simulated) - 1];
     }
 }
+class_alias(DboPostgresTestDb::class, 'App\\Model\\Datasource\\Database\\DboPostgresTestDb');
 
 /**
  * PostgresTestModel class
@@ -67,7 +88,7 @@ class PostgresTestModel extends Model
     /**
      * useTable property
      *
-     * @var bool
+     * @var string|bool|null
      */
     public $useTable = false;
 
@@ -85,11 +106,11 @@ class PostgresTestModel extends Model
     /**
      * find method
      *
-     * @param mixed $conditions
-     * @param mixed $fields
+     * @param string|null $type
+     * @param array|null $query
      * @param mixed $order
      * @param mixed $recursive
-     * @return void
+     * @return array|int|false|null
      */
     public function find($conditions = null, $fields = null, $order = null, $recursive = null): mixed
     {
@@ -103,7 +124,7 @@ class PostgresTestModel extends Model
      * @param mixed $fields
      * @param mixed $order
      * @param mixed $recursive
-     * @return void
+     * @return mixed
      */
     public function findAll($conditions = null, $fields = null, $order = null, $recursive = null): mixed
     {
@@ -113,7 +134,7 @@ class PostgresTestModel extends Model
     /**
      * schema method
      *
-     * @return void
+     * @return array|null
      */
     public function schema($field = false): mixed
     {
@@ -140,6 +161,7 @@ class PostgresTestModel extends Model
         ];
     }
 }
+class_alias(PostgresTestModel::class, 'App\\Model\\PostgresTestModel');
 
 /**
  * PostgresClientTestModel class
@@ -151,14 +173,14 @@ class PostgresClientTestModel extends Model
     /**
      * useTable property
      *
-     * @var bool
+     * @var string|bool|null
      */
     public $useTable = false;
 
     /**
      * schema method
      *
-     * @return void
+     * @return array|null
      */
     public function schema($field = false): mixed
     {
@@ -171,6 +193,7 @@ class PostgresClientTestModel extends Model
         ];
     }
 }
+class_alias(PostgresClientTestModel::class, 'App\\Model\\PostgresClientTestModel');
 
 /**
  * PostgresTest class
@@ -190,31 +213,40 @@ class PostgresTest extends CakeTestCase
     /**
      * Fixtures
      *
-     * @var object
+     * @var array<string>
      */
-    public $fixtures = ['core.user', 'core.binary_test', 'core.comment', 'core.article',
-        'core.tag', 'core.articles_tag', 'core.attachment', 'core.person', 'core.post', 'core.author',
+    public $fixtures = [
+        'core.user',
+        'core.binary_test',
+        'core.comment',
+        'core.article',
+        'core.tag',
+        'core.articles_tag',
+        'core.attachment',
+        'core.person',
+        'core.post',
+        'core.author',
         'core.datatype',
     ];
 
     /**
      * Actual DB connection used in testing
      *
-     * @var DboSource
+     * @var DboSource|null
      */
     public $Dbo = null;
 
     /**
      * Simulated DB connection used in testing
      *
-     * @var DboSource
+     * @var DboSource|null
      */
     public $Dbo2 = null;
 
     /**
      * Number locale before changing during testing
      *
-     * @var string
+     * @var string|null
      */
     public $restoreLocaleNumeric = null;
 
@@ -1152,20 +1184,20 @@ class PostgresTest extends CakeTestCase
         $schema = $db->config['schema'];
         $Article = new Article();
 
-        $this->Dbo = $this->getMock('Postgres', ['execute'], [$db->config]);
+        $this->Dbo = $this->getMock(Postgres::class, ['execute'], [$db->config]);
         $this->Dbo->expects($this->once())
             ->method('execute')
             ->with("DELETE FROM \"$schema\".\"articles\"");
         $this->Dbo->truncate($Article);
 
-        $this->Dbo = $this->getMock('Postgres', ['execute'], [$db->config]);
+        $this->Dbo = $this->getMock(Postgres::class, ['execute'], [$db->config]);
         $this->Dbo->expects($this->once())
             ->method('execute')
             ->with("DELETE FROM \"$schema\".\"articles\"");
         $this->Dbo->truncate('articles');
 
         // #2355: prevent duplicate prefix
-        $this->Dbo = $this->getMock('Postgres', ['execute'], [$db->config]);
+        $this->Dbo = $this->getMock(Postgres::class, ['execute'], [$db->config]);
         $this->Dbo->config['prefix'] = 'tbl_';
         $Article->tablePrefix = 'tbl_';
         $this->Dbo->expects($this->once())
@@ -1173,7 +1205,7 @@ class PostgresTest extends CakeTestCase
             ->with("DELETE FROM \"$schema\".\"tbl_articles\"");
         $this->Dbo->truncate($Article);
 
-        $this->Dbo = $this->getMock('Postgres', ['execute'], [$db->config]);
+        $this->Dbo = $this->getMock(Postgres::class, ['execute'], [$db->config]);
         $this->Dbo->config['prefix'] = 'tbl_';
         $this->Dbo->expects($this->once())
             ->method('execute')
@@ -1429,8 +1461,8 @@ class PostgresTest extends CakeTestCase
     public function testGetVersionWithMockedResponses(): void
     {
         // Test PostgreSQL 15.3 version
-        $db = $this->getMock('Postgres', ['connect', '_execute']);
-        $mockConnection = $this->getMock('stdClass', ['getAttribute']);
+        $db = $this->getMock(Postgres::class, ['connect', '_execute']);
+        $mockConnection = $this->getMock(MockPDO::class, ['getAttribute']);
         $mockConnection->expects($this->once())
             ->method('getAttribute')
             ->with(PDO::ATTR_SERVER_VERSION)
@@ -1445,8 +1477,8 @@ class PostgresTest extends CakeTestCase
         $this->assertEquals('15.3', $version);
 
         // Test PostgreSQL with Ubuntu version string
-        $db = $this->getMock('Postgres', ['connect', '_execute']);
-        $mockConnection = $this->getMock('stdClass', ['getAttribute']);
+        $db = $this->getMock(Postgres::class, ['connect', '_execute']);
+        $mockConnection = $this->getMock(MockPDO::class, ['getAttribute']);
         $mockConnection->expects($this->once())
             ->method('getAttribute')
             ->with(PDO::ATTR_SERVER_VERSION)
@@ -1461,8 +1493,8 @@ class PostgresTest extends CakeTestCase
         $this->assertEquals('14.8', $version);
 
         // Test PostgreSQL with platform info
-        $db = $this->getMock('Postgres', ['connect', '_execute']);
-        $mockConnection = $this->getMock('stdClass', ['getAttribute']);
+        $db = $this->getMock(Postgres::class, ['connect', '_execute']);
+        $mockConnection = $this->getMock(MockPDO::class, ['getAttribute']);
         $mockConnection->expects($this->once())
             ->method('getAttribute')
             ->with(PDO::ATTR_SERVER_VERSION)
@@ -1477,8 +1509,8 @@ class PostgresTest extends CakeTestCase
         $this->assertEquals('13.11', $version);
 
         // Test version caching
-        $db = $this->getMock('Postgres', ['connect', '_execute']);
-        $mockConnection = $this->getMock('stdClass', ['getAttribute']);
+        $db = $this->getMock(Postgres::class, ['connect', '_execute']);
+        $mockConnection = $this->getMock(MockPDO::class, ['getAttribute']);
         $mockConnection->expects($this->once()) // Only once even though we call getVersion twice
             ->method('getAttribute')
             ->with(PDO::ATTR_SERVER_VERSION)
@@ -1495,8 +1527,8 @@ class PostgresTest extends CakeTestCase
         $this->assertEquals('15.3', $version2);
 
         // Test non-matching version pattern (fallback to original string)
-        $db = $this->getMock('Postgres', ['connect', '_execute']);
-        $mockConnection = $this->getMock('stdClass', ['getAttribute']);
+        $db = $this->getMock(Postgres::class, ['connect', '_execute']);
+        $mockConnection = $this->getMock(MockPDO::class, ['getAttribute']);
         $mockConnection->expects($this->once())
             ->method('getAttribute')
             ->with(PDO::ATTR_SERVER_VERSION)
@@ -1511,8 +1543,8 @@ class PostgresTest extends CakeTestCase
         $this->assertEquals('unknown-version', $version);
 
         // Test empty version string
-        $db = $this->getMock('Postgres', ['connect', '_execute']);
-        $mockConnection = $this->getMock('stdClass', ['getAttribute']);
+        $db = $this->getMock(Postgres::class, ['connect', '_execute']);
+        $mockConnection = $this->getMock(MockPDO::class, ['getAttribute']);
         $mockConnection->expects($this->once())
             ->method('getAttribute')
             ->with(PDO::ATTR_SERVER_VERSION)

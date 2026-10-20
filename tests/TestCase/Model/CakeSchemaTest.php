@@ -16,6 +16,21 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\Model;
+
+use Cake\Core\App;
+use Cake\Core\CakePlugin;
+use Cake\Error\MissingTableException;
+use Cake\Model\CakeSchema;
+use Cake\Model\ConnectionManager;
+use Cake\Model\Datasource\Database\Sqlite;
+use Cake\TestSuite\CakeTestCase;
+use Cake\TestSuite\Fixture\CakeTestFixture;
+use Cake\TestSuite\Fixture\CakeTestModel;
+use Cake\Utility\ClassRegistry;
+use Exception;
+use MyOtherAppSchema;
+
 /**
  * Test for Schema database management
  *
@@ -93,6 +108,7 @@ class MyAppSchema extends CakeSchema
         return $this->$var;
     }
 }
+class_alias(MyAppSchema::class, 'MyAppSchema');
 
 /**
  * TestAppSchema class
@@ -104,7 +120,7 @@ class TestAppSchema extends CakeSchema
     /**
      * name property
      *
-     * @var string
+     * @var string|null
      */
     public $name = 'MyApp';
 
@@ -206,6 +222,7 @@ class TestAppSchema extends CakeSchema
     {
     }
 }
+class_alias(TestAppSchema::class, 'TestAppSchema');
 
 /**
  * SchemaPost class
@@ -217,7 +234,7 @@ class SchemaPost extends CakeTestModel
     /**
      * useTable property
      *
-     * @var string
+     * @var string|bool|null
      */
     public $useTable = 'posts';
 
@@ -235,6 +252,7 @@ class SchemaPost extends CakeTestModel
      */
     public $hasAndBelongsToMany = ['SchemaTag'];
 }
+class_alias(SchemaPost::class, 'App\\Model\\SchemaPost');
 
 /**
  * SchemaComment class
@@ -246,7 +264,7 @@ class SchemaComment extends CakeTestModel
     /**
      * useTable property
      *
-     * @var string
+     * @var string|bool|null
      */
     public $useTable = 'comments';
 
@@ -257,6 +275,7 @@ class SchemaComment extends CakeTestModel
      */
     public $belongsTo = ['SchemaPost'];
 }
+class_alias(SchemaComment::class, 'App\\Model\\SchemaComment');
 
 /**
  * SchemaTag class
@@ -268,7 +287,7 @@ class SchemaTag extends CakeTestModel
     /**
      * useTable property
      *
-     * @var string
+     * @var string|bool|null
      */
     public $useTable = 'tags';
 
@@ -279,6 +298,7 @@ class SchemaTag extends CakeTestModel
      */
     public $hasAndBelongsToMany = ['SchemaPost'];
 }
+class_alias(SchemaTag::class, 'App\\Model\\SchemaTag');
 
 /**
  * SchemaDatatype class
@@ -290,10 +310,11 @@ class SchemaDatatype extends CakeTestModel
     /**
      * useTable property
      *
-     * @var string
+     * @var string|bool|null
      */
     public $useTable = 'datatypes';
 }
+class_alias(SchemaDatatype::class, 'App\\Model\\SchemaDatatype');
 
 /**
  * Testdescribe class
@@ -308,6 +329,7 @@ class SchemaDatatype extends CakeTestModel
 class Testdescribe extends CakeTestModel
 {
 }
+class_alias(Testdescribe::class, 'App\\Model\\Testdescribe');
 
 /**
  * SchemaCrossDatabase class
@@ -319,7 +341,7 @@ class SchemaCrossDatabase extends CakeTestModel
     /**
      * useTable property
      *
-     * @var string
+     * @var string|bool|null
      */
     public $useTable = 'cross_database';
 
@@ -330,6 +352,7 @@ class SchemaCrossDatabase extends CakeTestModel
      */
     public $useDbConfig = 'test2';
 }
+class_alias(SchemaCrossDatabase::class, 'App\\Model\\SchemaCrossDatabase');
 
 /**
  * SchemaCrossDatabaseFixture class
@@ -341,14 +364,14 @@ class SchemaCrossDatabaseFixture extends CakeTestFixture
     /**
      * name property
      *
-     * @var string
+     * @var string|null
      */
     public $name = 'CrossDatabase';
 
     /**
      * table property
      *
-     * @var string
+     * @var string|null
      */
     public $table = 'cross_database';
 
@@ -383,14 +406,14 @@ class NonConventionalPrimaryKeyFixture extends CakeTestFixture
     /**
      * name property
      *
-     * @var string
+     * @var string|null
      */
     public $name = 'NonConventional';
 
     /**
      * table property
      *
-     * @var string
+     * @var string|null
      */
     public $table = 'non_conventional';
 
@@ -416,17 +439,18 @@ class SchemaPrefixAuthUser extends CakeTestModel
     /**
      * table prefix
      *
-     * @var string
+     * @var string|null
      */
     public $tablePrefix = 'auth_';
 
     /**
      * useTable
      *
-     * @var string
+     * @var string|bool|null
      */
     public $useTable = 'users';
 }
+class_alias(SchemaPrefixAuthUser::class, 'App\\Model\\SchemaPrefixAuthUser');
 
 /**
  * CakeSchemaTest
@@ -438,12 +462,19 @@ class CakeSchemaTest extends CakeTestCase
     /**
      * fixtures property
      *
-     * @var array
+     * @var array<string>
      */
     public $fixtures = [
-        'core.post', 'core.tag', 'core.posts_tag', 'core.test_plugin_comment',
-        'core.datatype', 'core.auth_user', 'core.author',
-        'core.test_plugin_article', 'core.user', 'core.comment',
+        'core.post',
+        'core.tag',
+        'core.posts_tag',
+        'core.test_plugin_comment',
+        'core.datatype',
+        'core.auth_user',
+        'core.author',
+        'core.test_plugin_article',
+        'core.user',
+        'core.comment',
         'core.prefix_test',
     ];
 
@@ -647,7 +678,7 @@ class CakeSchemaTest extends CakeTestCase
     {
         App::objects('model', null, false);
         App::build([
-            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS],
+            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
         ]);
         CakePlugin::load('TestPlugin');
 
@@ -747,7 +778,7 @@ class CakeSchemaTest extends CakeTestCase
      */
     public function testSchemaReadWithNamespacedPluginModels(): void
     {
-        App::build(['Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS]]);
+        App::build(['Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS]]);
         CakePlugin::load('TestPluginTwo');
 
         $Schema = new CakeSchema();
@@ -1163,9 +1194,9 @@ class CakeSchemaTest extends CakeTestCase
      */
     public function testSchemaLoading(): void
     {
-        $Other = $this->Schema->load(['name' => 'MyOtherApp', 'path' => TMP . 'tests']);
-        $this->assertEquals('MyOtherApp', $Other->name);
-        $this->assertEquals($Other->tables, $this->Schema->tables);
+        $other = $this->Schema->load(['name' => 'MyOtherApp', 'path' => TMP . 'tests']);
+        $this->assertEquals('MyOtherApp', $other->name);
+        $this->assertEquals($other->tables, $this->Schema->tables);
     }
 
     /**
@@ -1176,7 +1207,7 @@ class CakeSchemaTest extends CakeTestCase
     public function testSchemaLoadingFromPlugin(): void
     {
         App::build([
-            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS],
+            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
         ]);
         CakePlugin::load('TestPlugin');
         $Other = $this->Schema->load(['name' => 'TestPluginApp', 'plugin' => 'TestPlugin']);

@@ -3,6 +3,10 @@
  * Bootstrap for phpunit command
  */
 
+use Cake\Cache\Cache;
+use Cake\Console\ShellDispatcher;
+use Cake\Core\App;
+use Cake\Core\Configure;
 use Composer\InstalledVersions;
 use PHPUnit\Util\ErrorHandler;
 
@@ -43,6 +47,8 @@ Closure::bind(function () {
     static::$_map = [];
     static::$_objects = [];
 }, null, App::class)();
+
+Configure::write('App.namespace', 'App');
 
 set_error_handler(new ErrorHandler(true, true, true, true));
 

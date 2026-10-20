@@ -16,6 +16,19 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\Controller\Component\Auth;
+
+use Cake\Cache\Cache;
+use Cake\Controller\Component\Auth\BlowfishAuthenticate;
+use Cake\Controller\ComponentCollection;
+use Cake\Core\App;
+use Cake\Core\CakePlugin;
+use Cake\Network\CakeRequest;
+use Cake\Network\CakeResponse;
+use Cake\TestSuite\CakeTestCase;
+use Cake\Utility\ClassRegistry;
+use Cake\Utility\Security;
+
 App::uses('AppModel', 'Model');
 
 require_once CORE_TESTS . DS . 'TestCase' . DS . 'Model' . DS . 'models.php';
@@ -27,7 +40,13 @@ require_once CORE_TESTS . DS . 'TestCase' . DS . 'Model' . DS . 'models.php';
  */
 class BlowfishAuthenticateTest extends CakeTestCase
 {
-    public $fixtures = ['core.user', 'core.auth_user'];
+    /**
+     * @var array<string>
+     */
+    public $fixtures = [
+        'core.user',
+        'core.auth_user',
+    ];
 
     /**
      * setup
@@ -37,7 +56,7 @@ class BlowfishAuthenticateTest extends CakeTestCase
     public function setUp(): void
     {
         parent::setUp();
-        $this->Collection = $this->getMock('ComponentCollection');
+        $this->Collection = $this->getMock(ComponentCollection::class);
         $this->auth = new BlowfishAuthenticate($this->Collection, [
             'fields' => ['username' => 'user', 'password' => 'password'],
             'userModel' => 'User',
@@ -45,7 +64,7 @@ class BlowfishAuthenticateTest extends CakeTestCase
         $password = Security::hash('password', 'blowfish');
         $User = ClassRegistry::init('User');
         $User->updateAll(['password' => $User->getDataSource()->value($password)]);
-        $this->response = $this->getMock('CakeResponse');
+        $this->response = $this->getMock(CakeResponse::class);
 
         $hash = Security::hash('password', 'blowfish');
         $this->skipIf(!str_contains($hash, '$2a$'), 'Skipping blowfish tests as hashing is not working');
@@ -180,7 +199,7 @@ class BlowfishAuthenticateTest extends CakeTestCase
     {
         Cache::delete('object_map', '_cake_core_');
         App::build([
-            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS],
+            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
         ], App::RESET);
         CakePlugin::load('TestPlugin');
 

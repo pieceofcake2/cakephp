@@ -16,6 +16,13 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\Model\Datasource;
+
+use Cake\Model\ConnectionManager;
+use Cake\Model\Datasource\DataSource;
+use Cake\Model\Model;
+use Cake\TestSuite\CakeTestCase;
+
 /**
  * TestSource
  *
@@ -26,7 +33,7 @@ class TestSource extends DataSource
     /**
      * _schema
      *
-     * @var type
+     * @var array
      */
     protected $_schema = [
         'id' => [
@@ -55,7 +62,7 @@ class TestSource extends DataSource
     /**
      * listSources
      *
-     * @return bool
+     * @return array|null
      */
     public function listSources($data = \null): mixed
     {
@@ -65,10 +72,10 @@ class TestSource extends DataSource
     /**
      * Returns the schema for the datasource to enable create/update
      *
-     * @param Model $Model
-     * @return array
+     * @param Model|string $model
+     * @return array|false|null
      */
-    public function describe(Model $Model): mixed
+    public function describe($Model): mixed
     {
         return $this->_schema;
     }
@@ -77,10 +84,10 @@ class TestSource extends DataSource
      * Just return $func to pass to read() to figure out the COUNT
      * Required for delete/update to work
      *
-     * @param Model $Model
-     * @param type $func
-     * @param type $params
-     * @return array
+     * @param Model $model
+     * @param string $func
+     * @param array|string $params
+     * @return string
      */
     public function calculate(Model $Model, $func, $params = []): mixed
     {
@@ -111,7 +118,7 @@ class DataSourceTest extends CakeTestCase
     {
         parent::setUp();
         $this->Source = $this->getMock(
-            'TestSource',
+            TestSource::class,
             ['create', 'read', 'update', 'delete'],
         );
         ConnectionManager::create($this->sourceName, [

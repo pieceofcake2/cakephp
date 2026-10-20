@@ -16,6 +16,14 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\Configure;
+
+use Cake\Configure\PhpReader;
+use Cake\Core\App;
+use Cake\Core\CakePlugin;
+use Cake\Error\ConfigureException;
+use Cake\TestSuite\CakeTestCase;
+
 /**
  * PhpReaderTest
  *
@@ -51,7 +59,7 @@ class PhpReaderTest extends CakeTestCase
     public function setUp(): void
     {
         parent::setUp();
-        $this->path = CORE_TESTS . DS . 'test_app' . DS . 'Config' . DS;
+        $this->path = CORE_TESTS . DS . 'test_app' . DS . 'config' . DS;
     }
 
     /**
@@ -126,7 +134,7 @@ class PhpReaderTest extends CakeTestCase
     public function testReadPluginValue(): void
     {
         App::build([
-            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS],
+            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
         ], App::RESET);
         CakePlugin::load('TestPlugin');
         $reader = new PhpReader($this->path);
@@ -135,23 +143,6 @@ class PhpReaderTest extends CakeTestCase
 
         $result = $reader->read('TestPlugin.load.php');
         $this->assertTrue(isset($result['plugin_load']));
-        CakePlugin::unload();
-    }
-
-    /**
-     * Test reading a file from the config directory of a plugin with the CakePHP 5 layout.
-     *
-     * @return void
-     */
-    public function testReadPluginConfigDirectory(): void
-    {
-        App::build([
-            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
-        ], App::RESET);
-        CakePlugin::load('TestPluginModern');
-        $reader = new PhpReader($this->path);
-        $result = $reader->read('TestPluginModern.modern_config');
-        $this->assertSame('read from config/modern_config.php', $result['ModernConfig']);
         CakePlugin::unload();
     }
 
@@ -213,5 +204,22 @@ class PhpReaderTest extends CakeTestCase
         unlink(TMP . 'test.php');
 
         $this->assertEquals($this->testData, $result);
+    }
+
+    /**
+     * Test reading a file from the config directory of a plugin with the CakePHP 5 layout.
+     *
+     * @return void
+     */
+    public function testReadPluginConfigDirectory(): void
+    {
+        App::build([
+            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
+        ], App::RESET);
+        CakePlugin::load('TestPluginModern');
+        $reader = new PhpReader($this->path);
+        $result = $reader->read('TestPluginModern.modern_config');
+        $this->assertSame('read from config/modern_config.php', $result['ModernConfig']);
+        CakePlugin::unload();
     }
 }

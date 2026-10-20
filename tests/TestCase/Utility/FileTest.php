@@ -16,11 +16,17 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\Utility;
+
+use Cake\TestSuite\CakeTestCase;
+use Cake\Utility\File;
+use Cake\Utility\Folder;
+
 /**
  * FileTest class
  *
  * @package       Cake.Test.Case.Utility
- * @coversDefaultClass File
+ * @coversDefaultClass \Cake\Utility\File
  */
 class FileTest extends CakeTestCase
 {
@@ -650,7 +656,7 @@ class FileTest extends CakeTestCase
      */
     public function testReplaceText(): void
     {
-        $TestFile = new File(__DIR__ . '/../../test_app/Vendor/welcome.php');
+        $TestFile = new File(__DIR__ . '/../../test_app/vendor/welcome.php');
         $TmpFile = new File(TMP . 'tests' . DS . 'cakephp.file.test.tmp');
 
         // Copy the test file to the temporary location

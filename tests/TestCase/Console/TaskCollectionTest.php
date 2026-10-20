@@ -1,7 +1,5 @@
 <?php
 
-use TestApp\Console\Command\Task\NamespacedTask;
-
 /**
  * TaskCollectionTest file
  *
@@ -19,12 +17,26 @@ use TestApp\Console\Command\Task\NamespacedTask;
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\Console;
+
+use Cake\Console\Shell;
+use Cake\Console\ShellDispatcher;
+use Cake\Console\TaskCollection;
+use Cake\Core\App;
+use Cake\Core\CakePlugin;
+use Cake\Core\Configure;
+use Cake\Error\MissingTaskException;
+use Cake\TestSuite\CakeTestCase;
+use TestApp\Console\Command\Task\NamespacedTask;
+use TestPlugin\Console\Command\Task\OtherTaskTask;
+
 /**
  * Extended Task
  */
 class ExtractAliasedTask extends Shell
 {
 }
+class_alias(ExtractAliasedTask::class, 'App\\Console\\Command\\Task\\ExtractAliasedTask');
 
 /**
  * TaskCollectionTest
@@ -41,8 +53,8 @@ class TaskCollectionTest extends CakeTestCase
     public function setUp(): void
     {
         parent::setUp();
-        $shell = $this->getMock('Shell', [], [], '', false);
-        $dispatcher = $this->getMock('ShellDispatcher', [], [], '', false);
+        $shell = $this->getMock(Shell::class, [], [], '', false);
+        $dispatcher = $this->getMock(ShellDispatcher::class, [], [], '', false);
         $this->Tasks = new TaskCollection($shell, $dispatcher);
     }
 
@@ -105,17 +117,17 @@ class TaskCollectionTest extends CakeTestCase
      */
     public function testLoadPluginTask(): void
     {
-        $dispatcher = $this->getMock('ShellDispatcher', [], [], '', false);
-        $shell = $this->getMock('Shell', [], [], '', false);
+        $dispatcher = $this->getMock(ShellDispatcher::class, [], [], '', false);
+        $shell = $this->getMock(Shell::class, [], [], '', false);
         App::build([
-            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS],
+            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
         ]);
         CakePlugin::load('TestPlugin');
         $this->Tasks = new TaskCollection($shell, $dispatcher);
 
         $result = $this->Tasks->load('TestPlugin.OtherTask');
-        $this->assertInstanceOf('OtherTaskTask', $result, 'Task class is wrong.');
-        $this->assertInstanceOf('OtherTaskTask', $this->Tasks->OtherTask, 'Class is wrong');
+        $this->assertInstanceOf(OtherTaskTask::class, $result, 'Task class is wrong.');
+        $this->assertInstanceOf(OtherTaskTask::class, $this->Tasks->OtherTask, 'Class is wrong');
         CakePlugin::unload();
     }
 
@@ -127,7 +139,7 @@ class TaskCollectionTest extends CakeTestCase
     public function testUnload(): void
     {
         App::build([
-            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS],
+            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
         ]);
         CakePlugin::load('TestPlugin');
 
@@ -155,20 +167,20 @@ class TaskCollectionTest extends CakeTestCase
     public function testLoadWithAlias(): void
     {
         $result = $this->Tasks->load('Extract', ['className' => 'ExtractAliased']);
-        $this->assertInstanceOf('ExtractAliasedTask', $result);
-        $this->assertInstanceOf('ExtractAliasedTask', $this->Tasks->Extract);
+        $this->assertInstanceOf(ExtractAliasedTask::class, $result);
+        $this->assertInstanceOf(ExtractAliasedTask::class, $this->Tasks->Extract);
 
         $result = $this->Tasks->loaded();
         $this->assertEquals(['Extract'], $result, 'loaded() results are wrong.');
 
         App::build([
-            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS],
+            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
         ]);
         CakePlugin::load('TestPlugin');
 
         $result = $this->Tasks->load('SomeTask', ['className' => 'TestPlugin.OtherTask']);
-        $this->assertInstanceOf('OtherTaskTask', $result);
-        $this->assertInstanceOf('OtherTaskTask', $this->Tasks->SomeTask);
+        $this->assertInstanceOf(OtherTaskTask::class, $result);
+        $this->assertInstanceOf(OtherTaskTask::class, $this->Tasks->SomeTask);
 
         $result = $this->Tasks->loaded();
         $this->assertEquals(['Extract', 'SomeTask'], $result, 'loaded() results are wrong.');

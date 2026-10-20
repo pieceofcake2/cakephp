@@ -14,6 +14,14 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\Console\Command\Task;
+
+use Cake\Console\ConsoleInput;
+use Cake\Console\ConsoleOutput;
+use Cake\Core\App;
+use Cake\Core\CakePlugin;
+use Cake\TestSuite\CakeTestCase;
+
 /**
  * CommandTaskTest class
  *
@@ -31,16 +39,16 @@ class CommandTaskTest extends CakeTestCase
         parent::setUp();
         App::build([
             'Plugin' => [
-                CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS,
+                CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS,
             ],
             'Console/Command' => [
-                CORE_TESTS . DS . 'test_app' . DS . 'Console' . DS . 'Command' . DS,
+                CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'Console' . DS . 'Command' . DS,
             ],
         ], App::RESET);
         CakePlugin::load(['TestPlugin', 'TestPluginTwo']);
 
-        $out = $this->getMock('ConsoleOutput', [], [], '', false);
-        $in = $this->getMock('ConsoleInput', [], [], '', false);
+        $out = $this->getMock(ConsoleOutput::class, [], [], '', false);
+        $in = $this->getMock(ConsoleInput::class, [], [], '', false);
 
         $this->CommandTask = $this->getMock(
             'CommandTask',
@@ -93,6 +101,7 @@ class CommandTaskTest extends CakeTestCase
                 'welcome',
             ],
             'app' => [
+                'namespaced',
                 'sample',
             ],
         ];
@@ -123,6 +132,7 @@ class CommandTaskTest extends CakeTestCase
             'server',
             'test',
             'testsuite',
+            'namespaced',
             'sample',
         ];
         $this->assertEquals($expected, $result);

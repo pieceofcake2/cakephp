@@ -1,7 +1,5 @@
 <?php
 
-use TestApp\Configure\NamespacedReader;
-
 /**
  * HtmlHelperTest file
  *
@@ -19,6 +17,23 @@ use TestApp\Configure\NamespacedReader;
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\View\Helper;
+
+use Cake\Controller\Controller;
+use Cake\Core\App;
+use Cake\Core\CakePlugin;
+use Cake\Core\Configure;
+use Cake\Error\ConfigureException;
+use Cake\Network\CakeRequest;
+use Cake\Routing\Router;
+use Cake\TestSuite\CakeTestCase;
+use Cake\Utility\File;
+use Cake\Utility\Folder;
+use Cake\View\Helper\HtmlHelper;
+use Cake\View\View;
+use InvalidArgumentException;
+use TestApp\Configure\NamespacedReader;
+
 App::uses('AppHelper', 'View/Helper');
 
 if (!defined('FULL_BASE_URL')) {
@@ -35,16 +50,16 @@ class TheHtmlTestController extends Controller
     /**
      * name property
      *
-     * @var string
+     * @var string|null
      */
     public $name = 'TheTest';
 
     /**
      * uses property
      *
-     * @var mixed
+     * @var array|bool|null
      */
-    public $uses = null;
+    public $uses = [];
 }
 
 class TestHtmlHelper extends HtmlHelper
@@ -52,11 +67,11 @@ class TestHtmlHelper extends HtmlHelper
     /**
      * expose a method as public
      *
-     * @param string $options
-     * @param string $exclude
+     * @param array|string|null $options
+     * @param array $exclude
      * @param string $insertBefore
-     * @param string $insertAfter
-     * @return void
+     * @param string|null $insertAfter
+     * @return string
      */
     public function parseAttributes($options, $exclude = null, $insertBefore = ' ', $insertAfter = null): mixed
     {
@@ -144,13 +159,13 @@ class HtmlHelperTest extends CakeTestCase
     public function setUp(): void
     {
         parent::setUp();
-        $this->View = $this->getMock('View', ['append'], [new TheHtmlTestController()]);
+        $this->View = $this->getMock(View::class, ['append'], [new TheHtmlTestController()]);
         $this->Html = new TestHtmlHelper($this->View);
         $this->Html->request = new CakeRequest(null, false);
         $this->Html->request->webroot = '';
 
         App::build([
-            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS],
+            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
         ]);
 
         Configure::write('Asset.timestamp', false);
@@ -528,7 +543,10 @@ class HtmlHelperTest extends CakeTestCase
         new File($testfile, true);
 
         App::build([
-            'View' => [CORE_TESTS . DS . 'test_app' . DS . 'View' . DS],
+            'View' => [
+                CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'View' . DS,
+                CORE_TESTS . DS . 'test_app' . DS . 'templates' . DS,
+            ],
         ]);
         Configure::write('Asset.timestamp', true);
         Configure::write('debug', 1);
@@ -603,7 +621,10 @@ class HtmlHelperTest extends CakeTestCase
     public function testThemeAssetsInMainWebrootPath(): void
     {
         App::build([
-            'View' => [CORE_TESTS . DS . 'test_app' . DS . 'View' . DS],
+            'View' => [
+                CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'View' . DS,
+                CORE_TESTS . DS . 'test_app' . DS . 'templates' . DS,
+            ],
         ]);
         $webRoot = Configure::read('App.www_root');
         Configure::write('App.www_root', CORE_TESTS . DS . 'test_app' . DS . 'webroot' . DS);
@@ -1293,7 +1314,10 @@ class HtmlHelperTest extends CakeTestCase
         new File($testfile, true);
 
         App::build([
-            'View' => [CORE_TESTS . DS . 'test_app' . DS . 'View' . DS],
+            'View' => [
+                CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'View' . DS,
+                CORE_TESTS . DS . 'test_app' . DS . 'templates' . DS,
+            ],
         ]);
 
         $this->Html->webroot = '/';
@@ -2364,7 +2388,7 @@ class HtmlHelperTest extends CakeTestCase
 
     public function testLoadConfig(): void
     {
-        $path = CORE_TESTS . DS . 'test_app' . DS . 'Config' . DS;
+        $path = CORE_TESTS . DS . 'test_app' . DS . 'config' . DS;
 
         $result = $this->Html->loadConfig('htmlhelper_tags', $path);
         $expected = [
@@ -2407,7 +2431,7 @@ class HtmlHelperTest extends CakeTestCase
     public function testLoadConfigWrongReader(): void
     {
         $this->expectException(ConfigureException::class);
-        $path = CORE_TESTS . DS . 'test_app' . DS . 'Config' . DS;
+        $path = CORE_TESTS . DS . 'test_app' . DS . 'config' . DS;
         $this->Html->loadConfig(['htmlhelper_tags', 'wrong_reader'], $path);
     }
 
@@ -2449,7 +2473,7 @@ class HtmlHelperTest extends CakeTestCase
      */
     public function testLoadConfigNamespacedReader(): void
     {
-        $path = CORE_TESTS . DS . 'test_app' . DS . 'Config' . DS;
+        $path = CORE_TESTS . DS . 'test_app' . DS . 'config' . DS;
         foreach ([NamespacedReader::class, 'TestApp\Configure\Namespaced', 'namespaced'] as $reader) {
             Configure::write('App.namespace', 'TestApp');
             $result = $this->Html->loadConfig(['htmlhelper_tags', $reader], $path);

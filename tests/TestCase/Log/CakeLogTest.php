@@ -1,7 +1,5 @@
 <?php
 
-use TestApp\Log\Engine\NamespacedLog;
-
 /**
  * CakeLogTest file
  *
@@ -19,6 +17,16 @@ use TestApp\Log\Engine\NamespacedLog;
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\Log;
+
+use Cake\Core\App;
+use Cake\Core\CakePlugin;
+use Cake\Core\Configure;
+use Cake\Error\CakeLogException;
+use Cake\Log\CakeLog;
+use Cake\TestSuite\CakeTestCase;
+use TestApp\Log\Engine\NamespacedLog;
+
 /**
  * CakeLogTest class
  *
@@ -26,6 +34,8 @@ use TestApp\Log\Engine\NamespacedLog;
  */
 class CakeLogTest extends CakeTestCase
 {
+    protected ?string $_appNamespace = null;
+
     /**
      * Start test callback, clears all streams enabled.
      *
@@ -34,10 +44,24 @@ class CakeLogTest extends CakeTestCase
     public function setUp(): void
     {
         parent::setUp();
+
+        $this->_appNamespace = Configure::read('App.namespace');
+        Configure::write('App.namespace', 'TestApp');
+
         $streams = CakeLog::configured();
         foreach ($streams as $stream) {
             CakeLog::drop($stream);
         }
+    }
+
+    /**
+     * @return void
+     */
+    public function tearDown(): void
+    {
+        Configure::write('App.namespace', $this->_appNamespace);
+
+        parent::tearDown();
     }
 
     /**
@@ -48,8 +72,8 @@ class CakeLogTest extends CakeTestCase
     public function testImportingLoggers(): void
     {
         App::build([
-            'Lib' => [CORE_TESTS . DS . 'test_app' . DS . 'Lib' . DS],
-            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS],
+            'Lib' => [CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'Lib' . DS],
+            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
         ], App::RESET);
         CakePlugin::load('TestPlugin');
 
@@ -57,13 +81,13 @@ class CakeLogTest extends CakeTestCase
             'engine' => 'TestAppLog',
         ]);
         $this->assertTrue($result);
-        $this->assertEquals(CakeLog::configured(), ['libtest']);
+        $this->assertEquals(['libtest'], CakeLog::configured());
 
         $result = CakeLog::config('plugintest', [
             'engine' => 'TestPlugin.TestPluginLog',
         ]);
         $this->assertTrue($result);
-        $this->assertEquals(CakeLog::configured(), ['libtest', 'plugintest']);
+        $this->assertEquals(['libtest', 'plugintest'], CakeLog::configured());
 
         CakeLog::write(LOG_INFO, 'TestPluginLog is not a BaseLog descendant');
 

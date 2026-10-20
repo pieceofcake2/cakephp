@@ -16,27 +16,12 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-/**
- * TestConsoleLog
- *
- * @package       Cake.Test.Case.Log.Engine
- */
-class TestConsoleLog extends ConsoleLog
-{
-}
+namespace Cake\Test\TestCase\Log\Engine;
 
-/**
- * TestCakeLog
- *
- * @package       Cake.Test.Case.Log.Engine
- */
-class TestCakeLog extends CakeLog
-{
-    public static function replace($key, &$engine): void
-    {
-        static::$_Collection->{$key} = $engine;
-    }
-}
+use Cake\Console\ConsoleOutput;
+use Cake\Log\CakeLog;
+use Cake\Log\Engine\ConsoleLog;
+use Cake\TestSuite\CakeTestCase;
 
 /**
  * ConsoleLogTest class
@@ -80,12 +65,12 @@ class ConsoleLogTest extends CakeTestCase
     public function testConsoleOutputWrites(): void
     {
         TestCakeLog::config('test_console_log', [
-            'engine' => 'TestConsole',
-            ]);
+            'engine' => TestConsoleLog::class,
+        ]);
 
-        $mock = $this->getMock('TestConsoleLog', ['write'], [
+        $mock = $this->getMock(TestConsoleLog::class, ['write'], [
             ['types' => 'error'],
-            ]);
+        ]);
         TestCakeLog::replace('test_console_log', $mock);
 
         $message = 'Test error message';
@@ -104,7 +89,7 @@ class ConsoleLogTest extends CakeTestCase
         TestCakeLog::config('test_console_log', [
             'engine' => 'TestConsole',
             ]);
-        $mock = $this->getMock('TestConsoleLog', ['write'], [
+        $mock = $this->getMock(TestConsoleLog::class, ['write'], [
             ['types' => 'error'],
             ]);
         TestCakeLog::replace('test_console_log', $mock);

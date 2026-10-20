@@ -13,6 +13,17 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\Utility;
+
+use Cake\Controller\Controller;
+use Cake\Core\Configure;
+use Cake\Error\CakeException;
+use Cake\Log\CakeLog;
+use Cake\TestSuite\CakeTestCase;
+use Cake\Utility\Debugger;
+use Cake\View\View;
+use InvalidArgumentException;
+
 /**
  * DebuggerTestCaseDebugger class
  *
@@ -21,6 +32,7 @@
 class DebuggerTestCaseDebugger extends Debugger
 {
 }
+class_alias(DebuggerTestCaseDebugger::class, 'App\\Utility\\DebuggerTestCaseDebugger');
 
 /**
  * DebuggerTest class
@@ -621,16 +633,16 @@ TEXT;
     public function testGetInstance(): void
     {
         $result = Debugger::getInstance();
-        $this->assertInstanceOf('Debugger', $result);
+        $this->assertInstanceOf(Debugger::class, $result);
 
-        $result = Debugger::getInstance('DebuggerTestCaseDebugger');
-        $this->assertInstanceOf('DebuggerTestCaseDebugger', $result);
+        $result = Debugger::getInstance(DebuggerTestCaseDebugger::class);
+        $this->assertInstanceOf(DebuggerTestCaseDebugger::class, $result);
 
         $result = Debugger::getInstance();
-        $this->assertInstanceOf('DebuggerTestCaseDebugger', $result);
+        $this->assertInstanceOf(DebuggerTestCaseDebugger::class, $result);
 
         $result = Debugger::getInstance('Debugger');
-        $this->assertInstanceOf('Debugger', $result);
+        $this->assertInstanceOf(Debugger::class, $result);
     }
 
     /**
@@ -692,7 +704,7 @@ TEXT;
     public function testTraceExclude(): void
     {
         $result = Debugger::trace();
-        $this->assertMatchesRegularExpression('/^DebuggerTest::testTraceExclude/', $result);
+        $this->assertMatchesRegularExpression('/^Cake\\\\Test\\\\TestCase\\\\Utility\\\\DebuggerTest::testTraceExclude/', $result);
 
         $result = Debugger::trace([
             'exclude' => ['DebuggerTest::testTraceExclude'],
