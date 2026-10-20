@@ -1176,10 +1176,10 @@ class CakeRequestTest extends CakeTestCase
         $request->params['action'] = 'add';
         $this->assertFalse($request->isIndex());
 
-        $request->return = true;
+        $request->params['return'] = true;
         $this->assertTrue($request->isCallMe());
 
-        $request->return = false;
+        $request->params['return'] = false;
         $this->assertFalse($request->isCallMe());
 
         $request->addDetector('extension', ['param' => 'ext', 'options' => ['pdf', 'png', 'txt']]);

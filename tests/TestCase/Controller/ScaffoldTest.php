@@ -111,6 +111,13 @@ class ScaffoldMockControllerWithError extends Controller
 class TestScaffoldMock extends Scaffold
 {
     /**
+     * Request object for scaffolding
+     *
+     * @var CakeRequest
+     */
+    protected $_params;
+
+    /**
      * Overload _scaffold
      *
      * @param CakeRequest $request Request object for scaffolding

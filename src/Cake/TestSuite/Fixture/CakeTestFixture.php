@@ -58,6 +58,13 @@ class CakeTestFixture
     public $created = [];
 
     /**
+     * The model or table to import the schema and records from.
+     *
+     * @var array|string|null
+     */
+    public $import = null;
+
+    /**
      * Fields / Schema for the fixture.
      * This array should match the output of Model::schema()
      *
