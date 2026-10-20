@@ -21,6 +21,7 @@
 
 namespace Cake\Test\TestCase\Model;
 
+use TestApp\Model\NamespacedArticle;
 use Cake\Core\App;
 use Cake\Core\CakePlugin;
 use Cake\Core\Configure;
@@ -1419,5 +1420,80 @@ class BehaviorCollectionTest extends CakeTestCase
         Configure::write('App.namespace', 'TestApp');
         $Model->Behaviors->load('Namespaced');
         $this->assertInstanceOf(NamespacedBehavior::class, $Model->Behaviors->Namespaced);
+    }
+
+    /**
+     * Test that a fully qualified class name as the name or as key of $actsAs gives
+     * the short name as alias like the short name with className.
+     *
+     * @return void
+     */
+    public function testLoadNamespacedClassName(): void
+    {
+        $cases = [
+            ['Namespaced', ['className' => NamespacedBehavior::class, 'priority' => 5]],
+            [NamespacedBehavior::class, ['priority' => 5]],
+            ['TestApp\Model\Behavior\Namespaced', ['priority' => 5]],
+        ];
+        foreach ($cases as $i => [$name, $config]) {
+            $Model = ClassRegistry::init(['class' => NamespacedPost::class, 'alias' => 'NamespacedPost' . $i]);
+            $Model->Behaviors->load($name, $config);
+            $this->assertInstanceOf(NamespacedBehavior::class, $Model->Behaviors->Namespaced);
+            $this->assertSame(['Namespaced'], $Model->Behaviors->loaded());
+            $this->assertSame(5, $Model->Behaviors->Namespaced->settings['priority']);
+            $this->assertTrue($Model->Behaviors->enabled(NamespacedBehavior::class));
+            $Model->Behaviors->unload(NamespacedBehavior::class);
+            $this->assertSame([], $Model->Behaviors->loaded());
+
+            $Model->Behaviors->init($Model->alias, [$name => $config]);
+            $this->assertSame(['Namespaced'], $Model->Behaviors->loaded());
+            $this->assertSame(5, $Model->Behaviors->Namespaced->settings['priority']);
+        }
+    }
+
+    /**
+     * Test that a fully qualified class name in a parent model and a short name in a model
+     * are merged into one entry of $actsAs.
+     *
+     * @return void
+     */
+    public function testMergeActsAsNamespacedClassName(): void
+    {
+        Configure::write('App.namespace', 'TestApp');
+        $Model = new class extends NamespacedArticle {
+            public $actsAs = ['Namespaced' => ['foo' => 'bar']];
+        };
+        $expected = [
+            'Containable' => null,
+            'Namespaced' => ['priority' => 3, 'className' => 'TestApp\Model\Behavior\Namespaced', 'foo' => 'bar'],
+        ];
+        $this->assertSame($expected, $Model->actsAs);
+        $this->assertSame(['Containable', 'Namespaced'], $Model->Behaviors->loaded());
+        $this->assertInstanceOf(NamespacedBehavior::class, $Model->Behaviors->Namespaced);
+        $this->assertSame(3, $Model->Behaviors->Namespaced->settings['priority']);
+    }
+
+    /**
+     * Test that the missing class of a fully qualified class name has the suffix once.
+     *
+     * @return void
+     */
+    public function testLoadMissingNamespacedClassName(): void
+    {
+        $cases = [
+            'NoSuch' => 'NoSuchBehavior',
+            'TestApp\Model\Behavior\Missing' => 'TestApp\Model\Behavior\MissingBehavior',
+            'TestApp\Model\Behavior\MissingBehavior' => 'TestApp\Model\Behavior\MissingBehavior',
+            '\TestApp\Model\Behavior\MissingBehavior' => 'TestApp\Model\Behavior\MissingBehavior',
+        ];
+        foreach ($cases as $name => $expected) {
+            $Collection = ClassRegistry::init(['class' => NamespacedPost::class, 'alias' => 'NamespacedPost'])->Behaviors;
+            try {
+                $Collection->load($name);
+                $this->fail('No exception for ' . $name);
+            } catch (MissingBehaviorException $e) {
+                $this->assertSame($expected, $e->getAttributes()['class']);
+            }
+        }
     }
 }

@@ -40,6 +40,11 @@ class ComponentCollection extends ObjectCollection implements CakeEventListener
     protected $_Controller = null;
 
     /**
+     * @var string
+     */
+    protected static $_suffix = 'Component';
+
+    /**
      * Initializes all the Components for a controller.
      * Attaches a reference of each component to the Controller.
      *
@@ -109,13 +114,14 @@ class ComponentCollection extends ObjectCollection implements CakeEventListener
         if (!isset($alias)) {
             $alias = $name;
         }
+        $alias = static::_alias($alias);
         if (isset($this->_loaded[$alias])) {
             return $this->_loaded[$alias];
         }
         $componentClass = App::className($component, 'Controller/Component', 'Component');
         if ($componentClass === null) {
             throw new MissingComponentException([
-                'class' => $name . 'Component',
+                'class' => static::_className($name),
                 'plugin' => substr($plugin, 0, -1),
             ]);
         }

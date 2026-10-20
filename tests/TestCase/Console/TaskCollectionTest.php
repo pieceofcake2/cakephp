@@ -211,4 +211,63 @@ class TaskCollectionTest extends CakeTestCase
         $Tasks = new TaskCollection($shell);
         $this->assertInstanceOf(NamespacedTask::class, $Tasks->load('Namespaced'));
     }
+
+    /**
+     * Test that a fully qualified class name as the name or as key of $tasks gives
+     * the short name as alias like the short name with className.
+     *
+     * @return void
+     */
+    public function testLoadNamespacedClassName(): void
+    {
+        $this->Tasks->load('Namespaced', ['className' => NamespacedTask::class]);
+
+        foreach ([NamespacedTask::class, 'TestApp\Console\Command\Task\Namespaced'] as $name) {
+            $Tasks = new TaskCollection($this->getMock('Shell', [], [], '', false));
+            $result = $Tasks->load($name);
+            $this->assertInstanceOf(NamespacedTask::class, $result);
+            $this->assertSame($result, $Tasks->Namespaced);
+            $this->assertSame($this->Tasks->loaded(), $Tasks->loaded());
+            $this->assertSame($result, $Tasks->load($name));
+        }
+
+        $cases = [
+            ['Namespaced' => ['className' => NamespacedTask::class]],
+            [NamespacedTask::class],
+            ['TestApp\Console\Command\Task\Namespaced'],
+        ];
+        foreach ($cases as $tasks) {
+            $Shell = new Shell($this->getMock('ConsoleOutput'), $this->getMock('ConsoleOutput'), $this->getMock('ConsoleInput'));
+            $Shell->tasks = $tasks;
+            $Shell->loadTasks();
+            $this->assertSame(['Namespaced'], $Shell->taskNames);
+            $this->assertTrue($Shell->hasTask('namespaced'));
+            $this->assertInstanceOf(NamespacedTask::class, $Shell->Namespaced);
+            $this->assertSame(['Namespaced'], $Shell->Tasks->loaded());
+        }
+    }
+
+    /**
+     * Test that the missing class of a fully qualified class name has the suffix once.
+     *
+     * @return void
+     */
+    public function testLoadMissingNamespacedClassName(): void
+    {
+        $cases = [
+            'NoSuch' => 'NoSuchTask',
+            'TestApp\Console\Command\Task\Missing' => 'TestApp\Console\Command\Task\MissingTask',
+            'TestApp\Console\Command\Task\MissingTask' => 'TestApp\Console\Command\Task\MissingTask',
+            '\TestApp\Console\Command\Task\MissingTask' => 'TestApp\Console\Command\Task\MissingTask',
+        ];
+        foreach ($cases as $name => $expected) {
+            $Collection = new TaskCollection($this->getMock('Shell', [], [], '', false));
+            try {
+                $Collection->load($name);
+                $this->fail('No exception for ' . $name);
+            } catch (MissingTaskException $e) {
+                $this->assertSame($expected, $e->getAttributes()['class']);
+            }
+        }
+    }
 }

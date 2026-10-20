@@ -217,4 +217,111 @@ class ComponentCollectionTest extends CakeTestCase
         $Components = new ComponentCollection();
         $this->assertInstanceOf(NamespacedComponent::class, $Components->load('Namespaced'));
     }
+
+    /**
+     * Test that a fully qualified class name as the name gives the short name as alias
+     * like the short name with className.
+     *
+     * @return void
+     */
+    public function testLoadNamespacedClassName(): void
+    {
+        $expected = $this->Components->load('Namespaced', ['className' => NamespacedComponent::class, 'foo' => 'bar']);
+
+        foreach ([NamespacedComponent::class, 'TestApp\Controller\Component\Namespaced'] as $name) {
+            $Components = new ComponentCollection();
+            $result = $Components->load($name, ['foo' => 'bar']);
+            $this->assertInstanceOf(NamespacedComponent::class, $result);
+            $this->assertSame($result, $Components->Namespaced);
+            $this->assertSame($this->Components->loaded(), $Components->loaded());
+            $this->assertSame($expected->settings['foo'], $result->settings['foo']);
+            $this->assertSame($result, $Components->load($name));
+            $this->assertTrue($Components->enabled($name));
+            $this->assertTrue($Components->loaded($name));
+
+            $Components->disable($name);
+            $this->assertFalse($Components->enabled('Namespaced'));
+            $Components->enable($name);
+            $this->assertTrue($Components->enabled('Namespaced'));
+            $Components->unload($name);
+            $this->assertSame([], $Components->loaded());
+        }
+
+        $Components = new ComponentCollection();
+        $result = $Components->load(NamespacedComponent::class, ['className' => 'Cookie']);
+        $this->assertInstanceOf('CookieComponent', $result);
+        $this->assertSame(['Namespaced'], $Components->loaded());
+    }
+
+    /**
+     * Test that fully qualified class names as keys of $components give the
+     * short names as aliases like the short names with className.
+     *
+     * @return void
+     */
+    public function testInitNamespacedClassName(): void
+    {
+        $expected = [
+            'Namespaced' => ['class' => 'Namespaced', 'settings' => ['className' => NamespacedComponent::class]],
+            'Cookie' => ['class' => 'Cookie', 'settings' => []],
+        ];
+        $this->assertSame($expected, ComponentCollection::normalizeObjectArray([
+            'Namespaced' => ['className' => NamespacedComponent::class],
+            'Cookie',
+        ]));
+
+        $expected = [
+            'Namespaced' => ['class' => NamespacedComponent::class, 'settings' => ['foo' => 'bar']],
+            'Cookie' => ['class' => 'Cookie', 'settings' => []],
+        ];
+        $this->assertSame($expected, ComponentCollection::normalizeObjectArray([
+            NamespacedComponent::class => ['foo' => 'bar'],
+            'Cookie',
+        ]));
+
+        $cases = [
+            ['Namespaced' => ['className' => NamespacedComponent::class, 'foo' => 'bar']],
+            [NamespacedComponent::class => ['foo' => 'bar']],
+            ['TestApp\Controller\Component\Namespaced' => ['foo' => 'bar']],
+        ];
+        foreach ($cases as $components) {
+            $Controller = new Controller();
+            $Controller->components = $components;
+            $Components = new ComponentCollection();
+            $Components->init($Controller);
+            $this->assertInstanceOf(NamespacedComponent::class, $Controller->Namespaced);
+            $this->assertSame($Controller->Namespaced, $Components->Namespaced);
+            $this->assertSame(['Namespaced'], $Components->loaded());
+            $this->assertSame('bar', $Controller->Namespaced->settings['foo']);
+        }
+
+        $Component = new class ($this->Components) extends Component {
+            public $components = [NamespacedComponent::class];
+        };
+        $this->assertInstanceOf(NamespacedComponent::class, $Component->Namespaced);
+    }
+
+    /**
+     * Test that the missing class of a fully qualified class name has the suffix once.
+     *
+     * @return void
+     */
+    public function testLoadMissingNamespacedClassName(): void
+    {
+        $cases = [
+            'NoSuch' => 'NoSuchComponent',
+            'TestApp\Controller\Component\Missing' => 'TestApp\Controller\Component\MissingComponent',
+            'TestApp\Controller\Component\MissingComponent' => 'TestApp\Controller\Component\MissingComponent',
+            '\TestApp\Controller\Component\MissingComponent' => 'TestApp\Controller\Component\MissingComponent',
+        ];
+        foreach ($cases as $name => $expected) {
+            $Collection = new ComponentCollection();
+            try {
+                $Collection->load($name);
+                $this->fail('No exception for ' . $name);
+            } catch (MissingComponentException $e) {
+                $this->assertSame($expected, $e->getAttributes()['class']);
+            }
+        }
+    }
 }

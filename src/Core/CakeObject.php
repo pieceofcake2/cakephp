@@ -210,6 +210,12 @@ class CakeObject
     protected function _mergeVars($properties, $class, $normalize = true)
     {
         $classProperties = get_class_vars($class);
+        $collections = [
+            'components' => 'ComponentCollection',
+            'helpers' => 'HelperCollection',
+            'actsAs' => 'BehaviorCollection',
+            'tasks' => 'TaskCollection',
+        ];
         foreach ($properties as $var) {
             if (
                 isset($classProperties[$var]) &&
@@ -220,6 +226,10 @@ class CakeObject
                 if ($normalize) {
                     $classProperties[$var] = Hash::normalize($classProperties[$var]);
                     $this->{$var} = Hash::normalize($this->{$var});
+                    if (isset($collections[$var])) {
+                        $classProperties[$var] = $collections[$var]::normalizeClassNames($classProperties[$var]);
+                        $this->{$var} = $collections[$var]::normalizeClassNames($this->{$var});
+                    }
                 }
                 $this->{$var} = Hash::merge($classProperties[$var], $this->{$var});
             }

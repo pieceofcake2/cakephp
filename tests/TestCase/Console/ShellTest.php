@@ -21,6 +21,8 @@
 
 namespace Cake\Test\TestCase\Console;
 
+use TestApp\Console\Command\Task\NamespacedTask;
+use TestApp\Model\NamespacedPost;
 use Cake\Console\ConsoleInput;
 use Cake\Console\ConsoleOptionParser;
 use Cake\Console\ConsoleOutput;
@@ -126,6 +128,16 @@ class TestMergeShell extends Shell
     public $tasks = ['DbConfig', 'Fixture'];
 
     public $uses = ['Comment'];
+}
+
+/**
+ * Class for testing merging tasks named by class names
+ *
+ * @package       Cake.Test.Case.Console.Command
+ */
+class TestMergeNamespacedShell extends Shell
+{
+    public $tasks = ['TestApp\Console\Command\Task\Namespaced' => ['a' => 1, 'b' => 1]];
 }
 
 /**
@@ -283,6 +295,57 @@ class ShellTest extends CakeTestCase
         CakePlugin::unload('TestPlugin');
 
         App::build();
+    }
+
+    /**
+     * Test that loadModel() and $uses give the short name as property and alias
+     * for a fully qualified class name like for the short name.
+     *
+     * @return void
+     */
+    public function testLoadModelNamespacedClassName(): void
+    {
+        foreach (['NamespacedPost', NamespacedPost::class, 'TestApp\Model\NamespacedPost'] as $model) {
+            Configure::write('App.namespace', $model === 'NamespacedPost' ? 'TestApp' : null);
+
+            $Shell = new Shell($this->getMock('ConsoleOutput'), $this->getMock('ConsoleOutput'), $this->getMock('ConsoleInput'));
+            $Shell->loadModel($model);
+            $this->assertInstanceOf(NamespacedPost::class, $Shell->NamespacedPost);
+            $this->assertSame('NamespacedPost', $Shell->NamespacedPost->alias);
+            $this->assertSame('NamespacedPost', $Shell->modelClass);
+            ClassRegistry::flush();
+
+            $Shell = new Shell($this->getMock('ConsoleOutput'), $this->getMock('ConsoleOutput'), $this->getMock('ConsoleInput'));
+            $Shell->uses = [$model];
+            $this->assertTrue(isset($Shell->NamespacedPost));
+            $this->assertInstanceOf(NamespacedPost::class, $Shell->NamespacedPost);
+            ClassRegistry::flush();
+
+            $Shell = new Shell($this->getMock('ConsoleOutput'), $this->getMock('ConsoleOutput'), $this->getMock('ConsoleInput'));
+            $Shell->uses = [$model];
+            $Shell->initialize();
+            $this->assertSame('NamespacedPost', $Shell->modelClass);
+            $this->assertInstanceOf(NamespacedPost::class, $Shell->NamespacedPost);
+            $this->assertSame('NamespacedPost', $Shell->NamespacedPost->alias);
+            ClassRegistry::flush();
+        }
+    }
+
+    /**
+     * Test that class names and short names of a task in a parent and a shell are merged into one entry.
+     *
+     * @return void
+     */
+    public function testMergeVarsNamespacedClassName(): void
+    {
+        $Shell = new class ($this->getMock('ConsoleOutput'), $this->getMock('ConsoleOutput'), $this->getMock('ConsoleInput')) extends TestMergeNamespacedShell {
+            public $tasks = [NamespacedTask::class => ['b' => 2]];
+        };
+        $expected = ['Namespaced' => ['a' => 1, 'b' => 2, 'className' => NamespacedTask::class]];
+        $this->assertSame($expected, $Shell->tasks);
+        $Shell->loadTasks();
+        $this->assertSame(['Namespaced'], $Shell->taskNames);
+        $this->assertInstanceOf(NamespacedTask::class, $Shell->Namespaced);
     }
 
     /**

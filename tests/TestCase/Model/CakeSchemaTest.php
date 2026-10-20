@@ -795,6 +795,25 @@ class CakeSchemaTest extends CakeTestCase
     }
 
     /**
+     * Test reading the join table of a model with a fully qualified class name as join model.
+     *
+     * @return void
+     */
+    public function testSchemaReadWithNamespacedJoinModel(): void
+    {
+        Configure::write('App.namespace', 'TestApp');
+        $Schema = new CakeSchema();
+        $read = $Schema->read([
+            'connection' => 'test',
+            'name' => 'TestApp',
+            'models' => ['NamespacedHabtmPost'],
+        ]);
+        $this->assertArrayHasKey('posts', $read['tables']);
+        $this->assertArrayHasKey('posts_tags', $read['tables']);
+        ClassRegistry::flush();
+    }
+
+    /**
      * test that tables are generated correctly
      *
      * @return void

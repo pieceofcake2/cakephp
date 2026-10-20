@@ -282,7 +282,8 @@ class Shell extends CakeObject
     protected function _loadModels()
     {
         if (is_array($this->uses)) {
-            [, $this->modelClass] = pluginSplit(current($this->uses));
+            [, $modelClass] = pluginSplit(current($this->uses));
+            $this->modelClass = substr($modelClass, (int)strrpos('\\' . $modelClass, '\\'));
             foreach ($this->uses as $modelClass) {
                 $this->loadModel($modelClass);
             }
@@ -302,7 +303,7 @@ class Shell extends CakeObject
         if (is_array($this->uses)) {
             foreach ($this->uses as $modelClass) {
                 [, $class] = pluginSplit($modelClass);
-                if ($name === $class) {
+                if ($name === substr($class, (int)strrpos('\\' . $class, '\\'))) {
                     return $this->loadModel($modelClass);
                 }
             }
@@ -331,14 +332,15 @@ class Shell extends CakeObject
         }
 
         [$plugin, $modelClass] = pluginSplit($modelClass, true);
+        $alias = substr($modelClass, (int)strrpos('\\' . $modelClass, '\\'));
         if (!isset($this->modelClass)) {
-            $this->modelClass = $modelClass;
+            $this->modelClass = $alias;
         }
 
-        $this->{$modelClass} = ClassRegistry::init([
-            'class' => $plugin . $modelClass, 'alias' => $modelClass, 'id' => $id,
+        $this->{$alias} = ClassRegistry::init([
+            'class' => $plugin . $modelClass, 'alias' => $alias, 'id' => $id,
         ]);
-        if (!$this->{$modelClass}) {
+        if (!$this->{$alias}) {
             throw new MissingModelException($modelClass);
         }
 

@@ -297,7 +297,7 @@ class CakeSchema extends CakeObject
                     if (!isset($assocData['with'])) {
                         continue;
                     }
-                    $class = $assocData['with'];
+                    $class = substr($assocData['with'], (int)strrpos('\\' . $assocData['with'], '\\'));
                     if (!is_object($Object->$class)) {
                         continue;
                     }

@@ -20,6 +20,8 @@
 
 namespace Cake\Test\TestCase\Controller;
 
+use TestApp\Controller\AppController as NamespacedAppController;
+use TestApp\View\Helper\NamespacedHelper;
 use Cake\Controller\Component;
 use Cake\Controller\Controller;
 use Cake\TestSuite\CakeTestCase;
@@ -263,5 +265,28 @@ class ControllerMergeVarsTest extends CakeTestCase
         $Controller->uses = ['Test', 'TestAlias'];
         $Controller->constructClasses();
         $this->assertEquals($Controller->uses[0], $Controller->modelClass);
+    }
+
+    /**
+     * Test that a short name in the AppController and a fully qualified class name in a controller
+     * are merged into one entry.
+     *
+     * @return void
+     */
+    public function testMergeVarsNamespacedClassName(): void
+    {
+        $Controller = new class extends NamespacedAppController {
+            public $uses = [];
+
+            public $helpers = [NamespacedHelper::class => ['b' => 2]];
+        };
+        $Controller->constructClasses();
+        $expected = ['Namespaced' => ['b' => 2, 'className' => NamespacedHelper::class]];
+        $this->assertSame($expected, $Controller->helpers);
+
+        $View = new View($Controller);
+        $View->loadHelpers();
+        $this->assertSame(['Namespaced'], $View->Helpers->loaded());
+        $this->assertSame(2, $View->Namespaced->settings['b']);
     }
 }

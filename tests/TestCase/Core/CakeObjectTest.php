@@ -18,6 +18,10 @@
 
 namespace Cake\Test\TestCase\Core;
 
+use TestApp\Console\Command\Task\NamespacedTask;
+use TestApp\Controller\Component\NamespacedComponent;
+use TestApp\Model\Behavior\NamespacedBehavior;
+use TestApp\View\Helper\NamespacedHelper;
 use Cake\Controller\Controller;
 use Cake\Core\App;
 use Cake\Core\CakeObject;
@@ -766,5 +770,68 @@ class CakeObjectTest extends CakeTestCase
             ['data' => $data],
         );
         $this->assertEquals($data, $result);
+    }
+
+    /**
+     * Test that fully qualified class names and short names of the same object in a parent and a
+     * child class are merged into one entry like two short names.
+     *
+     * @return void
+     */
+    public function testMergeVarsNamespacedClassName(): void
+    {
+        Configure::write('App.namespace', 'TestApp');
+        $types = [
+            'components' => ['Controller/Component', 'Component', NamespacedComponent::class],
+            'helpers' => ['View/Helper', 'Helper', NamespacedHelper::class],
+            'actsAs' => ['Model/Behavior', 'Behavior', NamespacedBehavior::class],
+            'tasks' => ['Console/Command/Task', 'Task', NamespacedTask::class],
+        ];
+        $parents = [
+            get_class(new class extends CakeObject {
+                public $components = ['First', 'Namespaced' => ['a' => 1, 'b' => 1]];
+                public $helpers = ['First', 'Namespaced' => ['a' => 1, 'b' => 1]];
+                public $actsAs = ['First', 'Namespaced' => ['a' => 1, 'b' => 1]];
+                public $tasks = ['First', 'Namespaced' => ['a' => 1, 'b' => 1]];
+            }),
+            get_class(new class extends CakeObject {
+                public $components = ['First', NamespacedComponent::class => ['a' => 1, 'b' => 1]];
+                public $helpers = ['First', NamespacedHelper::class => ['a' => 1, 'b' => 1]];
+                public $actsAs = ['First', NamespacedBehavior::class => ['a' => 1, 'b' => 1]];
+                public $tasks = ['First', NamespacedTask::class => ['a' => 1, 'b' => 1]];
+            }),
+            get_class(new class extends CakeObject {
+                public $components = ['First', 'TestApp\Controller\Component\Namespaced' => ['a' => 1, 'b' => 1]];
+                public $helpers = ['First', 'TestApp\View\Helper\Namespaced' => ['a' => 1, 'b' => 1]];
+                public $actsAs = ['First', 'TestApp\Model\Behavior\Namespaced' => ['a' => 1, 'b' => 1]];
+                public $tasks = ['First', 'TestApp\Console\Command\Task\Namespaced' => ['a' => 1, 'b' => 1]];
+            }),
+        ];
+        foreach ($parents as $parent) {
+            foreach ($types as $var => [$type, $suffix, $class]) {
+                $children = ['Namespaced', $class, substr($class, 0, -strlen($suffix))];
+                foreach ($children as $child) {
+                    $Object = new class extends CakeObject {
+                        public $components = [];
+                        public $helpers = [];
+                        public $actsAs = [];
+                        public $tasks = [];
+
+                        public function mergeVars($properties, $class): void
+                        {
+                            $this->_mergeVars($properties, $class);
+                        }
+                    };
+                    $Object->{$var} = [$child => ['b' => 2, 'c' => 3], 'Last'];
+                    $Object->mergeVars([$var], $parent);
+
+                    $this->assertSame(['First', 'Namespaced', 'Last'], array_keys($Object->{$var}));
+                    $settings = $Object->{$var}['Namespaced'];
+                    $this->assertSame($class, App::className($settings['className'] ?? 'Namespaced', $type, $suffix));
+                    unset($settings['className']);
+                    $this->assertSame(['a' => 1, 'b' => 2, 'c' => 3], $settings);
+                }
+            }
+        }
     }
 }

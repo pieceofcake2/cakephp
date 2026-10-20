@@ -55,6 +55,13 @@ abstract class ObjectCollection
     public $defaultPriority = 10;
 
     /**
+     * Class name suffix of the objects, removed from a fully qualified class name to get the alias
+     *
+     * @var string
+     */
+    protected static $_suffix = '';
+
+    /**
      * Loads a new object onto the collection. Can throw a variety of exceptions
      *
      * Implementations of this class support a `$options['enabled']` flag which enables/disables
@@ -187,6 +194,7 @@ abstract class ObjectCollection
         $enabled = false;
         foreach ((array)$name as $object) {
             [, $object] = pluginSplit($object);
+            $object = static::_alias($object);
             if (isset($this->_loaded[$object]) && !isset($this->_enabled[$object])) {
                 $priority = $this->defaultPriority;
                 if (isset($this->_loaded[$object]->settings['priority'])) {
@@ -234,6 +242,7 @@ abstract class ObjectCollection
         }
         foreach ($name as $object => $objectPriority) {
             [, $object] = pluginSplit($object);
+            $object = static::_alias($object);
             if (isset($this->_loaded[$object])) {
                 if ($objectPriority === null) {
                     $objectPriority = $this->defaultPriority;
@@ -258,6 +267,7 @@ abstract class ObjectCollection
     {
         foreach ((array)$name as $object) {
             [, $object] = pluginSplit($object);
+            $object = static::_alias($object);
             unset($this->_enabled[$object]);
         }
     }
@@ -274,6 +284,7 @@ abstract class ObjectCollection
     {
         if (!empty($name)) {
             [, $name] = pluginSplit($name);
+            $name = static::_alias($name);
 
             return isset($this->_enabled[$name]);
         }
@@ -307,6 +318,7 @@ abstract class ObjectCollection
     {
         if (!empty($name)) {
             [, $name] = pluginSplit($name);
+            $name = static::_alias($name);
 
             return isset($this->_loaded[$name]);
         }
@@ -323,6 +335,7 @@ abstract class ObjectCollection
     public function unload($name)
     {
         [, $name] = pluginSplit($name);
+        $name = static::_alias($name);
         unset($this->_loaded[$name], $this->_enabled[$name]);
     }
 
@@ -337,6 +350,7 @@ abstract class ObjectCollection
     {
         if (!empty($name) && !empty($object)) {
             [, $name] = pluginSplit($name);
+            $name = static::_alias($name);
             $this->_loaded[$name] = $object;
         }
 
@@ -360,10 +374,69 @@ abstract class ObjectCollection
                 $objectName = $i;
             }
             [, $name] = pluginSplit($objectName);
+            $name = static::_alias($name);
             $normal[$name] = ['class' => $objectName, 'settings' => $options];
         }
 
         return $normal;
+    }
+
+    /**
+     * Replaces fully qualified class names used as keys of normalized objects by their aliases
+     * and keeps the class name in the 'className' setting, so that the settings are merged with
+     * those of the same alias.
+     *
+     * @param array $objects Array of objects normalized with Hash::normalize().
+     * @return array
+     */
+    public static function normalizeClassNames($objects)
+    {
+        $normal = [];
+        foreach ($objects as $name => $settings) {
+            if (is_string($name) && str_contains($name, '\\')) {
+                $settings = (array)$settings + ['className' => $name];
+                $name = static::_alias($name);
+            }
+            $normal[$name] = $settings;
+        }
+
+        return $normal;
+    }
+
+    /**
+     * Returns the class name of an object name for an error message. The suffix is added
+     * to a fully qualified class name only when it does not end with it, as App::className() does.
+     *
+     * @param string $name Object name without plugin.
+     * @return string
+     */
+    protected static function _className($name)
+    {
+        if (str_contains($name, '\\') && str_ends_with($name, static::$_suffix)) {
+            return ltrim($name, '\\');
+        }
+
+        return ltrim($name, '\\') . static::$_suffix;
+    }
+
+    /**
+     * Returns the alias for an object name. For a fully qualified class name
+     * it is the short class name without the suffix, otherwise the name.
+     *
+     * @param string $name Object name without plugin.
+     * @return string
+     */
+    protected static function _alias($name)
+    {
+        if (!str_contains($name, '\\')) {
+            return $name;
+        }
+        $name = substr($name, strrpos($name, '\\') + 1);
+        if (static::$_suffix !== '' && $name !== static::$_suffix && str_ends_with($name, static::$_suffix)) {
+            $name = substr($name, 0, -strlen(static::$_suffix));
+        }
+
+        return $name;
     }
 }
 
