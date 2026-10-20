@@ -277,4 +277,28 @@ class HelperCollectionTest extends CakeTestCase
             ->will($this->returnValue($expected = new NamespacedHelper($this->View)));
         $this->assertSame($expected, $Helper->Namespaced);
     }
+
+    /**
+     * Test that the missing class of a fully qualified class name has the suffix once.
+     *
+     * @return void
+     */
+    public function testLoadMissingNamespacedClassName(): void
+    {
+        $cases = [
+            'NoSuch' => 'NoSuchHelper',
+            'TestApp\View\Helper\Missing' => 'TestApp\View\Helper\MissingHelper',
+            'TestApp\View\Helper\MissingHelper' => 'TestApp\View\Helper\MissingHelper',
+            '\TestApp\View\Helper\MissingHelper' => 'TestApp\View\Helper\MissingHelper',
+        ];
+        foreach ($cases as $name => $expected) {
+            $Collection = new HelperCollection($this->View);
+            try {
+                $Collection->load($name);
+                $this->fail('No exception for ' . $name);
+            } catch (MissingHelperException $e) {
+                $this->assertSame($expected, $e->getAttributes()['class']);
+            }
+        }
+    }
 }

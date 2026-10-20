@@ -123,7 +123,7 @@ class BehaviorCollection extends ObjectCollection implements CakeEventListener
         $class = App::className($behavior, 'Model/Behavior', 'Behavior');
         if ($class === null) {
             throw new MissingBehaviorException([
-                'class' => $name . 'Behavior',
+                'class' => static::_className($name),
                 'plugin' => substr($plugin, 0, -1),
             ]);
         }

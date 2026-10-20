@@ -288,4 +288,28 @@ class ComponentCollectionTest extends CakeTestCase
         };
         $this->assertInstanceOf(NamespacedComponent::class, $Component->Namespaced);
     }
+
+    /**
+     * Test that the missing class of a fully qualified class name has the suffix once.
+     *
+     * @return void
+     */
+    public function testLoadMissingNamespacedClassName(): void
+    {
+        $cases = [
+            'NoSuch' => 'NoSuchComponent',
+            'TestApp\Controller\Component\Missing' => 'TestApp\Controller\Component\MissingComponent',
+            'TestApp\Controller\Component\MissingComponent' => 'TestApp\Controller\Component\MissingComponent',
+            '\TestApp\Controller\Component\MissingComponent' => 'TestApp\Controller\Component\MissingComponent',
+        ];
+        foreach ($cases as $name => $expected) {
+            $Collection = new ComponentCollection();
+            try {
+                $Collection->load($name);
+                $this->fail('No exception for ' . $name);
+            } catch (MissingComponentException $e) {
+                $this->assertSame($expected, $e->getAttributes()['class']);
+            }
+        }
+    }
 }

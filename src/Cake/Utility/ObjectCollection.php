@@ -398,6 +398,22 @@ abstract class ObjectCollection
     }
 
     /**
+     * Returns the class name of an object name for an error message. The suffix is added
+     * to a fully qualified class name only when it does not end with it, as App::className() does.
+     *
+     * @param string $name Object name without plugin.
+     * @return string
+     */
+    protected static function _className($name)
+    {
+        if (str_contains($name, '\\') && str_ends_with($name, static::$_suffix)) {
+            return ltrim($name, '\\');
+        }
+
+        return ltrim($name, '\\') . static::$_suffix;
+    }
+
+    /**
      * Returns the alias for an object name. For a fully qualified class name
      * it is the short class name without the suffix, otherwise the name.
      *

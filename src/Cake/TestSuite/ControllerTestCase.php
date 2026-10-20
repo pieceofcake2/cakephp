@@ -361,7 +361,7 @@ abstract class ControllerTestCase extends CakeTestCase
         $controllerClass = App::className($plugin . $controller, 'Controller', 'Controller');
         if ($controllerClass === null) {
             throw new MissingControllerException([
-                'class' => $controller . 'Controller',
+                'class' => str_contains($controller, '\\') && str_ends_with($controller, 'Controller') ? ltrim($controller, '\\') : ltrim($controller, '\\') . 'Controller',
                 'plugin' => substr($plugin, 0, -1),
             ]);
         }
@@ -416,7 +416,7 @@ abstract class ControllerTestCase extends CakeTestCase
             $componentClass = App::className($component, 'Controller/Component', 'Component');
             if ($componentClass === null) {
                 throw new MissingComponentException([
-                    'class' => $name . 'Component',
+                    'class' => str_contains($name, '\\') && str_ends_with($name, 'Component') ? ltrim($name, '\\') : ltrim($name, '\\') . 'Component',
                 ]);
             }
             /** @var Component|\PHPUnit\Framework\MockObject\MockObject $componentObj */

@@ -1,5 +1,6 @@
 <?php
 
+use PHPUnit\Framework\MockObject\MockObject;
 use TestApp\Controller\Component\NamespacedComponent;
 use TestApp\Controller\NamespacedController;
 use TestApp\Model\NamespacedPost;
@@ -851,5 +852,36 @@ class ControllerTestCaseTest extends CakeTestCase
         $Model = $this->Case->getMockForModel('NamespacedPost', ['save']);
         $this->assertInstanceOf(NamespacedPost::class, $Model);
         $this->assertSame('NamespacedPost', $Model->name);
+    }
+
+    /**
+     * Test generate() with fully qualified class names, and that the missing class has the suffix once.
+     *
+     * @return void
+     */
+    public function testGenerateNamespacedClassName(): void
+    {
+        $Controller = $this->Case->generate(NamespacedController::class, [
+            'components' => [NamespacedComponent::class => ['initialize']],
+        ]);
+        $this->assertInstanceOf(NamespacedController::class, $Controller);
+        $this->assertInstanceOf(NamespacedComponent::class, $Controller->Components->Namespaced);
+        $this->assertInstanceOf(MockObject::class, $Controller->Components->Namespaced);
+        $this->assertTrue($Controller->Components->enabled('Namespaced'));
+
+        $cases = [
+            ['TestApp\Controller\NoSuch', [], 'TestApp\Controller\NoSuchController'],
+            ['TestApp\Controller\NoSuchController', [], 'TestApp\Controller\NoSuchController'],
+            [NamespacedController::class, ['TestApp\Controller\Component\NoSuch'], 'TestApp\Controller\Component\NoSuchComponent'],
+            [NamespacedController::class, ['TestApp\Controller\Component\NoSuchComponent'], 'TestApp\Controller\Component\NoSuchComponent'],
+        ];
+        foreach ($cases as [$controller, $components, $expected]) {
+            try {
+                $this->Case->generate($controller, ['components' => $components]);
+                $this->fail('No exception for ' . $expected);
+            } catch (MissingControllerException | MissingComponentException $e) {
+                $this->assertSame($expected, $e->getAttributes()['class']);
+            }
+        }
     }
 }

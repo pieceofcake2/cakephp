@@ -1434,4 +1434,28 @@ class BehaviorCollectionTest extends CakeTestCase
         $this->assertInstanceOf(NamespacedBehavior::class, $Model->Behaviors->Namespaced);
         $this->assertSame(3, $Model->Behaviors->Namespaced->settings['priority']);
     }
+
+    /**
+     * Test that the missing class of a fully qualified class name has the suffix once.
+     *
+     * @return void
+     */
+    public function testLoadMissingNamespacedClassName(): void
+    {
+        $cases = [
+            'NoSuch' => 'NoSuchBehavior',
+            'TestApp\Model\Behavior\Missing' => 'TestApp\Model\Behavior\MissingBehavior',
+            'TestApp\Model\Behavior\MissingBehavior' => 'TestApp\Model\Behavior\MissingBehavior',
+            '\TestApp\Model\Behavior\MissingBehavior' => 'TestApp\Model\Behavior\MissingBehavior',
+        ];
+        foreach ($cases as $name => $expected) {
+            $Collection = ClassRegistry::init(['class' => NamespacedPost::class, 'alias' => 'NamespacedPost'])->Behaviors;
+            try {
+                $Collection->load($name);
+                $this->fail('No exception for ' . $name);
+            } catch (MissingBehaviorException $e) {
+                $this->assertSame($expected, $e->getAttributes()['class']);
+            }
+        }
+    }
 }

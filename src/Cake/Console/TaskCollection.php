@@ -89,7 +89,7 @@ class TaskCollection extends ObjectCollection
         $taskClass = App::className($task, 'Console/Command/Task', 'Task');
         if ($taskClass === null) {
             throw new MissingTaskException([
-                'class' => $name . 'Task',
+                'class' => static::_className($name),
                 'plugin' => substr($plugin, 0, -1),
             ]);
         }

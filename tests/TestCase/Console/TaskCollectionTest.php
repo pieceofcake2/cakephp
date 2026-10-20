@@ -232,4 +232,28 @@ class TaskCollectionTest extends CakeTestCase
             $this->assertSame(['Namespaced'], $Shell->Tasks->loaded());
         }
     }
+
+    /**
+     * Test that the missing class of a fully qualified class name has the suffix once.
+     *
+     * @return void
+     */
+    public function testLoadMissingNamespacedClassName(): void
+    {
+        $cases = [
+            'NoSuch' => 'NoSuchTask',
+            'TestApp\Console\Command\Task\Missing' => 'TestApp\Console\Command\Task\MissingTask',
+            'TestApp\Console\Command\Task\MissingTask' => 'TestApp\Console\Command\Task\MissingTask',
+            '\TestApp\Console\Command\Task\MissingTask' => 'TestApp\Console\Command\Task\MissingTask',
+        ];
+        foreach ($cases as $name => $expected) {
+            $Collection = new TaskCollection($this->getMock('Shell', [], [], '', false));
+            try {
+                $Collection->load($name);
+                $this->fail('No exception for ' . $name);
+            } catch (MissingTaskException $e) {
+                $this->assertSame($expected, $e->getAttributes()['class']);
+            }
+        }
+    }
 }
