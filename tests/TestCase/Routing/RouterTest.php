@@ -3048,4 +3048,25 @@ class RouterTest extends CakeTestCase
         $this->assertInstanceOf(NamespacedRoute::class, end($routes));
         Router::defaultRouteClass('CakeRoute');
     }
+
+    /**
+     * Test the route classes of the core by their global names and by their names in the Cake namespace.
+     *
+     * @return void
+     */
+    public function testCoreRouteClassByGlobalAndNamespacedName(): void
+    {
+        foreach (['CakeRoute', 'Cake\\Routing\\Route\\CakeRoute'] as $class) {
+            Router::defaultRouteClass($class);
+            $this->assertSame($class, Router::defaultRouteClass());
+        }
+        Router::defaultRouteClass('CakeRoute');
+
+        foreach (['RedirectRoute', 'Cake\\Routing\\Route\\RedirectRoute'] as $class) {
+            Router::reload();
+            Router::connect('/blog', ['redirect' => ['controller' => 'posts']], ['routeClass' => $class]);
+            $this->assertInstanceOf('RedirectRoute', Router::$routes[0], $class);
+            $this->assertSame(['controller' => 'posts'], Router::$routes[0]->redirect, $class);
+        }
+    }
 }

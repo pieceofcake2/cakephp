@@ -462,4 +462,46 @@ class ClassRegistryTest extends CakeTestCase
         ClassRegistry::addObject('NamespacedPost', new NamespacedComment());
         $this->assertFalse(ClassRegistry::getObject(NamespacedPost::class));
     }
+
+    /**
+     * Test that a fully qualified class name without an alias gives the short class name as the alias,
+     * and that the class name and the alias work as before.
+     *
+     * @return void
+     */
+    public function testInitFullyQualifiedClassNameAlias(): void
+    {
+        $post = ClassRegistry::init(NamespacedPost::class);
+        $this->assertSame('NamespacedPost', $post->alias);
+        $this->assertSame($post, ClassRegistry::getObject('NamespacedPost'));
+        $this->assertSame($post, ClassRegistry::init(['class' => NamespacedPost::class]));
+
+        Configure::write('App.namespace', 'TestApp');
+        $this->assertSame($post, ClassRegistry::init('NamespacedPost'));
+        $this->assertSame($post, ClassRegistry::init(['class' => 'NamespacedPost']));
+
+        $copy = ClassRegistry::init(['class' => NamespacedPost::class, 'alias' => 'NamespacedPostCopy']);
+        $this->assertSame('NamespacedPostCopy', $copy->alias);
+        $this->assertNotSame($post, $copy);
+        $this->assertSame($copy, ClassRegistry::getObject('NamespacedPostCopy'));
+        ClassRegistry::flush();
+    }
+
+    /**
+     * Test that a behavior of the core is found by its global name and by its class name in the Cake namespace.
+     *
+     * @return void
+     */
+    public function testCoreBehaviorByGlobalAndNamespacedName(): void
+    {
+        $post = ClassRegistry::init(['class' => NamespacedPost::class, 'alias' => 'BehaviorPost']);
+        $post->Behaviors->load('Containable');
+
+        $behavior = ClassRegistry::getObject('ContainableBehavior');
+        $this->assertInstanceOf('Cake\Model\Behavior\ContainableBehavior', $behavior);
+        $this->assertSame($behavior, ClassRegistry::getObject('Cake\Model\Behavior\ContainableBehavior'));
+        $this->assertTrue(ClassRegistry::isKeySet('ContainableBehavior'));
+        $this->assertTrue(ClassRegistry::isKeySet('Cake\Model\Behavior\ContainableBehavior'));
+        ClassRegistry::flush();
+    }
 }
