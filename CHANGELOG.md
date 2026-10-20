@@ -10,10 +10,13 @@
 - **Security**: `Security::hash()` with `sha256` always uses `hash()` instead of `mhash()`, deprecated since PHP 8.1. The digest is the same
 - **SessionHandlerAdapter**: The methods of `SessionHandlerInterface` have `#[\ReturnTypeWillChange]`, so PHP 8.1 and later no longer report their missing return types
 - **CakeTestFixture**: `CakeTestFixture` declares `$import`, so setting it on a fixture that does not declare it no longer creates a dynamic property, deprecated since PHP 8.2
+- **Null as an array key**: `I18n`, `Helper::setEntity()`, `FormHelper`, `RequestHandlerComponent::respondAs()`, `CakeResponse::getMimeType()`, `CakeSession::check()`, `Configure::consume()`, `ClassRegistry::getObject()`, `ConsoleOptionParser::parse()` / `help()` and `Set::extract()` use the empty string instead of `null` as an array key, deprecated since PHP 8.5. PHP has always used the empty string for `null`, so the behavior is unchanged
+- **Reflection**: `Debugger::export()` calls `ReflectionProperty::setAccessible()` only before PHP 8.1, where it has an effect. It is deprecated since PHP 8.5
+- **Mysql**: The `Mysql` datasource uses the `Pdo\Mysql::ATTR_*` constants instead of `PDO::MYSQL_ATTR_*`, deprecated since PHP 8.5. The core requires `symfony/polyfill-php84`, which defines `Pdo\Mysql` with the same values before PHP 8.4
 
 ### Tests
 
-- **Deprecations reported**: The tests report deprecations and fail on them. `ConfigureTest::testBootstrap()` restores the error level after `Configure::bootstrap()`, which had hidden deprecations from the following tests, and the tests no longer create dynamic properties, return `null` from mocked request methods to string functions, or use `utf8_decode()`, `new DateTime(null)`, `str_getcsv()` without the escape character or `session.referer_check`
+- **Deprecations reported**: The tests report deprecations and fail on them. `ConfigureTest::testBootstrap()` restores the error level after `Configure::bootstrap()`, which had hidden deprecations from the following tests, and the tests no longer create dynamic properties, return `null` from mocked request methods to string functions, or use `utf8_decode()`, `new DateTime(null)`, `str_getcsv()` without the escape character or `session.referer_check`. The test helpers call `setAccessible()` of reflection only before PHP 8.1
 
 ## v2.12.11 (2026-10-19)
 
