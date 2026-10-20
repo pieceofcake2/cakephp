@@ -158,10 +158,6 @@ class Security
             $type = 'sha256';
         }
 
-        if ($type === 'sha256' && function_exists('mhash')) {
-            return bin2hex(mhash(MHASH_SHA256, $string));
-        }
-
         if (function_exists('hash')) {
             return hash($type, $string);
         }
