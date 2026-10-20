@@ -45,8 +45,6 @@ if (!defined('FULL_BASE_URL')) {
  */
 class RouterTest extends CakeTestCase
 {
-    protected ?string $_appNamespace = null;
-
     /**
      * setUp method
      *
@@ -56,7 +54,6 @@ class RouterTest extends CakeTestCase
     {
         parent::setUp();
 
-        $this->_appNamespace = Configure::read('App.namespace');
         Configure::write('App.namespace', 'TestApp');
 
         Configure::write('Routing', ['admin' => null, 'prefixes' => []]);
@@ -72,8 +69,6 @@ class RouterTest extends CakeTestCase
         CakePlugin::unload();
         Router::fullBaseUrl('');
         Configure::write('App.fullBaseUrl', 'http://localhost');
-
-        Configure::write('App.namespace', $this->_appNamespace);
 
         parent::tearDown();
     }
@@ -3036,7 +3031,6 @@ class RouterTest extends CakeTestCase
         $routes = Router::connect('/namespaced', ['controller' => 'posts'], ['routeClass' => NamespacedRoute::class]);
         $this->assertInstanceOf(NamespacedRoute::class, end($routes));
 
-        Configure::write('App.namespace', 'TestApp');
         $routes = Router::connect('/short', ['controller' => 'posts'], ['routeClass' => 'NamespacedRoute']);
         $this->assertInstanceOf(NamespacedRoute::class, end($routes));
 

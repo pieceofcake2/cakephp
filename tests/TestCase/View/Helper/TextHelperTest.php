@@ -66,8 +66,6 @@ class CakeTextMock
  */
 class TextHelperTest extends CakeTestCase
 {
-    protected ?string $_appNamespace = null;
-
     public ?View $View = null;
 
     /**
@@ -79,7 +77,6 @@ class TextHelperTest extends CakeTestCase
     {
         parent::setUp();
 
-        $this->_appNamespace = Configure::read('App.namespace');
         Configure::write('App.namespace', 'TestApp');
 
         $this->View = new View(null);
@@ -94,7 +91,6 @@ class TextHelperTest extends CakeTestCase
     public function tearDown(): void
     {
         $this->View = null;
-        Configure::write('App.namespace', $this->_appNamespace);
 
         parent::tearDown();
     }
@@ -622,7 +618,6 @@ TEXT;
         $Helper = new TextHelper($View, ['engine' => NamespacedText::class]);
         $this->assertInstanceOf(NamespacedText::class, $this->getEngine($Helper));
 
-        Configure::write('App.namespace', 'TestApp');
         $Helper = new TextHelper($View, ['engine' => 'NamespacedText']);
         $this->assertInstanceOf(NamespacedText::class, $this->getEngine($Helper));
 

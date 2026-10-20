@@ -28,16 +28,9 @@ use Cake\Core\CakePlugin;
 use Cake\Core\Configure;
 use Cake\Error\MissingComponentException;
 use Cake\TestSuite\CakeTestCase;
+use TestApp\Controller\Component\CookieAliasComponent;
 use TestApp\Controller\Component\NamespacedComponent;
 use TestPlugin\Controller\Component\OtherComponent;
-
-/**
- * Extended CookieComponent
- */
-class CookieAliasComponent extends CookieComponent
-{
-}
-class_alias(CookieAliasComponent::class, 'App\\Controller\\Component\\CookieAliasComponent');
 
 class ComponentCollectionTest extends CakeTestCase
 {
@@ -49,6 +42,7 @@ class ComponentCollectionTest extends CakeTestCase
     public function setUp(): void
     {
         parent::setUp();
+        Configure::write('App.namespace', 'TestApp');
         $this->Components = new ComponentCollection();
     }
 
@@ -214,7 +208,6 @@ class ComponentCollectionTest extends CakeTestCase
 
         $this->assertInstanceOf(CookieComponent::class, $this->Components->load('Cookie'));
 
-        Configure::write('App.namespace', 'TestApp');
         $Components = new ComponentCollection();
         $this->assertInstanceOf(NamespacedComponent::class, $Components->load('Namespaced'));
     }

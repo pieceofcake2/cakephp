@@ -29,69 +29,9 @@ use Cake\Network\CakeRequest;
 use Cake\Network\CakeResponse;
 use Cake\Routing\Router;
 use Cake\TestSuite\CakeTestCase;
-use Cake\View\JsonView;
+use TestApp\Controller\RequestHandlerTestController;
+use TestApp\View\CustomJsonView;
 use TestApp\View\NamespacedView;
-
-/**
- * RequestHandlerTestController class
- *
- * @package       Cake.Test.Case.Controller.Component
- */
-class RequestHandlerTestController extends Controller
-{
-    /**
-     * uses property
-     *
-     * @var array|bool|null
-     */
-    public $uses = [];
-
-    /**
-     * test method for ajax redirection
-     *
-     * @return void
-     */
-    public function destination(): void
-    {
-        $this->viewPath = 'Posts';
-        $this->render('index');
-    }
-
-    /**
-     * test method for ajax redirection + parameter parsing
-     *
-     * @return void
-     */
-    public function param_method($one = null, $two = null): void
-    {
-        echo "one: $one two: $two";
-        $this->autoRender = false;
-    }
-
-    /**
-     * test method for testing layout rendering when isAjax()
-     *
-     * @return void
-     */
-    public function ajax2_layout(): void
-    {
-        if ($this->autoLayout) {
-            $this->layout = 'ajax2';
-        }
-        $this->destination();
-    }
-}
-class_alias(RequestHandlerTestController::class, 'App\\Controller\\RequestHandlerTestController');
-
-/**
- * CustomJsonView class
- *
- * @package       Cake.Test.Case.Controller.Component
- */
-class CustomJsonView extends JsonView
-{
-}
-class_alias(CustomJsonView::class, 'App\\View\\CustomJsonView');
 
 /**
  * RequestHandlerComponentTest class
@@ -124,6 +64,7 @@ class RequestHandlerComponentTest extends CakeTestCase
     public function setUp(): void
     {
         parent::setUp();
+        Configure::write('App.namespace', 'TestApp');
         $this->_init();
     }
 
@@ -384,7 +325,7 @@ class RequestHandlerComponentTest extends CakeTestCase
 
         // A namespaced view class is set with its fully qualified name
         $this->RequestHandler->renderAs($this->Controller, 'json');
-        $this->assertEquals('App\\View\\CustomJsonView', $this->Controller->viewClass);
+        $this->assertEquals(CustomJsonView::class, $this->Controller->viewClass);
     }
 
     /**
@@ -1096,7 +1037,6 @@ class RequestHandlerComponentTest extends CakeTestCase
         $this->RequestHandler->renderAs($this->Controller, 'json');
         $this->assertSame('Json', $this->Controller->viewClass);
 
-        Configure::write('App.namespace', 'TestApp');
         $this->_init();
         $this->RequestHandler->viewClassMap('csv', 'Namespaced');
         $this->RequestHandler->renderAs($this->Controller, 'csv');

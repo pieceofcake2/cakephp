@@ -17,7 +17,6 @@
 
 namespace Cake\Test\TestCase\Controller;
 
-use Cake\Controller\Component;
 use Cake\Controller\Component\SecurityComponent;
 use Cake\Controller\ComponentCollection;
 use Cake\Controller\Controller;
@@ -32,212 +31,24 @@ use Cake\Network\CakeRequest;
 use Cake\Network\CakeResponse;
 use Cake\Routing\Router;
 use Cake\TestSuite\CakeTestCase;
-use Cake\TestSuite\Fixture\CakeTestModel;
 use Cake\Utility\ClassRegistry;
 use Cake\Utility\Hash;
 use Cake\View\JsonView;
 use ReflectionMethod;
 use RuntimeException;
+use TestApp\Controller\AnotherTestController;
+use TestApp\Controller\ControllerCommentsController;
+use TestApp\Controller\ControllerTestAppController;
 use TestApp\Controller\NamespacedController;
 use TestApp\Model\Comment;
+use TestApp\Model\ControllerComment;
+use TestApp\Model\ControllerPost;
 use TestApp\Model\NamespacedPost;
 use TestApp\View\NamespacedView;
 use TestPlugin\Controller\TestPluginController;
 use TestPlugin\Model\TestPluginPost;
 use TestPluginTwo\Controller\NamespacedPluginController;
 use TestPluginTwo\Model\NamespacedPluginItem;
-
-/**
- * AppController class
- *
- * @package       Cake.Test.Case.Controller
- */
-class ControllerTestAppController extends Controller
-{
-    /**
-     * helpers property
-     *
-     * @var array
-     */
-    public $helpers = ['Html'];
-
-    /**
-     * uses property
-     *
-     * @var array|bool|null
-     */
-    public $uses = ['ControllerPost'];
-
-    /**
-     * components property
-     *
-     * @var array
-     */
-    public $components = ['Cookie'];
-}
-class_alias(ControllerTestAppController::class, 'App\\Controller\\ControllerTestAppController');
-
-/**
- * ControllerPost class
- *
- * @package       Cake.Test.Case.Controller
- */
-class ControllerPost extends CakeTestModel
-{
-    /**
-     * useTable property
-     *
-     * @var string|bool|null
-     */
-    public $useTable = 'posts';
-
-    /**
-     * invalidFields property
-     *
-     * @var array
-     */
-    public $invalidFields = ['name' => 'error_msg'];
-
-    /**
-     * lastQuery property
-     *
-     * @var mixed
-     */
-    public $lastQuery = null;
-
-    /**
-     * beforeFind method
-     *
-     * @param mixed $query
-     * @return array|bool|null
-     */
-    public function beforeFind($query): void
-    {
-        $this->lastQuery = $query;
-    }
-
-    /**
-     * find method
-     *
-     * @param string|null $type
-     * @param array|null $query
-     * @return array|int|false|null
-     */
-    public function find($type = 'first', $options = []): mixed
-    {
-        if ($type === 'popular') {
-            $conditions = [$this->name . '.' . $this->primaryKey . ' > ' => '1'];
-            $options = Hash::merge($options, compact('conditions'));
-
-            return parent::find('all', $options);
-        }
-
-        return parent::find($type, $options);
-    }
-}
-class_alias(ControllerPost::class, 'App\\Model\\ControllerPost');
-
-/**
- * ControllerPostsController class
- *
- * @package       Cake.Test.Case.Controller
- */
-class ControllerCommentsController extends ControllerTestAppController
-{
-    protected $_mergeParent = ControllerTestAppController::class;
-}
-class_alias(ControllerCommentsController::class, 'App\\Controller\\ControllerCommentsController');
-
-/**
- * ControllerComment class
- *
- * @package       Cake.Test.Case.Controller
- */
-class ControllerComment extends CakeTestModel
-{
-    /**
-     * name property
-     *
-     * @var string|null
-     */
-    public $name = 'Comment';
-
-    /**
-     * useTable property
-     *
-     * @var string|bool|null
-     */
-    public $useTable = 'comments';
-
-    /**
-     * data property
-     *
-     * @var array|false|null
-     */
-    public $data = ['name' => 'Some Name'];
-
-    /**
-     * alias property
-     *
-     * @var string|null
-     */
-    public $alias = 'ControllerComment';
-}
-class_alias(ControllerComment::class, 'App\\Model\\ControllerComment');
-class_alias(ControllerComment::class, 'TestPlugin\\Model\\ControllerComment');
-
-/**
- * ControllerAlias class
- *
- * @package       Cake.Test.Case.Controller
- */
-class ControllerAlias extends CakeTestModel
-{
-    /**
-     * alias property
-     *
-     * @var string|null
-     */
-    public $alias = 'ControllerSomeAlias';
-
-    /**
-     * useTable property
-     *
-     * @var string|bool|null
-     */
-    public $useTable = 'posts';
-}
-class_alias(ControllerAlias::class, 'App\\Model\\ControllerAlias');
-
-/**
- * NameTest class
- *
- * @package       Cake.Test.Case.Controller
- */
-class NameTest extends CakeTestModel
-{
-    /**
-     * name property
-     *
-     * @var string|null
-     */
-    public $name = 'Name';
-
-    /**
-     * useTable property
-     *
-     * @var string|bool|null
-     */
-    public $useTable = 'comments';
-
-    /**
-     * alias property
-     *
-     * @var string|null
-     */
-    public $alias = 'Name';
-}
-class_alias(NameTest::class, 'App\\Model\\NameTest');
 
 /**
  * TestController class
@@ -324,116 +135,6 @@ class TestController extends ControllerTestAppController
     {
     }
 }
-class_alias(TestController::class, 'App\\Controller\\TestController');
-
-/**
- * TestComponent class
- *
- * @package       Cake.Test.Case.Controller
- */
-class TestComponent extends Component
-{
-    /**
-     * beforeRedirect method
-     *
-     * @param Controller $controller
-     * @param array|string|null $url
-     * @param array|int|null $status
-     * @param bool $exit
-     * @return array|string|false|null
-     */
-    public function beforeRedirect(
-        $controller,
-        $url,
-        $status = null,
-        $exit = true,
-    ): mixed {
-        return null;
-    }
-
-    /**
-     * initialize method
-     *
-     * @return void
-     */
-    public function initialize(Controller $controller): void
-    {
-    }
-
-    /**
-     * startup method
-     *
-     * @return void
-     */
-    public function startup(Controller $controller): void
-    {
-    }
-
-    /**
-     * shutdown method
-     *
-     * @return void
-     */
-    public function shutdown(Controller $controller): void
-    {
-    }
-
-    /**
-     * beforeRender callback
-     *
-     * @return bool|null
-     */
-    public function beforeRender(Controller $controller): mixed
-    {
-        if ($this->viewclass) {
-            $controller->viewClass = $this->viewclass;
-        }
-
-        return null;
-    }
-}
-class_alias(TestComponent::class, 'App\\Controller\\Component\\TestComponent');
-
-class Test2Component extends TestComponent
-{
-    public $model;
-    public $controller;
-
-    public function __construct(ComponentCollection $collection, $settings)
-    {
-        $this->controller = $collection->getController();
-        $this->model = $this->controller->modelClass;
-    }
-
-    public function beforeRender(Controller $controller): mixed
-    {
-        return false;
-    }
-}
-class_alias(Test2Component::class, 'App\\Controller\\Component\\Test2Component');
-
-/**
- * AnotherTestController class
- *
- * @package       Cake.Test.Case.Controller
- */
-class AnotherTestController extends ControllerTestAppController
-{
-    /**
-     * uses property
-     *
-     * @var array|bool|null
-     */
-    public $uses = false;
-
-    /**
-     * merge parent
-     *
-     * @var string
-     */
-    protected $_mergeParent = ControllerTestAppController::class;
-}
-class_alias(AnotherTestController::class, 'App\\Controller\\AnotherTestController');
 
 /**
  * ControllerTest class
@@ -460,6 +161,7 @@ class ControllerTest extends CakeTestCase
     public function setUp(): void
     {
         parent::setUp();
+        Configure::write('App.namespace', 'TestApp');
         App::objects('plugin', null, false);
         App::build();
         Router::reload();
@@ -525,7 +227,6 @@ class ControllerTest extends CakeTestCase
             'Controller' => [CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'Controller' . DS],
             'Model' => [CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'Model' . DS],
         ]);
-        Configure::write('App.namespace', 'TestApp');
         CakePlugin::load('TestPlugin');
 
         $controller = new TestPluginController();
@@ -1684,7 +1385,6 @@ class ControllerTest extends CakeTestCase
      */
     public function testNamespacedController(): void
     {
-        Configure::write('App.namespace', 'TestApp');
         $request = new CakeRequest('namespaced/index');
         $Controller = new NamespacedController($request, new CakeResponse());
         $this->assertSame('Namespaced', $Controller->name);

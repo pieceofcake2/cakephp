@@ -20,105 +20,13 @@
 
 namespace Cake\Test\TestCase\Controller\Component;
 
-use Cake\Controller\Component\EmailComponent;
-use Cake\Controller\Component\SessionComponent;
-use Cake\Controller\Controller;
 use Cake\Core\App;
 use Cake\Core\Configure;
 use Cake\Error\SocketException;
-use Cake\Network\Email\AbstractTransport;
-use Cake\Network\Email\CakeEmail;
 use Cake\TestSuite\CakeTestCase;
 use Cake\Utility\ClassRegistry;
-
-/**
- * EmailTestComponent class
- *
- * @package       Cake.Test.Case.Controller.Component
- */
-class EmailTestComponent extends EmailComponent
-{
-    /**
-     * Convenience method for testing.
-     *
-     * @return string
-     */
-    public function strip($content, $message = false): mixed
-    {
-        return parent::_strip($content, $message);
-    }
-}
-class_alias(EmailTestComponent::class, 'App\\Controller\\Component\\EmailTestComponent');
-
-/**
- * DebugCompTransport class
- *
- * @package       Cake.Test.Case.Controller.Component
- */
-class DebugCompTransport extends AbstractTransport
-{
-    /**
-     * Last email
-     *
-     * @var string
-     */
-    public static $lastEmail = null;
-
-    /**
-     * Send mail
-     *
-     * @params CakeEmail $email CakeEmail
-     * @return array
-     */
-    public function send(CakeEmail $email): mixed
-    {
-        $email->addHeaders(['Date' => EmailComponentTest::$sentDate]);
-        $headers = $email->getHeaders(array_fill_keys(['from', 'replyTo', 'readReceipt', 'returnPath', 'to', 'cc', 'bcc', 'subject'], true));
-        $to = $headers['To'];
-        $subject = $headers['Subject'];
-        unset($headers['To'], $headers['Subject']);
-
-        $message = implode("\n", $email->message());
-
-        $last = '<pre>';
-        $last .= sprintf("%s %s\n", 'To:', $to);
-        $last .= sprintf("%s %s\n", 'From:', $headers['From']);
-        $last .= sprintf("%s %s\n", 'Subject:', $subject);
-        $last .= sprintf("%s\n\n%s", 'Header:', $this->_headersToString($headers, "\n"));
-        $last .= sprintf("%s\n\n%s", 'Message:', $message);
-        $last .= '</pre>';
-
-        static::$lastEmail = $last;
-
-        return [$last];
-    }
-}
-class_alias(DebugCompTransport::class, 'App\\Network\\Email\\DebugCompTransport');
-
-/**
- * EmailTestController class
- *
- * @package       Cake.Test.Case.Controller.Component
- * @property EmailTestComponent $EmailTest
- * @property SessionComponent $Session
- */
-class EmailTestController extends Controller
-{
-    /**
-     * uses property
-     *
-     * @var array|bool|null
-     */
-    public $uses = [];
-
-    /**
-     * components property
-     *
-     * @var array
-     */
-    public $components = ['Session', 'EmailTest'];
-}
-class_alias(EmailTestController::class, 'App\\Controller\\EmailTestController');
+use TestApp\Controller\EmailTestController;
+use TestApp\Network\Email\DebugCompTransport;
 
 /**
  * EmailTest class
@@ -156,6 +64,7 @@ class EmailComponentTest extends CakeTestCase
     public function setUp(): void
     {
         parent::setUp();
+        Configure::write('App.namespace', 'TestApp');
 
         Configure::write('App.encoding', 'UTF-8');
 

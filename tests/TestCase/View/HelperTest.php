@@ -211,8 +211,6 @@ class TestHelper extends Helper
  */
 class HelperTest extends CakeTestCase
 {
-    protected ?string $_appNamespace = null;
-
     /**
      * setUp method
      *
@@ -222,7 +220,6 @@ class HelperTest extends CakeTestCase
     {
         parent::setUp();
 
-        $this->_appNamespace = Configure::read('App.namespace');
         Configure::write('App.namespace', 'TestApp');
 
         ClassRegistry::flush();
@@ -252,8 +249,6 @@ class HelperTest extends CakeTestCase
 
         CakePlugin::unload();
         unset($this->Helper, $this->View);
-
-        Configure::write('App.namespace', $this->_appNamespace);
 
         parent::tearDown();
     }

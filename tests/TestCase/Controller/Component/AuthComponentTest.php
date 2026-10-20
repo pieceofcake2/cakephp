@@ -42,144 +42,12 @@ use Cake\Network\CakeResponse;
 use Cake\Routing\Dispatcher;
 use Cake\Routing\Router;
 use Cake\TestSuite\CakeTestCase;
-use Cake\TestSuite\Fixture\CakeTestModel;
 use Cake\Utility\ClassRegistry;
 use Cake\Utility\Security;
 use TestApp\Controller\Component\Auth\NamespacedAuthenticate;
 use TestApp\Controller\Component\Auth\NamespacedAuthorize;
-
-/**
- * TestFormAuthenticate class
- *
- * @package       Cake.Test.Case.Controller.Component
- */
-class TestBaseAuthenticate extends BaseAuthenticate
-{
-    /**
-     * Implemented events
-     *
-     * @return array of events => callbacks.
-     */
-    public function implementedEvents(): mixed
-    {
-        return [
-            'Auth.afterIdentify' => 'afterIdentify',
-        ];
-    }
-
-    public $afterIdentifyCallable = null;
-
-    /**
-     * Test function to be used in event dispatching
-     *
-     * @return void
-     */
-    public function afterIdentify($event): void
-    {
-        call_user_func($this->afterIdentifyCallable, $event);
-    }
-
-    /**
-     * Authenticate a user based on the request information.
-     *
-     * @param CakeRequest $request Request to get authentication information from.
-     * @param CakeResponse $response A response object that can have headers added.
-     * @return array|false Either false on failure, or an array of user data on success.
-     */
-    public function authenticate(CakeRequest $request, CakeResponse $response): mixed
-    {
-        return [
-            'id' => 1,
-            'username' => 'mark',
-        ];
-    }
-}
-class_alias(TestBaseAuthenticate::class, 'App\\Controller\\Component\\Auth\\TestBaseAuthenticate');
-
-/**
- * TestAuthComponent class
- *
- * @package       Cake.Test.Case.Controller.Component
- */
-class TestAuthComponent extends AuthComponent
-{
-    /**
-     * testStop property
-     *
-     * @var bool
-     */
-    public $testStop = false;
-
-    /**
-     * Helper method to add/set an authenticate object instance
-     *
-     * @param int $index The index at which to add/set the object
-     * @param BaseAuthenticate $object The object to add/set
-     * @return void
-     */
-    public function setAuthenticateObject($index, $object): void
-    {
-        $this->_authenticateObjects[$index] = $object;
-    }
-
-    /**
-     * Helper method to get an authenticate object instance
-     *
-     * @param int $index The index at which to get the object
-     * @return BaseAuthenticate|null
-     */
-    public function getAuthenticateObject($index): mixed
-    {
-        $this->constructAuthenticate();
-
-        return $this->_authenticateObjects[$index] ?? null;
-    }
-
-    /**
-     * Helper method to add/set an authorize object instance
-     *
-     * @param int $index The index at which to add/set the object
-     * @param BaseAuthenticate $object The object to add/set
-     * @return void
-     */
-    public function setAuthorizeObject($index, $object): void
-    {
-        $this->_authorizeObjects[$index] = $object;
-    }
-
-    /**
-     * stop method
-     *
-     * @param int $status
-     * @return void
-     */
-    protected function _stop($status = 0): void
-    {
-        $this->testStop = true;
-    }
-
-    public static function clearUser(): void
-    {
-        static::$_user = [];
-    }
-}
-class_alias(TestAuthComponent::class, 'App\\Controller\\Component\\TestAuthComponent');
-
-/**
- * AuthUser class
- *
- * @package       Cake.Test.Case.Controller.Component
- */
-class AuthUser extends CakeTestModel
-{
-    /**
-     * useDbConfig property
-     *
-     * @var string
-     */
-    public $useDbConfig = 'test';
-}
-class_alias(AuthUser::class, 'App\\Model\\AuthUser');
+use TestApp\Controller\Component\TestAuthComponent;
+use TestApp\Model\AuthUser;
 
 /**
  * AuthTestController class
@@ -303,75 +171,6 @@ class AuthTestController extends Controller
 }
 
 /**
- * AjaxAuthController class
- *
- * @package       Cake.Test.Case.Controller.Component
- */
-class AjaxAuthController extends Controller
-{
-    /**
-     * components property
-     *
-     * @var array
-     */
-    public $components = ['Session', 'TestAuth'];
-
-    /**
-     * uses property
-     *
-     * @var array|bool|null
-     */
-    public $uses = [];
-
-    /**
-     * testUrl property
-     *
-     * @var mixed
-     */
-    public $testUrl = null;
-
-    /**
-     * beforeFilter method
-     *
-     * @return void
-     */
-    public function beforeFilter(): void
-    {
-        $this->TestAuth->ajaxLogin = 'test_element';
-        $this->TestAuth->userModel = 'AuthUser';
-        $this->TestAuth->RequestHandler->ajaxLayout = 'ajax2';
-    }
-
-    /**
-     * add method
-     *
-     * @return void
-     */
-    public function add(): void
-    {
-        if ($this->TestAuth->testStop !== true) {
-            echo 'Added Record';
-        }
-    }
-
-    /**
-     * redirect method
-     *
-     * @param array|string|null $url
-     * @param array|string|int|null  $status
-     * @param bool $exit
-     * @return CakeResponse|null
-     */
-    public function redirect($url, $status = null, $exit = true): mixed
-    {
-        $this->testUrl = Router::url($url);
-
-        return null;
-    }
-}
-class_alias(AjaxAuthController::class, 'App\\Controller\\AjaxAuthController');
-
-/**
  * Mock class used to test event dispatching
  *
  * @package Cake.Test.Case.Event
@@ -432,6 +231,7 @@ class AuthComponentTest extends CakeTestCase
     public function setUp(): void
     {
         parent::setUp();
+        Configure::write('App.namespace', 'TestApp');
         Configure::write('Security.salt', 'YJfIxfs2guVoUubWDYhG93b0qyJfIxfs2guwvniR2G0FgaC9mi');
         Configure::write('Security.cipherSeed', '3770011223');
 

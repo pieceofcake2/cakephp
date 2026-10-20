@@ -162,7 +162,6 @@ class CakeNumberMock extends CakeNumber
  */
 class NumberHelperTest extends CakeTestCase
 {
-    protected ?string $_appNamespace = null;
     public ?View $View = null;
 
     /**
@@ -174,7 +173,6 @@ class NumberHelperTest extends CakeTestCase
     {
         parent::setUp();
 
-        $this->_appNamespace = Configure::read('App.namespace');
         Configure::write('App.namespace', 'TestApp');
 
         $this->View = new View(null);
@@ -188,8 +186,6 @@ class NumberHelperTest extends CakeTestCase
     public function tearDown(): void
     {
         $this->View = null;
-
-        Configure::write('App.namespace', $this->_appNamespace);
 
         parent::tearDown();
     }
@@ -253,7 +249,6 @@ class NumberHelperTest extends CakeTestCase
         $Helper = new NumberHelper($View, ['engine' => NamespacedNumber::class]);
         $this->assertInstanceOf(NamespacedNumber::class, $this->getEngine($Helper));
 
-        Configure::write('App.namespace', 'TestApp');
         $Helper = new NumberHelper($View, ['engine' => 'NamespacedNumber']);
         $this->assertInstanceOf(NamespacedNumber::class, $this->getEngine($Helper));
 

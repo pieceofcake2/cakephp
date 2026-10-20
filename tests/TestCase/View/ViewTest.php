@@ -205,44 +205,6 @@ class TestView extends View
 }
 
 /**
- * TestBeforeAfterHelper class
- *
- * @package       Cake.Test.Case.View
- */
-class TestBeforeAfterHelper extends Helper
-{
-    /**
-     * property property
-     *
-     * @var string
-     */
-    public $property = '';
-
-    /**
-     * beforeLayout method
-     *
-     * @param string $viewFile
-     * @return void
-     */
-    public function beforeLayout($viewFile): void
-    {
-        $this->property = 'Valuation';
-    }
-
-    /**
-     * afterLayout method
-     *
-     * @param string $layoutFile
-     * @return void
-     */
-    public function afterLayout($layoutFile): void
-    {
-        $this->_View->output .= 'modified in the afterlife';
-    }
-}
-class_alias(TestBeforeAfterHelper::class, 'App\\View\\Helper\\TestBeforeAfterHelper');
-
-/**
  * TestObjectWithToString
  *
  * An object with the magic method __toString() for testing with view blocks.
@@ -346,6 +308,7 @@ class ViewTest extends CakeTestCase
     public function setUp(): void
     {
         parent::setUp();
+        Configure::write('App.namespace', 'TestApp');
 
         $request = $this->getMock(CakeRequest::class);
         $this->Controller = new Controller($request);

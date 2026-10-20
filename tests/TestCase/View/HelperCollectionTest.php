@@ -29,16 +29,9 @@ use Cake\View\Helper\FormHelper;
 use Cake\View\Helper\HtmlHelper;
 use Cake\View\HelperCollection;
 use Cake\View\View;
+use TestApp\View\Helper\HtmlAliasHelper;
 use TestApp\View\Helper\NamespacedHelper;
 use TestPlugin\View\Helper\OtherHelperHelper;
-
-/**
- * Extended HtmlHelper
- */
-class HtmlAliasHelper extends HtmlHelper
-{
-}
-class_alias(HtmlAliasHelper::class, 'TestApp\\View\\Helper\\HtmlAliasHelper');
 
 /**
  * HelperCollectionTest
@@ -47,8 +40,6 @@ class_alias(HtmlAliasHelper::class, 'TestApp\\View\\Helper\\HtmlAliasHelper');
  */
 class HelperCollectionTest extends CakeTestCase
 {
-    protected ?string $_appNamespace = null;
-
     /**
      * setUp
      *
@@ -58,7 +49,6 @@ class HelperCollectionTest extends CakeTestCase
     {
         parent::setUp();
 
-        $this->_appNamespace = Configure::read('App.namespace');
         Configure::write('App.namespace', 'TestApp');
 
         $this->View = $this->getMock(View::class, [], [null]);
@@ -74,8 +64,6 @@ class HelperCollectionTest extends CakeTestCase
     {
         CakePlugin::unload();
         unset($this->Helpers, $this->View);
-
-        Configure::write('App.namespace', $this->_appNamespace);
 
         parent::tearDown();
     }
@@ -238,7 +226,6 @@ class HelperCollectionTest extends CakeTestCase
 
         $this->assertInstanceOf(HtmlHelper::class, $this->Helpers->load('Html'));
 
-        Configure::write('App.namespace', 'TestApp');
         $Helpers = new HelperCollection($this->View);
         $this->assertInstanceOf(NamespacedHelper::class, $Helpers->load('Namespaced'));
     }

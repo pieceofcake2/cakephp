@@ -66,8 +66,6 @@ class CakeTimeMock
  */
 class TimeHelperTest extends CakeTestCase
 {
-    protected ?string $_appNamespace = null;
-
     public $Time = null;
 
     public $CakeTime = null;
@@ -83,7 +81,6 @@ class TimeHelperTest extends CakeTestCase
     {
         parent::setUp();
 
-        $this->_appNamespace = Configure::read('App.namespace');
         Configure::write('App.namespace', 'TestApp');
 
         $this->View = new View(null);
@@ -97,8 +94,6 @@ class TimeHelperTest extends CakeTestCase
     public function tearDown(): void
     {
         $this->View = null;
-
-        Configure::write('App.namespace', $this->_appNamespace);
 
         parent::tearDown();
     }
@@ -301,7 +296,6 @@ class TimeHelperTest extends CakeTestCase
         $Helper = new TimeHelper($View, ['engine' => NamespacedTime::class]);
         $this->assertInstanceOf(NamespacedTime::class, $this->getEngine($Helper));
 
-        Configure::write('App.namespace', 'TestApp');
         $Helper = new TimeHelper($View, ['engine' => 'NamespacedTime']);
         $this->assertInstanceOf(NamespacedTime::class, $this->getEngine($Helper));
 

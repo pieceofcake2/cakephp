@@ -2,66 +2,12 @@
 
 namespace Cake\Test\TestCase\Controller;
 
-use AppController;
 use Cake\Core\App;
 use Cake\Core\Configure;
 use Cake\Model\Datasource\CakeSession;
-use Cake\Network\CakeRequest;
-use Cake\Network\CakeResponse;
 use Cake\TestSuite\ControllerTestCase;
 
 App::uses('AppController', 'Controller');
-
-/**
- * TransSessionIdController class for testing session.use_trans_sid=1.
- *
- * @package       Cake.Test.Case.Controller
- */
-class TransSessionIdController extends AppController
-{
-    /**
-     * autoRender property
-     *
-     * @var bool
-     */
-    public $autoRender = false;
-
-    /**
-     * Constructor.
-     *
-     * @param CakeRequest $request Request object for this controller.
-     * @param CakeResponse $response Response object for this controller.
-     */
-    public function __construct($request = null, $response = null)
-    {
-        parent::__construct($request, $response);
-        $ini = Configure::read('Session.ini');
-        $ini['session.use_cookies'] = 0;
-        $ini['session.use_only_cookies'] = 0;
-        $ini['session.use_trans_sid'] = 1;
-        Configure::write('Session.ini', $ini);
-    }
-
-    /**
-     * For testing redirect URL with session.use_trans_sid=1.
-     *
-     * @return CakeResponse|null
-     */
-    public function next(): mixed
-    {
-        $sessionName = session_name();
-        $sessionId = $this->Session->id();
-
-        return $this->redirect([
-            'controller' => 'trans_session_id',
-            'action' => 'next_step',
-            '?' => [
-                $sessionName => $sessionId,
-            ],
-        ]);
-    }
-}
-class_alias(TransSessionIdController::class, 'App\\Controller\\TransSessionIdController');
 
 /**
  * ApplicationControllerTest class for testing controllers by using ControllerTestCase.
@@ -81,6 +27,7 @@ class ApplicationControllerTest extends ControllerTestCase
     public function setUp(): void
     {
         parent::setUp();
+        Configure::write('App.namespace', 'TestApp');
 
         CakeSession::destroy();
 

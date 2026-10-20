@@ -20,116 +20,14 @@
 
 namespace Cake\Test\TestCase\Controller;
 
-use Cake\Controller\Component;
 use Cake\Controller\Controller;
+use Cake\Core\Configure;
 use Cake\TestSuite\CakeTestCase;
 use Cake\View\View;
 use TestApp\Controller\AppController as NamespacedAppController;
+use TestApp\Controller\MergePostsController;
+use TestApp\Controller\MergeVariablesController;
 use TestApp\View\Helper\NamespacedHelper;
-
-/**
- * Test case AppController
- *
- * @package       Cake.Test.Case.Controller
- */
-class MergeVarsAppController extends Controller
-{
-    /**
-     * components
-     *
-     * @var array
-     */
-    public $components = ['MergeVar' => ['flag', 'otherFlag', 'redirect' => false]];
-
-    /**
-     * helpers
-     *
-     * @var array
-     */
-    public $helpers = ['MergeVar' => ['format' => 'html', 'terse']];
-}
-class_alias(MergeVarsAppController::class, 'App\\Controller\\MergeVarsAppController');
-
-/**
- * MergeVar Component
- *
- * @package       Cake.Test.Case.Controller
- */
-class MergeVarComponent extends Component
-{
-}
-class_alias(MergeVarComponent::class, 'App\\Controller\\Component\\MergeVarComponent');
-class_alias(MergeVarComponent::class, 'MergeVarPlugin\\Controller\\Component\\MergeVarComponent');
-
-/**
- * Additional controller for testing
- *
- * @package       Cake.Test.Case.Controller
- */
-class MergeVariablesController extends MergeVarsAppController
-{
-    /**
-     * uses
-     *
-     * @var array|bool|null
-     */
-    public $uses = [];
-
-    /**
-     * parent for mergeVars
-     *
-     * @var string
-     */
-    protected $_mergeParent = MergeVarsAppController::class;
-}
-class_alias(MergeVariablesController::class, 'App\\Controller\\MergeVariablesController');
-
-/**
- * MergeVarPlugin App Controller
- *
- * @package       Cake.Test.Case.Controller
- */
-class MergeVarPluginAppController extends MergeVarsAppController
-{
-    /**
-     * components
-     *
-     * @var array
-     */
-    public $components = ['Auth' => ['setting' => 'val', 'otherVal']];
-
-    /**
-     * helpers
-     *
-     * @var array
-     */
-    public $helpers = ['Js'];
-
-    /**
-     * parent for mergeVars
-     *
-     * @var string
-     */
-    protected $_mergeParent = MergeVarsAppController::class;
-}
-class_alias(MergeVarPluginAppController::class, 'App\\Controller\\MergeVarPluginAppController');
-class_alias(MergeVarPluginAppController::class, 'MergeVarPlugin\\Controller\\MergeVarPluginAppController');
-
-/**
- * MergePostsController
- *
- * @package       Cake.Test.Case.Controller
- */
-class MergePostsController extends MergeVarPluginAppController
-{
-    /**
-     * uses
-     *
-     * @var array|bool|null
-     */
-    public $uses = [];
-}
-class_alias(MergePostsController::class, 'App\\Controller\\MergePostsController');
 
 /**
  * Test Case for Controller Merging of Vars.
@@ -150,6 +48,17 @@ class ControllerMergeVarsTest extends CakeTestCase
 
         $expected = ['MergeVar' => ['flag', 'otherFlag', 'redirect' => false]];
         $this->assertEquals($expected, $Controller->components, 'Duplication of settings occurred. %s');
+    }
+
+    /**
+     * setUp method
+     *
+     * @return void
+     */
+    public function setUp(): void
+    {
+        parent::setUp();
+        Configure::write('App.namespace', 'TestApp');
     }
 
     /**

@@ -19,142 +19,16 @@
 namespace Cake\Test\TestCase\Controller\Component;
 
 use Cake\Controller\Component\SecurityComponent;
-use Cake\Controller\Controller;
 use Cake\Core\Configure;
 use Cake\Error\AuthSecurityException;
 use Cake\Error\BadRequestException;
 use Cake\Error\SecurityException;
 use Cake\Network\CakeRequest;
-use Cake\Network\CakeResponse;
 use Cake\TestSuite\CakeTestCase;
 use Cake\Utility\Security;
 use ReflectionClass;
-
-/**
- * TestSecurityComponent
- *
- * @package       Cake.Test.Case.Controller.Component
- */
-class TestSecurityComponent extends SecurityComponent
-{
-    /**
-     * validatePost method
-     *
-     * @param Controller $controller
-     * @return bool
-     */
-    public function validatePost(Controller $controller): mixed
-    {
-        return $this->_validatePost($controller);
-    }
-
-    /**
-     * authRequired method
-     *
-     * @param Controller $controller
-     * @return bool
-     */
-    public function authRequired(Controller $controller): mixed
-    {
-        return $this->_authRequired($controller);
-    }
-
-    /**
-     * methodRequired method
-     *
-     * @param Controller $controller
-     * @return bool
-     */
-    public function methodsRequired(Controller $controller): mixed
-    {
-        return $this->_methodsRequired($controller);
-    }
-}
-class_alias(TestSecurityComponent::class, 'App\\Controller\\Component\\TestSecurityComponent');
-
-/**
- * SecurityTestController
- *
- * @package       Cake.Test.Case.Controller.Component
- */
-class SecurityTestController extends Controller
-{
-    /**
-     * components property
-     *
-     * @var array
-     */
-    public $components = ['Session', 'TestSecurity'];
-
-    /**
-     * failed property
-     *
-     * @var bool
-     */
-    public $failed = false;
-
-    /**
-     * Used for keeping track of headers in test
-     *
-     * @var array
-     */
-    public $testHeaders = [];
-
-    /**
-     * fail method
-     *
-     * @return void
-     */
-    public function fail(): void
-    {
-        $this->failed = true;
-    }
-
-    /**
-     * redirect method
-     *
-     * @param array|string|null $url
-     * @param array|string|int|null  $code
-     * @param bool $exit
-     * @return CakeResponse|null
-     */
-    public function redirect($url, $status = null, $exit = true): mixed
-    {
-        return $status;
-    }
-
-    /**
-     * Convenience method for header()
-     *
-     * @param string $status
-     * @return void
-     */
-    public function header($status): void
-    {
-        if (is_array($status)) {
-            $this->testHeaders += $status;
-        } elseif (is_string($status)) {
-            $this->testHeaders[] = $status;
-        }
-    }
-}
-class_alias(SecurityTestController::class, 'App\\Controller\\SecurityTestController');
-
-class BrokenCallbackController extends Controller
-{
-    public $name = 'UncallableCallback';
-
-    public $components = ['Session', 'TestSecurity'];
-
-    public function index(): void
-    {
-    }
-
-    protected function _fail(): void
-    {
-    }
-}
-class_alias(BrokenCallbackController::class, 'App\\Controller\\BrokenCallbackController');
+use TestApp\Controller\BrokenCallbackController;
+use TestApp\Controller\SecurityTestController;
 
 /**
  * SecurityComponentTest class
@@ -178,6 +52,7 @@ class SecurityComponentTest extends CakeTestCase
     public function setUp(): void
     {
         parent::setUp();
+        Configure::write('App.namespace', 'TestApp');
         $_SERVER['REQUEST_METHOD'] = 'GET';
 
         $request = $this->getMock(CakeRequest::class, ['here'], ['posts/index', false]);

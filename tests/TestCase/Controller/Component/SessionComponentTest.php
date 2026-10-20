@@ -20,63 +20,10 @@ namespace Cake\Test\TestCase\Controller\Component;
 
 use Cake\Controller\Component\SessionComponent;
 use Cake\Controller\ComponentCollection;
-use Cake\Controller\Controller;
 use Cake\Core\CakeObject;
 use Cake\Core\Configure;
 use Cake\Model\Datasource\CakeSession;
 use Cake\TestSuite\CakeTestCase;
-
-/**
- * SessionTestController class
- *
- * @package       Cake.Test.Case.Controller.Component
- */
-class SessionTestController extends Controller
-{
-    /**
-     * uses property
-     *
-     * @var array|bool|null
-     */
-    public $uses = [];
-
-    /**
-     * sessionId method
-     *
-     * @return string
-     */
-    public function sessionId(): mixed
-    {
-        return $this->Session->id();
-    }
-}
-class_alias(SessionTestController::class, 'App\\Controller\\SessionTestController');
-
-/**
- * OrangeSessionTestController class
- *
- * @package       Cake.Test.Case.Controller.Component
- */
-class OrangeSessionTestController extends Controller
-{
-    /**
-     * uses property
-     *
-     * @var array|bool|null
-     */
-    public $uses = [];
-
-    /**
-     * sessionId method
-     *
-     * @return string
-     */
-    public function sessionId(): mixed
-    {
-        return $this->Session->id();
-    }
-}
-class_alias(OrangeSessionTestController::class, 'App\\Controller\\OrangeSessionTestController');
 
 /**
  * SessionComponentTest class
@@ -129,6 +76,7 @@ class SessionComponentTest extends CakeTestCase
     public function setUp(): void
     {
         parent::setUp();
+        Configure::write('App.namespace', 'TestApp');
         $_SESSION = null;
         $this->ComponentCollection = new ComponentCollection();
     }
