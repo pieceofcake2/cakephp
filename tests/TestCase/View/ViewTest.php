@@ -1259,6 +1259,9 @@ class ViewTest extends CakeTestCase
         $this->PostsController->constructClasses();
         $this->PostsController->cacheAction = ['index' => 3600];
         $this->PostsController->request->params['action'] = 'index';
+        $this->PostsController->request->expects($this->any())
+            ->method('here')
+            ->will($this->returnValue(''));
         Configure::write('Cache.check', true);
 
         $View = new TestView($this->PostsController);
