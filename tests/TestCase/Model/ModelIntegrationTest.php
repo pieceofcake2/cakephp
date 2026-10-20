@@ -2,6 +2,7 @@
 
 use TestApp\Model\NamespacedComment;
 use TestApp\Model\NamespacedHabtmPost;
+use TestApp\Model\NamespacedHabtmTag;
 use TestApp\Model\NamespacedPost;
 use TestApp\Model\NamespacedPostsTag;
 
@@ -2685,6 +2686,51 @@ class ModelIntegrationTest extends BaseModelTest
             $Post->hasAndBelongsToMany['NamespacedHabtmTag']['with'] = [$with => ['tag_id']];
             $this->assertTrue(isset($Post->NamespacedPostsTag));
             $this->assertInstanceOf(NamespacedPostsTag::class, $Post->NamespacedPostsTag);
+            ClassRegistry::flush();
+        }
+    }
+
+    /**
+     * Test a class name as hasAndBelongsToMany key with a class name as join model and no className,
+     * like the short names.
+     *
+     * @return void
+     */
+    public function testNamespacedClassNameHabtmKeyAndWith(): void
+    {
+        $this->loadFixtures('Post', 'Tag', 'PostsTag');
+        $expected = null;
+        foreach ([2 => 'short', 3 => 'class'] as $id => $notation) {
+            if ($notation === 'short') {
+                Configure::write('App.namespace', 'TestApp');
+                $Post = new class (['name' => 'NamespacedHabtmPost', 'ds' => 'test']) extends NamespacedHabtmPost {
+                    public $hasAndBelongsToMany = ['NamespacedHabtmTag' => ['with' => 'NamespacedPostsTag']];
+                };
+            } else {
+                Configure::write('App.namespace', null);
+                $Post = new NamespacedHabtmPost(['ds' => 'test']);
+            }
+            $habtm = $Post->hasAndBelongsToMany;
+            $this->assertSame(['NamespacedHabtmTag'], array_keys($habtm));
+            unset($habtm['NamespacedHabtmTag']['className'], $habtm['NamespacedHabtmTag']['with']);
+            $expected ??= $habtm;
+            $this->assertSame($expected, $habtm);
+            $this->assertSame('posts_tags', $habtm['NamespacedHabtmTag']['joinTable']);
+            $this->assertSame(['NamespacedHabtmTag' => 'hasAndBelongsToMany'], $Post->getAssociated());
+
+            $this->assertInstanceOf(NamespacedHabtmTag::class, $Post->NamespacedHabtmTag);
+            $this->assertSame('NamespacedHabtmTag', $Post->NamespacedHabtmTag->alias);
+            $this->assertInstanceOf(NamespacedPostsTag::class, $Post->NamespacedPostsTag);
+            $this->assertSame('NamespacedPostsTag', $Post->NamespacedPostsTag->alias);
+            $with = $Post->hasAndBelongsToMany['NamespacedHabtmTag']['with'];
+            $this->assertSame(['NamespacedPostsTag', ['post_id', 'tag_id']], $Post->joinModel($with));
+
+            $this->assertNotEmpty($Post->save(['NamespacedHabtmPost' => ['id' => $id], 'NamespacedHabtmTag' => ['NamespacedHabtmTag' => [1, 3]]]));
+            $result = $Post->find('first', ['conditions' => ['NamespacedHabtmPost.id' => $id]]);
+            $this->assertSame([1, 3], array_map('intval', Hash::extract($result, 'NamespacedHabtmTag.{n}.id')));
+
+            $this->assertTrue($Post->delete($id));
+            $this->assertSame(0, $Post->NamespacedPostsTag->find('count', ['conditions' => ['post_id' => $id]]));
             ClassRegistry::flush();
         }
     }
