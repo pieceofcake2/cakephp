@@ -741,6 +741,29 @@ class CakeSchemaTest extends CakeTestCase
     }
 
     /**
+     * Test reading the schema of a plugin with namespaced models.
+     *
+     * @return void
+     */
+    public function testSchemaReadWithNamespacedPluginModels(): void
+    {
+        App::build(['Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS]]);
+        CakePlugin::load('TestPluginTwo');
+
+        $Schema = new CakeSchema();
+        $Schema->plugin = 'TestPluginTwo';
+        $read = $Schema->read([
+            'connection' => 'test',
+            'name' => 'TestApp',
+            'models' => ['NamespacedPluginPost'],
+        ]);
+        $this->assertArrayHasKey('posts', $read['tables']);
+
+        CakePlugin::unload();
+        App::build();
+    }
+
+    /**
      * test that tables are generated correctly
      *
      * @return void

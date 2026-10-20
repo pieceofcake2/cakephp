@@ -250,7 +250,7 @@ class CakeSchema extends CakeObject
                 }
 
                 try {
-                    $Object = ClassRegistry::init(['class' => $model, 'ds' => $options['connection']]);
+                    $Object = ClassRegistry::init(['class' => $plugin . $model, 'ds' => $options['connection']]);
                 } catch (CakeException) {
                     continue;
                 }
