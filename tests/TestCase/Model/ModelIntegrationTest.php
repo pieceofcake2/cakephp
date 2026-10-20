@@ -1,4 +1,8 @@
 <?php
+
+use TestApp\Model\NamespacedComment;
+use TestApp\Model\NamespacedPost;
+
 /**
  * ModelIntegrationTest file
  *
@@ -2556,5 +2560,73 @@ class ModelIntegrationTest extends BaseModelTest
         $model->expects($this->never())->method('getDataSource');
         $result = $model->getColumnType('filefield');
         $this->assertEquals('string', $result);
+    }
+
+    /**
+     * Test that a fully qualified class name as association key gives the short
+     * name as alias like the short name with className.
+     *
+     * @return void
+     */
+    public function testNamespacedClassNameAssociations(): void
+    {
+        foreach (['belongsTo', 'hasOne', 'hasMany'] as $type) {
+            $expected = null;
+            $cases = [
+                ['NamespacedComment' => ['className' => NamespacedComment::class, 'order' => 'id']],
+                [NamespacedComment::class => ['order' => 'id']],
+                ['TestApp\Model\NamespacedComment' => ['order' => 'id']],
+            ];
+            foreach ($cases as $association) {
+                $Model = $this->_namespacedArticle([$type => $association]);
+                $expected ??= $Model->{$type};
+                $this->assertSame($expected, $Model->{$type});
+                $this->assertSame(NamespacedComment::class, $Model->{$type}['NamespacedComment']['className']);
+                $this->assertSame(['NamespacedComment' => $type], $Model->getAssociated());
+                $this->assertInstanceOf(NamespacedComment::class, $Model->NamespacedComment);
+                $this->assertSame('NamespacedComment', $Model->NamespacedComment->alias);
+                ClassRegistry::flush();
+
+                $Model = $this->_namespacedArticle();
+                $Model->bindModel([$type => $association]);
+                $this->assertSame($expected, $Model->{$type});
+                $this->assertInstanceOf(NamespacedComment::class, $Model->NamespacedComment);
+                $Model->unbindModel([$type => [key($association)]]);
+                $this->assertSame([], $Model->getAssociated());
+                ClassRegistry::flush();
+            }
+
+            $Model = $this->_namespacedArticle([$type => [NamespacedComment::class]]);
+            $this->assertSame(['NamespacedComment'], array_keys($Model->{$type}));
+            $this->assertSame(NamespacedComment::class, $Model->{$type}['NamespacedComment']['className']);
+            ClassRegistry::flush();
+        }
+
+        $Model = $this->_namespacedArticle();
+        $Model->bindModel(['belongsTo' => ['NamespacedComment' => ['className' => NamespacedPost::class]]]);
+        $this->assertInstanceOf(NamespacedPost::class, $Model->NamespacedComment);
+        $Model->bindModel(['belongsTo' => [NamespacedComment::class]]);
+        $this->assertInstanceOf(NamespacedComment::class, $Model->NamespacedComment);
+    }
+
+    /**
+     * Creates a model without a table with the given associations.
+     *
+     * @param array $associations Associations by type.
+     * @return Model
+     */
+    protected function _namespacedArticle(array $associations = []): Model
+    {
+        return new class ($associations) extends Model {
+            public $useTable = false;
+
+            public function __construct(array $associations)
+            {
+                foreach ($associations as $type => $association) {
+                    $this->{$type} = $association;
+                }
+                parent::__construct(['name' => 'NamespacedArticle']);
+            }
+        };
     }
 }

@@ -968,8 +968,9 @@ class Model extends CakeObject implements CakeEventListener
 
                 $this->{$assoc}[$assocName] = $value;
 
-                if (property_exists($this, $assocName)) {
-                    unset($this->{$assocName});
+                $property = substr($assocName, (int)strrpos('\\' . $assocName, '\\'));
+                if (property_exists($this, $property)) {
+                    unset($this->{$property});
                 }
 
                 if ($reset === false && isset($this->__backAssociation[$assoc])) {
@@ -1011,6 +1012,7 @@ class Model extends CakeObject implements CakeEventListener
             }
             $models = Hash::normalize((array)$models, false);
             foreach ($models as $model) {
+                $model = substr($model, (int)strrpos('\\' . $model, '\\'));
                 if ($reset === false && isset($this->__backAssociation[$assoc][$model])) {
                     unset($this->__backAssociation[$assoc][$model]);
                 }
@@ -1057,6 +1059,13 @@ class Model extends CakeObject implements CakeEventListener
                         unset($association[$assoc]);
                         [$plugin, $assoc] = pluginSplit($assoc, true);
                         $association[$assoc] = ['className' => $plugin . $assoc] + $value;
+                    }
+
+                    if (!isset($value['className']) && str_contains($assoc, '\\')) {
+                        unset($association[$assoc]);
+                        $className = $assoc;
+                        $assoc = substr($assoc, strrpos($assoc, '\\') + 1);
+                        $association[$assoc] = ['className' => $className] + $value;
                     }
 
                     $this->_generateAssociation($type, $assoc);
