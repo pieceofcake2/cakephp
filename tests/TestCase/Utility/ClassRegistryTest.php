@@ -415,4 +415,25 @@ class ClassRegistryTest extends CakeTestCase
         $this->assertInstanceOf(NamespacedPost::class, $post);
         $this->assertSame($post, ClassRegistry::init(['class' => 'NamespacedPost', 'alias' => 'Article']));
     }
+
+    /**
+     * Test that an object stored with the short name of its class is found by its fully qualified class name.
+     *
+     * @return void
+     */
+    public function testFullyQualifiedClassNameAsKey(): void
+    {
+        $post = ClassRegistry::init(['class' => NamespacedPost::class, 'alias' => 'NamespacedPost']);
+        $this->assertSame($post, ClassRegistry::getObject('NamespacedPost'));
+        $this->assertSame($post, ClassRegistry::getObject(NamespacedPost::class));
+        $this->assertSame($post, ClassRegistry::getObject('\\' . NamespacedPost::class));
+        $this->assertTrue(ClassRegistry::isKeySet(NamespacedPost::class));
+
+        ClassRegistry::removeObject(NamespacedPost::class);
+        $this->assertFalse(ClassRegistry::getObject('NamespacedPost'));
+
+        // Not an object of another class with the same short name
+        ClassRegistry::addObject('NamespacedPost', new NamespacedComment());
+        $this->assertFalse(ClassRegistry::getObject(NamespacedPost::class));
+    }
 }

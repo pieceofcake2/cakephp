@@ -267,7 +267,7 @@ class ClassRegistry
     public static function removeObject($key)
     {
         $_this = ClassRegistry::getInstance();
-        $key = Inflector::underscore($key);
+        $key = $_this->_objectKey($key);
         if (isset($_this->_objects[$key])) {
             unset($_this->_objects[$key]);
         }
@@ -282,7 +282,7 @@ class ClassRegistry
     public static function isKeySet($key)
     {
         $_this = ClassRegistry::getInstance();
-        $key = Inflector::underscore($key);
+        $key = $_this->_objectKey($key);
 
         return isset($_this->_objects[$key]) || isset($_this->_map[$key]);
     }
@@ -306,7 +306,7 @@ class ClassRegistry
     public static function getObject($key)
     {
         $_this = ClassRegistry::getInstance();
-        $key = Inflector::underscore($key);
+        $key = $_this->_objectKey($key);
         $return = false;
         if (isset($_this->_objects[$key])) {
             $return = $_this->_objects[$key];
@@ -318,6 +318,29 @@ class ClassRegistry
         }
 
         return $return;
+    }
+
+    /**
+     * Returns the key in the registry for a key or a fully qualified class name. An object stored with
+     * the short name of a class, e.g. TranslateBehavior or the alias Post, is also found by the fully
+     * qualified name of its class, e.g. TranslateBehavior::class or Post::class.
+     *
+     * @param string $key Key or class name
+     * @return string The key in the registry
+     */
+    protected function _objectKey($key)
+    {
+        $underscored = Inflector::underscore($key);
+        if (isset($this->_objects[$underscored]) || !str_contains($key, '\\')) {
+            return $underscored;
+        }
+        $class = ltrim($key, '\\');
+        $short = Inflector::underscore(substr($class, strrpos($class, '\\') + 1));
+        if (isset($this->_objects[$short]) && $this->_objects[$short] instanceof $class) {
+            return $short;
+        }
+
+        return $underscored;
     }
 
     /**
