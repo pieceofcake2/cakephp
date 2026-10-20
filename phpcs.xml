@@ -33,6 +33,7 @@
         <exclude-pattern>src/View/Helper/FormHelper.php</exclude-pattern>
         <exclude-pattern>src/Utility/CakeTime.php</exclude-pattern>
         <exclude-pattern>tests/TestCase/Utility/CakeTimeTest.php</exclude-pattern>
+        <exclude-pattern>tests/TestCase/Legacy/Utility/CakeTimeTest.php</exclude-pattern>
         <!-- Using the deprecated utf8_decode functions. -->
         <exclude-pattern>tests/TestCase/Utility/ValidationTest.php</exclude-pattern>
     </rule>
