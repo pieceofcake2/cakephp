@@ -1,14 +1,4 @@
 <?php
-
-namespace Cake\Test\TestCase\Core;
-
-use Cake\TestSuite\CakeTestCase;
-use Composer\Autoload\ClassLoader;
-use FilesystemIterator;
-use RecursiveDirectoryIterator;
-use RecursiveIteratorIterator;
-use ReflectionClass;
-
 /**
  * ClassAliasesTest file
  *
@@ -24,11 +14,34 @@ use ReflectionClass;
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\Legacy\Core;
+
+use Cake\Core\App;
+use Cake\TestSuite\CakeTestCase;
+use Composer\Autoload\ClassLoader;
+use FilesystemIterator;
+use RecursiveDirectoryIterator;
+use RecursiveIteratorIterator;
+use ReflectionClass;
+
 /**
  * Tests the global class names of CakePHP 2 for the classes in the Cake namespace.
  */
 class ClassAliasesTest extends CakeTestCase
 {
+    /**
+     * setUp method
+     *
+     * @return void
+     */
+    public function setUp(): void
+    {
+        parent::setUp();
+        App::build([
+            'Model' => [CORE_TESTS . DS . 'test_legacy_app' . DS . 'Model' . DS],
+        ]);
+    }
+
     /**
      * Test that each class of the framework can be used by its global name.
      *
