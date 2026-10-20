@@ -823,6 +823,29 @@ class ControllerTest extends CakeTestCase
     }
 
     /**
+     * Test that redirecting to the current URL stays on the same host
+     * when the request URL starts with `//` or `/\\`.
+     *
+     * @return void
+     */
+    public function testRedirectToHereProtocolRelative(): void
+    {
+        Configure::write('App.base', '');
+        foreach (['//evil.example.com/posts/index', '/\\evil.example.com/posts/index'] as $url) {
+            $request = new CakeRequest($url, false);
+            Router::setRequestInfo($request);
+            $Controller = new Controller($request);
+            $Controller->response = $this->getMock('CakeResponse', ['header']);
+            $Controller->Components = $this->getMock('ComponentCollection', ['trigger']);
+
+            $Controller->response->expects($this->once())->method('header')
+                ->with('Location', Router::fullBaseUrl() . '/evil.example.com/posts/index');
+
+            $Controller->redirect($request->here(false), null, false);
+        }
+    }
+
+    /**
      * test that redirect triggers methods on the components.
      *
      * @return void

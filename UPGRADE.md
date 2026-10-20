@@ -28,6 +28,28 @@ Nothing changes for an application that uses only global class names and does no
 - `Controller` and `View` have the new public property `$controllerClass`, and the view vars passed from a controller include it. If a subclass declares a property of that name, rename it.
 - Fully qualified class names as keys of `$components`, `$helpers`, `$actsAs`, `$tasks`, `$uses` and the model associations, or given to `load()` and `loadModel()`, get the short class name without the namespace and the suffix as their alias, e.g. `$this->Greeting` for `GreetingComponent::class` and `$this->Post` for `Post::class`, the same as `'Greeting' => ['className' => GreetingComponent::class]`. This also applies to a key with its own `'className'`, which keeps that class. Before, the alias contained the backslashes; such aliases are now the short class name, so code that uses the alias with the backslashes (`$this->{'Acme\Controller\Component\GreetingComponent'}`, `Components->loaded()`, the association keys or the alias in conditions) must use the short name, e.g. `Greeting`. When a parent and a child class name the same object, one by its class name and one by its short name, the settings are merged into one entry with the class name in `'className'`, as for two short names. `'with' => PostsTag::class` of a hasAndBelongsToMany association finds the join model `PostsTag`.
 
+## v2.12.11
+
+### Request URLs with Extra Leading Slashes ([GHSA-wh43-gc93-wh4c](https://github.com/pieceofcake2/cakephp/security/advisories/GHSA-wh43-gc93-wh4c), [PR #90](https://github.com/pieceofcake2/cakephp/pull/90))
+
+`CakeRequest` removes all the leading slashes and backslashes of the request URL, not only the first one. Most applications only need to update.
+
+- A request to `//posts/view/1` or `///posts/view/1` is routed as before, and one to `/\posts/view/1` is now routed as `/posts/view/1`. In both cases `$this->request->url` is now `posts/view/1` instead of `/posts/view/1`, and `here` is `/posts/view/1` instead of `//posts/view/1`. URLs with a single leading slash are not affected.
+- Forms created without a `url` and redirects to `$this->request->here()` stay on the site. If the application checked `here` for a leading `//` itself, that check is no longer needed.
+
+### HTML5 Script, Link and Style Tags ([PR #86](https://github.com/pieceofcake2/cakephp/pull/86))
+
+`HtmlHelper` now outputs the tags of HTML5: `<script src="...">`, `<link rel="stylesheet" href="...">`, `<style>`, and script blocks without `type="text/javascript"` and without CDATA. Browsers treat both forms the same, so the pages do not change.
+
+- Tests that compare the HTML of a page or of a helper, e.g. with `assertTags()` or `assertSame()`, may need the new tags.
+- To keep the former output, e.g. for pages served as XHTML (`application/xhtml+xml`), set `html5` to `false` in the settings of the helper:
+
+  ```php
+  public $helpers = ['Html' => ['html5' => false]];
+  ```
+
+- `JsHelper` follows the setting: its script blocks have no CDATA unless `safe` is `true` or `html5` is `false`.
+
 ## v2.12.10
 
 ### `raw()` ([PR #84](https://github.com/pieceofcake2/cakephp/pull/84))

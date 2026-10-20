@@ -38,6 +38,17 @@ class HtmlHelper extends AppHelper
     public $response;
 
     /**
+     * Settings
+     *
+     * - `html5` Whether the tags are those of HTML5: the script, link and style tags without `type`, and the
+     *   script blocks without CDATA. Set it to false for the output of XHTML, with `type="text/javascript"`,
+     *   `type="text/css"` and CDATA.
+     *
+     * @var array
+     */
+    public $settings = ['html5' => true];
+
+    /**
      * html tags used by this helper.
      *
      * @var array
@@ -91,8 +102,8 @@ class HtmlHelper extends AppHelper
         'fieldsetstart' => '<fieldset><legend>%s</legend>',
         'fieldsetend' => '</fieldset>',
         'legend' => '<legend>%s</legend>',
-        'css' => '<link rel="%s" type="text/css" href="%s"%s/>',
-        'style' => '<style type="text/css"%s>%s</style>',
+        'css' => '<link rel="%s" href="%s"%s/>',
+        'style' => '<style%s>%s</style>',
         'charset' => '<meta http-equiv="Content-Type" content="text/html; charset=%s" />',
         'ul' => '<ul%s>%s</ul>',
         'ol' => '<ol%s>%s</ol>',
@@ -100,8 +111,19 @@ class HtmlHelper extends AppHelper
         'error' => '<div%s>%s</div>',
         'javascriptblock' => '<script%s>%s</script>',
         'javascriptstart' => '<script>',
-        'javascriptlink' => '<script type="text/javascript" src="%s"%s></script>',
+        'javascriptlink' => '<script src="%s"%s></script>',
         'javascriptend' => '</script>',
+    ];
+
+    /**
+     * The tags that differ when the `html5` setting is false
+     *
+     * @var array
+     */
+    protected $_xhtmlTags = [
+        'css' => '<link rel="%s" type="text/css" href="%s"%s/>',
+        'style' => '<style type="text/css"%s>%s</style>',
+        'javascriptlink' => '<script type="text/javascript" src="%s"%s></script>',
     ];
 
     /**
@@ -163,6 +185,9 @@ class HtmlHelper extends AppHelper
             $this->response = $this->_View->response;
         } else {
             $this->response = new CakeResponse();
+        }
+        if (empty($this->settings['html5'])) {
+            $this->_tags = $this->_xhtmlTags + $this->_tags;
         }
         if (!empty($settings['configFile'])) {
             $this->loadConfig($settings['configFile']);
@@ -606,7 +631,9 @@ class HtmlHelper extends AppHelper
      *
      * ### Options
      *
-     * - `safe` (boolean) Whether or not the $script should be wrapped in `<![CDATA[ ]]>`
+     * - `safe` (boolean) Whether or not the $script should be wrapped in `<![CDATA[ ]]>`. Defaults to false,
+     *   or to true when the `html5` setting is false
+     * - `type` The type of the script. Not set, or `text/javascript` when the `html5` setting is false
      * - `inline` (boolean) Whether or not the $script should be added to
      *   `$scripts_for_layout` / `script` block, or output inline. (Deprecated, use `block` instead)
      * - `block` Which block you want this script block appended to.
@@ -620,7 +647,10 @@ class HtmlHelper extends AppHelper
      */
     public function scriptBlock($script, $options = [])
     {
-        $options += ['type' => 'text/javascript', 'safe' => true, 'inline' => true];
+        if (empty($this->settings['html5'])) {
+            $options += ['type' => 'text/javascript', 'safe' => true];
+        }
+        $options += ['safe' => false, 'inline' => true];
         if ($options['safe']) {
             $script = "\n" . '//<![CDATA[' . "\n" . $script . "\n" . '//]]>' . "\n";
         }
@@ -645,7 +675,8 @@ class HtmlHelper extends AppHelper
      *
      * ### Options
      *
-     * - `safe` Whether the code block should contain a CDATA
+     * - `safe` Whether the code block should contain a CDATA. Defaults to false, or to true when the `html5`
+     *   setting is false
      * - `inline` Should the generated script tag be output inline or in `$scripts_for_layout`
      *
      * @param array $options Options for the code block.
@@ -654,7 +685,7 @@ class HtmlHelper extends AppHelper
      */
     public function scriptStart($options = [])
     {
-        $options += ['safe' => true, 'inline' => true];
+        $options += ['safe' => empty($this->settings['html5']), 'inline' => true];
         $this->_scriptBlockOptions = $options;
         ob_start();
     }
