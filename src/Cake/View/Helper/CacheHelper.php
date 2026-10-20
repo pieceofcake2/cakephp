@@ -316,7 +316,11 @@ class CacheHelper extends AppHelper
         $cache = $cache . '.php';
         $file = '<!--cachetime:' . $cacheTime . '--><?php';
 
-        if (empty($this->_View->plugin)) {
+        $controllerClass = $this->_View->name . 'Controller';
+        if (str_contains((string)$this->_View->controllerClass, '\\')) {
+            // Namespaced controllers are autoloaded
+            $controllerClass = '\\' . $this->_View->controllerClass;
+        } elseif (empty($this->_View->plugin)) {
             $file .= "
 			App::uses('{$this->_View->name}Controller', 'Controller');
 			";
@@ -330,7 +334,7 @@ class CacheHelper extends AppHelper
         $file .= '
 				$request = unserialize(base64_decode(\'' . base64_encode(serialize($this->request)) . '\'));
 				$response->type(\'' . $this->_View->response->type() . '\');
-				$controller = new ' . $this->_View->name . 'Controller($request, $response);
+				$controller = new ' . $controllerClass . '($request, $response);
 				$controller->plugin = $this->plugin = \'' . $this->_View->plugin . '\';
 				$controller->helpers = $this->helpers = unserialize(base64_decode(\'' . base64_encode(serialize($this->_View->helpers)) . '\'));
 				$controller->layout = $this->layout = \'' . $this->_View->layout . '\';

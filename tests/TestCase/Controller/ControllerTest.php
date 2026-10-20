@@ -1678,6 +1678,19 @@ class ControllerTest extends CakeTestCase
         $this->assertArrayHasKey('Namespaced', Hash::normalize($Controller->helpers));
     }
 
+    /**
+     * Test the class name of the controller.
+     *
+     * @return void
+     */
+    public function testControllerClass(): void
+    {
+        $Controller = new NamespacedController(new CakeRequest('namespaced/index'), new CakeResponse());
+        $this->assertSame(NamespacedController::class, $Controller->controllerClass);
+
+        $Controller = new Controller(new CakeRequest('posts/index'), new CakeResponse());
+        $this->assertSame('Controller', $Controller->controllerClass);
+    }
 
     /**
      * Test that the plugin of the request does not have to be loaded to construct the classes.

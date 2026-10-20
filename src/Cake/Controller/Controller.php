@@ -67,6 +67,13 @@ class Controller extends CakeObject implements CakeEventListener
     public $name = null;
 
     /**
+     * The class name of this controller, e.g. App\Controller\PostsController.
+     *
+     * @var string
+     */
+    public $controllerClass;
+
+    /**
      * An array containing the class names of models this controller uses.
      *
      * Example: `public $uses = array('Product', 'Post', 'Comment');`
@@ -320,6 +327,7 @@ class Controller extends CakeObject implements CakeEventListener
      */
     public function __construct($request = null, $response = null)
     {
+        $this->controllerClass = static::class;
         if ($this->name === null) {
             $this->name = substr(static::class, (int)strrpos('\\' . static::class, '\\'), -10);
         }
