@@ -18,6 +18,7 @@ namespace Cake\Test\TestCase\TestSuite;
 use Cake\Core\App;
 use Cake\Core\Configure;
 use Cake\Error\AuthSecurityException;
+use Cake\Error\ExceptionRenderer;
 use Cake\Error\MissingControllerException;
 use Cake\Error\NotFoundException;
 use Cake\Event\CakeEvent;
@@ -55,7 +56,7 @@ class IntegrationTestTraitTest extends CakeTestCase
             'View' => [CORE_TESTS . DS . 'test_app' . DS . 'templates' . DS],
         ], App::RESET);
         Configure::write('debug', 2);
-        Configure::write('Exception.renderer', 'ExceptionRenderer');
+        Configure::write('Exception.renderer', ExceptionRenderer::class);
         // Test the core cookie defaults, not the Cookie.type and Cookie.key of the application.
         Configure::delete('Cookie.key');
         Configure::delete('Cookie.type');

@@ -58,7 +58,6 @@ class TimeHelperTestObject extends TimeHelper
 class CakeTimeMock
 {
 }
-class_alias(CakeTimeMock::class, 'TestApp\\Utility\\CakeTimeMock');
 
 /**
  * TimeHelperTest class
@@ -141,7 +140,7 @@ class TimeHelperTest extends CakeTestCase
         ];
 
         $cakeTime = $this->getMock(CakeTimeMock::class, array_keys($methods));
-        $time = new TimeHelperTestObject($this->View, ['engine' => 'CakeTimeMock']);
+        $time = new TimeHelperTestObject($this->View, ['engine' => CakeTimeMock::class]);
         $time->attach($cakeTime);
 
         $calledMethods = [];
@@ -176,7 +175,7 @@ class TimeHelperTest extends CakeTestCase
         $this->assertEquals(array_keys($methods), $calledMethods);
 
         $cakeTime = $this->getMock(CakeTimeMock::class, ['timeAgoInWords']);
-        $time = new TimeHelperTestObject($this->View, ['engine' => 'CakeTimeMock']);
+        $time = new TimeHelperTestObject($this->View, ['engine' => CakeTimeMock::class]);
         $time->attach($cakeTime);
 
         $timeAgoInWordsCalled = false;
@@ -203,7 +202,7 @@ class TimeHelperTest extends CakeTestCase
         App::build([
             'Utility' => [CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'Utility' . DS],
         ], App::REGISTER);
-        $Time = new TimeHelperTestObject($this->View, ['engine' => 'TestAppEngine']);
+        $Time = new TimeHelperTestObject($this->View, ['engine' => TestAppEngine::class]);
         $this->assertInstanceOf(TestAppEngine::class, $Time->engine());
 
         App::build([

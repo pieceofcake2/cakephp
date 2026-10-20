@@ -58,7 +58,6 @@ class TextHelperTestObject extends TextHelper
 class CakeTextMock
 {
 }
-class_alias(CakeTextMock::class, 'TestApp\\Utility\\CakeTextMock');
 
 /**
  * TextHelperTest class
@@ -117,7 +116,7 @@ class TextHelperTest extends CakeTestCase
         ];
 
         $cakeText = $this->getMock(CakeTextMock::class, array_keys($methods));
-        $text = new TextHelperTestObject($this->View, ['engine' => 'CakeTextMock']);
+        $text = new TextHelperTestObject($this->View, ['engine' => CakeTextMock::class]);
         $text->attach($cakeText);
 
         $calledMethods = [];
@@ -148,7 +147,7 @@ class TextHelperTest extends CakeTestCase
         App::build([
             'Utility' => [CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'Utility' . DS],
         ], App::REGISTER);
-        $Text = new TextHelperTestObject($this->View, ['engine' => 'TestAppEngine']);
+        $Text = new TextHelperTestObject($this->View, ['engine' => TestAppEngine::class]);
         $this->assertInstanceOf(TestAppEngine::class, $Text->engine());
 
         App::build([

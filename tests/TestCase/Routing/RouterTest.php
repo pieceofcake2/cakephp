@@ -20,6 +20,7 @@
 namespace Cake\Test\TestCase\Routing;
 
 use Cake\Core\App;
+use Cake\Core\CakeObject;
 use Cake\Core\CakePlugin;
 use Cake\Core\Configure;
 use Cake\Error\RouterException;
@@ -2542,7 +2543,7 @@ class RouterTest extends CakeTestCase
     public function testCustomRouteException(): void
     {
         $this->expectException(RouterException::class);
-        Router::connect('/:controller', [], ['routeClass' => 'CakeObject']);
+        Router::connect('/:controller', [], ['routeClass' => CakeObject::class]);
     }
 
     /**
@@ -2963,7 +2964,7 @@ class RouterTest extends CakeTestCase
     public function testSettingInvalidDefaultRouteException(): void
     {
         $this->expectException(RouterException::class);
-        Router::defaultRouteClass('CakeObject');
+        Router::defaultRouteClass(CakeObject::class);
     }
 
     /**

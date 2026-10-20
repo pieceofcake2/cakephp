@@ -33,6 +33,8 @@ use ReflectionProperty;
 use stdClass;
 use TestApp\Model\Datasource\Database\TestLocalDriver;
 use TestApp\Model\Datasource\NamespacedSource;
+use TestApp\Model\Datasource\Test2OtherSource;
+use TestApp\Model\Datasource\Test2Source;
 use TestPlugin\Model\Datasource\Database\DboDummy;
 use TestPlugin\Model\Datasource\Database\TestDriver;
 use TestPlugin\Model\Datasource\TestSource;
@@ -98,7 +100,7 @@ class ConnectionManagerTest extends CakeTestCase
         ]);
 
         $name = 'test_get_datasource';
-        $config = ['datasource' => 'Test2Source'];
+        $config = ['datasource' => Test2Source::class];
 
         ConnectionManager::create($name, $config);
         $connections = ConnectionManager::enumConnectionObjects();
@@ -325,15 +327,15 @@ class ConnectionManagerTest extends CakeTestCase
         ], App::RESET);
         CakePlugin::load(['TestPlugin', 'TestPluginTwo']);
         $expected = [
-            'datasource' => 'Test2Source',
+            'datasource' => Test2Source::class,
         ];
 
-        ConnectionManager::create('connection1', ['datasource' => 'Test2Source']);
+        ConnectionManager::create('connection1', ['datasource' => Test2Source::class]);
         $connections = ConnectionManager::enumConnectionObjects();
         $this->assertEquals($expected, $connections['connection1']);
         ConnectionManager::drop('connection1');
 
-        ConnectionManager::create('connection2', ['datasource' => 'Test2Source']);
+        ConnectionManager::create('connection2', ['datasource' => Test2Source::class]);
         $connections = ConnectionManager::enumConnectionObjects();
         $this->assertEquals($expected, $connections['connection2']);
         ConnectionManager::drop('connection2');
@@ -349,13 +351,13 @@ class ConnectionManagerTest extends CakeTestCase
         $this->assertEquals($expected, $connections['connection4']);
         ConnectionManager::drop('connection4');
 
-        ConnectionManager::create('connection5', ['datasource' => 'Test2OtherSource']);
+        ConnectionManager::create('connection5', ['datasource' => Test2OtherSource::class]);
         $connections = ConnectionManager::enumConnectionObjects();
-        $expected['datasource'] = 'Test2OtherSource';
+        $expected['datasource'] = Test2OtherSource::class;
         $this->assertEquals($expected, $connections['connection5']);
         ConnectionManager::drop('connection5');
 
-        ConnectionManager::create('connection6', ['datasource' => 'Test2OtherSource']);
+        ConnectionManager::create('connection6', ['datasource' => Test2OtherSource::class]);
         $connections = ConnectionManager::enumConnectionObjects();
         $this->assertEquals($expected, $connections['connection6']);
         ConnectionManager::drop('connection6');
@@ -384,9 +386,9 @@ class ConnectionManagerTest extends CakeTestCase
                 CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'Model' . DS . 'Datasource' . DS,
             ],
         ]);
-        ConnectionManager::create('droppable', ['datasource' => 'Test2Source']);
+        ConnectionManager::create('droppable', ['datasource' => Test2Source::class]);
         $connections = ConnectionManager::enumConnectionObjects();
-        $this->assertEquals(['datasource' => 'Test2Source'], $connections['droppable']);
+        $this->assertEquals(['datasource' => Test2Source::class], $connections['droppable']);
 
         $this->assertTrue(ConnectionManager::drop('droppable'));
         $connections = ConnectionManager::enumConnectionObjects();

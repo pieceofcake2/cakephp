@@ -27,6 +27,7 @@ use Cake\Log\CakeLog;
 use Cake\Log\Engine\FileLog;
 use Cake\TestSuite\CakeTestCase;
 use TestApp\Log\Engine\NamespacedLog;
+use TestApp\Log\Engine\TestAppLog;
 
 /**
  * CakeLogTest class
@@ -79,7 +80,7 @@ class CakeLogTest extends CakeTestCase
         CakePlugin::load('TestPlugin');
 
         $result = CakeLog::config('libtest', [
-            'engine' => 'TestAppLog',
+            'engine' => TestAppLog::class,
         ]);
         $this->assertTrue($result);
         $this->assertEquals(['libtest'], CakeLog::configured());

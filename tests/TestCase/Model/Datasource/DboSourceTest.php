@@ -71,7 +71,6 @@ class MockPDO extends PDO
 class MockDataSource extends DataSource
 {
 }
-class_alias(MockDataSource::class, 'App\\Model\\Datasource\\MockDataSource');
 
 /**
  * DboTestSource
@@ -107,7 +106,6 @@ class DboTestSource extends DboSource
         return $this->useNestedTransactions && $this->nestedSupport;
     }
 }
-class_alias(DboTestSource::class, 'App\\Model\\Datasource\\DboTestSource');
 
 /**
  * DboSecondTestSource
@@ -140,7 +138,6 @@ class DboSecondTestSource extends DboSource
         $this->_connection = $conn;
     }
 }
-class_alias(DboSecondTestSource::class, 'App\\Model\\Datasource\\DboSecondTestSource');
 
 /**
  * DboThirdTestSource
@@ -1416,7 +1413,7 @@ class DboSourceTest extends CakeTestCase
 
         // tests for empty schemaName
         $noschema = ConnectionManager::create('noschema', [
-            'datasource' => 'DboTestSource',
+            'datasource' => DboTestSource::class,
             ]);
         $Article->setDataSource('noschema');
         $Article->schemaName = null;
@@ -1437,7 +1434,7 @@ class DboSourceTest extends CakeTestCase
     {
         $this->loadFixtures('Article', 'User', 'ArticlesTag', 'Tag');
         ConnectionManager::create('test_no_queryAssociation', [
-            'datasource' => 'MockDataSource',
+            'datasource' => MockDataSource::class,
         ]);
         $Article = ClassRegistry::init('Article');
         $Article->Comment->useDbConfig = 'test_no_queryAssociation';
@@ -1560,10 +1557,10 @@ class DboSourceTest extends CakeTestCase
     public function testFieldsCacheKeyWithDatasourceChange(): void
     {
         ConnectionManager::create('firstschema', [
-            'datasource' => 'DboTestSource',
+            'datasource' => DboTestSource::class,
         ]);
         ConnectionManager::create('secondschema', [
-            'datasource' => 'DboSecondTestSource',
+            'datasource' => DboSecondTestSource::class,
         ]);
         Cache::delete('method_cache', '_cake_core_');
         DboTestSource::$methodCache = [];

@@ -31,6 +31,8 @@ use Cake\Network\CakeRequest;
 use Cake\Network\CakeResponse;
 use Cake\Routing\Dispatcher;
 use Cake\Routing\DispatcherFilter;
+use Cake\Routing\Filter\AssetDispatcher;
+use Cake\Routing\Filter\CacheDispatcher;
 use Cake\Routing\Router;
 use Cake\TestSuite\CakeTestCase;
 use Cake\Utility\Inflector;
@@ -591,7 +593,6 @@ class TestFilterDispatcher extends DispatcherFilter
     {
     }
 }
-class_alias(TestFilterDispatcher::class, 'TestApp\\Routing\\Filter\\TestFilterDispatcher');
 
 /**
  * DispatcherTest class
@@ -1396,7 +1397,7 @@ class DispatcherTest extends CakeTestCase
     public function testDispatcherFilterSettings(): void
     {
         Configure::write('Dispatcher.filters', [
-            'TestFilterDispatcher' => ['service' => 'google.com'],
+            TestFilterDispatcher::class => ['service' => 'google.com'],
         ]);
         $dispatcher = new Dispatcher();
         $url = new CakeRequest('some_pages/index');
@@ -1554,7 +1555,7 @@ class DispatcherTest extends CakeTestCase
             ],
         ]);
         CakePlugin::load(['TestPlugin', 'TestPluginTwo']);
-        Configure::write('Dispatcher.filters', ['AssetDispatcher']);
+        Configure::write('Dispatcher.filters', [AssetDispatcher::class]);
 
         $Dispatcher = new TestDispatcher();
         $response = $this->getMock(CakeResponse::class, ['_sendHeader']);
@@ -1678,7 +1679,7 @@ class DispatcherTest extends CakeTestCase
             ],
         ]);
         CakePlugin::load(['TestPlugin', 'PluginJs']);
-        Configure::write('Dispatcher.filters', ['AssetDispatcher']);
+        Configure::write('Dispatcher.filters', [AssetDispatcher::class]);
 
         $Dispatcher = new TestDispatcher();
         $response = $this->getMock(CakeResponse::class, ['_sendHeader']);
@@ -1708,7 +1709,7 @@ class DispatcherTest extends CakeTestCase
             'js' => '',
             'css' => null,
         ]);
-        Configure::write('Dispatcher.filters', ['AssetDispatcher']);
+        Configure::write('Dispatcher.filters', [AssetDispatcher::class]);
 
         $request = new CakeRequest('ccss/cake.generic.css');
         $Dispatcher->dispatch($request, $response);
@@ -1771,7 +1772,7 @@ class DispatcherTest extends CakeTestCase
         $dispatcher->dispatch($request, $response);
         $out = $response->body();
 
-        Configure::write('Dispatcher.filters', ['CacheDispatcher']);
+        Configure::write('Dispatcher.filters', [CacheDispatcher::class]);
         $request = new CakeRequest($url);
         $response = $this->getMock(CakeResponse::class, ['send']);
         $dispatcher = new TestDispatcher();

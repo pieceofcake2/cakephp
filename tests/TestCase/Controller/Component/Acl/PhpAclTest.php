@@ -41,7 +41,7 @@ class PhpAclTest extends CakeTestCase
     public function setUp(): void
     {
         parent::setUp();
-        Configure::write('Acl.classname', 'PhpAcl');
+        Configure::write('Acl.classname', PhpAcl::class);
         $Collection = new ComponentCollection();
         $this->PhpAcl = new PhpAcl();
         $this->Acl = new AclComponent($Collection, [

@@ -55,7 +55,6 @@ class DboMock extends DboSource
         return true;
     }
 }
-class_alias(DboMock::class, 'App\\Model\\Datasource\\DboMock');
 
 /**
  * ModelIntegrationTest
@@ -2409,7 +2408,7 @@ class ModelIntegrationTest extends BaseModelTest
         $expected = $db->name('Domain.DomainHandle');
         $this->assertEquals($expected, $result);
 
-        ConnectionManager::create('mock', ['datasource' => 'DboMock']);
+        ConnectionManager::create('mock', ['datasource' => DboMock::class]);
         $TestModel->setDataSource('mock');
         $db = $TestModel->getDataSource();
 

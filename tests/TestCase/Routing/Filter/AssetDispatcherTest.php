@@ -264,7 +264,7 @@ class AssetDispatcherTest extends CakeTestCase
     public function testAssetContentLength(): void
     {
         Router::reload();
-        Configure::write('Dispatcher.filters', ['AssetDispatcher']);
+        Configure::write('Dispatcher.filters', [AssetDispatcher::class]);
         App::build([
             'View' => [
                 CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'View' . DS,

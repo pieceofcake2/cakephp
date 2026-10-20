@@ -178,7 +178,6 @@ class DbAclTwoTest extends DbAcl
         $this->Permission->Aco = $this->Aco;
     }
 }
-class_alias(DbAclTwoTest::class, 'App\\Controller\\Component\\Acl\\DbAclTwoTest');
 
 /**
  * Test case for AclComponent using the DbAcl implementation.
@@ -206,7 +205,7 @@ class DbAclTest extends CakeTestCase
     public function setUp(): void
     {
         parent::setUp();
-        Configure::write('Acl.classname', 'DbAclTwoTest');
+        Configure::write('Acl.classname', DbAclTwoTest::class);
         Configure::write('Acl.database', 'test');
         $collection = new ComponentCollection();
         $this->Acl = new AclComponent($collection);

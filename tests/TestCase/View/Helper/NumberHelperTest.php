@@ -154,7 +154,6 @@ class CakeNumberMock extends CakeNumber
         // Mock implementation - does nothing
     }
 }
-class_alias(CakeNumberMock::class, 'TestApp\\Utility\\CakeNumberMock');
 
 /**
  * NumberHelperTest class
@@ -212,7 +211,7 @@ class NumberHelperTest extends CakeTestCase
         ];
 
         CakeNumberMock::reset();
-        $number = new NumberHelper($this->View, ['engine' => 'CakeNumberMock']);
+        $number = new NumberHelper($this->View, ['engine' => CakeNumberMock::class]);
 
         foreach ($methods as $method => $args) {
             $number->{$method}(...$args);
@@ -231,7 +230,7 @@ class NumberHelperTest extends CakeTestCase
         App::build([
             'Utility' => [CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'Utility' . DS],
         ], App::REGISTER);
-        $number = new NumberHelperTestObject($this->View, ['engine' => 'TestAppEngine']);
+        $number = new NumberHelperTestObject($this->View, ['engine' => TestAppEngine::class]);
         $this->assertInstanceOf(TestAppEngine::class, $number->engine());
 
         App::build([
