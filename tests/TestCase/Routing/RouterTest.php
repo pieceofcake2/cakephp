@@ -3019,5 +3019,11 @@ class RouterTest extends CakeTestCase
 
         $routes = Router::connect('/global', ['controller' => 'posts'], ['routeClass' => 'PluginShortRoute']);
         $this->assertInstanceOf('PluginShortRoute', end($routes));
+
+        Router::defaultRouteClass('NamespacedRoute');
+        $this->assertSame(NamespacedRoute::class, Router::defaultRouteClass());
+        $routes = Router::connect('/default', ['controller' => 'posts']);
+        $this->assertInstanceOf(NamespacedRoute::class, end($routes));
+        Router::defaultRouteClass('CakeRoute');
     }
 }

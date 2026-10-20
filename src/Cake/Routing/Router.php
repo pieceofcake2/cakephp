@@ -214,7 +214,8 @@ class Router
             return static::$_routeClass;
         }
 
-        static::$_routeClass = static::_validateRouteClass($routeClass);
+        [, $name] = pluginSplit($routeClass);
+        static::$_routeClass = static::_validateRouteClass(App::className($routeClass, 'Routing/Route') ?? $name);
 
         return null;
     }
