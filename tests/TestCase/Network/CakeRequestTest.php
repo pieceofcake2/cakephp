@@ -22,6 +22,7 @@ use Cake\Core\Configure;
 use Cake\Error\CakeException;
 use Cake\Error\MethodNotAllowedException;
 use Cake\Network\CakeRequest;
+use Cake\Routing\Router;
 use Cake\TestSuite\CakeTestCase;
 use Cake\Utility\Xml;
 use DOMDocument;

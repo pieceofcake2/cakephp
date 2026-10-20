@@ -203,14 +203,14 @@ class HtmlHelperTest extends CakeTestCase
         $this->Html->theme = 'test_theme';
         $result = $this->Html->css('webroot_test');
         $expected = [
-            'link' => ['rel' => 'stylesheet', 'type' => 'text/css', 'href' => 'preg:/.*theme\/test_theme\/css\/webroot_test\.css/'],
+            'link' => ['rel' => 'stylesheet', 'href' => 'preg:/.*theme\/test_theme\/css\/webroot_test\.css/'],
         ];
         $this->assertTags($result, $expected);
 
         $this->Html->theme = 'test_theme';
         $result = $this->Html->css('theme_webroot');
         $expected = [
-            'link' => ['rel' => 'stylesheet', 'type' => 'text/css', 'href' => 'preg:/.*theme\/test_theme\/css\/theme_webroot\.css/'],
+            'link' => ['rel' => 'stylesheet', 'href' => 'preg:/.*theme\/test_theme\/css\/theme_webroot\.css/'],
         ];
         $this->assertTags($result, $expected);
 
@@ -229,7 +229,7 @@ class HtmlHelperTest extends CakeTestCase
 
         $result = $this->Html->css('TestLegacyPlugin.test_plugin_asset');
         $expected = [
-            'link' => ['rel' => 'stylesheet', 'type' => 'text/css', 'href' => 'preg:/.*test_legacy_plugin\/css\/test_plugin_asset\.css/'],
+            'link' => ['rel' => 'stylesheet', 'href' => 'preg:/.*test_legacy_plugin\/css\/test_plugin_asset\.css/'],
         ];
         $this->assertTags($result, $expected);
 
@@ -274,7 +274,7 @@ class HtmlHelperTest extends CakeTestCase
         Configure::write('Asset.timestamp', true);
 
         $expected = [
-            'link' => ['rel' => 'stylesheet', 'type' => 'text/css', 'href' => ''],
+            'link' => ['rel' => 'stylesheet', 'href' => ''],
         ];
 
         $result = $this->Html->css('TestLegacyPlugin.test_plugin_asset');
@@ -318,40 +318,40 @@ class HtmlHelperTest extends CakeTestCase
 
         $result = $this->Html->script('TestLegacyPlugin.foo');
         $expected = [
-            'script' => ['type' => 'text/javascript', 'src' => 'test_legacy_plugin/js/foo.js'],
+            'script' => ['src' => 'test_legacy_plugin/js/foo.js'],
         ];
         $this->assertTags($result, $expected);
 
         $result = $this->Html->script(['TestLegacyPlugin.foobar', 'TestLegacyPlugin.bar']);
         $expected = [
-            ['script' => ['type' => 'text/javascript', 'src' => 'test_legacy_plugin/js/foobar.js']],
+            ['script' => ['src' => 'test_legacy_plugin/js/foobar.js']],
             '/script',
-            ['script' => ['type' => 'text/javascript', 'src' => 'test_legacy_plugin/js/bar.js']],
+            ['script' => ['src' => 'test_legacy_plugin/js/bar.js']],
             '/script',
         ];
         $this->assertTags($result, $expected);
 
         $result = $this->Html->script('TestLegacyPlugin.jquery-1.3');
         $expected = [
-            'script' => ['type' => 'text/javascript', 'src' => 'test_legacy_plugin/js/jquery-1.3.js'],
+            'script' => ['src' => 'test_legacy_plugin/js/jquery-1.3.js'],
         ];
         $this->assertTags($result, $expected);
 
         $result = $this->Html->script('TestLegacyPlugin.test.json');
         $expected = [
-            'script' => ['type' => 'text/javascript', 'src' => 'test_legacy_plugin/js/test.json.js'],
+            'script' => ['src' => 'test_legacy_plugin/js/test.json.js'],
         ];
         $this->assertTags($result, $expected);
 
         $result = $this->Html->script('TestLegacyPlugin./jquery-1.3.2.js?someparam=foo');
         $expected = [
-            'script' => ['type' => 'text/javascript', 'src' => 'test_legacy_plugin/jquery-1.3.2.js?someparam=foo'],
+            'script' => ['src' => 'test_legacy_plugin/jquery-1.3.2.js?someparam=foo'],
         ];
         $this->assertTags($result, $expected);
 
         $result = $this->Html->script('TestLegacyPlugin.test.json.js?foo=bar');
         $expected = [
-            'script' => ['type' => 'text/javascript', 'src' => 'test_legacy_plugin/js/test.json.js?foo=bar'],
+            'script' => ['src' => 'test_legacy_plugin/js/test.json.js?foo=bar'],
         ];
         $this->assertTags($result, $expected);
 
@@ -366,7 +366,7 @@ class HtmlHelperTest extends CakeTestCase
 
         $result = $this->Html->script('TestLegacyPlugin.jquery-1.3.2', ['defer' => true, 'encoding' => 'utf-8']);
         $expected = [
-            'script' => ['type' => 'text/javascript', 'src' => 'test_legacy_plugin/js/jquery-1.3.2.js', 'defer' => 'defer', 'encoding' => 'utf-8'],
+            'script' => ['src' => 'test_legacy_plugin/js/jquery-1.3.2.js', 'defer' => 'defer', 'encoding' => 'utf-8'],
         ];
         $this->assertTags($result, $expected);
 
