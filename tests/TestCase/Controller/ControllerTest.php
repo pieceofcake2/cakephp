@@ -2,6 +2,7 @@
 
 use TestApp\Controller\NamespacedController;
 use TestApp\View\NamespacedView;
+use TestPluginTwo\Controller\NamespacedPluginController;
 
 /**
  * CakePHP(tm) : Rapid Development Framework (https://cakephp.org)
@@ -1642,5 +1643,24 @@ class ControllerTest extends CakeTestCase
         $this->assertInstanceOf(NamespacedView::class, $getViewObject->invoke($Controller));
         $Controller->viewClass = 'Json';
         $this->assertInstanceOf('JsonView', $getViewObject->invoke($Controller));
+    }
+
+    /**
+     * Test that a plugin controller merges the vars of the AppController in the namespace of the plugin.
+     *
+     * @return void
+     */
+    public function testNamespacedPluginAppController(): void
+    {
+        App::build(['Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS]]);
+        CakePlugin::load('TestPluginTwo');
+        $request = new CakeRequest(null, false);
+        $request->addParams(['plugin' => 'test_plugin_two', 'controller' => 'namespaced_plugin', 'action' => 'index']);
+        $Controller = new NamespacedPluginController($request, new CakeResponse());
+        $Controller->constructClasses();
+        $helpers = Hash::normalize($Controller->helpers);
+        $this->assertArrayHasKey('Text', $helpers);
+        $this->assertArrayHasKey('Number', $helpers);
+        CakePlugin::unload();
     }
 }

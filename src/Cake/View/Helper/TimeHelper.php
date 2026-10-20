@@ -52,10 +52,10 @@ class TimeHelper extends AppHelper
     {
         $settings = Hash::merge(['engine' => 'CakeTime'], $settings);
         parent::__construct($View, $settings);
-        [$plugin, $engineClass] = pluginSplit($settings['engine'], true);
-        App::uses($engineClass, $plugin . 'Utility');
-        if (class_exists($engineClass)) {
-            $this->_engine = new $engineClass($settings);
+        [, $engineClass] = pluginSplit($settings['engine']);
+        $className = App::className($settings['engine'], 'Utility');
+        if ($className !== null) {
+            $this->_engine = new $className($settings);
         } else {
             throw new CakeException(__d('cake_dev', '%s could not be found', $engineClass));
         }

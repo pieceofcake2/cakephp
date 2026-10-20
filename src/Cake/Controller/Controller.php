@@ -577,7 +577,10 @@ class Controller extends CakeObject implements CakeEventListener
         if (!empty($this->plugin)) {
             $pluginController = $this->plugin . 'AppController';
             if (!is_subclass_of($this, $pluginController)) {
-                $pluginController = null;
+                $pluginController = App::className($this->plugin . '.' . $pluginController, 'Controller');
+                if ($pluginController === null || !is_subclass_of($this, $pluginController)) {
+                    $pluginController = null;
+                }
             }
             $pluginDot = $this->plugin . '.';
         }

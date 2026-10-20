@@ -753,11 +753,7 @@ trait IntegrationTestTrait
     protected function _handleError(Throwable $exception): void
     {
         $renderer = Configure::read('Exception.renderer') ?: 'ExceptionRenderer';
-        [$plugin, $renderer] = pluginSplit($renderer, true);
-        App::uses($renderer, $plugin . 'Error');
-        if (!class_exists($renderer)) {
-            $renderer = 'ExceptionRenderer';
-        }
+        $renderer = App::className($renderer, 'Error') ?? 'ExceptionRenderer';
         /** @var ExceptionRenderer $instance */
         $instance = new $renderer($exception);
         $level = ob_get_level();

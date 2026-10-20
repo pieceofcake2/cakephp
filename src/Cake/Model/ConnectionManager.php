@@ -202,12 +202,15 @@ class ConnectionManager
             $package = '/' . $conn['package'];
         }
 
-        App::uses($conn['classname'], $plugin . 'Model/Datasource' . $package);
-        if (!class_exists($conn['classname'])) {
+        $className = App::className($plugin . $conn['classname'], 'Model/Datasource' . $package);
+        if ($className === null) {
             throw new MissingDatasourceException([
                 'class' => $conn['classname'],
                 'plugin' => substr($plugin, 0, -1),
             ]);
+        }
+        if (!is_array($connName)) {
+            static::$_connectionsEnum[$connName]['classname'] = $className;
         }
 
         return true;

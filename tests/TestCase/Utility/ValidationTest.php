@@ -2802,4 +2802,18 @@ class ValidationTest extends CakeTestCase
             $this->assertFalse(Validation::utf8($value, ['extended' => true]));
         }
     }
+
+    /**
+     * Test localized validation classes by fully qualified class name and from App.namespace.
+     *
+     * @return void
+     */
+    public function testPassNamespacedValidation(): void
+    {
+        $this->assertTrue(Validation::postal('namespaced', null, 'TestApp\Utility\Namespaced'));
+        $this->assertFalse(Validation::postal('other', null, 'TestApp\Utility\Namespaced'));
+
+        Configure::write('App.namespace', 'TestApp');
+        $this->assertTrue(Validation::postal('namespaced', null, 'namespaced'));
+    }
 }

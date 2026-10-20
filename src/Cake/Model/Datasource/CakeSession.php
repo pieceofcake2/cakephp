@@ -671,10 +671,10 @@ class CakeSession
      */
     protected static function _getHandler($handler)
     {
-        [$plugin, $class] = pluginSplit($handler, true);
-        App::uses($class, $plugin . 'Model/Datasource/Session');
-        if (!class_exists($class)) {
-            throw new CakeSessionException(__d('cake_dev', 'Could not load %s to handle the session.', $class));
+        $class = App::className($handler, 'Model/Datasource/Session');
+        if ($class === null) {
+            [, $name] = pluginSplit($handler);
+            throw new CakeSessionException(__d('cake_dev', 'Could not load %s to handle the session.', $name));
         }
         $handler = new $class();
         if ($handler instanceof CakeSessionHandlerInterface) {

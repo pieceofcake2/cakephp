@@ -370,12 +370,8 @@ class Router
         }
         $routeClass = static::$_routeClass;
         if (isset($options['routeClass'])) {
-            if (!str_contains($options['routeClass'], '.')) {
-                $routeClass = $options['routeClass'];
-            } else {
-                [, $routeClass] = pluginSplit($options['routeClass'], true);
-            }
-            $routeClass = static::_validateRouteClass($routeClass);
+            [, $name] = pluginSplit($options['routeClass']);
+            $routeClass = static::_validateRouteClass(App::className($options['routeClass'], 'Routing/Route') ?? $name);
             unset($options['routeClass']);
         }
         if ($routeClass === 'RedirectRoute' && isset($defaults['redirect'])) {

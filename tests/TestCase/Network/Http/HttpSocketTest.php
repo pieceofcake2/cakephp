@@ -1,4 +1,8 @@
 <?php
+
+use TestApp\Network\Http\NamespacedAuthentication;
+use TestApp\Network\Http\NamespacedResponse;
+
 /**
  * HttpSocketTest file
  *
@@ -1908,5 +1912,28 @@ class HttpSocketTest extends CakeTestCase
             'reason-phrase' => $msg,
         ];
         $this->assertEquals($expected, $response['status']);
+    }
+
+    /**
+     * Test the response class and authentication by fully qualified class name and from App.namespace.
+     *
+     * @return void
+     */
+    public function testNamespacedResponseAndAuthentication(): void
+    {
+        $this->Socket->expects($this->any())->method('read')->will($this->returnValue(false));
+
+        $this->Socket->responseClass = NamespacedResponse::class;
+        $this->Socket->configAuth(NamespacedAuthentication::class, 'mark', 'passwd');
+        $response = $this->Socket->get('http://example.com/test');
+        $this->assertInstanceOf(NamespacedResponse::class, $response);
+        $this->assertStringContainsString('Authorization: Namespaced mark', $this->Socket->request['header']);
+
+        Configure::write('App.namespace', 'TestApp');
+        $this->Socket->responseClass = 'NamespacedResponse';
+        $this->Socket->configAuth('Namespaced', 'joe', 'passwd');
+        $response = $this->Socket->get('http://example.com/test');
+        $this->assertInstanceOf(NamespacedResponse::class, $response);
+        $this->assertStringContainsString('Authorization: Namespaced joe', $this->Socket->request['header']);
     }
 }

@@ -1,4 +1,7 @@
 <?php
+
+use TestApp\Utility\NamespacedNumber;
+
 /**
  * NumberHelperTest file
  *
@@ -123,5 +126,40 @@ class NumberHelperTest extends CakeTestCase
         $Number = new NumberHelperTestObject($this->View, ['engine' => 'TestPlugin.TestPluginEngine']);
         $this->assertInstanceOf('TestPluginEngine', $Number->engine());
         CakePlugin::unload('TestPlugin');
+    }
+
+    /**
+     * Test the engine by fully qualified class name and from App.namespace.
+     *
+     * @return void
+     */
+    public function testNamespacedEngine(): void
+    {
+        $View = new View(null);
+        $Helper = new NumberHelper($View, ['engine' => NamespacedNumber::class]);
+        $this->assertInstanceOf(NamespacedNumber::class, $this->getEngine($Helper));
+
+        Configure::write('App.namespace', 'TestApp');
+        $Helper = new NumberHelper($View, ['engine' => 'NamespacedNumber']);
+        $this->assertInstanceOf(NamespacedNumber::class, $this->getEngine($Helper));
+
+        $Helper = new NumberHelper($View);
+        $this->assertInstanceOf('CakeNumber', $this->getEngine($Helper));
+    }
+
+    /**
+     * Returns the engine of a helper.
+     *
+     * @param Helper $Helper The helper
+     * @return object
+     */
+    protected function getEngine(Helper $Helper): object
+    {
+        $property = new ReflectionProperty($Helper, '_engine');
+        if (PHP_VERSION_ID < 80100) {
+            $property->setAccessible(true);
+        }
+
+        return $property->getValue($Helper);
     }
 }

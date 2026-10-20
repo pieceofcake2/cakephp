@@ -741,13 +741,17 @@ class Model extends CakeObject implements CakeEventListener
             $this->useDbConfig = $ds;
         }
 
-        if (is_subclass_of($this, 'AppModel')) {
+        $appModel = 'AppModel';
+        if (!is_subclass_of($this, $appModel) && Configure::read('App.namespace')) {
+            $appModel = App::className($appModel, 'Model') ?? $appModel;
+        }
+        if (is_subclass_of($this, $appModel)) {
             $merge = ['actsAs', 'findMethods'];
             $parentClass = get_parent_class($this);
-            if ($parentClass !== 'AppModel') {
+            if ($parentClass !== $appModel) {
                 $this->_mergeVars($merge, $parentClass);
             }
-            $this->_mergeVars($merge, 'AppModel');
+            $this->_mergeVars($merge, $appModel);
         }
         $this->_mergeVars(['findMethods'], 'Model');
 
