@@ -14,14 +14,14 @@
 
 namespace TestApp\Controller;
 
-use MergeVarPlugin\Controller\MergeVarPluginAppController;
+use TestMergeVarPlugin\Controller\TestMergeVarPluginAppController;
 
 /**
  * MergePostsController
  *
  * @package       Cake.Test.Case.Controller
  */
-class MergePostsController extends MergeVarPluginAppController
+class MergePostsController extends TestMergeVarPluginAppController
 {
     /**
      * uses

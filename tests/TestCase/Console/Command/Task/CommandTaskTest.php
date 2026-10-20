@@ -47,7 +47,7 @@ class CommandTaskTest extends CakeTestCase
                 CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'Console' . DS . 'Command' . DS,
             ],
         ], App::RESET);
-        CakePlugin::load(['TestPlugin', 'TestPluginTwo']);
+        CakePlugin::load(['TestPlugin', 'TestTwoPlugin']);
 
         $out = $this->getMock(ConsoleOutput::class, [], [], '', false);
         $in = $this->getMock(ConsoleInput::class, [], [], '', false);
@@ -98,7 +98,7 @@ class CommandTaskTest extends CakeTestCase
                 'example',
                 'test_plugin',
             ],
-            'TestPluginTwo' => [
+            'TestTwoPlugin' => [
                 'example',
                 'welcome',
             ],
@@ -122,8 +122,8 @@ class CommandTaskTest extends CakeTestCase
         $expected = [
             'TestPlugin.example',
             'TestPlugin.test_plugin',
-            'TestPluginTwo.example',
-            'TestPluginTwo.welcome',
+            'TestTwoPlugin.example',
+            'TestTwoPlugin.welcome',
             'acl',
             'api',
             'command_list',

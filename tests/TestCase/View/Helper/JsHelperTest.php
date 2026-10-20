@@ -234,8 +234,8 @@ class JsHelperTest extends CakeTestCase
         $js = new JsHelper($this->View, 'prototype');
         $this->assertEquals(['Html', 'Form', 'prototypeEngine'], $js->helpers);
 
-        $js = new JsHelper($this->View, 'MyPlugin.Dojo');
-        $this->assertEquals(['Html', 'Form', 'MyPlugin.DojoEngine'], $js->helpers);
+        $js = new JsHelper($this->View, 'TestDispatchPlugin.Dojo');
+        $this->assertEquals(['Html', 'Form', 'TestDispatchPlugin.DojoEngine'], $js->helpers);
     }
 
     /**

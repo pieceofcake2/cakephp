@@ -48,15 +48,15 @@
             "Cake\\Test\\Fixture\\": "tests/Fixture/",
             "Cake\\Test\\TestCase\\": "tests/TestCase/",
             "TestApp\\": "tests/test_app/src/",
+            "TestArticlesPlugin\\": "tests/test_app/plugins/TestArticlesPlugin/src/",
+            "TestDispatchPlugin\\": "tests/test_app/plugins/TestDispatchPlugin/src/",
+            "TestJsPlugin\\": "tests/test_app/plugins/TestJsPlugin/src/",
+            "TestMergeVarPlugin\\": "tests/test_app/plugins/TestMergeVarPlugin/src/",
+            "TestModernPlugin\\": "tests/test_app/plugins/TestModernPlugin/src/",
+            "TestNamespacedPlugin\\": "tests/test_legacy_app/plugins/TestNamespacedPlugin/src/",
             "TestPlugin\\": "tests/test_app/plugins/TestPlugin/src/",
-            "TestPluginTwo\\": "tests/test_app/plugins/TestPluginTwo/src/",
-            "PluginJs\\": "tests/test_app/plugins/PluginJs/src/",
-            "TestPluginModern\\": "tests/test_app/plugins/TestPluginModern/src/",
-            "ArticlesTest\\": "tests/test_app/fake_plugins/ArticlesTest/src/",
-            "MergeVarPlugin\\": "tests/test_app/fake_plugins/MergeVarPlugin/src/",
-            "MyPlugin\\": "tests/test_app/fake_plugins/MyPlugin/src/",
-            "RegistryPlugin\\": "tests/test_app/fake_plugins/RegistryPlugin/src/",
-            "TestNamespacedPlugin\\": "tests/test_legacy_app/plugins/TestNamespacedPlugin/src/"
+            "TestRegistryPlugin\\": "tests/test_app/plugins/TestRegistryPlugin/src/",
+            "TestTwoPlugin\\": "tests/test_app/plugins/TestTwoPlugin/src/"
         },
         "exclude-from-classmap": [
             "vendor/pieceofcake2/app/src/Controller/AppController.php",

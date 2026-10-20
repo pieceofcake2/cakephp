@@ -543,11 +543,11 @@ class DispatcherTest extends CakeTestCase
         Router::reload();
         $dispatcher = new TestDispatcher();
         Router::connect(
-            '/my_plugin/:controller/*',
-            ['plugin' => 'my_plugin', 'controller' => 'pages', 'action' => 'display'],
+            '/test_dispatch_plugin/:controller/*',
+            ['plugin' => 'test_dispatch_plugin', 'controller' => 'pages', 'action' => 'display'],
         );
 
-        $url = new CakeRequest('my_plugin/some_pages/home/param:value/param2:value2');
+        $url = new CakeRequest('test_dispatch_plugin/some_pages/home/param:value/param2:value2');
         $response = $this->getMock(CakeResponse::class);
         $dispatcher->dispatch($url, $response, ['return' => 1]);
 
@@ -555,14 +555,14 @@ class DispatcherTest extends CakeTestCase
         $dispatcher->parseParams($event);
         $expected = [
             'pass' => ['home'],
-            'named' => ['param' => 'value', 'param2' => 'value2'], 'plugin' => 'my_plugin',
+            'named' => ['param' => 'value', 'param2' => 'value2'], 'plugin' => 'test_dispatch_plugin',
             'controller' => 'some_pages', 'action' => 'display',
         ];
         foreach ($expected as $key => $value) {
             $this->assertEquals($value, $url[$key], 'Value mismatch ' . $key . ' %');
         }
 
-        $this->assertSame($dispatcher->controller->plugin, 'MyPlugin');
+        $this->assertSame($dispatcher->controller->plugin, 'TestDispatchPlugin');
         $this->assertSame($dispatcher->controller->name, 'SomePages');
         $this->assertSame($dispatcher->controller->params['controller'], 'some_pages');
         $this->assertSame($dispatcher->controller->passedArgs, ['0' => 'home', 'param' => 'value', 'param2' => 'value2']);
@@ -581,22 +581,22 @@ class DispatcherTest extends CakeTestCase
         Router::reload();
         $Dispatcher = new TestDispatcher();
         Router::connect(
-            '/my_plugin/:controller/:action/*',
-            ['plugin' => 'my_plugin', 'controller' => 'pages', 'action' => 'display'],
+            '/test_dispatch_plugin/:controller/:action/*',
+            ['plugin' => 'test_dispatch_plugin', 'controller' => 'pages', 'action' => 'display'],
         );
 
         $Dispatcher->base = false;
 
-        $url = new CakeRequest('my_plugin/other_pages/index/param:value/param2:value2');
+        $url = new CakeRequest('test_dispatch_plugin/other_pages/index/param:value/param2:value2');
         $response = $this->getMock(CakeResponse::class);
         $Dispatcher->dispatch($url, $response, ['return' => 1]);
 
-        $this->assertSame($Dispatcher->controller->plugin, 'MyPlugin');
+        $this->assertSame($Dispatcher->controller->plugin, 'TestDispatchPlugin');
         $this->assertSame($Dispatcher->controller->name, 'OtherPages');
         $this->assertSame($Dispatcher->controller->action, 'index');
         $this->assertSame($Dispatcher->controller->passedArgs, ['param' => 'value', 'param2' => 'value2']);
 
-        $expected = '/cake/repo/branches/1.2.x.x/my_plugin/other_pages/index/param:value/param2:value2';
+        $expected = '/cake/repo/branches/1.2.x.x/test_dispatch_plugin/other_pages/index/param:value/param2:value2';
         $this->assertSame($expected, $url->here);
 
         $expected = '/cake/repo/branches/1.2.x.x';
@@ -611,22 +611,22 @@ class DispatcherTest extends CakeTestCase
     public function testAutomaticPluginControllerDispatch(): void
     {
         $plugins = App::objects('plugin');
-        $plugins[] = 'MyPlugin';
-        $plugins[] = 'ArticlesTest';
+        $plugins[] = 'TestDispatchPlugin';
+        $plugins[] = 'TestArticlesPlugin';
 
-        CakePlugin::load('MyPlugin', ['path' => '/fake/path']);
+        CakePlugin::load('TestDispatchPlugin', ['path' => '/fake/path']);
 
         Router::reload();
         $Dispatcher = new TestDispatcher();
         $Dispatcher->base = false;
 
-        $url = new CakeRequest('my_plugin/my_plugin/add/param:value/param2:value2');
+        $url = new CakeRequest('test_dispatch_plugin/test_dispatch_plugin/add/param:value/param2:value2');
         $response = $this->getMock(CakeResponse::class);
 
         $Dispatcher->dispatch($url, $response, ['return' => 1]);
 
-        $this->assertSame($Dispatcher->controller->plugin, 'MyPlugin');
-        $this->assertSame($Dispatcher->controller->name, 'MyPlugin');
+        $this->assertSame($Dispatcher->controller->plugin, 'TestDispatchPlugin');
+        $this->assertSame($Dispatcher->controller->name, 'TestDispatchPlugin');
         $this->assertSame($Dispatcher->controller->action, 'add');
         $this->assertEquals(['param' => 'value', 'param2' => 'value2'], $Dispatcher->controller->params['named']);
 
@@ -636,15 +636,15 @@ class DispatcherTest extends CakeTestCase
         $Dispatcher->base = false;
 
         // Simulates the Route for a real plugin, installed in APP/plugins
-        Router::connect('/my_plugin/:controller/:action/*', ['plugin' => 'my_plugin']);
+        Router::connect('/test_dispatch_plugin/:controller/:action/*', ['plugin' => 'test_dispatch_plugin']);
 
-        $plugin = 'MyPlugin';
+        $plugin = 'TestDispatchPlugin';
         $pluginUrl = Inflector::underscore($plugin);
 
         $url = new CakeRequest($pluginUrl);
         $Dispatcher->dispatch($url, $response, ['return' => 1]);
-        $this->assertSame($Dispatcher->controller->plugin, 'MyPlugin');
-        $this->assertSame($Dispatcher->controller->name, 'MyPlugin');
+        $this->assertSame($Dispatcher->controller->plugin, 'TestDispatchPlugin');
+        $this->assertSame($Dispatcher->controller->name, 'TestDispatchPlugin');
         $this->assertSame($Dispatcher->controller->action, 'index');
 
         $expected = $pluginUrl;
@@ -656,40 +656,40 @@ class DispatcherTest extends CakeTestCase
         require CORE_ROOT . DS . 'config' . DS . 'routes.php';
         $Dispatcher = new TestDispatcher();
 
-        $url = new CakeRequest('admin/my_plugin/my_plugin/add/5/param:value/param2:value2');
+        $url = new CakeRequest('admin/test_dispatch_plugin/test_dispatch_plugin/add/5/param:value/param2:value2');
         $response = $this->getMock(CakeResponse::class);
 
         $Dispatcher->dispatch($url, $response, ['return' => 1]);
 
-        $this->assertEquals('my_plugin', $Dispatcher->controller->params['plugin']);
-        $this->assertEquals('my_plugin', $Dispatcher->controller->params['controller']);
+        $this->assertEquals('test_dispatch_plugin', $Dispatcher->controller->params['plugin']);
+        $this->assertEquals('test_dispatch_plugin', $Dispatcher->controller->params['controller']);
         $this->assertEquals('admin_add', $Dispatcher->controller->params['action']);
         $this->assertEquals([5], $Dispatcher->controller->params['pass']);
         $this->assertEquals(['param' => 'value', 'param2' => 'value2'], $Dispatcher->controller->params['named']);
-        $this->assertSame($Dispatcher->controller->plugin, 'MyPlugin');
-        $this->assertSame($Dispatcher->controller->name, 'MyPlugin');
+        $this->assertSame($Dispatcher->controller->plugin, 'TestDispatchPlugin');
+        $this->assertSame($Dispatcher->controller->name, 'TestDispatchPlugin');
         $this->assertSame($Dispatcher->controller->action, 'admin_add');
 
         $expected = [0 => 5, 'param' => 'value', 'param2' => 'value2'];
         $this->assertEquals($expected, $Dispatcher->controller->passedArgs);
 
         Configure::write('Routing.prefixes', ['admin']);
-        CakePlugin::load('ArticlesTest', ['path' => '/fake/path']);
+        CakePlugin::load('TestArticlesPlugin', ['path' => '/fake/path']);
         Router::reload();
         require CORE_ROOT . DS . 'config' . DS . 'routes.php';
 
         $Dispatcher = new TestDispatcher();
 
-        $Dispatcher->dispatch(new CakeRequest('admin/articles_test'), $response, ['return' => 1]);
-        $this->assertSame($Dispatcher->controller->plugin, 'ArticlesTest');
-        $this->assertSame($Dispatcher->controller->name, 'ArticlesTest');
+        $Dispatcher->dispatch(new CakeRequest('admin/test_articles_plugin'), $response, ['return' => 1]);
+        $this->assertSame($Dispatcher->controller->plugin, 'TestArticlesPlugin');
+        $this->assertSame($Dispatcher->controller->name, 'TestArticlesPlugin');
         $this->assertSame($Dispatcher->controller->action, 'admin_index');
 
         $expected = [
             'pass' => [],
             'named' => [],
-            'controller' => 'articles_test',
-            'plugin' => 'articles_test',
+            'controller' => 'test_articles_plugin',
+            'plugin' => 'test_articles_plugin',
             'action' => 'admin_index',
             'prefix' => 'admin',
             'admin' => true,
@@ -708,18 +708,18 @@ class DispatcherTest extends CakeTestCase
      */
     public function testAutomaticPluginDispatchWithShortAccess(): void
     {
-        CakePlugin::load('MyPlugin', ['path' => '/fake/path']);
+        CakePlugin::load('TestDispatchPlugin', ['path' => '/fake/path']);
         Router::reload();
 
         $Dispatcher = new TestDispatcher();
         $Dispatcher->base = false;
 
-        $url = new CakeRequest('my_plugin/');
+        $url = new CakeRequest('test_dispatch_plugin/');
         $response = $this->getMock(CakeResponse::class);
 
         $Dispatcher->dispatch($url, $response, ['return' => 1]);
-        $this->assertEquals('my_plugin', $Dispatcher->controller->params['controller']);
-        $this->assertEquals('my_plugin', $Dispatcher->controller->params['plugin']);
+        $this->assertEquals('test_dispatch_plugin', $Dispatcher->controller->params['controller']);
+        $this->assertEquals('test_dispatch_plugin', $Dispatcher->controller->params['plugin']);
         $this->assertEquals('index', $Dispatcher->controller->params['action']);
         $this->assertFalse(isset($Dispatcher->controller->params['pass'][0]));
     }
@@ -739,7 +739,7 @@ class DispatcherTest extends CakeTestCase
         App::build([
             'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
         ], App::RESET);
-        CakePlugin::load(['TestPlugin', 'TestPluginTwo']);
+        CakePlugin::load(['TestPlugin', 'TestTwoPlugin']);
 
         $Dispatcher = new TestDispatcher();
         $Dispatcher->base = false;
@@ -778,11 +778,11 @@ class DispatcherTest extends CakeTestCase
     public function testAutomaticPluginControllerMissingActionDispatch(): void
     {
         $this->expectException(MissingActionException::class);
-        $this->expectExceptionMessage('Action MyPluginController::not_here() could not be found.');
+        $this->expectExceptionMessage('Action TestDispatchPluginController::not_here() could not be found.');
         Router::reload();
         $dispatcher = new TestDispatcher();
 
-        $url = new CakeRequest('my_plugin/not_here/param:value/param2:value2');
+        $url = new CakeRequest('test_dispatch_plugin/not_here/param:value/param2:value2');
         $response = $this->getMock(CakeResponse::class);
 
         $dispatcher->dispatch($url, $response, ['return' => 1]);
@@ -797,11 +797,11 @@ class DispatcherTest extends CakeTestCase
     public function testAutomaticPluginControllerIndexMissingAction(): void
     {
         $this->expectException(MissingActionException::class);
-        $this->expectExceptionMessage('Action MyPluginController::param:value() could not be found.');
+        $this->expectExceptionMessage('Action TestDispatchPluginController::param:value() could not be found.');
         Router::reload();
         $Dispatcher = new TestDispatcher();
 
-        $url = new CakeRequest('my_plugin/param:value/param2:value2');
+        $url = new CakeRequest('test_dispatch_plugin/param:value/param2:value2');
         $response = $this->getMock(CakeResponse::class);
 
         $Dispatcher->dispatch($url, $response, ['return' => 1]);
@@ -818,7 +818,7 @@ class DispatcherTest extends CakeTestCase
         App::build([
             'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
         ], App::RESET);
-        CakePlugin::load(['TestPlugin', 'TestPluginTwo']);
+        CakePlugin::load(['TestPlugin', 'TestTwoPlugin']);
         Router::reload();
         Router::parse('/');
 
@@ -1044,7 +1044,7 @@ class DispatcherTest extends CakeTestCase
                 CORE_TESTS . DS . 'test_app' . DS . 'templates' . DS,
             ],
         ]);
-        CakePlugin::load(['TestPlugin', 'TestPluginTwo']);
+        CakePlugin::load(['TestPlugin', 'TestTwoPlugin']);
         Configure::write('Dispatcher.filters', [AssetDispatcher::class]);
 
         $Dispatcher = new TestDispatcher();
@@ -1131,12 +1131,12 @@ class DispatcherTest extends CakeTestCase
                 'plugins/TestPlugin/webroot/img/cake.icon.gif',
             ],
             [
-                'plugin_js/js/plugin_js.js',
-                'plugins/PluginJs/webroot/js/plugin_js.js',
+                'test_js_plugin/js/test_js_plugin.js',
+                'plugins/TestJsPlugin/webroot/js/test_js_plugin.js',
             ],
             [
-                'plugin_js/js/one/plugin_one.js',
-                'plugins/PluginJs/webroot/js/one/plugin_one.js',
+                'test_js_plugin/js/one/plugin_one.js',
+                'plugins/TestJsPlugin/webroot/js/one/plugin_one.js',
             ],
             [
                 'test_plugin/css/unknown.extension',
@@ -1168,7 +1168,7 @@ class DispatcherTest extends CakeTestCase
                 CORE_TESTS . DS . 'test_app' . DS . 'templates' . DS,
             ],
         ]);
-        CakePlugin::load(['TestPlugin', 'PluginJs']);
+        CakePlugin::load(['TestPlugin', 'TestJsPlugin']);
         Configure::write('Dispatcher.filters', [AssetDispatcher::class]);
 
         $Dispatcher = new TestDispatcher();

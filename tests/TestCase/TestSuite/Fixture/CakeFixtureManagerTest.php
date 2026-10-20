@@ -31,7 +31,7 @@ use ReflectionClass;
 use ReflectionMethod;
 use ReflectionProperty;
 use TestApp\Test\Fixture\NamespacedArticleFixture;
-use TestPluginTwo\Test\Fixture\NamespacedCommentFixture;
+use TestTwoPlugin\Test\Fixture\NamespacedCommentFixture;
 
 /**
  * Test Case for CakeFixtureManager class
@@ -157,22 +157,22 @@ class CakeFixtureManagerTest extends CakeTestCase
     {
         Configure::write('App.namespace', 'TestApp');
         App::build(['Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS]], App::RESET);
-        CakePlugin::load('TestPluginTwo');
+        CakePlugin::load('TestTwoPlugin');
 
         $loadFixtures = new ReflectionMethod($this->fixtureManager, '_loadFixtures');
         $loadFixtures->setAccessible(true);
-        $loadFixtures->invoke($this->fixtureManager, ['app.namespaced_article', 'namespaced_article', 'plugin.test_plugin_two.namespaced_comment']);
+        $loadFixtures->invoke($this->fixtureManager, ['app.namespaced_article', 'namespaced_article', 'plugin.test_two_plugin.namespaced_comment']);
         $loaded = new ReflectionProperty($this->fixtureManager, '_loaded');
         $loaded->setAccessible(true);
         $fixtures = $loaded->getValue($this->fixtureManager);
 
         $this->assertInstanceOf(NamespacedArticleFixture::class, $fixtures['app.namespaced_article']);
         $this->assertInstanceOf(NamespacedArticleFixture::class, $fixtures['namespaced_article']);
-        $this->assertInstanceOf(NamespacedCommentFixture::class, $fixtures['plugin.test_plugin_two.namespaced_comment']);
+        $this->assertInstanceOf(NamespacedCommentFixture::class, $fixtures['plugin.test_two_plugin.namespaced_comment']);
 
         // The name and the table come from the class name without the namespace
         $this->assertSame('NamespacedArticle', $fixtures['app.namespaced_article']->name);
         $this->assertSame('namespaced_articles', $fixtures['app.namespaced_article']->table);
-        $this->assertSame('namespaced_comments', $fixtures['plugin.test_plugin_two.namespaced_comment']->table);
+        $this->assertSame('namespaced_comments', $fixtures['plugin.test_two_plugin.namespaced_comment']->table);
     }
 }

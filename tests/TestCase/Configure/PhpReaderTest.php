@@ -216,9 +216,9 @@ class PhpReaderTest extends CakeTestCase
         App::build([
             'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
         ], App::RESET);
-        CakePlugin::load('TestPluginModern');
+        CakePlugin::load('TestModernPlugin');
         $reader = new PhpReader($this->path);
-        $result = $reader->read('TestPluginModern.modern_config');
+        $result = $reader->read('TestModernPlugin.modern_config');
         $this->assertSame('read from config/modern_config.php', $result['ModernConfig']);
         CakePlugin::unload();
     }

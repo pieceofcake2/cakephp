@@ -515,8 +515,8 @@ class RouterTest extends CakeTestCase
         Router::connect('/page/*', ['plugin' => null, 'controller' => 'pages', 'action' => 'view']);
         Router::parse('/');
 
-        $result = Router::url(['plugin' => 'my_plugin', 'controller' => 'pages', 'action' => 'view', 'my-page']);
-        $expected = '/my_plugin/pages/view/my-page';
+        $result = Router::url(['plugin' => 'test_dispatch_plugin', 'controller' => 'pages', 'action' => 'view', 'my-page']);
+        $expected = '/test_dispatch_plugin/pages/view/my-page';
         $this->assertEquals($expected, $result);
 
         Router::reload();
@@ -2461,16 +2461,16 @@ class RouterTest extends CakeTestCase
                 CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS,
             ],
         ], App::RESET);
-        CakePlugin::load(['TestPlugin', 'PluginJs']);
+        CakePlugin::load(['TestPlugin', 'TestJsPlugin']);
         Router::reload();
         require CORE_ROOT . DS . 'config' . DS . 'routes.php';
 
-        $result = Router::url(['plugin' => 'plugin_js', 'controller' => 'js_file', 'action' => 'index']);
-        $this->assertEquals('/plugin_js/js_file', $result);
+        $result = Router::url(['plugin' => 'test_js_plugin', 'controller' => 'js_file', 'action' => 'index']);
+        $this->assertEquals('/test_js_plugin/js_file', $result);
 
-        $result = Router::parse('/plugin_js/js_file');
+        $result = Router::parse('/test_js_plugin/js_file');
         $expected = [
-            'plugin' => 'plugin_js', 'controller' => 'js_file', 'action' => 'index',
+            'plugin' => 'test_js_plugin', 'controller' => 'js_file', 'action' => 'index',
             'named' => [], 'pass' => [],
         ];
         $this->assertEquals($expected, $result);

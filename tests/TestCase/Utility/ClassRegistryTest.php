@@ -29,15 +29,15 @@ use Cake\Model\Behavior\ContainableBehavior;
 use Cake\Model\ConnectionManager;
 use Cake\TestSuite\CakeTestCase;
 use Cake\Utility\ClassRegistry;
-use RegistryPlugin\Model\RegistryPluginAppModel;
-use RegistryPlugin\Model\TestRegistryPluginModel;
 use TestApp\Model\NamespacedComment;
 use TestApp\Model\NamespacedPost;
 use TestApp\Model\RegisterArticle;
 use TestApp\Model\RegisterArticleFeatured;
 use TestApp\Model\RegisterArticleTag;
 use TestApp\Model\RegisterCategory;
-use TestPluginTwo\Model\TestPluginTwoAppModel;
+use TestRegistryPlugin\Model\TestRegistryPluginAppModel;
+use TestRegistryPlugin\Model\TestRegistryPluginModel;
+use TestTwoPlugin\Model\TestTwoPluginAppModel;
 
 /**
  * Interface for testing ClassRegistry
@@ -225,17 +225,17 @@ class ClassRegistryTest extends CakeTestCase
         $this->assertFalse($testRegistryPluginModel);
 
         //Faking a plugin
-        CakePlugin::load('RegistryPlugin', ['path' => '/fake/path']);
-        $testRegistryPluginModel = ClassRegistry::init('RegistryPlugin.TestRegistryPluginModel');
+        CakePlugin::load('TestRegistryPlugin', ['path' => '/fake/path']);
+        $testRegistryPluginModel = ClassRegistry::init('TestRegistryPlugin.TestRegistryPluginModel');
         $this->assertInstanceOf(TestRegistryPluginModel::class, $testRegistryPluginModel);
 
         $this->assertEquals('something_', $testRegistryPluginModel->tablePrefix);
 
-        $PluginUser = ClassRegistry::init(['class' => 'RegistryPlugin.RegisterUser', 'alias' => 'RegistryPluginUser', 'table' => false]);
-        $this->assertInstanceOf(RegistryPluginAppModel::class, $PluginUser);
+        $PluginUser = ClassRegistry::init(['class' => 'TestRegistryPlugin.RegisterUser', 'alias' => 'TestPluginRegistryUser', 'table' => false]);
+        $this->assertInstanceOf(TestRegistryPluginAppModel::class, $PluginUser);
 
-        $PluginUserCopy = ClassRegistry::getObject('RegistryPluginUser');
-        $this->assertInstanceOf(RegistryPluginAppModel::class, $PluginUserCopy);
+        $PluginUserCopy = ClassRegistry::getObject('TestPluginRegistryUser');
+        $this->assertInstanceOf(TestRegistryPluginAppModel::class, $PluginUserCopy);
         $this->assertSame($PluginUser, $PluginUserCopy);
         CakePlugin::unload();
     }
@@ -329,9 +329,9 @@ class ClassRegistryTest extends CakeTestCase
         $this->assertContains('Containable', $Comment->Behaviors->loaded());
 
         App::build(['Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS]]);
-        CakePlugin::load('TestPluginTwo');
-        $Model = ClassRegistry::init(['class' => 'TestPluginTwo.NoSuchModel', 'table' => false]);
-        $this->assertInstanceOf(TestPluginTwoAppModel::class, $Model);
+        CakePlugin::load('TestTwoPlugin');
+        $Model = ClassRegistry::init(['class' => 'TestTwoPlugin.NoSuchModel', 'table' => false]);
+        $this->assertInstanceOf(TestTwoPluginAppModel::class, $Model);
         CakePlugin::unload();
     }
 

@@ -138,14 +138,14 @@ class CakeDsnTest extends CakeTestCase
             return $parts['query'] + $config;
         };
         $map = [
-            'thing' => 'MyPlugin.Thing',
+            'thing' => 'TestDispatchPlugin.Thing',
             'other' => function (array $parts, array $config) {
                 return ['class' => 'Other', 'host' => $parts['host'], 'seen' => $config['seen']];
             },
         ];
 
         $this->assertSame(
-            ['a' => '1', 'username' => 'u', 'password' => 'p', 'host' => 'h', 'port' => 1, 'path' => '/x', 'class' => 'MyPlugin.Thing'],
+            ['a' => '1', 'username' => 'u', 'password' => 'p', 'host' => 'h', 'port' => 1, 'path' => '/x', 'class' => 'TestDispatchPlugin.Thing'],
             CakeDsn::toConfig('thing://u:p@h:1/x?a=1', $map, 'class', $generic),
         );
         $this->assertSame(

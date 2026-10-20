@@ -110,13 +110,13 @@ class RequestHandlerComponentTest extends CakeTestCase
     {
         $settings = [
             'ajaxLayout' => 'test_ajax',
-            'viewClassMap' => ['json' => 'MyPlugin.MyJson'],
+            'viewClassMap' => ['json' => 'TestDispatchPlugin.MyJson'],
         ];
         $Collection = new ComponentCollection();
         $Collection->init($this->Controller);
         $RequestHandler = new RequestHandlerComponent($Collection, $settings);
         $this->assertEquals('test_ajax', $RequestHandler->ajaxLayout);
-        $this->assertEquals(['json' => 'MyPlugin.MyJson'], $RequestHandler->settings['viewClassMap']);
+        $this->assertEquals(['json' => 'TestDispatchPlugin.MyJson'], $RequestHandler->settings['viewClassMap']);
     }
 
     /**

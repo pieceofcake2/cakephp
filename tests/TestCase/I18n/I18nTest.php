@@ -2314,10 +2314,10 @@ class I18nTest extends CakeTestCase
         App::build([
             'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
         ]);
-        CakePlugin::load('TestPluginModern');
+        CakePlugin::load('TestModernPlugin');
 
         Configure::write('Config.language', 'po');
-        $result = __d('test_plugin_modern', 'Plural Rule 1');
+        $result = __d('test_modern_plugin', 'Plural Rule 1');
         $this->assertSame('Plural Rule 1 (from resources/locales)', $result);
     }
 }

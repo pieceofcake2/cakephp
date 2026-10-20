@@ -625,10 +625,10 @@ class CakeSchemaTest extends CakeTestCase
     public function testSchemaReadWithNamespacedPluginModels(): void
     {
         App::build(['Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS]]);
-        CakePlugin::load('TestPluginTwo');
+        CakePlugin::load('TestTwoPlugin');
 
         $Schema = new CakeSchema();
-        $Schema->plugin = 'TestPluginTwo';
+        $Schema->plugin = 'TestTwoPlugin';
         $read = $Schema->read([
             'connection' => 'test',
             'name' => 'TestApp',

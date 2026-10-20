@@ -655,10 +655,10 @@ class ExceptionRendererTest extends CakeTestCase
                 500,
             ],
             [
-                new MissingDatasourceException(['class' => 'MyDatasource', 'plugin' => 'MyPlugin']),
+                new MissingDatasourceException(['class' => 'MyDatasource', 'plugin' => 'TestDispatchPlugin']),
                 [
                     '/<h1 class="header-title">\s*<span>Missing Datasource<\/span>/',
-                    '/Datasource class <em>MyPlugin.MyDatasource<\/em> could not be found/',
+                    '/Datasource class <em>TestDispatchPlugin.MyDatasource<\/em> could not be found/',
                 ],
                 500,
             ],
@@ -691,11 +691,11 @@ class ExceptionRendererTest extends CakeTestCase
                 500,
             ],
             [
-                new MissingPluginException(['plugin' => 'TestPluginTwo']),
+                new MissingPluginException(['plugin' => 'TestTwoPlugin']),
                 [
                     '/<h1 class="header-title">\s*<span>Missing Plugin<\/span>/',
-                    '/Make sure your plugin <em>TestPluginTwo<\/em> is in the/',
-                    '/TestPluginTwo/',
+                    '/Make sure your plugin <em>TestTwoPlugin<\/em> is in the/',
+                    '/TestTwoPlugin/',
                 ],
                 500,
             ],
@@ -900,7 +900,7 @@ class ExceptionRendererTest extends CakeTestCase
         $ExceptionRenderer->controller->plugin = 'TestPlugin';
         $ExceptionRenderer->controller->request = $this->getMock(CakeRequest::class);
 
-        $exception = new MissingPluginException(['plugin' => 'TestPluginTwo']);
+        $exception = new MissingPluginException(['plugin' => 'TestTwoPlugin']);
         $ExceptionRenderer->controller->expects($this->once())
             ->method('render')
             ->with('error400')

@@ -333,7 +333,7 @@ class ViewTest extends CakeTestCase
         ], App::RESET);
         App::objects('plugins', null, false);
 
-        CakePlugin::load(['TestPlugin', 'TestPlugin', 'PluginJs']);
+        CakePlugin::load(['TestPlugin', 'TestPlugin', 'TestJsPlugin']);
         Configure::write('debug', 2);
     }
 
@@ -2011,9 +2011,9 @@ TEXT;
         App::build([
             'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
         ]);
-        CakePlugin::load('TestPluginModern');
+        CakePlugin::load('TestModernPlugin');
 
-        $result = $this->View->element('TestPluginModern.modern_element');
+        $result = $this->View->element('TestModernPlugin.modern_element');
         $this->assertSame('this is the element in the templates directory of a plugin', $result);
     }
 
@@ -2027,11 +2027,11 @@ TEXT;
         App::build([
             'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
         ]);
-        CakePlugin::load('TestPluginModern');
-        $pluginPath = CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS . 'TestPluginModern' . DS;
+        CakePlugin::load('TestModernPlugin');
+        $pluginPath = CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS . 'TestModernPlugin' . DS;
 
         $View = new TestView($this->Controller);
-        $paths = $View->paths('TestPluginModern', false);
+        $paths = $View->paths('TestModernPlugin', false);
         $this->assertContains($pluginPath . 'templates' . DS, $paths);
         foreach ($paths as $path) {
             $this->assertStringNotContainsString($pluginPath . 'src' . DS, $path);

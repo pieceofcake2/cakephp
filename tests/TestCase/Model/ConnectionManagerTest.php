@@ -321,7 +321,7 @@ class ConnectionManagerTest extends CakeTestCase
                 CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'Model' . DS . 'Datasource' . DS,
             ],
         ], App::RESET);
-        CakePlugin::load(['TestPlugin', 'TestPluginTwo']);
+        CakePlugin::load(['TestPlugin', 'TestTwoPlugin']);
         $expected = [
             'datasource' => Test2Source::class,
         ];
@@ -516,12 +516,12 @@ class ConnectionManagerTest extends CakeTestCase
                 ],
             ],
             'query parameters win over the DSN' => [
-                'mysql://u@h/d?database=other&datasource=MyPlugin.Database/Custom',
-                ['datasource' => 'MyPlugin.Database/Custom', 'login' => 'u', 'host' => 'h', 'database' => 'other'],
+                'mysql://u@h/d?database=other&datasource=TestDispatchPlugin.Database/Custom',
+                ['datasource' => 'TestDispatchPlugin.Database/Custom', 'login' => 'u', 'host' => 'h', 'database' => 'other'],
             ],
             'unknown scheme with datasource' => [
-                'mydb://u@h/d?datasource=MyPlugin.Database/MyDb',
-                ['datasource' => 'MyPlugin.Database/MyDb', 'login' => 'u', 'host' => 'h', 'database' => 'd'],
+                'mydb://u@h/d?datasource=TestDispatchPlugin.Database/MyDb',
+                ['datasource' => 'TestDispatchPlugin.Database/MyDb', 'login' => 'u', 'host' => 'h', 'database' => 'd'],
             ],
             'fragment is ignored' => [
                 'mysql://u@h/d#comment',
@@ -728,28 +728,28 @@ class ConnectionManagerTest extends CakeTestCase
         $original = ConnectionManager::getDsnClassMap();
         try {
             ConnectionManager::setDsnClassMap([
-                'MyDb' => 'MyPlugin.Database/MyDb',
+                'MyDb' => 'TestDispatchPlugin.Database/MyDb',
                 'otherdb' => function (array $parts, array $config) {
                     return [
-                        'datasource' => 'MyPlugin.Database/Other',
+                        'datasource' => 'TestDispatchPlugin.Database/Other',
                         'server' => $parts['host'],
                         'user' => $parts['username'],
                         'had' => $config['encoding'] ?? null,
                     ] + $parts['query'];
                 },
-                'mysql' => 'MyPlugin.Database/MyMysql',
+                'mysql' => 'TestDispatchPlugin.Database/MyMysql',
                 'mssql' => null,
             ]);
 
             $this->assertSame(
-                ['prefix' => 'x_', 'login' => 'u', 'password' => 'p', 'host' => 'h', 'port' => '1234', 'database' => 'd', 'datasource' => 'MyPlugin.Database/MyDb'],
+                ['prefix' => 'x_', 'login' => 'u', 'password' => 'p', 'host' => 'h', 'port' => '1234', 'database' => 'd', 'datasource' => 'TestDispatchPlugin.Database/MyDb'],
                 ConnectionManager::parseDsn('mydb://u:p@h:1234/d?prefix=x_'),
             );
             $this->assertSame(
-                ['datasource' => 'MyPlugin.Database/Other', 'server' => 'h', 'user' => 'u', 'had' => 'utf8', 'opt' => '1'],
+                ['datasource' => 'TestDispatchPlugin.Database/Other', 'server' => 'h', 'user' => 'u', 'had' => 'utf8', 'opt' => '1'],
                 ConnectionManager::parseDsn('otherdb://u@h/d?opt=1', ['encoding' => 'utf8']),
             );
-            $this->assertSame('MyPlugin.Database/MyMysql', ConnectionManager::parseDsn('mysql://h/d')['datasource']);
+            $this->assertSame('TestDispatchPlugin.Database/MyMysql', ConnectionManager::parseDsn('mysql://h/d')['datasource']);
             $this->assertSame('Database/Postgres', ConnectionManager::parseDsn('postgres://h/d')['datasource']);
             $this->assertArrayNotHasKey('mssql', ConnectionManager::getDsnClassMap());
             $this->assertArrayHasKey('mydb', ConnectionManager::getDsnClassMap());

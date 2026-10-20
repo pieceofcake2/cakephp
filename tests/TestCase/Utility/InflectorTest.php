@@ -491,9 +491,9 @@ class InflectorTest extends CakeTestCase
     {
         $this->assertSame('BlogArticles', Inflector::camelize('blog_articles'));
         $this->assertSame('BlogArticles', Inflector::camelize('blog articles'));
-        $this->assertSame('MyPlugin.MyClass', Inflector::camelize('MyPlugin.MyClass'));
-        $this->assertSame('MyPlugin.MyClass', Inflector::camelize('my_plugin.MyClass'));
-        $this->assertSame('MyPlugin.myClass', Inflector::camelize('MyPlugin.my_class'));
+        $this->assertSame('TestDispatchPlugin.MyClass', Inflector::camelize('TestDispatchPlugin.MyClass'));
+        $this->assertSame('TestDispatchPlugin.MyClass', Inflector::camelize('test_dispatch_plugin.MyClass'));
+        $this->assertSame('TestDispatchPlugin.myClass', Inflector::camelize('TestDispatchPlugin.my_class'));
     }
 
     /**

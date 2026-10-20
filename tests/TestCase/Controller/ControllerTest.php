@@ -47,8 +47,8 @@ use TestApp\Model\NamespacedPost;
 use TestApp\View\NamespacedView;
 use TestPlugin\Controller\TestPluginController;
 use TestPlugin\Model\TestPluginPost;
-use TestPluginTwo\Controller\NamespacedPluginController;
-use TestPluginTwo\Model\NamespacedPluginItem;
+use TestTwoPlugin\Controller\NamespacedPluginController;
+use TestTwoPlugin\Model\NamespacedPluginItem;
 
 /**
  * TestController class
@@ -1415,9 +1415,9 @@ class ControllerTest extends CakeTestCase
     public function testNamespacedPluginAppController(): void
     {
         App::build(['Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS]]);
-        CakePlugin::load('TestPluginTwo');
+        CakePlugin::load('TestTwoPlugin');
         $request = new CakeRequest(null, false);
-        $request->addParams(['plugin' => 'test_plugin_two', 'controller' => 'namespaced_plugin', 'action' => 'index']);
+        $request->addParams(['plugin' => 'test_two_plugin', 'controller' => 'namespaced_plugin', 'action' => 'index']);
         $Controller = new NamespacedPluginController($request, new CakeResponse());
         $Controller->constructClasses();
         $helpers = Hash::normalize($Controller->helpers);
@@ -1479,16 +1479,16 @@ class ControllerTest extends CakeTestCase
             'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
             'View' => [CORE_TESTS . DS . 'test_app' . DS . 'templates' . DS],
         ], App::RESET);
-        CakePlugin::load('TestPluginTwo');
+        CakePlugin::load('TestTwoPlugin');
         ClassRegistry::flush();
         $Controller = new Controller(new CakeRequest('posts/index'), new CakeResponse());
         $Controller->viewPath = 'Posts';
-        $Controller->uses = ['TestPluginTwo.NamespacedPluginItem'];
+        $Controller->uses = ['TestTwoPlugin.NamespacedPluginItem'];
         $Controller->constructClasses();
         $this->assertInstanceOf(NamespacedPluginItem::class, $Controller->NamespacedPluginItem);
 
         $Controller->render('index');
-        $expected = ['plugin' => 'TestPluginTwo', 'className' => 'NamespacedPluginItem'];
+        $expected = ['plugin' => 'TestTwoPlugin', 'className' => 'NamespacedPluginItem'];
         $this->assertSame($expected, $Controller->request->params['models']['NamespacedPluginItem']);
         CakePlugin::unload();
     }
@@ -1504,12 +1504,12 @@ class ControllerTest extends CakeTestCase
         App::build([
             'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
         ], App::RESET);
-        CakePlugin::load('TestPluginTwo');
+        CakePlugin::load('TestTwoPlugin');
         $cases = [
             ['NamespacedPost', NamespacedPost::class],
             [NamespacedPost::class, NamespacedPost::class],
             ['TestApp\Model\NamespacedPost', NamespacedPost::class],
-            ['TestPluginTwo.NamespacedPluginItem', NamespacedPluginItem::class],
+            ['TestTwoPlugin.NamespacedPluginItem', NamespacedPluginItem::class],
             [NamespacedPluginItem::class, NamespacedPluginItem::class],
         ];
         foreach ($cases as [$model, $class]) {

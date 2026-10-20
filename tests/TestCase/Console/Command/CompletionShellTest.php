@@ -70,7 +70,7 @@ class CompletionShellTest extends CakeTestCase
                 CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'Console' . DS . 'Command' . DS,
             ],
         ], App::RESET);
-        CakePlugin::load(['TestPlugin', 'TestPluginTwo']);
+        CakePlugin::load(['TestPlugin', 'TestTwoPlugin']);
 
         $out = new TestCompletionStringOutput();
         $in = $this->getMock(ConsoleInput::class, [], [], '', false);
@@ -139,7 +139,7 @@ class CompletionShellTest extends CakeTestCase
         $this->Shell->runCommand('commands', []);
         $output = $this->Shell->stdout->output;
 
-        $expected = "TestPlugin.example TestPlugin.test_plugin TestPluginTwo.example TestPluginTwo.welcome acl api command_list completion console i18n schema server test testsuite namespaced sample\n";
+        $expected = "TestPlugin.example TestPlugin.test_plugin TestTwoPlugin.example TestTwoPlugin.welcome acl api command_list completion console i18n schema server test testsuite namespaced sample\n";
         $this->assertEquals($expected, $output);
     }
 
@@ -220,7 +220,7 @@ class CompletionShellTest extends CakeTestCase
      */
     public function testSubCommandsPlugin(): void
     {
-        $this->Shell->runCommand('subCommands', ['subCommands', 'TestPluginTwo.welcome']);
+        $this->Shell->runCommand('subCommands', ['subCommands', 'TestTwoPlugin.welcome']);
         $output = $this->Shell->stdout->output;
 
         $expected = "say_hello\n";

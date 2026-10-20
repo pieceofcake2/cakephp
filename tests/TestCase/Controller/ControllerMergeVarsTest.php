@@ -119,7 +119,7 @@ class ControllerMergeVarsTest extends CakeTestCase
     {
         $controller = new MergePostsController();
         $controller->components = ['Email' => ['ports' => 'open']];
-        $controller->plugin = 'MergeVarPlugin';
+        $controller->plugin = 'TestMergeVarPlugin';
         $controller->constructClasses();
 
         $expected = [
@@ -137,7 +137,7 @@ class ControllerMergeVarsTest extends CakeTestCase
 
         $controller = new MergePostsController();
         $controller->components = [];
-        $controller->plugin = 'MergeVarPlugin';
+        $controller->plugin = 'TestMergeVarPlugin';
         $controller->constructClasses();
 
         $expected = [

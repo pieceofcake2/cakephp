@@ -1801,7 +1801,7 @@ class CakeEmailTest extends CakeTestCase
         App::build([
             'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
         ]);
-        CakePlugin::load(['TestPlugin', 'TestPluginTwo']);
+        CakePlugin::load(['TestPlugin', 'TestTwoPlugin']);
 
         $this->CakeEmail->reset();
         $this->CakeEmail->transport('debug');
@@ -1824,11 +1824,11 @@ class CakeEmailTest extends CakeTestCase
 
         $this->CakeEmail->template(
             'TestPlugin.test_plugin_tpl',
-            'TestPluginTwo.default',
+            'TestTwoPlugin.default',
         );
         $result = $this->CakeEmail->send();
         $this->assertStringContainsString('Into TestPlugin.', $result['message']);
-        $this->assertStringContainsString('This email was sent using TestPluginTwo.', $result['message']);
+        $this->assertStringContainsString('This email was sent using TestTwoPlugin.', $result['message']);
 
         // test plugin template overridden by theme
         $this->CakeEmail->theme('TestTheme');
@@ -2809,8 +2809,8 @@ HTML;
                 ['transport' => 'Smtp', 'host' => 'mailpit', 'port' => 1025, 'tls' => false],
             ],
             'unknown scheme with transport' => [
-                'ses+api://key:secret@default?transport=MyPlugin.Ses&region=eu-west-1',
-                ['transport' => 'MyPlugin.Ses', 'username' => 'key', 'password' => 'secret', 'region' => 'eu-west-1'],
+                'ses+api://key:secret@default?transport=TestDispatchPlugin.Ses&region=eu-west-1',
+                ['transport' => 'TestDispatchPlugin.Ses', 'username' => 'key', 'password' => 'secret', 'region' => 'eu-west-1'],
             ],
         ];
     }
@@ -2979,7 +2979,7 @@ HTML;
     {
         try {
             CakeEmail::setDsnClassMap([
-                'myapi' => 'MyPlugin.MyApi',
+                'myapi' => 'TestDispatchPlugin.MyApi',
                 'SES+API' => function (array $parts, array $config) {
                     return [
                         'transport' => 'Aws.Ses',
@@ -2989,23 +2989,23 @@ HTML;
                         'from' => $config['from'] ?? null,
                     ];
                 },
-                'null' => 'MyPlugin.Blackhole',
+                'null' => 'TestDispatchPlugin.Blackhole',
                 'native' => null,
             ]);
 
             $this->assertSame(
-                ['timeout' => 5, 'host' => 'api.example.com', 'port' => 8443, 'username' => 'u', 'password' => 'p', 'transport' => 'MyPlugin.MyApi'],
+                ['timeout' => 5, 'host' => 'api.example.com', 'port' => 8443, 'username' => 'u', 'password' => 'p', 'transport' => 'TestDispatchPlugin.MyApi'],
                 CakeEmail::parseDsn('myapi://u:p@api.example.com:8443?timeout=5'),
             );
             $this->assertSame(
-                ['username' => 'u', 'transport' => 'MyPlugin.MyApi'],
+                ['username' => 'u', 'transport' => 'TestDispatchPlugin.MyApi'],
                 CakeEmail::parseDsn('myapi://u@default'),
             );
             $this->assertSame(
                 ['transport' => 'Aws.Ses', 'key' => 'KEY', 'secret' => 'SE/CRET', 'region' => 'eu-west-1', 'from' => 'a@example.com'],
                 CakeEmail::parseDsn('ses+api://KEY:SE%2FCRET@default?region=eu-west-1', ['from' => 'a@example.com']),
             );
-            $this->assertSame(['host' => 'null', 'transport' => 'MyPlugin.Blackhole'], CakeEmail::parseDsn('null://null'));
+            $this->assertSame(['host' => 'null', 'transport' => 'TestDispatchPlugin.Blackhole'], CakeEmail::parseDsn('null://null'));
             $this->assertArrayNotHasKey('native', CakeEmail::getDsnClassMap());
             $this->assertArrayHasKey('ses+api', CakeEmail::getDsnClassMap());
 
