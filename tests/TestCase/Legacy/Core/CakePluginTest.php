@@ -155,7 +155,7 @@ class CakePluginTest extends CakeTestCase
     public function testLoadAll(): void
     {
         CakePlugin::loadAll();
-        $expected = ['TestJsLegacyPlugin', 'TestLegacyPlugin', 'TestMergeVarLegacyPlugin', 'TestRegistryLegacyPlugin', 'TestTwoLegacyPlugin'];
+        $expected = ['TestArticlesLegacyPlugin', 'TestDispatchLegacyPlugin', 'TestJsLegacyPlugin', 'TestLegacyPlugin', 'TestMergeVarLegacyPlugin', 'TestRegistryLegacyPlugin', 'TestTwoLegacyPlugin'];
         $this->assertEquals($expected, CakePlugin::loaded());
     }
 
@@ -170,7 +170,7 @@ class CakePluginTest extends CakeTestCase
         CakePlugin::loadAll([['bootstrap' => true], 'TestLegacyPlugin' => ['routes' => true]]);
         CakePlugin::routes();
 
-        $expected = ['TestJsLegacyPlugin', 'TestLegacyPlugin', 'TestMergeVarLegacyPlugin', 'TestRegistryLegacyPlugin', 'TestTwoLegacyPlugin'];
+        $expected = ['TestArticlesLegacyPlugin', 'TestDispatchLegacyPlugin', 'TestJsLegacyPlugin', 'TestLegacyPlugin', 'TestMergeVarLegacyPlugin', 'TestRegistryLegacyPlugin', 'TestTwoLegacyPlugin'];
         $this->assertEquals($expected, CakePlugin::loaded());
         $this->assertEquals('loaded js plugin bootstrap', Configure::read('CakePluginTest.js_plugin.bootstrap'));
         $this->assertEquals('loaded plugin routes', Configure::read('CakePluginTest.test_legacy_plugin.routes'));
