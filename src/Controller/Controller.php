@@ -407,7 +407,7 @@ class Controller extends CakeObject implements CakeEventListener
         if (is_array($this->uses)) {
             foreach ($this->uses as $modelClass) {
                 [$plugin, $class] = pluginSplit($modelClass, true);
-                if ($name === $class) {
+                if ($name === substr($class, (int)strrpos('\\' . $class, '\\'))) {
                     return $this->loadModel($modelClass);
                 }
             }
@@ -715,7 +715,8 @@ class Controller extends CakeObject implements CakeEventListener
         $this->_mergeControllerVars();
         if ($this->uses) {
             $this->uses = (array)$this->uses;
-            [, $this->modelClass] = pluginSplit(reset($this->uses));
+            [, $modelClass] = pluginSplit(reset($this->uses));
+            $this->modelClass = substr($modelClass, (int)strrpos('\\' . $modelClass, '\\'));
         }
         $this->Components->init($this);
 
@@ -819,11 +820,12 @@ class Controller extends CakeObject implements CakeEventListener
         }
 
         [$plugin, $modelClass] = pluginSplit($modelClass, true);
+        $alias = substr($modelClass, (int)strrpos('\\' . $modelClass, '\\'));
 
-        $this->{$modelClass} = ClassRegistry::init([
-            'class' => $plugin . $modelClass, 'alias' => $modelClass, 'id' => $id,
+        $this->{$alias} = ClassRegistry::init([
+            'class' => $plugin . $modelClass, 'alias' => $alias, 'id' => $id,
         ]);
-        if (!$this->{$modelClass}) {
+        if (!$this->{$alias}) {
             throw new MissingModelException($modelClass);
         }
 
@@ -1038,7 +1040,7 @@ class Controller extends CakeObject implements CakeEventListener
         if (!empty($this->uses) && is_array($this->uses)) {
             foreach ($this->uses as $model) {
                 [$plugin, $className] = pluginSplit($model);
-                $this->request->params['models'][$className] = compact('plugin', 'className');
+                $this->request->params['models'][substr($className, (int)strrpos('\\' . $className, '\\'))] = compact('plugin', 'className');
             }
         }
 

@@ -885,12 +885,13 @@ class Model extends CakeObject implements CakeEventListener
                     }
 
                     if (is_array($relation['with'])) {
-                        if (key($relation['with']) === $name) {
-                            $className = $name;
+                        $class = key($relation['with']);
+                        if (substr($class, (int)strrpos('\\' . $class, '\\')) === $name) {
+                            $className = $class;
                         }
                     } else {
                         [$plugin, $class] = pluginSplit($relation['with']);
-                        if ($class === $name) {
+                        if (substr($class, (int)strrpos('\\' . $class, '\\')) === $name) {
                             $className = $relation['with'];
                         }
                     }
@@ -992,8 +993,9 @@ class Model extends CakeObject implements CakeEventListener
 
                 $this->{$assoc}[$assocName] = $value;
 
-                if (property_exists($this, $assocName)) {
-                    unset($this->{$assocName});
+                $property = substr($assocName, (int)strrpos('\\' . $assocName, '\\'));
+                if (property_exists($this, $property)) {
+                    unset($this->{$property});
                 }
 
                 if ($reset === false && isset($this->__backAssociation[$assoc])) {
@@ -1035,6 +1037,7 @@ class Model extends CakeObject implements CakeEventListener
             }
             $models = Hash::normalize((array)$models, false);
             foreach ($models as $model) {
+                $model = substr($model, (int)strrpos('\\' . $model, '\\'));
                 if ($reset === false && isset($this->__backAssociation[$assoc][$model])) {
                     unset($this->__backAssociation[$assoc][$model]);
                 }
@@ -1081,6 +1084,13 @@ class Model extends CakeObject implements CakeEventListener
                         unset($association[$assoc]);
                         [$plugin, $assoc] = pluginSplit($assoc, true);
                         $association[$assoc] = ['className' => $plugin . $assoc] + $value;
+                    }
+
+                    if (!isset($value['className']) && str_contains($assoc, '\\')) {
+                        unset($association[$assoc]);
+                        $className = $assoc;
+                        $assoc = substr($assoc, strrpos($assoc, '\\') + 1);
+                        $association[$assoc] = ['className' => $className] + $value;
                     }
 
                     $this->_generateAssociation($type, $assoc);
@@ -2079,6 +2089,7 @@ class Model extends CakeObject implements CakeEventListener
             if (!empty($habtm['with'])) {
                 $withModel = is_array($habtm['with']) ? key($habtm['with']) : $habtm['with'];
                 [, $withModel] = pluginSplit($withModel);
+                $withModel = substr($withModel, (int)strrpos('\\' . $withModel, '\\'));
                 $dbMulti = $this->{$withModel}->getDataSource();
             } else {
                 $dbMulti = $db;
@@ -2880,7 +2891,7 @@ class Model extends CakeObject implements CakeEventListener
     {
         foreach ($this->hasAndBelongsToMany as $data) {
             [, $joinModel] = pluginSplit($data['with']);
-            $Model = $this->{$joinModel};
+            $Model = $this->{substr($joinModel, (int)strrpos('\\' . $joinModel, '\\'))};
             $records = $Model->find('all', [
                 'conditions' => $this->_getConditionsForDeletingLinks($Model, $id, $data),
                 'fields' => $Model->primaryKey,
@@ -3882,14 +3893,17 @@ class Model extends CakeObject implements CakeEventListener
     {
         if (is_string($assoc)) {
             [, $assoc] = pluginSplit($assoc);
+            $assoc = substr($assoc, (int)strrpos('\\' . $assoc, '\\'));
 
             return [$assoc, array_keys($this->{$assoc}->schema())];
         }
 
         if (is_array($assoc)) {
             $with = key($assoc);
+            $fields = $assoc[$with];
+            $with = substr($with, (int)strrpos('\\' . $with, '\\'));
 
-            return [$with, array_unique(array_merge($assoc[$with], $keys))];
+            return [$with, array_unique(array_merge($fields, $keys))];
         }
 
         trigger_error(

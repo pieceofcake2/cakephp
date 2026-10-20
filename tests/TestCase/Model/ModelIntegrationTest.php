@@ -1,4 +1,10 @@
 <?php
+
+use TestApp\Model\NamespacedComment;
+use TestApp\Model\NamespacedHabtmPost;
+use TestApp\Model\NamespacedPost;
+use TestApp\Model\NamespacedPostsTag;
+
 /**
  * ModelIntegrationTest file
  *
@@ -2556,5 +2562,117 @@ class ModelIntegrationTest extends BaseModelTest
         $model->expects($this->never())->method('getDataSource');
         $result = $model->getColumnType('filefield');
         $this->assertEquals('string', $result);
+    }
+
+    /**
+     * Test that a fully qualified class name as association key gives the short
+     * name as alias like the short name with className.
+     *
+     * @return void
+     */
+    public function testNamespacedClassNameAssociations(): void
+    {
+        foreach (['belongsTo', 'hasOne', 'hasMany'] as $type) {
+            $expected = null;
+            $cases = [
+                ['NamespacedComment' => ['className' => NamespacedComment::class, 'order' => 'id']],
+                [NamespacedComment::class => ['order' => 'id']],
+                ['TestApp\Model\NamespacedComment' => ['order' => 'id']],
+            ];
+            foreach ($cases as $association) {
+                $Model = $this->_namespacedArticle([$type => $association]);
+                $expected ??= $Model->{$type};
+                $this->assertSame($expected, $Model->{$type});
+                $this->assertSame(NamespacedComment::class, $Model->{$type}['NamespacedComment']['className']);
+                $this->assertSame(['NamespacedComment' => $type], $Model->getAssociated());
+                $this->assertInstanceOf(NamespacedComment::class, $Model->NamespacedComment);
+                $this->assertSame('NamespacedComment', $Model->NamespacedComment->alias);
+                ClassRegistry::flush();
+
+                $Model = $this->_namespacedArticle();
+                $Model->bindModel([$type => $association]);
+                $this->assertSame($expected, $Model->{$type});
+                $this->assertInstanceOf(NamespacedComment::class, $Model->NamespacedComment);
+                $Model->unbindModel([$type => [key($association)]]);
+                $this->assertSame([], $Model->getAssociated());
+                ClassRegistry::flush();
+            }
+
+            $Model = $this->_namespacedArticle([$type => [NamespacedComment::class]]);
+            $this->assertSame(['NamespacedComment'], array_keys($Model->{$type}));
+            $this->assertSame(NamespacedComment::class, $Model->{$type}['NamespacedComment']['className']);
+            ClassRegistry::flush();
+        }
+
+        $Model = $this->_namespacedArticle();
+        $Model->bindModel(['belongsTo' => ['NamespacedComment' => ['className' => NamespacedPost::class]]]);
+        $this->assertInstanceOf(NamespacedPost::class, $Model->NamespacedComment);
+        $Model->bindModel(['belongsTo' => [NamespacedComment::class]]);
+        $this->assertInstanceOf(NamespacedComment::class, $Model->NamespacedComment);
+    }
+
+    /**
+     * Test that a fully qualified class name as join model of a hasAndBelongsToMany association
+     * works like the short name.
+     *
+     * @return void
+     */
+    public function testNamespacedClassNameWith(): void
+    {
+        $this->loadFixtures('Post', 'Tag', 'PostsTag');
+        $cases = [2 => 'NamespacedPostsTag', 3 => NamespacedPostsTag::class];
+        foreach ($cases as $id => $with) {
+            Configure::write('App.namespace', $with === 'NamespacedPostsTag' ? 'TestApp' : null);
+            $Post = new NamespacedHabtmPost(['ds' => 'test']);
+            $Post->hasAndBelongsToMany['NamespacedHabtmTag']['with'] = $with;
+
+            $this->assertTrue(isset($Post->NamespacedPostsTag));
+            $this->assertInstanceOf(NamespacedPostsTag::class, $Post->NamespacedPostsTag);
+            $this->assertSame('NamespacedPostsTag', $Post->NamespacedPostsTag->alias);
+            $this->assertSame(['NamespacedPostsTag', ['post_id', 'tag_id']], $Post->joinModel($with));
+            $this->assertSame(
+                ['NamespacedPostsTag', ['tag_id', 'post_id']],
+                $Post->joinModel([$with => ['tag_id']], ['post_id']),
+            );
+
+            $Post->set(['NamespacedHabtmPost' => ['id' => $id], 'NamespacedHabtmTag' => [['tag_id' => '']]]);
+            $this->assertFalse($Post->validates());
+
+            $Post->create();
+            $this->assertNotEmpty($Post->save(['NamespacedHabtmPost' => ['id' => $id], 'NamespacedHabtmTag' => ['NamespacedHabtmTag' => [1, 3]]]));
+            $result = $Post->find('first', ['conditions' => ['NamespacedHabtmPost.id' => $id]]);
+            $this->assertSame([1, 3], array_map('intval', Hash::extract($result, 'NamespacedHabtmTag.{n}.id')));
+
+            $this->assertTrue($Post->delete($id));
+            $this->assertSame(0, $Post->NamespacedPostsTag->find('count', ['conditions' => ['post_id' => $id]]));
+            ClassRegistry::flush();
+
+            $Post = new NamespacedHabtmPost(['ds' => 'test']);
+            $Post->hasAndBelongsToMany['NamespacedHabtmTag']['with'] = [$with => ['tag_id']];
+            $this->assertTrue(isset($Post->NamespacedPostsTag));
+            $this->assertInstanceOf(NamespacedPostsTag::class, $Post->NamespacedPostsTag);
+            ClassRegistry::flush();
+        }
+    }
+
+    /**
+     * Creates a model without a table with the given associations.
+     *
+     * @param array $associations Associations by type.
+     * @return Model
+     */
+    protected function _namespacedArticle(array $associations = []): Model
+    {
+        return new class ($associations) extends Model {
+            public $useTable = false;
+
+            public function __construct(array $associations)
+            {
+                foreach ($associations as $type => $association) {
+                    $this->{$type} = $association;
+                }
+                parent::__construct(['name' => 'NamespacedArticle']);
+            }
+        };
     }
 }

@@ -220,4 +220,85 @@ class HelperCollectionTest extends CakeTestCase
         $Helpers = new HelperCollection($this->View);
         $this->assertInstanceOf(NamespacedHelper::class, $Helpers->load('Namespaced'));
     }
+
+    /**
+     * Test that a fully qualified class name as the name gives the short name as alias
+     * like the short name with className.
+     *
+     * @return void
+     */
+    public function testLoadNamespacedClassName(): void
+    {
+        $expected = $this->Helpers->load('Namespaced', ['className' => NamespacedHelper::class, 'foo' => 'bar']);
+
+        foreach ([NamespacedHelper::class, 'TestApp\View\Helper\Namespaced'] as $name) {
+            $Helpers = new HelperCollection($this->View);
+            $result = $Helpers->load($name, ['foo' => 'bar']);
+            $this->assertInstanceOf(NamespacedHelper::class, $result);
+            $this->assertSame($result, $Helpers->Namespaced);
+            $this->assertSame($this->Helpers->loaded(), $Helpers->loaded());
+            $this->assertSame($expected->settings['foo'], $result->settings['foo']);
+            $this->assertSame($result, $Helpers->load($name));
+            $this->assertTrue($Helpers->enabled($name));
+            $Helpers->unload($name);
+            $this->assertSame([], $Helpers->loaded());
+        }
+    }
+
+    /**
+     * Test that fully qualified class names as keys of $helpers give the
+     * short names as aliases like the short names with className.
+     *
+     * @return void
+     */
+    public function testLoadHelpersNamespacedClassName(): void
+    {
+        $cases = [
+            ['Namespaced' => ['className' => NamespacedHelper::class, 'foo' => 'bar']],
+            [NamespacedHelper::class => ['foo' => 'bar']],
+            ['TestApp\View\Helper\Namespaced' => ['foo' => 'bar']],
+        ];
+        foreach ($cases as $helpers) {
+            $View = new View(null);
+            $View->helpers = $helpers;
+            $View->loadHelpers();
+            $this->assertTrue(property_exists($View, 'Namespaced'));
+            $this->assertInstanceOf(NamespacedHelper::class, $View->Namespaced);
+            $this->assertSame($View->Namespaced, $View->Helpers->Namespaced);
+            $this->assertSame(['Namespaced'], $View->Helpers->loaded());
+            $this->assertSame('bar', $View->Namespaced->settings['foo']);
+        }
+
+        $Helper = new class ($this->View) extends Helper {
+            public $helpers = [NamespacedHelper::class];
+        };
+        $this->View->expects($this->once())->method('loadHelper')
+            ->with(NamespacedHelper::class)
+            ->will($this->returnValue($expected = new NamespacedHelper($this->View)));
+        $this->assertSame($expected, $Helper->Namespaced);
+    }
+
+    /**
+     * Test that the missing class of a fully qualified class name has the suffix once.
+     *
+     * @return void
+     */
+    public function testLoadMissingNamespacedClassName(): void
+    {
+        $cases = [
+            'NoSuch' => 'NoSuchHelper',
+            'TestApp\View\Helper\Missing' => 'TestApp\View\Helper\MissingHelper',
+            'TestApp\View\Helper\MissingHelper' => 'TestApp\View\Helper\MissingHelper',
+            '\TestApp\View\Helper\MissingHelper' => 'TestApp\View\Helper\MissingHelper',
+        ];
+        foreach ($cases as $name => $expected) {
+            $Collection = new HelperCollection($this->View);
+            try {
+                $Collection->load($name);
+                $this->fail('No exception for ' . $name);
+            } catch (MissingHelperException $e) {
+                $this->assertSame($expected, $e->getAttributes()['class']);
+            }
+        }
+    }
 }

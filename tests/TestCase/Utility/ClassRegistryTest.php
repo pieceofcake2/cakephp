@@ -478,4 +478,43 @@ class ClassRegistryTest extends CakeTestCase
         $this->assertTrue(ClassRegistry::isKeySet('Cake\Model\Behavior\ContainableBehavior'));
         ClassRegistry::flush();
     }
+
+    /**
+     * Test that the only object of a class stored with another alias is found by
+     * its fully qualified class name, and that the short names work as before.
+     *
+     * @return void
+     */
+    public function testFullyQualifiedClassNameOfOtherAlias(): void
+    {
+        $article = ClassRegistry::init(['class' => 'RegisterArticle', 'alias' => 'Article']);
+        $this->assertFalse(ClassRegistry::getObject('RegisterArticle'));
+        $this->assertFalse(ClassRegistry::isKeySet('RegisterArticle'));
+        $this->assertSame($article, ClassRegistry::getObject('\RegisterArticle'));
+
+        $post = ClassRegistry::init(['class' => NamespacedPost::class, 'alias' => 'Post']);
+        $this->assertSame($post, ClassRegistry::getObject('Post'));
+        $this->assertSame($post, ClassRegistry::getObject(NamespacedPost::class));
+        $this->assertSame($post, ClassRegistry::getObject('\\' . NamespacedPost::class));
+        $this->assertTrue(ClassRegistry::isKeySet(NamespacedPost::class));
+        $this->assertFalse(ClassRegistry::getObject('NamespacedPost'));
+        $this->assertFalse(ClassRegistry::getObject(NamespacedComment::class));
+
+        // Not an object of a subclass
+        ClassRegistry::addObject('Comment', new class extends NamespacedPost {
+        });
+        $this->assertSame($post, ClassRegistry::getObject(NamespacedPost::class));
+
+        // Ambiguous for two objects of the class
+        $other = ClassRegistry::init(['class' => NamespacedPost::class, 'alias' => 'OtherPost']);
+        $this->assertFalse(ClassRegistry::getObject(NamespacedPost::class));
+        $this->assertFalse(ClassRegistry::isKeySet(NamespacedPost::class));
+
+        ClassRegistry::removeObject('OtherPost');
+        ClassRegistry::removeObject(NamespacedPost::class);
+        $this->assertFalse(ClassRegistry::getObject('Post'));
+        $this->assertSame($article, ClassRegistry::getObject('Article'));
+        $this->assertNotSame($post, $other);
+        ClassRegistry::flush();
+    }
 }

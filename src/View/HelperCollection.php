@@ -42,6 +42,11 @@ class HelperCollection extends ObjectCollection implements CakeEventListener
     protected $_View;
 
     /**
+     * @var string
+     */
+    protected static $_suffix = 'Helper';
+
+    /**
      * Constructor
      *
      * @param View $view View instance.
@@ -133,6 +138,7 @@ class HelperCollection extends ObjectCollection implements CakeEventListener
         if (!isset($alias)) {
             $alias = $name;
         }
+        $alias = static::_alias($alias);
 
         if (isset($this->_loaded[$alias])) {
             return $this->_loaded[$alias];
@@ -140,7 +146,7 @@ class HelperCollection extends ObjectCollection implements CakeEventListener
         $helperClass = App::className($helper, 'View/Helper', 'Helper');
         if ($helperClass === null) {
             throw new MissingHelperException([
-                'class' => $name . 'Helper',
+                'class' => static::_className($name),
                 'plugin' => substr($plugin, 0, -1),
             ]);
         }

@@ -511,6 +511,7 @@ class Scaffold
                     $assocData['foreignKey'];
 
                 [$plugin, $model] = pluginSplit($assocData['className']);
+                $model = substr($model, (int)strrpos('\\' . $model, '\\'));
                 if ($plugin) {
                     $plugin = Inflector::underscore($plugin);
                 }
