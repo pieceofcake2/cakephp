@@ -1,0 +1,165 @@
+<?php
+
+use TestApp\Utility\NamespacedNumber;
+
+/**
+ * NumberHelperTest file
+ *
+ * CakePHP(tm) Tests <https://book.cakephp.org/2.0/en/development/testing.html>
+ * Copyright (c) Cake Software Foundation, Inc. (https://cakefoundation.org)
+ *
+ * Licensed under The MIT License
+ * For full copyright and license information, please see the LICENSE.txt
+ * Redistributions of files must retain the above copyright notice
+ *
+ * @copyright     Copyright (c) Cake Software Foundation, Inc. (https://cakefoundation.org)
+ * @link          https://book.cakephp.org/2.0/en/development/testing.html CakePHP(tm) Tests
+ * @package       Cake.Test.Case.View.Helper
+ * @since         CakePHP(tm) v 1.2.0.4206
+ * @license       https://opensource.org/licenses/mit-license.php MIT License
+ */
+
+/**
+ * NumberHelperTestObject class
+ */
+class NumberHelperTestObject extends NumberHelper
+{
+    public function attach(CakeNumberMock $cakeNumber): void
+    {
+        $this->_engine = $cakeNumber;
+    }
+
+    public function engine(): mixed
+    {
+        return $this->_engine;
+    }
+}
+
+/**
+ * CakeNumberMock class
+ */
+class CakeNumberMock
+{
+}
+
+/**
+ * NumberHelperTest class
+ *
+ * @package       Cake.Test.Case.View.Helper
+ */
+class NumberHelperTest extends CakeTestCase
+{
+    /**
+     * setUp method
+     *
+     * @return void
+     */
+    public function setUp(): void
+    {
+        parent::setUp();
+        $this->View = new View(null);
+    }
+
+    /**
+     * tearDown method
+     *
+     * @return void
+     */
+    public function tearDown(): void
+    {
+        unset($this->View);
+
+        parent::tearDown();
+    }
+
+    /**
+     * test CakeNumber class methods are called correctly
+     *
+     * @return void
+     */
+    public function testNumberHelperProxyMethodCalls(): void
+    {
+        $methods = [
+            'precision', 'toReadableSize', 'toPercentage', 'format',
+            'currency', 'addFormat',
+        ];
+
+        $CakeNumber = $this->getMock('CakeNumberMock', $methods);
+        $Number = new NumberHelperTestObject($this->View, ['engine' => 'CakeNumberMock']);
+        $Number->attach($CakeNumber);
+
+        $calledMethods = [];
+        foreach ($methods as $method) {
+            $CakeNumber->expects($this->once())
+                ->method($method)
+                ->willReturnCallback(function () use ($method, &$calledMethods) {
+                    $calledMethods[] = $method;
+
+                    return null;
+                });
+        }
+
+        foreach ($methods as $method) {
+            $Number->{$method}('who', 'what', 'when', 'where', 'how');
+        }
+
+        $this->assertEquals($methods, $calledMethods);
+    }
+
+    /**
+     * test engine override
+     *
+     * @return void
+     */
+    public function testEngineOverride(): void
+    {
+        App::build([
+            'Utility' => [CORE_TESTS . DS . 'test_app' . DS . 'Utility' . DS],
+        ], App::REGISTER);
+        $Number = new NumberHelperTestObject($this->View, ['engine' => 'TestAppEngine']);
+        $this->assertInstanceOf('TestAppEngine', $Number->engine());
+
+        App::build([
+            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS],
+        ]);
+        CakePlugin::load('TestPlugin');
+        $Number = new NumberHelperTestObject($this->View, ['engine' => 'TestPlugin.TestPluginEngine']);
+        $this->assertInstanceOf('TestPluginEngine', $Number->engine());
+        CakePlugin::unload('TestPlugin');
+    }
+
+    /**
+     * Test the engine by fully qualified class name and from App.namespace.
+     *
+     * @return void
+     */
+    public function testNamespacedEngine(): void
+    {
+        $View = new View(null);
+        $Helper = new NumberHelper($View, ['engine' => NamespacedNumber::class]);
+        $this->assertInstanceOf(NamespacedNumber::class, $this->getEngine($Helper));
+
+        Configure::write('App.namespace', 'TestApp');
+        $Helper = new NumberHelper($View, ['engine' => 'NamespacedNumber']);
+        $this->assertInstanceOf(NamespacedNumber::class, $this->getEngine($Helper));
+
+        $Helper = new NumberHelper($View);
+        $this->assertInstanceOf('CakeNumber', $this->getEngine($Helper));
+    }
+
+    /**
+     * Returns the engine of a helper.
+     *
+     * @param Helper $Helper The helper
+     * @return object
+     */
+    protected function getEngine(Helper $Helper): object
+    {
+        $property = new ReflectionProperty($Helper, '_engine');
+        if (PHP_VERSION_ID < 80100) {
+            $property->setAccessible(true);
+        }
+
+        return $property->getValue($Helper);
+    }
+}

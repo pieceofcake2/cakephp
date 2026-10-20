@@ -35,6 +35,15 @@ if (isset($GLOBALS['_composer_autoload_path'])) {
 
 new ShellDispatcher([$_SERVER['argv'][0]]);
 
+// tests/ and tests_legacy/ have classes of the same names in other files, so the files
+// that the other test suite cached for them are not used
+Cache::delete('file_map', '_cake_core_');
+Cache::delete('object_map', '_cake_core_');
+Closure::bind(function () {
+    static::$_map = [];
+    static::$_objects = [];
+}, null, App::class)();
+
 set_error_handler(new ErrorHandler(true, true, true, true));
 
 // Security::cipher() reports its deprecation and an out-of-range Security.cipherSeed once

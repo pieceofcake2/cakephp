@@ -1,0 +1,333 @@
+<?php
+/**
+ * ConsoleOutputTest file
+ *
+ * CakePHP(tm) Tests <https://book.cakephp.org/2.0/en/development/testing.html>
+ * Copyright (c) Cake Software Foundation, Inc. (https://cakefoundation.org)
+ *
+ * Licensed under The MIT License
+ * For full copyright and license information, please see the LICENSE.txt
+ * Redistributions of files must retain the above copyright notice
+ *
+ * @copyright     Copyright (c) Cake Software Foundation, Inc. (https://cakefoundation.org)
+ * @link          https://book.cakephp.org/2.0/en/development/testing.html CakePHP(tm) Tests
+ * @package       Cake.Test.Case.Console
+ * @since         CakePHP(tm) v 1.2.0.5432
+ * @license       https://opensource.org/licenses/mit-license.php MIT License
+ */
+
+/**
+ * ConsoleOutputTest
+ *
+ * @package       Cake.Test.Case.Console
+ */
+class ConsoleOutputTest extends CakeTestCase
+{
+    /**
+     * setup
+     *
+     * @return void
+     */
+    public function setUp(): void
+    {
+        parent::setUp();
+        $this->output = $this->getMock('ConsoleOutput', ['_write']);
+        $this->output->outputAs(ConsoleOutput::COLOR);
+    }
+
+    /**
+     * tearDown
+     *
+     * @return void
+     */
+    public function tearDown(): void
+    {
+        unset($this->output);
+
+        parent::tearDown();
+    }
+
+    /**
+     * test writing with no new line
+     *
+     * @return void
+     */
+    public function testWriteNoNewLine(): void
+    {
+        $this->output->expects($this->once())->method('_write')
+            ->with('Some output');
+
+        $this->output->write('Some output', false);
+    }
+
+    /**
+     * test writing with no new line
+     *
+     * @return void
+     */
+    public function testWriteNewLine(): void
+    {
+        $this->output->expects($this->once())->method('_write')
+            ->with('Some output' . PHP_EOL);
+
+        $this->output->write('Some output');
+    }
+
+    /**
+     * test write() with multiple new lines
+     *
+     * @return void
+     */
+    public function testWriteMultipleNewLines(): void
+    {
+        $this->output->expects($this->once())->method('_write')
+            ->with('Some output' . PHP_EOL . PHP_EOL . PHP_EOL . PHP_EOL);
+
+        $this->output->write('Some output', 4);
+    }
+
+    /**
+     * test writing an array of messages.
+     *
+     * @return void
+     */
+    public function testWriteArray(): void
+    {
+        $this->output->expects($this->once())->method('_write')
+            ->with('Line' . PHP_EOL . 'Line' . PHP_EOL . 'Line' . PHP_EOL);
+
+        $this->output->write(['Line', 'Line', 'Line']);
+    }
+
+    /**
+     * test writing an array of messages.
+     *
+     * @return void
+     */
+    public function testOverwrite(): void
+    {
+        $testString = 'Text';
+        $overwriteTestString = 'Overwriting text';
+
+        $actualCalls = [];
+        $this->output->expects($this->any())
+            ->method('_write')
+            ->willReturnCallback(function ($arg) use (&$actualCalls) {
+                $actualCalls[] = $arg;
+            });
+
+        $this->output->write($testString, 0);
+        $this->output->overwrite($overwriteTestString);
+
+        // 呼び出し後に検証
+        $this->assertEquals([
+            $testString,
+            '',
+            $overwriteTestString,
+            "\n",
+        ], $actualCalls);
+    }
+
+    /**
+     * test getting a style.
+     *
+     * @return void
+     */
+    public function testStylesGet(): void
+    {
+        $result = $this->output->styles('error');
+        $expected = ['text' => 'red', 'underline' => true];
+        $this->assertEquals($expected, $result);
+
+        $this->assertNull($this->output->styles('made_up_goop'));
+
+        $result = $this->output->styles();
+        $this->assertNotEmpty($result, 'error');
+        $this->assertNotEmpty($result, 'warning');
+    }
+
+    /**
+     * test adding a style.
+     *
+     * @return void
+     */
+    public function testStylesAdding(): void
+    {
+        $this->output->styles('test', ['text' => 'red', 'background' => 'black']);
+        $result = $this->output->styles('test');
+        $expected = ['text' => 'red', 'background' => 'black'];
+        $this->assertEquals($expected, $result);
+
+        $this->assertTrue($this->output->styles('test', false), 'Removing a style should return true.');
+        $this->assertNull($this->output->styles('test'), 'Removed styles should be null.');
+    }
+
+    /**
+     * test formatting text with styles.
+     *
+     * @return void
+     */
+    public function testFormattingSimple(): void
+    {
+        $this->output->expects($this->once())->method('_write')
+            ->with("\033[31;4mError:\033[0m Something bad");
+
+        $this->output->write('<error>Error:</error> Something bad', false);
+    }
+
+    /**
+     * test that formatting doesn't eat tags it doesn't know about.
+     *
+     * @return void
+     */
+    public function testFormattingNotEatingTags(): void
+    {
+        $this->output->expects($this->once())->method('_write')
+            ->with('<red> Something bad');
+
+        $this->output->write('<red> Something bad', false);
+    }
+
+    /**
+     * test formatting with custom styles.
+     *
+     * @return void
+     */
+    public function testFormattingCustom(): void
+    {
+        $this->output->styles('annoying', [
+            'text' => 'magenta',
+            'background' => 'cyan',
+            'blink' => true,
+            'underline' => true,
+        ]);
+
+        $this->output->expects($this->once())->method('_write')
+            ->with("\033[35;46;5;4mAnnoy:\033[0m Something bad");
+
+        $this->output->write('<annoying>Annoy:</annoying> Something bad', false);
+    }
+
+    /**
+     * test formatting text with missing styles.
+     *
+     * @return void
+     */
+    public function testFormattingMissingStyleName(): void
+    {
+        $this->output->expects($this->once())->method('_write')
+            ->with('<not_there>Error:</not_there> Something bad');
+
+        $this->output->write('<not_there>Error:</not_there> Something bad', false);
+    }
+
+    /**
+     * test formatting text with multiple styles.
+     *
+     * @return void
+     */
+    public function testFormattingMultipleStylesName(): void
+    {
+        $this->output->expects($this->once())->method('_write')
+            ->with("\033[31;4mBad\033[0m \033[33mWarning\033[0m Regular");
+
+        $this->output->write('<error>Bad</error> <warning>Warning</warning> Regular', false);
+    }
+
+    /**
+     * test that multiple tags of the same name work in one string.
+     *
+     * @return void
+     */
+    public function testFormattingMultipleSameTags(): void
+    {
+        $this->output->expects($this->once())->method('_write')
+            ->with("\033[31;4mBad\033[0m \033[31;4mWarning\033[0m Regular");
+
+        $this->output->write('<error>Bad</error> <error>Warning</error> Regular', false);
+    }
+
+    /**
+     * test raw output not getting tags replaced.
+     *
+     * @return void
+     */
+    public function testOutputAsRaw(): void
+    {
+        $this->output->outputAs(ConsoleOutput::RAW);
+        $this->output->expects($this->once())->method('_write')
+            ->with('<error>Bad</error> Regular');
+
+        $this->output->write('<error>Bad</error> Regular', false);
+    }
+
+    /**
+     * test plain output.
+     *
+     * @return void
+     */
+    public function testOutputAsPlain(): void
+    {
+        $this->output->outputAs(ConsoleOutput::PLAIN);
+        $this->output->expects($this->once())->method('_write')
+            ->with('Bad Regular');
+
+        $this->output->write('<error>Bad</error> Regular', false);
+    }
+
+    /**
+     * test plain output when php://output, as php://output is
+     * not compatible with posix_ functions.
+     *
+     * @return void
+     */
+    public function testOutputAsPlainWhenOutputStream(): void
+    {
+        $output = $this->getMock('ConsoleOutput', ['_write'], ['php://output']);
+        $this->assertEquals(ConsoleOutput::PLAIN, $output->outputAs());
+    }
+
+    /**
+     * Test that a stream which cannot be checked for a terminal gets plain output without a warning.
+     *
+     * @return void
+     */
+    public function testOutputAsPlainForInMemoryStream(): void
+    {
+        $output = new ConsoleOutput('php://memory');
+        $this->assertSame(ConsoleOutput::PLAIN, $output->outputAs());
+
+        $output = new ConsoleOutput('php://temp');
+        $this->assertSame(ConsoleOutput::PLAIN, $output->outputAs());
+    }
+
+    /**
+     * test plain output only strips tags used for formatting.
+     *
+     * @return void
+     */
+    public function testOutputAsPlainSelectiveTagRemoval(): void
+    {
+        $this->output->outputAs(ConsoleOutput::PLAIN);
+        $this->output->expects($this->once())->method('_write')
+            ->with('Bad Regular <b>Left</b> <i>behind</i> <name>');
+
+        $this->output->write('<error>Bad</error> Regular <b>Left</b> <i>behind</i> <name>', false);
+    }
+
+    /**
+     * Test ConsoleInput::dataAvailable() on a readable stream.
+     *
+     * @return void
+     */
+    public function testInputDataAvailable(): void
+    {
+        $file = TMP . 'console_input_test.txt';
+        file_put_contents($file, "input\n");
+        $Input = new ConsoleInput($file);
+
+        $this->assertTrue($Input->dataAvailable());
+        $this->assertSame("input\n", $Input->read());
+        unlink($file);
+    }
+}
