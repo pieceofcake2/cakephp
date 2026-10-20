@@ -1873,4 +1873,22 @@ class DispatcherTest extends CakeTestCase
             $this->assertTrue(NamespacedFilter::$called, $filter);
         }
     }
+
+    /**
+     * Test the settings of dispatcher filters by fully qualified class name and from App.namespace.
+     *
+     * @return void
+     */
+    public function testNamespacedDispatcherFilterSettings(): void
+    {
+        foreach ([NamespacedFilter::class, 'NamespacedFilter'] as $filter) {
+            Configure::write('App.namespace', 'TestApp');
+            Configure::write('Dispatcher.filters', [$filter => ['service' => 'google.com']]);
+            NamespacedFilter::$calledSettings = [];
+            $dispatcher = new TestDispatcher();
+            $response = $this->getMock('CakeResponse', ['send']);
+            $dispatcher->dispatch(new CakeRequest('/'), $response, ['return' => 1]);
+            $this->assertSame('google.com', NamespacedFilter::$calledSettings['service'] ?? null, $filter);
+        }
+    }
 }
