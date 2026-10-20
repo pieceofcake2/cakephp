@@ -376,6 +376,28 @@ abstract class ObjectCollection
     }
 
     /**
+     * Replaces fully qualified class names used as keys of normalized objects by their aliases
+     * and keeps the class name in the 'className' setting, so that the settings are merged with
+     * those of the same alias.
+     *
+     * @param array $objects Array of objects normalized with Hash::normalize().
+     * @return array
+     */
+    public static function normalizeClassNames($objects)
+    {
+        $normal = [];
+        foreach ($objects as $name => $settings) {
+            if (is_string($name) && str_contains($name, '\\')) {
+                $settings = (array)$settings + ['className' => $name];
+                $name = static::_alias($name);
+            }
+            $normal[$name] = $settings;
+        }
+
+        return $normal;
+    }
+
+    /**
      * Returns the alias for an object name. For a fully qualified class name
      * it is the short class name without the suffix, otherwise the name.
      *

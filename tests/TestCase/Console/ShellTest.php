@@ -1,5 +1,6 @@
 <?php
 
+use TestApp\Console\Command\Task\NamespacedTask;
 use TestApp\Console\Helper\NamespacedShellHelper;
 use TestApp\Model\NamespacedPost;
 
@@ -103,6 +104,16 @@ class TestMergeShell extends Shell
     public $tasks = ['DbConfig', 'Fixture'];
 
     public $uses = ['Comment'];
+}
+
+/**
+ * Class for testing merging tasks named by class names
+ *
+ * @package       Cake.Test.Case.Console.Command
+ */
+class TestMergeNamespacedShell extends Shell
+{
+    public $tasks = ['TestApp\Console\Command\Task\Namespaced' => ['a' => 1, 'b' => 1]];
 }
 
 /**
@@ -283,6 +294,23 @@ class ShellTest extends CakeTestCase
             $this->assertSame('NamespacedPost', $Shell->NamespacedPost->alias);
             ClassRegistry::flush();
         }
+    }
+
+    /**
+     * Test that class names and short names of a task in a parent and a shell are merged into one entry.
+     *
+     * @return void
+     */
+    public function testMergeVarsNamespacedClassName(): void
+    {
+        $Shell = new class ($this->getMock('ConsoleOutput'), $this->getMock('ConsoleOutput'), $this->getMock('ConsoleInput')) extends TestMergeNamespacedShell {
+            public $tasks = [NamespacedTask::class => ['b' => 2]];
+        };
+        $expected = ['Namespaced' => ['a' => 1, 'b' => 2, 'className' => NamespacedTask::class]];
+        $this->assertSame($expected, $Shell->tasks);
+        $Shell->loadTasks();
+        $this->assertSame(['Namespaced'], $Shell->taskNames);
+        $this->assertInstanceOf(NamespacedTask::class, $Shell->Namespaced);
     }
 
     /**

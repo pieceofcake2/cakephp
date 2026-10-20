@@ -1,6 +1,7 @@
 <?php
 
 use TestApp\Model\Behavior\NamespacedBehavior;
+use TestApp\Model\NamespacedArticle;
 use TestApp\Model\NamespacedPost;
 
 /**
@@ -1410,5 +1411,27 @@ class BehaviorCollectionTest extends CakeTestCase
             $this->assertSame(['Namespaced'], $Model->Behaviors->loaded());
             $this->assertSame(5, $Model->Behaviors->Namespaced->settings['priority']);
         }
+    }
+
+    /**
+     * Test that a fully qualified class name in a parent model and a short name in a model
+     * are merged into one entry of $actsAs.
+     *
+     * @return void
+     */
+    public function testMergeActsAsNamespacedClassName(): void
+    {
+        Configure::write('App.namespace', 'TestApp');
+        $Model = new class extends NamespacedArticle {
+            public $actsAs = ['Namespaced' => ['foo' => 'bar']];
+        };
+        $expected = [
+            'Containable' => null,
+            'Namespaced' => ['priority' => 3, 'className' => 'TestApp\Model\Behavior\Namespaced', 'foo' => 'bar'],
+        ];
+        $this->assertSame($expected, $Model->actsAs);
+        $this->assertSame(['Containable', 'Namespaced'], $Model->Behaviors->loaded());
+        $this->assertInstanceOf(NamespacedBehavior::class, $Model->Behaviors->Namespaced);
+        $this->assertSame(3, $Model->Behaviors->Namespaced->settings['priority']);
     }
 }
