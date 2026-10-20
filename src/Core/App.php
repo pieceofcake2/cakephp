@@ -636,8 +636,11 @@ class App
         $file = static::_mapped($className, $plugin);
         if ($file) {
             $loaded = include_once $file;
+            if (class_exists($className, false) || !static::_aliasAppClass($className, $package, $plugin)) {
+                return $loaded;
+            }
 
-            return class_exists($className, false) ? $loaded : static::_aliasAppClass($className, $package, $plugin);
+            return true;
         }
         $paths = static::path($package, $plugin);
 
