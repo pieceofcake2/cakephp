@@ -381,4 +381,22 @@ class AclShellTest extends CakeTestCase
 
         $this->Task->initdb();
     }
+
+    /**
+     * Test that DbAcl is accepted by its global name and by its name in the Cake namespace.
+     *
+     * @return void
+     */
+    public function testStartupWithDbAclByGlobalAndNamespacedName(): void
+    {
+        $out = $this->getMock('ConsoleOutput', [], [], '', false);
+        $in = $this->getMock('ConsoleInput', [], [], '', false);
+        $shell = $this->getMock('AclShell', ['in', 'out', 'hr', 'error', 'err', '_stop'], [$out, $out, $in]);
+        $shell->expects($this->never())->method('error');
+        $shell->expects($this->never())->method('_stop');
+        foreach (['DbAcl', 'Cake\\Controller\\Component\\Acl\\DbAcl'] as $class) {
+            Configure::write('Acl.classname', $class);
+            $shell->startup();
+        }
+    }
 }
