@@ -20,6 +20,7 @@ namespace Cake\Test\TestCase\Model\Datasource\Database;
 
 use ArrayIterator;
 use Cake\Core\App;
+use Cake\Core\Configure;
 use Cake\Model\ConnectionManager;
 use Cake\Model\Datasource\Database\Sqlserver;
 use Cake\Model\Datasource\DboSource;
@@ -139,6 +140,7 @@ class SqlserverTest extends CakeTestCase
     public function setUp(): void
     {
         parent::setUp();
+        Configure::write('App.namespace', 'TestApp');
         $this->Dbo = ConnectionManager::getDataSource('test');
         if (!($this->Dbo instanceof Sqlserver)) {
             $this->markTestSkipped('Please configure the test datasource to use SQL Server.');

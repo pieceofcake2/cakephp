@@ -99,6 +99,7 @@ class PostgresTest extends CakeTestCase
     public function setUp(): void
     {
         parent::setUp();
+        Configure::write('App.namespace', 'TestApp');
         Configure::write('Cache.disable', true);
         $this->Dbo = ConnectionManager::getDataSource('test');
         if (!($this->Dbo instanceof Postgres)) {

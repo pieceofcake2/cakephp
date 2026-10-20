@@ -107,6 +107,7 @@ class MysqlTest extends CakeTestCase
     public function setUp(): void
     {
         parent::setUp();
+        Configure::write('App.namespace', 'TestApp');
         $this->Dbo = ConnectionManager::getDataSource('test');
         if (!($this->Dbo instanceof Mysql)) {
             $this->markTestSkipped('The MySQL extension is not available.');

@@ -6,7 +6,6 @@
 use Cake\Cache\Cache;
 use Cake\Console\ShellDispatcher;
 use Cake\Core\App;
-use Cake\Core\Configure;
 use Composer\InstalledVersions;
 use PHPUnit\Util\ErrorHandler;
 
@@ -47,9 +46,6 @@ Closure::bind(function () {
     static::$_map = [];
     static::$_objects = [];
 }, null, App::class)();
-
-// The classes that the tests declare are aliased into App\, as on feature/phpstan-level5
-Configure::write('App.namespace', 'App');
 
 set_error_handler(new ErrorHandler(true, true, true, true));
 
