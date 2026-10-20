@@ -1250,8 +1250,8 @@ class PostgresTest extends CakeTestCase
         $config2['settings']['datestyle'] = 'sql, dmy';
         ConnectionManager::create('test2', $config2);
         $dbo2 = new Postgres($config2, true);
-        $expected = [['r' => date('d/m/Y')]];
-        $r = $dbo2->fetchRow('SELECT now()::date AS "r"');
+        $expected = [['r' => '31/12/2010']];
+        $r = $dbo2->fetchRow('SELECT DATE \'2010-12-31\' AS "r"');
         $this->assertEquals($expected, $r);
         $dbo2->execute('SET DATESTYLE TO ISO');
         $dbo2->disconnect();
