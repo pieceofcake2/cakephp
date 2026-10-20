@@ -3,6 +3,7 @@
 use TestApp\Controller\NamespacedController;
 use TestApp\View\NamespacedView;
 use TestPluginTwo\Controller\NamespacedPluginController;
+use TestPluginTwo\Model\NamespacedPluginItem;
 
 /**
  * CakePHP(tm) : Rapid Development Framework (https://cakephp.org)
@@ -1629,7 +1630,7 @@ class ControllerTest extends CakeTestCase
         $this->assertSame('Namespaced', $Controller->viewPath);
 
         $Controller->constructClasses();
-        $this->assertContains('Namespaced', $Controller->helpers);
+        $this->assertArrayHasKey('Namespaced', Hash::normalize($Controller->helpers));
 
         $getViewObject = new ReflectionMethod($Controller, '_getViewObject');
         if (PHP_VERSION_ID < 80100) {
@@ -1661,6 +1662,60 @@ class ControllerTest extends CakeTestCase
         $helpers = Hash::normalize($Controller->helpers);
         $this->assertArrayHasKey('Text', $helpers);
         $this->assertArrayHasKey('Number', $helpers);
+        CakePlugin::unload();
+    }
+
+    /**
+     * Test that the vars of an AppController in a namespace are merged without App.namespace.
+     *
+     * @return void
+     */
+    public function testNamespacedControllerWithoutAppNamespace(): void
+    {
+        Configure::delete('App.namespace');
+        $Controller = new NamespacedController(new CakeRequest('namespaced/index'), new CakeResponse());
+        $Controller->constructClasses();
+        $this->assertArrayHasKey('Namespaced', Hash::normalize($Controller->helpers));
+    }
+
+
+    /**
+     * Test that the plugin of the request does not have to be loaded to construct the classes.
+     *
+     * @return void
+     */
+    public function testConstructClassesWithPluginNotLoaded(): void
+    {
+        $request = new CakeRequest(null, false);
+        $request->addParams(['plugin' => 'not_loaded', 'controller' => 'posts', 'action' => 'index']);
+        $Controller = new Controller($request, new CakeResponse());
+        $Controller->uses = false;
+        $Controller->constructClasses();
+        $this->assertSame('NotLoaded', $Controller->plugin);
+    }
+
+    /**
+     * Test the models of a rendered view for a namespaced plugin model.
+     *
+     * @return void
+     */
+    public function testRenderNamespacedPluginModel(): void
+    {
+        App::build([
+            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS],
+            'View' => [CORE_TESTS . DS . 'test_app' . DS . 'View' . DS],
+        ], App::RESET);
+        CakePlugin::load('TestPluginTwo');
+        ClassRegistry::flush();
+        $Controller = new Controller(new CakeRequest('posts/index'), new CakeResponse());
+        $Controller->viewPath = 'Posts';
+        $Controller->uses = ['TestPluginTwo.NamespacedPluginItem'];
+        $Controller->constructClasses();
+        $this->assertInstanceOf(NamespacedPluginItem::class, $Controller->NamespacedPluginItem);
+
+        $Controller->render('index');
+        $expected = ['plugin' => 'TestPluginTwo', 'className' => 'NamespacedPluginItem'];
+        $this->assertSame($expected, $Controller->request->params['models']['NamespacedPluginItem']);
         CakePlugin::unload();
     }
 }
