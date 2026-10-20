@@ -22,6 +22,7 @@ use Cake\Cache\Cache;
 use Cake\Cache\Engine\RedisEngine;
 use Cake\Core\Configure;
 use Cake\TestSuite\CakeTestCase;
+use Redis;
 
 /**
  * RedisEngineTest class
@@ -43,7 +44,7 @@ class RedisEngineTest extends CakeTestCase
     public function setUp(): void
     {
         parent::setUp();
-        $this->skipIf(!class_exists('Redis'), 'Redis is not installed or configured properly.');
+        $this->skipIf(!class_exists(Redis::class), 'Redis is not installed or configured properly.');
 
         $this->_cacheDisable = Configure::read('Cache.disable');
         Configure::write('Cache.disable', false);

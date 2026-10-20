@@ -27,6 +27,7 @@ use Cake\Core\CakePlugin;
 use Cake\Core\Configure;
 use Cake\Error\CacheException;
 use Cake\TestSuite\CakeTestCase;
+use Memcached;
 use stdClass;
 use TestApp\Cache\Engine\NamespacedEngine;
 
@@ -650,7 +651,7 @@ class CacheTest extends CakeTestCase
      */
     public function testEngineSuccessMemcached(): void
     {
-        $this->skipIf(!class_exists('Memcached'), 'Memcached is not installed or configured properly.');
+        $this->skipIf(!class_exists(Memcached::class), 'Memcached is not installed or configured properly.');
         // phpcs:ignore
         $socket = @fsockopen('127.0.0.1', 11211, $errno, $errstr, 1);
         $this->skipIf(!$socket, 'Memcached is not running.');

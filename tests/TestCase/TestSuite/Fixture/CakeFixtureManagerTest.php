@@ -138,7 +138,7 @@ class CakeFixtureManagerTest extends CakeTestCase
         $fixtureMapProperty->setAccessible(true);
         $fixtureMapProperty->setValue($fixtureManager, ['UuidFixture' => $MockFixture]);
 
-        $dboMethods = array_diff(get_class_methods('DboSource'), ['enabled']);
+        $dboMethods = array_diff(get_class_methods(DboSource::class), ['enabled']);
         $db = $this->getMock(DboSource::class, $dboMethods);
         $db->config['prefix'] = '';
         $db->expects($this->any())

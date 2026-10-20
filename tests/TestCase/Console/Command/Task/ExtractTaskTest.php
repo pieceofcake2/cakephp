@@ -557,21 +557,21 @@ class ExtractTaskTest extends CakeTestCase
             "__dcn('domain', 'first singular', 'first plural', 1000, 6);\n" .
             "__dcn('domain', 'second singular', 'second plural', 1, 6);\n";
 
-        $tokens = new ReflectionProperty('ExtractTask', '_tokens');
+        $tokens = new ReflectionProperty(ExtractTask::class, '_tokens');
         $tokens->setAccessible(true);
         $tokens->setValue($this->Task, array_values(array_filter(
             token_get_all($code),
             fn($token) => !is_array($token) || ($token[0] !== T_WHITESPACE && $token[0] !== T_INLINE_HTML),
         )));
-        $file = new ReflectionProperty('ExtractTask', '_file');
+        $file = new ReflectionProperty(ExtractTask::class, '_file');
         $file->setAccessible(true);
         $file->setValue($this->Task, 'test.php');
 
-        $parse = new ReflectionMethod('ExtractTask', '_parse');
+        $parse = new ReflectionMethod(ExtractTask::class, '_parse');
         $parse->setAccessible(true);
         $parse->invoke($this->Task, '__dcn', ['domain', 'singular', 'plural', 'count', 'category']);
 
-        $translations = new ReflectionProperty('ExtractTask', '_translations');
+        $translations = new ReflectionProperty(ExtractTask::class, '_translations');
         $translations->setAccessible(true);
         $result = $translations->getValue($this->Task);
 

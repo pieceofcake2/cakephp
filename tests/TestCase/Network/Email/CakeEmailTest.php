@@ -2960,7 +2960,7 @@ HTML;
      */
     protected function _resetDsnClassMap(): void
     {
-        $property = new ReflectionProperty('CakeEmail', '_dsnClassMap');
+        $property = new ReflectionProperty(CakeEmail::class, '_dsnClassMap');
         $property->setAccessible(true);
         $property->setValue(null, null);
     }

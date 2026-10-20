@@ -119,7 +119,7 @@ class ErrorHandlerTest extends CakeTestCase
      */
     public function testHandleErrorDebugOn(): void
     {
-        set_error_handler('ErrorHandler::handleError');
+        set_error_handler([ErrorHandler::class, 'handleError']);
         $this->_restoreError = true;
 
         Debugger::getInstance()->output('html');
@@ -154,7 +154,7 @@ class ErrorHandlerTest extends CakeTestCase
      */
     public function testErrorMapping($error, $expected): void
     {
-        set_error_handler('ErrorHandler::handleError');
+        set_error_handler([ErrorHandler::class, 'handleError']);
         $this->_restoreError = true;
 
         Debugger::getInstance()->output('html');
@@ -173,7 +173,7 @@ class ErrorHandlerTest extends CakeTestCase
      */
     public function testErrorSuppressed(): void
     {
-        set_error_handler('ErrorHandler::handleError');
+        set_error_handler([ErrorHandler::class, 'handleError']);
         $this->_restoreError = true;
 
         ob_start();
@@ -195,7 +195,7 @@ class ErrorHandlerTest extends CakeTestCase
             unlink(LOGS . 'error.log');
         }
 
-        set_error_handler('ErrorHandler::handleError');
+        set_error_handler([ErrorHandler::class, 'handleError']);
         $this->_restoreError = true;
 
         $out .= '';
@@ -224,7 +224,7 @@ class ErrorHandlerTest extends CakeTestCase
             unlink(LOGS . 'error.log');
         }
 
-        set_error_handler('ErrorHandler::handleError');
+        set_error_handler([ErrorHandler::class, 'handleError']);
         $this->_restoreError = true;
 
         $out .= '';

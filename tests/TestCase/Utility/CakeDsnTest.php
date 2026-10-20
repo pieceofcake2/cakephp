@@ -211,6 +211,6 @@ class CakeDsnTest extends CakeTestCase
 
         $this->expectException(ConfigureException::class);
         $this->expectExceptionMessage('Invalid "dsn" of the "a" thing: Broken');
-        CakeDsn::expandConfig(['dsn' => 'bad'], $parser, 'the "a" thing', 'ConfigureException');
+        CakeDsn::expandConfig(['dsn' => 'bad'], $parser, 'the "a" thing', ConfigureException::class);
     }
 }

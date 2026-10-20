@@ -966,10 +966,10 @@ SQL;
         $connection->expects($this->once())
             ->method('exec')
             ->will($this->throwException(new PDOException('failed')));
-        $property = new ReflectionProperty('Sqlserver', '_connection');
+        $property = new ReflectionProperty(Sqlserver::class, '_connection');
         $property->setAccessible(true);
         $property->setValue($db, $connection);
-        $execute = new ReflectionMethod('Sqlserver', '_execute');
+        $execute = new ReflectionMethod(Sqlserver::class, '_execute');
         $execute->setAccessible(true);
 
         $exception = null;

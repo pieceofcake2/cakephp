@@ -607,6 +607,6 @@ class CakeTestCaseTest extends CakeTestCase
         $this->assertNoPattern('/baz/', 'foo bar');
         $first = $second = 'value';
         $this->assertReference($first, $first);
-        $this->assertIsA($this, 'CakeTestCase');
+        $this->assertIsA($this, CakeTestCase::class);
     }
 }

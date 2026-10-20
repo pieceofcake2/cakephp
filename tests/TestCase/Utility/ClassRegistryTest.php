@@ -26,9 +26,6 @@ use Cake\Core\Configure;
 use Cake\Error\CakeException;
 use Cake\Model\Aco;
 use Cake\Model\ConnectionManager;
-use Cake\Test\TestCase\Model\Article;
-use Cake\Test\TestCase\Model\Featured;
-use Cake\Test\TestCase\Model\Tag;
 use Cake\TestSuite\CakeTestCase;
 use Cake\TestSuite\Fixture\CakeTestModel;
 use Cake\Utility\ClassRegistry;
@@ -272,13 +269,13 @@ class ClassRegistryTest extends CakeTestCase
      */
     public function testAddMultipleModels(): void
     {
-        $Article = ClassRegistry::isKeySet(Article::class);
+        $Article = ClassRegistry::isKeySet('Article');
         $this->assertFalse($Article);
 
-        $Featured = ClassRegistry::isKeySet(Featured::class);
+        $Featured = ClassRegistry::isKeySet('Featured');
         $this->assertFalse($Featured);
 
-        $Tag = ClassRegistry::isKeySet(Tag::class);
+        $Tag = ClassRegistry::isKeySet('Tag');
         $this->assertFalse($Tag);
 
         $models = [
@@ -290,22 +287,22 @@ class ClassRegistryTest extends CakeTestCase
         $added = ClassRegistry::init($models);
         $this->assertTrue($added);
 
-        $Article = ClassRegistry::isKeySet(Article::class);
+        $Article = ClassRegistry::isKeySet('Article');
         $this->assertTrue($Article);
 
-        $Featured = ClassRegistry::isKeySet(Featured::class);
+        $Featured = ClassRegistry::isKeySet('Featured');
         $this->assertTrue($Featured);
 
-        $Tag = ClassRegistry::isKeySet(Tag::class);
+        $Tag = ClassRegistry::isKeySet('Tag');
         $this->assertTrue($Tag);
 
-        $Article = ClassRegistry::getObject(Article::class);
+        $Article = ClassRegistry::getObject('Article');
         $this->assertInstanceOf(RegisterArticle::class, $Article);
 
-        $Featured = ClassRegistry::getObject(Featured::class);
+        $Featured = ClassRegistry::getObject('Featured');
         $this->assertInstanceOf(RegisterArticleFeatured::class, $Featured);
 
-        $Tag = ClassRegistry::getObject(Tag::class);
+        $Tag = ClassRegistry::getObject('Tag');
         $this->assertInstanceOf(RegisterArticleTag::class, $Tag);
     }
 
@@ -453,13 +450,13 @@ class ClassRegistryTest extends CakeTestCase
     public function testFullyQualifiedClassNameAsKey(): void
     {
         $post = ClassRegistry::init(['class' => NamespacedPost::class, 'alias' => 'NamespacedPost']);
-        $this->assertSame($post, ClassRegistry::getObject(NamespacedPost::class));
+        $this->assertSame($post, ClassRegistry::getObject('NamespacedPost'));
         $this->assertSame($post, ClassRegistry::getObject(NamespacedPost::class));
         $this->assertSame($post, ClassRegistry::getObject('\\' . NamespacedPost::class));
         $this->assertTrue(ClassRegistry::isKeySet(NamespacedPost::class));
 
         ClassRegistry::removeObject(NamespacedPost::class);
-        $this->assertFalse(ClassRegistry::getObject(NamespacedPost::class));
+        $this->assertFalse(ClassRegistry::getObject('NamespacedPost'));
 
         // Not an object of another class with the same short name
         ClassRegistry::addObject('NamespacedPost', new NamespacedComment());

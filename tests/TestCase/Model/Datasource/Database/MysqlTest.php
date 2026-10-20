@@ -5188,7 +5188,7 @@ SQL;
         $connection->expects($this->once())
             ->method('query')
             ->will($this->returnValue(false));
-        $property = new ReflectionProperty('Mysql', '_connection');
+        $property = new ReflectionProperty(Mysql::class, '_connection');
         $property->setAccessible(true);
         $property->setValue($db, $connection);
 

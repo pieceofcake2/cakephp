@@ -23,6 +23,7 @@ use Cake\Error\CakeException;
 use Cake\Error\MethodNotAllowedException;
 use Cake\Network\CakeRequest;
 use Cake\TestSuite\CakeTestCase;
+use Cake\Utility\Xml;
 use DOMDocument;
 
 /**
@@ -2500,7 +2501,7 @@ XML;
         $request->expects($this->once())->method('_readInput')
             ->will($this->returnValue($xml));
 
-        $result = $request->input('Xml::build', ['return' => 'domdocument']);
+        $result = $request->input([Xml::class, 'build'], ['return' => 'domdocument']);
         $this->assertInstanceOf(DOMDocument::class, $result);
         $this->assertEquals(
             'Test',

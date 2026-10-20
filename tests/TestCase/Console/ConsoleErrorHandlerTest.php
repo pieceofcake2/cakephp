@@ -187,7 +187,7 @@ class ConsoleErrorHandlerTest extends CakeTestCase
     {
         $exception = new Exception('Non-integer exception code');
 
-        $class = new ReflectionClass('Exception');
+        $class = new ReflectionClass(Exception::class);
         $property = $class->getProperty('code');
         $property->setAccessible(true);
         $property->setValue($exception, '42S22');

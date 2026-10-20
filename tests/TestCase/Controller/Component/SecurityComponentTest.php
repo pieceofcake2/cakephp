@@ -644,7 +644,7 @@ class SecurityComponentTest extends CakeTestCase
             'Model' => ['username' => 'nate', 'password' => 'foo', 'valid' => '0'],
             '_Token' => compact('key', 'fields', 'unlocked', 'debug'),
         ];
-        $this->assertFalse($this->validatePost('AuthSecurityException', 'Unexpected field \'Model.password\' in POST data, Unexpected field \'Model.username\' in POST data'));
+        $this->assertFalse($this->validatePost(AuthSecurityException::class, 'Unexpected field \'Model.password\' in POST data, Unexpected field \'Model.username\' in POST data'));
     }
 
     /**
@@ -662,7 +662,7 @@ class SecurityComponentTest extends CakeTestCase
             'Model' => ['username' => 'nate', 'password' => 'foo', 'valid' => '0'],
             '_Token' => compact('key', 'unlocked'),
         ];
-        $result = $this->validatePost('AuthSecurityException', '\'_Token.fields\' was not found in request data.');
+        $result = $this->validatePost(AuthSecurityException::class, '\'_Token.fields\' was not found in request data.');
         $this->assertFalse($result, 'validatePost passed when fields were missing. %s');
     }
 
@@ -678,7 +678,7 @@ class SecurityComponentTest extends CakeTestCase
         $_SERVER['REQUEST_METHOD'] = 'POST';
         $this->Controller->request->data = [];
         $this->Controller->Security->startup($this->Controller);
-        $result = $this->validatePost('AuthSecurityException', '\'_Token\' was not found in request data.');
+        $result = $this->validatePost(AuthSecurityException::class, '\'_Token\' was not found in request data.');
         $this->assertFalse($result, 'validatePost passed when empty form is submitted');
     }
 
@@ -708,7 +708,7 @@ class SecurityComponentTest extends CakeTestCase
             'Model' => ['username' => 'mark', 'password' => 'foo', 'valid' => '0'],
             '_Token' => compact('key', 'fields', 'unlocked', 'debug'),
         ];
-        $result = $this->validatePost('SecurityException', 'Bad Request');
+        $result = $this->validatePost(SecurityException::class, 'Bad Request');
         $this->assertFalse($result, 'validatePost passed when key was missing. %s');
     }
 
@@ -1008,7 +1008,7 @@ class SecurityComponentTest extends CakeTestCase
             '_Token' => compact('fields', 'key'),
         ];
 
-        $result = $this->validatePost('SecurityException', '\'_Token.unlocked\' was not found in request data.');
+        $result = $this->validatePost(SecurityException::class, '\'_Token.unlocked\' was not found in request data.');
         $this->assertFalse($result);
     }
 
@@ -1033,7 +1033,7 @@ class SecurityComponentTest extends CakeTestCase
             '_Token' => compact('fields', 'unlocked'),
         ];
 
-        $result = $this->validatePost('SecurityException', '\'_Token.debug\' was not found in request data.');
+        $result = $this->validatePost(SecurityException::class, '\'_Token.debug\' was not found in request data.');
         $this->assertFalse($result);
     }
 
@@ -1058,7 +1058,7 @@ class SecurityComponentTest extends CakeTestCase
             '_Token' => compact('fields', 'unlocked'),
         ];
         Configure::write('debug', false);
-        $this->validatePost('SecurityException', 'The request has been black-holed');
+        $this->validatePost(SecurityException::class, 'The request has been black-holed');
     }
 
     /**
@@ -1091,7 +1091,7 @@ class SecurityComponentTest extends CakeTestCase
             '_Token' => compact('fields', 'key', 'unlocked', 'debug'),
         ];
 
-        $result = $this->validatePost('SecurityException', 'Missing field \'Model.password\' in POST data, Unexpected unlocked field \'Model.password\' in POST data');
+        $result = $this->validatePost(SecurityException::class, 'Missing field \'Model.password\' in POST data, Unexpected unlocked field \'Model.password\' in POST data');
         $this->assertFalse($result);
     }
 
@@ -1290,7 +1290,7 @@ class SecurityComponentTest extends CakeTestCase
             '_Token' => compact('key', 'fields', 'unlocked', 'debug'),
         ];
 
-        $result = $this->validatePost('SecurityException', 'Bad Request');
+        $result = $this->validatePost(SecurityException::class, 'Bad Request');
         $this->assertFalse($result);
     }
 
@@ -1315,7 +1315,7 @@ class SecurityComponentTest extends CakeTestCase
             'MyModel' => ['name' => 'some data'],
             '_Token' => compact('key', 'fields', 'unlocked', 'debug'),
         ];
-        $result = $this->validatePost('SecurityException', 'Unexpected field \'MyModel.name\' in POST data');
+        $result = $this->validatePost(SecurityException::class, 'Unexpected field \'MyModel.name\' in POST data');
         $this->assertFalse($result);
 
         $this->Controller->Security->startup($this->Controller);
@@ -1351,7 +1351,7 @@ class SecurityComponentTest extends CakeTestCase
         $this->Controller->request->data = [
             '_Token' => compact('key', 'fields', 'unlocked', 'debug'),
         ];
-        $result = $this->validatePost('SecurityException', 'Bad Request');
+        $result = $this->validatePost(SecurityException::class, 'Bad Request');
         $this->assertFalse($result);
 
         $this->Controller->request->data = [
@@ -1411,8 +1411,8 @@ class SecurityComponentTest extends CakeTestCase
 
         $request->data = $this->Controller->request->data;
         $this->Controller->request = $request;
-        $this->assertFalse($this->validatePost('SecurityException', 'URL mismatch in POST data (expected \'another-url\' but found \'/posts/index?page=1\')'));
-        $this->assertFalse($this->validatePost('SecurityException', 'URL mismatch in POST data (expected \'another-url\' but found \'/posts/edit/1\')'));
+        $this->assertFalse($this->validatePost(SecurityException::class, 'URL mismatch in POST data (expected \'another-url\' but found \'/posts/index?page=1\')'));
+        $this->assertFalse($this->validatePost(SecurityException::class, 'URL mismatch in POST data (expected \'another-url\' but found \'/posts/edit/1\')'));
     }
 
     /**
@@ -1842,10 +1842,10 @@ class SecurityComponentTest extends CakeTestCase
             '_Token' => compact('fields', 'unlocked', 'debug'),
         ];
 
-        $result = $this->validatePost('SecurityException', 'Invalid security debug token.');
+        $result = $this->validatePost(SecurityException::class, 'Invalid security debug token.');
         $this->assertFalse($result);
 
-        $result = $this->validatePost('SecurityException', 'Invalid security debug token.');
+        $result = $this->validatePost(SecurityException::class, 'Invalid security debug token.');
         $this->assertFalse($result);
     }
 
@@ -1908,7 +1908,7 @@ class SecurityComponentTest extends CakeTestCase
             '_Token' => compact('fields', 'unlocked', 'debug'),
         ];
 
-        $result = $this->validatePost('SecurityException', 'Tampered field \'Model.hidden\' in POST data (expected value \'value\' but found \'tampered\')');
+        $result = $this->validatePost(SecurityException::class, 'Tampered field \'Model.hidden\' in POST data (expected value \'value\' but found \'tampered\')');
         $this->assertFalse($result);
     }
 
@@ -1937,7 +1937,7 @@ class SecurityComponentTest extends CakeTestCase
             '_Token' => compact('fields', 'unlocked', 'debug'),
         ];
 
-        $result = $this->validatePost('SecurityException', 'Unexpected field \'Model.hidden.some-key\' in POST data, Missing field \'Model.hidden\' in POST data');
+        $result = $this->validatePost(SecurityException::class, 'Unexpected field \'Model.hidden.some-key\' in POST data, Missing field \'Model.hidden\' in POST data');
         $this->assertFalse($result);
     }
 
@@ -1966,7 +1966,7 @@ class SecurityComponentTest extends CakeTestCase
             '_Token' => compact('fields', 'unlocked', 'debug'),
         ];
         Configure::write('debug', false);
-        $result = $this->validatePost('SecurityException', 'Unexpected \'_Token.debug\' found in request data');
+        $result = $this->validatePost(SecurityException::class, 'Unexpected \'_Token.debug\' found in request data');
         $this->assertFalse($result);
     }
 

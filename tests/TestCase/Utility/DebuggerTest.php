@@ -148,7 +148,7 @@ class DebuggerTest extends CakeTestCase
         // are not output when a PHP error occurs.
         // Except for the above, Debugger::output() works.
         // However, it is incomplete, so marked.
-        set_error_handler('Debugger::showError');
+        set_error_handler([Debugger::class, 'showError']);
 
         $result = Debugger::output(false);
         $this->assertEquals('', $result);
@@ -205,7 +205,7 @@ class DebuggerTest extends CakeTestCase
      */
     public function testOutputEncodeDescription(): void
     {
-        set_error_handler('Debugger::showError');
+        set_error_handler([Debugger::class, 'showError']);
 
         ob_start();
         Debugger::output('js');
@@ -226,7 +226,7 @@ class DebuggerTest extends CakeTestCase
      */
     public function testChangeOutputFormats(): void
     {
-        set_error_handler('Debugger::showError');
+        set_error_handler([Debugger::class, 'showError']);
 
         Debugger::output('js', [
             'traceLine' => '{:reference} - <a href="txmt://open?url=file://{:file}' .
@@ -290,7 +290,7 @@ class DebuggerTest extends CakeTestCase
      */
     public function testAddFormat(): void
     {
-        set_error_handler('Debugger::showError');
+        set_error_handler([Debugger::class, 'showError']);
 
         Debugger::addFormat('js', [
             'traceLine' => '{:reference} - <a href="txmt://open?url=file://{:file}' .
@@ -331,7 +331,7 @@ class DebuggerTest extends CakeTestCase
      */
     public function testAddFormatCallback(): void
     {
-        set_error_handler('Debugger::showError');
+        set_error_handler([Debugger::class, 'showError']);
 
         Debugger::addFormat('callback', ['callback' => [$this, 'customFormat']]);
         Debugger::outputAs('callback');

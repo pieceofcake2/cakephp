@@ -63,7 +63,7 @@ class MemcacheEngineTest extends CakeTestCase
     public function setUp(): void
     {
         parent::setUp();
-        $this->skipIf(!class_exists('Memcache'), 'Memcache is not installed or configured properly.');
+        $this->skipIf(!class_exists(Memcache::class), 'Memcache is not installed or configured properly.');
 
         $this->_cacheDisable = Configure::read('Cache.disable');
         Configure::write('Cache.disable', false);

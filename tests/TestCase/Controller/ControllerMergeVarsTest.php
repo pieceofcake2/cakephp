@@ -77,7 +77,7 @@ class MergeVariablesController extends MergeVarsAppController
      *
      * @var string
      */
-    protected $_mergeParent = 'MergeVarsAppController';
+    protected $_mergeParent = MergeVarsAppController::class;
 }
 class_alias(MergeVariablesController::class, 'App\\Controller\\MergeVariablesController');
 
@@ -107,7 +107,7 @@ class MergeVarPluginAppController extends MergeVarsAppController
      *
      * @var string
      */
-    protected $_mergeParent = 'MergeVarsAppController';
+    protected $_mergeParent = MergeVarsAppController::class;
 }
 class_alias(MergeVarPluginAppController::class, 'App\\Controller\\MergeVarPluginAppController');
 class_alias(MergeVarPluginAppController::class, 'MergeVarPlugin\\Controller\\MergeVarPluginAppController');

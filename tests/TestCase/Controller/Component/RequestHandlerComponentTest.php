@@ -155,7 +155,7 @@ class RequestHandlerComponentTest extends CakeTestCase
         if (!headers_sent()) {
             header('Content-type: text/html'); //reset content type.
         }
-        call_user_func_array('Router::parseExtensions', $this->_extensions);
+        call_user_func_array([Router::class, 'parseExtensions'], $this->_extensions);
 
         parent::tearDown();
     }
@@ -1090,7 +1090,7 @@ class RequestHandlerComponentTest extends CakeTestCase
         $this->_init();
         $this->RequestHandler->viewClassMap('csv', 'TestApp\View\Namespaced');
         $this->RequestHandler->renderAs($this->Controller, 'csv');
-        $this->assertSame('TestApp\View\NamespacedView', $this->Controller->viewClass);
+        $this->assertSame(NamespacedView::class, $this->Controller->viewClass);
 
         $this->_init();
         $this->RequestHandler->renderAs($this->Controller, 'json');

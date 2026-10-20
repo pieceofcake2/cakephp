@@ -143,7 +143,7 @@ class_alias(ControllerPost::class, 'App\\Model\\ControllerPost');
  */
 class ControllerCommentsController extends ControllerTestAppController
 {
-    protected $_mergeParent = 'ControllerTestAppController';
+    protected $_mergeParent = ControllerTestAppController::class;
 }
 class_alias(ControllerCommentsController::class, 'App\\Controller\\ControllerCommentsController');
 
@@ -266,7 +266,7 @@ class TestController extends ControllerTestAppController
      */
     public $uses = ['ControllerComment', 'ControllerAlias'];
 
-    protected $_mergeParent = 'ControllerTestAppController';
+    protected $_mergeParent = ControllerTestAppController::class;
 
     /**
      * index method
@@ -430,7 +430,7 @@ class AnotherTestController extends ControllerTestAppController
      *
      * @var string
      */
-    protected $_mergeParent = 'ControllerTestAppController';
+    protected $_mergeParent = ControllerTestAppController::class;
 }
 class_alias(AnotherTestController::class, 'App\\Controller\\AnotherTestController');
 
@@ -1397,7 +1397,7 @@ class ControllerTest extends CakeTestCase
         $controller->Components = $this->getMock(ComponentCollection::class, ['trigger']);
 
         $controller->expects($this->once())->method('beforeFilter');
-        $controller->Components->expects($this->exactly(2))->method('trigger')->with($this->isInstanceOf('CakeEvent'));
+        $controller->Components->expects($this->exactly(2))->method('trigger')->with($this->isInstanceOf(CakeEvent::class));
 
         $controller->startupProcess();
     }
@@ -1438,7 +1438,7 @@ class ControllerTest extends CakeTestCase
         $controller->Components = $this->getMock(ComponentCollection::class, ['trigger']);
 
         $controller->expects($this->once())->method('afterFilter');
-        $controller->Components->expects($this->exactly(1))->method('trigger')->with($this->isInstanceOf('CakeEvent'));
+        $controller->Components->expects($this->exactly(1))->method('trigger')->with($this->isInstanceOf(CakeEvent::class));
 
         $controller->shutdownProcess();
     }
@@ -1749,7 +1749,7 @@ class ControllerTest extends CakeTestCase
         $this->assertSame(NamespacedController::class, $Controller->controllerClass);
 
         $Controller = new Controller(new CakeRequest('posts/index'), new CakeResponse());
-        $this->assertSame('Cake\Controller\Controller', $Controller->controllerClass);
+        $this->assertSame(Controller::class, $Controller->controllerClass);
     }
 
     /**
