@@ -36,9 +36,7 @@ class TestCakeRequest extends CakeRequest
         if (empty($url)) {
             $url = $this->_url();
         }
-        if ($url[0] === '/') {
-            $url = substr($url, 1);
-        }
+        $url = ltrim($url, '/\\');
         $this->url = $url;
 
         if ($parseEnvironment) {
@@ -2424,6 +2422,134 @@ class CakeRequestTest extends CakeTestCase
 
         $result = $request->here();
         $this->assertEquals('/admin/settings/settings/prefix/Access%20Control', $result);
+    }
+
+    /**
+     * Data provider for the request URLs with extra leading slashes or backslashes.
+     *
+     * @return array
+     */
+    public static function protocolRelativeUrlProvider(): array
+    {
+        return [
+            ['//contacts/career/1', 'contacts/career/1'],
+            ['///evil.example.com/posts', 'evil.example.com/posts'],
+            ['/\\evil.example.com', 'evil.example.com'],
+            ['/\\/evil.example.com', 'evil.example.com'],
+            ['\\\\evil.example.com', 'evil.example.com'],
+            ['\\/evil.example.com', 'evil.example.com'],
+            ['//', ''],
+        ];
+    }
+
+    /**
+     * Test that the request URL and here() never start with `//` or `/\`, so that a form
+     * or a redirect to the current URL can not go to another host.
+     *
+     * @dataProvider protocolRelativeUrlProvider
+     * @param string $url The request URL.
+     * @param string $expected The expected request URL without leading slashes.
+     * @return void
+     */
+    public function testHereProtocolRelative(string $url, string $expected): void
+    {
+        Configure::write('App.base', '');
+        $_GET = [];
+        $request = new CakeRequest($url);
+
+        $this->assertSame($expected, $request->url);
+        $this->assertSame('/' . $expected, $request->here);
+        $this->assertSame('/' . $expected, $request->here());
+        $this->assertSame('/' . $expected, $request->here(false));
+
+        Configure::write('App.base', '/base_path');
+        $_GET = ['page' => '2'];
+        $request = new CakeRequest($url);
+
+        $this->assertSame($expected, $request->url);
+        $this->assertSame('/base_path/' . $expected . '?page=2', $request->here());
+        $this->assertSame('/' . $expected . '?page=2', $request->here(false));
+    }
+
+    /**
+     * Test that here() collapses the leading slashes of a `$here` set by the application.
+     *
+     * @return void
+     */
+    public function testHereCollapsesLeadingSlashesOfHere(): void
+    {
+        Configure::write('App.base', '');
+        $_GET = [];
+        $request = new CakeRequest('posts');
+
+        $request->here = '//evil.example.com/posts';
+        $this->assertSame('/evil.example.com/posts', $request->here());
+        $this->assertSame('/evil.example.com/posts', $request->here(false));
+
+        $request->here = '/\\evil.example.com/posts';
+        $this->assertSame('/evil.example.com/posts', $request->here());
+
+        $request->base = '/admin';
+        $request->here = '/admin//evil.example.com/posts';
+        $this->assertSame('/evil.example.com/posts', $request->here(false));
+        $this->assertSame('/admin//evil.example.com/posts', $request->here());
+    }
+
+    /**
+     * Test that a request URI with extra leading slashes is routed as before,
+     * and here() is a path on the same host.
+     *
+     * @return void
+     */
+    public function testHereProtocolRelativeFromEnvironment(): void
+    {
+        Router::connect('/contacts/:action/*', ['controller' => 'contacts']);
+
+        $_SERVER['PHP_SELF'] = '/index.php';
+        $_SERVER['REQUEST_URI'] = '//contacts/career/1?job=2';
+        $_GET = ['job' => '2'];
+        $request = new CakeRequest();
+        $this->assertSame('', $request->base);
+        $this->assertSame('contacts/career/1', $request->url);
+        $this->assertSame('/contacts/career/1?job=2', $request->here(false));
+        $this->assertSame(Router::parse('/contacts/career/1'), Router::parse($request->url));
+
+        $_SERVER['REQUEST_URI'] = '/\\evil.example.com/contacts';
+        $_GET = [];
+        $request = new CakeRequest();
+        $this->assertSame('evil.example.com/contacts', $request->url);
+        $this->assertSame('/evil.example.com/contacts', $request->here(false));
+
+        // An application in a sub directory: `/admin//evil.example.com` would be `//evil.example.com` without the base.
+        $_SERVER['PHP_SELF'] = '/admin/' . APP_DIR . '/' . WEBROOT_DIR . '/index.php';
+        $_SERVER['REQUEST_URI'] = '/admin//evil.example.com/posts';
+        $request = new CakeRequest();
+        $this->assertSame('/admin', $request->base);
+        $this->assertSame('evil.example.com/posts', $request->url);
+        $this->assertSame('/admin/evil.example.com/posts', $request->here());
+        $this->assertSame('/evil.example.com/posts', $request->here(false));
+
+        $_SERVER['PATH_INFO'] = '//evil.example.com/posts';
+        $request = new CakeRequest();
+        $this->assertSame('evil.example.com/posts', $request->url);
+        $this->assertSame('/evil.example.com/posts', $request->here(false));
+        unset($_SERVER['PATH_INFO']);
+
+        // No URL rewriting (App.baseUrl).
+        $_SERVER['DOCUMENT_ROOT'] = '/Users/markstory/Sites';
+        $_SERVER['PHP_SELF'] = '/cake/index.php//evil.example.com/posts';
+        $_SERVER['REQUEST_URI'] = '/cake/index.php//evil.example.com/posts';
+        Configure::write('App', [
+            'dir' => APP_DIR,
+            'webroot' => WEBROOT_DIR,
+            'base' => false,
+            'baseUrl' => '/cake/index.php',
+        ]);
+        $request = new CakeRequest();
+        $this->assertSame('/cake/index.php', $request->base);
+        $this->assertSame('evil.example.com/posts', $request->url);
+        $this->assertSame('/cake/index.php/evil.example.com/posts', $request->here());
+        $this->assertSame('/evil.example.com/posts', $request->here(false));
     }
 
     /**

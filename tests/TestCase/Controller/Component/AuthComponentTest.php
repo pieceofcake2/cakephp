@@ -1790,10 +1790,15 @@ class AuthComponentTest extends CakeTestCase
 
         $this->Auth->loginAction = ['controller' => 'users', 'action' => 'login'];
         $this->Auth->startup($this->Controller);
-        $this->assertSame('//evil.example.com/auth_test/add', $this->Auth->Session->read('Auth.redirect'));
+        // here() collapses the leading slashes, so the stored URL is already a local path
+        $this->assertSame('/evil.example.com/auth_test/add', $this->Auth->Session->read('Auth.redirect'));
 
         $result = $this->Auth->redirectUrl();
         $this->assertSame('/evil.example.com/auth_test/add', $result);
+
+        // redirectUrl() still collapses a protocol-relative URL stored in the session
+        $this->Auth->Session->write('Auth.redirect', '//evil.example.com/auth_test/add');
+        $this->assertSame('/evil.example.com/auth_test/add', $this->Auth->redirectUrl());
     }
 
     /**

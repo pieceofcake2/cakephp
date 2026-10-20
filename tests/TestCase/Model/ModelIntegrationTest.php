@@ -1,10 +1,10 @@
 <?php
 
+use TestApp\Model\NamespacedArticlesTag;
 use TestApp\Model\NamespacedComment;
-use TestApp\Model\NamespacedHabtmPost;
+use TestApp\Model\NamespacedHabtmArticle;
 use TestApp\Model\NamespacedHabtmTag;
 use TestApp\Model\NamespacedPost;
-use TestApp\Model\NamespacedPostsTag;
 
 /**
  * ModelIntegrationTest file
@@ -2654,38 +2654,40 @@ class ModelIntegrationTest extends BaseModelTest
      */
     public function testNamespacedClassNameWith(): void
     {
-        $this->loadFixtures('Post', 'Tag', 'PostsTag');
-        $cases = [2 => 'NamespacedPostsTag', 3 => NamespacedPostsTag::class];
+        $this->loadFixtures('Article', 'Tag', 'ArticlesTag');
+        $cases = [2 => 'NamespacedArticlesTag', 3 => NamespacedArticlesTag::class];
         foreach ($cases as $id => $with) {
-            Configure::write('App.namespace', $with === 'NamespacedPostsTag' ? 'TestApp' : null);
-            $Post = new NamespacedHabtmPost(['ds' => 'test']);
-            $Post->hasAndBelongsToMany['NamespacedHabtmTag']['with'] = $with;
+            Configure::write('App.namespace', $with === 'NamespacedArticlesTag' ? 'TestApp' : null);
+            $Article = new NamespacedHabtmArticle(['ds' => 'test']);
+            $Article->hasAndBelongsToMany['NamespacedHabtmTag']['with'] = $with;
 
-            $this->assertTrue(isset($Post->NamespacedPostsTag));
-            $this->assertInstanceOf(NamespacedPostsTag::class, $Post->NamespacedPostsTag);
-            $this->assertSame('NamespacedPostsTag', $Post->NamespacedPostsTag->alias);
-            $this->assertSame(['NamespacedPostsTag', ['post_id', 'tag_id']], $Post->joinModel($with));
+            $this->assertTrue(isset($Article->NamespacedArticlesTag));
+            $this->assertInstanceOf(NamespacedArticlesTag::class, $Article->NamespacedArticlesTag);
+            $this->assertSame('NamespacedArticlesTag', $Article->NamespacedArticlesTag->alias);
+            $this->assertSame(['NamespacedArticlesTag', ['article_id', 'tag_id']], $Article->joinModel($with));
             $this->assertSame(
-                ['NamespacedPostsTag', ['tag_id', 'post_id']],
-                $Post->joinModel([$with => ['tag_id']], ['post_id']),
+                ['NamespacedArticlesTag', ['tag_id', 'article_id']],
+                $Article->joinModel([$with => ['tag_id']], ['article_id']),
             );
 
-            $Post->set(['NamespacedHabtmPost' => ['id' => $id], 'NamespacedHabtmTag' => [['tag_id' => '']]]);
-            $this->assertFalse($Post->validates());
+            $Article->set(['NamespacedHabtmArticle' => ['id' => $id], 'NamespacedHabtmTag' => [['tag_id' => '']]]);
+            $this->assertFalse($Article->validates());
 
-            $Post->create();
-            $this->assertNotEmpty($Post->save(['NamespacedHabtmPost' => ['id' => $id], 'NamespacedHabtmTag' => ['NamespacedHabtmTag' => [1, 3]]]));
-            $result = $Post->find('first', ['conditions' => ['NamespacedHabtmPost.id' => $id]]);
-            $this->assertSame([1, 3], array_map('intval', Hash::extract($result, 'NamespacedHabtmTag.{n}.id')));
+            $Article->create();
+            $this->assertNotEmpty($Article->save(['NamespacedHabtmArticle' => ['id' => $id], 'NamespacedHabtmTag' => ['NamespacedHabtmTag' => [1, 3]]]));
+            $result = $Article->find('first', ['conditions' => ['NamespacedHabtmArticle.id' => $id]]);
+            $tagIds = array_map('intval', Hash::extract($result, 'NamespacedHabtmTag.{n}.id'));
+            sort($tagIds);
+            $this->assertSame([1, 3], $tagIds);
 
-            $this->assertTrue($Post->delete($id));
-            $this->assertSame(0, $Post->NamespacedPostsTag->find('count', ['conditions' => ['post_id' => $id]]));
+            $this->assertTrue($Article->delete($id));
+            $this->assertSame(0, $Article->NamespacedArticlesTag->find('count', ['conditions' => ['article_id' => $id]]));
             ClassRegistry::flush();
 
-            $Post = new NamespacedHabtmPost(['ds' => 'test']);
-            $Post->hasAndBelongsToMany['NamespacedHabtmTag']['with'] = [$with => ['tag_id']];
-            $this->assertTrue(isset($Post->NamespacedPostsTag));
-            $this->assertInstanceOf(NamespacedPostsTag::class, $Post->NamespacedPostsTag);
+            $Article = new NamespacedHabtmArticle(['ds' => 'test']);
+            $Article->hasAndBelongsToMany['NamespacedHabtmTag']['with'] = [$with => ['tag_id']];
+            $this->assertTrue(isset($Article->NamespacedArticlesTag));
+            $this->assertInstanceOf(NamespacedArticlesTag::class, $Article->NamespacedArticlesTag);
             ClassRegistry::flush();
         }
     }
@@ -2698,39 +2700,41 @@ class ModelIntegrationTest extends BaseModelTest
      */
     public function testNamespacedClassNameHabtmKeyAndWith(): void
     {
-        $this->loadFixtures('Post', 'Tag', 'PostsTag');
+        $this->loadFixtures('Article', 'Tag', 'ArticlesTag');
         $expected = null;
         foreach ([2 => 'short', 3 => 'class'] as $id => $notation) {
             if ($notation === 'short') {
                 Configure::write('App.namespace', 'TestApp');
-                $Post = new class (['name' => 'NamespacedHabtmPost', 'ds' => 'test']) extends NamespacedHabtmPost {
-                    public $hasAndBelongsToMany = ['NamespacedHabtmTag' => ['with' => 'NamespacedPostsTag']];
+                $Article = new class (['name' => 'NamespacedHabtmArticle', 'ds' => 'test']) extends NamespacedHabtmArticle {
+                    public $hasAndBelongsToMany = ['NamespacedHabtmTag' => ['with' => 'NamespacedArticlesTag']];
                 };
             } else {
                 Configure::write('App.namespace', null);
-                $Post = new NamespacedHabtmPost(['ds' => 'test']);
+                $Article = new NamespacedHabtmArticle(['ds' => 'test']);
             }
-            $habtm = $Post->hasAndBelongsToMany;
+            $habtm = $Article->hasAndBelongsToMany;
             $this->assertSame(['NamespacedHabtmTag'], array_keys($habtm));
             unset($habtm['NamespacedHabtmTag']['className'], $habtm['NamespacedHabtmTag']['with']);
             $expected ??= $habtm;
             $this->assertSame($expected, $habtm);
-            $this->assertSame('posts_tags', $habtm['NamespacedHabtmTag']['joinTable']);
-            $this->assertSame(['NamespacedHabtmTag' => 'hasAndBelongsToMany'], $Post->getAssociated());
+            $this->assertSame('articles_tags', $habtm['NamespacedHabtmTag']['joinTable']);
+            $this->assertSame(['NamespacedHabtmTag' => 'hasAndBelongsToMany'], $Article->getAssociated());
 
-            $this->assertInstanceOf(NamespacedHabtmTag::class, $Post->NamespacedHabtmTag);
-            $this->assertSame('NamespacedHabtmTag', $Post->NamespacedHabtmTag->alias);
-            $this->assertInstanceOf(NamespacedPostsTag::class, $Post->NamespacedPostsTag);
-            $this->assertSame('NamespacedPostsTag', $Post->NamespacedPostsTag->alias);
-            $with = $Post->hasAndBelongsToMany['NamespacedHabtmTag']['with'];
-            $this->assertSame(['NamespacedPostsTag', ['post_id', 'tag_id']], $Post->joinModel($with));
+            $this->assertInstanceOf(NamespacedHabtmTag::class, $Article->NamespacedHabtmTag);
+            $this->assertSame('NamespacedHabtmTag', $Article->NamespacedHabtmTag->alias);
+            $this->assertInstanceOf(NamespacedArticlesTag::class, $Article->NamespacedArticlesTag);
+            $this->assertSame('NamespacedArticlesTag', $Article->NamespacedArticlesTag->alias);
+            $with = $Article->hasAndBelongsToMany['NamespacedHabtmTag']['with'];
+            $this->assertSame(['NamespacedArticlesTag', ['article_id', 'tag_id']], $Article->joinModel($with));
 
-            $this->assertNotEmpty($Post->save(['NamespacedHabtmPost' => ['id' => $id], 'NamespacedHabtmTag' => ['NamespacedHabtmTag' => [1, 3]]]));
-            $result = $Post->find('first', ['conditions' => ['NamespacedHabtmPost.id' => $id]]);
-            $this->assertSame([1, 3], array_map('intval', Hash::extract($result, 'NamespacedHabtmTag.{n}.id')));
+            $this->assertNotEmpty($Article->save(['NamespacedHabtmArticle' => ['id' => $id], 'NamespacedHabtmTag' => ['NamespacedHabtmTag' => [1, 3]]]));
+            $result = $Article->find('first', ['conditions' => ['NamespacedHabtmArticle.id' => $id]]);
+            $tagIds = array_map('intval', Hash::extract($result, 'NamespacedHabtmTag.{n}.id'));
+            sort($tagIds);
+            $this->assertSame([1, 3], $tagIds);
 
-            $this->assertTrue($Post->delete($id));
-            $this->assertSame(0, $Post->NamespacedPostsTag->find('count', ['conditions' => ['post_id' => $id]]));
+            $this->assertTrue($Article->delete($id));
+            $this->assertSame(0, $Article->NamespacedArticlesTag->find('count', ['conditions' => ['article_id' => $id]]));
             ClassRegistry::flush();
         }
     }
