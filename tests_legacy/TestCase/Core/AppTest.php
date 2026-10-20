@@ -1060,12 +1060,22 @@ class AppTest extends CakeTestCase
     }
 
     /**
+     * @return array
+     */
+    public static function appClassFromAppNamespaceProvider(): array
+    {
+        return [[false], [true]];
+    }
+
+    /**
      * Test that the global name of an application base class is declared for the class in App.namespace
      * when the application has no global one, so that the core classes that extend it work.
      *
+     * @dataProvider appClassFromAppNamespaceProvider
+     * @param bool $cached Whether the file of the class is in the file map that App caches
      * @return void
      */
-    public function testLoadAppClassFromAppNamespace(): void
+    public function testLoadAppClassFromAppNamespace($cached): void
     {
         $loader = new ReflectionClass(ClassLoader::class);
         $script = '<?php' . "\n" .
@@ -1080,9 +1090,13 @@ class AppTest extends CakeTestCase
             'App::build(["Controller" => [' . var_export(CORE_TESTS . DS . 'test_app' . DS . 'Namespaced' . DS . 'Controller' . DS, true) . ']], App::RESET);' . "\n" .
             // The test app has a global AppController in the classmap; load it with App::load() like an application without one
             'spl_autoload_register(function ($class) { if ($class === "AppController") { App::load($class); } }, true, true);' . "\n" .
+            // The file map that App caches is neither read nor written
+            'Closure::bind(function () { static::$_map = []; }, null, App::class)();' . "\n" .
+            ($cached ? 'Closure::bind(function () { static::$_map["AppController"] = ' . var_export(CORE_TESTS . DS . 'test_app' . DS . 'Namespaced' . DS . 'Controller' . DS . 'AppController.php', true) . '; }, null, App::class)();' . "\n" : '') .
             'App::uses("AppController", "Controller");' . "\n" .
             'echo (new ReflectionClass("AppController"))->getName(), "\n";' . "\n" .
-            'echo get_parent_class("CakeErrorController"), "\n";' . "\n";
+            'echo get_parent_class("CakeErrorController"), "\n";' . "\n" .
+            'Closure::bind(function () { static::$_cacheChange = false; static::$_objectCacheChange = false; }, null, App::class)();' . "\n";
         $file = TMP . 'app_class_from_app_namespace.php';
         file_put_contents($file, $script);
         try {
