@@ -18,11 +18,8 @@
 
 namespace Cake\Test\TestCase\Model;
 
-use TestApp\Model\NamespacedComment;
-use TestApp\Model\NamespacedHabtmPost;
-use TestApp\Model\NamespacedPost;
-use TestApp\Model\NamespacedPostsTag;
 use AppModel;
+use Cake\Core\Configure;
 use Cake\Error\MissingTableException;
 use Cake\Model\BehaviorCollection;
 use Cake\Model\ConnectionManager;
@@ -30,8 +27,13 @@ use Cake\Model\Datasource\Database\Mysql;
 use Cake\Model\Datasource\Database\Sqlite;
 use Cake\Model\Datasource\Database\Sqlserver;
 use Cake\Model\Datasource\DboSource;
+use Cake\Model\Model;
 use Cake\Utility\ClassRegistry;
 use Cake\Utility\Hash;
+use TestApp\Model\NamespacedComment;
+use TestApp\Model\NamespacedHabtmPost;
+use TestApp\Model\NamespacedPost;
+use TestApp\Model\NamespacedPostsTag;
 
 /**
  * DboMock class

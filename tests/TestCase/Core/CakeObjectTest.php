@@ -18,10 +18,6 @@
 
 namespace Cake\Test\TestCase\Core;
 
-use TestApp\Console\Command\Task\NamespacedTask;
-use TestApp\Controller\Component\NamespacedComponent;
-use TestApp\Model\Behavior\NamespacedBehavior;
-use TestApp\View\Helper\NamespacedHelper;
 use Cake\Controller\Controller;
 use Cake\Core\App;
 use Cake\Core\CakeObject;
@@ -30,6 +26,10 @@ use Cake\Core\Configure;
 use Cake\Routing\Router;
 use Cake\TestSuite\CakeTestCase;
 use Cake\TestSuite\Fixture\CakeTestModel;
+use TestApp\Console\Command\Task\NamespacedTask;
+use TestApp\Controller\Component\NamespacedComponent;
+use TestApp\Model\Behavior\NamespacedBehavior;
+use TestApp\View\Helper\NamespacedHelper;
 
 /**
  * RequestActionPost class

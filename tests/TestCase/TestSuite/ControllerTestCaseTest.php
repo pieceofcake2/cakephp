@@ -21,7 +21,6 @@
 
 namespace Cake\Test\TestCase\TestSuite;
 
-use PHPUnit\Framework\MockObject\MockObject;
 use App\Model\Post;
 use App\Model\TestPluginComment;
 use Cake\Controller\Component\EmailComponent;
@@ -30,12 +29,15 @@ use Cake\Core\App;
 use Cake\Core\CakePlugin;
 use Cake\Core\Configure;
 use Cake\Error\MissingActionException;
+use Cake\Error\MissingComponentException;
+use Cake\Error\MissingControllerException;
 use Cake\Network\CakeResponse;
 use Cake\Routing\Router;
 use Cake\TestSuite\CakeTestCase;
 use Cake\TestSuite\ControllerTestCase;
 use Cake\TestSuite\ControllerTestDispatcher;
 use Cake\Utility\ClassRegistry;
+use PHPUnit\Framework\MockObject\MockObject;
 use TestApp\Controller\Component\NamespacedComponent;
 use TestApp\Controller\NamespacedController;
 use TestApp\Model\NamespacedPost;

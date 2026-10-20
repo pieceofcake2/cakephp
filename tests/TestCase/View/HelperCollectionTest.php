@@ -24,6 +24,7 @@ use Cake\Core\CakePlugin;
 use Cake\Core\Configure;
 use Cake\Error\MissingHelperException;
 use Cake\TestSuite\CakeTestCase;
+use Cake\View\Helper;
 use Cake\View\Helper\FormHelper;
 use Cake\View\Helper\HtmlHelper;
 use Cake\View\HelperCollection;

@@ -517,7 +517,7 @@ class ClassRegistryTest extends CakeTestCase
         $article = ClassRegistry::init(['class' => 'RegisterArticle', 'alias' => 'Article']);
         $this->assertFalse(ClassRegistry::getObject('RegisterArticle'));
         $this->assertFalse(ClassRegistry::isKeySet('RegisterArticle'));
-        $this->assertSame($article, ClassRegistry::getObject('\RegisterArticle'));
+        $this->assertSame($article, ClassRegistry::getObject('\\' . RegisterArticle::class));
 
         $post = ClassRegistry::init(['class' => NamespacedPost::class, 'alias' => 'Post']);
         $this->assertSame($post, ClassRegistry::getObject('Post'));

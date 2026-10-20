@@ -21,6 +21,8 @@ namespace Cake\Test\TestCase\Console;
 
 use Cake\Console\Command\Task\CommandTask;
 use Cake\Console\Command\Task\ExtractTask;
+use Cake\Console\ConsoleInput;
+use Cake\Console\ConsoleOutput;
 use Cake\Console\Shell;
 use Cake\Console\ShellDispatcher;
 use Cake\Console\TaskCollection;
@@ -223,7 +225,7 @@ class TaskCollectionTest extends CakeTestCase
         $this->Tasks->load('Namespaced', ['className' => NamespacedTask::class]);
 
         foreach ([NamespacedTask::class, 'TestApp\Console\Command\Task\Namespaced'] as $name) {
-            $Tasks = new TaskCollection($this->getMock('Shell', [], [], '', false));
+            $Tasks = new TaskCollection($this->getMock(Shell::class, [], [], '', false));
             $result = $Tasks->load($name);
             $this->assertInstanceOf(NamespacedTask::class, $result);
             $this->assertSame($result, $Tasks->Namespaced);
@@ -237,7 +239,7 @@ class TaskCollectionTest extends CakeTestCase
             ['TestApp\Console\Command\Task\Namespaced'],
         ];
         foreach ($cases as $tasks) {
-            $Shell = new Shell($this->getMock('ConsoleOutput'), $this->getMock('ConsoleOutput'), $this->getMock('ConsoleInput'));
+            $Shell = new Shell($this->getMock(ConsoleOutput::class), $this->getMock(ConsoleOutput::class), $this->getMock(ConsoleInput::class));
             $Shell->tasks = $tasks;
             $Shell->loadTasks();
             $this->assertSame(['Namespaced'], $Shell->taskNames);
@@ -261,7 +263,7 @@ class TaskCollectionTest extends CakeTestCase
             '\TestApp\Console\Command\Task\MissingTask' => 'TestApp\Console\Command\Task\MissingTask',
         ];
         foreach ($cases as $name => $expected) {
-            $Collection = new TaskCollection($this->getMock('Shell', [], [], '', false));
+            $Collection = new TaskCollection($this->getMock(Shell::class, [], [], '', false));
             try {
                 $Collection->load($name);
                 $this->fail('No exception for ' . $name);

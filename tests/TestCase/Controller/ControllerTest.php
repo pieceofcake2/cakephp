@@ -17,7 +17,6 @@
 
 namespace Cake\Test\TestCase\Controller;
 
-use TestApp\Model\NamespacedPost;
 use Cake\Controller\Component;
 use Cake\Controller\Component\SecurityComponent;
 use Cake\Controller\ComponentCollection;
@@ -41,6 +40,7 @@ use ReflectionMethod;
 use RuntimeException;
 use TestApp\Controller\NamespacedController;
 use TestApp\Model\Comment;
+use TestApp\Model\NamespacedPost;
 use TestApp\View\NamespacedView;
 use TestPlugin\Controller\TestPluginController;
 use TestPlugin\Model\TestPluginPost;
@@ -1802,7 +1802,7 @@ class ControllerTest extends CakeTestCase
     public function testLoadModelNamespacedClassName(): void
     {
         App::build([
-            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS],
+            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
         ], App::RESET);
         CakePlugin::load('TestPluginTwo');
         $cases = [
@@ -1844,7 +1844,7 @@ class ControllerTest extends CakeTestCase
     public function testRenderNamespacedClassName(): void
     {
         App::build([
-            'View' => [CORE_TESTS . DS . 'test_app' . DS . 'View' . DS],
+            'View' => [CORE_TESTS . DS . 'test_app' . DS . 'templates' . DS],
         ], App::RESET);
         $cases = [
             'NamespacedPost' => 'NamespacedPost',

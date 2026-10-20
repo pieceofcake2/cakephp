@@ -20,11 +20,12 @@
 
 namespace Cake\Test\TestCase\Controller;
 
-use TestApp\Controller\AppController as NamespacedAppController;
-use TestApp\View\Helper\NamespacedHelper;
 use Cake\Controller\Component;
 use Cake\Controller\Controller;
 use Cake\TestSuite\CakeTestCase;
+use Cake\View\View;
+use TestApp\Controller\AppController as NamespacedAppController;
+use TestApp\View\Helper\NamespacedHelper;
 
 /**
  * Test case AppController

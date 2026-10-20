@@ -19,6 +19,7 @@
 
 namespace Cake\Test\TestCase\Controller;
 
+use Cake\Controller\Component;
 use Cake\Controller\Component\CookieComponent;
 use Cake\Controller\ComponentCollection;
 use Cake\Controller\Controller;
@@ -249,7 +250,7 @@ class ComponentCollectionTest extends CakeTestCase
 
         $Components = new ComponentCollection();
         $result = $Components->load(NamespacedComponent::class, ['className' => 'Cookie']);
-        $this->assertInstanceOf('CookieComponent', $result);
+        $this->assertInstanceOf(CookieComponent::class, $result);
         $this->assertSame(['Namespaced'], $Components->loaded());
     }
 

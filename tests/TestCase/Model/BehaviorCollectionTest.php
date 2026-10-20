@@ -21,7 +21,6 @@
 
 namespace Cake\Test\TestCase\Model;
 
-use TestApp\Model\NamespacedArticle;
 use Cake\Core\App;
 use Cake\Core\CakePlugin;
 use Cake\Core\Configure;
@@ -35,6 +34,7 @@ use Cake\TestSuite\CakeTestCase;
 use Cake\Utility\ClassRegistry;
 use Cake\Utility\Hash;
 use TestApp\Model\Behavior\NamespacedBehavior;
+use TestApp\Model\NamespacedArticle;
 use TestApp\Model\NamespacedPost;
 use TestPlugin\Model\Behavior\TestPluginPersisterOneBehavior;
 

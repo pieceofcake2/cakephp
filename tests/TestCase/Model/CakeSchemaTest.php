@@ -20,6 +20,7 @@ namespace Cake\Test\TestCase\Model;
 
 use Cake\Core\App;
 use Cake\Core\CakePlugin;
+use Cake\Core\Configure;
 use Cake\Error\MissingTableException;
 use Cake\Model\CakeSchema;
 use Cake\Model\ConnectionManager;

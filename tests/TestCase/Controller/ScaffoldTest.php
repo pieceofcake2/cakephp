@@ -18,7 +18,6 @@
 
 namespace Cake\Test\TestCase\Controller;
 
-use TestApp\Model\NamespacedPost;
 use Cake\Controller\Controller;
 use Cake\Controller\Scaffold;
 use Cake\Core\App;
@@ -30,6 +29,8 @@ use Cake\Network\CakeResponse;
 use Cake\Routing\Router;
 use Cake\Test\TestCase\Model\ScaffoldMock;
 use Cake\TestSuite\CakeTestCase;
+use Cake\Utility\ClassRegistry;
+use TestApp\Model\NamespacedPost;
 
 App::uses('AppModel', 'Model');
 
@@ -289,6 +290,8 @@ class ScaffoldTest extends CakeTestCase
             'controller' => 'scaffold_mock', 'action' => 'index',
         ]);
         $this->Controller->constructClasses();
+        // Load the models of the test classes before App.namespace changes
+        new TestScaffoldMock($this->Controller, $this->Controller->request);
         $cases = ['NamespacedPost' => 'NamespacedPost', NamespacedPost::class => NamespacedPost::class];
         foreach ($cases as $className => $expected) {
             Configure::write('App.namespace', $className === 'NamespacedPost' ? 'TestApp' : null);

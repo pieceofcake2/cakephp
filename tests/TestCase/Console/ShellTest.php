@@ -21,8 +21,6 @@
 
 namespace Cake\Test\TestCase\Console;
 
-use TestApp\Console\Command\Task\NamespacedTask;
-use TestApp\Model\NamespacedPost;
 use Cake\Console\ConsoleInput;
 use Cake\Console\ConsoleOptionParser;
 use Cake\Console\ConsoleOutput;
@@ -36,12 +34,15 @@ use Cake\Log\CakeLog;
 use Cake\Log\Engine\ConsoleLog;
 use Cake\Test\TestCase\Log\Engine\TestCakeLog;
 use Cake\TestSuite\CakeTestCase;
+use Cake\Utility\ClassRegistry;
 use Cake\Utility\Folder;
 use Cake\Utility\Hash;
 use PHPUnit\Framework\MockObject\MockObject;
 use RuntimeException;
+use TestApp\Console\Command\Task\NamespacedTask;
 use TestApp\Console\Helper\NamespacedShellHelper;
 use TestApp\Model\Comment;
+use TestApp\Model\NamespacedPost;
 use TestPlugin\Model\TestPluginPost;
 
 /**
@@ -308,20 +309,20 @@ class ShellTest extends CakeTestCase
         foreach (['NamespacedPost', NamespacedPost::class, 'TestApp\Model\NamespacedPost'] as $model) {
             Configure::write('App.namespace', $model === 'NamespacedPost' ? 'TestApp' : null);
 
-            $Shell = new Shell($this->getMock('ConsoleOutput'), $this->getMock('ConsoleOutput'), $this->getMock('ConsoleInput'));
+            $Shell = new Shell($this->getMock(ConsoleOutput::class), $this->getMock(ConsoleOutput::class), $this->getMock(ConsoleInput::class));
             $Shell->loadModel($model);
             $this->assertInstanceOf(NamespacedPost::class, $Shell->NamespacedPost);
             $this->assertSame('NamespacedPost', $Shell->NamespacedPost->alias);
             $this->assertSame('NamespacedPost', $Shell->modelClass);
             ClassRegistry::flush();
 
-            $Shell = new Shell($this->getMock('ConsoleOutput'), $this->getMock('ConsoleOutput'), $this->getMock('ConsoleInput'));
+            $Shell = new Shell($this->getMock(ConsoleOutput::class), $this->getMock(ConsoleOutput::class), $this->getMock(ConsoleInput::class));
             $Shell->uses = [$model];
             $this->assertTrue(isset($Shell->NamespacedPost));
             $this->assertInstanceOf(NamespacedPost::class, $Shell->NamespacedPost);
             ClassRegistry::flush();
 
-            $Shell = new Shell($this->getMock('ConsoleOutput'), $this->getMock('ConsoleOutput'), $this->getMock('ConsoleInput'));
+            $Shell = new Shell($this->getMock(ConsoleOutput::class), $this->getMock(ConsoleOutput::class), $this->getMock(ConsoleInput::class));
             $Shell->uses = [$model];
             $Shell->initialize();
             $this->assertSame('NamespacedPost', $Shell->modelClass);
@@ -338,7 +339,7 @@ class ShellTest extends CakeTestCase
      */
     public function testMergeVarsNamespacedClassName(): void
     {
-        $Shell = new class ($this->getMock('ConsoleOutput'), $this->getMock('ConsoleOutput'), $this->getMock('ConsoleInput')) extends TestMergeNamespacedShell {
+        $Shell = new class ($this->getMock(ConsoleOutput::class), $this->getMock(ConsoleOutput::class), $this->getMock(ConsoleInput::class)) extends TestMergeNamespacedShell {
             public $tasks = [NamespacedTask::class => ['b' => 2]];
         };
         $expected = ['Namespaced' => ['a' => 1, 'b' => 2, 'className' => NamespacedTask::class]];
