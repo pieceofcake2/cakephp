@@ -73,8 +73,6 @@ class Xml
      * ### Options
      *
      * - `return` Can be 'simplexml' to return object of SimpleXMLElement or 'domdocument' to return DOMDocument.
-     * - `loadEntities` Defaults to false. Set to true to enable loading of `<!ENTITY` definitions. This
-     *   is disabled by default for security reasons.
      * - `readFile` Set to false to disable file reading. This is important to disable when
      *   putting user data into Xml::build(). If enabled local & remote files will be read if they exist.
      *   Defaults to true for backwards compatibility reasons.
@@ -94,7 +92,6 @@ class Xml
         }
         $defaults = [
             'return' => 'simplexml',
-            'loadEntities' => false,
             'readFile' => true,
             'parseHuge' => true,
         ];
