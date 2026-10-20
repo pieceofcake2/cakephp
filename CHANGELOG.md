@@ -1,5 +1,20 @@
 ## CHANGELOG
 
+## Unreleased
+
+### Bug Fixes: PHP Deprecations
+
+- **Null passed to built-in functions**: Many methods passed a value that can be `null` (e.g. `env()` of a missing variable, an unset option, the plugin of `pluginSplit()`) to a string function of PHP, which is deprecated since PHP 8.1. They cast it to a string (or an int for the decimals of `CakeNumber`), so the result is the same as before. This covers among others `CakeSession`, `CakeRequest`, `CakeResponse`, `CakeEmail`, `HttpSocket`, `Security`, `Configure::consume()`, `Xml::build()`, `FormHelper` date and radio inputs, `CakeText::cleanInsert()`, `Hash` / `Set` matching, `File`, `pluginSplit()`, `env()`, `clearCache()` and the missing class exceptions of the object collections
+- **False converted to an array**: `I18n` (on a cache miss of a domain) and `CakeRoute` (with named parameters before `Router::connectNamed()`) no longer add keys to `false`, deprecated since PHP 8.1
+- **Xml**: `Xml::build()` no longer calls `libxml_disable_entity_loader()`, deprecated since PHP 8.0. External entities stay disabled: libxml 2.9 and later, which PHP 8 requires, does not load them without `LIBXML_NOENT`, which `Xml` does not pass
+- **Security**: `Security::hash()` with `sha256` always uses `hash()` instead of `mhash()`, deprecated since PHP 8.1. The digest is the same
+- **SessionHandlerAdapter**: The methods of `SessionHandlerInterface` have `#[\ReturnTypeWillChange]`, so PHP 8.1 and later no longer report their missing return types
+- **CakeTestFixture**: `CakeTestFixture` declares `$import`, so setting it on a fixture that does not declare it no longer creates a dynamic property, deprecated since PHP 8.2
+
+### Tests
+
+- **Deprecations reported**: The tests report deprecations and fail on them. `ConfigureTest::testBootstrap()` restores the error level after `Configure::bootstrap()`, which had hidden deprecations from the following tests, and the tests no longer create dynamic properties, return `null` from mocked request methods to string functions, or use `utf8_decode()`, `new DateTime(null)`, `str_getcsv()` without the escape character or `session.referer_check`
+
 ## v2.12.11 (2026-10-19)
 
 ### Security Fixes
