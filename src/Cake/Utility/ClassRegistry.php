@@ -210,8 +210,8 @@ class ClassRegistry
                     $appModel = 'AppModel';
                     if ($strict) {
                         return false;
-                    } elseif ($plugin && class_exists($plugin . 'AppModel')) {
-                        $appModel = $plugin . 'AppModel';
+                    } elseif ($plugin && ($pluginAppModel = App::className($plugin . '.' . $plugin . 'AppModel', 'Model')) !== null) {
+                        $appModel = $pluginAppModel;
                     } elseif (Configure::read('App.namespace')) {
                         $appModel = App::className('AppModel', 'Model') ?? 'AppModel';
                     }

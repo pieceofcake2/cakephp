@@ -71,12 +71,12 @@ class LogEngineCollection extends ObjectCollection
         if (!str_ends_with($loggerName, 'Log')) {
             $loggerName .= 'Log';
         }
-        App::uses($loggerName, $plugin . 'Log/Engine');
-        if (!class_exists($loggerName)) {
+        $className = App::className($plugin . $loggerName, 'Log/Engine');
+        if ($className === null) {
             throw new CakeLogException(__d('cake_dev', 'Could not load class %s', $loggerName));
         }
 
-        return $loggerName;
+        return $className;
     }
 }
 

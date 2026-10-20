@@ -419,9 +419,8 @@ class HttpSocket extends CakeSocket
             $this->disconnect();
         }
 
-        [$plugin, $responseClass] = pluginSplit($this->responseClass, true);
-        App::uses($responseClass, $plugin . 'Network/Http');
-        if (!class_exists($responseClass)) {
+        $responseClass = App::className($this->responseClass, 'Network/Http');
+        if ($responseClass === null) {
             throw new SocketException(__d('cake_dev', 'Class %s not found.', $this->responseClass));
         }
         $this->response = new $responseClass($response);
@@ -653,17 +652,31 @@ class HttpSocket extends CakeSocket
             return;
         }
         $method = key($this->_auth);
-        [$plugin, $authClass] = pluginSplit($method, true);
-        $authClass = Inflector::camelize($authClass) . 'Authentication';
-        App::uses($authClass, $plugin . 'Network/Http');
+        $authClass = static::_authenticationClass($method);
 
-        if (!class_exists($authClass)) {
+        if ($authClass === null) {
             throw new SocketException(__d('cake_dev', 'Unknown authentication method.'));
         }
         if (!method_exists($authClass, 'authentication')) {
             throw new SocketException(__d('cake_dev', 'The %s does not support authentication.', $authClass));
         }
         call_user_func_array("$authClass::authentication", [$this, &$this->_auth[$method]]);
+    }
+
+    /**
+     * Returns the class of an authentication method, e.g. `BasicAuthentication` for `Basic`
+     *
+     * @param string $method The method: a name with an optional plugin prefix, or a fully qualified class name
+     * @return string|null The class name, or null if the class does not exist
+     */
+    protected static function _authenticationClass($method)
+    {
+        if (str_contains($method, '\\')) {
+            return App::className($method, 'Network/Http', 'Authentication');
+        }
+        [$plugin, $name] = pluginSplit($method, true);
+
+        return App::className($plugin . Inflector::camelize($name), 'Network/Http', 'Authentication');
     }
 
     /**
@@ -684,11 +697,9 @@ class HttpSocket extends CakeSocket
         if (empty($this->_proxy['method']) || !isset($this->_proxy['user'], $this->_proxy['pass'])) {
             return;
         }
-        [$plugin, $authClass] = pluginSplit($this->_proxy['method'], true);
-        $authClass = Inflector::camelize($authClass) . 'Authentication';
-        App::uses($authClass, $plugin . 'Network/Http');
+        $authClass = static::_authenticationClass($this->_proxy['method']);
 
-        if (!class_exists($authClass)) {
+        if ($authClass === null) {
             throw new SocketException(__d('cake_dev', 'Unknown authentication method for proxy.'));
         }
         if (!method_exists($authClass, 'proxyAuthentication')) {

@@ -114,10 +114,10 @@ class Dispatcher implements CakeEventListener
                 $filter = ['callable' => $filter];
             }
             if (is_string($filter['callable'])) {
-                [$plugin, $callable] = pluginSplit($filter['callable'], true);
-                App::uses($callable, $plugin . 'Routing/Filter');
-                if (!class_exists($callable)) {
-                    throw new MissingDispatcherFilterException($callable);
+                $callable = App::className($filter['callable'], 'Routing/Filter');
+                if ($callable === null) {
+                    [, $name] = pluginSplit($filter['callable']);
+                    throw new MissingDispatcherFilterException($name);
                 }
                 $manager->attach(new $callable($settings));
             } else {

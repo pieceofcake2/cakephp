@@ -1,4 +1,7 @@
 <?php
+
+use TestApp\Routing\Route\NamespacedRoute;
+
 /**
  * RouterTest file
  *
@@ -2998,5 +3001,29 @@ class RouterTest extends CakeTestCase
         $result = Router::queryString('foo=bar&', ['php' => 'nut', 'jose' => 'zap']);
         $expected = '?foo=bar&php=nut&jose=zap';
         $this->assertEquals($expected, $result);
+    }
+
+    /**
+     * Test route classes by fully qualified class name and from App.namespace.
+     *
+     * @return void
+     */
+    public function testNamespacedRouteClass(): void
+    {
+        $routes = Router::connect('/namespaced', ['controller' => 'posts'], ['routeClass' => NamespacedRoute::class]);
+        $this->assertInstanceOf(NamespacedRoute::class, end($routes));
+
+        Configure::write('App.namespace', 'TestApp');
+        $routes = Router::connect('/short', ['controller' => 'posts'], ['routeClass' => 'NamespacedRoute']);
+        $this->assertInstanceOf(NamespacedRoute::class, end($routes));
+
+        $routes = Router::connect('/global', ['controller' => 'posts'], ['routeClass' => 'PluginShortRoute']);
+        $this->assertInstanceOf('PluginShortRoute', end($routes));
+
+        Router::defaultRouteClass('NamespacedRoute');
+        $this->assertSame(NamespacedRoute::class, Router::defaultRouteClass());
+        $routes = Router::connect('/default', ['controller' => 'posts']);
+        $this->assertInstanceOf(NamespacedRoute::class, end($routes));
+        Router::defaultRouteClass('CakeRoute');
     }
 }

@@ -527,8 +527,7 @@ class ExtractTask extends AppShell
         $models = App::objects($plugin . 'Model', null, false);
 
         foreach ($models as $model) {
-            App::uses($model, $plugin . 'Model');
-            $reflection = new ReflectionClass($model);
+            $reflection = new ReflectionClass(App::className($plugin . $model, 'Model') ?? $model);
             if (!$reflection->isSubClassOf('Model')) {
                 continue;
             }

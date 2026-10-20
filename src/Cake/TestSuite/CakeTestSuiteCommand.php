@@ -97,13 +97,10 @@ class CakeTestSuiteCommand extends Command
     public function handleReporter($reporter)
     {
         $reporter = ucwords($reporter);
-        $coreClass = 'Cake' . $reporter . 'Reporter';
-        App::uses($coreClass, 'TestSuite/Reporter');
+        $coreClass = App::className('Cake' . $reporter, 'TestSuite/Reporter', 'Reporter') ?? 'Cake' . $reporter . 'Reporter';
+        $appClass = App::className($reporter, 'TestSuite/Reporter', 'Reporter');
 
-        $appClass = $reporter . 'Reporter';
-        App::uses($appClass, 'TestSuite/Reporter');
-
-        if (!class_exists($appClass)) {
+        if ($appClass === null) {
             $object = new $coreClass(null, $this->_params);
         } else {
             $object = new $appClass(null, $this->_params);

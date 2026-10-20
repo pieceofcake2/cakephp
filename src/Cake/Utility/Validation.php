@@ -15,6 +15,7 @@
 
 namespace Cake\Utility;
 
+use Cake\Core\App;
 use Cake\Error\CakeException;
 
 /**
@@ -961,8 +962,9 @@ class Validation
      */
     protected static function _pass($method, $check, $classPrefix)
     {
-        $className = ucwords($classPrefix) . 'Validation';
-        if (!class_exists($className)) {
+        $className = App::className(str_contains($classPrefix, '\\') ? $classPrefix : ucwords($classPrefix), 'Utility', 'Validation');
+        if ($className === null) {
+            $className = ucwords($classPrefix) . 'Validation';
             trigger_error(__d('cake_dev', 'Could not find %s class, unable to complete validation.', $className), E_USER_WARNING);
 
             return false;

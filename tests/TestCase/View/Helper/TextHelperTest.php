@@ -1,4 +1,7 @@
 <?php
+
+use TestApp\Utility\NamespacedText;
+
 /**
  * TextHelperTest file
  *
@@ -579,5 +582,40 @@ TEXT;
 TEXT;
         $result = $this->Text->autoParagraph($text);
         $this->assertTextEquals($expected, $result);
+    }
+
+    /**
+     * Test the engine by fully qualified class name and from App.namespace.
+     *
+     * @return void
+     */
+    public function testNamespacedEngine(): void
+    {
+        $View = new View(null);
+        $Helper = new TextHelper($View, ['engine' => NamespacedText::class]);
+        $this->assertInstanceOf(NamespacedText::class, $this->getEngine($Helper));
+
+        Configure::write('App.namespace', 'TestApp');
+        $Helper = new TextHelper($View, ['engine' => 'NamespacedText']);
+        $this->assertInstanceOf(NamespacedText::class, $this->getEngine($Helper));
+
+        $Helper = new TextHelper($View);
+        $this->assertInstanceOf('CakeText', $this->getEngine($Helper));
+    }
+
+    /**
+     * Returns the engine of a helper.
+     *
+     * @param Helper $Helper The helper
+     * @return object
+     */
+    protected function getEngine(Helper $Helper): object
+    {
+        $property = new ReflectionProperty($Helper, '_engine');
+        if (PHP_VERSION_ID < 80100) {
+            $property->setAccessible(true);
+        }
+
+        return $property->getValue($Helper);
     }
 }

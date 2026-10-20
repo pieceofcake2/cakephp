@@ -1,6 +1,7 @@
 <?php
 
 use TestApp\Controller\NamespacedController;
+use TestApp\Routing\Filter\NamespacedFilter;
 
 /**
  * DispatcherTest file
@@ -1853,5 +1854,23 @@ class DispatcherTest extends CakeTestCase
         $Dispatcher->dispatch($url, $response, ['return' => 1]);
         $this->assertInstanceOf(NamespacedController::class, $Dispatcher->controller);
         $this->assertSame('Namespaced', $Dispatcher->controller->name);
+    }
+
+    /**
+     * Test dispatcher filters by fully qualified class name and from App.namespace.
+     *
+     * @return void
+     */
+    public function testNamespacedDispatcherFilter(): void
+    {
+        foreach ([NamespacedFilter::class, 'NamespacedFilter'] as $filter) {
+            Configure::write('App.namespace', 'TestApp');
+            Configure::write('Dispatcher.filters', [$filter]);
+            NamespacedFilter::$called = false;
+            $dispatcher = new TestDispatcher();
+            $response = $this->getMock('CakeResponse', ['send']);
+            $dispatcher->dispatch(new CakeRequest('/'), $response, ['return' => 1]);
+            $this->assertTrue(NamespacedFilter::$called, $filter);
+        }
     }
 }

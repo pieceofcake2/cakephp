@@ -18,6 +18,7 @@
 
 namespace Cake\Routing;
 
+use Cake\Core\App;
 use Cake\Core\Configure;
 use Cake\Error\RouterException;
 use Cake\Network\CakeRequest;
@@ -223,7 +224,8 @@ class Router
             return static::$_routeClass;
         }
 
-        static::$_routeClass = static::_validateRouteClass($routeClass);
+        [, $name] = pluginSplit($routeClass);
+        static::$_routeClass = static::_validateRouteClass(App::className($routeClass, 'Routing/Route') ?? $name);
 
         return null;
     }
@@ -379,12 +381,8 @@ class Router
         }
         $routeClass = static::$_routeClass;
         if (isset($options['routeClass'])) {
-            if (!str_contains($options['routeClass'], '.')) {
-                $routeClass = $options['routeClass'];
-            } else {
-                [, $routeClass] = pluginSplit($options['routeClass'], true);
-            }
-            $routeClass = static::_validateRouteClass($routeClass);
+            [, $name] = pluginSplit($options['routeClass']);
+            $routeClass = static::_validateRouteClass(App::className($options['routeClass'], 'Routing/Route') ?? $name);
             unset($options['routeClass']);
         }
         if ($routeClass === 'RedirectRoute' && isset($defaults['redirect'])) {

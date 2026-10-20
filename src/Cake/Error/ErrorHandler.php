@@ -125,8 +125,8 @@ class ErrorHandler
 
         $renderer = $config['renderer'] ?? 'ExceptionRenderer';
         if ($renderer !== 'ExceptionRenderer') {
-            [$plugin, $renderer] = pluginSplit($renderer, true);
-            App::uses($renderer, $plugin . 'Error');
+            [, $name] = pluginSplit($renderer);
+            $renderer = App::className($renderer, 'Error') ?? $name;
         }
         try {
             $error = new $renderer($exception);

@@ -1,4 +1,7 @@
 <?php
+
+use TestApp\Log\Engine\NamespacedLog;
+
 /**
  * CakeLogTest file
  *
@@ -765,5 +768,32 @@ class CakeLogTest extends CakeTestCase
         CakeLog::drop('eggs');
 
         $this->_deleteLogs();
+    }
+
+    /**
+     * Test log engines by fully qualified class name and from App.namespace.
+     *
+     * @return void
+     */
+    public function testNamespacedEngine(): void
+    {
+        NamespacedLog::$messages = [];
+        foreach ([NamespacedLog::class, 'TestApp\Log\Engine\Namespaced'] as $engine) {
+            CakeLog::config('namespaced', ['engine' => $engine]);
+            CakeLog::write('info', 'by ' . $engine, 'namespaced');
+            CakeLog::drop('namespaced');
+        }
+
+        Configure::write('App.namespace', 'TestApp');
+        CakeLog::config('namespaced', ['engine' => 'Namespaced']);
+        CakeLog::write('info', 'by short name', 'namespaced');
+        CakeLog::drop('namespaced');
+
+        $expected = [
+            'info: by ' . NamespacedLog::class,
+            'info: by TestApp\Log\Engine\Namespaced',
+            'info: by short name',
+        ];
+        $this->assertSame($expected, NamespacedLog::$messages);
     }
 }

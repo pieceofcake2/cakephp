@@ -1,6 +1,8 @@
 <?php
 
+use TestApp\Model\NamespacedComment;
 use TestApp\Model\NamespacedPost;
+use TestPluginTwo\Model\TestPluginTwoAppModel;
 
 /**
  * ClassRegistryTest file
@@ -379,5 +381,25 @@ class ClassRegistryTest extends CakeTestCase
         $this->assertInstanceOf(NamespacedPost::class, $result);
         $this->assertSame('NamespacedPost', $result->name);
         $this->assertSame('NamespacedPost', $result->alias);
+    }
+
+    /**
+     * Test that a model in App.namespace merges the vars of the AppModel of the namespace, and that the
+     * AppModel of a plugin namespace is used for a plugin model without a class.
+     *
+     * @return void
+     */
+    public function testNamespacedAppModels(): void
+    {
+        Configure::write('App.namespace', 'TestApp');
+        $Comment = ClassRegistry::init('NamespacedComment');
+        $this->assertInstanceOf(NamespacedComment::class, $Comment);
+        $this->assertContains('Containable', $Comment->Behaviors->loaded());
+
+        App::build(['Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS]]);
+        CakePlugin::load('TestPluginTwo');
+        $Model = ClassRegistry::init(['class' => 'TestPluginTwo.NoSuchModel', 'table' => false]);
+        $this->assertInstanceOf(TestPluginTwoAppModel::class, $Model);
+        CakePlugin::unload();
     }
 }
