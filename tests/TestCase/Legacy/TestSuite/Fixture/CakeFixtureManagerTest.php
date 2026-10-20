@@ -80,4 +80,22 @@ class CakeFixtureManagerTest extends CakeTestCase
         $LegacyComment = ClassRegistry::init(['class' => 'LegacyComment', 'table' => 'legacy_comments']);
         $this->assertSame(2, $LegacyComment->find('count'));
     }
+
+    /**
+     * Test that a global fixture class is found in the Test/Fixture directory of a legacy application.
+     *
+     * TESTS is the Test directory of the application only in a process of its own, so the fixture
+     * is loaded there.
+     *
+     * @return void
+     */
+    public function testLoadLegacyAppFixture(): void
+    {
+        exec(escapeshellarg(PHP_BINARY) . ' ' . escapeshellarg(__DIR__ . DS . 'load_app_fixture.php') . ' 2>&1', $output, $status);
+        $this->assertSame(0, $status, implode("\n", $output));
+        $this->assertSame(
+            ['class' => 'LegacyArticleFixture', 'titles' => ['First Legacy Article', 'Second Legacy Article']],
+            json_decode((string)end($output), true),
+        );
+    }
 }
