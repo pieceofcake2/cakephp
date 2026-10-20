@@ -51,7 +51,6 @@ use Cake\Network\CakeRequest;
 use Cake\Network\CakeResponse;
 use Cake\Routing\Router;
 use Cake\TestSuite\CakeTestCase;
-use Cake\TestSuite\Fixture\CakeTestModel;
 use Cake\Utility\Debugger;
 use Cake\Utility\Folder;
 use Error;
@@ -61,22 +60,6 @@ use OutOfBoundsException;
 use PDOException;
 use RuntimeException;
 use TestApp\Error\TestAppsExceptionRenderer;
-
-/**
- * Short description for class.
- *
- * @package       Cake.Test.Case.Error
- */
-class AuthBlueberryUser extends CakeTestModel
-{
-    /**
-     * useTable property
-     *
-     * @var string|bool|null
-     */
-    public $useTable = false;
-}
-class_alias(AuthBlueberryUser::class, 'App\\Model\\AuthBlueberryUser');
 
 /**
  * BlueberryComponent class
@@ -182,8 +165,6 @@ class MissingWidgetThingException extends NotFoundException
  */
 class ExceptionRendererTest extends CakeTestCase
 {
-    protected ?string $_appNamespace = null;
-
     protected $_restoreError = false;
 
     /**
@@ -195,7 +176,6 @@ class ExceptionRendererTest extends CakeTestCase
     {
         parent::setUp();
 
-        $this->_appNamespace = Configure::read('App.namespace');
         Configure::write('App.namespace', 'TestApp');
 
         Configure::write('Config.language', 'eng');
@@ -223,8 +203,6 @@ class ExceptionRendererTest extends CakeTestCase
         if ($this->_restoreError) {
             restore_error_handler();
         }
-
-        Configure::write('App.namespace', $this->_appNamespace);
 
         parent::tearDown();
     }

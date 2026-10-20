@@ -18,19 +18,11 @@
 
 namespace Cake\Test\TestCase\Log;
 
+use Cake\Core\Configure;
 use Cake\Error\CakeLogException;
 use Cake\Log\CakeLogInterface;
-use Cake\Log\Engine\FileLog;
 use Cake\Log\LogEngineCollection;
 use Cake\TestSuite\CakeTestCase;
-
-/**
- * LoggerEngineLog class
- */
-class LoggerEngineLog extends FileLog
-{
-}
-class_alias(LoggerEngineLog::class, 'App\\Log\\Engine\\LoggerEngineLog');
 
 /**
  * LogEngineCollectionTest class
@@ -49,6 +41,7 @@ class LogEngineCollectionTest extends CakeTestCase
     public function setUp(): void
     {
         parent::setUp();
+        Configure::write('App.namespace', 'TestApp');
 
         $this->Collection = new LogEngineCollection();
     }

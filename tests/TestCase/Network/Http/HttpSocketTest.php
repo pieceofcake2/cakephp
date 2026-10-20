@@ -29,39 +29,6 @@ use TestApp\Network\Http\NamespacedAuthentication;
 use TestApp\Network\Http\NamespacedResponse;
 
 /**
- * TestAuthentication class
- *
- * @package       Cake.Test.Case.Network.Http
- */
-class TestAuthentication
-{
-    /**
-     * authentication method
-     *
-     * @param HttpSocket $http A HTTP socket.
-     * @param array &$authInfo Some auth info.
-     * @return void
-     */
-    public static function authentication(HttpSocket $http, &$authInfo): void
-    {
-        $http->request['header']['Authorization'] = 'Test ' . $authInfo['user'] . '.' . $authInfo['pass'];
-    }
-
-    /**
-     * proxyAuthentication method
-     *
-     * @param HttpSocket $http A HTTP socket.
-     * @param array &$proxyInfo Some proxy info.
-     * @return void
-     */
-    public static function proxyAuthentication(HttpSocket $http, &$proxyInfo): void
-    {
-        $http->request['header']['Proxy-Authorization'] = 'Test ' . $proxyInfo['user'] . '.' . $proxyInfo['pass'];
-    }
-}
-class_alias(TestAuthentication::class, 'App\\Network\\Http\\TestAuthentication');
-
-/**
  * CustomResponse
  */
 class CustomResponse extends HttpSocketResponse
@@ -209,6 +176,7 @@ class HttpSocketTest extends CakeTestCase
     public function setUp(): void
     {
         parent::setUp();
+        Configure::write('App.namespace', 'TestApp');
         $this->Socket = $this->getMock(TestHttpSocket::class, ['read', 'write', 'connect']);
         $this->RequestSocket = $this->getMock(TestHttpSocket::class, ['read', 'write', 'connect', 'request']);
     }
@@ -1960,7 +1928,6 @@ class HttpSocketTest extends CakeTestCase
         $this->assertInstanceOf(NamespacedResponse::class, $response);
         $this->assertStringContainsString('Authorization: Namespaced mark', $this->Socket->request['header']);
 
-        Configure::write('App.namespace', 'TestApp');
         $this->Socket->responseClass = 'NamespacedResponse';
         $this->Socket->configAuth('Namespaced', 'joe', 'passwd');
         $response = $this->Socket->get('http://example.com/test');

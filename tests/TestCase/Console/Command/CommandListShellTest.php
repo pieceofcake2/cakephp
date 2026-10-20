@@ -49,8 +49,6 @@ class TestStringOutput extends ConsoleOutput
  */
 class CommandListShellTest extends CakeTestCase
 {
-    protected ?string $_appNamespace = null;
-
     /**
      * setUp method
      *
@@ -60,7 +58,6 @@ class CommandListShellTest extends CakeTestCase
     {
         parent::setUp();
 
-        $this->_appNamespace = Configure::read('App.namespace');
         Configure::write('App.namespace', 'TestApp');
 
         App::build([
@@ -98,8 +95,6 @@ class CommandListShellTest extends CakeTestCase
     {
         unset($this->Shell);
         CakePlugin::unload();
-
-        Configure::write('App.namespace', $this->_appNamespace);
 
         parent::tearDown();
     }

@@ -18,134 +18,16 @@
 
 namespace Cake\Test\TestCase\Core;
 
-use Cake\Controller\Controller;
 use Cake\Core\App;
 use Cake\Core\CakeObject;
 use Cake\Core\CakePlugin;
 use Cake\Core\Configure;
 use Cake\Routing\Router;
 use Cake\TestSuite\CakeTestCase;
-use Cake\TestSuite\Fixture\CakeTestModel;
 use TestApp\Console\Command\Task\NamespacedTask;
 use TestApp\Controller\Component\NamespacedComponent;
 use TestApp\Model\Behavior\NamespacedBehavior;
 use TestApp\View\Helper\NamespacedHelper;
-
-/**
- * RequestActionPost class
- *
- * @package       Cake.Test.Case.Core
- */
-class RequestActionPost extends CakeTestModel
-{
-    /**
-     * useTable property
-     *
-     * @var string|bool|null
-     */
-    public $useTable = 'posts';
-}
-class_alias(RequestActionPost::class, 'TestApp\\Model\\RequestActionPost');
-
-/**
- * RequestActionController class
- *
- * @package       Cake.Test.Case.Core
- */
-class RequestActionController extends Controller
-{
-    /**
-     * uses property
-     *
-     * @var array|bool|null
-     */
-    public $uses = ['RequestActionPost'];
-
-    /**
-     * test_request_action method
-     *
-     * @return string
-     */
-    public function test_request_action(): mixed
-    {
-        return 'This is a test';
-    }
-
-    /**
-     * another_ra_test method
-     *
-     * @param string|int $id
-     * @param string|int $other
-     * @return string|int
-     */
-    public function another_ra_test($id, $other): mixed
-    {
-        return $id + $other;
-    }
-
-    /**
-     * normal_request_action method
-     *
-     * @return string Hello World!
-     */
-    public function normal_request_action(): mixed
-    {
-        return 'Hello World';
-    }
-
-    /**
-     * returns $this->here
-     *
-     * @return string $this->here.
-     */
-    public function return_here(): mixed
-    {
-        return $this->request->here();
-    }
-
-    /**
-     * paginate_request_action method
-     *
-     * @return true
-     */
-    public function paginate_request_action(): mixed
-    {
-        $this->paginate();
-
-        return true;
-    }
-
-    /**
-     * post pass, testing post passing
-     *
-     * @return array
-     */
-    public function post_pass(): mixed
-    {
-        return $this->request->data;
-    }
-
-    /**
-     * test param passing and parsing.
-     *
-     * @return CakeRequest
-     */
-    public function params_pass(): mixed
-    {
-        return $this->request;
-    }
-
-    public function param_check(): void
-    {
-        $this->autoRender = false;
-        $content = '';
-        if (isset($this->request->params[0])) {
-            $content = 'return found';
-        }
-        $this->response->body($content);
-    }
-}
-class_alias(RequestActionController::class, 'TestApp\\Controller\\RequestActionController');
 
 /**
  * TestCakeObject class
@@ -306,25 +188,12 @@ class TestCakeObject extends CakeObject
 }
 
 /**
- * ObjectTestModel class
- *
- * @package       Cake.Test.Case.Core
- */
-class ObjectTestModel extends CakeTestModel
-{
-    public $useTable = false;
-}
-class_alias(ObjectTestModel::class, 'TestApp\\Model\\ObjectTestModel');
-
-/**
  * CakeObject Test class
  *
  * @package       Cake.Test.Case.Core
  */
 class CakeObjectTest extends CakeTestCase
 {
-    protected ?string $_appNamespace = null;
-
     /**
      * fixtures
      *
@@ -350,7 +219,6 @@ class CakeObjectTest extends CakeTestCase
     {
         parent::setUp();
 
-        $this->_appNamespace = Configure::read('App.namespace');
         Configure::write('App.namespace', 'TestApp');
         $this->object = new TestCakeObject();
     }
@@ -364,7 +232,6 @@ class CakeObjectTest extends CakeTestCase
     {
         CakePlugin::unload();
         unset($this->object);
-        Configure::write('App.namespace', $this->_appNamespace);
 
         parent::tearDown();
     }
@@ -780,7 +647,6 @@ class CakeObjectTest extends CakeTestCase
      */
     public function testMergeVarsNamespacedClassName(): void
     {
-        Configure::write('App.namespace', 'TestApp');
         $types = [
             'components' => ['Controller/Component', 'Component', NamespacedComponent::class],
             'helpers' => ['View/Helper', 'Helper', NamespacedHelper::class],

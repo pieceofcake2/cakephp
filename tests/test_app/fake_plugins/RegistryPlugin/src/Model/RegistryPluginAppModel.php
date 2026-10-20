@@ -1,7 +1,5 @@
 <?php
 /**
- * TestConsoleLog file
- *
  * CakePHP(tm) Tests <https://book.cakephp.org/2.0/en/development/testing.html>
  * Copyright (c) Cake Software Foundation, Inc. (https://cakefoundation.org)
  *
@@ -11,21 +9,24 @@
  *
  * @copyright     Copyright (c) Cake Software Foundation, Inc. (https://cakefoundation.org)
  * @link          https://book.cakephp.org/2.0/en/development/testing.html CakePHP(tm) Tests
- * @package       Cake.Test.Case.Log.Engine
- * @since         CakePHP(tm) v 1.3
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-namespace Cake\Test\TestCase\Log\Engine;
+namespace RegistryPlugin\Model;
 
-use Cake\Log\Engine\ConsoleLog;
+use TestApp\Model\ClassRegisterModel;
 
 /**
- * TestConsoleLog
+ * RegistryPluginAppModel class
  *
- * @package       Cake.Test.Case.Log.Engine
+ * @package       Cake.Test.Case.Utility
  */
-class TestConsoleLog extends ConsoleLog
+class RegistryPluginAppModel extends ClassRegisterModel
 {
+    /**
+     * tablePrefix property
+     *
+     * @var string|null
+     */
+    public $tablePrefix = 'something_';
 }
-class_alias(TestConsoleLog::class, 'App\\Log\\Engine\\TestConsoleLog');

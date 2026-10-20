@@ -19,9 +19,11 @@
 namespace Cake\Test\TestCase\Log\Engine;
 
 use Cake\Console\ConsoleOutput;
+use Cake\Core\Configure;
 use Cake\Log\CakeLog;
 use Cake\Log\Engine\ConsoleLog;
 use Cake\TestSuite\CakeTestCase;
+use TestApp\Log\Engine\TestConsoleLog;
 
 /**
  * ConsoleLogTest class
@@ -33,6 +35,7 @@ class ConsoleLogTest extends CakeTestCase
     public function setUp(): void
     {
         parent::setUp();
+        Configure::write('App.namespace', 'TestApp');
         CakeLog::config('debug', [
             'engine' => 'File',
             'types' => ['notice', 'info', 'debug'],

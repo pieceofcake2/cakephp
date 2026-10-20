@@ -23,16 +23,7 @@ use Cake\TestSuite\CakeTestCase;
 use Cake\Utility\Debugger;
 use Cake\View\View;
 use InvalidArgumentException;
-
-/**
- * DebuggerTestCaseDebugger class
- *
- * @package       Cake.Test.Case.Utility
- */
-class DebuggerTestCaseDebugger extends Debugger
-{
-}
-class_alias(DebuggerTestCaseDebugger::class, 'App\\Utility\\DebuggerTestCaseDebugger');
+use TestApp\Utility\DebuggerTestCaseDebugger;
 
 /**
  * DebuggerTest class

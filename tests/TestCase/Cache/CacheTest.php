@@ -40,8 +40,6 @@ class CacheTest extends CakeTestCase
 {
     protected $_count = 0;
 
-    protected ?string $_appNamespace = null;
-
     /**
      * setUp method
      *
@@ -51,7 +49,6 @@ class CacheTest extends CakeTestCase
     {
         parent::setUp();
 
-        $this->_appNamespace = Configure::read('App.namespace');
         Configure::write('App.namespace', 'TestApp');
         $this->_cacheDisable = Configure::read('Cache.disable');
         Configure::write('Cache.disable', false);
@@ -72,7 +69,6 @@ class CacheTest extends CakeTestCase
         Cache::drop('archive');
         Configure::write('Cache.disable', $this->_cacheDisable);
         Cache::config('default', $this->_defaultCacheConfig['settings']);
-        Configure::write('App.namespace', $this->_appNamespace);
 
         parent::tearDown();
     }

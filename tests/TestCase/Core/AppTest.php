@@ -65,8 +65,6 @@ use TestPlugin\View\Helper\TestPluginAppHelper;
  */
 class AppTest extends CakeTestCase
 {
-    protected ?string $_appNamespace = null;
-
     /**
      * @return void
      */
@@ -74,7 +72,6 @@ class AppTest extends CakeTestCase
     {
         parent::setUp();
 
-        $this->_appNamespace = Configure::read('App.namespace');
         Configure::write('App.namespace', 'TestApp');
     }
 
@@ -86,7 +83,6 @@ class AppTest extends CakeTestCase
     public function tearDown(): void
     {
         CakePlugin::unload();
-        Configure::write('App.namespace', $this->_appNamespace);
 
         parent::tearDown();
     }
@@ -989,8 +985,6 @@ class AppTest extends CakeTestCase
      */
     public function testClassNameAppNamespace(): void
     {
-        Configure::write('App.namespace', 'TestApp');
-
         $result = App::className('Namespaced', 'Controller/Component', 'Component');
         $this->assertSame(NamespacedComponent::class, $result);
         $this->assertSame(NamespacedPost::class, App::className('NamespacedPost', 'Model'));
@@ -1004,7 +998,6 @@ class AppTest extends CakeTestCase
      */
     public function testImportNamespacedClass(): void
     {
-        Configure::write('App.namespace', 'TestApp');
         App::build(['Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS]], App::RESET);
         CakePlugin::load('TestPluginTwo');
 

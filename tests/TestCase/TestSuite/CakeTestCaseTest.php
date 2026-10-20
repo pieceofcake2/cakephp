@@ -76,8 +76,6 @@ class ConstructorPost extends Model
  */
 class CakeTestCaseTest extends CakeTestCase
 {
-    protected ?string $_appNamespace = null;
-
     /**
      * fixtures property
      *
@@ -96,7 +94,6 @@ class CakeTestCaseTest extends CakeTestCase
     {
         parent::setUp();
 
-        $this->_appNamespace = Configure::read('App.namespace');
         Configure::write('App.namespace', 'TestApp');
     }
 
@@ -108,7 +105,6 @@ class CakeTestCaseTest extends CakeTestCase
     public function tearDown(): void
     {
         unset($this->Result);
-        Configure::write('App.namespace', $this->_appNamespace);
 
         parent::tearDown();
     }

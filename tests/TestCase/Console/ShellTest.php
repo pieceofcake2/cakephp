@@ -40,6 +40,8 @@ use Cake\Utility\Hash;
 use PHPUnit\Framework\MockObject\MockObject;
 use RuntimeException;
 use TestApp\Console\Command\Task\NamespacedTask;
+use TestApp\Console\Command\Task\TestAppleTask;
+use TestApp\Console\Command\Task\TestBananaTask;
 use TestApp\Console\Helper\NamespacedShellHelper;
 use TestApp\Model\Comment;
 use TestApp\Model\NamespacedPost;
@@ -142,26 +144,6 @@ class TestMergeNamespacedShell extends Shell
 }
 
 /**
- * TestAppleTask class
- *
- * @package       Cake.Test.Case.Console.Command
- */
-class TestAppleTask extends Shell
-{
-}
-class_alias(TestAppleTask::class, 'App\\Console\\Command\\Task\\TestAppleTask');
-
-/**
- * TestBananaTask class
- *
- * @package       Cake.Test.Case.Console.Command
- */
-class TestBananaTask extends Shell
-{
-}
-class_alias(TestBananaTask::class, 'App\\Console\\Command\\Task\\TestBananaTask');
-
-/**
  * ShellTest class
  *
  * @package       Cake.Test.Case.Console.Command
@@ -193,6 +175,7 @@ class ShellTest extends CakeTestCase
     public function setUp(): void
     {
         parent::setUp();
+        Configure::write('App.namespace', 'TestApp');
 
         $output = $this->getMock(ConsoleOutput::class, [], [], '', false);
         $error = $this->getMock(ConsoleOutput::class, [], [], '', false);
@@ -249,8 +232,6 @@ class ShellTest extends CakeTestCase
             'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
             'Model' => [CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'Model' . DS],
         ], App::RESET);
-        Configure::write('App.namespace', 'TestApp');
-
         CakePlugin::load('TestPlugin');
         $this->Shell->tasks = ['DbConfig' => ['one', 'two']];
         $this->Shell->uses = ['TestPlugin.TestPluginPost'];
@@ -281,8 +262,6 @@ class ShellTest extends CakeTestCase
             'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
             'Model' => [CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'Model' . DS],
         ], App::RESET);
-        Configure::write('App.namespace', 'TestApp');
-
         $shell = new TestMergeShell();
         $this->assertEquals('Comment', $shell->Comment->alias);
         $this->assertInstanceOf(Comment::class, $shell->Comment);

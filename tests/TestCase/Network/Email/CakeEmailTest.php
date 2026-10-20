@@ -196,8 +196,6 @@ class ExtendTransport
  */
 class CakeEmailTest extends CakeTestCase
 {
-    protected ?string $_appNamespace = null;
-
     /**
      * setUp
      *
@@ -207,7 +205,6 @@ class CakeEmailTest extends CakeTestCase
     {
         parent::setUp();
 
-        $this->_appNamespace = Configure::read('App.namespace');
         Configure::write('App.namespace', 'TestApp');
 
         $this->_configFileExists = true;
@@ -237,8 +234,6 @@ class CakeEmailTest extends CakeTestCase
         if (!$this->_configFileExists) {
             unlink(CONFIG . 'email.php');
         }
-
-        Configure::write('App.namespace', $this->_appNamespace);
 
         parent::tearDown();
     }

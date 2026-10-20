@@ -38,8 +38,6 @@ use ReflectionProperty;
  */
 class ExtractTaskTest extends CakeTestCase
 {
-    protected ?string $_appNamespace = null;
-
     /**
      * setUp method
      *
@@ -48,6 +46,7 @@ class ExtractTaskTest extends CakeTestCase
     public function setUp(): void
     {
         parent::setUp();
+        Configure::write('App.namespace', 'TestApp');
         $out = $this->getMock(ConsoleOutput::class, [], [], '', false);
         $in = $this->getMock(ConsoleInput::class, [], [], '', false);
 
@@ -381,9 +380,6 @@ class ExtractTaskTest extends CakeTestCase
      */
     public function testExtractModelValidation(): void
     {
-        $this->_appNamespace = Configure::read('App.namespace');
-        Configure::write('App.namespace', 'TestApp');
-
         App::build([
             'Model' => [CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'Model' . DS],
             'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
@@ -416,8 +412,6 @@ class ExtractTaskTest extends CakeTestCase
         $this->assertStringContainsString('msgid "Post body is super required"', $result);
         $this->assertStringContainsString('msgid "double \\"quoted\\" validation"', $result, 'Strings with quotes not handled correctly');
         $this->assertStringContainsString("msgid \"single 'quoted' validation\"", $result, 'Strings with quotes not handled correctly');
-
-        Configure::write('App.namespace', $this->_appNamespace);
     }
 
     /**

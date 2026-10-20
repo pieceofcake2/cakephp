@@ -31,16 +31,9 @@ use Cake\Core\CakePlugin;
 use Cake\Core\Configure;
 use Cake\Error\MissingTaskException;
 use Cake\TestSuite\CakeTestCase;
+use TestApp\Console\Command\Task\ExtractAliasedTask;
 use TestApp\Console\Command\Task\NamespacedTask;
 use TestPlugin\Console\Command\Task\OtherTaskTask;
-
-/**
- * Extended Task
- */
-class ExtractAliasedTask extends Shell
-{
-}
-class_alias(ExtractAliasedTask::class, 'App\\Console\\Command\\Task\\ExtractAliasedTask');
 
 /**
  * TaskCollectionTest
@@ -57,6 +50,7 @@ class TaskCollectionTest extends CakeTestCase
     public function setUp(): void
     {
         parent::setUp();
+        Configure::write('App.namespace', 'TestApp');
         $shell = $this->getMock(Shell::class, [], [], '', false);
         $dispatcher = $this->getMock(ShellDispatcher::class, [], [], '', false);
         $this->Tasks = new TaskCollection($shell, $dispatcher);
@@ -208,7 +202,6 @@ class TaskCollectionTest extends CakeTestCase
 
         $this->assertInstanceOf(CommandTask::class, $this->Tasks->load('Command'));
 
-        Configure::write('App.namespace', 'TestApp');
         $shell = $this->getMock(Shell::class, [], [], '', false);
         $Tasks = new TaskCollection($shell);
         $this->assertInstanceOf(NamespacedTask::class, $Tasks->load('Namespaced'));

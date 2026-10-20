@@ -36,8 +36,6 @@ use TestApp\Log\Engine\TestAppLog;
  */
 class CakeLogTest extends CakeTestCase
 {
-    protected ?string $_appNamespace = null;
-
     /**
      * Start test callback, clears all streams enabled.
      *
@@ -47,23 +45,12 @@ class CakeLogTest extends CakeTestCase
     {
         parent::setUp();
 
-        $this->_appNamespace = Configure::read('App.namespace');
         Configure::write('App.namespace', 'TestApp');
 
         $streams = CakeLog::configured();
         foreach ($streams as $stream) {
             CakeLog::drop($stream);
         }
-    }
-
-    /**
-     * @return void
-     */
-    public function tearDown(): void
-    {
-        Configure::write('App.namespace', $this->_appNamespace);
-
-        parent::tearDown();
     }
 
     /**
@@ -810,7 +797,6 @@ class CakeLogTest extends CakeTestCase
             CakeLog::drop('namespaced');
         }
 
-        Configure::write('App.namespace', 'TestApp');
         CakeLog::config('namespaced', ['engine' => 'Namespaced']);
         CakeLog::write('info', 'by short name', 'namespaced');
         CakeLog::drop('namespaced');

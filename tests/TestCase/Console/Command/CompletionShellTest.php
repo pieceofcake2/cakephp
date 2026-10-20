@@ -51,8 +51,6 @@ class TestCompletionStringOutput extends ConsoleOutput
  */
 class CompletionShellTest extends CakeTestCase
 {
-    protected ?string $_appNamespace = null;
-
     /**
      * setUp method
      *
@@ -62,7 +60,6 @@ class CompletionShellTest extends CakeTestCase
     {
         parent::setUp();
 
-        $this->_appNamespace = Configure::read('App.namespace');
         Configure::write('App.namespace', 'TestApp');
 
         App::build([
@@ -100,7 +97,6 @@ class CompletionShellTest extends CakeTestCase
     {
         unset($this->Shell);
         CakePlugin::unload();
-        Configure::write('App.namespace', $this->_appNamespace);
 
         parent::tearDown();
     }

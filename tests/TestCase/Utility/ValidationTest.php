@@ -24,6 +24,7 @@ use Cake\TestSuite\CakeTestCase;
 use Cake\Utility\File;
 use Cake\Utility\Validation;
 use stdClass;
+use TestApp\Utility\TestNlValidation;
 
 /**
  * CustomValidator class
@@ -43,61 +44,6 @@ class CustomValidator
         return (bool)preg_match('/^[0-9]{3}$/', $check);
     }
 }
-
-/**
- * TestNlValidation class
- *
- * Used to test pass through of Validation
- *
- * @package       Cake.Test.Case.Utility
- */
-class TestNlValidation
-{
-    /**
-     * postal function, for testing postal pass through.
-     *
-     * @param string|null $check
-     * @return bool
-     */
-    public static function postal($check): mixed
-    {
-        return true;
-    }
-
-    /**
-     * ssn function for testing ssn pass through
-     *
-     * @param string|null $check
-     * @return bool
-     */
-    public static function ssn($check): mixed
-    {
-        return true;
-    }
-}
-class_alias(TestNlValidation::class, 'App\\Utility\\TestNlValidation');
-
-/**
- * TestDeValidation class
- *
- * Used to test pass through of Validation
- *
- * @package       Cake.Test.Case.Utility
- */
-class TestDeValidation
-{
-    /**
-     * phone function, for testing phone pass through.
-     *
-     * @param string|null $check
-     * @return bool
-     */
-    public static function phone($check): mixed
-    {
-        return true;
-    }
-}
-class_alias(TestDeValidation::class, 'App\\Utility\\TestDeValidation');
 
 /**
  * ValidationStub
@@ -136,6 +82,7 @@ class ValidationTest extends CakeTestCase
     public function setUp(): void
     {
         parent::setUp();
+        Configure::write('App.namespace', 'TestApp');
         $this->_appEncoding = Configure::read('App.encoding');
         $this->_appLocale = [];
         foreach ([LC_MONETARY, LC_NUMERIC, LC_TIME] as $category) {
@@ -2407,8 +2354,7 @@ class ValidationTest extends CakeTestCase
         }
 
         $this->assertTrue($warningTriggered, 'Expected warning was not triggered');
-        // The class from App.namespace, an alias of TestNlValidation
-        $this->assertSame('Method phone does not exist on App\\Utility\\TestNlValidation unable to complete validation.', $warningMessage);
+        $this->assertSame('Method phone does not exist on ' . TestNlValidation::class . ' unable to complete validation.', $warningMessage);
     }
 
     /**
@@ -2821,7 +2767,6 @@ class ValidationTest extends CakeTestCase
         $this->assertTrue(Validation::postal('namespaced', null, 'TestApp\Utility\Namespaced'));
         $this->assertFalse(Validation::postal('other', null, 'TestApp\Utility\Namespaced'));
 
-        Configure::write('App.namespace', 'TestApp');
         $this->assertTrue(Validation::postal('namespaced', null, 'namespaced'));
     }
 }

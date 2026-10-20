@@ -41,7 +41,6 @@ class GenericObject
         $this->settings = $settings;
     }
 }
-class_alias(GenericObject::class, 'GenericObject');
 
 /**
  * First Extension of Generic CakeObject
@@ -58,7 +57,6 @@ class FirstGenericObject extends GenericObject
         return null;
     }
 }
-class_alias(FirstGenericObject::class, 'FirstGenericObject');
 
 /**
  * Second Extension of Generic CakeObject
@@ -73,7 +71,6 @@ class SecondGenericObject extends GenericObject
         return null;
     }
 }
-class_alias(SecondGenericObject::class, 'SecondGenericObject');
 
 /**
  * Third Extension of Generic CakeObject
@@ -88,7 +85,6 @@ class ThirdGenericObject extends GenericObject
         return null;
     }
 }
-class_alias(ThirdGenericObject::class, 'ThirdGenericObject');
 
 /**
  * A collection of Generic objects
@@ -108,7 +104,7 @@ class GenericObjectCollection extends ObjectCollection
         if (isset($this->_loaded[$_name])) {
             return $this->_loaded[$_name];
         }
-        $objectClass = $_name . 'GenericObject';
+        $objectClass = __NAMESPACE__ . '\\' . $_name . 'GenericObject';
         $this->_loaded[$_name] = new $objectClass($this, $settings);
         $enable = $settings['enabled'] ?? true;
         if ($enable === true) {

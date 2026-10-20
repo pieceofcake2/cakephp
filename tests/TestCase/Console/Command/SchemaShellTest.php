@@ -33,64 +33,6 @@ use PHPUnit\Framework\MockObject\MockObject;
 use TestPluginAppSchema;
 
 /**
- * Test for Schema database management
- *
- * @package       Cake.Test.Case.Console.Command
- */
-class SchemaShellTestSchema extends CakeSchema
-{
-    /**
-     * connection property
-     *
-     * @var string
-     */
-    public $connection = 'test';
-
-    /**
-     * comments property
-     *
-     * @var array
-     */
-    public $comments = [
-        'id' => ['type' => 'integer', 'null' => false, 'default' => 0, 'key' => 'primary'],
-        'post_id' => ['type' => 'integer', 'null' => false, 'default' => 0],
-        'user_id' => ['type' => 'integer', 'null' => false],
-        'title' => ['type' => 'string', 'null' => false, 'length' => 100],
-        'comment' => ['type' => 'text', 'null' => false, 'default' => null],
-        'published' => ['type' => 'string', 'null' => true, 'default' => 'N', 'length' => 1],
-        'created' => ['type' => 'datetime', 'null' => true, 'default' => null],
-        'updated' => ['type' => 'datetime', 'null' => true, 'default' => null],
-        'indexes' => ['PRIMARY' => ['column' => 'id', 'unique' => true]],
-    ];
-
-    /**
-     * posts property
-     *
-     * @var array
-     */
-    public $articles = [
-        'id' => ['type' => 'integer', 'null' => false, 'default' => 0, 'key' => 'primary'],
-        'user_id' => ['type' => 'integer', 'null' => true, 'default' => ''],
-        'title' => ['type' => 'string', 'null' => false, 'default' => 'Title'],
-        'body' => ['type' => 'text', 'null' => true, 'default' => null],
-        'summary' => ['type' => 'text', 'null' => true],
-        'published' => ['type' => 'string', 'null' => true, 'default' => 'Y', 'length' => 1],
-        'created' => ['type' => 'datetime', 'null' => true, 'default' => null],
-        'updated' => ['type' => 'datetime', 'null' => true, 'default' => null],
-        'indexes' => ['PRIMARY' => ['column' => 'id', 'unique' => true]],
-    ];
-
-    public $newone = [
-        'id' => ['type' => 'integer', 'null' => false, 'default' => 0, 'key' => 'primary'],
-        'testit' => ['type' => 'string', 'null' => false, 'default' => 'Title'],
-        'created' => ['type' => 'datetime', 'null' => true, 'default' => null],
-        'updated' => ['type' => 'datetime', 'null' => true, 'default' => null],
-        'indexes' => ['PRIMARY' => ['column' => 'id', 'unique' => true]],
-    ];
-}
-class_alias(SchemaShellTestSchema::class, 'SchemaShellTestSchema');
-
-/**
  * SchemaShellTest class
  *
  * @package       Cake.Test.Case.Console.Command
@@ -115,8 +57,6 @@ class SchemaShellTest extends CakeTestCase
         'core.aros_aco',
     ];
 
-    protected ?string $_appNamespace = null;
-
     public SchemaShell|MockObject|null $Shell = null;
 
     /**
@@ -128,7 +68,6 @@ class SchemaShellTest extends CakeTestCase
     {
         parent::setUp();
 
-        $this->_appNamespace = Configure::read('App.namespace');
         Configure::write('App.namespace', 'TestApp');
 
         $out = $this->getMock(ConsoleOutput::class, [], [], '', false);
@@ -151,8 +90,6 @@ class SchemaShellTest extends CakeTestCase
             $this->file->delete();
             unset($this->file);
         }
-
-        Configure::write('App.namespace', $this->_appNamespace);
 
         parent::tearDown();
     }
@@ -580,6 +517,7 @@ class SchemaShellTest extends CakeTestCase
         $this->Shell->params = [
             'connection' => 'test',
             'force' => true,
+            'path' => CORE_TESTS . DS . 'test_app' . DS . 'config' . DS . 'Schema',
         ];
         $this->Shell->args = ['SchemaShellTest', 'articles'];
         $this->Shell->startup();
@@ -610,6 +548,7 @@ class SchemaShellTest extends CakeTestCase
         $this->Shell->params = [
             'connection' => 'test',
             'force' => true,
+            'path' => CORE_TESTS . DS . 'test_app' . DS . 'config' . DS . 'Schema',
         ];
         $this->Shell->args = ['SchemaShellTest', 'newone'];
         $this->Shell->startup();
@@ -640,6 +579,7 @@ class SchemaShellTest extends CakeTestCase
             'connection' => 'test',
             'force' => true,
             'yes' => true,
+            'path' => CORE_TESTS . DS . 'test_app' . DS . 'config' . DS . 'Schema',
         ];
         $this->Shell->args = ['SchemaShellTest', 'articles'];
         $this->Shell->startup();

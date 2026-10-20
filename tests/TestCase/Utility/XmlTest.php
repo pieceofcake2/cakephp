@@ -21,67 +21,12 @@ namespace Cake\Test\TestCase\Utility;
 use Cake\Core\Configure;
 use Cake\Error\XmlException;
 use Cake\TestSuite\CakeTestCase;
-use Cake\TestSuite\Fixture\CakeTestModel;
 use Cake\Utility\Xml;
 use DateTime;
 use DOMDocument;
 use Exception;
 use SimpleXMLElement;
-
-/**
- * Article class
- *
- * @package       Cake.Test.Case.Utility
- */
-class XmlArticle extends CakeTestModel
-{
-    /**
-     * name property
-     *
-     * @var string|null
-     */
-    public $name = 'Article';
-
-    /**
-     * belongsTo property
-     *
-     * @var array
-     */
-    public $belongsTo = [
-        'User' => [
-            'className' => 'XmlUser',
-            'foreignKey' => 'user_id',
-        ],
-    ];
-}
-class_alias(XmlArticle::class, 'App\\Model\\XmlArticle');
-
-/**
- * User class
- *
- * @package       Cake.Test.Case.Utility
- */
-class XmlUser extends CakeTestModel
-{
-    /**
-     * name property
-     *
-     * @var string|null
-     */
-    public $name = 'User';
-
-    /**
-     * hasMany property
-     *
-     * @var array
-     */
-    public $hasMany = [
-        'Article' => [
-            'className' => 'XmlArticle',
-        ],
-    ];
-}
-class_alias(XmlUser::class, 'App\\Model\\XmlUser');
+use TestApp\Model\XmlUser;
 
 /**
  * XmlTest class
@@ -115,6 +60,7 @@ class XmlTest extends CakeTestCase
     public function setUp(): void
     {
         parent::setUp();
+        Configure::write('App.namespace', 'TestApp');
         $this->_appEncoding = Configure::read('App.encoding');
         Configure::write('App.encoding', 'UTF-8');
     }

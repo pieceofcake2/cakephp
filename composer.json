@@ -55,6 +55,7 @@
             "ArticlesTest\\": "tests/test_app/fake_plugins/ArticlesTest/src/",
             "MergeVarPlugin\\": "tests/test_app/fake_plugins/MergeVarPlugin/src/",
             "MyPlugin\\": "tests/test_app/fake_plugins/MyPlugin/src/",
+            "RegistryPlugin\\": "tests/test_app/fake_plugins/RegistryPlugin/src/",
             "TestNamespacedPlugin\\": "tests/test_legacy_app/plugins/TestNamespacedPlugin/src/"
         },
         "exclude-from-classmap": [

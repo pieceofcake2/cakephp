@@ -19,40 +19,7 @@
 namespace Cake\Test\TestCase\Utility;
 
 use Cake\TestSuite\CakeTestCase;
-use Cake\TestSuite\Fixture\CakeTestModel;
 use Cake\Utility\Sanitize;
-
-/**
- * DataTest class
- *
- * @package       Cake.Test.Case.Utility
- */
-class SanitizeDataTest extends CakeTestModel
-{
-    /**
-     * useTable property
-     *
-     * @var string|bool|null
-     */
-    public $useTable = 'data_tests';
-}
-class_alias(SanitizeDataTest::class, 'App\\Model\\SanitizeDataTest');
-
-/**
- * Article class
- *
- * @package       Cake.Test.Case.Utility
- */
-class SanitizeArticle extends CakeTestModel
-{
-    /**
-     * useTable property
-     *
-     * @var string|bool|null
-     */
-    public $useTable = 'articles';
-}
-class_alias(SanitizeArticle::class, 'App\\Model\\SanitizeArticle');
 
 /**
  * SanitizeTest class

@@ -28,120 +28,16 @@ use Cake\Model\Aco;
 use Cake\Model\Behavior\ContainableBehavior;
 use Cake\Model\ConnectionManager;
 use Cake\TestSuite\CakeTestCase;
-use Cake\TestSuite\Fixture\CakeTestModel;
 use Cake\Utility\ClassRegistry;
+use RegistryPlugin\Model\RegistryPluginAppModel;
+use RegistryPlugin\Model\TestRegistryPluginModel;
 use TestApp\Model\NamespacedComment;
 use TestApp\Model\NamespacedPost;
+use TestApp\Model\RegisterArticle;
+use TestApp\Model\RegisterArticleFeatured;
+use TestApp\Model\RegisterArticleTag;
+use TestApp\Model\RegisterCategory;
 use TestPluginTwo\Model\TestPluginTwoAppModel;
-
-/**
- * ClassRegisterModel class
- *
- * @package       Cake.Test.Case.Utility
- */
-class ClassRegisterModel extends CakeTestModel
-{
-    /**
-     * useTable property
-     *
-     * @var string|bool|null
-     */
-    public $useTable = false;
-}
-class_alias(ClassRegisterModel::class, 'App\\Model\\ClassRegisterModel');
-
-/**
- * RegisterArticle class
- *
- * @package       Cake.Test.Case.Utility
- */
-class RegisterArticle extends ClassRegisterModel
-{
-}
-class_alias(RegisterArticle::class, 'App\\Model\\RegisterArticle');
-
-/**
- * RegisterArticleFeatured class
- *
- * @package       Cake.Test.Case.Utility
- */
-class RegisterArticleFeatured extends ClassRegisterModel
-{
-}
-class_alias(RegisterArticleFeatured::class, 'App\\Model\\RegisterArticleFeatured');
-
-/**
- * RegisterArticleTag class
- *
- * @package       Cake.Test.Case.Utility
- */
-class RegisterArticleTag extends ClassRegisterModel
-{
-}
-class_alias(RegisterArticleTag::class, 'App\\Model\\RegisterArticleTag');
-
-/**
- * RegistryPluginAppModel class
- *
- * @package       Cake.Test.Case.Utility
- */
-class RegistryPluginAppModel extends ClassRegisterModel
-{
-    /**
-     * tablePrefix property
-     *
-     * @var string|null
-     */
-    public $tablePrefix = 'something_';
-}
-class_alias(RegistryPluginAppModel::class, 'App\\Model\\RegistryPluginAppModel');
-class_alias(RegistryPluginAppModel::class, 'RegistryPlugin\\Model\\RegistryPluginAppModel');
-
-/**
- * TestRegistryPluginModel class
- *
- * @package       Cake.Test.Case.Utility
- */
-class TestRegistryPluginModel extends RegistryPluginAppModel
-{
-}
-class_alias(TestRegistryPluginModel::class, 'App\\Model\\TestRegistryPluginModel');
-class_alias(TestRegistryPluginModel::class, 'RegistryPlugin\\Model\\TestRegistryPluginModel');
-
-/**
- * RegisterCategory class
- *
- * @package       Cake.Test.Case.Utility
- */
-class RegisterCategory extends ClassRegisterModel
-{
-}
-class_alias(RegisterCategory::class, 'App\\Model\\RegisterCategory');
-
-/**
- * RegisterPrefixedDs class
- *
- * @package       Cake.Test.Case.Utility
- */
-class RegisterPrefixedDs extends ClassRegisterModel
-{
-    /**
-     * useDbConfig property
-     *
-     * @var string
-     */
-    public $useDbConfig = 'doesnotexist';
-}
-class_alias(RegisterPrefixedDs::class, 'App\\Model\\RegisterPrefixedDs');
-
-/**
- * Abstract class for testing ClassRegistry.
- */
-abstract class ClassRegistryAbstractModel extends ClassRegisterModel
-{
-    abstract public function doSomething(): mixed;
-}
-class_alias(ClassRegistryAbstractModel::class, 'App\\Model\\ClassRegistryAbstractModel');
 
 /**
  * Interface for testing ClassRegistry
@@ -212,6 +108,17 @@ class ClassRegistryTest extends CakeTestCase
         $this->assertNotEquals($category->alias, $parentCategory->alias);
         $this->assertEquals('RegisterCategory', $category->alias);
         $this->assertEquals('ParentCategory', $parentCategory->alias);
+    }
+
+    /**
+     * setUp method
+     *
+     * @return void
+     */
+    public function setUp(): void
+    {
+        parent::setUp();
+        Configure::write('App.namespace', 'TestApp');
     }
 
     /**
@@ -403,7 +310,6 @@ class ClassRegistryTest extends CakeTestCase
      */
     public function testInitNamespacedModel(): void
     {
-        Configure::write('App.namespace', 'TestApp');
         $result = ClassRegistry::init('NamespacedPost');
         $this->assertInstanceOf(NamespacedPost::class, $result);
         $this->assertSame('NamespacedPost', $result->name);
@@ -418,7 +324,6 @@ class ClassRegistryTest extends CakeTestCase
      */
     public function testNamespacedAppModels(): void
     {
-        Configure::write('App.namespace', 'TestApp');
         $Comment = ClassRegistry::init('NamespacedComment');
         $this->assertInstanceOf(NamespacedComment::class, $Comment);
         $this->assertContains('Containable', $Comment->Behaviors->loaded());
@@ -437,7 +342,6 @@ class ClassRegistryTest extends CakeTestCase
      */
     public function testDuplicateNamespacedModel(): void
     {
-        Configure::write('App.namespace', 'TestApp');
         $post = ClassRegistry::init(['class' => 'NamespacedPost', 'alias' => 'Article']);
         $this->assertInstanceOf(NamespacedPost::class, $post);
         $this->assertSame($post, ClassRegistry::init(['class' => 'NamespacedPost', 'alias' => 'Article']));
@@ -477,7 +381,6 @@ class ClassRegistryTest extends CakeTestCase
         $this->assertSame($post, ClassRegistry::getObject('NamespacedPost'));
         $this->assertSame($post, ClassRegistry::init(['class' => NamespacedPost::class]));
 
-        Configure::write('App.namespace', 'TestApp');
         $this->assertSame($post, ClassRegistry::init('NamespacedPost'));
         $this->assertSame($post, ClassRegistry::init(['class' => 'NamespacedPost']));
 

@@ -126,8 +126,6 @@ class TestShellDispatcher extends ShellDispatcher
  */
 class ShellDispatcherTest extends CakeTestCase
 {
-    protected ?string $_appNamespace = null;
-
     /**
      * setUp method
      *
@@ -137,7 +135,6 @@ class ShellDispatcherTest extends CakeTestCase
     {
         parent::setUp();
 
-        $this->_appNamespace = Configure::read('App.namespace');
         Configure::write('App.namespace', 'TestApp');
 
         App::build([
@@ -159,7 +156,6 @@ class ShellDispatcherTest extends CakeTestCase
     public function tearDown(): void
     {
         CakePlugin::unload();
-        Configure::write('App.namespace', $this->_appNamespace);
 
         parent::tearDown();
     }
@@ -744,7 +740,6 @@ class ShellDispatcherTest extends CakeTestCase
      */
     public function testGetShellNamespaced(): void
     {
-        Configure::write('App.namespace', 'TestApp');
         $Dispatcher = new TestShellDispatcher();
         $result = $Dispatcher->getShell('namespaced');
         $this->assertInstanceOf(NamespacedShell::class, $result);

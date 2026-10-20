@@ -18,12 +18,12 @@
 
 namespace Cake\Test\TestCase\TestSuite;
 
+use Cake\Core\Configure;
 use Cake\Error\CakeException;
 use Cake\Model\CakeSchema;
 use Cake\Model\ConnectionManager;
 use Cake\Model\Datasource\Database\Sqlite;
 use Cake\Model\Datasource\DboSource;
-use Cake\Model\Model;
 use Cake\TestSuite\CakeTestCase;
 use Cake\TestSuite\Fixture\CakeFixtureInjector;
 use Cake\TestSuite\Fixture\CakeFixtureManager;
@@ -202,33 +202,6 @@ class CakeTestFixtureDefaultImportFixture extends CakeTestFixture
 }
 
 /**
- * FixtureImportTestModel class
- *
- * @package       Cake.Test.Case.TestSuite
- */
-class FixtureImportTestModel extends Model
-{
-    public $name = 'FixtureImport';
-
-    public $useTable = 'fixture_tests';
-
-    public $useDbConfig = 'test';
-}
-class_alias(FixtureImportTestModel::class, 'App\\Model\\FixtureImportTestModel');
-
-class FixturePrefixTest extends Model
-{
-    public $name = 'FixturePrefix';
-
-    public $useTable = '_tests';
-
-    public $tablePrefix = 'fixture';
-
-    public $useDbConfig = 'test';
-}
-class_alias(FixturePrefixTest::class, 'App\\Model\\FixturePrefixTest');
-
-/**
  * Test case for CakeTestFixture
  *
  * @package       Cake.Test.Case.TestSuite
@@ -249,6 +222,7 @@ class CakeTestFixtureTest extends CakeTestCase
     public function setUp(): void
     {
         parent::setUp();
+        Configure::write('App.namespace', 'TestApp');
         $methods = array_diff(get_class_methods(DboSource::class), ['enabled']);
 
         $this->criticDb = $this->getMock(DboSource::class, $methods);
