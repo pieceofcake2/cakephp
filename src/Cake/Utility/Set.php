@@ -404,9 +404,9 @@ class Set
                         if (!is_numeric($key)) {
                             $ctext[] = $token;
                             $tok = array_shift($tokens);
-                            if (isset($items[$tok])) {
+                            if (isset($items[$tok ?? ''])) {
                                 $ctext[] = $tok;
-                                $item = $items[$tok];
+                                $item = $items[$tok ?? ''];
                                 $matches[] = [
                                     'trace' => array_merge($context['trace'], $ctext),
                                     'key' => $tok,

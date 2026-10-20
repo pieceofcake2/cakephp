@@ -255,7 +255,7 @@ class CakeSession
         if (!static::_hasSession() || !static::start()) {
             return false;
         }
-        if (isset($_SESSION[$name])) {
+        if (isset($_SESSION[$name ?? ''])) {
             return true;
         }
 
