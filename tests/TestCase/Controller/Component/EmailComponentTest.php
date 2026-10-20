@@ -50,13 +50,6 @@ class EmailComponentTest extends CakeTestCase
     public $name = 'Email';
 
     /**
-     * sentDate
-     *
-     * @var string|null
-     */
-    public static $sentDate = null;
-
-    /**
      * setUp method
      *
      * @return void
@@ -72,7 +65,7 @@ class EmailComponentTest extends CakeTestCase
         $this->Controller->Components->init($this->Controller);
         $this->Controller->EmailTest->initialize($this->Controller, []);
 
-        static::$sentDate = date(DATE_RFC2822);
+        DebugCompTransport::$sentDate = date(DATE_RFC2822);
 
         App::build([
             'View' => [
@@ -97,7 +90,7 @@ class EmailComponentTest extends CakeTestCase
         $this->Controller->EmailTest->delivery = 'DebugComp';
         $this->Controller->EmailTest->messageId = false;
 
-        $date = static::$sentDate;
+        $date = DebugCompTransport::$sentDate;
         $message = <<<MSGBLOC
 <pre>To: postmaster@example.com
 From: noreply@example.com
@@ -145,7 +138,7 @@ MSGBLOC;
         $this->Controller->EmailTest->delivery = 'DebugComp';
         $this->Controller->EmailTest->messageId = false;
 
-        $date = static::$sentDate;
+        $date = DebugCompTransport::$sentDate;
         $header = <<<HEADBLOC
 To: postmaster@example.com
 From: noreply@example.com
@@ -289,7 +282,7 @@ TEXTBLOC;
         $this->assertMatchesRegularExpression('/To: test@example.com\n/', $result);
         $this->assertMatchesRegularExpression('/Subject: \n/', $result);
         $this->assertMatchesRegularExpression('/From: test@example.com\n/', $result);
-        $this->assertMatchesRegularExpression('/Date: ' . preg_quote(static::$sentDate) . '\n/', $result);
+        $this->assertMatchesRegularExpression('/Date: ' . preg_quote(DebugCompTransport::$sentDate) . '\n/', $result);
         $this->assertMatchesRegularExpression('/X-Mailer: CakePHP Email Component\n/', $result);
         $this->assertMatchesRegularExpression('/Content-Type: text\/plain; charset=UTF-8\n/', $result);
         $this->assertMatchesRegularExpression('/Content-Transfer-Encoding: 8bitMessage:\n/', $result);
@@ -320,7 +313,7 @@ TEXTBLOC;
         $this->assertMatchesRegularExpression('/From: noreply@example.com\n/', $result);
         $this->assertMatchesRegularExpression('/Cc: cc@example.com\n/', $result);
         $this->assertMatchesRegularExpression('/Bcc: bcc@example.com\n/', $result);
-        $this->assertMatchesRegularExpression('/Date: ' . preg_quote(static::$sentDate) . '\n/', $result);
+        $this->assertMatchesRegularExpression('/Date: ' . preg_quote(DebugCompTransport::$sentDate) . '\n/', $result);
         $this->assertMatchesRegularExpression('/X-Mailer: CakePHP Email Component\n/', $result);
         $this->assertMatchesRegularExpression('/Content-Type: text\/plain; charset=UTF-8\n/', $result);
         $this->assertMatchesRegularExpression('/Content-Transfer-Encoding: 8bitMessage:\n/', $result);
@@ -350,7 +343,7 @@ TEXTBLOC;
         $this->assertMatchesRegularExpression('/Subject: Cake Debug Test\n/', $result);
         $this->assertMatchesRegularExpression('/Reply-To: noreply@example.com\n/', $result);
         $this->assertMatchesRegularExpression('/From: noreply@example.com\n/', $result);
-        $this->assertMatchesRegularExpression('/Date: ' . preg_quote(static::$sentDate) . '\n/', $result);
+        $this->assertMatchesRegularExpression('/Date: ' . preg_quote(DebugCompTransport::$sentDate) . '\n/', $result);
         $this->assertMatchesRegularExpression('/X-Mailer: CakePHP Email Component\n/', $result);
         $this->assertMatchesRegularExpression('/Content-Type: text\/plain; charset=UTF-8\n/', $result);
         $this->assertMatchesRegularExpression('/Content-Transfer-Encoding: 8bitMessage:\n/', $result);
@@ -535,7 +528,7 @@ HTMLBLOC;
         $this->Controller->EmailTest->to = 'postmaster@example.com';
         $this->Controller->EmailTest->from = 'noreply@example.com';
         $this->Controller->EmailTest->subject = 'Cake Debug Test';
-        $this->Controller->EmailTest->date = static::$sentDate = 'Today!';
+        $this->Controller->EmailTest->date = DebugCompTransport::$sentDate = 'Today!';
         $this->Controller->EmailTest->template = null;
         $this->Controller->EmailTest->delivery = 'DebugComp';
 

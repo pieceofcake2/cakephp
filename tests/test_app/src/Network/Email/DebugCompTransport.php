@@ -16,7 +16,6 @@ namespace TestApp\Network\Email;
 
 use Cake\Network\Email\AbstractTransport;
 use Cake\Network\Email\CakeEmail;
-use Cake\Test\TestCase\Controller\Component\EmailComponentTest;
 
 /**
  * DebugCompTransport class
@@ -33,6 +32,13 @@ class DebugCompTransport extends AbstractTransport
     public static $lastEmail = null;
 
     /**
+     * sentDate
+     *
+     * @var string|null
+     */
+    public static $sentDate = null;
+
+    /**
      * Send mail
      *
      * @params CakeEmail $email CakeEmail
@@ -40,7 +46,7 @@ class DebugCompTransport extends AbstractTransport
      */
     public function send(CakeEmail $email): mixed
     {
-        $email->addHeaders(['Date' => EmailComponentTest::$sentDate]);
+        $email->addHeaders(['Date' => static::$sentDate]);
         $headers = $email->getHeaders(array_fill_keys(['from', 'replyTo', 'readReceipt', 'returnPath', 'to', 'cc', 'bcc', 'subject'], true));
         $to = $headers['To'];
         $subject = $headers['Subject'];
