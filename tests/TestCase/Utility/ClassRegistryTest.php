@@ -454,9 +454,10 @@ class ClassRegistryTest extends CakeTestCase
         $this->assertSame($post, ClassRegistry::init('NamespacedPost'));
         $this->assertSame($post, ClassRegistry::init(['class' => 'NamespacedPost']));
 
-        $article = ClassRegistry::init(['class' => NamespacedPost::class, 'alias' => 'Article']);
-        $this->assertSame('Article', $article->alias);
-        $this->assertNotSame($post, $article);
-        $this->assertSame($article, ClassRegistry::getObject('Article'));
+        $copy = ClassRegistry::init(['class' => NamespacedPost::class, 'alias' => 'NamespacedPostCopy']);
+        $this->assertSame('NamespacedPostCopy', $copy->alias);
+        $this->assertNotSame($post, $copy);
+        $this->assertSame($copy, ClassRegistry::getObject('NamespacedPostCopy'));
+        ClassRegistry::flush();
     }
 }
