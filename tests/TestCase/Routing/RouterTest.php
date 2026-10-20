@@ -28,6 +28,7 @@ use Cake\Network\CakeRequest;
 use Cake\Network\CakeResponse;
 use Cake\Routing\Route\CakeRoute;
 use Cake\Routing\Route\PluginShortRoute;
+use Cake\Routing\Route\RedirectRoute;
 use Cake\Routing\Router;
 use Cake\TestSuite\CakeTestCase;
 use TestApp\Routing\Route\NamespacedRoute;
@@ -3056,16 +3057,16 @@ class RouterTest extends CakeTestCase
      */
     public function testCoreRouteClassByGlobalAndNamespacedName(): void
     {
-        foreach (['CakeRoute', 'Cake\\Routing\\Route\\CakeRoute'] as $class) {
+        foreach (['CakeRoute', CakeRoute::class] as $class) {
             Router::defaultRouteClass($class);
             $this->assertSame($class, Router::defaultRouteClass());
         }
         Router::defaultRouteClass('CakeRoute');
 
-        foreach (['RedirectRoute', 'Cake\\Routing\\Route\\RedirectRoute'] as $class) {
+        foreach (['RedirectRoute', RedirectRoute::class] as $class) {
             Router::reload();
             Router::connect('/blog', ['redirect' => ['controller' => 'posts']], ['routeClass' => $class]);
-            $this->assertInstanceOf('RedirectRoute', Router::$routes[0], $class);
+            $this->assertInstanceOf(RedirectRoute::class, Router::$routes[0], $class);
             $this->assertSame(['controller' => 'posts'], Router::$routes[0]->redirect, $class);
         }
     }

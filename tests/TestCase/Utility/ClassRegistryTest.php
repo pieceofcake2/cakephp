@@ -25,6 +25,7 @@ use Cake\Core\CakePlugin;
 use Cake\Core\Configure;
 use Cake\Error\CakeException;
 use Cake\Model\Aco;
+use Cake\Model\Behavior\ContainableBehavior;
 use Cake\Model\ConnectionManager;
 use Cake\TestSuite\CakeTestCase;
 use Cake\TestSuite\Fixture\CakeTestModel;
@@ -498,10 +499,10 @@ class ClassRegistryTest extends CakeTestCase
         $post->Behaviors->load('Containable');
 
         $behavior = ClassRegistry::getObject('ContainableBehavior');
-        $this->assertInstanceOf('Cake\Model\Behavior\ContainableBehavior', $behavior);
-        $this->assertSame($behavior, ClassRegistry::getObject('Cake\Model\Behavior\ContainableBehavior'));
+        $this->assertInstanceOf(ContainableBehavior::class, $behavior);
+        $this->assertSame($behavior, ClassRegistry::getObject(ContainableBehavior::class));
         $this->assertTrue(ClassRegistry::isKeySet('ContainableBehavior'));
-        $this->assertTrue(ClassRegistry::isKeySet('Cake\Model\Behavior\ContainableBehavior'));
+        $this->assertTrue(ClassRegistry::isKeySet(ContainableBehavior::class));
         ClassRegistry::flush();
     }
 }

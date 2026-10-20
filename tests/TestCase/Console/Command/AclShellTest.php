@@ -21,6 +21,7 @@ namespace Cake\Test\TestCase\Console\Command;
 use Cake\Console\Command\AclShell;
 use Cake\Console\ConsoleInput;
 use Cake\Console\ConsoleOutput;
+use Cake\Controller\Component\Acl\DbAcl;
 use Cake\Controller\Component\AclComponent;
 use Cake\Controller\ComponentCollection;
 use Cake\Core\Configure;
@@ -434,12 +435,12 @@ class AclShellTest extends CakeTestCase
      */
     public function testStartupWithDbAclByGlobalAndNamespacedName(): void
     {
-        $out = $this->getMock('ConsoleOutput', [], [], '', false);
-        $in = $this->getMock('ConsoleInput', [], [], '', false);
-        $shell = $this->getMock('AclShell', ['in', 'out', 'hr', 'error', 'err', '_stop'], [$out, $out, $in]);
+        $out = $this->getMock(ConsoleOutput::class, [], [], '', false);
+        $in = $this->getMock(ConsoleInput::class, [], [], '', false);
+        $shell = $this->getMock(AclShell::class, ['in', 'out', 'hr', 'error', 'err', '_stop'], [$out, $out, $in]);
         $shell->expects($this->never())->method('error');
         $shell->expects($this->never())->method('_stop');
-        foreach (['DbAcl', 'Cake\\Controller\\Component\\Acl\\DbAcl'] as $class) {
+        foreach (['DbAcl', DbAcl::class] as $class) {
             Configure::write('Acl.classname', $class);
             $shell->startup();
         }
