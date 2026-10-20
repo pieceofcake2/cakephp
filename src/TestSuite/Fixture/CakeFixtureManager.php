@@ -175,18 +175,19 @@ class CakeFixtureManager
                 ];
             }
 
-            $loaded = false;
             $className = Inflector::camelize($fixture);
             foreach ($this->_fixtureNamespaces($fixtureIndex) as $namespace) {
                 $fixtureClass = $namespace . '\\Test\\Fixture\\' . $className . 'Fixture';
                 if (class_exists($fixtureClass)) {
                     $this->_loaded[$fixtureIndex] = new $fixtureClass();
                     $this->_fixtureMap[$className . 'Fixture'] = $this->_loaded[$fixtureIndex];
-                    $loaded = true;
-                    break;
+
+                    continue 2;
                 }
             }
-            foreach ($loaded ? [] : $fixturePaths as $path) {
+
+            $loaded = false;
+            foreach ($fixturePaths as $path) {
                 $className = Inflector::camelize($fixture);
                 if (is_readable($path . DS . $className . 'Fixture.php')) {
                     $fixtureFile = $path . DS . $className . 'Fixture.php';
