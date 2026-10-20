@@ -635,7 +635,9 @@ class App
 
         $file = static::_mapped($className, $plugin);
         if ($file) {
-            return include_once $file;
+            $loaded = include_once $file;
+
+            return class_exists($className, false) ? $loaded : static::_aliasAppClass($className, $package, $plugin);
         }
         $paths = static::path($package, $plugin);
 
@@ -656,8 +658,11 @@ class App
             if (file_exists($file)) {
                 static::_map($file, $className, $plugin);
                 $loaded = include_once $file;
+                if (class_exists($className, false) || !static::_aliasAppClass($className, $package, $plugin)) {
+                    return $loaded;
+                }
 
-                return class_exists($className, false) || !static::_aliasAppClass($className, $package, $plugin) ? $loaded : true;
+                return true;
             }
         }
 
@@ -816,7 +821,6 @@ class App
             return true;
         }
 
-        // A namespaced class, e.g. MyPlugin\Controller\PostsController
         return static::className($plugin . $name, $type) !== null;
     }
 
