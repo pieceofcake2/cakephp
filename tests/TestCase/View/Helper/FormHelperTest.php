@@ -8986,7 +8986,9 @@ class FormHelperTest extends CakeTestCase
         $this->assertStringContainsString($hash, $result, 'Should contain the correct hash.');
 
         $property = new ReflectionProperty($this->Form, '_lastAction');
-        $property->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $property->setAccessible(true);
+        }
 
         $this->assertSame(
             '/basedir/posts/add',
@@ -11492,7 +11494,9 @@ class FormHelperTest extends CakeTestCase
         $this->Form->create('User');
 
         $property = new ReflectionProperty($this->Form, '_lastAction');
-        $property->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $property->setAccessible(true);
+        }
 
         $this->assertSame($here, $property->getValue($this->Form), "_lastAction shouldn't be empty.");
     }
@@ -11512,7 +11516,9 @@ class FormHelperTest extends CakeTestCase
         $this->Form->create('User');
 
         $property = new ReflectionProperty($this->Form, '_lastAction');
-        $property->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $property->setAccessible(true);
+        }
 
         $this->assertSame($here, $property->getValue($this->Form), "_lastAction shouldn't be empty.");
     }
