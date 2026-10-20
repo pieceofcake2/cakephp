@@ -17,16 +17,30 @@
  */
 
 /**
- * Comment Model
+ * Comment class
  *
  * @package       Cake.Test.TestApp.Model
  */
-class Comment extends AppModel
+class Comment extends CakeTestModel
 {
     /**
-     * Table name
+     * name property
      *
      * @var string
      */
-    public $useTable = 'comments';
+    public $name = 'Comment';
+
+    /**
+     * belongsTo property
+     *
+     * @var array
+     */
+    public $belongsTo = ['Article', 'User'];
+
+    /**
+     * hasOne property
+     *
+     * @var array
+     */
+    public $hasOne = ['Attachment' => ['dependent' => true]];
 }

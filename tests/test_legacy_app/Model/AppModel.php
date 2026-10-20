@@ -30,4 +30,33 @@
  */
 class AppModel extends Model
 {
+    /**
+     * findMethods property
+     *
+     * @var array
+     */
+    public $findMethods = ['published' => true];
+
+    /**
+     * useDbConfig property
+     *
+     * @var array
+     */
+    public $useDbConfig = 'test';
+
+    /**
+     * _findPublished custom find
+     *
+     * @return array
+     */
+    protected function _findPublished($state, $query, $results = []): mixed
+    {
+        if ($state === 'before') {
+            $query['conditions']['published'] = 'Y';
+
+            return $query;
+        }
+
+        return $results;
+    }
 }

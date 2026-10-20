@@ -17,11 +17,48 @@
  */
 
 /**
- * Post
+ * Post class
  *
  * @package       Cake.Test.TestApp.Model
  */
-class Post extends AppModel
+class Post extends CakeTestModel
 {
-    public $useTable = 'posts';
+    /**
+     * name property
+     *
+     * @var string
+     */
+    public $name = 'Post';
+
+    /**
+     * belongsTo property
+     *
+     * @var array
+     */
+    public $belongsTo = ['Author'];
+
+    /**
+     * @param array $queryData
+     * @return bool true
+     */
+    public function beforeFind($queryData): mixed
+    {
+        if (isset($queryData['connection'])) {
+            $this->useDbConfig = $queryData['connection'];
+        }
+
+        return true;
+    }
+
+    /**
+     * @param array $results
+     * @param bool $primary
+     * @return array results
+     */
+    public function afterFind($results, $primary = false): mixed
+    {
+        $this->useDbConfig = 'test';
+
+        return $results;
+    }
 }
