@@ -436,4 +436,27 @@ class ClassRegistryTest extends CakeTestCase
         ClassRegistry::addObject('NamespacedPost', new NamespacedComment());
         $this->assertFalse(ClassRegistry::getObject(NamespacedPost::class));
     }
+
+    /**
+     * Test that a fully qualified class name without an alias gives the short class name as the alias,
+     * and that the class name and the alias work as before.
+     *
+     * @return void
+     */
+    public function testInitFullyQualifiedClassNameAlias(): void
+    {
+        $post = ClassRegistry::init(NamespacedPost::class);
+        $this->assertSame('NamespacedPost', $post->alias);
+        $this->assertSame($post, ClassRegistry::getObject('NamespacedPost'));
+        $this->assertSame($post, ClassRegistry::init(['class' => NamespacedPost::class]));
+
+        Configure::write('App.namespace', 'TestApp');
+        $this->assertSame($post, ClassRegistry::init('NamespacedPost'));
+        $this->assertSame($post, ClassRegistry::init(['class' => 'NamespacedPost']));
+
+        $article = ClassRegistry::init(['class' => NamespacedPost::class, 'alias' => 'Article']);
+        $this->assertSame('Article', $article->alias);
+        $this->assertNotSame($post, $article);
+        $this->assertSame($article, ClassRegistry::getObject('Article'));
+    }
 }
