@@ -1,5 +1,7 @@
 <?php
 
+App::uses('AppController', 'Controller');
+
 /**
  * Controller with SecurityComponent used by IntegrationTestTraitTest.
  *

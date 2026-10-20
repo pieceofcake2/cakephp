@@ -1,6 +1,7 @@
 <?php
 
 App::uses('CakeEmail', 'Network/Email');
+App::uses('AppController', 'Controller');
 
 /**
  * Controller used by IntegrationTestTraitTest.

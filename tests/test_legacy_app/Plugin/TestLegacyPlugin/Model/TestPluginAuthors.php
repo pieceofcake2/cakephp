@@ -16,6 +16,8 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+App::uses('TestLegacyPluginAppModel', 'TestLegacyPlugin.Model');
+
 /**
  * TestPluginAuthors
  *
