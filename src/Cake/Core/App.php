@@ -610,7 +610,7 @@ class App
 
         $file = static::_mapped($className, $plugin);
         if ($file) {
-            return include $file;
+            return include_once $file;
         }
         $paths = static::path($package, $plugin);
 
@@ -630,12 +630,37 @@ class App
             $file = $path . $normalizedClassName . '.php';
             if (file_exists($file)) {
                 static::_map($file, $className, $plugin);
+                $loaded = include_once $file;
 
-                return include $file;
+                return class_exists($className, false) || !static::_aliasAppClass($className, $package, $plugin) ? $loaded : true;
             }
         }
 
-        return false;
+        return static::_aliasAppClass($className, $package, $plugin);
+    }
+
+    /**
+     * Declares the global name of an application base class (AppController, AppModel, AppHelper or AppShell)
+     * for the class of the same name in App.namespace, e.g. AppController for App\Controller\AppController,
+     * so that the core classes that extend it work in a namespaced application.
+     *
+     * @param string $className The global class name
+     * @param string $package The package of the class, e.g. Controller
+     * @param string|null $plugin The plugin name
+     * @return bool Whether the global name is declared
+     */
+    protected static function _aliasAppClass($className, $package, $plugin)
+    {
+        $appNamespace = Configure::read('App.namespace');
+        if ($plugin || !$appNamespace || !in_array($className, ['AppController', 'AppModel', 'AppHelper', 'AppShell'], true)) {
+            return false;
+        }
+        $namespaced = trim($appNamespace, '\\') . '\\' . str_replace('/', '\\', $package) . '\\' . $className;
+        if (!class_exists($namespaced)) {
+            return false;
+        }
+
+        return class_alias($namespaced, $className);
     }
 
     /**
@@ -762,8 +787,12 @@ class App
         }
         $name = Inflector::camelize($name);
         App::uses($name, $plugin . $type);
+        if (class_exists($name)) {
+            return true;
+        }
 
-        return class_exists($name);
+        // A namespaced class, e.g. MyPlugin\Controller\PostsController
+        return static::className($plugin . $name, $type) !== null;
     }
 
     /**
