@@ -823,7 +823,7 @@ class FormHelperTest extends CakeTestCase
      */
     public function testTextFieldGenerationForFloats(): void
     {
-        $model = ClassRegistry::getObject('Contact');
+        $model = ClassRegistry::getObject(Contact::class);
         $model->setSchema(['foo' => [
             'type' => 'float',
             'null' => false,
@@ -898,7 +898,7 @@ class FormHelperTest extends CakeTestCase
      */
     public function testTextFieldTypeNumberGenerationForIntegers(): void
     {
-        $model = ClassRegistry::getObject('Contact');
+        $model = ClassRegistry::getObject(Contact::class);
         $model->setSchema(['foo' => [
             'type' => 'integer',
             'null' => false,
@@ -929,7 +929,7 @@ class FormHelperTest extends CakeTestCase
      */
     public function testFileUploadFieldTypeGenerationForBinaries(): void
     {
-        $model = ClassRegistry::getObject('Contact');
+        $model = ClassRegistry::getObject(Contact::class);
         $model->setSchema(['foo' => [
             'type' => 'binary',
             'null' => false,
@@ -2112,7 +2112,7 @@ class FormHelperTest extends CakeTestCase
      */
     public function testTagIsInvalid(): void
     {
-        $Contact = ClassRegistry::getObject('Contact');
+        $Contact = ClassRegistry::getObject(Contact::class);
         $Contact->validationErrors[0]['email'] = $expected = ['Please provide an email'];
 
         $this->Form->setEntity('Contact.0.email');
@@ -2135,7 +2135,7 @@ class FormHelperTest extends CakeTestCase
      */
     public function testTagIsInvalidSaveMany(): void
     {
-        $Contact = ClassRegistry::getObject('Contact');
+        $Contact = ClassRegistry::getObject(Contact::class);
         $Contact->validationErrors[0]['email'] = $expected = ['Please provide an email'];
 
         $this->Form->create('Contact');
@@ -2156,7 +2156,7 @@ class FormHelperTest extends CakeTestCase
      */
     public function testPasswordValidation(): void
     {
-        $Contact = ClassRegistry::getObject('Contact');
+        $Contact = ClassRegistry::getObject(Contact::class);
         $Contact->validationErrors['password'] = ['Please provide a password'];
 
         $result = $this->Form->input('Contact.password');
@@ -2198,7 +2198,7 @@ class FormHelperTest extends CakeTestCase
      */
     public function testPasswordValidationWithOptions(): void
     {
-        $Contact = ClassRegistry::getObject('Contact');
+        $Contact = ClassRegistry::getObject(Contact::class);
         $Contact->validationErrors['password'] = ['Please provide a password'];
 
         $result = $this->Form->input('Contact.password', [
@@ -2339,8 +2339,8 @@ class FormHelperTest extends CakeTestCase
      */
     public function testFormValidationAssociated(): void
     {
-        $this->UserForm = ClassRegistry::getObject('UserForm');
-        $this->UserForm->OpenidUrl = ClassRegistry::getObject('OpenidUrl');
+        $this->UserForm = ClassRegistry::getObject(UserForm::class);
+        $this->UserForm->OpenidUrl = ClassRegistry::getObject(OpenidUrl::class);
 
         $data = [
             'UserForm' => ['name' => 'user'],
@@ -2385,8 +2385,8 @@ class FormHelperTest extends CakeTestCase
      */
     public function testFormValidationAssociatedFirstLevel(): void
     {
-        $this->ValidateUser = ClassRegistry::getObject('ValidateUser');
-        $this->ValidateUser->ValidateProfile = ClassRegistry::getObject('ValidateProfile');
+        $this->ValidateUser = ClassRegistry::getObject(ValidateUser::class);
+        $this->ValidateUser->ValidateProfile = ClassRegistry::getObject(ValidateProfile::class);
 
         $data = [
             'ValidateUser' => ['name' => 'mariano'],
@@ -2442,9 +2442,9 @@ class FormHelperTest extends CakeTestCase
      */
     public function testFormValidationAssociatedSecondLevel(): void
     {
-        $this->ValidateUser = ClassRegistry::getObject('ValidateUser');
-        $this->ValidateUser->ValidateProfile = ClassRegistry::getObject('ValidateProfile');
-        $this->ValidateUser->ValidateProfile->ValidateItem = ClassRegistry::getObject('ValidateItem');
+        $this->ValidateUser = ClassRegistry::getObject(ValidateUser::class);
+        $this->ValidateUser->ValidateProfile = ClassRegistry::getObject(ValidateProfile::class);
+        $this->ValidateUser->ValidateProfile->ValidateItem = ClassRegistry::getObject(ValidateItem::class);
 
         $data = [
             'ValidateUser' => ['name' => 'mariano'],
@@ -2509,7 +2509,7 @@ class FormHelperTest extends CakeTestCase
      */
     public function testFormValidationMultiRecord(): void
     {
-        $Contact = ClassRegistry::getObject('Contact');
+        $Contact = ClassRegistry::getObject(Contact::class);
         $Contact->validationErrors[2] = [
             'name' => ['This field cannot be left blank'],
         ];
@@ -2799,7 +2799,7 @@ class FormHelperTest extends CakeTestCase
 
         $this->Form->request->data = [];
 
-        $contact = ClassRegistry::getObject('Contact');
+        $contact = ClassRegistry::getObject(Contact::class);
         $contact->validationErrors['field'] = ['Badness!'];
         $result = $this->Form->input('Contact.field');
         $expected = [
@@ -4181,7 +4181,7 @@ class FormHelperTest extends CakeTestCase
         $this->assertStringContainsString('data[TestPluginPost][id]', $result);
         $this->assertStringContainsString('data[TestPluginPost][author_id]', $result);
         $this->assertStringContainsString('data[TestPluginPost][title]', $result);
-        $this->assertTrue(ClassRegistry::isKeySet('TestPluginPost'));
+        $this->assertTrue(ClassRegistry::isKeySet(TestPluginPost::class));
         $this->assertFalse(ClassRegistry::isKeySet('TestPlugin'));
         $this->assertEquals('TestPluginPost', $this->Form->model());
     }
@@ -4290,7 +4290,7 @@ class FormHelperTest extends CakeTestCase
         $result = $this->Form->text('Model.text');
         $this->assertTags($result, ['input' => ['type' => 'text', 'name' => 'data[Model][text]', 'value' => 'test &lt;strong&gt;HTML&lt;/strong&gt; values', 'id' => 'ModelText']]);
 
-        $Contact = ClassRegistry::getObject('Contact');
+        $Contact = ClassRegistry::getObject(Contact::class);
         $Contact->validationErrors['text'] = [true];
         $this->Form->request->data['Contact']['text'] = 'test';
         $result = $this->Form->text('Contact.text', ['id' => 'theID']);
@@ -4357,7 +4357,7 @@ class FormHelperTest extends CakeTestCase
      */
     public function testError(): void
     {
-        $Contact = ClassRegistry::getObject('Contact');
+        $Contact = ClassRegistry::getObject(Contact::class);
         $Contact->validationErrors['field'] = [1];
         $result = $this->Form->error('Contact.field');
         $this->assertTags($result, ['div' => ['class' => 'error-message'], 'Error in field Field', '/div']);
@@ -4462,7 +4462,7 @@ class FormHelperTest extends CakeTestCase
     public function testInputErrorEscape(): void
     {
         $this->Form->create('ValidateProfile');
-        $ValidateProfile = ClassRegistry::getObject('ValidateProfile');
+        $ValidateProfile = ClassRegistry::getObject(ValidateProfile::class);
         $ValidateProfile->validationErrors['city'] = ['required<br>'];
         $result = $this->Form->input('city', ['error' => ['attributes' => ['escape' => true]]]);
         $this->assertMatchesRegularExpression('/required&lt;br&gt;/', $result);
@@ -4480,7 +4480,7 @@ class FormHelperTest extends CakeTestCase
      */
     public function testPassword(): void
     {
-        $Contact = ClassRegistry::getObject('Contact');
+        $Contact = ClassRegistry::getObject(Contact::class);
         $result = $this->Form->password('Contact.field');
         $this->assertTags($result, ['input' => ['type' => 'password', 'name' => 'data[Contact][field]', 'id' => 'ContactField']]);
 
@@ -6501,7 +6501,7 @@ class FormHelperTest extends CakeTestCase
         ]);
         $this->assertTags($result, $expected);
 
-        $Contact = ClassRegistry::getObject('Contact');
+        $Contact = ClassRegistry::getObject(Contact::class);
         $Contact->validationErrors['tags'] = 'Select atleast one option';
         $result = $this->Form->input('Contact.tags', [
             'options' => ['one'],
@@ -6874,7 +6874,7 @@ class FormHelperTest extends CakeTestCase
         ];
         $this->assertTags($result, $expected);
 
-        $Contact = ClassRegistry::getObject('Contact');
+        $Contact = ClassRegistry::getObject(Contact::class);
         $Contact->validationErrors['field'] = 1;
         $this->Form->request->data['Contact']['field'] = 'myvalue';
         $result = $this->Form->checkbox('Contact.field', ['id' => 'theID', 'value' => 'myvalue']);
@@ -8685,7 +8685,7 @@ class FormHelperTest extends CakeTestCase
      */
     public function testHiddenField(): void
     {
-        $Contact = ClassRegistry::getObject('Contact');
+        $Contact = ClassRegistry::getObject(Contact::class);
         $Contact->validationErrors['field'] = 1;
         $this->Form->request->data['Contact']['field'] = 'test';
         $result = $this->Form->hidden('Contact.field', ['id' => 'theID']);
@@ -10333,7 +10333,7 @@ class FormHelperTest extends CakeTestCase
      */
     public function testFormInputRequiredDetectionModelValidator(): void
     {
-        ClassRegistry::getObject('ContactTag')->validator()->add('iwillberequired', 'required', ['rule' => 'notBlank']);
+        ClassRegistry::getObject(ContactTag::class)->validator()->add('iwillberequired', 'required', ['rule' => 'notBlank']);
 
         $this->Form->create('ContactTag');
         $result = $this->Form->input('ContactTag.iwillberequired');
@@ -11023,7 +11023,7 @@ class FormHelperTest extends CakeTestCase
         ];
         $this->assertTags($result, $expected);
 
-        $ValidateProfile = ClassRegistry::getObject('ValidateProfile');
+        $ValidateProfile = ClassRegistry::getObject(ValidateProfile::class);
         $ValidateProfile->validationErrors[1]['ValidateItem'][2]['profile_id'] = 'Error';
         $this->Form->request->data['ValidateProfile'][1]['ValidateItem'][2]['profile_id'] = '1';
         $result = $this->Form->input('ValidateProfile.1.ValidateItem.2.profile_id');
@@ -11054,7 +11054,7 @@ class FormHelperTest extends CakeTestCase
     public function testMultiRecordFormValidationErrors(): void
     {
         $this->Form->create('ValidateProfile');
-        $ValidateProfile = ClassRegistry::getObject('ValidateProfile');
+        $ValidateProfile = ClassRegistry::getObject(ValidateProfile::class);
         $ValidateProfile->validationErrors[2]['ValidateItem'][1]['name'] = ['Error in field name'];
         $result = $this->Form->error('ValidateProfile.2.ValidateItem.1.name');
         $this->assertTags($result, ['div' => ['class' => 'error-message'], 'Error in field name', '/div']);
@@ -11075,7 +11075,7 @@ class FormHelperTest extends CakeTestCase
     public function testSaveManyRecordFormValidationErrors(): void
     {
         $this->Form->create('ValidateUser');
-        $ValidateUser = ClassRegistry::getObject('ValidateUser');
+        $ValidateUser = ClassRegistry::getObject(ValidateUser::class);
         $ValidateUser->validationErrors[0]['ValidateItem']['name'] = ['Error in field name'];
 
         $result = $this->Form->error('0.ValidateUser.ValidateItem.name');
@@ -11246,10 +11246,10 @@ class FormHelperTest extends CakeTestCase
         CakePlugin::load('TestPlugin');
         $this->Form->request['models'] = ['TestPluginPost' => ['plugin' => 'TestPlugin', 'className' => 'TestPluginPost']];
 
-        $this->assertFalse(ClassRegistry::isKeySet('TestPluginPost'));
+        $this->assertFalse(ClassRegistry::isKeySet(TestPluginPost::class));
         $this->Form->create('TestPluginPost');
-        $this->assertTrue(ClassRegistry::isKeySet('TestPluginPost'));
-        $this->assertInstanceOf(TestPluginPost::class, ClassRegistry::getObject('TestPluginPost'));
+        $this->assertTrue(ClassRegistry::isKeySet(TestPluginPost::class));
+        $this->assertInstanceOf(TestPluginPost::class, ClassRegistry::getObject(TestPluginPost::class));
 
         CakePlugin::unload();
         App::build();
@@ -11534,7 +11534,7 @@ class FormHelperTest extends CakeTestCase
      */
     public function testInputErrorClass(): void
     {
-        $Contact = ClassRegistry::getObject('Contact');
+        $Contact = ClassRegistry::getObject(Contact::class);
         $Contact->validationErrors['field'] = ['Badness!'];
 
         $result = $this->Form->input('Contact.field', [

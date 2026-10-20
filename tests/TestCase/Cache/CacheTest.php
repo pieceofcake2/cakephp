@@ -20,6 +20,8 @@
 namespace Cake\Test\TestCase\Cache;
 
 use Cake\Cache\Cache;
+use Cake\Cache\CacheEngine;
+use Cake\Cache\Engine\MemcachedEngine;
 use Cake\Core\App;
 use Cake\Core\CakePlugin;
 use Cake\Core\Configure;
@@ -633,10 +635,10 @@ class CacheTest extends CakeTestCase
     public function testEngineSuccess(): void
     {
         $actual = Cache::engine();
-        $this->assertInstanceOf('CacheEngine', $actual);
+        $this->assertInstanceOf(CacheEngine::class, $actual);
 
         $actual = Cache::engine('default');
-        $this->assertInstanceOf('CacheEngine', $actual);
+        $this->assertInstanceOf(CacheEngine::class, $actual);
     }
 
     /**
@@ -661,7 +663,7 @@ class CacheTest extends CakeTestCase
         ]);
 
         $actual = Cache::engine('memcached');
-        $this->assertInstanceOf('MemcachedEngine', $actual);
+        $this->assertInstanceOf(MemcachedEngine::class, $actual);
 
         $this->assertTrue($actual->add('test_add_key', 'test data', 10));
         $this->assertFalse($actual->add('test_add_key', 'test data', 10));
@@ -692,7 +694,7 @@ class CacheTest extends CakeTestCase
      */
     public function testBaseEngineAdd(): void
     {
-        $engine = $this->getMockForAbstractClass('CacheEngine');
+        $engine = $this->getMockForAbstractClass(CacheEngine::class);
 
         $this->assertNull($engine->add('key', 'value', 10));
     }

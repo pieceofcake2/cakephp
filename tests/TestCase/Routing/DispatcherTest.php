@@ -852,7 +852,7 @@ class DispatcherTest extends CakeTestCase
 
         $Dispatcher = new TestDispatcher();
         $url = new CakeRequest('test_plugin.tests/index');
-        $response = $this->getMock('CakeResponse');
+        $response = $this->getMock(CakeResponse::class);
 
         $Dispatcher->dispatch($url, $response, ['return' => 1]);
     }
@@ -1901,7 +1901,7 @@ class DispatcherTest extends CakeTestCase
      */
     public function testBaseDispatcherFilterBeforeDispatch(): void
     {
-        $filter = $this->getMockForAbstractClass('DispatcherFilter');
+        $filter = $this->getMockForAbstractClass(DispatcherFilter::class);
         $event = new CakeEvent('Dispatcher.beforeDispatch', $this);
 
         $this->assertNull($filter->beforeDispatch($event));
@@ -1918,7 +1918,7 @@ class DispatcherTest extends CakeTestCase
         Router::connect('/:controller/:action/*');
         $Dispatcher = new TestDispatcher();
         $url = new CakeRequest('namespaced/index');
-        $response = $this->getMock('CakeResponse');
+        $response = $this->getMock(CakeResponse::class);
 
         $Dispatcher->dispatch($url, $response, ['return' => 1]);
         $this->assertInstanceOf(NamespacedController::class, $Dispatcher->controller);
@@ -1937,7 +1937,7 @@ class DispatcherTest extends CakeTestCase
             Configure::write('Dispatcher.filters', [$filter]);
             NamespacedFilter::$called = false;
             $dispatcher = new TestDispatcher();
-            $response = $this->getMock('CakeResponse', ['send']);
+            $response = $this->getMock(CakeResponse::class, ['send']);
             $dispatcher->dispatch(new CakeRequest('/'), $response, ['return' => 1]);
             $this->assertTrue(NamespacedFilter::$called, $filter);
         }
@@ -1955,7 +1955,7 @@ class DispatcherTest extends CakeTestCase
             Configure::write('Dispatcher.filters', [$filter => ['service' => 'google.com']]);
             NamespacedFilter::$calledSettings = [];
             $dispatcher = new TestDispatcher();
-            $response = $this->getMock('CakeResponse', ['send']);
+            $response = $this->getMock(CakeResponse::class, ['send']);
             $dispatcher->dispatch(new CakeRequest('/'), $response, ['return' => 1]);
             $this->assertSame('google.com', NamespacedFilter::$calledSettings['service'] ?? null, $filter);
         }

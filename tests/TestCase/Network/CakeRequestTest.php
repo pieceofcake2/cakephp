@@ -23,6 +23,7 @@ use Cake\Error\CakeException;
 use Cake\Error\MethodNotAllowedException;
 use Cake\Network\CakeRequest;
 use Cake\TestSuite\CakeTestCase;
+use DOMDocument;
 
 /**
  * TestCakeRequest
@@ -2331,7 +2332,7 @@ class CakeRequestTest extends CakeTestCase
             'action' => 'index',
         ]);
 
-        $this->assertInstanceOf('CakeRequest', $request->param('some', 'thing'), 'Method has not returned $this');
+        $this->assertInstanceOf(CakeRequest::class, $request->param('some', 'thing'), 'Method has not returned $this');
 
         $request->param('Post.null', null);
         $this->assertNull($request->params['Post']['null']);
@@ -2500,7 +2501,7 @@ XML;
             ->will($this->returnValue($xml));
 
         $result = $request->input('Xml::build', ['return' => 'domdocument']);
-        $this->assertInstanceOf('DOMDocument', $result);
+        $this->assertInstanceOf(DOMDocument::class, $result);
         $this->assertEquals(
             'Test',
             $result->getElementsByTagName('title')->item(0)->childNodes->item(0)->wholeText,
@@ -2573,7 +2574,7 @@ XML;
             $this->assertEquals(['Allow' => 'POST, DELETE'], $e->responseHeader());
         }
 
-        $this->expectException('MethodNotAllowedException');
+        $this->expectException(MethodNotAllowedException::class);
         $request->allowMethod('POST');
     }
 

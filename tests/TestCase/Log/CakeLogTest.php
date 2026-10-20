@@ -24,6 +24,7 @@ use Cake\Core\CakePlugin;
 use Cake\Core\Configure;
 use Cake\Error\CakeLogException;
 use Cake\Log\CakeLog;
+use Cake\Log\Engine\FileLog;
 use Cake\TestSuite\CakeTestCase;
 use TestApp\Log\Engine\NamespacedLog;
 
@@ -115,7 +116,7 @@ class CakeLogTest extends CakeTestCase
     {
         CakeLog::config('valid', ['engine' => 'File']);
         $stream = CakeLog::stream('valid');
-        $this->assertInstanceOf('FileLog', $stream);
+        $this->assertInstanceOf(FileLog::class, $stream);
         CakeLog::drop('valid');
     }
 
@@ -128,7 +129,7 @@ class CakeLogTest extends CakeTestCase
     {
         CakeLog::config('valid', ['engine' => 'FileLog']);
         $stream = CakeLog::stream('valid');
-        $this->assertInstanceOf('FileLog', $stream);
+        $this->assertInstanceOf(FileLog::class, $stream);
         CakeLog::drop('valid');
     }
 

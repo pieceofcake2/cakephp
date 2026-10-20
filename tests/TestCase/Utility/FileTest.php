@@ -137,7 +137,7 @@ class FileTest extends CakeTestCase
         $this->assertEquals($expecting, $result);
 
         $result = $this->File->Folder();
-        $this->assertInstanceOf('Folder', $result);
+        $this->assertInstanceOf(Folder::class, $result);
     }
 
     /**

@@ -2064,7 +2064,7 @@ class ModelValidationTest extends BaseModelTest
             if ($i === 2) {
                 $this->assertEquals('body', $field);
             }
-            $this->assertInstanceOf('CakeValidationSet', $rules);
+            $this->assertInstanceOf(CakeValidationSet::class, $rules);
             $i++;
         }
         $this->assertEquals(3, $i);

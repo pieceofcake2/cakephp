@@ -598,7 +598,7 @@ class RequestHandlerComponentTest extends CakeTestCase
     public function testRespondAsWithAttachment(): void
     {
         $this->RequestHandler = $this->getMock(
-            'RequestHandlerComponent',
+            RequestHandlerComponent::class,
             ['_header'],
             [&$this->Controller->Components],
         );

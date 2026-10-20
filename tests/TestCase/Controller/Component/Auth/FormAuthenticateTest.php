@@ -18,6 +18,7 @@
 namespace Cake\Test\TestCase\Controller\Component\Auth;
 
 use Cake\Cache\Cache;
+use Cake\Controller\Component\Auth\BlowfishPasswordHasher;
 use Cake\Controller\Component\Auth\FormAuthenticate;
 use Cake\Controller\ComponentCollection;
 use Cake\Core\App;
@@ -153,7 +154,7 @@ class FormAuthenticateTest extends CakeTestCase
             ]];
 
         $this->auth = $this->getMock(
-            'FormAuthenticate',
+            FormAuthenticate::class,
             ['_checkFields'],
             [
                 $this->Collection,
@@ -389,6 +390,6 @@ class FormAuthenticateTest extends CakeTestCase
         $this->assertInstanceOf(NamespacedPasswordHasher::class, $auth->passwordHasher());
 
         $auth = new FormAuthenticate($this->Collection, ['passwordHasher' => 'Blowfish']);
-        $this->assertInstanceOf('BlowfishPasswordHasher', $auth->passwordHasher());
+        $this->assertInstanceOf(BlowfishPasswordHasher::class, $auth->passwordHasher());
     }
 }

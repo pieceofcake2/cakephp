@@ -307,7 +307,7 @@ class TimeHelperTest extends CakeTestCase
         $this->assertInstanceOf(NamespacedTime::class, $this->getEngine($Helper));
 
         $Helper = new TimeHelper($View);
-        $this->assertInstanceOf('CakeTime', $this->getEngine($Helper));
+        $this->assertInstanceOf(CakeTime::class, $this->getEngine($Helper));
     }
 
     /**

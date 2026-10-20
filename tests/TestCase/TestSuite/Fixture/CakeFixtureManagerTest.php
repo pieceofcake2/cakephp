@@ -23,6 +23,7 @@ use Cake\Core\App;
 use Cake\Core\CakePlugin;
 use Cake\Core\Configure;
 use Cake\Model\ConnectionManager;
+use Cake\Model\Datasource\DboSource;
 use Cake\Test\Fixture\UuidFixture;
 use Cake\TestSuite\CakeTestCase;
 use Cake\TestSuite\Fixture\CakeFixtureManager;
@@ -138,7 +139,7 @@ class CakeFixtureManagerTest extends CakeTestCase
         $fixtureMapProperty->setValue($fixtureManager, ['UuidFixture' => $MockFixture]);
 
         $dboMethods = array_diff(get_class_methods('DboSource'), ['enabled']);
-        $db = $this->getMock('DboSource', $dboMethods);
+        $db = $this->getMock(DboSource::class, $dboMethods);
         $db->config['prefix'] = '';
         $db->expects($this->any())
             ->method('listSources')

@@ -21,7 +21,10 @@ namespace Cake\Test\TestCase\Controller\Component;
 
 use Cake\Controller\Component\Auth\BaseAuthenticate;
 use Cake\Controller\Component\Auth\BaseAuthorize;
+use Cake\Controller\Component\Auth\BlowfishPasswordHasher;
+use Cake\Controller\Component\Auth\ControllerAuthorize;
 use Cake\Controller\Component\Auth\FormAuthenticate;
+use Cake\Controller\Component\Auth\SimplePasswordHasher;
 use Cake\Controller\Component\AuthComponent;
 use Cake\Controller\Component\FlashComponent;
 use Cake\Controller\Component\SessionComponent;
@@ -778,11 +781,11 @@ class AuthComponentTest extends CakeTestCase
         $objects = $this->Controller->Auth->constructAuthenticate();
         $this->assertEquals(2, count($objects));
 
-        $this->assertInstanceOf('FormAuthenticate', $objects[0]);
-        $this->assertInstanceOf('FormAuthenticate', $objects[1]);
+        $this->assertInstanceOf(FormAuthenticate::class, $objects[0]);
+        $this->assertInstanceOf(FormAuthenticate::class, $objects[1]);
 
-        $this->assertInstanceOf('SimplePasswordHasher', $objects[0]->passwordHasher());
-        $this->assertInstanceOf('BlowfishPasswordHasher', $objects[1]->passwordHasher());
+        $this->assertInstanceOf(SimplePasswordHasher::class, $objects[0]->passwordHasher());
+        $this->assertInstanceOf(BlowfishPasswordHasher::class, $objects[1]->passwordHasher());
     }
 
     /**
@@ -1169,7 +1172,7 @@ class AuthComponentTest extends CakeTestCase
             [$CakeRequest, $CakeResponse],
         );
         $this->Auth->Flash = $this->getMock(
-            'FlashComponent',
+            FlashComponent::class,
             ['set'],
             [$Controller->Components],
         );
@@ -1209,7 +1212,7 @@ class AuthComponentTest extends CakeTestCase
             [$CakeRequest, $CakeResponse],
         );
         $this->Auth->Flash = $this->getMock(
-            'FlashComponent',
+            FlashComponent::class,
             ['set'],
             [$Controller->Components],
         );
@@ -1410,7 +1413,7 @@ class AuthComponentTest extends CakeTestCase
 
         Router::setRequestInfo($this->Auth->request);
 
-        $this->Controller->response = $this->getMock('CakeResponse', ['_sendHeader']);
+        $this->Controller->response = $this->getMock(CakeResponse::class, ['_sendHeader']);
 
         $sendHeaderCalls = [];
         $this->Controller->response->expects($this->exactly(3))
@@ -2055,11 +2058,11 @@ class AuthComponentTest extends CakeTestCase
         $this->Auth->authenticate = ['TestApp\Controller\Component\Auth\Namespaced', 'Form'];
         $result = $this->Auth->constructAuthenticate();
         $this->assertInstanceOf(NamespacedAuthenticate::class, $result[0]);
-        $this->assertInstanceOf('FormAuthenticate', $result[1]);
+        $this->assertInstanceOf(FormAuthenticate::class, $result[1]);
 
         $this->Auth->authorize = ['TestApp\Controller\Component\Auth\Namespaced', 'Controller'];
         $result = $this->Auth->constructAuthorize();
         $this->assertInstanceOf(NamespacedAuthorize::class, $result[0]);
-        $this->assertInstanceOf('ControllerAuthorize', $result[1]);
+        $this->assertInstanceOf(ControllerAuthorize::class, $result[1]);
     }
 }

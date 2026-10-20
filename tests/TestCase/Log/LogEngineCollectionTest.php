@@ -19,6 +19,7 @@
 namespace Cake\Test\TestCase\Log;
 
 use Cake\Error\CakeLogException;
+use Cake\Log\CakeLogInterface;
 use Cake\Log\Engine\FileLog;
 use Cake\Log\LogEngineCollection;
 use Cake\TestSuite\CakeTestCase;
@@ -60,7 +61,7 @@ class LogEngineCollectionTest extends CakeTestCase
     public function testLoad(): void
     {
         $result = $this->Collection->load('key', ['engine' => 'File']);
-        $this->assertInstanceOf('CakeLogInterface', $result);
+        $this->assertInstanceOf(CakeLogInterface::class, $result);
     }
 
     /**
@@ -71,7 +72,7 @@ class LogEngineCollectionTest extends CakeTestCase
     public function testLoadWithSuffix(): void
     {
         $result = $this->Collection->load('key', ['engine' => 'FileLog']);
-        $this->assertInstanceOf('CakeLogInterface', $result);
+        $this->assertInstanceOf(CakeLogInterface::class, $result);
     }
 
     /**
@@ -82,7 +83,7 @@ class LogEngineCollectionTest extends CakeTestCase
     public function testLoadWithSuffixAtBeginning(): void
     {
         $result = $this->Collection->load('key', ['engine' => 'LoggerEngine']);
-        $this->assertInstanceOf('CakeLogInterface', $result);
+        $this->assertInstanceOf(CakeLogInterface::class, $result);
     }
 
     /**
@@ -94,6 +95,6 @@ class LogEngineCollectionTest extends CakeTestCase
     {
         $this->expectException(CakeLogException::class);
         $result = $this->Collection->load('key', ['engine' => 'ImaginaryFile']);
-        $this->assertInstanceOf('CakeLogInterface', $result);
+        $this->assertInstanceOf(CakeLogInterface::class, $result);
     }
 }

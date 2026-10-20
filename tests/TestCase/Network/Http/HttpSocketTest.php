@@ -1936,7 +1936,7 @@ class HttpSocketTest extends CakeTestCase
             ->will($this->onConsecutiveCalls($serverResponse, false));
 
         $response = $this->Socket->request('http://www.cakephp.org/');
-        $this->assertInstanceOf('HttpSocketResponse', $response);
+        $this->assertInstanceOf(HttpSocketResponse::class, $response);
         $expected = [
             'http-version' => 'HTTP/1.1',
             'code' => $code,

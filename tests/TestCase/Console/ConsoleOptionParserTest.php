@@ -639,7 +639,7 @@ TEXT;
     public function testCreateFactory(): void
     {
         $parser = ConsoleOptionParser::create('factory', false);
-        $this->assertInstanceOf('ConsoleOptionParser', $parser);
+        $this->assertInstanceOf(ConsoleOptionParser::class, $parser);
         $this->assertEquals('factory', $parser->command());
     }
 

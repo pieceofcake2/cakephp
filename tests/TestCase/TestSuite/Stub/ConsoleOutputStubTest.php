@@ -15,6 +15,7 @@
 
 namespace Cake\Test\TestCase\TestSuite\Stub;
 
+use Cake\Console\ConsoleOutput;
 use Cake\TestSuite\CakeTestCase;
 use Cake\TestSuite\Stub\ConsoleOutputStub;
 
@@ -42,7 +43,7 @@ class ConsoleOutputStubTest extends CakeTestCase
      */
     public function testCanActAsConsoleOutput(): void
     {
-        $this->assertInstanceOf('ConsoleOutput', $this->stub);
+        $this->assertInstanceOf(ConsoleOutput::class, $this->stub);
     }
 
     /**

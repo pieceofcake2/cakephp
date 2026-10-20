@@ -535,7 +535,7 @@ class CakeTestCaseTest extends CakeTestCase
         $Mock = $this->getMockForModel('Model', ['save', 'setDataSource'], ['name' => 'Comment']);
 
         $result = ClassRegistry::init('Comment');
-        $this->assertInstanceOf('Model', $result);
+        $this->assertInstanceOf(Model::class, $result);
 
         $Mock->expects($this->exactly(2))
             ->method('save')

@@ -1039,7 +1039,7 @@ class CakeRouteTest extends CakeTestCase
                 'server' => 'server_name',
             ],
         ]);
-        $this->assertInstanceOf('CakeRoute', $route);
+        $this->assertInstanceOf(CakeRoute::class, $route);
         $this->assertSame('/', $route->match(['controller' => 'pages', 'action' => 'display', 'home']));
         $this->assertFalse($route->match(['controller' => 'pages', 'action' => 'display', 'about']));
         $expected = ['controller' => 'pages', 'action' => 'display', 'pass' => ['home'], 'named' => []];

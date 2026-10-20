@@ -104,7 +104,7 @@ class MailTransportTest extends CakeTestCase
      */
     public function testSendStripsLineBreaksFromHeaders(): void
     {
-        $email = $this->getMock('CakeEmail', ['message'], []);
+        $email = $this->getMock(CakeEmail::class, ['message'], []);
         $email->from('noreply@cakephp.org', 'CakePHP Test');
         $email->to('cake@cakephp.org', 'CakePHP');
         $email->messageID('<4d9946cf-0a44-4907-88fe-1d0ccbdd56cb@localhost>');

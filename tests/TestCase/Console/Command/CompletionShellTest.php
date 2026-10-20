@@ -20,6 +20,8 @@
 
 namespace Cake\Test\TestCase\Console\Command;
 
+use Cake\Console\Command\CompletionShell;
+use Cake\Console\Command\Task\CommandTask;
 use Cake\Console\ConsoleInput;
 use Cake\Console\ConsoleOutput;
 use Cake\Core\App;
@@ -77,13 +79,13 @@ class CompletionShellTest extends CakeTestCase
         $in = $this->getMock(ConsoleInput::class, [], [], '', false);
 
         $this->Shell = $this->getMock(
-            'CompletionShell',
+            CompletionShell::class,
             ['in', '_stop', 'clear'],
             [$out, $out, $in],
         );
 
         $this->Shell->Command = $this->getMock(
-            'CommandTask',
+            CommandTask::class,
             ['in', '_stop', 'clear'],
             [$out, $out, $in],
         );

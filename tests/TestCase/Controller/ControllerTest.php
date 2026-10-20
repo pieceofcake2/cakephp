@@ -35,6 +35,7 @@ use Cake\TestSuite\CakeTestCase;
 use Cake\TestSuite\Fixture\CakeTestModel;
 use Cake\Utility\ClassRegistry;
 use Cake\Utility\Hash;
+use Cake\View\JsonView;
 use ReflectionMethod;
 use RuntimeException;
 use TestApp\Controller\NamespacedController;
@@ -621,7 +622,7 @@ class ControllerTest extends CakeTestCase
         App::build([
             'View' => [CORE_ROOT . DS . 'templates' . DS],
         ], App::RESET);
-        $Controller = new Controller($request, $this->getMock('CakeResponse', ['_sendHeader']));
+        $Controller = new Controller($request, $this->getMock(CakeResponse::class, ['_sendHeader']));
         $Controller->flash('this should work', '/flash');
         $result = $Controller->response->body();
 
@@ -794,7 +795,7 @@ class ControllerTest extends CakeTestCase
         $Controller->components = ['Test2'];
         $Controller->constructClasses();
         $result = $Controller->render('index');
-        $this->assertInstanceOf('CakeResponse', $result);
+        $this->assertInstanceOf(CakeResponse::class, $result);
     }
 
     /**
@@ -1367,7 +1368,7 @@ class ControllerTest extends CakeTestCase
         $eventManager->expects($this->exactly(2))
             ->method('dispatch')
             ->willReturnCallback(function ($event) use (&$dispatchedEvents, $controller) {
-                $this->assertInstanceOf('CakeEvent', $event);
+                $this->assertInstanceOf(CakeEvent::class, $event);
                 $this->assertSame($controller, $event->subject());
                 $dispatchedEvents[] = $event->name();
 
@@ -1702,7 +1703,7 @@ class ControllerTest extends CakeTestCase
         $Controller->viewClass = 'Namespaced';
         $this->assertInstanceOf(NamespacedView::class, $getViewObject->invoke($Controller));
         $Controller->viewClass = 'Json';
-        $this->assertInstanceOf('JsonView', $getViewObject->invoke($Controller));
+        $this->assertInstanceOf(JsonView::class, $getViewObject->invoke($Controller));
     }
 
     /**

@@ -23,10 +23,12 @@ use Cake\Core\App;
 use Cake\Model\ConnectionManager;
 use Cake\Model\Datasource\Database\Sqlserver;
 use Cake\Model\Datasource\DboSource;
+use Cake\Model\Datasource\PDOExceptionWithQueryString;
 use Cake\Model\Model;
 use Cake\TestSuite\CakeTestCase;
 use Cake\TestSuite\Fixture\CakeTestModel;
 use Cake\Utility\ClassRegistry;
+use PDO;
 use PDOException;
 use PDOStatement;
 use ReflectionMethod;
@@ -942,7 +944,7 @@ SQL;
      */
     public function testListSourcesQueryFailure(): void
     {
-        $db = $this->getMock('Sqlserver', ['_execute', 'getSchemaName'], [$this->Dbo->config, false]);
+        $db = $this->getMock(Sqlserver::class, ['_execute', 'getSchemaName'], [$this->Dbo->config, false]);
         $db->cacheSources = false;
         $db->expects($this->once())
             ->method('_execute')
@@ -960,7 +962,7 @@ SQL;
     public function testExecuteFailureQueryString(): void
     {
         $db = new Sqlserver($this->Dbo->config, false);
-        $connection = $this->getMock('PDO', ['exec'], [], '', false);
+        $connection = $this->getMock(PDO::class, ['exec'], [], '', false);
         $connection->expects($this->once())
             ->method('exec')
             ->will($this->throwException(new PDOException('failed')));
@@ -989,7 +991,7 @@ SQL;
             error_reporting($level);
         }
         $this->assertSame([], $deprecations);
-        $this->assertInstanceOf('PDOExceptionWithQueryString', $exception);
+        $this->assertInstanceOf(PDOExceptionWithQueryString::class, $exception);
         $this->assertSame('DELETE FROM missing_table', $exception->queryString);
     }
 }

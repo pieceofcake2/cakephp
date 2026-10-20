@@ -22,6 +22,7 @@ namespace Cake\Test\TestCase\Cache\Engine;
 
 use Cake\Cache\Cache;
 use Cake\Cache\Engine\MemcachedEngine;
+use Cake\Error\CacheException;
 use Cake\TestSuite\CakeTestCase;
 use Memcached;
 
@@ -183,7 +184,7 @@ class MemcachedEngineTest extends CakeTestCase
             'serialize' => 'invalid_serializer',
         ];
 
-        $this->expectException('CacheException');
+        $this->expectException(CacheException::class);
         $this->expectExceptionMessage('invalid_serializer is not a valid serializer engine for Memcached');
         $Memcached->init($settings);
     }
@@ -299,7 +300,7 @@ class MemcachedEngineTest extends CakeTestCase
             'serialize' => 'json',
         ];
 
-        $this->expectException('CacheException');
+        $this->expectException(CacheException::class);
         $this->expectExceptionMessage('Memcached extension is not compiled with json support');
         $Memcached->init($settings);
     }
@@ -324,7 +325,7 @@ class MemcachedEngineTest extends CakeTestCase
             'serialize' => 'msgpack',
         ];
 
-        $this->expectException('CacheException');
+        $this->expectException(CacheException::class);
         $this->expectExceptionMessage('msgpack is not a valid serializer engine for Memcached');
         $Memcached->init($settings);
     }
@@ -349,7 +350,7 @@ class MemcachedEngineTest extends CakeTestCase
             'serialize' => 'igbinary',
         ];
 
-        $this->expectException('CacheException');
+        $this->expectException(CacheException::class);
         $this->expectExceptionMessage('Memcached extension is not compiled with igbinary support');
         $Memcached->init($settings);
     }

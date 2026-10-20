@@ -24,6 +24,7 @@ use Cake\Event\CakeEvent;
 use Cake\Network\CakeResponse;
 use Cake\Routing\Router;
 use Cake\TestSuite\CakeTestCase;
+use Cake\TestSuite\IntegrationTestResponse;
 use Cake\TestSuite\IntegrationTestTrait;
 use InvalidArgumentException;
 use LogicException;
@@ -120,7 +121,7 @@ class IntegrationTestTraitTest extends CakeTestCase
         $this->assertSame(['page' => '2', 'sort' => 'title'], $this->viewVariable('query'));
         $this->assertNull($this->viewVariable('missing'));
         $this->assertInstanceOf(IntegrationTestsController::class, $this->_controller);
-        $this->assertInstanceOf('IntegrationTestResponse', $this->_response);
+        $this->assertInstanceOf(IntegrationTestResponse::class, $this->_response);
         $this->assertNull($this->_exception);
     }
 

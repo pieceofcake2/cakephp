@@ -25,6 +25,7 @@ use Cake\Core\App;
 use Cake\Core\CakePlugin;
 use Cake\Core\Configure;
 use Cake\Error\MissingBehaviorException;
+use Cake\Model\Behavior\ContainableBehavior;
 use Cake\Model\BehaviorCollection;
 use Cake\Model\Datasource\Database\Sqlserver;
 use Cake\Model\Model;
@@ -1412,7 +1413,7 @@ class BehaviorCollectionTest extends CakeTestCase
         $this->assertInstanceOf(NamespacedBehavior::class, $Model->Behaviors->WithoutSuffix);
 
         $Model->Behaviors->load('Containable');
-        $this->assertInstanceOf('ContainableBehavior', $Model->Behaviors->Containable);
+        $this->assertInstanceOf(ContainableBehavior::class, $Model->Behaviors->Containable);
 
         $Model->Behaviors->unload('Namespaced');
         Configure::write('App.namespace', 'TestApp');

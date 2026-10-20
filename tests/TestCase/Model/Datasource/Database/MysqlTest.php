@@ -5167,7 +5167,7 @@ SQL;
      */
     public function testListSourcesQueryFailure(): void
     {
-        $db = $this->getMock('Mysql', ['_execute'], [['database' => 'cake_test'], false]);
+        $db = $this->getMock(Mysql::class, ['_execute'], [['database' => 'cake_test'], false]);
         $db->cacheSources = false;
         $db->expects($this->once())
             ->method('_execute')
@@ -5184,7 +5184,7 @@ SQL;
     public function testListDetailedSourcesQueryFailure(): void
     {
         $db = new Mysql(['database' => 'cake_test'], false);
-        $connection = $this->getMock('PDO', ['query'], [], '', false);
+        $connection = $this->getMock(PDO::class, ['query'], [], '', false);
         $connection->expects($this->once())
             ->method('query')
             ->will($this->returnValue(false));

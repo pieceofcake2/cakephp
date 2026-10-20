@@ -123,8 +123,8 @@ class ComponentCollectionTest extends CakeTestCase
     public function testLoadWithEnableFalse(): void
     {
         $result = $this->Components->load('Cookie', ['enabled' => false]);
-        $this->assertInstanceOf('CookieComponent', $result);
-        $this->assertInstanceOf('CookieComponent', $this->Components->Cookie);
+        $this->assertInstanceOf(CookieComponent::class, $result);
+        $this->assertInstanceOf(CookieComponent::class, $this->Components->Cookie);
 
         $this->assertFalse($this->Components->enabled('Cookie'), 'Cookie should be disabled');
     }
@@ -211,7 +211,7 @@ class ComponentCollectionTest extends CakeTestCase
         $result = $this->Components->load('Legacy', ['className' => 'TestApp\Controller\Component\Namespaced']);
         $this->assertInstanceOf(NamespacedComponent::class, $result);
 
-        $this->assertInstanceOf('CookieComponent', $this->Components->load('Cookie'));
+        $this->assertInstanceOf(CookieComponent::class, $this->Components->load('Cookie'));
 
         Configure::write('App.namespace', 'TestApp');
         $Components = new ComponentCollection();

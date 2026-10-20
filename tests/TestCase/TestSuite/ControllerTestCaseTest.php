@@ -23,6 +23,7 @@ namespace Cake\Test\TestCase\TestSuite;
 
 use App\Model\Post;
 use App\Model\TestPluginComment;
+use Cake\Controller\Component\EmailComponent;
 use Cake\Controller\Controller;
 use Cake\Core\App;
 use Cake\Core\CakePlugin;
@@ -323,7 +324,7 @@ class ControllerTestCaseTest extends CakeTestCase
             ->method('send')
             ->willReturn(['foo' => 'bar']);
 
-        $this->assertInstanceOf('EmailComponent', $posts->AliasedEmail);
+        $this->assertInstanceOf(EmailComponent::class, $posts->AliasedEmail);
         $this->assertNotEmpty($posts->AliasedEmail->send());
     }
 

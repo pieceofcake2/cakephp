@@ -614,7 +614,7 @@ class SmtpTransportTest extends CakeTestCase
      */
     public function testSendDataStripsLineBreaksFromHeaders(): void
     {
-        $email = $this->getMock('CakeEmail', ['message'], [], 'SmtpCakeEmail');
+        $email = $this->getMock(CakeEmail::class, ['message'], [], 'SmtpCakeEmail');
         $email->from('noreply@cakephp.org', 'CakePHP Test');
         $email->to('cake@cakephp.org', 'CakePHP');
         $email->messageID('<4d9946cf-0a44-4907-88fe-1d0ccbdd56cb@localhost>');
@@ -678,7 +678,7 @@ class SmtpTransportTest extends CakeTestCase
      */
     public function testSendDataKeepsFoldedHeaders(): void
     {
-        $email = $this->getMock('CakeEmail', ['message'], [], 'SmtpCakeEmail');
+        $email = $this->getMock(CakeEmail::class, ['message'], [], 'SmtpCakeEmail');
         $email->from('noreply@cakephp.org', 'CakePHP Test');
         $email->to('cake@cakephp.org', 'CakePHP');
         $email->messageID('<4d9946cf-0a44-4907-88fe-1d0ccbdd56cb@localhost>');

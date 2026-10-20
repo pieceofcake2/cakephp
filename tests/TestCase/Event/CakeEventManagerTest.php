@@ -427,7 +427,7 @@ class CakeEventManagerTest extends CakeTestCase
      */
     public function testGlobalDispatcherGetter(): void
     {
-        $this->assertInstanceOf('CakeEventManager', CakeEventManager::instance());
+        $this->assertInstanceOf(CakeEventManager::class, CakeEventManager::instance());
         $manager = new CakeEventManager();
 
         CakeEventManager::instance($manager);

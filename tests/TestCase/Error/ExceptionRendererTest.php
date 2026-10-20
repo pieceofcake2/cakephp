@@ -18,6 +18,7 @@
 
 namespace Cake\Test\TestCase\Error;
 
+use Cake\Controller\CakeErrorController;
 use Cake\Controller\Component;
 use Cake\Controller\Controller;
 use Cake\Core\App;
@@ -312,7 +313,7 @@ class ExceptionRendererTest extends CakeTestCase
         $exception = new NotFoundException('Page not found');
         $ExceptionRenderer = new ExceptionRenderer($exception);
 
-        $this->assertInstanceOf('CakeErrorController', $ExceptionRenderer->controller);
+        $this->assertInstanceOf(CakeErrorController::class, $ExceptionRenderer->controller);
         $this->assertEquals('error400', $ExceptionRenderer->method);
         $this->assertEquals($exception, $ExceptionRenderer->error);
     }
@@ -328,7 +329,7 @@ class ExceptionRendererTest extends CakeTestCase
         $exception = new MissingActionException('Page not found');
         $ExceptionRenderer = new ExceptionRenderer($exception);
 
-        $this->assertInstanceOf('CakeErrorController', $ExceptionRenderer->controller);
+        $this->assertInstanceOf(CakeErrorController::class, $ExceptionRenderer->controller);
         $this->assertEquals('error400', $ExceptionRenderer->method);
         $this->assertEquals($exception, $ExceptionRenderer->error);
     }
@@ -1311,14 +1312,14 @@ class ExceptionRendererTest extends CakeTestCase
         $exception = new MissingHelperException(['class' => 'Fail']);
         $ExceptionRenderer = new ExceptionRenderer($exception);
 
-        $ExceptionRenderer->controller = $this->getMock('Controller', ['render']);
+        $ExceptionRenderer->controller = $this->getMock(Controller::class, ['render']);
         $ExceptionRenderer->controller->request = new CakeRequest('/', false);
         $ExceptionRenderer->controller->expects($this->once())
             ->method('render')
             ->with('missingHelper')
             ->will($this->throwException($exception));
 
-        $response = $this->getMock('CakeResponse');
+        $response = $this->getMock(CakeResponse::class);
         $response->expects($this->once())
             ->method('body')
             ->with($this->logicalAnd(
@@ -1332,13 +1333,13 @@ class ExceptionRendererTest extends CakeTestCase
 
         Configure::write('debug', 0);
         $ExceptionRenderer = new ExceptionRenderer(new NotFoundException('Missing'));
-        $ExceptionRenderer->controller = $this->getMock('Controller', ['render']);
+        $ExceptionRenderer->controller = $this->getMock(Controller::class, ['render']);
         $ExceptionRenderer->controller->request = new CakeRequest('/', false);
         $ExceptionRenderer->controller->expects($this->once())
             ->method('render')
             ->will($this->throwException(new MissingHelperException(['class' => 'Fail'])));
 
-        $response = $this->getMock('CakeResponse');
+        $response = $this->getMock(CakeResponse::class);
         $response->expects($this->once())
             ->method('body')
             ->with($this->logicalAnd(

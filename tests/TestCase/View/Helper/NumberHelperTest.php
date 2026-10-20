@@ -259,7 +259,7 @@ class NumberHelperTest extends CakeTestCase
         $this->assertInstanceOf(NamespacedNumber::class, $this->getEngine($Helper));
 
         $Helper = new NumberHelper($View);
-        $this->assertInstanceOf('CakeNumber', $this->getEngine($Helper));
+        $this->assertInstanceOf(CakeNumber::class, $this->getEngine($Helper));
     }
 
     /**

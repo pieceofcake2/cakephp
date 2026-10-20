@@ -23,6 +23,7 @@ use Cake\Core\App;
 use Cake\Core\CakePlugin;
 use Cake\Core\Configure;
 use Cake\TestSuite\CakeTestCase;
+use Cake\Utility\CakeText;
 use Cake\View\Helper;
 use Cake\View\Helper\TextHelper;
 use Cake\View\View;
@@ -627,7 +628,7 @@ TEXT;
         $this->assertInstanceOf(NamespacedText::class, $this->getEngine($Helper));
 
         $Helper = new TextHelper($View);
-        $this->assertInstanceOf('CakeText', $this->getEngine($Helper));
+        $this->assertInstanceOf(CakeText::class, $this->getEngine($Helper));
     }
 
     /**

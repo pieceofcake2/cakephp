@@ -23,6 +23,7 @@ use Cake\Controller\Component\Acl\PhpAro;
 use Cake\Controller\Component\AclComponent;
 use Cake\Controller\ComponentCollection;
 use Cake\Core\Configure;
+use Cake\Error\AclException;
 use Cake\TestSuite\CakeTestCase;
 
 /**
@@ -299,7 +300,7 @@ class PhpAclTest extends CakeTestCase
      */
     public function testInvalidConfigWithAroMissing(): void
     {
-        $this->expectException('AclException');
+        $this->expectException(AclException::class);
         $this->expectExceptionMessage('"roles" section not found in configuration');
         $config = ['aco' => ['allow' => ['foo' => '']]];
         $this->PhpAcl->build($config);
@@ -307,7 +308,7 @@ class PhpAclTest extends CakeTestCase
 
     public function testInvalidConfigWithAcosMissing(): void
     {
-        $this->expectException('AclException');
+        $this->expectException(AclException::class);
         $this->expectExceptionMessage('Neither "allow" nor "deny" rules were provided in configuration.');
 
         $config = [

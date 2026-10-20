@@ -32,6 +32,8 @@ use Cake\Network\CakeRequest;
 use Cake\TestSuite\CakeTestCase;
 use Cake\Utility\ClassRegistry;
 use Cake\View\Helper;
+use Cake\View\Helper\FormHelper;
+use Cake\View\Helper\HtmlHelper;
 use Cake\View\HelperCollection;
 use Cake\View\View;
 use Error;
@@ -1106,7 +1108,7 @@ class ViewTest extends CakeTestCase
     {
         $View = new View($this->PostsController);
         $View->loadHelper('Html');
-        $this->assertInstanceOf('HtmlHelper', $View->Html);
+        $this->assertInstanceOf(HtmlHelper::class, $View->Html);
     }
 
     /**
@@ -1137,8 +1139,8 @@ class ViewTest extends CakeTestCase
         $View->helpers = ['Html', 'Form'];
         $View->loadHelpers();
 
-        $this->assertInstanceOf('HtmlHelper', $View->Html, 'Object type is wrong.');
-        $this->assertInstanceOf('FormHelper', $View->Form, 'Object type is wrong.');
+        $this->assertInstanceOf(HtmlHelper::class, $View->Html, 'Object type is wrong.');
+        $this->assertInstanceOf(FormHelper::class, $View->Form, 'Object type is wrong.');
     }
 
     /**
@@ -1151,8 +1153,8 @@ class ViewTest extends CakeTestCase
         $View = new View($this->PostsController);
 
         $View->helpers = [];
-        $this->assertInstanceOf('HtmlHelper', $View->Html, 'Object type is wrong.');
-        $this->assertInstanceOf('FormHelper', $View->Form, 'Object type is wrong.');
+        $this->assertInstanceOf(HtmlHelper::class, $View->Html, 'Object type is wrong.');
+        $this->assertInstanceOf(FormHelper::class, $View->Form, 'Object type is wrong.');
     }
 
     /**
@@ -1170,7 +1172,7 @@ class ViewTest extends CakeTestCase
         $View->Helpers->expects($this->exactly(8))
             ->method('trigger')
             ->willReturnCallback(function ($event) use (&$triggerCalls, $View) {
-                $this->assertInstanceOf('CakeEvent', $event);
+                $this->assertInstanceOf(CakeEvent::class, $event);
                 $this->assertSame($View, $event->subject());
                 $triggerCalls[] = $event->name();
             });

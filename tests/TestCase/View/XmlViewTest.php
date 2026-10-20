@@ -25,6 +25,7 @@ use Cake\Network\CakeRequest;
 use Cake\Network\CakeResponse;
 use Cake\TestSuite\CakeTestCase;
 use Cake\Utility\Xml;
+use Cake\View\HelperCollection;
 use Cake\View\XmlView;
 
 /**
@@ -275,7 +276,7 @@ class XmlViewTest extends CakeTestCase
         $expected = Xml::build($expected)->asXML();
         $this->assertSame($expected, $output);
         $this->assertSame('application/xml', $response->type());
-        $this->assertInstanceOf('HelperCollection', $view->Helpers);
+        $this->assertInstanceOf(HelperCollection::class, $view->Helpers);
     }
 
     /**

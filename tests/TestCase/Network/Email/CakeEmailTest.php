@@ -23,10 +23,12 @@ use Cake\Core\App;
 use Cake\Core\CakePlugin;
 use Cake\Core\Configure;
 use Cake\Error\ConfigureException;
+use Cake\Error\MissingViewException;
 use Cake\Error\SocketException;
 use Cake\Log\CakeLog;
 use Cake\Network\Email\CakeEmail;
 use Cake\Network\Email\DebugTransport;
+use Cake\Network\Email\SmtpTransport;
 use Cake\TestSuite\CakeTestCase;
 use Cake\Utility\File;
 use ReflectionProperty;
@@ -275,7 +277,7 @@ class CakeEmailTest extends CakeTestCase
         $this->assertSame($expected, $this->CakeEmail->from());
         $this->assertSame($this->CakeEmail, $result);
 
-        $this->expectException('SocketException');
+        $this->expectException(SocketException::class);
         $this->CakeEmail->from(['cake@cakephp.org' => 'CakePHP', 'fail@cakephp.org' => 'From can only be one address']);
     }
 
@@ -838,7 +840,7 @@ class CakeEmailTest extends CakeTestCase
         $this->assertSame($expected, $this->CakeEmail->getHeaders(['from' => true, 'to' => true]));
 
         $result = $this->CakeEmail->setHeaders([]);
-        $this->assertInstanceOf('CakeEmail', $result);
+        $this->assertInstanceOf(CakeEmail::class, $result);
     }
 
     /**
@@ -971,7 +973,7 @@ class CakeEmailTest extends CakeTestCase
         ];
         $this->assertSame($expected, $this->CakeEmail->attachments());
 
-        $this->expectException('SocketException');
+        $this->expectException(SocketException::class);
         $this->CakeEmail->attachments([['nofile' => CAKE . 'basics.php', 'mimetype' => 'text/plain']]);
     }
 
@@ -987,9 +989,9 @@ class CakeEmailTest extends CakeTestCase
         $this->assertSame('Debug', $this->CakeEmail->transport());
 
         $result = $this->CakeEmail->transportClass();
-        $this->assertInstanceOf('DebugTransport', $result);
+        $this->assertInstanceOf(DebugTransport::class, $result);
 
-        $this->expectException('SocketException');
+        $this->expectException(SocketException::class);
         $this->CakeEmail->transport('Invalid');
         $this->CakeEmail->transportClass();
     }
@@ -1001,7 +1003,7 @@ class CakeEmailTest extends CakeTestCase
      */
     public function testExtendTransport(): void
     {
-        $this->expectException('SocketException');
+        $this->expectException(SocketException::class);
         $this->CakeEmail->transport('Extend');
         $this->CakeEmail->transportClass();
     }
@@ -1057,7 +1059,7 @@ class CakeEmailTest extends CakeTestCase
         $this->assertEquals($configs->test['transport'], $result);
 
         $result = $this->CakeEmail->transportClass();
-        $this->assertInstanceOf('DebugTransport', $result);
+        $this->assertInstanceOf(DebugTransport::class, $result);
 
         $result = $this->CakeEmail->helpers();
         $this->assertEquals($configs->test['helpers'], $result);
@@ -1168,7 +1170,7 @@ class CakeEmailTest extends CakeTestCase
         $this->CakeEmail->to('cake@cakephp.org');
         $this->CakeEmail->subject('My title');
         $this->CakeEmail->config(['empty']);
-        $this->expectException('SocketException');
+        $this->expectException(SocketException::class);
         $this->CakeEmail->send('Forgot to set From');
     }
 
@@ -1183,7 +1185,7 @@ class CakeEmailTest extends CakeTestCase
         $this->CakeEmail->from('cake@cakephp.org');
         $this->CakeEmail->subject('My title');
         $this->CakeEmail->config(['empty']);
-        $this->expectException('SocketException');
+        $this->expectException(SocketException::class);
         $this->CakeEmail->send('Forgot to set To');
     }
 
@@ -1758,7 +1760,7 @@ class CakeEmailTest extends CakeTestCase
         $this->CakeEmail->viewVars(['time' => $timestamp]);
 
         $result = $this->CakeEmail->helpers(['Time']);
-        $this->assertInstanceOf('CakeEmail', $result);
+        $this->assertInstanceOf(CakeEmail::class, $result);
 
         $result = $this->CakeEmail->send();
         $this->assertTrue((bool)strpos($result['message'], 'Right now: ' . date('Y-m-d\TH:i:s\Z', $timestamp)));
@@ -1844,7 +1846,7 @@ class CakeEmailTest extends CakeTestCase
         $this->assertStringContainsString('Here is your value: 12345', $result['message']);
         $this->assertStringContainsString('This email was sent using the TestPlugin.', $result['message']);
 
-        $this->expectException('MissingViewException');
+        $this->expectException(MissingViewException::class);
         $this->CakeEmail->template('test_plugin_tpl', 'plug_default')->send();
     }
 
@@ -1923,7 +1925,7 @@ class CakeEmailTest extends CakeTestCase
     public function testDeliver(): void
     {
         $instance = CakeEmail::deliver('all@cakephp.org', 'About', 'Everything ok', ['from' => 'root@cakephp.org'], false);
-        $this->assertInstanceOf('CakeEmail', $instance);
+        $this->assertInstanceOf(CakeEmail::class, $instance);
         $this->assertSame($instance->to(), ['all@cakephp.org' => 'all@cakephp.org']);
         $this->assertSame($instance->subject(), 'About');
         $this->assertSame($instance->from(), ['root@cakephp.org' => 'root@cakephp.org']);
@@ -2206,7 +2208,7 @@ class CakeEmailTest extends CakeTestCase
         $this->assertEquals('View', $result);
 
         $result = $this->CakeEmail->viewRender('Theme');
-        $this->assertInstanceOf('CakeEmail', $result);
+        $this->assertInstanceOf(CakeEmail::class, $result);
 
         $result = $this->CakeEmail->viewRender();
         $this->assertEquals('Theme', $result);
@@ -2223,12 +2225,12 @@ class CakeEmailTest extends CakeTestCase
         $this->assertEquals('text', $result);
 
         $result = $this->CakeEmail->emailFormat('html');
-        $this->assertInstanceOf('CakeEmail', $result);
+        $this->assertInstanceOf(CakeEmail::class, $result);
 
         $result = $this->CakeEmail->emailFormat();
         $this->assertEquals('html', $result);
 
-        $this->expectException('SocketException');
+        $this->expectException(SocketException::class);
         $this->CakeEmail->emailFormat('invalid');
     }
 
@@ -2873,7 +2875,7 @@ HTML;
         $this->CakeEmail->config('dsn');
 
         $this->assertSame('Smtp', $this->CakeEmail->transport());
-        $this->assertInstanceOf('SmtpTransport', $this->CakeEmail->transportClass());
+        $this->assertInstanceOf(SmtpTransport::class, $this->CakeEmail->transportClass());
         $this->assertSame(['some@example.com' => 'My website'], $this->CakeEmail->from());
 
         $config = $this->CakeEmail->transportClass()->config();
@@ -2924,7 +2926,7 @@ HTML;
             'to' => 'you@cakephp.org',
             'subject' => 'Null transport',
         ]);
-        $this->assertInstanceOf('DebugTransport', $this->CakeEmail->transportClass());
+        $this->assertInstanceOf(DebugTransport::class, $this->CakeEmail->transportClass());
 
         $result = $this->CakeEmail->send('Hello');
         $this->assertStringContainsString('Hello', $result['message']);
@@ -2945,7 +2947,7 @@ HTML;
             putenv($previous === false ? 'MAILER_DSN' : 'MAILER_DSN=' . $previous);
         }
         $config = $this->CakeEmail->transportClass()->config();
-        $this->assertInstanceOf('SmtpTransport', $this->CakeEmail->transportClass());
+        $this->assertInstanceOf(SmtpTransport::class, $this->CakeEmail->transportClass());
         $this->assertSame('ssl://smtp.example.com', $config['host']);
         $this->assertSame(465, $config['port']);
         $this->assertFalse($config['tls']);
@@ -3034,7 +3036,7 @@ HTML;
                 },
             ]);
             $this->CakeEmail->config(['dsn' => 'debug://here', 'transport' => 'Smtp', 'from' => 'cake@cakephp.org']);
-            $this->assertInstanceOf('DebugTransport', $this->CakeEmail->transportClass());
+            $this->assertInstanceOf(DebugTransport::class, $this->CakeEmail->transportClass());
             $this->assertSame('here', $this->CakeEmail->config()['marker']);
         } finally {
             $this->_resetDsnClassMap();
@@ -3072,6 +3074,6 @@ HTML;
         $this->assertInstanceOf(NamespacedTransport::class, $this->CakeEmail->transportClass());
 
         $this->CakeEmail->transport('Debug');
-        $this->assertInstanceOf('DebugTransport', $this->CakeEmail->transportClass());
+        $this->assertInstanceOf(DebugTransport::class, $this->CakeEmail->transportClass());
     }
 }

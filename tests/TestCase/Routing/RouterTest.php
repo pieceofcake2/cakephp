@@ -26,6 +26,7 @@ use Cake\Error\RouterException;
 use Cake\Network\CakeRequest;
 use Cake\Network\CakeResponse;
 use Cake\Routing\Route\CakeRoute;
+use Cake\Routing\Route\PluginShortRoute;
 use Cake\Routing\Router;
 use Cake\TestSuite\CakeTestCase;
 use TestApp\Routing\Route\NamespacedRoute;
@@ -3038,7 +3039,7 @@ class RouterTest extends CakeTestCase
         $this->assertInstanceOf(NamespacedRoute::class, end($routes));
 
         $routes = Router::connect('/global', ['controller' => 'posts'], ['routeClass' => 'PluginShortRoute']);
-        $this->assertInstanceOf('PluginShortRoute', end($routes));
+        $this->assertInstanceOf(PluginShortRoute::class, end($routes));
 
         Router::defaultRouteClass('NamespacedRoute');
         $this->assertSame(NamespacedRoute::class, Router::defaultRouteClass());

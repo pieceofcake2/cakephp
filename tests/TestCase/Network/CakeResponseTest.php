@@ -676,7 +676,7 @@ class CakeResponseTest extends CakeTestCase
      */
     public function testLength(): void
     {
-        $response = $this->getMock('CakeResponse', ['_sendHeader', '_sendContent']);
+        $response = $this->getMock(CakeResponse::class, ['_sendHeader', '_sendContent']);
         $response->length(100);
         $this->assertEquals(100, $response->length());
         $sendHeaderCalls = [];
@@ -688,7 +688,7 @@ class CakeResponseTest extends CakeTestCase
         $response->send();
         $this->assertEquals(['Content-Length', 100], $sendHeaderCalls[1]);
 
-        $response = $this->getMock('CakeResponse', ['_sendHeader', '_sendContent']);
+        $response = $this->getMock(CakeResponse::class, ['_sendHeader', '_sendContent']);
         $response->length(false);
         $this->assertFalse($response->length());
         $response->expects($this->exactly(2))

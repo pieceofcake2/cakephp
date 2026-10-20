@@ -19,6 +19,8 @@
 
 namespace Cake\Test\TestCase\Console;
 
+use Cake\Console\Command\Task\CommandTask;
+use Cake\Console\Command\Task\ExtractTask;
 use Cake\Console\Shell;
 use Cake\Console\ShellDispatcher;
 use Cake\Console\TaskCollection;
@@ -78,8 +80,8 @@ class TaskCollectionTest extends CakeTestCase
     public function testLoad(): void
     {
         $result = $this->Tasks->load('Extract');
-        $this->assertInstanceOf('ExtractTask', $result);
-        $this->assertInstanceOf('ExtractTask', $this->Tasks->Extract);
+        $this->assertInstanceOf(ExtractTask::class, $result);
+        $this->assertInstanceOf(ExtractTask::class, $this->Tasks->Extract);
 
         $result = $this->Tasks->loaded();
         $this->assertEquals(['Extract'], $result, 'loaded() results are wrong.');
@@ -93,8 +95,8 @@ class TaskCollectionTest extends CakeTestCase
     public function testLoadWithEnableFalse(): void
     {
         $result = $this->Tasks->load('Extract', ['enabled' => false]);
-        $this->assertInstanceOf('ExtractTask', $result);
-        $this->assertInstanceOf('ExtractTask', $this->Tasks->Extract);
+        $this->assertInstanceOf(ExtractTask::class, $result);
+        $this->assertInstanceOf(ExtractTask::class, $this->Tasks->Extract);
 
         $this->assertFalse($this->Tasks->enabled('Extract'), 'ExtractTask should be disabled');
     }
@@ -202,10 +204,10 @@ class TaskCollectionTest extends CakeTestCase
         $result = $this->Tasks->load('WithoutSuffix', ['className' => 'TestApp\Console\Command\Task\Namespaced']);
         $this->assertInstanceOf(NamespacedTask::class, $result);
 
-        $this->assertInstanceOf('CommandTask', $this->Tasks->load('Command'));
+        $this->assertInstanceOf(CommandTask::class, $this->Tasks->load('Command'));
 
         Configure::write('App.namespace', 'TestApp');
-        $shell = $this->getMock('Shell', [], [], '', false);
+        $shell = $this->getMock(Shell::class, [], [], '', false);
         $Tasks = new TaskCollection($shell);
         $this->assertInstanceOf(NamespacedTask::class, $Tasks->load('Namespaced'));
     }

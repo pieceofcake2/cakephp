@@ -26,6 +26,7 @@ use App\Model\User;
 use Cake\Core\App;
 use Cake\Core\Configure;
 use Cake\Error\CakeException;
+use Cake\Model\Behavior\TranslateBehavior;
 use Cake\Model\ConnectionManager;
 use Cake\Model\Datasource\Database\Mysql;
 use Cake\TestSuite\CakeTestCase;
@@ -634,7 +635,7 @@ class TranslateBehaviorTest extends CakeTestCase
 
         $TestModel->locale = ['eng', 'deu', 'cze'];
         $delete = [['locale' => 'deu'], ['field' => 'content', 'locale' => 'eng']];
-        $I18nModel = ClassRegistry::getObject('TranslateTestModel');
+        $I18nModel = ClassRegistry::getObject(TranslateTestModel::class);
         $I18nModel->deleteAll(['or' => $delete]);
 
         $result = $TestModel->find('all', ['fields' => ['title', 'content']]);
@@ -1625,7 +1626,7 @@ class TranslateBehaviorTest extends CakeTestCase
             'callbacks' => true,
             'recursive' => 0,
         ];
-        $translateBehavior = ClassRegistry::getObject('TranslateBehavior');
+        $translateBehavior = ClassRegistry::getObject(TranslateBehavior::class);
         $result = $translateBehavior->beforeFind($TestModel, $query);
         $this->assertEquals($expected, $result);
     }
@@ -1709,7 +1710,7 @@ class TranslateBehaviorTest extends CakeTestCase
             'callbacks' => true,
             'recursive' => 0,
         ];
-        $translateBehavior = ClassRegistry::getObject('TranslateBehavior');
+        $translateBehavior = ClassRegistry::getObject(TranslateBehavior::class);
         $result = $translateBehavior->beforeFind($TestModel, $query);
         $this->assertEquals($expected, $result);
     }

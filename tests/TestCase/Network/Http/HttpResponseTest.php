@@ -20,6 +20,7 @@ namespace Cake\Test\TestCase\Network\Http;
 
 use Cake\Error\SocketException;
 use Cake\Network\Http\HttpResponse;
+use Cake\Network\Http\HttpSocketResponse;
 use Cake\TestSuite\CakeTestCase;
 
 /**
@@ -649,6 +650,6 @@ class HttpResponseTest extends CakeTestCase
      */
     public function testDeprecatedHttpResponseClass(): void
     {
-        $this->assertInstanceOf('HttpSocketResponse', new HttpResponse());
+        $this->assertInstanceOf(HttpSocketResponse::class, new HttpResponse());
     }
 }

@@ -24,6 +24,7 @@ namespace Cake\Test\TestCase\Console;
 use Cake\Console\ConsoleInput;
 use Cake\Console\ConsoleOptionParser;
 use Cake\Console\ConsoleOutput;
+use Cake\Console\Helper\ProgressShellHelper;
 use Cake\Console\Shell;
 use Cake\Core\App;
 use Cake\Core\CakePlugin;
@@ -1110,7 +1111,7 @@ TEXT;
     public function testGetInstanceOfHelper(): void
     {
         $actual = $this->Shell->helper('progress');
-        $this->assertInstanceOf('ProgressShellHelper', $actual);
+        $this->assertInstanceOf(ProgressShellHelper::class, $actual);
     }
 
     /**
@@ -1132,7 +1133,7 @@ TEXT;
     public function testShellLoggersDoNotGetOverridden(): void
     {
         $shell = $this->getMock(
-            'Shell',
+            Shell::class,
             [
                 '_loggerIsConfigured',
                 '_configureStdOutLogger',
@@ -1192,6 +1193,6 @@ TEXT;
         $helper = $this->Shell->helper('TestApp\Console\Helper\Namespaced');
         $this->assertInstanceOf(NamespacedShellHelper::class, $helper);
 
-        $this->assertInstanceOf('ProgressShellHelper', $this->Shell->helper('progress'));
+        $this->assertInstanceOf(ProgressShellHelper::class, $this->Shell->helper('progress'));
     }
 }

@@ -126,7 +126,7 @@ class DataSourceTest extends CakeTestCase
             'apiKey' => '1234abcd',
         ]);
         $this->Model = $this->getMock(
-            'Model',
+            Model::class,
             ['getDataSource'],
             [['ds' => $this->sourceName]],
         );

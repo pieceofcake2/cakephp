@@ -492,7 +492,7 @@ class SchemaShellTest extends CakeTestCase
     public function testCreateOptionYes(): void
     {
         $this->Shell = $this->getMock(
-            'SchemaShell',
+            SchemaShell::class,
             ['in', 'out', 'hr', 'createFile', 'error', 'err', '_stop', '_run'],
             [&$this->Dispatcher],
         );

@@ -19,6 +19,7 @@
 namespace Cake\Test\TestCase\TestSuite;
 
 use Cake\Error\CakeException;
+use Cake\Model\CakeSchema;
 use Cake\Model\ConnectionManager;
 use Cake\Model\Datasource\Database\Sqlite;
 use Cake\Model\Datasource\DboSource;
@@ -634,7 +635,7 @@ class CakeTestFixtureTest extends CakeTestCase
             error_reporting($level);
         }
         $this->assertSame([], $deprecations);
-        $this->assertInstanceOf('CakeSchema', $Fixture->Schema);
+        $this->assertInstanceOf(CakeSchema::class, $Fixture->Schema);
     }
 
     /**
@@ -645,7 +646,7 @@ class CakeTestFixtureTest extends CakeTestCase
     public function testFixturizeDoesNotCreateDynamicProperties(): void
     {
         $fixtureManager = new CakeFixtureManager();
-        $TestCase = $this->getMock('CakeTestCase');
+        $TestCase = $this->getMock(CakeTestCase::class);
         $TestCase->fixtures = ['core.apple'];
 
         $deprecations = [];
@@ -664,7 +665,7 @@ class CakeTestFixtureTest extends CakeTestCase
             error_reporting($level);
         }
         $this->assertSame([], $deprecations);
-        $this->assertInstanceOf('DboSource', $TestCase->db);
+        $this->assertInstanceOf(DboSource::class, $TestCase->db);
     }
 
     /**
@@ -675,7 +676,7 @@ class CakeTestFixtureTest extends CakeTestCase
      */
     public function testInjectorIgnoresPlainTestCases(): void
     {
-        $manager = $this->getMock('CakeFixtureManager', ['shutDown', 'fixturize', 'load']);
+        $manager = $this->getMock(CakeFixtureManager::class, ['shutDown', 'fixturize', 'load']);
         $manager->expects($this->never())->method('fixturize');
         $injector = new CakeFixtureInjector($manager);
         $test = new class ('testNothing') extends TestCase {
@@ -707,9 +708,9 @@ class CakeTestFixtureTest extends CakeTestCase
      */
     public function testFixtureManagerLoadWithoutAutoFixtures(): void
     {
-        $manager = $this->getMock('CakeFixtureManager', ['loadSingle', '_setupTable']);
+        $manager = $this->getMock(CakeFixtureManager::class, ['loadSingle', '_setupTable']);
         $manager->expects($this->never())->method('_setupTable');
-        $TestCase = $this->getMock('CakeTestCase');
+        $TestCase = $this->getMock(CakeTestCase::class);
         $TestCase->fixtures = ['core.apple'];
         $TestCase->autoFixtures = false;
 

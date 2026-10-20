@@ -25,6 +25,7 @@ use Cake\Error\CakeException;
 use Cake\Error\MissingDatasourceConfigException;
 use Cake\Error\MissingDatasourceException;
 use Cake\Model\ConnectionManager;
+use Cake\Model\Datasource\Database\Sqlite;
 use Cake\Model\Datasource\DboSource;
 use Cake\Model\Model;
 use Cake\TestSuite\CakeTestCase;
@@ -595,7 +596,7 @@ class ConnectionManagerTest extends CakeTestCase
         $config = ConnectionManager::enumConnectionObjects()[$name];
         ConnectionManager::drop($name);
 
-        $this->assertInstanceOf('Sqlite', $db);
+        $this->assertInstanceOf(Sqlite::class, $db);
         $this->assertArrayNotHasKey('dsn', $config);
         $this->assertSame('Database/Sqlite', $config['datasource']);
         $this->assertSame(':memory:', $config['database']);
@@ -624,7 +625,7 @@ class ConnectionManagerTest extends CakeTestCase
             $config = ConnectionManager::enumConnectionObjects()[$name];
             ConnectionManager::drop($name);
 
-            $this->assertInstanceOf('Sqlite', $db);
+            $this->assertInstanceOf(Sqlite::class, $db);
             $this->assertArrayNotHasKey('dsn', $config);
             $this->assertSame(':memory:', $db->config['database']);
         }
@@ -668,7 +669,7 @@ class ConnectionManagerTest extends CakeTestCase
             ];
             $db = ConnectionManager::getDataSource($name);
 
-            $this->assertInstanceOf('Sqlite', $db);
+            $this->assertInstanceOf(Sqlite::class, $db);
             $this->assertTrue($db->isConnected());
             $this->assertSame($file, $db->config['database']);
             $this->assertSame('dsn_', $db->config['prefix']);
@@ -787,7 +788,7 @@ class ConnectionManagerTest extends CakeTestCase
             ]);
             $db = ConnectionManager::getDataSource($name);
 
-            $this->assertInstanceOf('Sqlite', $db);
+            $this->assertInstanceOf(Sqlite::class, $db);
             $this->assertSame(':memory:', $db->config['database']);
             $this->assertSame('map_', $db->config['prefix']);
             $this->assertArrayNotHasKey('dsn', $db->config);

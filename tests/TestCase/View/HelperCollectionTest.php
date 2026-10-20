@@ -24,6 +24,7 @@ use Cake\Core\CakePlugin;
 use Cake\Core\Configure;
 use Cake\Error\MissingHelperException;
 use Cake\TestSuite\CakeTestCase;
+use Cake\View\Helper\FormHelper;
 use Cake\View\Helper\HtmlHelper;
 use Cake\View\HelperCollection;
 use Cake\View\View;
@@ -86,8 +87,8 @@ class HelperCollectionTest extends CakeTestCase
     public function testLoad(): void
     {
         $result = $this->Helpers->load('Html');
-        $this->assertInstanceOf('HtmlHelper', $result);
-        $this->assertInstanceOf('HtmlHelper', $this->Helpers->Html);
+        $this->assertInstanceOf(HtmlHelper::class, $result);
+        $this->assertInstanceOf(HtmlHelper::class, $this->Helpers->Html);
 
         $result = $this->Helpers->loaded();
         $this->assertEquals(['Html'], $result, 'loaded() results are wrong.');
@@ -103,10 +104,10 @@ class HelperCollectionTest extends CakeTestCase
     public function testLazyLoad(): void
     {
         $result = $this->Helpers->Html;
-        $this->assertInstanceOf('HtmlHelper', $result);
+        $this->assertInstanceOf(HtmlHelper::class, $result);
 
         $result = $this->Helpers->Form;
-        $this->assertInstanceOf('FormHelper', $result);
+        $this->assertInstanceOf(FormHelper::class, $result);
 
         App::build(['Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS]]);
         $this->View->plugin = 'TestPlugin';
@@ -164,8 +165,8 @@ class HelperCollectionTest extends CakeTestCase
     public function testLoadWithEnabledFalse(): void
     {
         $result = $this->Helpers->load('Html', ['enabled' => false]);
-        $this->assertInstanceOf('HtmlHelper', $result);
-        $this->assertInstanceOf('HtmlHelper', $this->Helpers->Html);
+        $this->assertInstanceOf(HtmlHelper::class, $result);
+        $this->assertInstanceOf(HtmlHelper::class, $this->Helpers->Html);
 
         $this->assertFalse($this->Helpers->enabled('Html'), 'Html should be disabled');
     }
@@ -234,7 +235,7 @@ class HelperCollectionTest extends CakeTestCase
         $result = $this->Helpers->load('WithoutSuffix', ['className' => 'TestApp\View\Helper\Namespaced']);
         $this->assertInstanceOf(NamespacedHelper::class, $result);
 
-        $this->assertInstanceOf('HtmlHelper', $this->Helpers->load('Html'));
+        $this->assertInstanceOf(HtmlHelper::class, $this->Helpers->load('Html'));
 
         Configure::write('App.namespace', 'TestApp');
         $Helpers = new HelperCollection($this->View);

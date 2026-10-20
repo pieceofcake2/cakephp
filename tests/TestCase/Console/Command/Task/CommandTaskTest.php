@@ -16,6 +16,8 @@
 
 namespace Cake\Test\TestCase\Console\Command\Task;
 
+use Cake\Console\Command\AclShell;
+use Cake\Console\Command\Task\CommandTask;
 use Cake\Console\ConsoleInput;
 use Cake\Console\ConsoleOutput;
 use Cake\Core\App;
@@ -51,7 +53,7 @@ class CommandTaskTest extends CakeTestCase
         $in = $this->getMock(ConsoleInput::class, [], [], '', false);
 
         $this->CommandTask = $this->getMock(
-            'CommandTask',
+            CommandTask::class,
             ['in', '_stop', 'clear'],
             [$out, $out, $in],
         );
@@ -185,7 +187,7 @@ class CommandTaskTest extends CakeTestCase
     public function testGetShell(): void
     {
         $result = $this->CommandTask->getShell('acl');
-        $this->assertInstanceOf('AclShell', $result);
+        $this->assertInstanceOf(AclShell::class, $result);
     }
 
     /**
@@ -207,7 +209,7 @@ class CommandTaskTest extends CakeTestCase
     public function testGetShellCore(): void
     {
         $result = $this->CommandTask->getShell('core.acl');
-        $this->assertInstanceOf('AclShell', $result);
+        $this->assertInstanceOf(AclShell::class, $result);
     }
 
     /**

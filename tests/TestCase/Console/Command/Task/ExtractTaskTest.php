@@ -20,6 +20,7 @@
 
 namespace Cake\Test\TestCase\Console\Command\Task;
 
+use Cake\Console\Command\Task\ExtractTask;
 use Cake\Console\ConsoleInput;
 use Cake\Console\ConsoleOutput;
 use Cake\Core\App;
@@ -51,7 +52,7 @@ class ExtractTaskTest extends CakeTestCase
         $in = $this->getMock(ConsoleInput::class, [], [], '', false);
 
         $this->Task = $this->getMock(
-            'ExtractTask',
+            ExtractTask::class,
             ['in', 'out', 'err', '_stop'],
             [$out, $out, $in],
         );
@@ -328,7 +329,7 @@ class ExtractTaskTest extends CakeTestCase
         $this->out = $this->getMock(ConsoleOutput::class, [], [], '', false);
         $this->in = $this->getMock(ConsoleInput::class, [], [], '', false);
         $this->Task = $this->getMock(
-            'ExtractTask',
+            ExtractTask::class,
             ['_isExtractingApp', '_extractValidationMessages', 'in', 'out', 'err', 'clear', '_stop'],
             [$this->out, $this->out, $this->in],
         );
@@ -357,7 +358,7 @@ class ExtractTaskTest extends CakeTestCase
         $this->out = $this->getMock(ConsoleOutput::class, [], [], '', false);
         $this->in = $this->getMock(ConsoleInput::class, [], [], '', false);
         $this->Task = $this->getMock(
-            'ExtractTask',
+            ExtractTask::class,
             ['_isExtractingApp', 'in', 'out', 'err', 'clear', '_stop'],
             [$this->out, $this->out, $this->in],
         );
@@ -390,7 +391,7 @@ class ExtractTaskTest extends CakeTestCase
         $this->out = $this->getMock(ConsoleOutput::class, [], [], '', false);
         $this->in = $this->getMock(ConsoleInput::class, [], [], '', false);
         $this->Task = $this->getMock(
-            'ExtractTask',
+            ExtractTask::class,
             ['_isExtractingApp', 'in', 'out', 'err', 'clear', '_stop'],
             [$this->out, $this->out, $this->in],
         );
@@ -435,7 +436,7 @@ class ExtractTaskTest extends CakeTestCase
         $this->out = $this->getMock(ConsoleOutput::class, [], [], '', false);
         $this->in = $this->getMock(ConsoleInput::class, [], [], '', false);
         $this->Task = $this->getMock(
-            'ExtractTask',
+            ExtractTask::class,
             ['_isExtractingApp', 'in', 'out', 'err', 'clear', '_stop'],
             [$this->out, $this->out, $this->in],
         );
@@ -472,7 +473,7 @@ class ExtractTaskTest extends CakeTestCase
         $this->out = $this->getMock(ConsoleOutput::class, [], [], '', false);
         $this->in = $this->getMock(ConsoleInput::class, [], [], '', false);
         $this->Task = $this->getMock(
-            'ExtractTask',
+            ExtractTask::class,
             ['_isExtractingApp', 'in', 'out', 'err', 'clear', '_stop'],
             [$this->out, $this->out, $this->in],
         );
