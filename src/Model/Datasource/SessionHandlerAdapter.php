@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace Cake\Model\Datasource;
 
 use Cake\Model\Datasource\Session\CakeSessionHandlerInterface;
+use ReturnTypeWillChange;
 use SessionHandlerInterface;
 use SessionIdInterface;
 use SessionUpdateTimestampHandlerInterface;
@@ -34,7 +35,7 @@ class SessionHandlerAdapter implements SessionHandlerInterface, SessionIdInterfa
      *
      * @return bool Success
      */
-    #[\ReturnTypeWillChange]
+    #[ReturnTypeWillChange]
     public function close()
     {
         return $this->cakeSessionHandler->close();
@@ -46,7 +47,7 @@ class SessionHandlerAdapter implements SessionHandlerInterface, SessionIdInterfa
      * @param string $id The session ID
      * @return bool Success
      */
-    #[\ReturnTypeWillChange]
+    #[ReturnTypeWillChange]
     public function destroy(string $id)
     {
         return $this->cakeSessionHandler->destroy($id);
@@ -58,7 +59,7 @@ class SessionHandlerAdapter implements SessionHandlerInterface, SessionIdInterfa
      * @param int $max_lifetime Session max lifetime in seconds
      * @return int|bool Number of deleted sessions or success status
      */
-    #[\ReturnTypeWillChange]
+    #[ReturnTypeWillChange]
     public function gc(int $max_lifetime)
     {
         return $this->cakeSessionHandler->gc($max_lifetime);
@@ -71,7 +72,7 @@ class SessionHandlerAdapter implements SessionHandlerInterface, SessionIdInterfa
      * @param string $name The session name
      * @return bool Success
      */
-    #[\ReturnTypeWillChange]
+    #[ReturnTypeWillChange]
     public function open(string $path, string $name)
     {
         //Cake interface ignores these parameters.
@@ -84,7 +85,7 @@ class SessionHandlerAdapter implements SessionHandlerInterface, SessionIdInterfa
      * @param string $id The session ID
      * @return string|false The session data or false on failure
      */
-    #[\ReturnTypeWillChange]
+    #[ReturnTypeWillChange]
     public function read(string $id)
     {
         return $this->cakeSessionHandler->read($id);
@@ -97,7 +98,7 @@ class SessionHandlerAdapter implements SessionHandlerInterface, SessionIdInterfa
      * @param string $data The session data
      * @return bool Success
      */
-    #[\ReturnTypeWillChange]
+    #[ReturnTypeWillChange]
     public function write(string $id, string $data)
     {
         return $this->cakeSessionHandler->write($id, $data);

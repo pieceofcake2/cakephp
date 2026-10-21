@@ -23,9 +23,9 @@ use Cake\Error\MissingConnectionException;
 use Cake\Model\Datasource\DboSource;
 use Cake\Model\Model;
 use PDO;
+use Pdo\Mysql as PdoMysql;
 use PDOException;
 use PDOStatement;
-use Pdo\Mysql as PdoMysql;
 
 /**
  * MySQL DBO driver object
