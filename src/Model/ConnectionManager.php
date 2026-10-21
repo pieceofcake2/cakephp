@@ -217,7 +217,7 @@ class ConnectionManager
         if ($className === null) {
             throw new MissingDatasourceException([
                 'class' => $conn['classname'],
-                'plugin' => substr($plugin, 0, -1),
+                'plugin' => substr((string)$plugin, 0, -1),
             ]);
         }
         if (!is_array($connName)) {

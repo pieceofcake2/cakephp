@@ -892,7 +892,7 @@ class HttpSocket extends CakeSocket
                 }
 
                 $key = urldecode($key);
-                $value = urldecode($value);
+                $value = urldecode((string)$value);
 
                 if (preg_match_all('/\[([^\[\]]*)\]/iUs', $key, $matches)) {
                     $subKeys = $matches[1];

@@ -106,7 +106,7 @@ class DigestAuthenticate extends BasicAuthenticate
             $this->settings['nonce'] = uniqid('');
         }
         if (empty($this->settings['opaque'])) {
-            $this->settings['opaque'] = md5($this->settings['realm']);
+            $this->settings['opaque'] = md5((string)$this->settings['realm']);
         }
     }
 

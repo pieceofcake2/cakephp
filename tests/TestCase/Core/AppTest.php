@@ -255,7 +255,73 @@ class AppTest extends CakeTestCase
         CakePlugin::load('TestPlugin');
 
         $result = App::path('Vendor', 'TestPlugin');
-        $this->assertEquals($basepath . 'TestPlugin' . DS . 'Vendor' . DS, $result[0]);
+        $this->assertContains($basepath . 'TestPlugin' . DS . 'Vendor' . DS, $result);
+    }
+
+    /**
+     * Test that App::path() finds the src/, templates/, resources/locales/ and vendor/
+     * directories of a plugin before the legacy directories.
+     *
+     * @return void
+     */
+    public function testPathWithModernPluginLayout(): void
+    {
+        $basepath = CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS;
+        App::build([
+            'Plugin' => [$basepath],
+        ]);
+        CakePlugin::load('TestPluginModern');
+        $pluginPath = $basepath . 'TestPluginModern' . DS;
+
+        $result = App::path('Controller', 'TestPluginModern');
+        $expected = [
+            $pluginPath . 'src' . DS . 'Controller' . DS,
+            $pluginPath . 'Controller' . DS,
+        ];
+        $this->assertSame($expected, $result);
+
+        $result = App::path('View', 'TestPluginModern');
+        $expected = [
+            $pluginPath . 'templates' . DS,
+            $pluginPath . 'View' . DS,
+        ];
+        $this->assertSame($expected, $result);
+
+        $result = App::path('Locale', 'TestPluginModern');
+        $expected = [
+            $pluginPath . 'resources' . DS . 'locales' . DS,
+            $pluginPath . 'Locale' . DS,
+        ];
+        $this->assertSame($expected, $result);
+
+        $result = App::path('Vendor', 'TestPluginModern');
+        $this->assertSame($pluginPath . 'vendor' . DS, $result[0]);
+        $this->assertNotContains($pluginPath . 'src' . DS . 'Vendor' . DS, $result);
+
+        $result = App::path('View/Helper', 'TestPluginModern');
+        $expected = [
+            $pluginPath . 'src' . DS . 'View' . DS . 'Helper' . DS,
+            $pluginPath . 'View' . DS . 'Helper' . DS,
+        ];
+        $this->assertSame($expected, $result);
+    }
+
+    /**
+     * Test that App::path() does not add the src/ or templates/ directory of a plugin
+     * that does not have it.
+     *
+     * @return void
+     */
+    public function testPathWithLegacyPluginLayout(): void
+    {
+        $basepath = CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS;
+        App::build([
+            'Plugin' => [$basepath],
+        ]);
+        CakePlugin::load('TestPlugin');
+
+        $result = App::path('View', 'TestPlugin');
+        $this->assertSame([$basepath . 'TestPlugin' . DS . 'View' . DS], $result);
     }
 
     /**
@@ -860,6 +926,25 @@ class AppTest extends CakeTestCase
         CakePlugin::load(['TestPlugin', 'TestPluginTwo']);
         $this->assertFalse(class_exists('TestPluginOtherLibrary', false));
         $this->assertTrue(class_exists('TestPluginOtherLibrary'));
+    }
+
+    /**
+     * Test that objects and vendor files are found in a plugin with the modern layout.
+     *
+     * @return void
+     */
+    public function testModernPluginLayoutObjects(): void
+    {
+        App::build([
+            'plugins' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
+        ], App::RESET);
+        CakePlugin::load('TestPluginModern');
+
+        $result = App::objects('TestPluginModern.Controller/Component');
+        $this->assertSame(['ModernComponent'], $result);
+
+        $this->assertTrue(App::import('Vendor', 'TestPluginModern.sample/modern_vendor'));
+        $this->assertTrue(defined('TEST_PLUGIN_MODERN_VENDOR_LOADED'));
     }
 
     /**

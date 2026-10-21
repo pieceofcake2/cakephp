@@ -463,7 +463,7 @@ class RequestHandlerComponentTest extends CakeTestCase
         $this->Controller->request->expects($this->once())
             ->method('_readInput')
             ->will($this->returnValue('"A","csv","string"'));
-        $this->RequestHandler->addInputType('csv', ['str_getcsv']);
+        $this->RequestHandler->addInputType('csv', ['str_getcsv', ',', '"', '\\']);
         $this->RequestHandler->startup($this->Controller);
         $expected = [
             'A', 'csv', 'string',

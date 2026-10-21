@@ -17,6 +17,41 @@ Before migrating to this fork, ensure:
 
 ## Unreleased
 
+### Plugins in the CakePHP 5 Layout ([PR #88](https://github.com/pieceofcake2/cakephp/pull/88))
+
+A plugin may use the CakePHP 5 layout: namespaced classes in `src/`, views in `templates/`, translations in `resources/locales/`, vendor files in `vendor/` and `bootstrap.php`, `routes.php`, configuration files and schemas in `config/`. CakePHP searches these directories before the directories of the CakePHP 2 layout, which are still searched, so nothing changes for a plugin that does not have them.
+
+- The classes in `src/` are namespaced classes, e.g. `MyPlugin\Controller\Component\GreetingComponent` in `src/Controller/Component/GreetingComponent.php`, loaded by Composer with the `psr-4` entry of the plugin (`"MyPlugin\\": "src/"`). `App::uses()` does not look in `src/`.
+- A plugin that already has one of these directories for another purpose gets more search paths, searched first: a file of the same name in `templates/` or `resources/locales/` is used instead of the one in `View/` or `Locale/`. `src/` is searched only for classes (`src/Controller/`, `src/View/Helper/`, ...), never for templates, so the view classes in `src/View/` are not read as templates. For example, `App::objects('MyPlugin.Controller')` also lists the files in `src/Controller/`, and `App::import('Vendor', 'MyPlugin.foo')` also looks in the Composer `vendor/` directory of a plugin checked out for development.
+- A plugin with both `Config/` and `config/` (only possible on a case-sensitive file system) uses `config/`. On a case-insensitive file system, the paths of a plugin with `Config/` are shown as `config/`; they are the same directory.
+
+### Templates in the CakePHP 5 Style ([PR #94](https://github.com/pieceofcake2/cakephp/pull/94))
+
+Templates in `templates/` may use the `.php` extension and the directory names of CakePHP 5 (`layout/`, `element/`, `email/`, `Error/`). Nothing changes for `.ctp` templates and for the `View/` directories of the CakePHP 2 layout.
+
+- In a `templates/` directory, a `foo.php` template is used instead of a `foo.ctp` template next to it, and `layout/default.php` or `layout/default.ctp` instead of `Layouts/default.ctp`. Check that no `.php` files other than templates are left in `templates/`.
+- `View/` directories are not searched for `.php` files, as they also hold view and helper classes. A view that sets `$ext = '.php'` still finds its templates there, as before.
+- To move templates, rename `.ctp` to `.php`, and `Layouts/`, `Elements/`, `Emails/` and `Errors/` to `layout/`, `element/`, `email/` and `Error/`; email layouts move from `Layouts/Emails/html/` to `layout/email/html/`.
+
+### PHP 8.1 to 8.5 Deprecations ([PR #96](https://github.com/pieceofcake2/cakephp/pull/96))
+
+The core no longer triggers the deprecations of PHP 8.1 to 8.5 in its code. Most applications only need to update.
+
+- **`Xml::build()` `loadEntities`**: The option is removed. It only decided whether `Xml` called `libxml_disable_entity_loader()`, which PHP 8 deprecates and which no longer changes anything with libxml 2.9 and later: external entities are not loaded either way. Passing the option is ignored, so you can remove it from your calls.
+- **`CakeRequest::input()` with a decoding callback**: It returns `null` without calling the callback when the request has no body. `RequestHandlerComponent` sets the same empty data as before. If a callback of your own handled an empty body, handle `null` instead.
+- **`symfony/polyfill-php84`**: The core requires it for the `Pdo\Mysql` constants on PHP 8.0 to 8.3. Composer installs it.
+
+### Classes in a Namespace: `App::className()` and `App.namespace` ([PR #91](https://github.com/pieceofcake2/cakephp/pull/91))
+
+Nothing changes for an application that uses only global class names and does not set `App.namespace`.
+
+- Fully qualified class names may be written with the suffix (`GreetingComponent::class`) or without it (`'Acme\Controller\Component\Greeting'`) in the settings of cache engines, email transports, Auth objects, password hashers, view classes, components, helpers, behaviors, shell tasks and shell helpers.
+- `Controller::$name`, `Model::$name` and `Shell::$name` no longer contain the namespace of a class in a namespace that does not set them, e.g. `Post` instead of `Acme\Model\Post`. Before, the name with the backslashes gave wrong table names and view paths; set `$name` if you relied on it.
+- The other settings that name a class (log engines, `Exception.renderer`, datasources, session handlers, route classes, dispatcher filters, `Acl.classname`, helper engines, configuration readers, localized validation classes, `HttpSocket` response and authentication classes, test reporters) also find their classes with `App::className()`. Their global and fully qualified names work as before.
+- `App.namespace` is new and not set by default. When you set it, CakePHP first looks for controllers, shells, models, components, helpers, behaviors and the other classes above in that namespace, e.g. `App\Model\Post` for `ClassRegistry::init('Post')`, then for the global classes. A class in the namespace with the same short name as a global class is used instead of it.
+- `Controller` and `View` have the new public property `$controllerClass`, and the view vars passed from a controller include it. If a subclass declares a property of that name, rename it.
+- Fully qualified class names as keys of `$components`, `$helpers`, `$actsAs`, `$tasks`, `$uses` and the model associations, or given to `load()` and `loadModel()`, get the short class name without the namespace and the suffix as their alias, e.g. `$this->Greeting` for `GreetingComponent::class` and `$this->Post` for `Post::class`, the same as `'Greeting' => ['className' => GreetingComponent::class]`. This also applies to a key with its own `'className'`, which keeps that class. Before, the alias contained the backslashes; such aliases are now the short class name, so code that uses the alias with the backslashes (`$this->{'Acme\Controller\Component\GreetingComponent'}`, `Components->loaded()`, the association keys or the alias in conditions) must use the short name, e.g. `Greeting`. When a parent and a child class name the same object, one by its class name and one by its short name, the settings are merged into one entry with the class name in `'className'`, as for two short names. `'with' => PostsTag::class` of a hasAndBelongsToMany association finds the join model `PostsTag`.
+
 ### The Framework in the `Cake` Namespace ([PR #92](https://github.com/pieceofcake2/cakephp/pull/92))
 
 The classes of the framework moved into the `Cake` namespace, e.g. `Cake\Controller\Controller`. The global names of CakePHP 2 are aliases of the same classes, so code that extends, type-hints, catches or loads `Controller`, `CakeRequest` or `NotFoundException` keeps working without changes.
@@ -30,17 +65,6 @@ The classes of the framework moved into the `Cake` namespace, e.g. `Cake\Control
 - **Overriding a core class**: A global class registered with `App::uses()` (e.g. `Dispatcher` in `src/Lib/Routing/Dispatcher.php`) no longer replaces the core class, because the core uses the namespaced name (`Cake\Routing\Dispatcher`); PHP warns that the global name is already in use. Copy the core file to the same path below `src/Cake/` (`src/Cake/Routing/Dispatcher.php`), keep its namespace and its `class_alias()`, and let Composer load it with the classmap of `src/`. Exclude the core file with `exclude-from-classmap` (`vendor/pieceofcake2/cakephp/src/Routing/Dispatcher.php`), so that `composer dump-autoload -o` does not warn about an ambiguous class. In an application with only PSR-4 for `src/`, add `src/Cake/` to the classmap.
 - **Static analysis**: PHPStan resolves the aliases. pieceofcake2/phpstan-cakephp2 needs a version that compares the namespaced classes (see its changelog).
 - New code can import the namespaced classes: `use Cake\Controller\Component;`.
-
-### Classes in a Namespace: `App::className()` and `App.namespace` ([PR #91](https://github.com/pieceofcake2/cakephp/pull/91))
-
-Nothing changes for an application that uses only global class names and does not set `App.namespace`.
-
-- Fully qualified class names may be written with the suffix (`GreetingComponent::class`) or without it (`'Acme\Controller\Component\Greeting'`) in the settings of cache engines, email transports, Auth objects, password hashers, view classes, components, helpers, behaviors, shell tasks and shell helpers.
-- `Controller::$name`, `Model::$name` and `Shell::$name` no longer contain the namespace of a class in a namespace that does not set them, e.g. `Post` instead of `Acme\Model\Post`. Before, the name with the backslashes gave wrong table names and view paths; set `$name` if you relied on it.
-- The other settings that name a class (log engines, `Exception.renderer`, datasources, session handlers, route classes, dispatcher filters, `Acl.classname`, helper engines, configuration readers, localized validation classes, `HttpSocket` response and authentication classes, test reporters) also find their classes with `App::className()`. Their global and fully qualified names work as before.
-- `App.namespace` is new and not set by default. When you set it, CakePHP first looks for controllers, shells, models, components, helpers, behaviors and the other classes above in that namespace, e.g. `App\Model\Post` for `ClassRegistry::init('Post')`, then for the global classes. A class in the namespace with the same short name as a global class is used instead of it.
-- `Controller` and `View` have the new public property `$controllerClass`, and the view vars passed from a controller include it. If a subclass declares a property of that name, rename it.
-- Fully qualified class names as keys of `$components`, `$helpers`, `$actsAs`, `$tasks`, `$uses` and the model associations, or given to `load()` and `loadModel()`, get the short class name without the namespace and the suffix as their alias, e.g. `$this->Greeting` for `GreetingComponent::class` and `$this->Post` for `Post::class`, the same as `'Greeting' => ['className' => GreetingComponent::class]`. This also applies to a key with its own `'className'`, which keeps that class. Before, the alias contained the backslashes; such aliases are now the short class name, so code that uses the alias with the backslashes (`$this->{'Acme\Controller\Component\GreetingComponent'}`, `Components->loaded()`, the association keys or the alias in conditions) must use the short name, e.g. `Greeting`. When a parent and a child class name the same object, one by its class name and one by its short name, the settings are merged into one entry with the class name in `'className'`, as for two short names. `'with' => PostsTag::class` of a hasAndBelongsToMany association finds the join model `PostsTag`.
 
 ## v2.12.11
 

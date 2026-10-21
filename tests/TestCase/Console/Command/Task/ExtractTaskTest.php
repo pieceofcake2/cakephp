@@ -530,21 +530,29 @@ class ExtractTaskTest extends CakeTestCase
             "__dcn('domain', 'second singular', 'second plural', 1, 6);\n";
 
         $tokens = new ReflectionProperty('ExtractTask', '_tokens');
-        $tokens->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $tokens->setAccessible(true);
+        }
         $tokens->setValue($this->Task, array_values(array_filter(
             token_get_all($code),
             fn($token) => !is_array($token) || ($token[0] !== T_WHITESPACE && $token[0] !== T_INLINE_HTML),
         )));
         $file = new ReflectionProperty('ExtractTask', '_file');
-        $file->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $file->setAccessible(true);
+        }
         $file->setValue($this->Task, 'test.php');
 
         $parse = new ReflectionMethod('ExtractTask', '_parse');
-        $parse->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $parse->setAccessible(true);
+        }
         $parse->invoke($this->Task, '__dcn', ['domain', 'singular', 'plural', 'count', 'category']);
 
         $translations = new ReflectionProperty('ExtractTask', '_translations');
-        $translations->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $translations->setAccessible(true);
+        }
         $result = $translations->getValue($this->Task);
 
         $this->assertArrayHasKey('first singular', $result['LC_MESSAGES']['domain']);

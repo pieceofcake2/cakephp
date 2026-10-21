@@ -282,7 +282,7 @@ class CakeNumber
      */
     protected static function _numberFormat($value, $places = 0, $decimals = '.', $thousands = ',')
     {
-        return number_format($value, $places, $decimals, $thousands);
+        return number_format($value, (int)$places, $decimals, $thousands);
     }
 
     /**

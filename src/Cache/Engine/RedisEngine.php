@@ -189,7 +189,7 @@ class RedisEngine extends CacheEngine
      */
     public function delete($key)
     {
-        return $this->_Redis->delete($key) > 0;
+        return $this->_Redis->del($key) > 0;
     }
 
     /**

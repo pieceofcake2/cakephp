@@ -132,7 +132,7 @@ class BehaviorCollection extends ObjectCollection implements CakeEventListener
         if ($class === null) {
             throw new MissingBehaviorException([
                 'class' => static::_className($name),
-                'plugin' => substr($plugin, 0, -1),
+                'plugin' => substr((string)$plugin, 0, -1),
             ]);
         }
 

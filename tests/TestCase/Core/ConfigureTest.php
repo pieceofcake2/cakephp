@@ -169,7 +169,9 @@ class ConfigureTest extends CakeTestCase
         ];
         Configure::write('App', $expected);
 
+        $level = error_reporting();
         Configure::bootstrap(true);
+        error_reporting($level);
         $this->_restoreError = true;
         $result = Configure::read('App');
 

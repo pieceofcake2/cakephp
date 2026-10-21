@@ -35,6 +35,8 @@ if (isset($GLOBALS['_composer_autoload_path'])) {
 
 new ShellDispatcher([$_SERVER['argv'][0]]);
 
+// The bootstrap of CakePHP and the application leave out E_DEPRECATED, which the tests report
+error_reporting(E_ALL);
 set_error_handler(new ErrorHandler(true, true, true, true));
 
 // Security::cipher() reports its deprecation and an out-of-range Security.cipherSeed once
