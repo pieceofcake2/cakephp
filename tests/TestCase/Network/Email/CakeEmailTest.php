@@ -757,6 +757,29 @@ class CakeEmailTest extends CakeTestCase
     }
 
     /**
+     * Asserts the headers of the email. The Date header is the time of the call, so it is checked
+     * against the time before and after the call, as the second may change in between.
+     *
+     * @param array $expected The expected headers, with null for Date
+     * @param array $include The headers to include, as for getHeaders()
+     * @return void
+     */
+    protected function _assertHeaders(array $expected, array $include = []): void
+    {
+        $before = time();
+        $headers = $this->CakeEmail->getHeaders($include);
+        $after = time();
+
+        $time = strtotime($headers['Date']);
+        $this->assertGreaterThanOrEqual($before, $time);
+        $this->assertLessThanOrEqual($after, $time);
+        $this->assertSame(date(DATE_RFC2822, $time), $headers['Date']);
+
+        $expected['Date'] = $headers['Date'];
+        $this->assertSame($expected, $headers);
+    }
+
+    /**
      * testHeaders method
      *
      * @return void
@@ -768,43 +791,43 @@ class CakeEmailTest extends CakeTestCase
         $expected = [
             'X-Something' => 'nice',
             'X-Mailer' => 'CakePHP Email',
-            'Date' => date(DATE_RFC2822),
+            'Date' => null,
             'MIME-Version' => '1.0',
             'Content-Type' => 'text/plain; charset=UTF-8',
             'Content-Transfer-Encoding' => '8bit',
         ];
-        $this->assertSame($expected, $this->CakeEmail->getHeaders());
+        $this->_assertHeaders($expected);
 
         $this->CakeEmail->addHeaders(['X-Something' => 'very nice', 'X-Other' => 'cool']);
         $expected = [
             'X-Something' => 'very nice',
             'X-Other' => 'cool',
             'X-Mailer' => 'CakePHP Email',
-            'Date' => date(DATE_RFC2822),
+            'Date' => null,
             'MIME-Version' => '1.0',
             'Content-Type' => 'text/plain; charset=UTF-8',
             'Content-Transfer-Encoding' => '8bit',
         ];
-        $this->assertSame($expected, $this->CakeEmail->getHeaders());
+        $this->_assertHeaders($expected);
 
         $this->CakeEmail->from('cake@cakephp.org');
-        $this->assertSame($expected, $this->CakeEmail->getHeaders());
+        $this->_assertHeaders($expected);
 
         $expected = [
             'From' => 'cake@cakephp.org',
             'X-Something' => 'very nice',
             'X-Other' => 'cool',
             'X-Mailer' => 'CakePHP Email',
-            'Date' => date(DATE_RFC2822),
+            'Date' => null,
             'MIME-Version' => '1.0',
             'Content-Type' => 'text/plain; charset=UTF-8',
             'Content-Transfer-Encoding' => '8bit',
         ];
-        $this->assertSame($expected, $this->CakeEmail->getHeaders(['from' => true]));
+        $this->_assertHeaders($expected, ['from' => true]);
 
         $this->CakeEmail->from('cake@cakephp.org', 'CakePHP');
         $expected['From'] = 'CakePHP <cake@cakephp.org>';
-        $this->assertSame($expected, $this->CakeEmail->getHeaders(['from' => true]));
+        $this->_assertHeaders($expected, ['from' => true]);
 
         $this->CakeEmail->to(['cake@cakephp.org', 'php@cakephp.org' => 'CakePHP']);
         $expected = [
@@ -813,12 +836,12 @@ class CakeEmailTest extends CakeTestCase
             'X-Something' => 'very nice',
             'X-Other' => 'cool',
             'X-Mailer' => 'CakePHP Email',
-            'Date' => date(DATE_RFC2822),
+            'Date' => null,
             'MIME-Version' => '1.0',
             'Content-Type' => 'text/plain; charset=UTF-8',
             'Content-Transfer-Encoding' => '8bit',
         ];
-        $this->assertSame($expected, $this->CakeEmail->getHeaders(['from' => true, 'to' => true]));
+        $this->_assertHeaders($expected, ['from' => true, 'to' => true]);
 
         $this->CakeEmail->charset = 'ISO-2022-JP';
         $expected = [
@@ -827,12 +850,12 @@ class CakeEmailTest extends CakeTestCase
             'X-Something' => 'very nice',
             'X-Other' => 'cool',
             'X-Mailer' => 'CakePHP Email',
-            'Date' => date(DATE_RFC2822),
+            'Date' => null,
             'MIME-Version' => '1.0',
             'Content-Type' => 'text/plain; charset=ISO-2022-JP',
             'Content-Transfer-Encoding' => '7bit',
         ];
-        $this->assertSame($expected, $this->CakeEmail->getHeaders(['from' => true, 'to' => true]));
+        $this->_assertHeaders($expected, ['from' => true, 'to' => true]);
 
         $result = $this->CakeEmail->setHeaders([]);
         $this->assertInstanceOf(CakeEmail::class, $result);
