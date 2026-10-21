@@ -224,6 +224,8 @@ class ApiShell extends AppShell
 
         if (!class_exists($class) && !include_once $path) {
             $this->err(__d('cake_console', '%s could not be found', $path));
+
+            return $parsed;
         }
 
         $reflection = new ReflectionClass($class);

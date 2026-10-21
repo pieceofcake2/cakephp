@@ -23,6 +23,7 @@ use Cake\Console\ConsoleInput;
 use Cake\Console\ConsoleOptionParser;
 use Cake\Console\ConsoleOutput;
 use Cake\TestSuite\CakeTestCase;
+use ReflectionMethod;
 use RuntimeException;
 
 /**
@@ -298,6 +299,38 @@ class ApiShellTest extends CakeTestCase
 
         $this->assertSame('HtmlHelper', $this->outCalls[0]);
         $this->assertNotEmpty(preg_grep('/^\d+\. link\(/', $this->outCalls[1]));
+    }
+
+    /**
+     * Test that a class file that cannot be included is reported, and gives no methods
+     *
+     * @return void
+     */
+    public function testParseClassFileNotIncluded(): void
+    {
+        $path = TMP . 'api_shell_missing' . DS . 'ApiShellMissingClass.php';
+        $this->Shell->expects($this->once())
+            ->method('err')
+            ->with($path . ' could not be found');
+
+        $method = new ReflectionMethod($this->Shell, '_parseClass');
+        if (PHP_VERSION_ID < 80100) {
+            $method->setAccessible(true);
+        }
+        $warnings = [];
+        set_error_handler(function ($errno, $errstr) use (&$warnings) {
+            $warnings[] = $errstr;
+
+            return true;
+        }, E_WARNING);
+        try {
+            $result = $method->invoke($this->Shell, $path, 'ApiShellMissingClass');
+        } finally {
+            restore_error_handler();
+        }
+
+        $this->assertSame([], $result);
+        $this->assertNotEmpty($warnings);
     }
 
     /**
