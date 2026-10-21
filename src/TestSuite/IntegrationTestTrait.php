@@ -62,16 +62,6 @@ use PHPUnit\Exception as PHPUnitException;
 use ReflectionProperty;
 use Throwable;
 
-App::uses('CakeRequest', 'Network');
-App::uses('CakeSession', 'Model/Datasource');
-App::uses('Hash', 'Utility');
-App::uses('Router', 'Routing');
-App::uses('Security', 'Utility');
-App::uses('CookieCryptTrait', 'TestSuite');
-App::uses('IntegrationTestDispatcher', 'TestSuite');
-App::uses('IntegrationTestResponse', 'TestSuite');
-App::uses('IntegrationTestStop', 'TestSuite');
-
 /**
  * A trait intended to make integration tests of your controllers easier.
  *

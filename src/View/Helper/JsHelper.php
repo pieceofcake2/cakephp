@@ -19,11 +19,8 @@
 namespace Cake\View\Helper;
 
 use AppHelper;
-use Cake\Core\App;
 use Cake\Core\Configure;
 use Cake\View\View;
-
-App::uses('AppHelper', 'View/Helper');
 
 /**
  * Javascript Generator helper class for easy use of JavaScript.

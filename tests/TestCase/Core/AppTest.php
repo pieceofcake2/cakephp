@@ -29,11 +29,13 @@ use Cake\Controller\Controller;
 use Cake\Core\App;
 use Cake\Core\CakePlugin;
 use Cake\Core\Configure;
+use Cake\Log\CakeLog;
 use Cake\Model\Behavior\ContainableBehavior;
 use Cake\Model\Datasource\DboSource;
 use Cake\Model\Model;
 use Cake\TestSuite\CakeTestCase;
 use Cake\View\Helper\FormHelper;
+use Closure;
 use Composer\Autoload\ClassLoader;
 use ConfigureTestVendorSample;
 use ExampleExample;
@@ -42,6 +44,7 @@ use SamplePluginClassTestName;
 use TestApp\Controller\Component\NamespacedComponent;
 use TestApp\Controller\PagesController;
 use TestApp\Lib\Library;
+use TestApp\Log\Engine\AppTestCaptureLog;
 use TestApp\Model\NamespacedPost;
 use TestApp\Model\PersisterOne;
 use TestApp\Model\PersisterTwo;
@@ -83,8 +86,123 @@ class AppTest extends CakeTestCase
     public function tearDown(): void
     {
         CakePlugin::unload();
+        CakeLog::drop('app_test_capture');
+        AppTestCaptureLog::$messages = [];
+        $this->_setUsesReported(true);
 
         parent::tearDown();
+    }
+
+    /**
+     * Sets whether the deprecation of App::uses() was already reported.
+     *
+     * @param bool $reported Whether it was reported.
+     * @return void
+     */
+    protected function _setUsesReported($reported): void
+    {
+        Closure::bind(function () use ($reported) {
+            static::$_usesDeprecationReported = $reported;
+        }, null, App::class)();
+    }
+
+    /**
+     * Lets App::uses() report its deprecation again, and keeps the messages that are logged.
+     *
+     * @return void
+     */
+    protected function _captureUsesReports(): void
+    {
+        $this->_setUsesReported(false);
+        AppTestCaptureLog::$messages = [];
+        CakeLog::config('app_test_capture', ['engine' => AppTestCaptureLog::class]);
+    }
+
+    /**
+     * Calls a function and collects the E_USER_DEPRECATED errors it triggers.
+     *
+     * @param callable $callback Function to call.
+     * @return array<int, string>
+     */
+    protected function _collectDeprecations(callable $callback): array
+    {
+        $errors = [];
+        set_error_handler(function ($errno, $errstr) use (&$errors) {
+            $errors[] = $errstr;
+
+            return true;
+        }, E_USER_DEPRECATED);
+        try {
+            $callback();
+        } finally {
+            restore_error_handler();
+        }
+
+        return $errors;
+    }
+
+    /**
+     * App::uses() logs its deprecation once, with the file and line of the call.
+     *
+     * @return void
+     */
+    public function testUsesDeprecationLoggedOnce(): void
+    {
+        Configure::write('debug', 0);
+        $this->_captureUsesReports();
+
+        $line = __LINE__ + 2;
+        $errors = $this->_collectDeprecations(function () {
+            App::uses('AppTestUsesFirst', 'Model');
+            App::uses('AppTestUsesSecond', 'Model');
+        });
+
+        $this->assertSame([], $errors, 'No E_USER_DEPRECATED with debug off');
+        $this->assertSame([[
+            'warning',
+            'App::uses() is deprecated (called in ' . __FILE__ . ' on line ' . $line . '). Let Composer load the classes'
+            . ' of the application and of its plugins, with a classmap or PSR-4 in composer.json.',
+        ]], AppTestCaptureLog::$messages);
+    }
+
+    /**
+     * With debug on, the deprecation of App::uses() is also triggered as E_USER_DEPRECATED, once.
+     *
+     * @return void
+     */
+    public function testUsesDeprecationTriggeredOnceInDebug(): void
+    {
+        Configure::write('debug', 2);
+        $this->_captureUsesReports();
+
+        $errors = $this->_collectDeprecations(function () {
+            App::uses('AppTestUsesFirst', 'Model');
+            App::uses('AppTestUsesSecond', 'Model');
+        });
+
+        $this->assertCount(1, $errors);
+        $this->assertStringStartsWith('App::uses() is deprecated (called in ' . __FILE__ . ' on line ', $errors[0]);
+        $this->assertSame($errors[0], AppTestCaptureLog::$messages[0][1]);
+    }
+
+    /**
+     * The core finds the classes without App::uses(), so it does not report the deprecation.
+     *
+     * @return void
+     */
+    public function testCoreDoesNotUseUses(): void
+    {
+        Configure::write('debug', 2);
+        $this->_captureUsesReports();
+
+        $errors = $this->_collectDeprecations(function () {
+            App::className('AppTestMissing', 'Model');
+            App::import('Model', 'AppTestMissing');
+            App::import('Console/Command', 'Shell', false);
+        });
+
+        $this->assertSame([], $errors);
+        $this->assertSame([], AppTestCaptureLog::$messages);
     }
 
     /**
@@ -1055,7 +1173,6 @@ class AppTest extends CakeTestCase
             // The file map that App caches is neither read nor written
             'Closure::bind(function () { static::$_map = []; }, null, App::class)();' . "\n" .
             ($cached ? 'Closure::bind(function () { static::$_map["AppController"] = ' . var_export(CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'Controller' . DS . 'AppController.php', true) . '; }, null, App::class)();' . "\n" : '') .
-            'App::uses("AppController", "Controller");' . "\n" .
             'echo (new ReflectionClass("AppController"))->getName(), "\n";' . "\n" .
             'echo get_parent_class("CakeErrorController"), "\n";' . "\n" .
             'Closure::bind(function () { static::$_cacheChange = false; static::$_objectCacheChange = false; }, null, App::class)();' . "\n";

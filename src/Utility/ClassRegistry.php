@@ -26,7 +26,6 @@ use ReflectionClass;
 /**
  * Included libraries.
  */
-App::uses('AppModel', 'Model');
 
 /**
  * Class Collections.
@@ -172,7 +171,9 @@ class ClassRegistry
                     return $model;
                 }
 
-                App::uses($plugin . 'AppModel', $pluginPath . 'Model');
+                if ($plugin) {
+                    App::className($pluginPath . $plugin . 'AppModel', 'Model');
+                }
                 $className = App::className($pluginPath . $class, 'Model') ?? $class;
                 if ($className !== $class) {
                     $model = $_this->_duplicate($alias, $className);

@@ -15,11 +15,8 @@
 
 namespace Cake\TestSuite;
 
-use Cake\Core\App;
 use Cake\Utility\Security;
 use InvalidArgumentException;
-
-App::uses('Security', 'Utility');
 
 /**
  * Encrypts and decrypts cookie values like `CookieComponent`.

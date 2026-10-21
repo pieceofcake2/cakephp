@@ -15,10 +15,6 @@
 
 namespace Cake\TestSuite\Constraint\Response;
 
-use Cake\Core\App;
-
-App::uses('StatusCodeConstraintBase', 'TestSuite/Constraint/Response');
-
 /**
  * Asserts that the response status code is between 400 and 429.
  *

@@ -17,9 +17,6 @@
 namespace Cake\Model;
 
 use AppModel;
-use Cake\Core\App;
-
-App::uses('AppModel', 'Model');
 
 /**
  * A model used by TranslateBehavior to access the translation tables.

@@ -15,11 +15,8 @@
 
 namespace Cake\TestSuite\Constraint\Response;
 
-use Cake\Core\App;
 use Cake\Network\CakeResponse;
 use Cake\TestSuite\CookieCryptTrait;
-
-App::uses('CookieEqualsConstraint', 'TestSuite/Constraint/Response');
 
 /**
  * Asserts the decrypted value of a cookie written by `CookieComponent`.

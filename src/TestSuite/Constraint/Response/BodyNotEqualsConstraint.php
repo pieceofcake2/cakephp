@@ -15,10 +15,6 @@
 
 namespace Cake\TestSuite\Constraint\Response;
 
-use Cake\Core\App;
-
-App::uses('BodyEqualsConstraint', 'TestSuite/Constraint/Response');
-
 /**
  * Asserts that the response body does not equal a string.
  *

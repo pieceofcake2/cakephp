@@ -126,7 +126,7 @@ class CacheHelperTest extends CakeTestCase
         $View->render('index');
         $contents = file_get_contents($filename);
         unlink($filename);
-        $this->assertStringContainsString("App::uses('CacheTestController', 'Controller');", $contents);
+        $this->assertStringContainsString("App::className('CacheTest', 'Controller', 'Controller');", $contents);
         $this->assertStringContainsString('$controller = new CacheTestController($request, $response);', $contents);
     }
 }

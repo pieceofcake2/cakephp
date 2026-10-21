@@ -15,10 +15,6 @@
 
 namespace Cake\TestSuite\Constraint\Email;
 
-use Cake\Core\App;
-
-App::uses('MailContainsConstraint', 'TestSuite/Constraint/Email');
-
 /**
  * Asserts that an email has an attachment.
  *

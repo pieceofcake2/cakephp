@@ -29,8 +29,6 @@ use Cake\Utility\File;
 use Cake\Utility\Inflector;
 use Exception;
 
-App::uses('AppModel', 'Model');
-
 /**
  * Base Class for Schema management.
  *
@@ -217,7 +215,7 @@ class CakeSchema extends CakeObject
         $db = ConnectionManager::getDataSource($options['connection']);
 
         if (isset($this->plugin)) {
-            App::uses($this->plugin . 'AppModel', $this->plugin . '.Model');
+            App::className($this->plugin . '.' . $this->plugin . 'AppModel', 'Model');
         }
 
         $tables = [];

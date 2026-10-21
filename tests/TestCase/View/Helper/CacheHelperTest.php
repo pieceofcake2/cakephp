@@ -738,7 +738,7 @@ class CacheHelperTest extends CakeTestCase
         $View->render('index');
         $contents = file_get_contents($filename);
         unlink($filename);
-        $this->assertStringNotContainsString('App::uses(', $contents);
+        $this->assertStringNotContainsString('App::className(', $contents);
         $this->assertStringContainsString('$controller = new \\' . CacheTestController::class . '($request, $response);', $contents);
 
         $this->Controller->controllerClass = NamespacedController::class;
@@ -746,7 +746,7 @@ class CacheHelperTest extends CakeTestCase
         $View->render('index');
         $contents = file_get_contents($filename);
         unlink($filename);
-        $this->assertStringNotContainsString('App::uses(', $contents);
+        $this->assertStringNotContainsString('App::className(', $contents);
         $this->assertStringContainsString('$controller = new \\TestApp\\Controller\\NamespacedController($request, $response);', $contents);
     }
 }

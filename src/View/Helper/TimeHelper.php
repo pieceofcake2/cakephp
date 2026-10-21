@@ -27,8 +27,6 @@ use Cake\View\View;
 use DateTime;
 use DateTimeZone;
 
-App::uses('AppHelper', 'View/Helper');
-
 /**
  * Time Helper class for easy use of time data.
  *

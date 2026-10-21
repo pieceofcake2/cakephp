@@ -16,7 +16,6 @@
 namespace Cake\TestSuite;
 
 use Cake\Controller\Controller;
-use Cake\Core\App;
 use Cake\Error\MissingControllerException;
 use Cake\Event\CakeEvent;
 use Cake\Network\CakeRequest;
@@ -25,11 +24,6 @@ use Cake\Routing\Dispatcher;
 use Cake\Routing\Route\RedirectRoute;
 use Cake\Routing\Router;
 use Cake\Utility\Inflector;
-
-App::uses('Dispatcher', 'Routing');
-App::uses('IntegrationTestResponse', 'TestSuite');
-App::uses('RedirectRoute', 'Routing/Route');
-App::uses('Router', 'Routing');
 
 /**
  * Dispatcher used by `IntegrationTestTrait`.

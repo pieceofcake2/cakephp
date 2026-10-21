@@ -24,7 +24,6 @@ namespace Cake\Error;
 use AppController;
 use Cake\Controller\CakeErrorController;
 use Cake\Controller\Controller;
-use Cake\Core\App;
 use Cake\Core\Configure;
 use Cake\Event\CakeEvent;
 use Cake\Network\CakeRequest;
@@ -155,7 +154,6 @@ class ExceptionRenderer
      */
     protected function _getController($exception)
     {
-        App::uses('AppController', 'Controller');
         if (!$request = Router::getRequest(true)) {
             $request = new CakeRequest();
         }

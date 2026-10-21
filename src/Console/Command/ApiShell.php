@@ -24,8 +24,6 @@ use Cake\Core\App;
 use Cake\Utility\Inflector;
 use ReflectionClass;
 
-App::uses('AppShell', 'Console/Command');
-
 /**
  * API shell to show method signatures of CakePHP core classes.
  *

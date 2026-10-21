@@ -15,10 +15,7 @@
 
 namespace Cake\TestSuite\Constraint\Response;
 
-use Cake\Core\App;
 use Cake\Network\CakeResponse;
-
-App::uses('ResponseConstraintBase', 'TestSuite/Constraint/Response');
 
 /**
  * Asserts that a response header is set.

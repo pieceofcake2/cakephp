@@ -1062,8 +1062,7 @@ class ExceptionRendererTest extends CakeTestCase
     }
 
     /**
-     * Test that the suggested code has no App::uses() for the modern layout, where the
-     * Composer classmap autoloads the application and core classes, except for plugin classes.
+     * Test that the suggested code has no App::uses(), which is deprecated.
      *
      * @return void
      */
@@ -1072,7 +1071,8 @@ class ExceptionRendererTest extends CakeTestCase
         $this->assertSame('src', basename(rtrim(APP, DS)), 'The test app uses the modern layout.');
         // highlight_string() uses <br /> and &nbsp; before PHP 8.3
         $code = function ($result) {
-            $text = html_entity_decode(strip_tags(str_replace('<br />', "\n", $result)), ENT_QUOTES, 'UTF-8');
+            $this->assertSame(1, preg_match('/<div class="code-dump">(.*?)<\/div>/s', $result, $match));
+            $text = html_entity_decode(strip_tags(str_replace('<br />', "\n", $match[1])), ENT_QUOTES, 'UTF-8');
 
             return str_replace("\u{a0}", ' ', $text);
         };
@@ -1090,7 +1090,8 @@ class ExceptionRendererTest extends CakeTestCase
         }
 
         $result = $code($this->_render(new MissingControllerException(['class' => 'PostsController', 'plugin' => 'Blog'])));
-        $this->assertStringContainsString("App::uses('BlogAppController', 'Blog.Controller');", $result);
+        $this->assertMatchesRegularExpression('/<\?php\s+class PostsController extends BlogAppController/', $result);
+        $this->assertStringNotContainsString('App::uses(', $result);
     }
 
     /**

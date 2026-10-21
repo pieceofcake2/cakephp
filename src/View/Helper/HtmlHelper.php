@@ -30,8 +30,6 @@ use Cake\Utility\Inflector;
 use Cake\View\View;
 use InvalidArgumentException;
 
-App::uses('AppHelper', 'View/Helper');
-
 /**
  * Html Helper class for easy use of HTML widgets.
  *

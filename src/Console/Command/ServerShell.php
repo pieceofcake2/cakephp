@@ -18,10 +18,7 @@
 namespace Cake\Console\Command;
 
 use Cake\Console\ConsoleOptionParser;
-use Cake\Core\App;
 use Cake\Core\Configure;
-
-App::uses('AppShell', 'Console/Command');
 
 /**
  * built-in Server Shell

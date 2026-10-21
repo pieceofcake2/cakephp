@@ -15,10 +15,6 @@
 
 namespace Cake\TestSuite\Constraint\Response;
 
-use Cake\Core\App;
-
-App::uses('BodyContainsConstraint', 'TestSuite/Constraint/Response');
-
 /**
  * Asserts that a string is not in the response body.
  *

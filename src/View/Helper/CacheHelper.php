@@ -17,12 +17,9 @@
 namespace Cake\View\Helper;
 
 use AppHelper;
-use Cake\Core\App;
 use Cake\Core\Configure;
 use Cake\Utility\Inflector;
 use Exception;
-
-App::uses('AppHelper', 'View/Helper');
 
 /**
  * CacheHelper helps create full page view caching.
@@ -333,12 +330,12 @@ class CacheHelper extends AppHelper
             $controllerClass = '\\' . $this->_View->controllerClass;
         } elseif (empty($this->_View->plugin)) {
             $file .= "
-			App::uses('{$this->_View->name}Controller', 'Controller');
+			App::className('{$this->_View->name}', 'Controller', 'Controller');
 			";
         } else {
             $file .= "
-			App::uses('{$this->_View->plugin}AppController', '{$this->_View->plugin}.Controller');
-			App::uses('{$this->_View->name}Controller', '{$this->_View->plugin}.Controller');
+			App::className('{$this->_View->plugin}.{$this->_View->plugin}AppController', 'Controller');
+			App::className('{$this->_View->plugin}.{$this->_View->name}', 'Controller', 'Controller');
 			";
         }
 

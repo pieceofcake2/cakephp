@@ -58,3 +58,9 @@ Closure::bind(function () {
     static::$_cipherDeprecationReported = true;
     static::$_cipherSeedReported = true;
 }, null, Security::class)();
+
+// App::uses() reports its deprecation once per process. Many tests and the test application
+// use it on purpose, so mark it as reported here; AppTest resets it to test the report.
+Closure::bind(function () {
+    static::$_usesDeprecationReported = true;
+}, null, App::class)();
