@@ -20,6 +20,7 @@ namespace Cake\TestSuite\Reporter;
 use Cake\TestSuite\Coverage\TextCoverageReport;
 use Cake\Utility\Inflector;
 use PHPUnit\Framework\ExceptionWrapper;
+use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\TestResult;
 use Throwable;
 
@@ -55,22 +56,45 @@ class CakeTextReporter extends CakeBaseReporter
     /**
      * Paints a failing test.
      *
+     * The location is the line in the test method that failed: the frame of
+     * the call made by the test method, which PHPUnit's TestCase::runTest()
+     * called. When the trace has no such frame, the location where the failure
+     * was raised is painted.
+     *
      * @param \PHPUnit\Framework\AssertionFailedError|\PHPUnit\Framework\Warning $message Failure object displayed in
      *   the context of the other tests.
      * @return void
      */
     public function paintFail($message)
     {
-        $context = $message->getTrace();
-        $realContext = $context[3];
-        $context = $context[2];
+        $file = $message->getFile();
+        $line = $message->getLine();
+        $function = '';
+        $trace = $message->getTrace();
+        foreach ($trace as $i => $frame) {
+            if (
+                $i < 2 ||
+                $frame['function'] !== 'runTest' ||
+                !isset($frame['class']) ||
+                !is_a($frame['class'], TestCase::class, true)
+            ) {
+                continue;
+            }
+            $call = $trace[$i - 2];
+            if (isset($call['file']) && isset($call['line'])) {
+                $file = $call['file'];
+                $line = $call['line'];
+                $function = $trace[$i - 1]['function'];
+            }
+            break;
+        }
 
         printf(
             "FAIL on line %s\n%s in\n%s %s()\n\n",
-            $context['line'],
+            $line,
             $message->toString(),
-            $context['file'],
-            $realContext['function'],
+            $file,
+            $function,
         );
     }
 

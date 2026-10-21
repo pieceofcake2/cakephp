@@ -21,6 +21,7 @@ use Cake\TestSuite\CakeTestCase;
 use Cake\TestSuite\Reporter\CakeTextReporter;
 use Cake\Utility\Folder;
 use PHPUnit\Framework\TestResult;
+use PHPUnit\Framework\Warning;
 use TestApp\TestSuite\ReporterSampleCase;
 
 /**
@@ -252,8 +253,6 @@ class CakeTextReporterTest extends CakeTestCase
      */
     public function testPaintsFailureLocationInTheTest(): void
     {
-        $this->markTestIncomplete('Known bug: paintFail() reports a frame inside PHPUnit\'s Assert class, not the test.');
-
         [$output] = $this->runSample(new CakeTextReporter(), 'testFails');
 
         $line = ReporterSampleCase::$lines['testFails'];
@@ -263,6 +262,23 @@ class CakeTextReporterTest extends CakeTestCase
             "Failed asserting that two strings are identical. in\n$file testFails()\n\n",
             $output,
         );
+    }
+
+    /**
+     * Test that a failure raised outside a test method is painted with the
+     * location where it was raised.
+     *
+     * @return void
+     */
+    public function testPaintsFailureLocationOutsideATest(): void
+    {
+        $line = __LINE__ + 1;
+        $warning = new Warning('Deprecated feature');
+        $output = $this->capture(function () use ($warning): void {
+            (new CakeTextReporter())->paintFail($warning);
+        });
+
+        $this->assertSame("FAIL on line $line\nDeprecated feature in\n" . __FILE__ . " ()\n\n", $output);
     }
 
     /**
