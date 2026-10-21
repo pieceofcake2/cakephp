@@ -355,13 +355,17 @@ class CakeResponseTest extends CakeTestCase
     public function testDisableCache(): void
     {
         $response = new CakeResponse();
+        $before = gmdate('D, d M Y H:i:s') . ' GMT';
+        $response->disableCache();
+        $after = gmdate('D, d M Y H:i:s') . ' GMT';
+        $headers = $response->header();
+        $this->assertContains($headers['Last-Modified'], [$before, $after]);
         $expected = [
             'Expires' => 'Mon, 26 Jul 1997 05:00:00 GMT',
-            'Last-Modified' => gmdate('D, d M Y H:i:s') . ' GMT',
+            'Last-Modified' => $headers['Last-Modified'],
             'Cache-Control' => 'no-store, no-cache, must-revalidate, post-check=0, pre-check=0',
         ];
-        $response->disableCache();
-        $this->assertEquals($expected, $response->header());
+        $this->assertEquals($expected, $headers);
     }
 
     /**
