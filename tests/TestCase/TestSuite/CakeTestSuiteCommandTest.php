@@ -239,8 +239,6 @@ class CakeTestSuiteCommandTest extends CakeTestCase
      */
     public function testResolveTestFileMissingPlugin(): void
     {
-        $this->markTestIncomplete('Known bug: _basePath() swallows MissingPluginException, so the case resolves to /Model/PostTest.php');
-
         try {
             $file = $this->_resolve(['case' => 'Model' . DS . 'Post', 'plugin' => 'NoSuchCommandPlugin']);
             $this->fail('The case of a missing plugin resolved to ' . $file);
