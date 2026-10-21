@@ -109,7 +109,7 @@ class SecurityTest extends CakeTestCase
     /**
      * Calls a function that uses mcrypt, and checks that mcrypt reports the deprecation of its functions.
      *
-     * Other deprecations go on to the previous error handler.
+     * Other errors go on to the previous error handler.
      *
      * @param callable $callback Function to call.
      * @return mixed The return value of $callback.
@@ -118,14 +118,14 @@ class SecurityTest extends CakeTestCase
     {
         $deprecations = [];
         $previous = set_error_handler(function ($errno, $errstr, $errfile, $errline) use (&$deprecations, &$previous) {
-            if (str_starts_with($errstr, 'Function mcrypt_')) {
+            if ($errno === E_DEPRECATED && str_starts_with($errstr, 'Function mcrypt_')) {
                 $deprecations[] = $errstr;
 
                 return true;
             }
 
             return $previous ? $previous($errno, $errstr, $errfile, $errline) : false;
-        }, E_DEPRECATED);
+        });
         try {
             $result = $callback();
         } finally {

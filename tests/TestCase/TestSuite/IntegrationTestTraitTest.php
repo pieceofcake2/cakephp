@@ -564,7 +564,6 @@ class IntegrationTestTraitTest extends CakeTestCase
         $this->assertSame('secret aes', $this->_decrypt($this->_cookie['CakeCookie[value]'], 'aes', $key));
 
         if (function_exists('mcrypt_encrypt')) {
-            $this->_cookieEncryptionKey = null;
             $this->_expectMcryptDeprecation(function () use ($key) {
                 $this->cookieEncrypted('CakeCookie[value]', 'secret rijndael', 'rijndael', $key);
                 $this->assertSame('secret rijndael', $this->_decrypt($this->_cookie['CakeCookie[value]'], 'rijndael', $key));
@@ -575,7 +574,7 @@ class IntegrationTestTraitTest extends CakeTestCase
     /**
      * Calls a function that uses mcrypt, and checks that mcrypt reports the deprecation of its functions.
      *
-     * Other deprecations go on to the previous error handler.
+     * Other errors go on to the previous error handler.
      *
      * @param callable $callback Function to call.
      * @return mixed The return value of $callback.
@@ -584,14 +583,14 @@ class IntegrationTestTraitTest extends CakeTestCase
     {
         $deprecations = [];
         $previous = set_error_handler(function ($errno, $errstr, $errfile, $errline) use (&$deprecations, &$previous) {
-            if (str_starts_with($errstr, 'Function mcrypt_')) {
+            if ($errno === E_DEPRECATED && str_starts_with($errstr, 'Function mcrypt_')) {
                 $deprecations[] = $errstr;
 
                 return true;
             }
 
             return $previous ? $previous($errno, $errstr, $errfile, $errline) : false;
-        }, E_DEPRECATED);
+        });
         try {
             $result = $callback();
         } finally {
