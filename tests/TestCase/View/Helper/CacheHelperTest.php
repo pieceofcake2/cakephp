@@ -117,7 +117,6 @@ class CacheHelperTest extends CakeTestCase
         ]);
         $this->Controller->cacheAction = 21600;
         $this->Controller->request->here = '/cacheTest/cache_parsing';
-        $this->Controller->request->action = 'cache_parsing';
 
         $View = new View($this->Controller);
         $result = $View->render('index');
@@ -151,7 +150,6 @@ class CacheHelperTest extends CakeTestCase
         ]);
         $this->Controller->cacheAction = '+2 hours';
         $this->Controller->request->here = '/cacheTest/cache_parsing';
-        $this->Controller->request->action = 'cache_parsing';
 
         $View = new View($this->Controller);
         $result = $View->render('index');

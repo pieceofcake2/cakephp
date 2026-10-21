@@ -139,6 +139,23 @@ class PhpReaderTest extends CakeTestCase
     }
 
     /**
+     * Test reading a file from the config directory of a plugin with the CakePHP 5 layout.
+     *
+     * @return void
+     */
+    public function testReadPluginConfigDirectory(): void
+    {
+        App::build([
+            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
+        ], App::RESET);
+        CakePlugin::load('TestPluginModern');
+        $reader = new PhpReader($this->path);
+        $result = $reader->read('TestPluginModern.modern_config');
+        $this->assertSame('read from config/modern_config.php', $result['ModernConfig']);
+        CakePlugin::unload();
+    }
+
+    /**
      * Test dumping data to PHP format.
      *
      * @return void

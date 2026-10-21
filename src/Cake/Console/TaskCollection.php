@@ -90,7 +90,7 @@ class TaskCollection extends ObjectCollection
         if ($taskClass === null) {
             throw new MissingTaskException([
                 'class' => static::_className($name),
-                'plugin' => substr($plugin, 0, -1),
+                'plugin' => substr((string)$plugin, 0, -1),
             ]);
         }
 

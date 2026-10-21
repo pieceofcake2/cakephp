@@ -346,7 +346,7 @@ class HtmlHelper extends AppHelper
     public function charset($charset = null)
     {
         if (empty($charset)) {
-            $charset = strtolower(Configure::read('App.encoding'));
+            $charset = strtolower((string)Configure::read('App.encoding'));
         }
 
         return sprintf($this->_tags['charset'], (!empty($charset) ? $charset : 'utf-8'));

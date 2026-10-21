@@ -230,7 +230,7 @@ class Validation
         if ((float)$check1 != $check1) {
             return false;
         }
-        $operator = str_replace([' ', "\t", "\n", "\r", "\0", "\x0B"], '', strtolower($operator));
+        $operator = str_replace([' ', "\t", "\n", "\r", "\0", "\x0B"], '', strtolower((string)$operator));
 
         switch ($operator) {
             case 'isgreater':

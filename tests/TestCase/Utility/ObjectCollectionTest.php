@@ -22,6 +22,20 @@
 class GenericObject
 {
     /**
+     * The collection that loaded the object
+     *
+     * @var GenericObjectCollection
+     */
+    protected $_Collection;
+
+    /**
+     * Settings
+     *
+     * @var array
+     */
+    public $settings = [];
+
+    /**
      * Constructor
      *
      * @param GenericObjectCollection $collection A collection.

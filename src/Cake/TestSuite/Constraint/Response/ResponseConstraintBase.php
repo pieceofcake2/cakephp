@@ -143,7 +143,9 @@ abstract class ResponseConstraintBase extends Constraint
     protected function _getFile(): ?File
     {
         $property = new ReflectionProperty(CakeResponse::class, '_file');
-        $property->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $property->setAccessible(true);
+        }
         $file = $property->getValue($this->response);
 
         return $file instanceof File ? $file : null;

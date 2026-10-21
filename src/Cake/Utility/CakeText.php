@@ -242,7 +242,7 @@ class CakeText
                     '/[\s]*[a-z]+=(")(%s%s%s[\s]*)+\\1/i',
                     preg_quote($options['before'], '/'),
                     $clean['word'],
-                    preg_quote($options['after'], '/'),
+                    preg_quote((string)$options['after'], '/'),
                 );
                 $str = preg_replace($kleenex, $clean['replacement'], $str);
                 if ($clean['andText']) {
@@ -261,12 +261,12 @@ class CakeText
                     '/(%s%s%s%s|%s%s%s%s)/',
                     preg_quote($options['before'], '/'),
                     $clean['word'],
-                    preg_quote($options['after'], '/'),
+                    preg_quote((string)$options['after'], '/'),
                     $clean['gap'],
                     $clean['gap'],
                     preg_quote($options['before'], '/'),
                     $clean['word'],
-                    preg_quote($options['after'], '/'),
+                    preg_quote((string)$options['after'], '/'),
                 );
                 $str = preg_replace($kleenex, $clean['replacement'], $str);
                 break;

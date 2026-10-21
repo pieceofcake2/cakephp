@@ -669,7 +669,9 @@ class ConnectionManagerTest extends CakeTestCase
     protected function _restoreDsnClassMap($map): void
     {
         $property = new ReflectionProperty('ConnectionManager', '_dsnClassMap');
-        $property->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $property->setAccessible(true);
+        }
         $property->setValue(null, $map);
     }
 

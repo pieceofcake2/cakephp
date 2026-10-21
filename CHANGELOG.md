@@ -1,15 +1,16 @@
 ## CHANGELOG
 
-## v2.12.11 (2026-10-19)
+## Unreleased
 
-### Security Fixes
+### Enhancements: Plugins in the CakePHP 5 Layout ([PR #88](https://github.com/pieceofcake2/cakephp/pull/88))
 
-- **CakeRequest**: The request URL loses all its leading slashes and backslashes, not only the first slash, so `CakeRequest::$url` never starts with `/` or `\` and `CakeRequest::$here` / `here()` never start with `//` or `/\`. A request to `//example.com/posts` was routed as `/example.com/posts`, but `here` was the protocol-relative URL `//example.com/posts`: `FormHelper::create()` without a `url` printed `<form action="//example.com/posts">`, so the form was submitted to another host, and `$this->redirect($this->request->here(false))` redirected there. With a base path, `here(false)` of `/base//example.com/posts` had the same problem. `here()` also collapses the leading slashes of a `$here` changed by the application. Routing is unchanged ([GHSA-wh43-gc93-wh4c](https://github.com/pieceofcake2/cakephp/security/advisories/GHSA-wh43-gc93-wh4c), [PR #90](https://github.com/pieceofcake2/cakephp/pull/90))
+- **Plugin directories**: Plugins may use the directories of the CakePHP 5 layout, as the application already does: `src/` for the namespaced classes (`src/Controller/`, `src/Model/`, ..., loaded by Composer), `templates/` for the views, `resources/locales/` for the translations, `vendor/` for the vendor files and `config/` for `bootstrap.php`, `routes.php`, configuration files and schemas. `App::path()` and `I18n` search them, when they exist, before the directories of the CakePHP 2 layout (`Controller/`, `View/`, `Locale/`, `Vendor/`), which are still searched. `App::uses()` and `App::load()` keep loading global classes from the CakePHP 2 directories
+- **CakePlugin::configPath()**: A new method returns the `config/` directory of a plugin, or `Config/` when the plugin has no `config/`; `CakePlugin::bootstrap()`, `CakePlugin::routes()`, `PhpReader`, `IniReader` and `CakeSchema` use it
 
-### Enhancements: HTML5 Script, Link and Style Tags ([PR #86](https://github.com/pieceofcake2/cakephp/pull/86))
+### Enhancements: Templates in the CakePHP 5 Style ([PR #94](https://github.com/pieceofcake2/cakephp/pull/94))
 
-- **HtmlHelper `html5` setting**: `HtmlHelper` outputs the tags of HTML5 by default: `script()`, `css()` and the `<style>` of `css()` with `rel` `import` have no `type` attribute, and `scriptBlock()` and `scriptStart()` neither add `type="text/javascript"` nor wrap the script in CDATA. Set `'html5' => false` in the settings of the helper for the former output: `public $helpers = ['Html' => ['html5' => false]];`. The `safe` option of `scriptBlock()`, `scriptStart()` and the methods of `JsHelper` still adds the CDATA when it is `true`; its default follows the setting
-- **Test pages**: The test runner and the code coverage report of the web test runner use the tags of HTML5
+- **`.php` templates**: In `templates/` directories (of the application, of plugins, of themes), templates, layouts and elements may use the `.php` extension of CakePHP 5. In each directory a `.php` template comes before the `.ctp` template of the same name, and the order of the directories is unchanged, so themes and plugins still override the templates of the application. The `View/` directories of the CakePHP 2 layout, which also hold the view and helper classes, are not searched for `.php` templates
+- **CakePHP 5 directory names**: In `templates/` directories, `layout/`, `element/`, `email/` and `Error/` are searched before `Layouts/`, `Elements/`, `Emails/` and `Errors/`. Email templates may be in `templates/email/html/` and `templates/email/text/`, and their layouts in `templates/layout/email/html/` and `templates/layout/email/text/`
 
 ### Enhancements: Classes in a Namespace (`App::className()`, `App.namespace`) ([PR #91](https://github.com/pieceofcake2/cakephp/pull/91))
 
@@ -30,6 +31,38 @@
 - **Missing classes**: The errors for a missing component, helper, behavior, task or controller (`ControllerTestCase::generate()`) add the suffix to a fully qualified class name only when it does not end with it, e.g. `Acme\Controller\Component\GreetingComponent` instead of `...GreetingComponentComponent`
 - **Cached views**: `Controller::$controllerClass` and `View::$controllerClass` hold the class name of the controller, and the views cached by `CacheHelper` create a namespaced controller by that name
 - **Fixes for namespaced classes**: Dispatcher filters with settings, `CakeSchema::read()` for plugin models, `ClassRegistry::init()` for a stored alias, the plugin and name of namespaced models in the rendered view, and the plugin AppController of a request whose plugin is not loaded (no `MissingPluginException`)
+
+### Bug Fixes: PHP Deprecations ([PR #96](https://github.com/pieceofcake2/cakephp/pull/96))
+
+- **Null passed to built-in functions**: Many methods passed a value that can be `null` (e.g. `env()` of a missing variable, an unset option, the plugin of `pluginSplit()`) to a string function of PHP, which is deprecated since PHP 8.1. They cast it to a string (or an int for the decimals of `CakeNumber`), so the result is the same as before. This covers among others `CakeSession`, `CakeRequest`, `CakeResponse`, `CakeEmail`, `HttpSocket`, `Security`, `Configure::consume()`, `Xml::build()`, `FormHelper` date and radio inputs, `CakeText::cleanInsert()`, `Hash` / `Set` matching, `File`, `pluginSplit()`, `env()`, `clearCache()` and the missing class exceptions of the object collections
+- **False converted to an array**: `I18n` (on a cache miss of a domain) and `CakeRoute` (with named parameters before `Router::connectNamed()`) no longer add keys to `false`, deprecated since PHP 8.1
+- **Xml**: `Xml::build()` no longer calls `libxml_disable_entity_loader()`, deprecated since PHP 8.0. External entities stay disabled: libxml 2.9 and later, which PHP 8 requires, does not load them without `LIBXML_NOENT`, which `Xml` does not pass
+- **Xml `loadEntities` option removed**: The option of `Xml::build()` only decided whether to call `libxml_disable_entity_loader()`, so it no longer has any effect and is removed. Passing it is ignored
+- **Security**: `Security::hash()` with `sha256` always uses `hash()` instead of `mhash()`, deprecated since PHP 8.1. The digest is the same
+- **SessionHandlerAdapter**: The methods of `SessionHandlerInterface` have `#[\ReturnTypeWillChange]`, so PHP 8.1 and later no longer report their missing return types
+- **CakeTestFixture**: `CakeTestFixture` declares `$import`, so setting it on a fixture that does not declare it no longer creates a dynamic property, deprecated since PHP 8.2
+- **Null as an array key**: `I18n`, `Helper::setEntity()`, `FormHelper`, `RequestHandlerComponent::respondAs()`, `CakeResponse::getMimeType()`, `CakeSession::check()`, `Configure::consume()`, `ClassRegistry::getObject()`, `ConsoleOptionParser::parse()` / `help()` and `Set::extract()` check that a name or key is given before they use it as an array key, instead of using `null`, deprecated since PHP 8.5. A missing name finds nothing, as before. `I18n` looks up the translations without a context under the empty context, where they are stored
+- **Reflection**: `Debugger::export()` calls `ReflectionProperty::setAccessible()` only before PHP 8.1, where it has an effect. It is deprecated since PHP 8.5
+- **No request input or URL**: `CakeRequest::input()` with a decoding callback returns `null` without calling it when the request has no body, or when `_readInput()` gives `null`, e.g. in a subclass or a mock, instead of passing the empty input on. `RequestHandlerComponent` sets the same empty data as before. A callback of your own that handled an empty body now gets no call. `CacheHelper` writes no cache file when `here()` gives no URL, instead of passing `null` to the string functions of PHP
+- **Mysql**: The `Mysql` datasource uses the `Pdo\Mysql::ATTR_*` constants instead of `PDO::MYSQL_ATTR_*`, deprecated since PHP 8.5. The core requires `symfony/polyfill-php84`, which defines `Pdo\Mysql` with the same values before PHP 8.4
+- **RedisEngine**: `RedisEngine::delete()` deletes the key with `Redis::del()` instead of `Redis::delete()`, which phpredis deprecates
+- **Security**: `Security::encrypt()` encrypts `null` as the empty string, instead of passing it to `strlen()` (deprecated since PHP 8.1)
+- **Sqlserver**: `Sqlserver::limit()` checks that the offset is a string before `ctype_digit()`, `renderStatement()` checks that a limit is given before it looks for `TOP` or `FETCH`, and `create()` checks that the table has an identity column before it looks for its value, instead of passing `null` or other types to them (deprecated since PHP 8.1)
+
+### Tests ([PR #96](https://github.com/pieceofcake2/cakephp/pull/96))
+
+- **Deprecations reported**: The tests report deprecations and fail on them. `ConfigureTest::testBootstrap()` restores the error level after `Configure::bootstrap()`, which had hidden deprecations from the following tests, and the tests no longer create dynamic properties, or use `utf8_decode()`, `new DateTime(null)`, `str_getcsv()` without the escape character or `session.referer_check`. The `DATABASE_CONFIG` of the tests allows dynamic properties, which `ConnectionManager::create()` adds. The test helpers call `setAccessible()` of reflection only before PHP 8.1. `ApplicationControllerTest` tests the redirect without cookies on every version, and the session ID in the URL, which needs `session.use_trans_sid` deprecated since PHP 8.4, only before PHP 8.4. The tests that use mcrypt check that it reports the deprecation of its functions, and `MemcacheEngineTest` replaces `Memcache::set()` with a small subclass, as a mock would copy the implicitly nullable parameters of the extension (deprecated since PHP 8.4)
+
+## v2.12.11 (2026-10-19)
+
+### Security Fixes
+
+- **CakeRequest**: The request URL loses all its leading slashes and backslashes, not only the first slash, so `CakeRequest::$url` never starts with `/` or `\` and `CakeRequest::$here` / `here()` never start with `//` or `/\`. A request to `//example.com/posts` was routed as `/example.com/posts`, but `here` was the protocol-relative URL `//example.com/posts`: `FormHelper::create()` without a `url` printed `<form action="//example.com/posts">`, so the form was submitted to another host, and `$this->redirect($this->request->here(false))` redirected there. With a base path, `here(false)` of `/base//example.com/posts` had the same problem. `here()` also collapses the leading slashes of a `$here` changed by the application. Routing is unchanged ([GHSA-wh43-gc93-wh4c](https://github.com/pieceofcake2/cakephp/security/advisories/GHSA-wh43-gc93-wh4c), [PR #90](https://github.com/pieceofcake2/cakephp/pull/90))
+
+### Enhancements: HTML5 Script, Link and Style Tags ([PR #86](https://github.com/pieceofcake2/cakephp/pull/86))
+
+- **HtmlHelper `html5` setting**: `HtmlHelper` outputs the tags of HTML5 by default: `script()`, `css()` and the `<style>` of `css()` with `rel` `import` have no `type` attribute, and `scriptBlock()` and `scriptStart()` neither add `type="text/javascript"` nor wrap the script in CDATA. Set `'html5' => false` in the settings of the helper for the former output: `public $helpers = ['Html' => ['html5' => false]];`. The `safe` option of `scriptBlock()`, `scriptStart()` and the methods of `JsHelper` still adds the CDATA when it is `true`; its default follows the setting
+- **Test pages**: The test runner and the code coverage report of the web test runner use the tags of HTML5
 
 ### Tests ([PR #87](https://github.com/pieceofcake2/cakephp/pull/87))
 

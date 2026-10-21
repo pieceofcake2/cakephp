@@ -600,7 +600,7 @@ class CakeResponse
             if ($value === null && str_contains($header, ':')) {
                 [$header, $value] = explode(':', $header, 2);
             }
-            $this->_headers[$header] = is_array($value) ? array_map('trim', $value) : trim($value);
+            $this->_headers[$header] = is_array($value) ? array_map('trim', $value) : trim((string)$value);
         }
 
         return $this->_headers;
@@ -774,6 +774,10 @@ class CakeResponse
      */
     public function getMimeType($alias)
     {
+        if (empty($alias)) {
+            return false;
+        }
+
         return $this->_mimeTypes[$alias] ?? false;
     }
 
@@ -1126,7 +1130,7 @@ class CakeResponse
     {
         $compressionEnabled = ini_get('zlib.output_compression') !== '1' &&
             extension_loaded('zlib') &&
-            (str_contains(env('HTTP_ACCEPT_ENCODING'), 'gzip'));
+            (str_contains((string)env('HTTP_ACCEPT_ENCODING'), 'gzip'));
 
         return $compressionEnabled && ob_start('ob_gzhandler');
     }
@@ -1138,7 +1142,7 @@ class CakeResponse
      */
     public function outputCompressed()
     {
-        return str_contains(env('HTTP_ACCEPT_ENCODING'), 'gzip')
+        return str_contains((string)env('HTTP_ACCEPT_ENCODING'), 'gzip')
             && (ini_get('zlib.output_compression') === '1' || in_array('ob_gzhandler', ob_list_handlers()));
     }
 
@@ -1425,7 +1429,7 @@ class CakeResponse
 
         $fileSize = $file->size();
         if ($download) {
-            $agent = env('HTTP_USER_AGENT');
+            $agent = (string)env('HTTP_USER_AGENT');
 
             if (preg_match('%Opera(/| )([0-9].[0-9]{1,2})%', $agent)) {
                 $contentType = 'application/octet-stream';
