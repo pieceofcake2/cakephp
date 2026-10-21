@@ -211,4 +211,35 @@ class TableShellHelperTest extends CakeTestCase
         ];
         $this->assertEquals($expected, $this->consoleOutput->messages());
     }
+
+    /**
+     * Test that the constructor config is merged with the defaults, and later
+     * config is merged with the current config.
+     *
+     * @return void
+     */
+    public function testConfig(): void
+    {
+        $helper = new TableShellHelper($this->consoleOutput, ['headerStyle' => 'comment']);
+        $expected = [
+            'headers' => true,
+            'rowSeparator' => false,
+            'headerStyle' => 'comment',
+        ];
+        $this->assertSame($expected, $helper->config());
+
+        $helper->config(['rowSeparator' => true]);
+        $expected['rowSeparator'] = true;
+        $this->assertSame($expected, $helper->config());
+
+        $helper->output([['Name'], ['Value']]);
+        $expected = [
+            '+-------+',
+            '| <comment>Name</comment>  |',
+            '+-------+',
+            '| Value |',
+            '+-------+',
+        ];
+        $this->assertSame($expected, $this->consoleOutput->messages());
+    }
 }
