@@ -464,7 +464,7 @@ class AclShell extends AppShell
                 'arguments' => [
                     'aro' => ['help' => __d('cake_console', 'ARO to check.'), 'required' => true],
                     'aco' => ['help' => __d('cake_console', 'ACO to check.'), 'required' => true],
-                    'action' => ['help' => __d('cake_console', 'Action to check'), 'default' => 'all'],
+                    'action' => ['help' => __d('cake_console', 'Action to check')],
                 ],
             ],
         ])->addSubcommand('grant', [
@@ -476,7 +476,7 @@ class AclShell extends AppShell
                 'arguments' => [
                     'aro' => ['help' => __d('cake_console', 'ARO to grant permission to.'), 'required' => true],
                     'aco' => ['help' => __d('cake_console', 'ACO to grant access to.'), 'required' => true],
-                    'action' => ['help' => __d('cake_console', 'Action to grant'), 'default' => 'all'],
+                    'action' => ['help' => __d('cake_console', 'Action to grant')],
                 ],
             ],
         ])->addSubcommand('deny', [
@@ -488,7 +488,7 @@ class AclShell extends AppShell
                 'arguments' => [
                     'aro' => ['help' => __d('cake_console', 'ARO to deny.'), 'required' => true],
                     'aco' => ['help' => __d('cake_console', 'ACO to deny.'), 'required' => true],
-                    'action' => ['help' => __d('cake_console', 'Action to deny'), 'default' => 'all'],
+                    'action' => ['help' => __d('cake_console', 'Action to deny')],
                 ],
             ],
         ])->addSubcommand('inherit', [
@@ -500,7 +500,7 @@ class AclShell extends AppShell
                 'arguments' => [
                     'aro' => ['help' => __d('cake_console', 'ARO to have permissions inherit.'), 'required' => true],
                     'aco' => ['help' => __d('cake_console', 'ACO to inherit permissions on.'), 'required' => true],
-                    'action' => ['help' => __d('cake_console', 'Action to inherit'), 'default' => 'all'],
+                    'action' => ['help' => __d('cake_console', 'Action to inherit')],
                 ],
             ],
         ])->addSubcommand('view', [

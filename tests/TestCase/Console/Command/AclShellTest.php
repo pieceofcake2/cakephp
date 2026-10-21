@@ -599,11 +599,6 @@ class AclShellTest extends CakeTestCase
      */
     public function testMain(): void
     {
-        $this->markTestSkipped(
-            'AclShell::getOptionParser() gives its action arguments a "default" key, which '
-            . 'ConsoleInputArgument does not support. It sets the dynamic property $_default, '
-            . 'which is deprecated on PHP 8.2 and later.',
-        );
         $outCalls = &$this->_captureOut($this->Task);
         $this->Task->OptionParser = $this->Task->getOptionParser();
 
@@ -622,11 +617,6 @@ class AclShellTest extends CakeTestCase
      */
     public function testGetOptionParser(): void
     {
-        $this->markTestSkipped(
-            'AclShell::getOptionParser() gives its action arguments a "default" key, which '
-            . 'ConsoleInputArgument does not support. It sets the dynamic property $_default, '
-            . 'which is deprecated on PHP 8.2 and later.',
-        );
         $parser = $this->Task->getOptionParser();
 
         $this->assertSame(
@@ -661,11 +651,6 @@ class AclShellTest extends CakeTestCase
      */
     public function testGetOptionParserInvalidType(): void
     {
-        $this->markTestSkipped(
-            'AclShell::getOptionParser() gives its action arguments a "default" key, which '
-            . 'ConsoleInputArgument does not support. It sets the dynamic property $_default, '
-            . 'which is deprecated on PHP 8.2 and later.',
-        );
         $this->expectException(ConsoleException::class);
         $this->expectExceptionMessage('"foo" is not a valid value for type. Please use one of "aro, aco"');
         $this->Task->getOptionParser()->parse(['foo', 'root', 'Posts'], 'create');
