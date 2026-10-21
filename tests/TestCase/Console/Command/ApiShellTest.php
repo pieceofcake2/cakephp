@@ -20,8 +20,12 @@ namespace Cake\Test\TestCase\Console\Command;
 
 use Cake\Console\Command\ApiShell;
 use Cake\Console\ConsoleInput;
+use Cake\Console\ConsoleOptionParser;
 use Cake\Console\ConsoleOutput;
+use Cake\Core\App;
 use Cake\TestSuite\CakeTestCase;
+use Closure;
+use RuntimeException;
 
 /**
  * ApiShellTest class
@@ -31,6 +35,13 @@ use Cake\TestSuite\CakeTestCase;
 class ApiShellTest extends CakeTestCase
 {
     public ?ApiShell $Shell = null;
+
+    /**
+     * The messages passed to out()
+     *
+     * @var array
+     */
+    public array $outCalls = [];
 
     /**
      * setUp method
@@ -45,9 +56,53 @@ class ApiShellTest extends CakeTestCase
 
         $this->Shell = $this->getMock(
             ApiShell::class,
-            ['in', 'out', 'createFile', 'hr', '_stop'],
+            ['in', 'out', 'err', 'createFile', 'hr', '_stop'],
             [$out, $out, $in],
         );
+        $this->_clearClassList();
+    }
+
+    /**
+     * tearDown method
+     *
+     * @return void
+     */
+    public function tearDown(): void
+    {
+        $this->_clearClassList();
+        unset($this->Shell);
+
+        parent::tearDown();
+    }
+
+    /**
+     * App::objects('class', $path) keeps one list for every path, so each test starts
+     * without the list of the previous lookup.
+     *
+     * @return void
+     */
+    protected function _clearClassList(): void
+    {
+        Closure::bind(function () {
+            unset(static::$_objects['app']['class']);
+        }, null, App::class)();
+    }
+
+    /**
+     * Collects the messages passed to out() in $outCalls.
+     *
+     * @return void
+     */
+    protected function _captureOut(): void
+    {
+        $this->outCalls = [];
+        $this->Shell->expects($this->any())
+            ->method('out')
+            ->willReturnCallback(function ($message = '') {
+                $this->outCalls[] = $message;
+
+                return 0;
+            });
     }
 
     /**
@@ -103,5 +158,294 @@ class ApiShellTest extends CakeTestCase
 
         $this->assertEquals('Controller', $outCalls[0]);
         $this->assertEquals($expected, $outCalls[1]);
+    }
+
+    /**
+     * Test that initialize() sets the paths for every type
+     *
+     * @return void
+     */
+    public function testInitialize(): void
+    {
+        $this->Shell->paths = ['custom' => '/custom/'];
+        $this->Shell->initialize();
+
+        $this->assertSame([
+            'custom' => '/custom/',
+            'behavior' => CAKE . 'Model' . DS . 'Behavior' . DS,
+            'cache' => CAKE . 'Cache' . DS,
+            'controller' => CAKE . 'Controller' . DS,
+            'component' => CAKE . 'Controller' . DS . 'Component' . DS,
+            'helper' => CAKE . 'View' . DS . 'Helper' . DS,
+            'model' => CAKE . 'Model' . DS,
+            'view' => CAKE . 'View' . DS,
+            'core' => CAKE,
+        ], $this->Shell->paths);
+    }
+
+    /**
+     * Data provider for testClassLookup
+     *
+     * @return array
+     */
+    public static function classLookupProvider(): array
+    {
+        return [
+            'behavior' => [['behavior', 'TranslateBehavior'], 'TranslateBehavior', 'bindTranslation('],
+            'cache' => [['cache', 'Cache'], 'Cache', 'config('],
+            'cache engine' => [['cache', 'CacheEngine'], 'CacheEngine', 'init('],
+            'controller' => [['controller', 'Controller'], 'Controller', 'render('],
+            'component' => [['component', 'AuthComponent'], 'AuthComponent', 'isAuthorized('],
+            'helper' => [['helper', 'HtmlHelper'], 'HtmlHelper', 'link('],
+            'underscored helper' => [['helper', 'html_helper'], 'HtmlHelper', 'link('],
+            'model' => [['model', 'Model'], 'Model', 'save('],
+            'view' => [['view', 'View'], 'View', 'render('],
+            'type as class' => [['Model'], 'Model', 'save('],
+        ];
+    }
+
+    /**
+     * Test the class lookup for each type
+     *
+     * @dataProvider classLookupProvider
+     * @param array $args The shell arguments.
+     * @param string $title The expected class name.
+     * @param string $method The start of a method that is expected in the list.
+     * @return void
+     */
+    public function testClassLookup(array $args, string $title, string $method): void
+    {
+        $this->Shell->initialize();
+        $this->Shell->expects($this->once())->method('in')->will($this->returnValue('q'));
+        $this->Shell->expects($this->once())->method('_stop');
+        $this->Shell->expects($this->never())->method('err');
+        $this->_captureOut();
+
+        $this->Shell->args = $args;
+        $this->assertNull($this->Shell->main());
+
+        $this->assertSame($title, $this->outCalls[0]);
+        $this->assertIsArray($this->outCalls[1]);
+        $this->assertNotEmpty(preg_grep('/^\d+\. ' . preg_quote($method, '/') . '/', $this->outCalls[1]));
+        $this->assertSame('Done', $this->outCalls[2]);
+    }
+
+    /**
+     * Test that a class name for a behavior, component or helper type gets the type suffix
+     * when the type path has a class of that name without the suffix
+     *
+     * @return void
+     */
+    public function testClassLookupAddsTypeSuffix(): void
+    {
+        $this->Shell->initialize();
+        // Cache.php is in the cache path, and CacheHelper is the class that gets looked up.
+        $this->Shell->paths['helper'] = CAKE . 'Cache' . DS;
+        $this->Shell->expects($this->once())->method('in')->will($this->returnValue('q'));
+        $this->_captureOut();
+
+        $this->Shell->args = ['helper', 'Cache'];
+        $this->Shell->main();
+
+        $this->assertSame('CacheHelper', $this->outCalls[0]);
+        $this->assertNotEmpty(preg_grep('/^\d+\. afterRenderFile\(\$viewFile, \$output\)$/', $this->outCalls[1]));
+    }
+
+    /**
+     * Test that an unknown class is reported as an error
+     *
+     * @return void
+     */
+    public function testUnknownClass(): void
+    {
+        $this->Shell->initialize();
+        $this->Shell->expects($this->once())
+            ->method('err')
+            ->with('<error>Error:</error> NotAClass not found');
+        $this->Shell->expects($this->once())
+            ->method('_stop')
+            ->will($this->throwException(new RuntimeException('stopped')));
+
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('stopped');
+
+        $this->Shell->args = ['helper', 'NotAClass'];
+        $this->Shell->main();
+    }
+
+    /**
+     * Test that an unknown type looks for the class in the core path
+     *
+     * @return void
+     */
+    public function testUnknownTypeUsesCorePath(): void
+    {
+        $this->Shell->initialize();
+        $this->Shell->expects($this->once())
+            ->method('err')
+            ->with('<error>Error:</error> HtmlHelper not found');
+        $this->Shell->expects($this->once())
+            ->method('_stop')
+            ->will($this->throwException(new RuntimeException('stopped')));
+
+        $this->expectException(RuntimeException::class);
+
+        $this->Shell->args = ['unknown', 'HtmlHelper'];
+        $this->Shell->main();
+    }
+
+    /**
+     * Test the details of one method with the method option
+     *
+     * @return void
+     */
+    public function testMethodOption(): void
+    {
+        $this->Shell->initialize();
+        $this->Shell->expects($this->never())->method('in');
+        $this->Shell->expects($this->once())->method('hr');
+        $this->_captureOut();
+
+        $this->Shell->args = ['helper', 'HtmlHelper'];
+        $this->Shell->params['method'] = 'link';
+        $this->assertNull($this->Shell->main());
+
+        $this->assertSame('HtmlHelper::link($title, $url = NULL, $options = array (), $confirmMessage = false)', $this->outCalls[0]);
+        $this->assertStringContainsString('Creates an HTML link.', $this->outCalls[1]);
+    }
+
+    /**
+     * Test that an unknown method is reported
+     *
+     * @return void
+     */
+    public function testMethodOptionUnknownMethod(): void
+    {
+        $this->Shell->initialize();
+        $this->Shell->expects($this->once())
+            ->method('err')
+            ->with('HtmlHelper::noSuchMethod() could not be found');
+        $this->Shell->expects($this->once())->method('_stop');
+        $this->Shell->expects($this->never())->method('out');
+
+        $this->Shell->args = ['helper', 'HtmlHelper'];
+        $this->Shell->params['method'] = 'noSuchMethod';
+        $this->assertNull($this->Shell->main());
+    }
+
+    /**
+     * Test selecting methods from the interactive list
+     *
+     * @return void
+     */
+    public function testInteractiveMethodDetails(): void
+    {
+        $this->Shell->initialize();
+        $this->Shell->expects($this->exactly(3))
+            ->method('in')
+            ->will($this->onConsecutiveCalls('1', '999', 'q'));
+        $this->_captureOut();
+
+        $this->Shell->args = ['view', 'View'];
+        $this->Shell->main();
+
+        $list = $this->outCalls[1];
+        $this->assertStringStartsWith('1. ', $list[0]);
+        $first = substr($list[0], 3);
+
+        $this->assertSame('View::' . $first, $this->outCalls[2]);
+        $this->assertIsString($this->outCalls[3]);
+        $this->assertSame('Done', $this->outCalls[4]);
+        $this->assertCount(5, $this->outCalls);
+    }
+
+    /**
+     * Test that main() without arguments shows the help of the option parser
+     *
+     * @return void
+     */
+    public function testMainWithoutArguments(): void
+    {
+        $this->Shell->OptionParser = $this->getMock(ConsoleOptionParser::class, [], [null, false]);
+        $this->Shell->OptionParser->expects($this->once())
+            ->method('help')
+            ->will($this->returnValue('the help'));
+        $this->Shell->expects($this->once())
+            ->method('out')
+            ->with('the help')
+            ->will($this->returnValue(8));
+
+        $this->Shell->args = [];
+        $this->assertSame(8, $this->Shell->main());
+    }
+
+    /**
+     * Test the option parser
+     *
+     * @return void
+     */
+    public function testGetOptionParser(): void
+    {
+        $parser = $this->Shell->getOptionParser();
+
+        $arguments = $parser->arguments();
+        $this->assertSame('type', $arguments[0]->name());
+        $this->assertSame('className', $arguments[1]->name());
+
+        $options = $parser->options();
+        $this->assertArrayHasKey('method', $options);
+        $this->assertSame('m', $options['method']->short());
+        $this->assertStringContainsString('Lookup doc block comments for classes in CakePHP.', $parser->help());
+    }
+
+    /**
+     * Test the help of all parameters
+     *
+     * @return void
+     */
+    public function testHelp(): void
+    {
+        $this->_captureOut();
+
+        $this->Shell->args = [];
+        $this->Shell->help();
+
+        $this->assertCount(3, $this->outCalls);
+        $this->assertStringStartsWith('Usage: cake api [<type>] <className> [-m <method>]', $this->outCalls[0]);
+        $this->assertStringContainsString("\t\tbehavior\tLook for class in CakePHP behavior path", $this->outCalls[1]);
+        $this->assertStringContainsString("\t<className>\n", $this->outCalls[2]);
+    }
+
+    /**
+     * Test the help of one parameter
+     *
+     * @return void
+     */
+    public function testHelpOneParameter(): void
+    {
+        $this->_captureOut();
+
+        $this->Shell->args = ['help', 'Path'];
+        $this->Shell->help();
+
+        $this->assertCount(2, $this->outCalls);
+        $this->assertStringStartsWith("\t<type>\n", $this->outCalls[1]);
+        $this->assertStringEndsWith("\t\tview\tLook for class in CakePHP view path\n\n\n", $this->outCalls[1]);
+    }
+
+    /**
+     * Test the help of an unknown parameter
+     *
+     * @return void
+     */
+    public function testHelpUnknownParameter(): void
+    {
+        $this->_captureOut();
+
+        $this->Shell->args = ['help', 'nothing'];
+        $this->Shell->help();
+
+        $this->assertCount(2, $this->outCalls);
+        $this->assertSame('Command nothing not found', $this->outCalls[1]);
     }
 }
