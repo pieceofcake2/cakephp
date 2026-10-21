@@ -17,6 +17,22 @@ Before migrating to this fork, ensure:
 
 ## Unreleased
 
+### Plugins in the CakePHP 5 Layout ([PR #88](https://github.com/pieceofcake2/cakephp/pull/88))
+
+A plugin may use the CakePHP 5 layout: namespaced classes in `src/`, views in `templates/`, translations in `resources/locales/`, vendor files in `vendor/` and `bootstrap.php`, `routes.php`, configuration files and schemas in `config/`. CakePHP searches these directories before the directories of the CakePHP 2 layout, which are still searched, so nothing changes for a plugin that does not have them.
+
+- The classes in `src/` are namespaced classes, e.g. `MyPlugin\Controller\Component\GreetingComponent` in `src/Controller/Component/GreetingComponent.php`, loaded by Composer with the `psr-4` entry of the plugin (`"MyPlugin\\": "src/"`). `App::uses()` does not look in `src/`.
+- A plugin that already has one of these directories for another purpose gets more search paths, searched first: a file of the same name in `templates/` or `resources/locales/` is used instead of the one in `View/` or `Locale/`. `src/` is searched only for classes (`src/Controller/`, `src/View/Helper/`, ...), never for templates, so the view classes in `src/View/` are not read as templates. For example, `App::objects('MyPlugin.Controller')` also lists the files in `src/Controller/`, and `App::import('Vendor', 'MyPlugin.foo')` also looks in the Composer `vendor/` directory of a plugin checked out for development.
+- A plugin with both `Config/` and `config/` (only possible on a case-sensitive file system) uses `config/`. On a case-insensitive file system, the paths of a plugin with `Config/` are shown as `config/`; they are the same directory.
+
+### Templates in the CakePHP 5 Style ([PR #94](https://github.com/pieceofcake2/cakephp/pull/94))
+
+Templates in `templates/` may use the `.php` extension and the directory names of CakePHP 5 (`layout/`, `element/`, `email/`, `Error/`). Nothing changes for `.ctp` templates and for the `View/` directories of the CakePHP 2 layout.
+
+- In a `templates/` directory, a `foo.php` template is used instead of a `foo.ctp` template next to it, and `layout/default.php` or `layout/default.ctp` instead of `Layouts/default.ctp`. Check that no `.php` files other than templates are left in `templates/`.
+- `View/` directories are not searched for `.php` files, as they also hold view and helper classes. A view that sets `$ext = '.php'` still finds its templates there, as before.
+- To move templates, rename `.ctp` to `.php`, and `Layouts/`, `Elements/`, `Emails/` and `Errors/` to `layout/`, `element/`, `email/` and `Error/`; email layouts move from `Layouts/Emails/html/` to `layout/email/html/`.
+
 ### PHP 8.1 to 8.5 Deprecations ([PR #96](https://github.com/pieceofcake2/cakephp/pull/96))
 
 The core no longer triggers the deprecations of PHP 8.1 to 8.5 in its code. Most applications only need to update.

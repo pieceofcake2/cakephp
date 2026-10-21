@@ -212,7 +212,7 @@ class MemcacheEngineTest extends CakeTestCase
      */
     public function testReadAndWriteCache(): void
     {
-        Cache::set(['duration' => 1], null, 'memcache');
+        Cache::set(['duration' => 10], null, 'memcache');
 
         $result = Cache::read('test', 'memcache');
         $expecting = '';

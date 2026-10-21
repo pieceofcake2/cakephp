@@ -814,6 +814,146 @@ class ViewTest extends CakeTestCase
     }
 
     /**
+     * Builds a TestView with the templates/ directory of the test app before its View/ directory.
+     *
+     * @param string|null $theme The theme
+     * @return TestView
+     */
+    protected function _templatesView(?string $theme = null): TestView
+    {
+        App::build([
+            'View' => [
+                CORE_TESTS . DS . 'test_app' . DS . 'templates' . DS,
+                CORE_TESTS . DS . 'test_app' . DS . 'View' . DS,
+            ],
+        ], App::RESET);
+        $View = new TestView($this->PostsController);
+        $View->theme = $theme;
+
+        return $View;
+    }
+
+    /**
+     * Test that templates with the .php extension are found in templates/, before .ctp templates.
+     *
+     * @return void
+     */
+    public function testPhpTemplates(): void
+    {
+        $View = $this->_templatesView();
+        $templates = CORE_TESTS . DS . 'test_app' . DS . 'templates' . DS;
+
+        $this->assertSame($templates . 'Posts' . DS . 'php_template.php', $View->getViewFileName('php_template'));
+        $this->assertSame($templates . 'Posts' . DS . 'both.php', $View->getViewFileName('both'));
+        $this->assertSame('php template in templates/', $View->render('php_template', false));
+
+        // The .ctp templates of View/ are still found
+        $expected = CORE_TESTS . DS . 'test_app' . DS . 'View' . DS . 'Posts' . DS . 'index.ctp';
+        $this->assertSame($expected, $View->getViewFileName('index'));
+    }
+
+    /**
+     * Test that a theme still overrides a template of the application when they have different extensions.
+     *
+     * @return void
+     */
+    public function testPhpTemplatesKeepThemePriority(): void
+    {
+        $View = $this->_templatesView('TestTheme');
+
+        $expected = CORE_TESTS . DS . 'test_app' . DS . 'templates' . DS . 'Themed' . DS . 'TestTheme' . DS . 'Posts' . DS . 'themed.ctp';
+        $this->assertSame($expected, $View->getViewFileName('themed'));
+    }
+
+    /**
+     * Test that .php files in the View/ directories of the CakePHP 2 layout, where the view and helper
+     * classes are, are not rendered as templates.
+     *
+     * @return void
+     */
+    public function testPhpFilesInViewDirectoriesAreNotTemplates(): void
+    {
+        $this->expectException(MissingViewException::class);
+
+        $View = $this->_templatesView();
+        $View->getViewFileName('class_like');
+    }
+
+    /**
+     * Test that a view with the .php extension finds .php templates in View/ directories as before.
+     *
+     * @return void
+     */
+    public function testPhpExtensionInViewDirectories(): void
+    {
+        $View = $this->_templatesView();
+        $View->ext = '.php';
+
+        $expected = CORE_TESTS . DS . 'test_app' . DS . 'View' . DS . 'Posts' . DS . 'class_like.php';
+        $this->assertSame($expected, $View->getViewFileName('class_like'));
+    }
+
+    /**
+     * Test the directories of CakePHP 5 in templates/: element/, layout/, email/ and Error/.
+     *
+     * @return void
+     */
+    public function testCakePhp5TemplateDirectories(): void
+    {
+        $View = $this->_templatesView();
+        $templates = CORE_TESTS . DS . 'test_app' . DS . 'templates' . DS;
+
+        $this->assertSame('php element in templates/element/', $View->element('php_element'));
+        $this->assertSame('ctp element in templates/Elements/', $View->element('legacy_dir_element'));
+
+        $this->assertSame($templates . 'layout' . DS . 'php_layout.php', $View->getLayoutFileName('php_layout'));
+        $this->assertSame($templates . 'Error' . DS . 'php_error.php', $View->getViewFileName('/Errors/php_error'));
+
+        // The paths that CakeEmail uses
+        $View->viewPath = $View->layoutPath = 'Emails' . DS . 'html';
+        $this->assertSame($templates . 'email' . DS . 'html' . DS . 'php_email.php', $View->getViewFileName('php_email'));
+        $expected = $templates . 'layout' . DS . 'email' . DS . 'html' . DS . 'php_email.php';
+        $this->assertSame($expected, $View->getLayoutFileName('php_email'));
+    }
+
+    /**
+     * Test that elements are found in the templates directory of a plugin.
+     *
+     * @return void
+     */
+    public function testElementInPluginTemplates(): void
+    {
+        App::build([
+            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
+        ]);
+        CakePlugin::load('TestPluginModern');
+
+        $result = $this->View->element('TestPluginModern.modern_element');
+        $this->assertSame('this is the element in the templates directory of a plugin', $result);
+    }
+
+    /**
+     * Test that the src directory of a plugin, which holds its view classes, is not searched for templates.
+     *
+     * @return void
+     */
+    public function testPluginPathsExcludeSrc(): void
+    {
+        App::build([
+            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
+        ]);
+        CakePlugin::load('TestPluginModern');
+        $pluginPath = CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS . 'TestPluginModern' . DS;
+
+        $View = new TestView($this->Controller);
+        $paths = $View->paths('TestPluginModern', false);
+        $this->assertContains($pluginPath . 'templates' . DS, $paths);
+        foreach ($paths as $path) {
+            $this->assertStringNotContainsString($pluginPath . 'src' . DS, $path);
+        }
+    }
+
+    /**
      * Test element method
      *
      * @return void

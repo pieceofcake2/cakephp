@@ -1529,6 +1529,29 @@ class CakeEmailTest extends CakeTestCase
     }
 
     /**
+     * Test rendering .php templates and layouts from templates/email/ and templates/layout/email/.
+     *
+     * @return void
+     */
+    public function testSendRenderPhpTemplates(): void
+    {
+        App::build([
+            'View' => [CORE_TESTS . DS . 'test_app' . DS . 'templates' . DS],
+        ]);
+        $this->CakeEmail->reset();
+        $this->CakeEmail->transport('debug');
+        $this->CakeEmail->from('cake@cakephp.org');
+        $this->CakeEmail->to(['you@cakephp.org' => 'You']);
+        $this->CakeEmail->subject('My title');
+        $this->CakeEmail->config(['empty']);
+        $this->CakeEmail->emailFormat('html');
+        $this->CakeEmail->template('php_email', 'php_email');
+        $result = $this->CakeEmail->send();
+
+        $this->assertStringContainsString('php email layout: php email template', $result['message']);
+    }
+
+    /**
      * test sending and rendering with no layout
      *
      * @return void

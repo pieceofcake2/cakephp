@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+### Enhancements: Plugins in the CakePHP 5 Layout ([PR #88](https://github.com/pieceofcake2/cakephp/pull/88))
+
+- **Plugin directories**: Plugins may use the directories of the CakePHP 5 layout, as the application already does: `src/` for the namespaced classes (`src/Controller/`, `src/Model/`, ..., loaded by Composer), `templates/` for the views, `resources/locales/` for the translations, `vendor/` for the vendor files and `config/` for `bootstrap.php`, `routes.php`, configuration files and schemas. `App::path()` and `I18n` search them, when they exist, before the directories of the CakePHP 2 layout (`Controller/`, `View/`, `Locale/`, `Vendor/`), which are still searched. `App::uses()` and `App::load()` keep loading global classes from the CakePHP 2 directories
+- **CakePlugin::configPath()**: A new method returns the `config/` directory of a plugin, or `Config/` when the plugin has no `config/`; `CakePlugin::bootstrap()`, `CakePlugin::routes()`, `PhpReader`, `IniReader` and `CakeSchema` use it
+
+### Enhancements: Templates in the CakePHP 5 Style ([PR #94](https://github.com/pieceofcake2/cakephp/pull/94))
+
+- **`.php` templates**: In `templates/` directories (of the application, of plugins, of themes), templates, layouts and elements may use the `.php` extension of CakePHP 5. In each directory a `.php` template comes before the `.ctp` template of the same name, and the order of the directories is unchanged, so themes and plugins still override the templates of the application. The `View/` directories of the CakePHP 2 layout, which also hold the view and helper classes, are not searched for `.php` templates
+- **CakePHP 5 directory names**: In `templates/` directories, `layout/`, `element/`, `email/` and `Error/` are searched before `Layouts/`, `Elements/`, `Emails/` and `Errors/`. Email templates may be in `templates/email/html/` and `templates/email/text/`, and their layouts in `templates/layout/email/html/` and `templates/layout/email/text/`
+
 ### Bug Fixes: PHP Deprecations
 
 - **Null passed to built-in functions**: Many methods passed a value that can be `null` (e.g. `env()` of a missing variable, an unset option, the plugin of `pluginSplit()`) to a string function of PHP, which is deprecated since PHP 8.1. They cast it to a string (or an int for the decimals of `CakeNumber`), so the result is the same as before. This covers among others `CakeSession`, `CakeRequest`, `CakeResponse`, `CakeEmail`, `HttpSocket`, `Security`, `Configure::consume()`, `Xml::build()`, `FormHelper` date and radio inputs, `CakeText::cleanInsert()`, `Hash` / `Set` matching, `File`, `pluginSplit()`, `env()`, `clearCache()` and the missing class exceptions of the object collections
