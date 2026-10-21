@@ -63,6 +63,11 @@
 - **Security**: `Security::encrypt()` encrypts `null` as the empty string, instead of passing it to `strlen()` (deprecated since PHP 8.1)
 - **Sqlserver**: `Sqlserver::limit()` checks that the offset is a string before `ctype_digit()`, `renderStatement()` checks that a limit is given before it looks for `TOP` or `FETCH`, and `create()` checks that the table has an identity column before it looks for its value, instead of passing `null` or other types to them (deprecated since PHP 8.1)
 
+### Bug Fixes: Null Direction in `DboSource::order()` ([PR #101](https://github.com/pieceofcake2/cakephp/pull/101))
+
+- **DboSource::order()**: A field without a direction (e.g. `order('Post.title', null)`) no longer passes `null` to `trim()`, deprecated since PHP 8.1. The SQL is unchanged
+- **Tests**: The test of the directions passes the errors other than `E_USER_DEPRECATED` to PHPUnit, so it reports deprecations again
+
 ### Tests ([PR #96](https://github.com/pieceofcake2/cakephp/pull/96))
 
 - **Deprecations reported**: The tests report deprecations and fail on them. `ConfigureTest::testBootstrap()` restores the error level after `Configure::bootstrap()`, which had hidden deprecations from the following tests, and the tests no longer create dynamic properties, or use `utf8_decode()`, `new DateTime(null)`, `str_getcsv()` without the escape character or `session.referer_check`. The `DATABASE_CONFIG` of the tests allows dynamic properties, which `ConnectionManager::create()` adds. The test helpers call `setAccessible()` of reflection only before PHP 8.1. `ApplicationControllerTest` tests the redirect without cookies on every version, and the session ID in the URL, which needs `session.use_trans_sid` deprecated since PHP 8.4, only before PHP 8.4. The tests that use mcrypt check that it reports the deprecation of its functions, and `MemcacheEngineTest` replaces `Memcache::set()` with a small subclass, as a mock would copy the implicitly nullable parameters of the extension (deprecated since PHP 8.4)
