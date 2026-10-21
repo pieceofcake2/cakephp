@@ -131,6 +131,8 @@ abstract class JsBaseEngineHelper extends AppHelper
      * - `prefix` - String prepended to the returned data.
      * - `postfix` - String appended to the returned data.
      *
+     * Bytes in strings that are not valid UTF-8 are replaced by U+FFFD.
+     *
      * @param array $data Data to be converted.
      * @param array $options Set of options, see above.
      * @return string A JSON code block
@@ -142,7 +144,7 @@ abstract class JsBaseEngineHelper extends AppHelper
         ];
         $options += $defaultOptions;
 
-        return $options['prefix'] . json_encode($data) . $options['postfix'];
+        return $options['prefix'] . json_encode($data, JSON_INVALID_UTF8_SUBSTITUTE) . $options['postfix'];
     }
 
     /**

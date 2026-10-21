@@ -577,19 +577,19 @@ class JsBaseEngineHelperTest extends CakeTestCase
 
     /**
      * Test that object() of a string that is not valid UTF-8 still gives a JSON object
-     * with the key, instead of the empty string that json_encode() failing leaves.
+     * with the key, instead of the empty string that json_encode() failing leaves:
+     * each invalid byte is replaced by U+FFFD REPLACEMENT CHARACTER.
      *
      * @return void
      */
     public function testObjectWithInvalidUtf8(): void
     {
-        $this->markTestIncomplete('Known bug: object() returns an empty string when json_encode() fails on invalid UTF-8');
-
-        $result = $this->JsEngine->object(['name' => "a\x80b"]);
+        $result = $this->JsEngine->object(['name' => "a\x80b", 'ok' => "caf\xC3\xA9"]);
+        $this->assertSame('{"name":"a\ufffdb","ok":"caf\u00e9"}', $result);
 
         $decoded = json_decode($result, true);
         $this->assertIsArray($decoded, 'Not JSON: ' . var_export($result, true));
-        $this->assertSame(['name'], array_keys($decoded));
+        $this->assertSame(['name' => "a\u{FFFD}b", 'ok' => "caf\u{E9}"], $decoded);
     }
 
     /**
