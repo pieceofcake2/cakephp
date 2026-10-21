@@ -892,6 +892,9 @@ class CakeSessionTest extends CakeTestCase
         $_SESSION = null;
 
         TestCakeSession::start();
+        // The session time is renewed, and the second may change in between
+        $this->assertContains($_SESSION['Config']['time'] - $data['Config']['time'], [0, 1]);
+        $data['Config']['time'] = $_SESSION['Config']['time'];
         $this->assertEquals($data, $_SESSION);
         TestCakeSession::write('Foo', 'Bar');
 
