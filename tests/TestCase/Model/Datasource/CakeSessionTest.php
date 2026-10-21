@@ -1129,7 +1129,6 @@ class CakeSessionTest extends CakeTestCase
      */
     public function testSavePathIsCreatedInDebugMode(): void
     {
-        $this->markTestIncomplete('Known bug: _configureSession() checks Session.session.save_path instead of Session.ini.session.save_path.');
         $path = TMP . 'cake_session_test_' . getmypid();
         $this->_preserveSessionIni();
         Configure::write('debug', 2);
