@@ -316,6 +316,29 @@ class FileTest extends CakeTestCase
     }
 
     /**
+     * Test that a file whose directory cannot be created is not created
+     *
+     * @return void
+     * @covers ::__construct
+     * @covers ::create
+     */
+    public function testCreateWhenDirectoryCannotBeCreated(): void
+    {
+        $blocker = TMP . 'tests' . DS . 'cakephp.file.blocker.tmp';
+        touch($blocker);
+        try {
+            $File = new File($blocker . DS . 'sub' . DS . 'file.txt', true);
+
+            $this->assertNull($File->pwd());
+            $this->assertFalse($File->exists());
+            $this->assertFalse($File->create());
+            $this->assertFalse($File->write('data'));
+        } finally {
+            unlink($blocker);
+        }
+    }
+
+    /**
      * Tests the exists() method.
      *
      * @return void

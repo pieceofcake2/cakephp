@@ -103,9 +103,6 @@ class SchemaShellTest extends CakeTestCase
             $this->file->delete();
             unset($this->file);
         }
-        if (is_dir($this->path . DS . 'readonly')) {
-            chmod($this->path . DS . 'readonly', 0755);
-        }
         $Folder = new Folder($this->path);
         $Folder->delete();
 
@@ -984,16 +981,13 @@ class SchemaShellTest extends CakeTestCase
      */
     public function testDumpWriteFailure(): void
     {
-        $readonly = $this->path . DS . 'readonly';
-        new Folder($readonly, true);
-        chmod($readonly, 0555);
-        if (is_writable($readonly)) {
-            $this->markTestSkipped('The user running the tests can write into a read-only directory.');
-        }
+        // The directory of the SQL file cannot be created, as a file has its name
+        $this->_createFiles(['not_a_directory']);
+        $directory = $this->path . DS . 'not_a_directory';
         $this->Shell->params = [
             'name' => 'i18n',
             'connection' => 'test',
-            'write' => $readonly . DS . 'dump.sql',
+            'write' => $directory . DS . 'dump.sql',
         ];
         $this->Shell->expects($this->once())->method('err')
             ->with('SQL dump could not be created');
@@ -1001,7 +995,7 @@ class SchemaShellTest extends CakeTestCase
         $this->Shell->startup();
 
         $this->assertNull($this->Shell->dump());
-        $this->assertFileDoesNotExist($readonly . DS . 'dump.sql');
+        $this->assertFileDoesNotExist($directory . DS . 'dump.sql');
     }
 
     /**
