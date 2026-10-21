@@ -72,7 +72,7 @@
 - **DboSource::order()**: A field without a direction (e.g. `order('Post.title', null)`) no longer passes `null` to `trim()`, deprecated since PHP 8.1. The SQL is unchanged
 - **Tests**: The test of the directions passes the errors other than `E_USER_DEPRECATED` to PHPUnit, so it reports deprecations again
 
-### Bug Fixes: Console
+### Bug Fixes: Console ([PR #104](https://github.com/pieceofcake2/cakephp/pull/104))
 
 - **ShellDispatcher**: An unknown shell gives `MissingShellException`, not `MissingPluginException`
 - **AclShell**: The parser and help no longer set a dynamic property (the unsupported `default` of the action arguments is removed)
@@ -81,7 +81,6 @@
 - **ProgressShellHelper**: `draw()` passes an integer to `str_repeat()`, as a float is deprecated since PHP 8.1
 - **TestShell**: A file in `src/` of a plugin maps to its test case in `tests/TestCase/`
 - **TestShell**: The "cannot be run via this shell" message names the given file
-- **TestsuiteShell**: An always-true condition is removed; the behaviour is unchanged
 - **ApiShell**: The input `l` and other text that is not a number no longer fail on PHP 8.3 and later
 - **ApiShell**: Each lookup reads the classes of its own path, not the cached list of the first one
 - **ApiShell**: A class file that cannot be included is reported without a `ReflectionException`
