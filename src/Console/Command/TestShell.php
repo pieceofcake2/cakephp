@@ -421,7 +421,7 @@ class TestShell extends Shell
             }
         } else {
             $testFile = preg_replace(
-                "@((?:plugins|Plugin)[\\/]{$category})[\\/](.*)$@",
+                "@((?:plugins|Plugin)[\\/]{$category})[\\/](?:src[\\/])?(.*)$@",
                 '$1/tests/TestCase/$2Test.php',
                 $file,
             );

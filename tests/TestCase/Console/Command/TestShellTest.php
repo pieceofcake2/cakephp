@@ -453,20 +453,22 @@ class TestShellTest extends CakeTestCase
      *
      * @param string $plugin The plugin name.
      * @param string $testDir The test case directory, relative to the plugin.
+     * @param string $sourceDir The source directory, relative to the plugin.
      * @return string The path of the source file
      */
-    protected function _createPlugin(string $plugin, string $testDir): string
+    protected function _createPlugin(string $plugin, string $testDir, string $sourceDir = ''): string
     {
         $path = $this->_pluginsPath() . $plugin . DS;
-        new Folder($path . 'Model', true);
+        $source = $path . ($sourceDir !== '' ? $sourceDir . DS : '');
+        new Folder($source . 'Model', true);
         new Folder($path . $testDir . DS . 'Model', true);
-        file_put_contents($path . 'Model' . DS . 'Thing.php', "<?php\n");
+        file_put_contents($source . 'Model' . DS . 'Thing.php', "<?php\n");
         file_put_contents($path . $testDir . DS . 'Model' . DS . 'ThingTest.php', "<?php\n");
         file_put_contents($path . $testDir . DS . 'Model' . DS . 'OtherTest.php', "<?php\n");
 
         App::build(['Plugin' => [$this->_pluginsPath()]], App::RESET);
 
-        return $path . 'Model' . DS . 'Thing.php';
+        return $source . 'Model' . DS . 'Thing.php';
     }
 
     /**
@@ -629,6 +631,19 @@ class TestShellTest extends CakeTestCase
 
         $this->assertSame('LegacyCovPlugin', $this->Shell->mapFileToCategory($file));
         $this->assertSame('Model/Thing', $this->Shell->mapFileToCase($file, 'LegacyCovPlugin'));
+    }
+
+    /**
+     * Test that a source file in the src directory of a plugin is mapped to a test case in tests/TestCase
+     *
+     * @return void
+     */
+    public function testMapPluginSrcFileToCase(): void
+    {
+        $file = $this->_createPlugin('SrcCovPlugin', 'tests' . DS . 'TestCase', 'src');
+
+        $this->assertSame('SrcCovPlugin', $this->Shell->mapFileToCategory($file));
+        $this->assertSame('Model/Thing', $this->Shell->mapFileToCase($file, 'SrcCovPlugin'));
     }
 
     /**
