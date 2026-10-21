@@ -69,7 +69,7 @@ class AclShell extends AppShell
         $class = Configure::read('Acl.classname');
         $className = App::className($class, 'Controller/Component/Acl');
         [, $class] = pluginSplit($class);
-        if ($class !== 'DB_ACL' && !is_a((string)$className, 'DbAcl', true)) {
+        if ($class !== 'DB_ACL' && ($className === null || !is_a($className, 'DbAcl', true))) {
             $out = "--------------------------------------------------\n";
             $out .= __d('cake_console', 'Error: Your current CakePHP configuration is set to an ACL implementation other than DB.') . "\n";
             $out .= __d('cake_console', 'Please change your core config to reflect your decision to use DbAcl before attempting to use this script') . "\n";
