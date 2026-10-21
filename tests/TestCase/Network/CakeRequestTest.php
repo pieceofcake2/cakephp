@@ -2600,6 +2600,34 @@ class CakeRequestTest extends CakeTestCase
     }
 
     /**
+     * Test that input() returns null without calling the callback when there is no input.
+     *
+     * @return void
+     */
+    public function testInputDecodeEmpty(): void
+    {
+        foreach (['', null] as $input) {
+            $request = $this->getMock('CakeRequest', ['_readInput']);
+            $request->expects($this->once())->method('_readInput')
+                ->will($this->returnValue($input));
+
+            $called = false;
+            $result = $request->input(function () use (&$called) {
+                $called = true;
+
+                return [];
+            });
+            $this->assertNull($result);
+            $this->assertFalse($called);
+        }
+
+        $request = $this->getMock('CakeRequest', ['_readInput']);
+        $request->expects($this->once())->method('_readInput')
+            ->will($this->returnValue('0'));
+        $this->assertSame(0, $request->input('json_decode'));
+    }
+
+    /**
      * Test input() decoding with additional arguments.
      *
      * @return void
