@@ -261,8 +261,12 @@ class I18n
             }
         }
 
-        if (!empty($_this->_domains[$domain][$_this->_lang][$_this->category][$singular][$context ?? ''])) {
-            $trans = $_this->_domains[$domain][$_this->_lang][$_this->category][$singular][$context ?? ''];
+        if ($context === null) {
+            // The translations without a context are kept under the empty context
+            $context = '';
+        }
+        if (!empty($_this->_domains[$domain][$_this->_lang][$_this->category][$singular][$context])) {
+            $trans = $_this->_domains[$domain][$_this->_lang][$_this->category][$singular][$context];
             if (is_array($trans)) {
                 if (isset($trans[$plurals])) {
                     $trans = $trans[$plurals];

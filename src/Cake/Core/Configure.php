@@ -209,13 +209,16 @@ class Configure
      */
     public static function consume($var)
     {
-        $simple = !str_contains((string)$var, '.');
-        if ($simple && !isset(static::$_values[$var ?? ''])) {
+        if (empty($var)) {
+            return null;
+        }
+        $simple = !str_contains($var, '.');
+        if ($simple && !isset(static::$_values[$var])) {
             return null;
         }
         if ($simple) {
-            $value = static::$_values[$var ?? ''];
-            unset(static::$_values[$var ?? '']);
+            $value = static::$_values[$var];
+            unset(static::$_values[$var]);
 
             return $value;
         }

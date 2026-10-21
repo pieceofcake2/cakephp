@@ -774,7 +774,11 @@ class CakeResponse
      */
     public function getMimeType($alias)
     {
-        return $this->_mimeTypes[$alias ?? ''] ?? false;
+        if (empty($alias)) {
+            return false;
+        }
+
+        return $this->_mimeTypes[$alias] ?? false;
     }
 
     /**

@@ -502,8 +502,8 @@ class ConsoleOptionParser
      */
     public function parse($argv, $command = null)
     {
-        if (isset($this->_subcommands[$command ?? '']) && $this->_subcommands[$command ?? '']->parser()) {
-            return $this->_subcommands[$command ?? '']->parser()->parse($argv);
+        if (!empty($command) && isset($this->_subcommands[$command]) && $this->_subcommands[$command]->parser()) {
+            return $this->_subcommands[$command]->parser()->parse($argv);
         }
         $params = $args = [];
         $this->_tokens = $argv;
@@ -553,10 +553,11 @@ class ConsoleOptionParser
     public function help($subcommand = null, $format = 'text', $width = 72)
     {
         if (
-            isset($this->_subcommands[$subcommand ?? '']) &&
-            $this->_subcommands[$subcommand ?? '']->parser() instanceof self
+            !empty($subcommand) &&
+            isset($this->_subcommands[$subcommand]) &&
+            $this->_subcommands[$subcommand]->parser() instanceof self
         ) {
-            $subparser = $this->_subcommands[$subcommand ?? '']->parser();
+            $subparser = $this->_subcommands[$subcommand]->parser();
             $subparser->command($this->command() . ' ' . $subparser->command());
 
             return $subparser->help(null, $format, $width);
