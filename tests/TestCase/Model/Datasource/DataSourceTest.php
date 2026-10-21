@@ -188,7 +188,7 @@ class DataSourceTest extends CakeTestCase
             'joins' => [],
             'limit' => 10,
             'offset' => null,
-            'order' => [['status']],
+            'order' => ['status'],
             'page' => 1,
             'group' => null,
             'callbacks' => true,

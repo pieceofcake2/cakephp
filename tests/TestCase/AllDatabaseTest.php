@@ -43,6 +43,7 @@ class AllDatabaseTest extends TestSuite
             'AclNode',
             'CakeSchema',
             'ConnectionManager',
+            'Datasource' . DS . 'DataSource',
             'Datasource' . DS . 'DboSource',
             'Datasource' . DS . 'Database' . DS . 'Mysql',
             'Datasource' . DS . 'Database' . DS . 'Postgres',
