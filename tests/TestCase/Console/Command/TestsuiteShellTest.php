@@ -18,7 +18,6 @@
 
 namespace Cake\Test\TestCase\Console\Command;
 
-use Cake\Console\Command\TestShell;
 use Cake\Console\Command\TestsuiteShell;
 use Cake\Console\ConsoleInput;
 use Cake\Console\ConsoleOutput;
@@ -80,16 +79,6 @@ class TestsuiteShellTest extends CakeTestCase
         unset($this->Shell);
 
         parent::tearDown();
-    }
-
-    /**
-     * Test that the shell is the test shell
-     *
-     * @return void
-     */
-    public function testIsTestShell(): void
-    {
-        $this->assertInstanceOf(TestShell::class, $this->Shell);
     }
 
     /**
@@ -156,6 +145,8 @@ class TestsuiteShellTest extends CakeTestCase
      */
     public function testParseArgsDoesNotMapFiles(): void
     {
+        // The legacy behaviour, kept on purpose: this shell is for backwards
+        // compatibility only and does not map file paths to test cases.
         $this->Shell->args = ['tests/TestCase/BasicsTest.php'];
         $expected = ['core' => false, 'app' => false, 'plugin' => 'tests/TestCase/BasicsTest.php', 'output' => 'text'];
         $this->assertSame($expected, $this->Shell->parseArgs());

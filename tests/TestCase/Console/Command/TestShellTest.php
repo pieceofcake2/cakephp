@@ -24,7 +24,6 @@ use Cake\Console\ConsoleInput;
 use Cake\Console\ConsoleOptionParser;
 use Cake\Console\ConsoleOutput;
 use Cake\Core\App;
-use Cake\Core\CakePlugin;
 use Cake\TestSuite\CakeTestCase;
 use Cake\TestSuite\CakeTestSuiteDispatcher;
 use Cake\Utility\Folder;
@@ -88,7 +87,6 @@ class TestShellTest extends CakeTestCase
     public function tearDown(): void
     {
         unset($this->Dispatch, $this->Shell);
-        CakePlugin::unload();
         $Folder = new Folder($this->_pluginsPath());
         $Folder->delete();
 
@@ -662,6 +660,9 @@ class TestShellTest extends CakeTestCase
 
     /**
      * Test that a missing plugin test case throws an exception
+     *
+     * Both the tests/TestCase and the Test/Case layouts are tried. The message
+     * names the path that was tried last, the one of the Test/Case layout.
      *
      * @return void
      */
