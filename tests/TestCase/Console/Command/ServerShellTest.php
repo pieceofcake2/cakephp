@@ -138,4 +138,75 @@ class ServerShellTest extends CakeTestCase
         $this->assertStringContainsString('ServerHost (default: localhost)', $help);
         $this->assertStringContainsString('ListenPort (default: 8765)', $help);
     }
+
+    /**
+     * Test the document root option and that a trailing separator is removed
+     *
+     * @return void
+     */
+    public function testMainDocumentRoot(): void
+    {
+        $this->Shell->initialize();
+        $this->Shell->params = ['document_root' => DS . 'var' . DS . 'www' . DS];
+        $this->Shell->startup();
+
+        $root = DS . 'var' . DS . 'www';
+        $this->Shell->expects($this->once())
+            ->method('_runCommand')
+            ->with('php -S localhost:8765 -t ' . escapeshellarg($root) . ' ' . escapeshellarg($root . '/index.php'));
+
+        $this->Shell->main();
+    }
+
+    /**
+     * Test that a Windows document root keeps one backslash after the drive
+     *
+     * @return void
+     */
+    public function testMainWindowsDocumentRoot(): void
+    {
+        $this->Shell->initialize();
+        $this->Shell->params = ['document_root' => 'C:\\\\www\\app'];
+        $this->Shell->startup();
+
+        $root = 'C:\\www\\app';
+        $this->Shell->expects($this->once())
+            ->method('_runCommand')
+            ->with('php -S localhost:8765 -t ' . escapeshellarg($root) . ' ' . escapeshellarg($root . '/index.php'));
+
+        $this->Shell->main();
+    }
+
+    /**
+     * Test that the welcome text shows the document root
+     *
+     * @return void
+     */
+    public function testStartupWelcome(): void
+    {
+        $out = $this->getMock(ConsoleOutput::class, [], [], '', false);
+        $in = $this->getMock(ConsoleInput::class, [], [], '', false);
+        $Shell = $this->getMock(ServerShell::class, ['out', 'hr', '_stop', '_runCommand'], [$out, $out, $in]);
+
+        $outputs = [];
+        $Shell->expects($this->any())
+            ->method('out')
+            ->willReturnCallback(function ($message = null) use (&$outputs) {
+                $outputs[] = $message;
+
+                return 0;
+            });
+        $Shell->expects($this->exactly(2))->method('hr');
+
+        $Shell->initialize();
+        $Shell->params = ['document_root' => DS . 'srv' . DS . 'webroot'];
+        $Shell->startup();
+
+        $this->assertNull($outputs[0]);
+        $this->assertStringStartsWith('<info>Welcome to CakePHP v', $outputs[1]);
+        $this->assertSame('App : ' . APP_DIR, $outputs[2]);
+        $this->assertSame('Path: ' . APP, $outputs[3]);
+        $this->assertSame('DocumentRoot: ' . DS . 'srv' . DS . 'webroot', $outputs[4]);
+        $this->assertCount(5, $outputs);
+    }
 }

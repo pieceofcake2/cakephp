@@ -42,6 +42,7 @@ class AllConsoleTest extends TestSuite
         $path = CORE_TESTS . DS . 'TestCase' . DS . 'Console' . DS;
 
         $suite->addTestFile($path . 'AllConsoleLibsTest.php');
+        $suite->addTestDirectory($path . 'Helper');
         $suite->addTestFile($path . 'AllTasksTest.php');
         $suite->addTestFile($path . 'AllShellsTest.php');
 

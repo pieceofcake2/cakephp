@@ -22,12 +22,14 @@ namespace Cake\Test\TestCase\Console\Command\Task;
 
 use Cake\Console\Command\Task\ExtractTask;
 use Cake\Console\ConsoleInput;
+use Cake\Console\ConsoleOptionParser;
 use Cake\Console\ConsoleOutput;
 use Cake\Core\App;
 use Cake\Core\CakePlugin;
 use Cake\Core\Configure;
 use Cake\TestSuite\CakeTestCase;
 use Cake\Utility\Folder;
+use PHPUnit\Framework\MockObject\MockObject;
 use ReflectionMethod;
 use ReflectionProperty;
 
@@ -580,5 +582,481 @@ class ExtractTaskTest extends CakeTestCase
         $this->assertArrayHasKey('first singular', $result['LC_MESSAGES']['domain']);
         $this->assertArrayHasKey('second singular', $result['LC_MESSAGES']['domain']);
         $this->assertSame('second plural', $result['LC_MESSAGES']['domain']['second singular']['']['msgid_plural']);
+    }
+
+    /**
+     * Writes a PHP source file for the extraction into the source directory
+     *
+     * @param string $name The file name
+     * @param string $code The file contents
+     * @return string The source directory
+     */
+    protected function _writeSource(string $name, string $code): string
+    {
+        $source = $this->path . DS . 'source';
+        new Folder($source, true);
+        file_put_contents($source . DS . $name, $code);
+
+        return $source;
+    }
+
+    /**
+     * Creates a task mock that records the messages passed to err()
+     *
+     * @param array $errors The recorded messages
+     * @return ExtractTask|MockObject
+     */
+    protected function _taskRecordingErrors(array &$errors): ExtractTask|MockObject
+    {
+        $out = $this->getMock(ConsoleOutput::class, [], [], '', false);
+        $in = $this->getMock(ConsoleInput::class, [], [], '', false);
+        $task = $this->getMock(
+            ExtractTask::class,
+            ['in', 'out', 'err', '_stop'],
+            [$out, $out, $in],
+        );
+        $task->expects($this->any())
+            ->method('err')
+            ->willReturnCallback(function ($message = null) use (&$errors) {
+                $errors[] = $message;
+
+                return 0;
+            });
+
+        return $task;
+    }
+
+    /**
+     * Test that the paths are asked for when neither the paths nor the plugin are given
+     *
+     * @return void
+     */
+    public function testExecuteAsksForPaths(): void
+    {
+        $source = $this->_writeSource('interactive.php', "<?php\n__('Interactive path string');\n");
+        $errors = [];
+        $this->Task = $this->_taskRecordingErrors($errors);
+        $this->Task->params['output'] = $this->path . DS . 'locale';
+        $this->Task->params['extract-core'] = 'no';
+        $this->Task->params['merge'] = 'no';
+
+        $this->Task->expects($this->exactly(4))
+            ->method('in')
+            ->willReturnOnConsecutiveCalls('d', $this->path . DS . 'missing', $source, 'd');
+        $this->Task->expects($this->never())->method('_stop');
+
+        $this->Task->execute();
+
+        $this->assertCount(2, $errors);
+        $this->assertStringContainsString('No directories selected.', $errors[0]);
+        $this->assertStringContainsString('The directory path you supplied was not found.', $errors[1]);
+        $result = file_get_contents($this->path . DS . 'locale' . DS . 'default.pot');
+        $this->assertStringContainsString('#: interactive.php:2', $result);
+        $this->assertStringContainsString('msgid "Interactive path string"', $result);
+    }
+
+    /**
+     * Test that quitting the path selection aborts the extraction
+     *
+     * @return void
+     */
+    public function testExecuteQuitPaths(): void
+    {
+        $errors = [];
+        $this->Task = $this->_taskRecordingErrors($errors);
+        $this->Task->params['output'] = $this->path . DS . 'locale';
+        $this->Task->params['extract-core'] = 'no';
+        $this->Task->params['merge'] = 'no';
+
+        $this->Task->expects($this->once())->method('in')->willReturn('q');
+        $this->Task->expects($this->once())->method('_stop');
+
+        $this->Task->execute();
+
+        $this->assertSame(['Extract Aborted'], $errors);
+        $this->assertFileDoesNotExist($this->path . DS . 'locale' . DS . 'default.pot');
+    }
+
+    /**
+     * Test that the output directory is asked for when it is not given
+     *
+     * @return void
+     */
+    public function testExecuteAsksForOutput(): void
+    {
+        $source = $this->_writeSource('output.php', "<?php\n__('Output path string');\n");
+        $errors = [];
+        $this->Task = $this->_taskRecordingErrors($errors);
+        $this->Task->params['paths'] = $source;
+        $this->Task->params['extract-core'] = 'no';
+        $this->Task->params['merge'] = 'no';
+
+        $defaults = [];
+        $responses = [$this->path . DS . 'missing', $this->path . DS . 'locale'];
+        $this->Task->expects($this->exactly(2))
+            ->method('in')
+            ->willReturnCallback(function ($prompt, $options = null, $default = null) use (&$defaults, &$responses) {
+                $defaults[] = $default;
+
+                return array_shift($responses);
+            });
+        $this->Task->expects($this->never())->method('_stop');
+
+        $this->Task->execute();
+
+        $this->assertSame($source . DS . 'Locale', $defaults[0]);
+        $this->assertSame(['The directory path you supplied was not found. Please try again.'], $errors);
+        $result = file_get_contents($this->path . DS . 'locale' . DS . 'default.pot');
+        $this->assertStringContainsString('msgid "Output path string"', $result);
+    }
+
+    /**
+     * Test that quitting the output selection aborts the extraction
+     *
+     * @return void
+     */
+    public function testExecuteQuitOutput(): void
+    {
+        $source = $this->_writeSource('quit.php', "<?php\n__('Quit string');\n");
+        $errors = [];
+        $this->Task = $this->_taskRecordingErrors($errors);
+        $this->Task->params['paths'] = $source;
+        $this->Task->params['extract-core'] = 'no';
+        $this->Task->params['merge'] = 'no';
+
+        $this->Task->expects($this->once())->method('in')->willReturn('Q');
+        $this->Task->expects($this->once())->method('_stop');
+
+        $this->Task->execute();
+
+        $this->assertSame(['Extract Aborted'], $errors);
+        $this->assertFileDoesNotExist($source . DS . 'default.pot');
+        $this->assertFileDoesNotExist($this->path . DS . 'locale' . DS . 'default.pot');
+    }
+
+    /**
+     * Test that an output directory that does not exist stops the extraction
+     *
+     * @return void
+     */
+    public function testExecuteUnusableOutput(): void
+    {
+        $source = $this->_writeSource('unusable.php', "<?php\n__('Unusable string');\n");
+        $errors = [];
+        $this->Task = $this->_taskRecordingErrors($errors);
+        $this->Task->params['paths'] = $source;
+        $this->Task->params['output'] = $this->path . DS . 'missing';
+        $this->Task->params['extract-core'] = 'no';
+        $this->Task->params['merge'] = 'no';
+
+        $this->Task->expects($this->never())->method('in');
+        $this->Task->expects($this->once())->method('_stop');
+
+        $this->Task->execute();
+
+        $this->assertCount(1, $errors);
+        $this->assertStringContainsString(
+            'The output directory ' . $this->path . DS . 'missing' . DS . ' was not found or writable.',
+            $errors[0],
+        );
+        $this->assertDirectoryDoesNotExist($this->path . DS . 'missing');
+    }
+
+    /**
+     * Test that the plugin option loads the plugin and writes into the Locale directory of the plugin
+     *
+     * @return void
+     */
+    public function testExecutePluginOutputsToPluginLocale(): void
+    {
+        $plugins = $this->path . DS . 'plugins' . DS;
+        $plugin = $plugins . 'ExtractCovPlugin' . DS;
+        new Folder($plugin . 'Locale', true);
+        new Folder($plugin . 'src' . DS . 'View', true);
+        file_put_contents($plugin . 'src' . DS . 'View' . DS . 'view.php', "<?php\n__('Plugin string');\n");
+        App::build(['Plugin' => [$plugins]]);
+
+        $this->Task->params['plugin'] = 'extract_cov_plugin';
+        $this->Task->params['extract-core'] = 'no';
+        $this->Task->params['merge'] = 'no';
+        $this->Task->expects($this->never())->method('in');
+        $this->Task->expects($this->never())->method('err');
+        $this->Task->expects($this->never())->method('_stop');
+
+        $this->Task->execute();
+
+        $this->assertTrue(CakePlugin::loaded('ExtractCovPlugin'));
+        $this->assertSame('ExtractCovPlugin', $this->Task->params['plugin']);
+        $this->assertFileExists($plugin . 'Locale' . DS . 'default.pot');
+        $result = file_get_contents($plugin . 'Locale' . DS . 'default.pot');
+        $this->assertStringContainsString('msgid "Plugin string"', $result);
+    }
+
+    /**
+     * Test that the plugin option stops when the plugin has no Locale directory
+     *
+     * @return void
+     */
+    public function testExecutePluginWithoutLocale(): void
+    {
+        App::build([
+            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
+        ]);
+        $this->assertFalse(CakePlugin::loaded('TestPlugin'));
+
+        $errors = [];
+        $this->Task = $this->_taskRecordingErrors($errors);
+        $this->Task->params['plugin'] = 'test_plugin';
+        $this->Task->params['extract-core'] = 'no';
+        $this->Task->params['merge'] = 'no';
+
+        $this->Task->expects($this->never())->method('in');
+        // The test plugin has no Locale directory, so the extraction stops before writing anything.
+        $this->Task->expects($this->once())->method('_stop');
+
+        $this->Task->execute();
+
+        $this->assertTrue(CakePlugin::loaded('TestPlugin'));
+        $this->assertSame('TestPlugin', $this->Task->params['plugin']);
+        $expected = CakePlugin::path('TestPlugin') . DS . 'Locale' . DS;
+        $this->assertCount(1, $errors);
+        $this->assertStringContainsString('The output directory ' . $expected . ' was not found or writable.', $errors[0]);
+    }
+
+    /**
+     * Test that the files option limits the extraction to the given files
+     *
+     * @return void
+     */
+    public function testExecuteFiles(): void
+    {
+        $this->_writeSource('included.php', "<?php\n__('Included string');\n");
+        $source = $this->_writeSource('skipped.php', "<?php\n__('Skipped string');\n");
+
+        $this->Task->interactive = false;
+        $this->Task->params['paths'] = $source;
+        $this->Task->params['files'] = $source . DS . 'included.php';
+        $this->Task->params['output'] = $this->path . DS . 'locale';
+        $this->Task->params['extract-core'] = 'no';
+        $this->Task->params['merge'] = 'no';
+        $this->Task->expects($this->never())->method('err');
+        $this->Task->expects($this->never())->method('in');
+
+        $this->Task->execute();
+
+        $result = file_get_contents($this->path . DS . 'locale' . DS . 'default.pot');
+        $this->assertStringContainsString('msgid "Included string"', $result);
+        $this->assertStringNotContainsString('Skipped string', $result);
+    }
+
+    /**
+     * Test that the exclude option accepts absolute paths and relative path segments
+     *
+     * @return void
+     */
+    public function testExecuteExcludeSegments(): void
+    {
+        $this->_writeSource('kept.php', "<?php\n__('Kept string');\n");
+        new Folder($this->path . DS . 'source' . DS . 'vendors' . DS . 'lib', true);
+        new Folder($this->path . DS . 'source' . DS . 'generated', true);
+        $source = $this->_writeSource('vendors' . DS . 'lib' . DS . 'vendor.php', "<?php\n__('Vendor string');\n");
+        $this->_writeSource('generated' . DS . 'generated.php', "<?php\n__('Generated string');\n");
+
+        $this->Task->interactive = false;
+        $this->Task->params['paths'] = $source;
+        $this->Task->params['exclude'] = 'vendors/lib,' . realpath($source) . DS . 'generated';
+        $this->Task->params['output'] = $this->path . DS . 'locale';
+        $this->Task->params['extract-core'] = 'no';
+        $this->Task->params['merge'] = 'no';
+        $this->Task->expects($this->never())->method('err');
+
+        $this->Task->execute();
+
+        $result = file_get_contents($this->path . DS . 'locale' . DS . 'default.pot');
+        $this->assertStringContainsString('msgid "Kept string"', $result);
+        $this->assertStringNotContainsString('Vendor string', $result);
+        $this->assertStringNotContainsString('Generated string', $result);
+    }
+
+    /**
+     * Test that the strings of all domains and categories are merged into default.pot
+     *
+     * @return void
+     */
+    public function testExecuteMerge(): void
+    {
+        $source = $this->_writeSource(
+            'merge.php',
+            "<?php\n__('Default string');\n__d('other', 'Other domain string');\n__c('Numeric string', 4);\n",
+        );
+
+        $this->Task->interactive = false;
+        $this->Task->params['paths'] = $source;
+        $this->Task->params['output'] = $this->path . DS . 'locale';
+        $this->Task->params['extract-core'] = 'no';
+        $this->Task->params['merge'] = 'yes';
+        $this->Task->expects($this->never())->method('err');
+
+        $this->Task->execute();
+
+        $output = $this->path . DS . 'locale' . DS;
+        $result = file_get_contents($output . 'default.pot');
+        $this->assertStringContainsString('msgid "Default string"', $result);
+        $this->assertStringContainsString('msgid "Other domain string"', $result);
+        $this->assertStringContainsString('msgid "Numeric string"', $result);
+        $this->assertStringContainsString('msgid "Other domain string"', file_get_contents($output . 'other.pot'));
+        $this->assertStringContainsString(
+            'msgid "Numeric string"',
+            file_get_contents($output . 'LC_NUMERIC' . DS . 'default.pot'),
+        );
+    }
+
+    /**
+     * Test the answers to the prompt about existing .pot files
+     *
+     * @return void
+     */
+    public function testWriteFilesExistingFilePrompt(): void
+    {
+        $source = $this->_writeSource(
+            'existing.php',
+            "<?php\n__('First string');\n__d('second', 'Second string');\n" .
+            "__d('third', 'Third string');\n__d('fourth', 'Fourth string');\n",
+        );
+        $output = $this->path . DS . 'locale' . DS;
+        foreach (['default', 'second', 'third', 'fourth'] as $domain) {
+            file_put_contents($output . $domain . '.pot', 'original ' . $domain);
+        }
+
+        $this->Task->interactive = false;
+        $this->Task->params['paths'] = $source;
+        $this->Task->params['output'] = $output;
+        $this->Task->params['extract-core'] = 'no';
+        $this->Task->params['merge'] = 'no';
+        $this->Task->expects($this->never())->method('err');
+
+        $prompts = [];
+        // default.pot: [N]o, then an empty name and a new name.
+        // second.pot: [Y]es. third.pot: [A]ll, so fourth.pot is overwritten without a prompt.
+        $responses = ['n', '', 'renamed.pot', 'y', 'a'];
+        $this->Task->expects($this->exactly(5))
+            ->method('in')
+            ->willReturnCallback(function ($prompt) use (&$prompts, &$responses) {
+                $prompts[] = $prompt;
+
+                return array_shift($responses);
+            });
+
+        $this->Task->execute();
+
+        $this->assertStringContainsString('default.pot already exists in this location.', $prompts[0]);
+        $this->assertSame('What would you like to name this file?', $prompts[1]);
+        $this->assertSame('What would you like to name this file?', $prompts[2]);
+        $this->assertStringContainsString('second.pot already exists in this location.', $prompts[3]);
+        $this->assertStringContainsString('third.pot already exists in this location.', $prompts[4]);
+
+        $this->assertSame('original default', file_get_contents($output . 'default.pot'));
+        $this->assertStringContainsString('msgid "First string"', file_get_contents($output . 'renamed.pot'));
+        $this->assertStringContainsString('msgid "Second string"', file_get_contents($output . 'second.pot'));
+        $this->assertStringContainsString('msgid "Third string"', file_get_contents($output . 'third.pot'));
+        $this->assertStringContainsString('msgid "Fourth string"', file_get_contents($output . 'fourth.pot'));
+    }
+
+    /**
+     * Test that an invalid use of a marker function is reported
+     *
+     * @return void
+     */
+    public function testExecuteReportsInvalidMarker(): void
+    {
+        $source = $this->_writeSource(
+            'invalid.php',
+            "<?php\n__('Valid string');\n__(\$message, (int)\$count);\n" .
+            "function __n(\$singular, \$plural, \$count)\n{\n}\n",
+        );
+        $errors = [];
+        $this->Task = $this->_taskRecordingErrors($errors);
+        $this->Task->interactive = false;
+        $this->Task->params['paths'] = $source;
+        $this->Task->params['output'] = $this->path . DS . 'locale';
+        $this->Task->params['extract-core'] = 'no';
+        $this->Task->params['merge'] = 'no';
+
+        $this->Task->execute();
+
+        // The declaration of __n() is not reported, only the call of __() with a variable.
+        $this->assertSame(
+            "Invalid marker content in {$source}" . DS . "invalid.php:3\n* __(",
+            str_replace(realpath($source), $source, $errors[0]),
+        );
+        $this->assertSame('$message,(int)$count)', implode('', array_slice($errors, 1, -1)));
+        $this->assertSame("\n", end($errors));
+        $result = file_get_contents($this->path . DS . 'locale' . DS . 'default.pot');
+        $this->assertStringContainsString('msgid "Valid string"', $result);
+    }
+
+    /**
+     * Test that the validation messages go to the domain given by the validation-domain option
+     *
+     * @return void
+     */
+    public function testExtractModelValidationWithDomainOption(): void
+    {
+        App::build([
+            'Model' => [CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'Model' . DS],
+        ], App::RESET);
+        $out = $this->getMock(ConsoleOutput::class, [], [], '', false);
+        $in = $this->getMock(ConsoleInput::class, [], [], '', false);
+        $this->Task = $this->getMock(
+            ExtractTask::class,
+            ['_isExtractingApp', 'in', 'out', 'err', 'clear', '_stop'],
+            [$out, $out, $in],
+        );
+        $this->Task->expects($this->any())
+            ->method('_isExtractingApp')
+            ->willReturn(true);
+
+        $this->Task->params['paths'] = $this->_writeSource('empty.php', "<?php\n");
+        $this->Task->params['output'] = $this->path . DS . 'locale';
+        $this->Task->params['extract-core'] = 'no';
+        $this->Task->params['merge'] = 'no';
+        $this->Task->params['exclude-plugins'] = true;
+        $this->Task->params['validation-domain'] = 'validation_messages';
+
+        $this->Task->execute();
+
+        $output = $this->path . DS . 'locale' . DS;
+        $this->assertFileDoesNotExist($output . 'default.pot');
+        $result = file_get_contents($output . 'validation_messages.pot');
+        $this->assertStringContainsString('Model/PersisterOne.php:validation for field title', $result);
+        $this->assertStringContainsString('msgid "Post title is required"', $result);
+    }
+
+    /**
+     * Test the option parser
+     *
+     * @return void
+     */
+    public function testGetOptionParser(): void
+    {
+        $parser = $this->Task->getOptionParser();
+        $this->assertInstanceOf(ConsoleOptionParser::class, $parser);
+        $this->assertStringContainsString('CakePHP Language String Extraction:', $parser->description());
+
+        $options = $parser->options();
+        foreach (
+            [
+                'app', 'paths', 'merge', 'no-location', 'output', 'files', 'exclude-plugins', 'plugin',
+                'ignore-model-validation', 'validation-domain', 'exclude', 'overwrite', 'extract-core',
+            ] as $name
+        ) {
+            $this->assertArrayHasKey($name, $options, $name);
+        }
+
+        $result = $parser->parse(['--merge', 'no', '--extract-core', 'yes', '--overwrite']);
+        $this->assertSame('no', $result[0]['merge']);
+        $this->assertSame('yes', $result[0]['extract-core']);
+        $this->assertTrue($result[0]['overwrite']);
+        $this->assertFalse($result[0]['no-location']);
     }
 }
