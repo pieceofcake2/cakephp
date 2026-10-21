@@ -358,6 +358,8 @@ class CakeSchema extends CakeObject
     /**
      * Writes schema file from object or options.
      *
+     * Without tables, the tables are read from the connection of the schema.
+     *
      * @param object|array $object Schema object or options array.
      * @param array $options Schema object properties to override object.
      * @return mixed False or string written to file.
@@ -396,7 +398,8 @@ class CakeSchema extends CakeObject
         $out .= "\tpublic function before(\$event = array()) {\n\t\treturn true;\n\t}\n\n\tpublic function after(\$event = array()) {\n\t}\n\n";
 
         if (empty($options['tables'])) {
-            $this->read();
+            $read = $this->read(['connection' => $options['connection'], 'name' => $options['name']]);
+            $options['tables'] = $read['tables'];
         }
 
         foreach ($options['tables'] as $table => $fields) {

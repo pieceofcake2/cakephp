@@ -1226,23 +1226,33 @@ class CakeSchemaTest extends CakeTestCase
 
     /**
      * Test that write() without tables writes the tables that it reads from the
-     * connection of the schema.
+     * connection of the schema: the tables of the models that use the connection,
+     * but not the tables that read() lists as missing.
      *
      * @return void
      */
     public function testWriteWithoutTablesWritesTheTablesItReads(): void
     {
-        $this->markTestIncomplete('Known bug: write() without tables calls read() and discards its result');
+        App::build([
+            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
+        ]);
+        CakePlugin::load('TestPlugin');
 
         $path = TMP . 'tests';
         $this->_schemaFiles[] = $path . DS . 'cov_read_tables.php';
         $Schema = new CakeSchema(['name' => 'CovReadTables', 'path' => $path, 'connection' => 'test']);
+        $Schema->plugin = 'TestPlugin';
 
-        $content = $Schema->write(['name' => 'CovReadTables', 'path' => $path, 'file' => 'cov_read_tables.php', 'connection' => 'test']);
+        try {
+            $content = $Schema->write(['name' => 'CovReadTables', 'path' => $path, 'file' => 'cov_read_tables.php', 'connection' => 'test']);
+        } finally {
+            App::build();
+        }
 
         $this->assertIsString($content);
         $this->assertStringContainsString("\tpublic \$posts = array(\n", $content);
-        $this->assertStringContainsString("\tpublic \$tags = array(\n", $content);
+        $this->assertStringContainsString("\tpublic \$test_plugin_comments = array(\n", $content);
+        $this->assertStringNotContainsString("\tpublic \$datatypes = array(\n", $content);
     }
 
     /**
