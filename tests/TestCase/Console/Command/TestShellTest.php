@@ -23,7 +23,13 @@ use Cake\Console\Command\TestShell;
 use Cake\Console\ConsoleInput;
 use Cake\Console\ConsoleOptionParser;
 use Cake\Console\ConsoleOutput;
+use Cake\Core\App;
+use Cake\Core\CakePlugin;
 use Cake\TestSuite\CakeTestCase;
+use Cake\TestSuite\CakeTestSuiteDispatcher;
+use Cake\Utility\Folder;
+use Exception;
+use ReflectionProperty;
 
 /**
  * TestTestShell
@@ -82,6 +88,9 @@ class TestShellTest extends CakeTestCase
     public function tearDown(): void
     {
         unset($this->Dispatch, $this->Shell);
+        CakePlugin::unload();
+        $Folder = new Folder($this->_pluginsPath());
+        $Folder->delete();
 
         parent::tearDown();
     }
@@ -429,5 +438,371 @@ class TestShellTest extends CakeTestCase
                 ['-d', 'memory_limit=128M', '--colors'],
             );
         $this->Shell->main();
+    }
+
+    /**
+     * Gets the temporary plugins directory used by the tests.
+     *
+     * @return string
+     */
+    protected function _pluginsPath(): string
+    {
+        return TMP . 'test_shell_plugins' . DS;
+    }
+
+    /**
+     * Creates a temporary plugin with one source file and its test case.
+     *
+     * @param string $plugin The plugin name.
+     * @param string $testDir The test case directory, relative to the plugin.
+     * @return string The path of the source file
+     */
+    protected function _createPlugin(string $plugin, string $testDir): string
+    {
+        $path = $this->_pluginsPath() . $plugin . DS;
+        new Folder($path . 'Model', true);
+        new Folder($path . $testDir . DS . 'Model', true);
+        file_put_contents($path . 'Model' . DS . 'Thing.php', "<?php\n");
+        file_put_contents($path . $testDir . DS . 'Model' . DS . 'ThingTest.php', "<?php\n");
+        file_put_contents($path . $testDir . DS . 'Model' . DS . 'OtherTest.php', "<?php\n");
+
+        App::build(['Plugin' => [$this->_pluginsPath()]], App::RESET);
+
+        return $path . 'Model' . DS . 'Thing.php';
+    }
+
+    /**
+     * Test that initialize() sets up the dispatcher
+     *
+     * @return void
+     */
+    public function testInitialize(): void
+    {
+        $out = $this->getMock(ConsoleOutput::class, [], [], '', false);
+        $in = $this->getMock(ConsoleInput::class, [], [], '', false);
+        $Shell = new TestShell($out, $out, $in);
+        $Shell->initialize();
+
+        $property = new ReflectionProperty(TestShell::class, '_dispatcher');
+        if (PHP_VERSION_ID < 80100) {
+            $property->setAccessible(true);
+        }
+        $this->assertInstanceOf(CakeTestSuiteDispatcher::class, $property->getValue($Shell));
+    }
+
+    /**
+     * Test the option parser
+     *
+     * @return void
+     */
+    public function testGetOptionParser(): void
+    {
+        $parser = $this->Shell->getOptionParser();
+        $this->assertInstanceOf(ConsoleOptionParser::class, $parser);
+
+        $arguments = $parser->arguments();
+        $this->assertSame('category', $arguments[0]->name());
+        $this->assertSame('file', $arguments[1]->name());
+
+        $options = $parser->options();
+        foreach (['log-junit', 'coverage-html', 'filter', 'group', 'no-colors', 'stop-on-failure', 'directive', 'fixture'] as $name) {
+            $this->assertArrayHasKey($name, $options);
+        }
+        $this->assertSame('d', $options['directive']->short());
+        $this->assertTrue($options['no-colors']->isBoolean());
+        $this->assertFalse($options['filter']->isBoolean());
+
+        $result = $parser->parse(['core', 'Basics', '--filter', 'testFoo', '-d', 'memory_limit=1G', '--no-colors']);
+        $this->assertSame(['core', 'Basics'], $result[1]);
+        $this->assertSame('testFoo', $result[0]['filter']);
+        $this->assertSame('memory_limit=1G', $result[0]['directive']);
+        $this->assertTrue($result[0]['no-colors']);
+        $this->assertFalse($result[0]['log-junit']);
+    }
+
+    /**
+     * Test that false options are skipped and that no-colors removes the colors option
+     *
+     * @return void
+     */
+    public function testRunnerOptionsNoColors(): void
+    {
+        $this->Shell->startup();
+        $this->Shell->args = ['core', 'Basics'];
+        $this->Shell->params = [
+            'help' => false,
+            'log-junit' => false,
+            'stop-on-failure' => true,
+            'no-colors' => true,
+            'colors' => true,
+            'log-json' => '/tmp/out.json',
+        ];
+
+        $this->Shell->expects($this->once())->method('_run')
+            ->with(
+                ['app' => false, 'plugin' => null, 'core' => true, 'output' => 'text', 'case' => 'Basics'],
+                ['--stop-on-failure', '--log-json', '/tmp/out.json'],
+            );
+        $this->Shell->main();
+    }
+
+    /**
+     * Test that a test file passed as the first argument is mapped to its category and case
+     *
+     * @return void
+     */
+    public function testMainWithCoreTestFile(): void
+    {
+        $this->Shell->startup();
+        $this->Shell->args = [CORE_TESTS . DS . 'TestCase' . DS . 'Core' . DS . 'AppTest.php'];
+
+        $this->Shell->expects($this->once())->method('_run')
+            ->with(
+                ['app' => false, 'plugin' => null, 'core' => true, 'output' => 'text', 'case' => 'Core/App'],
+                ['--colors'],
+            );
+        $this->Shell->main();
+    }
+
+    /**
+     * Test that a core source file passed as the first argument is mapped to its test case
+     *
+     * @return void
+     */
+    public function testMainWithCoreSourceFile(): void
+    {
+        $this->Shell->startup();
+        $this->Shell->args = [CAKE . 'Core' . DS . 'App.php'];
+
+        $this->Shell->expects($this->once())->method('_run')
+            ->with(
+                ['app' => false, 'plugin' => null, 'core' => true, 'output' => 'text', 'case' => 'Core/App'],
+                ['--colors'],
+            );
+        $this->Shell->main();
+    }
+
+    /**
+     * Test the app category
+     *
+     * @return void
+     */
+    public function testMainAppCategory(): void
+    {
+        $this->Shell->startup();
+        $this->Shell->args = ['app', 'Model/Post'];
+
+        $this->Shell->expects($this->once())->method('_run')
+            ->with(
+                ['app' => true, 'plugin' => null, 'core' => false, 'output' => 'text', 'case' => 'Model/Post'],
+                ['--colors'],
+            );
+        $this->Shell->main();
+    }
+
+    /**
+     * Test that a plugin source file is mapped to a test case in the tests/TestCase layout
+     *
+     * @return void
+     */
+    public function testMainWithPluginFileTestsTestCaseLayout(): void
+    {
+        $file = $this->_createPlugin('CovPlugin', 'tests' . DS . 'TestCase');
+
+        $this->Shell->startup();
+        $this->Shell->args = [$file];
+
+        $this->Shell->expects($this->once())->method('_run')
+            ->with(
+                ['app' => false, 'plugin' => 'CovPlugin', 'core' => false, 'output' => 'text', 'case' => 'Model/Thing'],
+                ['--colors'],
+            );
+        $this->Shell->main();
+    }
+
+    /**
+     * Test that a plugin source file is mapped to a test case in the Test/Case layout
+     *
+     * @return void
+     */
+    public function testMapPluginFileToCaseTestCaseLayout(): void
+    {
+        $file = $this->_createPlugin('LegacyCovPlugin', 'Test' . DS . 'Case');
+
+        $this->assertSame('LegacyCovPlugin', $this->Shell->mapFileToCategory($file));
+        $this->assertSame('Model/Thing', $this->Shell->mapFileToCase($file, 'LegacyCovPlugin'));
+    }
+
+    /**
+     * Test that a plugin test file is mapped to its test case
+     *
+     * @return void
+     */
+    public function testMapPluginTestFileToCase(): void
+    {
+        $this->_createPlugin('CovPlugin', 'tests' . DS . 'TestCase');
+        $file = $this->_pluginsPath() . 'CovPlugin' . DS . 'tests' . DS . 'TestCase' . DS . 'Model' . DS . 'ThingTest.php';
+
+        $this->assertSame('CovPlugin', $this->Shell->mapFileToCategory($file));
+        $this->assertSame('Model/Thing', $this->Shell->mapFileToCase($file, 'CovPlugin'));
+    }
+
+    /**
+     * Test that a missing core test case throws an exception
+     *
+     * @return void
+     */
+    public function testMapCoreFileToCaseMissing(): void
+    {
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage('Test case ' . CORE_TESTS . '/TestCase/Some/Missing/ThingTest.php not found');
+
+        $this->Shell->mapFileToCase(CAKE . 'Some' . DS . 'Missing' . DS . 'Thing.php', 'core');
+    }
+
+    /**
+     * Test that a missing plugin test case throws an exception
+     *
+     * @return void
+     */
+    public function testMapPluginFileToCaseMissing(): void
+    {
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage('Test case ' . APP . 'Plugin/awesome/Test/Case/Controller/ExampleControllerTest.php not found');
+
+        $this->Shell->mapFileToCase(APP . 'Plugin/awesome/Controller/ExampleController.php', 'awesome');
+    }
+
+    /**
+     * Test that a missing app test case throws an exception
+     *
+     * @return void
+     */
+    public function testMapAppFileToCaseMissing(): void
+    {
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessageMatches('/^Test case .*Controller\/MissingExampleControllerTest\.php not found$/');
+
+        $this->Shell->mapFileToCase(APP . 'Controller/MissingExampleController.php', 'app');
+    }
+
+    /**
+     * Test that a test file without a test case name throws an exception
+     *
+     * @return void
+     */
+    public function testMapFileToCaseWithoutName(): void
+    {
+        $this->expectException(Exception::class);
+        $this->expectExceptionMessage('cannot be run via this shell');
+
+        $this->Shell->mapFileToCase('tests/TestCase/Test.php', 'app');
+    }
+
+    /**
+     * Test that main() without arguments shows that no test cases are available
+     *
+     * @return void
+     */
+    public function testMainWithoutArguments(): void
+    {
+        $this->Shell->startup();
+        $this->Shell->args = [];
+
+        $outputs = [];
+        $this->Shell->expects($this->any())
+            ->method('out')
+            ->willReturnCallback(function ($value = '') use (&$outputs) {
+                $outputs[] = $value;
+
+                return 0;
+            });
+        $this->Shell->OptionParser->expects($this->once())->method('help')->will($this->returnValue('help text'));
+        $this->Shell->expects($this->never())->method('_run');
+
+        $this->Shell->main();
+
+        $this->assertSame(['CakePHP Test Shell', "No test cases available \n\n", 'help text'], $outputs);
+    }
+
+    /**
+     * Test that main() with only a category lists the test cases and quits
+     *
+     * @return void
+     */
+    public function testMainListsPluginTestCasesAndQuits(): void
+    {
+        $this->_createPlugin('CovPlugin', 'tests' . DS . 'TestCase');
+
+        $this->Shell->startup();
+        $this->Shell->args = ['CovPlugin'];
+
+        $outputs = [];
+        $this->Shell->expects($this->any())
+            ->method('out')
+            ->willReturnCallback(function ($value = '') use (&$outputs) {
+                $outputs[] = $value;
+
+                return 0;
+            });
+        $this->Shell->expects($this->exactly(2))
+            ->method('in')
+            ->will($this->onConsecutiveCalls('99', 'q'));
+        $this->Shell->expects($this->never())->method('_run');
+
+        $this->Shell->main();
+
+        $this->assertSame(
+            ['CakePHP Test Shell', 'CovPlugin Test Cases:', '[1] Model/Other', '[2] Model/Thing'],
+            $outputs,
+        );
+        $this->assertSame(['CovPlugin'], $this->Shell->args);
+    }
+
+    /**
+     * Test choosing a test case by its name
+     *
+     * @return void
+     */
+    public function testAvailableChooseByName(): void
+    {
+        $this->_createPlugin('CovPlugin', 'tests' . DS . 'TestCase');
+
+        $this->Shell->startup();
+        $this->Shell->args = ['CovPlugin'];
+
+        $this->Shell->expects($this->once())
+            ->method('in')
+            ->will($this->returnValue('Model/Thing'));
+        $this->Shell->expects($this->once())->method('_run')
+            ->with(
+                ['app' => false, 'plugin' => 'CovPlugin', 'core' => false, 'output' => 'text', 'case' => 'Model/Thing'],
+                ['--colors'],
+            );
+
+        $this->Shell->available();
+
+        $this->assertSame(['CovPlugin', 'Model/Thing'], $this->Shell->args);
+    }
+
+    /**
+     * Test the available list for the app category
+     *
+     * @return void
+     */
+    public function testAvailableAppCategory(): void
+    {
+        $this->Shell->startup();
+        $this->Shell->args = ['app'];
+
+        $this->Shell->expects($this->exactly(2))
+            ->method('out')
+            ->withConsecutive(
+                ["No test cases available \n\n"],
+                ['app help'],
+            );
+        $this->Shell->OptionParser->expects($this->once())->method('help')->will($this->returnValue('app help'));
+
+        $this->Shell->available();
     }
 }
