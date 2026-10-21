@@ -317,13 +317,13 @@ class ClassRegistry
      * qualified name of its class, e.g. TranslateBehavior::class or Post::class. Otherwise the key of
      * the only object of exactly that class is returned, e.g. for the alias Article of a Post.
      *
-     * @param string $key Key or class name
+     * @param string|null $key Key or class name
      * @return string The key in the registry
      */
     protected function _objectKey($key)
     {
         $underscored = Inflector::underscore($key);
-        if (isset($this->_objects[$underscored]) || !str_contains($key, '\\')) {
+        if (empty($key) || isset($this->_objects[$underscored]) || !str_contains($key, '\\')) {
             return $underscored;
         }
         $class = ltrim($key, '\\');
