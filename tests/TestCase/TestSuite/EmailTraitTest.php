@@ -13,12 +13,22 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-use PHPUnit\Framework\AssertionFailedError;
+namespace Cake\Test\TestCase\TestSuite;
 
-App::uses('CakeEmail', 'Network/Email');
-App::uses('EmailTrait', 'TestSuite');
-App::uses('IntegrationTestTrait', 'TestSuite');
-App::uses('TestEmailTransport', 'Network/Email');
+use Cake\Core\App;
+use Cake\Core\Configure;
+use Cake\Network\Email\CakeEmail;
+use Cake\Network\Email\DebugTransport;
+use Cake\Network\Email\SmtpTransport;
+use Cake\Network\Email\TestEmailTransport;
+use Cake\TestSuite\CakeTestCase;
+use Cake\TestSuite\Constraint\Email\MailContainsAttachmentConstraint;
+use Cake\TestSuite\Constraint\Email\MailCountConstraint;
+use Cake\TestSuite\Constraint\Email\MailSubjectContainsConstraint;
+use Cake\TestSuite\EmailTrait;
+use Cake\TestSuite\IntegrationTestTrait;
+use InvalidArgumentException;
+use PHPUnit\Framework\AssertionFailedError;
 
 /**
  * EmailTraitTest
@@ -38,9 +48,10 @@ class EmailTraitTest extends CakeTestCase
     public function setUp(): void
     {
         parent::setUp();
+        Configure::write('App.namespace', 'TestApp');
         App::build([
-            'Controller' => [CORE_TESTS . DS . 'test_app' . DS . 'Controller' . DS],
-            'View' => [CORE_TESTS . DS . 'test_app' . DS . 'View' . DS],
+            'Controller' => [CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'Controller' . DS],
+            'View' => [CORE_TESTS . DS . 'test_app' . DS . 'templates' . DS],
         ], App::RESET);
     }
 
@@ -99,7 +110,7 @@ class EmailTraitTest extends CakeTestCase
         $this->assertInstanceOf(DebugTransport::class, $email->transportClass());
 
         TestEmailTransport::replaceAllTransports();
-        $this->assertInstanceOf('TestEmailTransport', $email->transportClass(), 'A cached transport is replaced');
+        $this->assertInstanceOf(TestEmailTransport::class, $email->transportClass(), 'A cached transport is replaced');
         $other = new CakeEmail(['transport' => 'Debug']);
         $transport = $other->transportClass();
         $this->assertInstanceOf(TestEmailTransport::class, $transport);

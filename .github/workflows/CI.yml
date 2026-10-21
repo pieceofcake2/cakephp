@@ -180,6 +180,23 @@ jobs:
       - name: Run Tests
         run: ./vendor/bin/phpunit --coverage-clover coverage.xml --log-junit junit.xml --colors=always
 
+      # The main suite leaves its keys in memcached, which MemcacheEngine::clear() looks through
+      - name: Flush memcached
+        if: ${{ !cancelled() }}
+        run: printf 'flush_all\r\nquit\r\n' | nc -q 1 127.0.0.1 11211
+
+      - name: Run Legacy Tests
+        if: ${{ !cancelled() }}
+        run: ./vendor/bin/phpunit --testsuite AllLegacyTests --log-junit junit-legacy.xml --colors=always
+
+      - name: Legacy test summary
+        if: ${{ !cancelled() }}
+        uses: pieceofcake2/ci-summary@v1
+        with:
+          type: junit
+          title: Legacy unit tests — PHP ${{ matrix.php-version }} / ${{ matrix.db-type }}
+          file: junit-legacy.xml
+
       - name: Test summary
         if: ${{ !cancelled() }}
         uses: pieceofcake2/ci-summary@v1

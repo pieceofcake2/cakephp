@@ -33,6 +33,7 @@
         <exclude-pattern>src/View/Helper/FormHelper.php</exclude-pattern>
         <exclude-pattern>src/Utility/CakeTime.php</exclude-pattern>
         <exclude-pattern>tests/TestCase/Utility/CakeTimeTest.php</exclude-pattern>
+        <exclude-pattern>tests/TestCase/Legacy/Utility/CakeTimeTest.php</exclude-pattern>
         <!-- Using the deprecated utf8_decode functions. -->
         <exclude-pattern>tests/TestCase/Utility/ValidationTest.php</exclude-pattern>
     </rule>
@@ -44,6 +45,7 @@
         <exclude-pattern>src/Error/PrivateActionException.php</exclude-pattern>
         <exclude-pattern>src/TestSuite/Fixture/CakeFixtureInjector.php</exclude-pattern>
         <exclude-pattern>tests/test_app/*</exclude-pattern>
+        <exclude-pattern>tests/test_legacy_app/*</exclude-pattern>
     </rule>
 
     <!-- Further underscored method names (CakePHP2 covers Controller/, Console/Command/ and Model/Behavior/) -->
@@ -89,7 +91,11 @@
         <exclude-pattern>tests/TestCase/Error/ErrorHandlerTest.php</exclude-pattern>
         <exclude-pattern>tests/TestCase/Utility/DebuggerTest.php</exclude-pattern>
         <exclude-pattern>tests/test_app/Config/htmlhelper_tags.php</exclude-pattern>
+        <exclude-pattern>tests/test_legacy_app/Config/htmlhelper_tags.php</exclude-pattern>
         <exclude-pattern>tests/test_app/Config/var_test.php</exclude-pattern>
+        <exclude-pattern>tests/test_legacy_app/Config/var_test.php</exclude-pattern>
         <exclude-pattern>tests/test_app/Config/var_test2.php</exclude-pattern>
+        <exclude-pattern>tests/test_legacy_app/Config/var_test2.php</exclude-pattern>
     </rule>
+
 </ruleset>

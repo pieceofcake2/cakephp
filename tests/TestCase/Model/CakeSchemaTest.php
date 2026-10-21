@@ -16,6 +16,21 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\Model;
+
+use Cake\Core\App;
+use Cake\Core\CakePlugin;
+use Cake\Core\Configure;
+use Cake\Error\MissingTableException;
+use Cake\Model\CakeSchema;
+use Cake\Model\ConnectionManager;
+use Cake\Model\Datasource\Database\Sqlite;
+use Cake\TestSuite\CakeTestCase;
+use Cake\TestSuite\Fixture\CakeTestFixture;
+use Cake\Utility\ClassRegistry;
+use Exception;
+use MyOtherAppSchema;
+
 /**
  * Test for Schema database management
  *
@@ -104,7 +119,7 @@ class TestAppSchema extends CakeSchema
     /**
      * name property
      *
-     * @var string
+     * @var string|null
      */
     public $name = 'MyApp';
 
@@ -208,130 +223,6 @@ class TestAppSchema extends CakeSchema
 }
 
 /**
- * SchemaPost class
- *
- * @package       Cake.Test.Case.Model
- */
-class SchemaPost extends CakeTestModel
-{
-    /**
-     * useTable property
-     *
-     * @var string
-     */
-    public $useTable = 'posts';
-
-    /**
-     * hasMany property
-     *
-     * @var array
-     */
-    public $hasMany = ['SchemaComment'];
-
-    /**
-     * hasAndBelongsToMany property
-     *
-     * @var array
-     */
-    public $hasAndBelongsToMany = ['SchemaTag'];
-}
-
-/**
- * SchemaComment class
- *
- * @package       Cake.Test.Case.Model
- */
-class SchemaComment extends CakeTestModel
-{
-    /**
-     * useTable property
-     *
-     * @var string
-     */
-    public $useTable = 'comments';
-
-    /**
-     * belongsTo property
-     *
-     * @var array
-     */
-    public $belongsTo = ['SchemaPost'];
-}
-
-/**
- * SchemaTag class
- *
- * @package       Cake.Test.Case.Model
- */
-class SchemaTag extends CakeTestModel
-{
-    /**
-     * useTable property
-     *
-     * @var string
-     */
-    public $useTable = 'tags';
-
-    /**
-     * hasAndBelongsToMany property
-     *
-     * @var array
-     */
-    public $hasAndBelongsToMany = ['SchemaPost'];
-}
-
-/**
- * SchemaDatatype class
- *
- * @package       Cake.Test.Case.Model
- */
-class SchemaDatatype extends CakeTestModel
-{
-    /**
-     * useTable property
-     *
-     * @var string
-     */
-    public $useTable = 'datatypes';
-}
-
-/**
- * Testdescribe class
- *
- * This class is defined purely to inherit the cacheSources variable otherwise
- * testSchemaCreateTable will fail if listSources has already been called and
- * its source cache populated - I.e. if the test is run within a group
- *
- * @uses          CakeTestModel
- * @package       Cake.Test.Case.Model
- */
-class Testdescribe extends CakeTestModel
-{
-}
-
-/**
- * SchemaCrossDatabase class
- *
- * @package       Cake.Test.Case.Model
- */
-class SchemaCrossDatabase extends CakeTestModel
-{
-    /**
-     * useTable property
-     *
-     * @var string
-     */
-    public $useTable = 'cross_database';
-
-    /**
-     * useDbConfig property
-     *
-     * @var string
-     */
-    public $useDbConfig = 'test2';
-}
-
-/**
  * SchemaCrossDatabaseFixture class
  *
  * @package       Cake.Test.Case.Model
@@ -341,14 +232,14 @@ class SchemaCrossDatabaseFixture extends CakeTestFixture
     /**
      * name property
      *
-     * @var string
+     * @var string|null
      */
     public $name = 'CrossDatabase';
 
     /**
      * table property
      *
-     * @var string
+     * @var string|null
      */
     public $table = 'cross_database';
 
@@ -383,14 +274,14 @@ class NonConventionalPrimaryKeyFixture extends CakeTestFixture
     /**
      * name property
      *
-     * @var string
+     * @var string|null
      */
     public $name = 'NonConventional';
 
     /**
      * table property
      *
-     * @var string
+     * @var string|null
      */
     public $table = 'non_conventional';
 
@@ -407,28 +298,6 @@ class NonConventionalPrimaryKeyFixture extends CakeTestFixture
 }
 
 /**
- * SchemaPrefixAuthUser class
- *
- * @package       Cake.Test.Case.Model
- */
-class SchemaPrefixAuthUser extends CakeTestModel
-{
-    /**
-     * table prefix
-     *
-     * @var string
-     */
-    public $tablePrefix = 'auth_';
-
-    /**
-     * useTable
-     *
-     * @var string
-     */
-    public $useTable = 'users';
-}
-
-/**
  * CakeSchemaTest
  *
  * @package       Cake.Test.Case.Model
@@ -438,13 +307,22 @@ class CakeSchemaTest extends CakeTestCase
     /**
      * fixtures property
      *
-     * @var array
+     * @var array<string>
      */
     public $fixtures = [
-        'core.post', 'core.tag', 'core.posts_tag', 'core.test_plugin_comment',
-        'core.datatype', 'core.auth_user', 'core.author',
-        'core.test_plugin_article', 'core.user', 'core.comment',
-        'core.prefix_test', 'core.article', 'core.articles_tag',
+        'core.post',
+        'core.tag',
+        'core.posts_tag',
+        'core.test_plugin_comment',
+        'core.datatype',
+        'core.auth_user',
+        'core.author',
+        'core.test_plugin_article',
+        'core.user',
+        'core.comment',
+        'core.prefix_test',
+        'core.article',
+        'core.articles_tag',
     ];
 
     /**
@@ -455,6 +333,7 @@ class CakeSchemaTest extends CakeTestCase
     public function setUp(): void
     {
         parent::setUp();
+        Configure::write('App.namespace', 'TestApp');
         ConnectionManager::getDataSource('test')->cacheSources = false;
         $this->Schema = new TestAppSchema();
     }
@@ -647,7 +526,7 @@ class CakeSchemaTest extends CakeTestCase
     {
         App::objects('model', null, false);
         App::build([
-            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS],
+            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
         ]);
         CakePlugin::load('TestPlugin');
 
@@ -747,11 +626,11 @@ class CakeSchemaTest extends CakeTestCase
      */
     public function testSchemaReadWithNamespacedPluginModels(): void
     {
-        App::build(['Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS]]);
-        CakePlugin::load('TestPluginTwo');
+        App::build(['Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS]]);
+        CakePlugin::load('TestTwoPlugin');
 
         $Schema = new CakeSchema();
-        $Schema->plugin = 'TestPluginTwo';
+        $Schema->plugin = 'TestTwoPlugin';
         $read = $Schema->read([
             'connection' => 'test',
             'name' => 'TestApp',
@@ -770,7 +649,6 @@ class CakeSchemaTest extends CakeTestCase
      */
     public function testSchemaReadWithNamespacedJoinModel(): void
     {
-        Configure::write('App.namespace', 'TestApp');
         $Schema = new CakeSchema();
         $read = $Schema->read([
             'connection' => 'test',
@@ -1182,9 +1060,9 @@ class CakeSchemaTest extends CakeTestCase
      */
     public function testSchemaLoading(): void
     {
-        $Other = $this->Schema->load(['name' => 'MyOtherApp', 'path' => TMP . 'tests']);
-        $this->assertEquals('MyOtherApp', $Other->name);
-        $this->assertEquals($Other->tables, $this->Schema->tables);
+        $other = $this->Schema->load(['name' => 'MyOtherApp', 'path' => TMP . 'tests']);
+        $this->assertEquals('MyOtherApp', $other->name);
+        $this->assertEquals($other->tables, $this->Schema->tables);
     }
 
     /**
@@ -1195,7 +1073,7 @@ class CakeSchemaTest extends CakeTestCase
     public function testSchemaLoadingFromPlugin(): void
     {
         App::build([
-            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS],
+            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
         ]);
         CakePlugin::load('TestPlugin');
         $Other = $this->Schema->load(['name' => 'TestPluginApp', 'plugin' => 'TestPlugin']);

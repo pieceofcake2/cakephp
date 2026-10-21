@@ -67,6 +67,12 @@
 
 - **Deprecations reported**: The tests report deprecations and fail on them. `ConfigureTest::testBootstrap()` restores the error level after `Configure::bootstrap()`, which had hidden deprecations from the following tests, and the tests no longer create dynamic properties, or use `utf8_decode()`, `new DateTime(null)`, `str_getcsv()` without the escape character or `session.referer_check`. The `DATABASE_CONFIG` of the tests allows dynamic properties, which `ConnectionManager::create()` adds. The test helpers call `setAccessible()` of reflection only before PHP 8.1. `ApplicationControllerTest` tests the redirect without cookies on every version, and the session ID in the URL, which needs `session.use_trans_sid` deprecated since PHP 8.4, only before PHP 8.4. The tests that use mcrypt check that it reports the deprecation of its functions, and `MemcacheEngineTest` replaces `Memcache::set()` with a small subclass, as a mock would copy the implicitly nullable parameters of the extension (deprecated since PHP 8.4)
 
+### Tests: Namespaced Tests and `AllLegacyTests` ([PR #95](https://github.com/pieceofcake2/cakephp/pull/95))
+
+- **Namespaced tests**: `tests/` holds the namespaced tests of `feature/phpstan-level5` (`Cake\Test\TestCase\...`), with a test application in the CakePHP 5 layout (`tests/test_app/`, `TestApp\`). The classes of the application are real classes of the test application, not aliases, and the tests that need it set `App.namespace` in `setUp()`
+- **`AllLegacyTests`**: A second test suite, run with `vendor/bin/phpunit --testsuite AllLegacyTests`, checks that an application in the CakePHP 2 layout (`tests/test_legacy_app/`) and plugins in the legacy layout keep working with the 2.x notation and without `App.namespace`, and that a namespaced plugin works in it and a legacy plugin in a namespaced application
+- **Test plugins**: The test plugins are named `Test<Name>Plugin`, and `Test<Name>LegacyPlugin` in the legacy layout
+
 ## v2.12.11 (2026-10-19)
 
 ### Security Fixes

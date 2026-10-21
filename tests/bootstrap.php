@@ -3,6 +3,9 @@
  * Bootstrap for phpunit command
  */
 
+use Cake\Cache\Cache;
+use Cake\Console\ShellDispatcher;
+use Cake\Core\App;
 use Composer\InstalledVersions;
 use PHPUnit\Util\ErrorHandler;
 
@@ -34,6 +37,15 @@ if (isset($GLOBALS['_composer_autoload_path'])) {
 }
 
 new ShellDispatcher([$_SERVER['argv'][0]]);
+
+// AllTests and AllLegacyTests have classes of the same names in other files, so the files
+// that the other test suite cached for them are not used
+Cache::delete('file_map', '_cake_core_');
+Cache::delete('object_map', '_cake_core_');
+Closure::bind(function () {
+    static::$_map = [];
+    static::$_objects = [];
+}, null, App::class)();
 
 // The bootstrap of CakePHP and the application leave out E_DEPRECATED, which the tests report
 error_reporting(E_ALL);

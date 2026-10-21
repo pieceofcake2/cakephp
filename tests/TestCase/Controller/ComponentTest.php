@@ -16,180 +16,18 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-/**
- * ParamTestComponent
- *
- * @package       Cake.Test.Case.Controller
- */
-class ParamTestComponent extends Component
-{
-    /**
-     * components property
-     *
-     * @var array
-     */
-    public $components = [
-        'Apple' => ['enabled' => true],
-        'Banana' => ['config' => 'value'],
-    ];
-}
+namespace Cake\Test\TestCase\Controller;
 
-/**
- * ComponentTestController class
- *
- * @package       Cake.Test.Case.Controller
- */
-class ComponentTestController extends Controller
-{
-    /**
-     * uses property
-     *
-     * @var array
-     */
-    public $uses = [];
-}
-
-/**
- * AppleComponent class
- *
- * @package       Cake.Test.Case.Controller
- */
-class AppleComponent extends Component
-{
-    /**
-     * components property
-     *
-     * @var array
-     */
-    public $components = ['Orange'];
-
-    /**
-     * testName property
-     *
-     * @var mixed
-     */
-    public $testName = null;
-
-    /**
-     * startup method
-     *
-     * @param Controller $controller
-     * @return void
-     */
-    public function startup(Controller $controller): void
-    {
-        $this->testName = $controller->name;
-    }
-}
-
-/**
- * OrangeComponent class
- *
- * @package       Cake.Test.Case.Controller
- */
-class OrangeComponent extends Component
-{
-    /**
-     * components property
-     *
-     * @var array
-     */
-    public $components = ['Banana'];
-
-    /**
-     * initialize method
-     *
-     * @param Controller $controller
-     * @return void
-     */
-    public function initialize(Controller $controller): void
-    {
-        $this->Controller = $controller;
-        $this->Banana->testField = 'OrangeField';
-    }
-
-    /**
-     * startup method
-     *
-     * @param Controller $controller
-     * @return string
-     */
-    public function startup(Controller $controller): void
-    {
-        $controller->foo = 'pass';
-    }
-}
-
-/**
- * BananaComponent class
- *
- * @package       Cake.Test.Case.Controller
- */
-class BananaComponent extends Component
-{
-    /**
-     * testField property
-     *
-     * @var string
-     */
-    public $testField = 'BananaField';
-
-    /**
-     * startup method
-     *
-     * @param Controller $controller
-     * @return string
-     */
-    public function startup(Controller $controller): void
-    {
-        $controller->bar = 'fail';
-    }
-}
-
-/**
- * MutuallyReferencingOneComponent class
- *
- * @package       Cake.Test.Case.Controller
- */
-class MutuallyReferencingOneComponent extends Component
-{
-    /**
-     * components property
-     *
-     * @var array
-     */
-    public $components = ['MutuallyReferencingTwo'];
-}
-
-/**
- * MutuallyReferencingTwoComponent class
- *
- * @package       Cake.Test.Case.Controller
- */
-class MutuallyReferencingTwoComponent extends Component
-{
-    /**
-     * components property
-     *
-     * @var array
-     */
-    public $components = ['MutuallyReferencingOne'];
-}
-
-/**
- * SomethingWithEmailComponent class
- *
- * @package       Cake.Test.Case.Controller
- */
-class SomethingWithEmailComponent extends Component
-{
-    /**
-     * components property
-     *
-     * @var array
-     */
-    public $components = ['Email'];
-}
+use Cake\Controller\Component\EmailComponent;
+use Cake\Controller\ComponentCollection;
+use Cake\Core\App;
+use Cake\Core\Configure;
+use Cake\TestSuite\CakeTestCase;
+use TestApp\Controller\Component\AppleComponent;
+use TestApp\Controller\Component\BananaComponent;
+use TestApp\Controller\Component\OrangeComponent;
+use TestApp\Controller\Component\SomethingWithEmailComponent;
+use TestApp\Controller\ComponentTestController;
 
 /**
  * ComponentTest class
@@ -206,9 +44,10 @@ class ComponentTest extends CakeTestCase
     public function setUp(): void
     {
         parent::setUp();
+        Configure::write('App.namespace', 'TestApp');
         $this->_pluginPaths = App::path('plugins');
         App::build([
-            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS],
+            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
         ]);
     }
 
@@ -222,7 +61,7 @@ class ComponentTest extends CakeTestCase
         $Collection = new ComponentCollection();
         $Component = new AppleComponent($Collection);
 
-        $this->assertInstanceOf('OrangeComponent', $Component->Orange, 'class is wrong');
+        $this->assertInstanceOf(OrangeComponent::class, $Component->Orange, 'class is wrong');
     }
 
     /**
@@ -235,8 +74,8 @@ class ComponentTest extends CakeTestCase
         $Collection = new ComponentCollection();
         $Apple = new AppleComponent($Collection);
 
-        $this->assertInstanceOf('OrangeComponent', $Apple->Orange, 'class is wrong');
-        $this->assertInstanceOf('BananaComponent', $Apple->Orange->Banana, 'class is wrong');
+        $this->assertInstanceOf(OrangeComponent::class, $Apple->Orange, 'class is wrong');
+        $this->assertInstanceOf(BananaComponent::class, $Apple->Orange->Banana, 'class is wrong');
         $this->assertTrue(empty($Apple->Session));
         $this->assertTrue(empty($Apple->Orange->Session));
     }
@@ -251,7 +90,7 @@ class ComponentTest extends CakeTestCase
         $Collection = new ComponentCollection();
         $Apple = $Collection->load('Apple');
 
-        $this->assertInstanceOf('OrangeComponent', $Apple->Orange, 'class is wrong');
+        $this->assertInstanceOf(OrangeComponent::class, $Apple->Orange, 'class is wrong');
         $result = $Collection->enabled();
         $this->assertEquals(['Apple'], $result, 'Too many components enabled.');
     }
@@ -288,8 +127,8 @@ class ComponentTest extends CakeTestCase
         $Controller->beforeFilter();
         $Controller->Components->trigger('startup', [&$Controller]);
 
-        $this->assertInstanceOf('SomethingWithEmailComponent', $Controller->SomethingWithEmail);
-        $this->assertInstanceOf('EmailComponent', $Controller->SomethingWithEmail->Email);
+        $this->assertInstanceOf(SomethingWithEmailComponent::class, $Controller->SomethingWithEmail);
+        $this->assertInstanceOf(EmailComponent::class, $Controller->SomethingWithEmail->Email);
     }
 
     /**

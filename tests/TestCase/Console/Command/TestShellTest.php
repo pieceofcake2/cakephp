@@ -17,6 +17,14 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\Console\Command;
+
+use Cake\Console\Command\TestShell;
+use Cake\Console\ConsoleInput;
+use Cake\Console\ConsoleOptionParser;
+use Cake\Console\ConsoleOutput;
+use Cake\TestSuite\CakeTestCase;
+
 /**
  * TestTestShell
  *
@@ -55,15 +63,15 @@ class TestShellTest extends CakeTestCase
         // If run the test with the phpunit command, TestSuite Loader is also PHPUnit's to be used.
         // Therefore, TestShell and CakeTestLoader are unnecessary.
         parent::setUp();
-        $out = $this->getMock('ConsoleOutput', [], [], '', false);
-        $in = $this->getMock('ConsoleInput', [], [], '', false);
+        $out = $this->getMock(ConsoleOutput::class, [], [], '', false);
+        $in = $this->getMock(ConsoleInput::class, [], [], '', false);
 
         $this->Shell = $this->getMock(
-            'TestTestShell',
+            TestTestShell::class,
             ['in', 'out', 'hr', 'help', 'error', 'err', '_stop', 'initialize', '_run', 'clear'],
             [$out, $out, $in],
         );
-        $this->Shell->OptionParser = $this->getMock('ConsoleOptionParser', [], [null, false]);
+        $this->Shell->OptionParser = $this->getMock(ConsoleOptionParser::class, [], [null, false]);
     }
 
     /**
@@ -340,18 +348,24 @@ class TestShellTest extends CakeTestCase
         $this->Shell->args = ['core'];
 
         $outputs = [];
-        $this->Shell->expects($this->atLeast(3))
+        $this->Shell
+            ->expects($this->atLeast(3))
             ->method('out')
             ->willReturnCallback(function ($value) use (&$outputs) {
                 $outputs[] = $value;
+
+                return 0;
             });
 
-        $this->Shell->expects($this->once())
+        $this->Shell
+            ->expects($this->once())
             ->method('in')
             ->with(__d('cake_console', 'What test case would you like to run?'), null, 'q')
             ->will($this->returnValue('1'));
 
-        $this->Shell->expects($this->once())->method('_run');
+        $this->Shell
+            ->expects($this->once())
+            ->method('_run');
         $this->Shell->available();
 
         $this->assertEquals(['core', 'AllBehaviors'], $this->Shell->args);

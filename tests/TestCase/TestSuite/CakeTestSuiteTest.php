@@ -14,6 +14,13 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\TestSuite;
+
+use Cake\TestSuite\CakeTestCase;
+use Cake\TestSuite\CakeTestSuite;
+use Cake\TestSuite\CakeTestSuiteCommand;
+use Cake\Utility\Folder;
+
 /**
  * CakeTestSuiteTest
  *
@@ -31,7 +38,7 @@ class CakeTestSuiteTest extends CakeTestCase
         $testFolder = CORE_TESTS . DS . 'TestCase' . DS . 'TestSuite';
         $count = count(glob($testFolder . DS . '*Test.php'));
 
-        $suite = $this->getMock('CakeTestSuite', ['addTestFile']);
+        $suite = $this->getMock(CakeTestSuite::class, ['addTestFile']);
         $suite
             ->expects($this->exactly($count))
             ->method('addTestFile');
@@ -50,7 +57,7 @@ class CakeTestSuiteTest extends CakeTestCase
         $count = count(glob($testFolder . DS . '*Test.php'));
         $count += count(glob($testFolder . DS . 'Engine' . DS . '*Test.php'));
 
-        $suite = $this->getMock('CakeTestSuite', ['addTestFile']);
+        $suite = $this->getMock(CakeTestSuite::class, ['addTestFile']);
         $suite
             ->expects($this->exactly($count))
             ->method('addTestFile');
@@ -73,7 +80,7 @@ class CakeTestSuiteTest extends CakeTestCase
         touch($Folder->path . DS . 'NotHiddenTest.php');
         touch($Folder->path . DS . '.HiddenTest.php');
 
-        $suite = $this->getMock('CakeTestSuite', ['addTestFile']);
+        $suite = $this->getMock(CakeTestSuite::class, ['addTestFile']);
         $suite
             ->expects($this->exactly(1))
             ->method('addTestFile');
@@ -97,7 +104,7 @@ class CakeTestSuiteTest extends CakeTestCase
         touch($Folder->path . DS . 'SomeNotesTest.txt');
         touch($Folder->path . DS . 'NotHiddenTest.php');
 
-        $suite = $this->getMock('CakeTestSuite', ['addTestFile']);
+        $suite = $this->getMock(CakeTestSuite::class, ['addTestFile']);
         $suite
             ->expects($this->exactly(1))
             ->method('addTestFile');

@@ -16,6 +16,10 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\Fixture;
+
+use Cake\TestSuite\Fixture\CakeTestFixture;
+
 /**
  * JoinACFixture
  *
@@ -26,7 +30,7 @@ class JoinACFixture extends CakeTestFixture
     /**
      * name property
      *
-     * @var string
+     * @var string|null
      */
     public $name = 'JoinAsJoinC';
 

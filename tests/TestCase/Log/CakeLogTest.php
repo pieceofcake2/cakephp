@@ -1,7 +1,5 @@
 <?php
 
-use TestApp\Log\Engine\NamespacedLog;
-
 /**
  * CakeLogTest file
  *
@@ -19,6 +17,18 @@ use TestApp\Log\Engine\NamespacedLog;
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\Log;
+
+use Cake\Core\App;
+use Cake\Core\CakePlugin;
+use Cake\Core\Configure;
+use Cake\Error\CakeLogException;
+use Cake\Log\CakeLog;
+use Cake\Log\Engine\FileLog;
+use Cake\TestSuite\CakeTestCase;
+use TestApp\Log\Engine\NamespacedLog;
+use TestApp\Log\Engine\TestAppLog;
+
 /**
  * CakeLogTest class
  *
@@ -34,6 +44,9 @@ class CakeLogTest extends CakeTestCase
     public function setUp(): void
     {
         parent::setUp();
+
+        Configure::write('App.namespace', 'TestApp');
+
         $streams = CakeLog::configured();
         foreach ($streams as $stream) {
             CakeLog::drop($stream);
@@ -48,22 +61,22 @@ class CakeLogTest extends CakeTestCase
     public function testImportingLoggers(): void
     {
         App::build([
-            'Lib' => [CORE_TESTS . DS . 'test_app' . DS . 'Lib' . DS],
-            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS],
+            'Lib' => [CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'Lib' . DS],
+            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
         ], App::RESET);
         CakePlugin::load('TestPlugin');
 
         $result = CakeLog::config('libtest', [
-            'engine' => 'TestAppLog',
+            'engine' => TestAppLog::class,
         ]);
         $this->assertTrue($result);
-        $this->assertEquals(CakeLog::configured(), ['libtest']);
+        $this->assertEquals(['libtest'], CakeLog::configured());
 
         $result = CakeLog::config('plugintest', [
             'engine' => 'TestPlugin.TestPluginLog',
         ]);
         $this->assertTrue($result);
-        $this->assertEquals(CakeLog::configured(), ['libtest', 'plugintest']);
+        $this->assertEquals(['libtest', 'plugintest'], CakeLog::configured());
 
         CakeLog::write(LOG_INFO, 'TestPluginLog is not a BaseLog descendant');
 
@@ -91,7 +104,7 @@ class CakeLogTest extends CakeTestCase
     {
         CakeLog::config('valid', ['engine' => 'File']);
         $stream = CakeLog::stream('valid');
-        $this->assertInstanceOf('FileLog', $stream);
+        $this->assertInstanceOf(FileLog::class, $stream);
         CakeLog::drop('valid');
     }
 
@@ -104,7 +117,7 @@ class CakeLogTest extends CakeTestCase
     {
         CakeLog::config('valid', ['engine' => 'FileLog']);
         $stream = CakeLog::stream('valid');
-        $this->assertInstanceOf('FileLog', $stream);
+        $this->assertInstanceOf(FileLog::class, $stream);
         CakeLog::drop('valid');
     }
 
@@ -784,7 +797,6 @@ class CakeLogTest extends CakeTestCase
             CakeLog::drop('namespaced');
         }
 
-        Configure::write('App.namespace', 'TestApp');
         CakeLog::config('namespaced', ['engine' => 'Namespaced']);
         CakeLog::write('info', 'by short name', 'namespaced');
         CakeLog::drop('namespaced');

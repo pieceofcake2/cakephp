@@ -18,6 +18,17 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\Console\Command;
+
+use Cake\Console\Command\CompletionShell;
+use Cake\Console\Command\Task\CommandTask;
+use Cake\Console\ConsoleInput;
+use Cake\Console\ConsoleOutput;
+use Cake\Core\App;
+use Cake\Core\CakePlugin;
+use Cake\Core\Configure;
+use Cake\TestSuite\CakeTestCase;
+
 /**
  * TestCompletionStringOutput
  *
@@ -48,27 +59,30 @@ class CompletionShellTest extends CakeTestCase
     public function setUp(): void
     {
         parent::setUp();
+
+        Configure::write('App.namespace', 'TestApp');
+
         App::build([
             'Plugin' => [
-                CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS,
+                CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS,
             ],
             'Console/Command' => [
-                CORE_TESTS . DS . 'test_app' . DS . 'Console' . DS . 'Command' . DS,
+                CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'Console' . DS . 'Command' . DS,
             ],
         ], App::RESET);
-        CakePlugin::load(['TestPlugin', 'TestPluginTwo']);
+        CakePlugin::load(['TestPlugin', 'TestTwoPlugin']);
 
         $out = new TestCompletionStringOutput();
-        $in = $this->getMock('ConsoleInput', [], [], '', false);
+        $in = $this->getMock(ConsoleInput::class, [], [], '', false);
 
         $this->Shell = $this->getMock(
-            'CompletionShell',
+            CompletionShell::class,
             ['in', '_stop', 'clear'],
             [$out, $out, $in],
         );
 
         $this->Shell->Command = $this->getMock(
-            'CommandTask',
+            CommandTask::class,
             ['in', '_stop', 'clear'],
             [$out, $out, $in],
         );
@@ -125,7 +139,7 @@ class CompletionShellTest extends CakeTestCase
         $this->Shell->runCommand('commands', []);
         $output = $this->Shell->stdout->output;
 
-        $expected = "TestPlugin.example TestPlugin.test_plugin TestPluginTwo.example TestPluginTwo.welcome acl api command_list completion console i18n schema server test testsuite sample\n";
+        $expected = "TestPlugin.example TestPlugin.test_plugin TestTwoPlugin.example TestTwoPlugin.welcome acl api command_list completion console i18n schema server test testsuite namespaced sample\n";
         $this->assertEquals($expected, $output);
     }
 
@@ -206,7 +220,7 @@ class CompletionShellTest extends CakeTestCase
      */
     public function testSubCommandsPlugin(): void
     {
-        $this->Shell->runCommand('subCommands', ['subCommands', 'TestPluginTwo.welcome']);
+        $this->Shell->runCommand('subCommands', ['subCommands', 'TestTwoPlugin.welcome']);
         $output = $this->Shell->stdout->output;
 
         $expected = "say_hello\n";

@@ -1,0 +1,1 @@
+test_legacy_plugin add/edit scaffold view

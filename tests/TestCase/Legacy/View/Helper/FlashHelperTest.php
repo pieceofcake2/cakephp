@@ -1,0 +1,162 @@
+<?php
+/**
+ * FlashHelperTest file
+ *
+ * Series of tests for flash helper.
+ *
+ * CakePHP(tm) Tests <https://book.cakephp.org/2.0/en/development/testing.html>
+ * Copyright (c) Cake Software Foundation, Inc. (https://cakefoundation.org)
+ *
+ * Licensed under The MIT License
+ * For full copyright and license information, please see the LICENSE.txt
+ * Redistributions of files must retain the above copyright notice
+ *
+ * @copyright     Copyright (c) Cake Software Foundation, Inc. (https://cakefoundation.org)
+ * @link          https://book.cakephp.org/2.0/en/development/testing.html CakePHP(tm) Tests
+ * @package       Cake.Test.Case.View.Helper
+ * @since         CakePHP(tm) v 2.7.0-dev
+ * @license       https://opensource.org/licenses/mit-license.php MIT License
+ */
+
+namespace Cake\Test\TestCase\Legacy\View\Helper;
+
+use Cake\Core\App;
+use Cake\Core\CakePlugin;
+use Cake\Model\Datasource\CakeSession;
+use Cake\TestSuite\CakeTestCase;
+use Cake\View\Helper\FlashHelper;
+use Cake\View\View;
+
+/**
+ * FlashHelperTest class
+ *
+ * @package     Cake.Test.Case.View.Helper
+ */
+class FlashHelperTest extends CakeTestCase
+{
+    /**
+     * setupBeforeClass method
+     *
+     * @return void
+     */
+    public static function setupBeforeClass(): void
+    {
+        App::build([
+            'View' => [CORE_TESTS . DS . 'test_legacy_app' . DS . 'View' . DS],
+        ]);
+    }
+
+    /**
+     * setUp method
+     *
+     * @return void
+     */
+    public function setUp(): void
+    {
+        parent::setUp();
+        $controller = null;
+        $this->View = new View($controller);
+        $this->Flash = new FlashHelper($this->View);
+
+        if (!CakeSession::started()) {
+            CakeSession::start();
+        }
+        CakeSession::write([
+            'Message' => [
+                'flash' => [
+                    [
+                        'key' => 'flash',
+                        'message' => 'This is the first Message',
+                        'element' => 'Flash/default',
+                        'params' => [],
+                    ],
+                    [
+                        'key' => 'flash',
+                        'message' => 'This is the second Message',
+                        'element' => 'Flash/default',
+                        'params' => [],
+                    ],
+                ],
+                'notification' => [
+                    [
+                        'key' => 'notification',
+                        'message' => 'Broadcast message testing',
+                        'element' => 'flash_helper',
+                        'params' => [
+                            'title' => 'Notice!',
+                            'name' => 'Alert!',
+                        ],
+                    ],
+                ],
+                'classy' => [
+                    [
+                        'key' => 'classy',
+                        'message' => 'Recorded',
+                        'element' => 'flash_classy',
+                        'params' => [],
+                    ],
+                ],
+                'default' => [
+                    [
+                        'key' => 'default',
+                        'message' => 'Default',
+                        'element' => 'default',
+                        'params' => [],
+                    ],
+                ],
+            ],
+        ]);
+    }
+
+    /**
+     * tearDown method
+     *
+     * @return void
+     */
+    public function tearDown(): void
+    {
+        unset($this->View, $this->Flash);
+        CakeSession::destroy();
+
+        parent::tearDown();
+    }
+
+    /**
+     * testFlash method
+     *
+     * @return void
+     */
+    public function testFlash(): void
+    {
+        $result = $this->Flash->render();
+        $expected = '<div class="message">This is the first Message</div><div class="message">This is the second Message</div>';
+        $this->assertStringContainsString($expected, $result);
+
+        $expected = '<div id="classy-message">Recorded</div>';
+        $result = $this->Flash->render('classy');
+        $this->assertStringContainsString($expected, $result);
+
+        $result = $this->Flash->render('notification');
+        $expected = "<div id=\"notificationLayout\">\n\t<h1>Alert!</h1>\n\t<h3>Notice!</h3>\n\t<p>Broadcast message testing</p>\n</div>";
+        $this->assertStringContainsString($expected, $result);
+
+        $this->assertNull($this->Flash->render('non-existent'));
+    }
+
+    /**
+     * test using elements in plugins.
+     *
+     * @return void
+     */
+    public function testFlashWithPluginElement(): void
+    {
+        App::build([
+            'Plugin' => [CORE_TESTS . DS . 'test_legacy_app' . DS . 'Plugin' . DS],
+        ]);
+        CakePlugin::load('TestLegacyPlugin');
+
+        $result = $this->Flash->render('flash', ['element' => 'TestLegacyPlugin.plugin_element']);
+        $expected = 'this is the plugin element';
+        $this->assertStringContainsString($expected, $result);
+    }
+}

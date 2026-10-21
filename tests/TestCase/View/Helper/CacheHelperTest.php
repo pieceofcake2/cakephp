@@ -1,7 +1,5 @@
 <?php
 
-use TestApp\Controller\NamespacedController;
-
 /**
  * CacheHelperTest file
  *
@@ -18,6 +16,18 @@ use TestApp\Controller\NamespacedController;
  * @since         CakePHP(tm) v 1.2.0.4206
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
+
+namespace Cake\Test\TestCase\View\Helper;
+
+use Cake\Controller\Controller;
+use Cake\Core\App;
+use Cake\Core\Configure;
+use Cake\Network\CakeRequest;
+use Cake\Routing\Router;
+use Cake\TestSuite\CakeTestCase;
+use Cake\View\Helper\CacheHelper;
+use Cake\View\View;
+use TestApp\Controller\NamespacedController;
 
 /**
  * CacheTestController class
@@ -56,6 +66,8 @@ class CacheTestController extends Controller
  */
 class CacheHelperTest extends CakeTestCase
 {
+    public ?Controller $Controller = null;
+
     /**
      * Checks if TMP/views is writable, and skips the case if it is not.
      *
@@ -84,7 +96,10 @@ class CacheHelperTest extends CakeTestCase
         Configure::write('Cache.check', true);
         Configure::write('Cache.disable', false);
         App::build([
-            'View' => [CORE_TESTS . DS . 'test_app' . DS . 'View' . DS],
+            'View' => [
+                CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'View' . DS,
+                CORE_TESTS . DS . 'test_app' . DS . 'templates' . DS,
+            ],
         ], App::RESET);
     }
 
@@ -602,7 +617,7 @@ class CacheHelperTest extends CakeTestCase
         $View->cacheAction = '+1 day';
         $View->output = 'test';
 
-        $Cache = $this->getMock('CacheHelper', ['_parseContent'], [$View]);
+        $Cache = $this->getMock(CacheHelper::class, ['_parseContent'], [$View]);
         $Cache->expects($this->once())
             ->method('_parseContent')
             ->with('posts/index', 'content')
@@ -630,7 +645,7 @@ class CacheHelperTest extends CakeTestCase
         $View->cacheAction = '+1 day';
         $View->output = 'test';
 
-        $Cache = $this->getMock('CacheHelper', ['cache'], [$View]);
+        $Cache = $this->getMock(CacheHelper::class, ['cache'], [$View]);
         $Cache->expects($this->once())
             ->method('cache')
             ->with('posts/index', $View->output)
@@ -723,8 +738,8 @@ class CacheHelperTest extends CakeTestCase
         $View->render('index');
         $contents = file_get_contents($filename);
         unlink($filename);
-        $this->assertStringContainsString("App::className('CacheTest', 'Controller', 'Controller');", $contents);
-        $this->assertStringContainsString('$controller = new CacheTestController($request, $response);', $contents);
+        $this->assertStringNotContainsString('App::className(', $contents);
+        $this->assertStringContainsString('$controller = new \\' . CacheTestController::class . '($request, $response);', $contents);
 
         $this->Controller->controllerClass = NamespacedController::class;
         $View = new View($this->Controller);

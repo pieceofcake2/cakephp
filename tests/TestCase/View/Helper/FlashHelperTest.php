@@ -18,6 +18,16 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\View\Helper;
+
+use Cake\Core\App;
+use Cake\Core\CakePlugin;
+use Cake\Model\Datasource\CakeSession;
+use Cake\TestSuite\CakeTestCase;
+use Cake\View\Helper\FlashHelper;
+use Cake\View\View;
+use UnexpectedValueException;
+
 /**
  * FlashHelperTest class
  *
@@ -33,7 +43,10 @@ class FlashHelperTest extends CakeTestCase
     public static function setupBeforeClass(): void
     {
         App::build([
-            'View' => [CORE_TESTS . DS . 'test_app' . DS . 'View' . DS],
+            'View' => [
+                CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'View' . DS,
+                CORE_TESTS . DS . 'test_app' . DS . 'templates' . DS,
+            ],
         ]);
     }
 
@@ -169,7 +182,7 @@ class FlashHelperTest extends CakeTestCase
     public function testFlashWithPluginElement(): void
     {
         App::build([
-            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS],
+            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
         ]);
         CakePlugin::load('TestPlugin');
 

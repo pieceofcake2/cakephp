@@ -16,6 +16,18 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\I18n;
+
+use Cake\Cache\Cache;
+use Cake\Core\App;
+use Cake\Core\CakePlugin;
+use Cake\Core\Configure;
+use Cake\Error\CakeException;
+use Cake\I18n\I18n;
+use Cake\Model\Datasource\CakeSession;
+use Cake\TestSuite\CakeTestCase;
+use ReflectionProperty;
+
 /**
  * I18nTest class
  *
@@ -34,8 +46,8 @@ class I18nTest extends CakeTestCase
 
         Cache::delete('object_map', '_cake_core_');
         App::build([
-            'Locale' => [CORE_TESTS . DS . 'test_app' . DS . 'Locale' . DS],
-            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS],
+            'Locale' => [CORE_TESTS . DS . 'test_app' . DS . 'resources' . DS . 'locales' . DS],
+            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
         ], App::RESET);
         CakePlugin::load(['TestPlugin']);
 
@@ -1778,7 +1790,7 @@ class I18nTest extends CakeTestCase
     public function testPluginTranslation(): void
     {
         App::build([
-            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS],
+            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
         ]);
 
         Configure::write('Config.language', 'po');
@@ -1828,7 +1840,7 @@ class I18nTest extends CakeTestCase
         Configure::write('I18n.preferApp', true);
 
         App::build([
-            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS],
+            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
         ]);
 
         Configure::write('Config.language', 'po');
@@ -1837,23 +1849,6 @@ class I18nTest extends CakeTestCase
 
         $plurals = $this->_domainPlural();
         $this->assertTrue(in_array('0 = 0 or > 1', $plurals));
-    }
-
-    /**
-     * Test that translations are read from the resources/locales directory of a plugin.
-     *
-     * @return void
-     */
-    public function testPluginTranslationInResourcesLocales(): void
-    {
-        App::build([
-            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
-        ]);
-        CakePlugin::load('TestPluginModern');
-
-        Configure::write('Config.language', 'po');
-        $result = __d('test_plugin_modern', 'Plural Rule 1');
-        $this->assertSame('Plural Rule 1 (from resources/locales)', $result);
     }
 
     /**
@@ -2150,7 +2145,9 @@ class I18nTest extends CakeTestCase
     /**
      * Singular method
      *
-     * @return void
+     * @param string $domain
+     * @param int $category
+     * @return string
      */
     protected function _domainCategorySingular($domain = 'test_plugin', $category = 3): mixed
     {
@@ -2162,7 +2159,9 @@ class I18nTest extends CakeTestCase
     /**
      * Plural method
      *
-     * @return void
+     * @param string $domain
+     * @param int $category
+     * @return array
      */
     protected function _domainCategoryPlural($domain = 'test_plugin', $category = 3): mixed
     {
@@ -2177,7 +2176,7 @@ class I18nTest extends CakeTestCase
     /**
      * Singular method
      *
-     * @return void
+     * @return string
      */
     protected function _domainSingular($domain = 'test_plugin'): mixed
     {
@@ -2189,7 +2188,8 @@ class I18nTest extends CakeTestCase
     /**
      * Plural method
      *
-     * @return void
+     * @param string $domain
+     * @return array
      */
     protected function _domainPlural($domain = 'test_plugin'): mixed
     {
@@ -2204,7 +2204,7 @@ class I18nTest extends CakeTestCase
     /**
      * category method
      *
-     * @return void
+     * @return string
      */
     protected function _category($category = I18n::LC_MONETARY): mixed
     {
@@ -2216,7 +2216,7 @@ class I18nTest extends CakeTestCase
     /**
      * Singular method
      *
-     * @return void
+     * @return string
      */
     protected function _singular(): mixed
     {
@@ -2229,7 +2229,7 @@ class I18nTest extends CakeTestCase
      * Plural method
      *
      * @param int $upTo For numbers upto (default to 25)
-     * @return void
+     * @return array
      */
     protected function _plural($upTo = 25): mixed
     {
@@ -2244,7 +2244,7 @@ class I18nTest extends CakeTestCase
     /**
      * singularFromCore method
      *
-     * @return void
+     * @return string
      */
     protected function _singularFromCore(): mixed
     {
@@ -2257,7 +2257,7 @@ class I18nTest extends CakeTestCase
      * pluralFromCore method
      *
      * @param int $upTo For numbers upto (default to 25)
-     * @return void
+     * @return array
      */
     protected function _pluralFromCore($upTo = 25): mixed
     {
@@ -2278,11 +2278,11 @@ class I18nTest extends CakeTestCase
     {
         I18n::translate('dummy', null, 'missing_plural_test');
         $I18n = I18n::getInstance();
-        $domainsProperty = new ReflectionProperty('I18n', '_domains');
+        $domainsProperty = new ReflectionProperty(I18n::class, '_domains');
         if (PHP_VERSION_ID < 80100) {
             $domainsProperty->setAccessible(true);
         }
-        $langProperty = new ReflectionProperty('I18n', '_lang');
+        $langProperty = new ReflectionProperty(I18n::class, '_lang');
         if (PHP_VERSION_ID < 80100) {
             $langProperty->setAccessible(true);
         }
@@ -2306,5 +2306,22 @@ class I18nTest extends CakeTestCase
         $this->assertSame('one apple', $result);
         $this->assertCount(1, $warnings);
         $this->assertStringContainsString('Missing plural form translation for "apple"', $warnings[0]);
+    }
+
+    /**
+     * Test that translations are read from the resources/locales directory of a plugin.
+     *
+     * @return void
+     */
+    public function testPluginTranslationInResourcesLocales(): void
+    {
+        App::build([
+            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
+        ]);
+        CakePlugin::load('TestModernPlugin');
+
+        Configure::write('Config.language', 'po');
+        $result = __d('test_modern_plugin', 'Plural Rule 1');
+        $this->assertSame('Plural Rule 1 (from resources/locales)', $result);
     }
 }

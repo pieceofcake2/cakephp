@@ -1,7 +1,4 @@
 <?php
-
-use TestApp\Model\NamespacedPost;
-
 /**
  * ScaffoldTest file
  *
@@ -19,9 +16,23 @@ use TestApp\Model\NamespacedPost;
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('AppModel', 'Model');
+namespace Cake\Test\TestCase\Controller;
 
-require_once dirname(__DIR__) . DS . 'Model' . DS . 'models.php';
+use Cake\Controller\Controller;
+use Cake\Controller\Scaffold;
+use Cake\Core\App;
+use Cake\Core\CakePlugin;
+use Cake\Core\Configure;
+use Cake\Model\Datasource\CakeSession;
+use Cake\Network\CakeRequest;
+use Cake\Network\CakeResponse;
+use Cake\Routing\Router;
+use Cake\TestSuite\CakeTestCase;
+use Cake\Utility\ClassRegistry;
+use TestApp\Model\NamespacedPost;
+use TestApp\Model\ScaffoldMock;
+
+App::uses('AppModel', 'Model');
 
 /**
  * ScaffoldMockController class
@@ -33,9 +44,9 @@ class ScaffoldMockController extends Controller
     /**
      * scaffold property
      *
-     * @var mixed
+     * @var string|null|false
      */
-    public $scaffold;
+    public $scaffold = null;
 }
 
 /**
@@ -48,16 +59,16 @@ class ScaffoldMockControllerWithFields extends Controller
     /**
      * name property
      *
-     * @var string
+     * @var string|null
      */
     public $name = 'ScaffoldMock';
 
     /**
      * scaffold property
      *
-     * @var mixed
+     * @var string|null|false
      */
-    public $scaffold;
+    public $scaffold = null;
 
     /**
      * function beforeScaffold
@@ -83,16 +94,16 @@ class ScaffoldMockControllerWithError extends Controller
     /**
      * name property
      *
-     * @var string
+     * @var string|null
      */
     public $name = 'ScaffoldMock';
 
     /**
      * scaffold property
      *
-     * @var mixed
+     * @var string|null|false
      */
-    public $scaffold;
+    public $scaffold = null;
 
     /**
      * function beforeScaffold
@@ -116,9 +127,9 @@ class TestScaffoldMock extends Scaffold
     /**
      * Request object for scaffolding
      *
-     * @var CakeRequest
+     * @var CakeRequest|null
      */
-    protected $_params;
+    protected ?CakeRequest $_params = null;
 
     /**
      * Overload _scaffold
@@ -134,7 +145,7 @@ class TestScaffoldMock extends Scaffold
     /**
      * Get Params from the Controller.
      *
-     * @return unknown
+     * @return CakeRequest|null
      */
     public function getParams(): mixed
     {
@@ -152,16 +163,22 @@ class ScaffoldTest extends CakeTestCase
     /**
      * Controller property
      *
-     * @var SecurityTestController
+     * @var Controller|null
      */
-    public $Controller;
+    public $Controller = null;
 
     /**
      * fixtures property
      *
-     * @var array
+     * @var array<string>
      */
-    public $fixtures = ['core.article', 'core.user', 'core.comment', 'core.join_thing', 'core.tag'];
+    public $fixtures = [
+        'core.article',
+        'core.user',
+        'core.comment',
+        'core.join_thing',
+        'core.tag',
+    ];
 
     /**
      * setUp method
@@ -171,10 +188,11 @@ class ScaffoldTest extends CakeTestCase
     public function setUp(): void
     {
         parent::setUp();
+        Configure::write('App.namespace', 'TestApp');
         Configure::write('Config.language', 'eng');
         $request = new CakeRequest(null, false);
         $this->Controller = new ScaffoldMockController($request);
-        $this->Controller->response = $this->getMock('CakeResponse', ['_sendHeader']);
+        $this->Controller->response = $this->getMock(CakeResponse::class, ['_sendHeader']);
     }
 
     /**
@@ -276,6 +294,8 @@ class ScaffoldTest extends CakeTestCase
             'controller' => 'scaffold_mock', 'action' => 'index',
         ]);
         $this->Controller->constructClasses();
+        // Load the models of the test classes before App.namespace changes
+        new TestScaffoldMock($this->Controller, $this->Controller->request);
         $cases = ['NamespacedPost' => 'NamespacedPost', NamespacedPost::class => NamespacedPost::class];
         foreach ($cases as $className => $expected) {
             Configure::write('App.namespace', $className === 'NamespacedPost' ? 'TestApp' : null);
@@ -394,7 +414,7 @@ class ScaffoldTest extends CakeTestCase
     {
         $request = new CakeRequest(null, false);
         $this->Controller = new ScaffoldMockControllerWithFields($request);
-        $this->Controller->response = $this->getMock('CakeResponse', ['_sendHeader']);
+        $this->Controller->response = $this->getMock(CakeResponse::class, ['_sendHeader']);
 
         $params = [
             'plugin' => null,
@@ -432,7 +452,7 @@ class ScaffoldTest extends CakeTestCase
     {
         $request = new CakeRequest(null, false);
         $this->Controller = new ScaffoldMockControllerWithError($request);
-        $this->Controller->response = $this->getMock('CakeResponse', ['_sendHeader']);
+        $this->Controller->response = $this->getMock(CakeResponse::class, ['_sendHeader']);
 
         $params = [
             'plugin' => null,
@@ -504,7 +524,7 @@ class ScaffoldTest extends CakeTestCase
         }
         $this->assertSame([], $deprecations);
         $this->assertSame('ScaffoldMock', $Scaffold->modelClass);
-        $this->assertInstanceOf('ScaffoldMock', $Scaffold->ScaffoldModel);
+        $this->assertInstanceOf(ScaffoldMock::class, $Scaffold->ScaffoldModel);
         $this->assertSame(['action' => 'index'], $Scaffold->redirect);
     }
 }

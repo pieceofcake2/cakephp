@@ -16,6 +16,11 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\Controller\Component\Acl;
+
+use Cake\Controller\Component\Acl\IniAcl;
+use Cake\TestSuite\CakeTestCase;
+
 /**
  * Test case for the IniAcl implementation
  *
@@ -30,7 +35,7 @@ class IniAclTest extends CakeTestCase
      */
     public function testCheck(): void
     {
-        $iniFile = CORE_TESTS . DS . 'test_app' . DS . 'Config' . DS . 'acl.ini.php';
+        $iniFile = CORE_TESTS . DS . 'test_app' . DS . 'config' . DS . 'acl.ini.php';
 
         $Ini = new IniAcl();
         $Ini->config = $Ini->readConfigFile($iniFile);
@@ -54,7 +59,7 @@ class IniAclTest extends CakeTestCase
      */
     public function testCheckArray(): void
     {
-        $iniFile = CORE_TESTS . DS . 'test_app' . DS . 'Config' . DS . 'acl.ini.php';
+        $iniFile = CORE_TESTS . DS . 'test_app' . DS . 'config' . DS . 'acl.ini.php';
 
         $Ini = new IniAcl();
         $Ini->config = $Ini->readConfigFile($iniFile);

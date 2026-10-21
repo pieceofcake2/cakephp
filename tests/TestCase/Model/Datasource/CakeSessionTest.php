@@ -1,7 +1,5 @@
 <?php
 
-use TestApp\Model\Datasource\Session\NamespacedSession;
-
 /**
  * SessionTest file
  *
@@ -19,23 +17,19 @@ use TestApp\Model\Datasource\Session\NamespacedSession;
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-/**
- * TestCakeSession
- *
- * @package       Cake.Test.Case.Model.Datasource
- */
-class TestCakeSession extends CakeSession
-{
-    public static function setUserAgent($value): void
-    {
-        static::$_userAgent = $value;
-    }
+namespace Cake\Test\TestCase\Model\Datasource;
 
-    public static function setHost($host): void
-    {
-        static::_setHost($host);
-    }
-}
+use Cake\Cache\Cache;
+use Cake\Core\App;
+use Cake\Core\CakePlugin;
+use Cake\Core\Configure;
+use Cake\Model\Datasource\CakeSession;
+use Cake\Model\Datasource\Session\CacheSession;
+use Cake\Model\Datasource\Session\DatabaseSession;
+use Cake\TestSuite\CakeTestCase;
+use TestApp\Model\Datasource\Session\NamespacedSession;
+use TestApp\Model\Datasource\Session\TestAppLibSession;
+use TestApp\Model\Datasource\Session\TestCakeSession;
 
 /**
  * TestCacheSession
@@ -75,9 +69,11 @@ class CakeSessionTest extends CakeTestCase
     /**
      * Fixtures used in the SessionTest
      *
-     * @var array
+     * @var array<string>
      */
-    public $fixtures = ['core.session'];
+    public $fixtures = [
+        'core.session',
+    ];
 
     /**
      * setup before class.
@@ -110,6 +106,9 @@ class CakeSessionTest extends CakeTestCase
     public function setUp(): void
     {
         parent::setUp();
+
+        Configure::write('App.namespace', 'TestApp');
+
         Configure::write('Session', [
             'defaults' => 'php',
             'cookie' => 'cakephp',
@@ -650,14 +649,14 @@ class CakeSessionTest extends CakeTestCase
     {
         App::build([
             'Model/Datasource/Session' => [
-                CORE_TESTS . DS . 'test_app' . DS . 'Model' . DS . 'Datasource' . DS . 'Session' . DS,
+                CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'Model' . DS . 'Datasource' . DS . 'Session' . DS,
             ],
-            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS],
+            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
         ], App::RESET);
         Configure::write('Session', [
             'defaults' => 'cake',
             'handler' => [
-                'engine' => 'TestAppLibSession',
+                'engine' => TestAppLibSession::class,
             ],
         ]);
 
@@ -678,7 +677,7 @@ class CakeSessionTest extends CakeTestCase
     public function testUsingPluginHandler(): void
     {
         App::build([
-            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS],
+            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
         ], App::RESET);
         CakePlugin::load('TestPlugin');
 
@@ -706,7 +705,7 @@ class CakeSessionTest extends CakeTestCase
     public function testReadAndWriteWithCacheStorage(): void
     {
         Configure::write('Session.defaults', 'cache');
-        Configure::write('Session.handler.engine', 'TestCacheSession');
+        Configure::write('Session.handler.engine', TestCacheSession::class);
 
         TestCakeSession::init();
         TestCakeSession::destroy();
@@ -743,7 +742,7 @@ class CakeSessionTest extends CakeTestCase
     public function testReadAndWriteWithCustomCacheConfig(): void
     {
         Configure::write('Session.defaults', 'cache');
-        Configure::write('Session.handler.engine', 'TestCacheSession');
+        Configure::write('Session.handler.engine', TestCacheSession::class);
         Configure::write('Session.handler.config', 'session_test');
 
         Cache::config('session_test', [
@@ -769,7 +768,7 @@ class CakeSessionTest extends CakeTestCase
     public function testReadAndWriteWithDatabaseStorage(): void
     {
         Configure::write('Session.defaults', 'database');
-        Configure::write('Session.handler.engine', 'TestDatabaseSession');
+        Configure::write('Session.handler.engine', TestDatabaseSession::class);
         Configure::write('Session.handler.table', 'sessions');
         Configure::write('Session.handler.model', 'Session');
         Configure::write('Session.handler.database', 'test');

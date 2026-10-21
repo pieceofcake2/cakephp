@@ -16,9 +16,37 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('AppModel', 'Model');
+namespace Cake\Test\TestCase\Model\Datasource;
 
-require_once dirname(__DIR__) . DS . 'models.php';
+use Cake\Cache\Cache;
+use Cake\Core\App;
+use Cake\Core\Configure;
+use Cake\Model\ConnectionManager;
+use Cake\Model\Datasource\Database\Mysql;
+use Cake\Model\Datasource\Database\Postgres;
+use Cake\Model\Datasource\Database\Sqlserver;
+use Cake\Model\Datasource\DataSource;
+use Cake\Model\Datasource\DboSource;
+use Cake\TestSuite\CakeTestCase;
+use Cake\Utility\ClassRegistry;
+use Cake\Utility\Hash;
+use PDO;
+use PDOException;
+use PDOStatement;
+use ReflectionProperty;
+use TestApp\Model\Article;
+use TestApp\Model\Attachment;
+use TestApp\Model\Author;
+use TestApp\Model\Comment;
+use TestApp\Model\Datasource\DboFourthTestSource;
+use TestApp\Model\Datasource\DboThirdTestSource;
+use TestApp\Model\Post;
+use TestApp\Model\Tag;
+use TestApp\Model\Test;
+use TestApp\Model\TestModel;
+use TestApp\Model\User;
+
+App::uses('AppModel', 'Model');
 
 /**
  * MockPDO
@@ -112,54 +140,6 @@ class DboSecondTestSource extends DboSource
 }
 
 /**
- * DboThirdTestSource
- *
- * @package       Cake.Test.Case.Model.Datasource
- */
-class DboThirdTestSource extends DboSource
-{
-    public function connect($config = []): void
-    {
-        $this->connected = true;
-    }
-
-    public function cacheMethodHasher($value): mixed
-    {
-        return hash('sha1', $value);
-    }
-}
-
-/**
- * DboFourthTestSource
- *
- * @package       Cake.Test.Case.Model.Datasource
- */
-class DboFourthTestSource extends DboSource
-{
-    public function connect($config = []): void
-    {
-        $this->connected = true;
-    }
-
-    public function cacheMethodFilter($method, $key, $value): mixed
-    {
-        if ($method === 'name') {
-            if ($value === '`menus`') {
-                return false;
-            } elseif ($key === '1fca740733997f1ebbedacfc7678592a') {
-                return false;
-            }
-        } elseif ($method === 'fields') {
-            $endsWithName = preg_grep('/`name`$/', $value);
-
-            return count($endsWithName) === 0;
-        }
-
-        return true;
-    }
-}
-
-/**
  * DboSourceTest class
  *
  * @package       Cake.Test.Case.Model.Datasource
@@ -176,11 +156,20 @@ class DboSourceTest extends CakeTestCase
     /**
      * fixtures property
      *
-     * @var array
+     * @var array<string>
      */
     public $fixtures = [
-        'core.apple', 'core.article', 'core.articles_tag', 'core.attachment', 'core.comment',
-        'core.sample', 'core.tag', 'core.user', 'core.post', 'core.author', 'core.data_test',
+        'core.apple',
+        'core.article',
+        'core.articles_tag',
+        'core.attachment',
+        'core.comment',
+        'core.sample',
+        'core.tag',
+        'core.user',
+        'core.post',
+        'core.author',
+        'core.data_test',
     ];
 
     /**
@@ -191,6 +180,7 @@ class DboSourceTest extends CakeTestCase
     public function setUp(): void
     {
         parent::setUp();
+        Configure::write('App.namespace', 'TestApp');
 
         $this->testDb = new DboTestSource();
         $this->testDb->cacheSources = false;
@@ -1272,8 +1262,8 @@ class DboSourceTest extends CakeTestCase
         $result = $this->db->query($query);
         $this->assertTrue($result);
 
-        $EnumTest = ClassRegistry::init('EnumTest');
-        $enumResult = $EnumTest->save(['mood' => '']);
+        $enumTest = ClassRegistry::init('EnumTest');
+        $enumResult = $enumTest->save(['mood' => '']);
 
         $query = "DROP TABLE {$name};";
         $result = $this->db->query($query);
@@ -1374,7 +1364,7 @@ class DboSourceTest extends CakeTestCase
 
         // tests for empty schemaName
         $noschema = ConnectionManager::create('noschema', [
-            'datasource' => 'DboTestSource',
+            'datasource' => DboTestSource::class,
             ]);
         $Article->setDataSource('noschema');
         $Article->schemaName = null;
@@ -1395,7 +1385,7 @@ class DboSourceTest extends CakeTestCase
     {
         $this->loadFixtures('Article', 'User', 'ArticlesTag', 'Tag');
         ConnectionManager::create('test_no_queryAssociation', [
-            'datasource' => 'MockDataSource',
+            'datasource' => MockDataSource::class,
         ]);
         $Article = ClassRegistry::init('Article');
         $Article->Comment->useDbConfig = 'test_no_queryAssociation';
@@ -1518,10 +1508,10 @@ class DboSourceTest extends CakeTestCase
     public function testFieldsCacheKeyWithDatasourceChange(): void
     {
         ConnectionManager::create('firstschema', [
-            'datasource' => 'DboTestSource',
+            'datasource' => DboTestSource::class,
         ]);
         ConnectionManager::create('secondschema', [
-            'datasource' => 'DboSecondTestSource',
+            'datasource' => DboSecondTestSource::class,
         ]);
         Cache::delete('method_cache', '_cake_core_');
         DboTestSource::$methodCache = [];
@@ -1614,7 +1604,7 @@ class DboSourceTest extends CakeTestCase
      */
     public function testLastError(): void
     {
-        $stmt = $this->getMock('PDOStatement');
+        $stmt = $this->getMock(PDOStatement::class);
         $stmt->expects($this->any())
             ->method('errorInfo')
             ->will($this->returnValue(['', 'something', 'bad']));
@@ -1631,7 +1621,7 @@ class DboSourceTest extends CakeTestCase
      */
     public function testTransactionLogging(): void
     {
-        $conn = $this->getMock('MockPDO');
+        $conn = $this->getMock(MockPDO::class);
         $db = new DboTestSource();
         $db->setConnection($conn);
         $conn->expects($this->exactly(2))->method('beginTransaction')
@@ -1667,7 +1657,7 @@ class DboSourceTest extends CakeTestCase
      */
     public function testTransactionNested(): void
     {
-        $conn = $this->getMock('MockPDO');
+        $conn = $this->getMock(MockPDO::class);
         $db = new DboTestSource();
         $db->setConnection($conn);
         $db->useNestedTransactions = true;
@@ -1723,7 +1713,7 @@ class DboSourceTest extends CakeTestCase
      */
     public function testTransactionNestedWithoutSupport(): void
     {
-        $conn = $this->getMock('MockPDO');
+        $conn = $this->getMock(MockPDO::class);
         $db = new DboTestSource();
         $db->setConnection($conn);
         $db->useNestedTransactions = true;
@@ -1743,7 +1733,7 @@ class DboSourceTest extends CakeTestCase
      */
     public function testTransactionNestedDisabled(): void
     {
-        $conn = $this->getMock('MockPDO');
+        $conn = $this->getMock(MockPDO::class);
         $db = new DboTestSource();
         $db->setConnection($conn);
         $db->useNestedTransactions = false;
@@ -1779,7 +1769,7 @@ class DboSourceTest extends CakeTestCase
      */
     public function testBuildStatementDefaults(): void
     {
-        $conn = $this->getMock('MockPDO', ['quote']);
+        $conn = $this->getMock(MockPDO::class, ['quote']);
         $conn->expects($this->any())
             ->method('quote')
             ->will($this->returnArgument(0));
@@ -1808,7 +1798,7 @@ class DboSourceTest extends CakeTestCase
      */
     public function testBuildStatementWithHaving(): void
     {
-        $conn = $this->getMock('MockPDO', ['quote']);
+        $conn = $this->getMock(MockPDO::class, ['quote']);
         $conn->expects($this->any())
             ->method('quote')
             ->will($this->returnArgument(0));
@@ -1838,7 +1828,7 @@ class DboSourceTest extends CakeTestCase
      */
     public function testBuildStatementWithLockingHint(): void
     {
-        $conn = $this->getMock('MockPDO', ['quote']);
+        $conn = $this->getMock(MockPDO::class, ['quote']);
         $conn->expects($this->any())
             ->method('quote')
             ->will($this->returnArgument(0));
@@ -1903,7 +1893,7 @@ class DboSourceTest extends CakeTestCase
      */
     public function testBuildJoinStatement($join, $expected): void
     {
-        $db = $this->getMock('DboTestSource', ['getSchemaName']);
+        $db = $this->getMock(DboTestSource::class, ['getSchemaName']);
         $db->expects($this->any())
             ->method('getSchemaName')
             ->will($this->returnValue('cakephp'));
@@ -1957,7 +1947,7 @@ class DboSourceTest extends CakeTestCase
     public function testConditionKeysToString(): void
     {
         $Article = ClassRegistry::init('Article');
-        $conn = $this->getMock('MockPDO', ['quote']);
+        $conn = $this->getMock(MockPDO::class, ['quote']);
         $db = new DboTestSource();
         $db->setConnection($conn);
 
@@ -1987,7 +1977,7 @@ class DboSourceTest extends CakeTestCase
         $Article->virtualFields = [
             'extra' => $Article->getDataSource()->expression('something virtual'),
         ];
-        $conn = $this->getMock('MockPDO', ['quote']);
+        $conn = $this->getMock(MockPDO::class, ['quote']);
         $db = new DboTestSource();
         $db->setConnection($conn);
 
@@ -2017,7 +2007,7 @@ class DboSourceTest extends CakeTestCase
         $Article->virtualFields = [
             'extra' => 'something virtual',
         ];
-        $conn = $this->getMock('MockPDO', ['quote']);
+        $conn = $this->getMock(MockPDO::class, ['quote']);
         $db = new DboTestSource();
         $db->setConnection($conn);
 
@@ -2173,13 +2163,13 @@ class DboSourceTest extends CakeTestCase
         $this->loadFixtures('Article', 'User', 'Comment', 'Attachment', 'Tag', 'ArticlesTag');
 
         // Use alias to make testing "primary = true" easy
-        $Primary = $this->getMock('Comment', ['afterFind'], [['alias' => 'Primary']], '', true);
+        $Primary = $this->getMock(Comment::class, ['afterFind'], [['alias' => 'Primary']], '', true);
 
-        $Article = $this->getMock('Article', ['afterFind'], [], '', true);
-        $User = $this->getMock('User', ['afterFind'], [], '', true);
-        $Comment = $this->getMock('Comment', ['afterFind'], [], '', true);
-        $Tag = $this->getMock('Tag', ['afterFind'], [], '', true);
-        $Attachment = $this->getMock('Attachment', ['afterFind'], [], '', true);
+        $Article = $this->getMock(Article::class, ['afterFind'], [], '', true);
+        $User = $this->getMock(User::class, ['afterFind'], [], '', true);
+        $Comment = $this->getMock(Comment::class, ['afterFind'], [], '', true);
+        $Tag = $this->getMock(Tag::class, ['afterFind'], [], '', true);
+        $Attachment = $this->getMock(Attachment::class, ['afterFind'], [], '', true);
 
         $Primary->Article = $Article;
         $Primary->Article->User = $User;
@@ -2211,9 +2201,9 @@ class DboSourceTest extends CakeTestCase
 
         // hasMany special case
         // Both User and Article has many Comments
-        $User = $this->getMock('User', ['afterFind'], [], '', true);
-        $Article = $this->getMock('Article', ['afterFind'], [], '', true);
-        $Comment = $this->getMock('Comment', ['afterFind'], [], '', true);
+        $User = $this->getMock(User::class, ['afterFind'], [], '', true);
+        $Article = $this->getMock(Article::class, ['afterFind'], [], '', true);
+        $Comment = $this->getMock(Comment::class, ['afterFind'], [], '', true);
 
         $User->bindModel(['hasMany' => ['Comment', 'Article']]);
         $Article->unbindModel(['belongsTo' => ['User'], 'hasAndBelongsToMany' => ['Tag']]);
@@ -2281,7 +2271,7 @@ class DboSourceTest extends CakeTestCase
         ];
 
         $Author = new Author();
-        $Post = $this->getMock('Post', ['afterFind'], [], '', true);
+        $Post = $this->getMock(Post::class, ['afterFind'], [], '', true);
         $Post->expects($this->exactly(2))
             ->method('afterFind')
             ->withConsecutive(
@@ -2298,7 +2288,7 @@ class DboSourceTest extends CakeTestCase
 
         // Backward compatiblity
         $Author = new Author();
-        $Post = $this->getMock('Post', ['afterFind'], [], '', true);
+        $Post = $this->getMock(Post::class, ['afterFind'], [], '', true);
         $Post->expects($this->once())->method('afterFind')->with($expected['Post'], $this->isFalse())->will($this->returnArgument(0));
         $Post->useConsistentAfterFind = false;
 
@@ -2321,7 +2311,7 @@ class DboSourceTest extends CakeTestCase
         $User = new User();
         $User->bindModel(['hasOne' => ['Article']]);
 
-        $Article = $this->getMock('Article', ['afterFind'], [], '', true);
+        $Article = $this->getMock(Article::class, ['afterFind'], [], '', true);
         $Article->expects($this->once())
             ->method('afterFind')
             ->with(
@@ -2381,7 +2371,7 @@ class DboSourceTest extends CakeTestCase
         $User = new User();
         $User->bindModel(['hasOne' => ['Article']]);
 
-        $Article = $this->getMock('Article', ['afterFind'], [], '', true);
+        $Article = $this->getMock(Article::class, ['afterFind'], [], '', true);
         $Article->unbindModel([
             'belongsTo' => ['User'],
             'hasMany' => ['Comment'],
@@ -2493,9 +2483,9 @@ class DboSourceTest extends CakeTestCase
      */
     public function testFindWithLockingHint(): void
     {
-        $db = $this->getMock('DboTestSource', ['connect', '_execute', 'execute', 'describ']);
+        $db = $this->getMock(DboTestSource::class, ['connect', '_execute', 'execute', 'describ']);
 
-        $Test = $this->getMock('Test', ['getDataSource']);
+        $Test = $this->getMock(Test::class, ['getDataSource']);
         $Test->expects($this->any())
             ->method('getDataSource')
             ->will($this->returnValue($db));

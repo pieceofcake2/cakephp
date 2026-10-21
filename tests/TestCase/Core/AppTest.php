@@ -1,10 +1,5 @@
 <?php
 
-use Composer\Autoload\ClassLoader;
-use TestApp\Controller\Component\NamespacedComponent;
-use TestApp\Model\NamespacedPost;
-use TestApp\View\Helper\NamespacedHelper;
-
 /**
  * AppTest file.
  *
@@ -22,40 +17,67 @@ use TestApp\View\Helper\NamespacedHelper;
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\Core;
+
+use AppController;
+use AppModel;
+use Cake\Configure\PhpReader;
+use Cake\Console\Shell;
+use Cake\Controller\Component\AuthComponent;
+use Cake\Controller\Component\RequestHandlerComponent;
+use Cake\Controller\Controller;
+use Cake\Core\App;
+use Cake\Core\CakePlugin;
+use Cake\Core\Configure;
+use Cake\Log\CakeLog;
+use Cake\Model\Behavior\ContainableBehavior;
+use Cake\Model\Datasource\DboSource;
+use Cake\Model\Model;
+use Cake\TestSuite\CakeTestCase;
+use Cake\View\Helper\FormHelper;
+use Closure;
+use Composer\Autoload\ClassLoader;
+use ConfigureTestVendorSample;
+use ExampleExample;
+use ReflectionClass;
+use SamplePluginClassTestName;
+use TestApp\Controller\Component\NamespacedComponent;
+use TestApp\Controller\PagesController;
+use TestApp\Lib\Library;
+use TestApp\Log\Engine\AppTestCaptureLog;
+use TestApp\Model\NamespacedPost;
+use TestApp\Model\PersisterOne;
+use TestApp\Model\PersisterTwo;
+use TestApp\Utility\TestUtilityClass;
+use TestApp\View\Helper\BananaHelper;
+use TestApp\View\Helper\NamespacedHelper;
+use TestPlugin\Controller\Component\OtherComponent;
+use TestPlugin\Controller\TestPluginAppController;
+use TestPlugin\Controller\TestsController;
+use TestPlugin\Lib\Custom\Package\CustomLibClass;
+use TestPlugin\Lib\TestPluginLibrary;
+use TestPlugin\Lib\TestPluginOtherLibrary;
+use TestPlugin\Model\Datasource\TestSource;
+use TestPlugin\View\Helper\OtherHelperHelper;
+use TestPlugin\View\Helper\TestPluginAppHelper;
+
 /**
  * AppTest class
  *
  * @package       Cake.Test.Case.Core
  */
-/**
- * Keeps the messages that are logged.
- *
- * @package       Cake.Test.Case.Core
- */
-class AppTestCaptureLog extends BaseLog
-{
-    /**
-     * Logged messages as [type, message] pairs.
-     *
-     * @var array<int, array{0: string, 1: string}>
-     */
-    public static $messages = [];
-
-    /**
-     * Keeps the message.
-     *
-     * @param string $type The type of log.
-     * @param string $message The message.
-     * @return void
-     */
-    public function write($type, $message): void
-    {
-        static::$messages[] = [$type, $message];
-    }
-}
-
 class AppTest extends CakeTestCase
 {
+    /**
+     * @return void
+     */
+    public function setUp(): void
+    {
+        parent::setUp();
+
+        Configure::write('App.namespace', 'TestApp');
+    }
+
     /**
      * tearDown method
      *
@@ -93,7 +115,7 @@ class AppTest extends CakeTestCase
     {
         $this->_setUsesReported(false);
         AppTestCaptureLog::$messages = [];
-        CakeLog::config('app_test_capture', ['engine' => 'AppTestCapture']);
+        CakeLog::config('app_test_capture', ['engine' => AppTestCaptureLog::class]);
     }
 
     /**
@@ -390,80 +412,14 @@ class AppTest extends CakeTestCase
      */
     public function testPathWithPlugins(): void
     {
-        $basepath = CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS;
+        $basepath = CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS;
         App::build([
             'Plugin' => [$basepath],
         ]);
         CakePlugin::load('TestPlugin');
 
         $result = App::path('Vendor', 'TestPlugin');
-        $this->assertContains($basepath . 'TestPlugin' . DS . 'Vendor' . DS, $result);
-    }
-
-    /**
-     * Test that App::path() finds the src/, templates/, resources/locales/ and vendor/
-     * directories of a plugin before the legacy directories.
-     *
-     * @return void
-     */
-    public function testPathWithModernPluginLayout(): void
-    {
-        $basepath = CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS;
-        App::build([
-            'Plugin' => [$basepath],
-        ]);
-        CakePlugin::load('TestPluginModern');
-        $pluginPath = $basepath . 'TestPluginModern' . DS;
-
-        $result = App::path('Controller', 'TestPluginModern');
-        $expected = [
-            $pluginPath . 'src' . DS . 'Controller' . DS,
-            $pluginPath . 'Controller' . DS,
-        ];
-        $this->assertSame($expected, $result);
-
-        $result = App::path('View', 'TestPluginModern');
-        $expected = [
-            $pluginPath . 'templates' . DS,
-            $pluginPath . 'View' . DS,
-        ];
-        $this->assertSame($expected, $result);
-
-        $result = App::path('Locale', 'TestPluginModern');
-        $expected = [
-            $pluginPath . 'resources' . DS . 'locales' . DS,
-            $pluginPath . 'Locale' . DS,
-        ];
-        $this->assertSame($expected, $result);
-
-        $result = App::path('Vendor', 'TestPluginModern');
-        $this->assertSame($pluginPath . 'vendor' . DS, $result[0]);
-        $this->assertNotContains($pluginPath . 'src' . DS . 'Vendor' . DS, $result);
-
-        $result = App::path('View/Helper', 'TestPluginModern');
-        $expected = [
-            $pluginPath . 'src' . DS . 'View' . DS . 'Helper' . DS,
-            $pluginPath . 'View' . DS . 'Helper' . DS,
-        ];
-        $this->assertSame($expected, $result);
-    }
-
-    /**
-     * Test that App::path() does not add the src/ or templates/ directory of a plugin
-     * that does not have it.
-     *
-     * @return void
-     */
-    public function testPathWithLegacyPluginLayout(): void
-    {
-        $basepath = CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS;
-        App::build([
-            'Plugin' => [$basepath],
-        ]);
-        CakePlugin::load('TestPlugin');
-
-        $result = App::path('View', 'TestPlugin');
-        $this->assertSame([$basepath . 'TestPlugin' . DS . 'View' . DS], $result);
+        $this->assertEquals($basepath . 'TestPlugin' . DS . 'vendor' . DS, $result[0]);
     }
 
     /**
@@ -575,7 +531,7 @@ class AppTest extends CakeTestCase
 
         App::build([
             'plugins' => [
-                CORE_TESTS . DS . 'test_app' . DS . 'Lib' . DS,
+                CORE_TESTS . DS . 'test_app' . DS . 'src' . DS,
             ],
         ]);
         $result = App::objects('plugin', null, false);
@@ -592,7 +548,7 @@ class AppTest extends CakeTestCase
      */
     public function testListObjectsIgnoreDotDirectories(): void
     {
-        $path = CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS;
+        $path = CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS;
 
         $this->skipIf(!is_writable($path), $path . ' is not writable.');
 
@@ -614,10 +570,10 @@ class AppTest extends CakeTestCase
     public function testListObjectsInPlugin(): void
     {
         App::build([
-            'Model' => [CORE_TESTS . DS . 'test_app' . DS . 'Model' . DS],
-            'plugins' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS],
+            'Model' => [CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'Model' . DS],
+            'plugins' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
         ], App::RESET);
-        CakePlugin::load(['TestPlugin', 'TestPluginTwo']);
+        CakePlugin::load(['TestPlugin', 'TestTwoPlugin']);
 
         $result = App::objects('TestPlugin.model');
         $this->assertTrue(in_array('TestPluginPost', $result));
@@ -641,9 +597,9 @@ class AppTest extends CakeTestCase
         $result = App::objects('TestPlugin.Controller/Component');
         $this->assertTrue(in_array('OtherComponent', $result));
 
-        $result = App::objects('TestPluginTwo.behavior');
+        $result = App::objects('TestTwoPlugin.behavior');
         $this->assertSame([], $result);
-        $result = App::objects('TestPluginTwo.Model/Behavior');
+        $result = App::objects('TestTwoPlugin.Model/Behavior');
         $this->assertSame([], $result);
 
         $result = App::objects('model', null, false);
@@ -665,14 +621,17 @@ class AppTest extends CakeTestCase
     public function testThemePath(): void
     {
         App::build([
-            'View' => [CORE_TESTS . DS . 'test_app' . DS . 'View' . DS],
+            'View' => [
+                CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'View' . DS,
+                CORE_TESTS . DS . 'test_app' . DS . 'templates' . DS,
+            ],
         ]);
         $path = App::themePath('test_theme');
-        $expected = CORE_TESTS . DS . 'test_app' . DS . 'View' . DS . 'Themed' . DS . 'TestTheme' . DS;
+        $expected = CORE_TESTS . DS . 'test_app' . DS . 'templates' . DS . 'Themed' . DS . 'TestTheme' . DS;
         $this->assertEquals($expected, $path);
 
         $path = App::themePath('TestTheme');
-        $expected = CORE_TESTS . DS . 'test_app' . DS . 'View' . DS . 'Themed' . DS . 'TestTheme' . DS;
+        $expected = CORE_TESTS . DS . 'test_app' . DS . 'templates' . DS . 'Themed' . DS . 'TestTheme' . DS;
         $this->assertEquals($expected, $path);
 
         App::build();
@@ -766,10 +725,10 @@ class AppTest extends CakeTestCase
     public function testPluginImporting(): void
     {
         App::build([
-            'Lib' => [CORE_TESTS . DS . 'test_app' . DS . 'Lib' . DS],
-            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS],
+            'Lib' => [CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'Lib' . DS],
+            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
         ]);
-        CakePlugin::load(['TestPlugin', 'TestPluginTwo']);
+        CakePlugin::load(['TestPlugin', 'TestTwoPlugin']);
 
         $result = App::import('Controller', 'TestPlugin.Tests');
         $this->assertTrue($result);
@@ -796,6 +755,7 @@ class AppTest extends CakeTestCase
         $this->assertTrue($result);
         $this->assertTrue(class_exists(TestSource::class));
 
+        App::uses('ExampleExample', 'TestPlugin.vendor/Example');
         $this->assertTrue(class_exists(ExampleExample::class));
 
         App::build();
@@ -811,7 +771,7 @@ class AppTest extends CakeTestCase
         $this->assertFalse(class_exists(BananaHelper::class, false), 'BananaHelper exists, cannot test importing it.');
         App::build([
             'View/Helper' => [
-                CORE_TESTS . DS . 'test_app' . DS . 'View' . DS . 'Helper' . DS,
+                CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'View' . DS . 'Helper' . DS,
             ],
         ]);
         $this->assertFalse(class_exists(BananaHelper::class, false), 'BananaHelper exists, cannot test importing it.');
@@ -941,7 +901,7 @@ class AppTest extends CakeTestCase
             $this->markTestSkipped('Cannot test loading of classes that exist.');
         }
         App::build([
-            'Model' => [CORE_TESTS . DS . 'test_app' . DS . 'Model' . DS],
+            'Model' => [CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'Model' . DS],
         ]);
         $toLoad = ['PersisterOne', 'PersisterTwo'];
         $load = App::import('Model', $toLoad);
@@ -949,8 +909,8 @@ class AppTest extends CakeTestCase
 
         $classes = array_flip(get_declared_classes());
 
-        $this->assertTrue(isset($classes['PersisterOne']));
-        $this->assertTrue(isset($classes['PersisterTwo']));
+        $this->assertTrue(isset($classes[PersisterOne::class]));
+        $this->assertTrue(isset($classes[PersisterTwo::class]));
 
         $load = App::import('Model', ['PersisterOne', 'SomeNotFoundClass', 'PersisterTwo']);
         $this->assertFalse($load);
@@ -959,10 +919,10 @@ class AppTest extends CakeTestCase
     public function testLoadingVendor(): void
     {
         App::build([
-            'plugins' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS],
-            'vendors' => [CORE_TESTS . DS . 'test_app' . DS . 'Vendor' . DS],
+            'plugins' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
+            'vendors' => [CORE_TESTS . DS . 'test_app' . DS . 'vendor' . DS],
         ], App::RESET);
-        CakePlugin::load(['TestPlugin', 'TestPluginTwo']);
+        CakePlugin::load(['TestPlugin', 'TestTwoPlugin']);
 
         ob_start();
         $result = App::import('Vendor', 'css/TestAsset', ['ext' => 'css']);
@@ -972,11 +932,11 @@ class AppTest extends CakeTestCase
 
         $result = App::import('Vendor', 'TestPlugin.sample/SamplePlugin');
         $this->assertTrue($result);
-        $this->assertTrue(class_exists(SamplePluginClassTestName::class));
+        $this->assertTrue(class_exists(SamplePluginClassTestName::class, false));
 
         $result = App::import('Vendor', 'sample/ConfigureTestVendorSample');
         $this->assertTrue($result);
-        $this->assertTrue(class_exists(ConfigureTestVendorSample::class));
+        $this->assertTrue(class_exists(ConfigureTestVendorSample::class, false));
 
         ob_start();
         $result = App::import('Vendor', 'SomeNameInSubfolder', ['file' => 'somename/some.name.php']);
@@ -1018,10 +978,10 @@ class AppTest extends CakeTestCase
     public function testLoadClassInLibs(): void
     {
         App::build([
-            'libs' => [CORE_TESTS . DS . 'test_app' . DS . 'Lib' . DS],
-            'plugins' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS],
+            'libs' => [CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'Lib' . DS],
+            'plugins' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
         ], App::RESET);
-        CakePlugin::load(['TestPlugin', 'TestPluginTwo']);
+        CakePlugin::load(['TestPlugin', 'TestTwoPlugin']);
 
         $this->assertFalse(class_exists(CustomLibClass::class, false));
         $this->assertTrue(class_exists(CustomLibClass::class));
@@ -1063,30 +1023,11 @@ class AppTest extends CakeTestCase
     public function testPluginLibClasses(): void
     {
         App::build([
-            'plugins' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS],
-        ], App::RESET);
-        CakePlugin::load(['TestPlugin', 'TestPluginTwo']);
-        $this->assertFalse(class_exists('TestPluginOtherLibrary', false));
-        $this->assertTrue(class_exists('TestPluginOtherLibrary'));
-    }
-
-    /**
-     * Test that objects and vendor files are found in a plugin with the modern layout.
-     *
-     * @return void
-     */
-    public function testModernPluginLayoutObjects(): void
-    {
-        App::build([
             'plugins' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
         ], App::RESET);
-        CakePlugin::load('TestPluginModern');
-
-        $result = App::objects('TestPluginModern.Controller/Component');
-        $this->assertSame(['ModernComponent'], $result);
-
-        $this->assertTrue(App::import('Vendor', 'TestPluginModern.sample/modern_vendor'));
-        $this->assertTrue(defined('TEST_PLUGIN_MODERN_VENDOR_LOADED'));
+        CakePlugin::load(['TestPlugin', 'TestTwoPlugin']);
+        $this->assertFalse(class_exists(TestPluginOtherLibrary::class, false));
+        $this->assertTrue(class_exists(TestPluginOtherLibrary::class));
     }
 
     /**
@@ -1134,9 +1075,9 @@ class AppTest extends CakeTestCase
         $this->assertSame('FileEngine', App::className('File', 'Cache/Engine', 'Engine'));
         $this->assertNull(App::className('DoesNotExist', 'Controller/Component', 'Component'));
 
-        App::build(['Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS]], App::RESET);
+        App::build(['Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS]], App::RESET);
         CakePlugin::load('TestPlugin');
-        $this->assertSame('OtherComponent', App::className('TestPlugin.Other', 'Controller/Component', 'Component'));
+        $this->assertSame(OtherComponent::class, App::className('TestPlugin.Other', 'Controller/Component', 'Component'));
     }
 
     /**
@@ -1162,8 +1103,6 @@ class AppTest extends CakeTestCase
      */
     public function testClassNameAppNamespace(): void
     {
-        Configure::write('App.namespace', 'TestApp');
-
         $result = App::className('Namespaced', 'Controller/Component', 'Component');
         $this->assertSame(NamespacedComponent::class, $result);
         $this->assertSame(NamespacedPost::class, App::className('NamespacedPost', 'Model'));
@@ -1177,13 +1116,12 @@ class AppTest extends CakeTestCase
      */
     public function testImportNamespacedClass(): void
     {
-        Configure::write('App.namespace', 'TestApp');
-        App::build(['Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS]], App::RESET);
-        CakePlugin::load('TestPluginTwo');
+        App::build(['Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS]], App::RESET);
+        CakePlugin::load('TestTwoPlugin');
 
         $this->assertTrue(App::import('Controller', 'Namespaced'));
         $this->assertTrue(App::import('Model', 'NamespacedPost'));
-        $this->assertTrue(App::import('Controller', 'TestPluginTwo.NamespacedPlugin'));
+        $this->assertTrue(App::import('Controller', 'TestTwoPlugin.NamespacedPlugin'));
         $this->assertFalse(App::import('Controller', 'DoesNotExist'));
     }
 
@@ -1196,7 +1134,7 @@ class AppTest extends CakeTestCase
     public function testLoadFileOfLoadedNamespacedClass(): void
     {
         $this->assertTrue(class_exists(NamespacedPost::class));
-        App::build(['Model' => [CORE_TESTS . DS . 'test_app' . DS . 'Namespaced' . DS . 'Model' . DS]], App::RESET);
+        App::build(['Model' => [CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'Model' . DS]], App::RESET);
         App::uses('NamespacedPost', 'Model');
         $this->assertFalse(class_exists('NamespacedPost'));
     }
@@ -1229,12 +1167,12 @@ class AppTest extends CakeTestCase
             'require ' . var_export(CORE_ROOT . DS . 'config' . DS . 'init.php', true) . ';' . "\n" .
             'require CAKE . "bootstrap.php";' . "\n" .
             'Configure::write("App.namespace", "TestApp");' . "\n" .
-            'App::build(["Controller" => [' . var_export(CORE_TESTS . DS . 'test_app' . DS . 'Namespaced' . DS . 'Controller' . DS, true) . ']], App::RESET);' . "\n" .
+            'App::build(["Controller" => [' . var_export(CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'Controller' . DS, true) . ']], App::RESET);' . "\n" .
             // The test app has a global AppController in the classmap; load it with App::load() like an application without one
             'spl_autoload_register(function ($class) { if ($class === "AppController") { App::load($class); } }, true, true);' . "\n" .
             // The file map that App caches is neither read nor written
             'Closure::bind(function () { static::$_map = []; }, null, App::class)();' . "\n" .
-            ($cached ? 'Closure::bind(function () { static::$_map["AppController"] = ' . var_export(CORE_TESTS . DS . 'test_app' . DS . 'Namespaced' . DS . 'Controller' . DS . 'AppController.php', true) . '; }, null, App::class)();' . "\n" : '') .
+            ($cached ? 'Closure::bind(function () { static::$_map["AppController"] = ' . var_export(CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'Controller' . DS . 'AppController.php', true) . '; }, null, App::class)();' . "\n" : '') .
             'echo (new ReflectionClass("AppController"))->getName(), "\n";' . "\n" .
             'echo get_parent_class("CakeErrorController"), "\n";' . "\n" .
             'Closure::bind(function () { static::$_cacheChange = false; static::$_objectCacheChange = false; }, null, App::class)();' . "\n";
@@ -1266,5 +1204,72 @@ class AppTest extends CakeTestCase
 
         $result = App::className('TestApp.Namespaced', 'View/Helper', 'Helper');
         $this->assertSame(NamespacedHelper::class, $result);
+    }
+
+    /**
+     * Test that App::path() finds the src/, templates/, resources/locales/ and vendor/
+     * directories of a plugin before the legacy directories.
+     *
+     * @return void
+     */
+    public function testPathWithModernPluginLayout(): void
+    {
+        $basepath = CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS;
+        App::build([
+            'Plugin' => [$basepath],
+        ]);
+        CakePlugin::load('TestModernPlugin');
+        $pluginPath = $basepath . 'TestModernPlugin' . DS;
+
+        $result = App::path('Controller', 'TestModernPlugin');
+        $expected = [
+            $pluginPath . 'src' . DS . 'Controller' . DS,
+            $pluginPath . 'Controller' . DS,
+        ];
+        $this->assertSame($expected, $result);
+
+        $result = App::path('View', 'TestModernPlugin');
+        $expected = [
+            $pluginPath . 'templates' . DS,
+            $pluginPath . 'View' . DS,
+        ];
+        $this->assertSame($expected, $result);
+
+        $result = App::path('Locale', 'TestModernPlugin');
+        $expected = [
+            $pluginPath . 'resources' . DS . 'locales' . DS,
+            $pluginPath . 'Locale' . DS,
+        ];
+        $this->assertSame($expected, $result);
+
+        $result = App::path('Vendor', 'TestModernPlugin');
+        $this->assertSame($pluginPath . 'vendor' . DS, $result[0]);
+        $this->assertNotContains($pluginPath . 'src' . DS . 'Vendor' . DS, $result);
+
+        $result = App::path('View/Helper', 'TestModernPlugin');
+        $expected = [
+            $pluginPath . 'src' . DS . 'View' . DS . 'Helper' . DS,
+            $pluginPath . 'View' . DS . 'Helper' . DS,
+        ];
+        $this->assertSame($expected, $result);
+    }
+
+    /**
+     * Test that objects and vendor files are found in a plugin with the modern layout.
+     *
+     * @return void
+     */
+    public function testModernPluginLayoutObjects(): void
+    {
+        App::build([
+            'plugins' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
+        ], App::RESET);
+        CakePlugin::load('TestModernPlugin');
+
+        $result = App::objects('TestModernPlugin.Controller/Component');
+        $this->assertSame(['ModernComponent'], $result);
+
+        $this->assertTrue(App::import('Vendor', 'TestModernPlugin.sample/modern_vendor'));
+        $this->assertTrue(defined('TEST_PLUGIN_MODERN_VENDOR_LOADED'));
     }
 }

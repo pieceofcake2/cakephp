@@ -16,482 +16,31 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-/**
- * ContactTestController class
- *
- * @package       Cake.Test.Case.View.Helper
- */
-class ContactTestController extends Controller
-{
-    /**
-     * uses property
-     *
-     * @var mixed
-     */
-    public $uses = null;
-}
+namespace Cake\Test\TestCase\View\Helper;
 
-/**
- * Contact class
- *
- * @package       Cake.Test.Case.View.Helper
- */
-class Contact extends CakeTestModel
-{
-    /**
-     * useTable property
-     *
-     * @var bool
-     */
-    public $useTable = false;
-
-    /**
-     * Default schema
-     *
-     * @var array
-     */
-    protected $_schema = [
-        'id' => ['type' => 'integer', 'null' => '', 'default' => '', 'length' => '8'],
-        'name' => ['type' => 'string', 'null' => '', 'default' => '', 'length' => '255'],
-        'email' => ['type' => 'string', 'null' => '', 'default' => '', 'length' => '255'],
-        'phone' => ['type' => 'string', 'null' => '', 'default' => '', 'length' => '255'],
-        'password' => ['type' => 'string', 'null' => '', 'default' => '', 'length' => '255'],
-        'lap_time' => ['type' => 'time', 'null' => '', 'default' => '', 'length' => '2'],
-        'last_seen' => ['type' => 'datetime', 'null' => '', 'default' => '', 'length' => '3'],
-        'published' => ['type' => 'date', 'null' => true, 'default' => null, 'length' => null],
-        'created' => ['type' => 'date', 'null' => '1', 'default' => '', 'length' => ''],
-        'updated' => ['type' => 'datetime', 'null' => '1', 'default' => '', 'length' => null],
-        'age' => ['type' => 'integer', 'null' => '', 'default' => '', 'length' => null],
-    ];
-
-    /**
-     * validate property
-     *
-     * @var array
-     */
-    public $validate = [
-        'non_existing' => [],
-        'idontexist' => [],
-        'imrequired' => ['rule' => ['between', 5, 30], 'allowEmpty' => false],
-        'imrequiredonupdate' => ['notBlank' => ['rule' => 'alphaNumeric', 'on' => 'update']],
-        'imrequiredoncreate' => ['required' => ['rule' => 'alphaNumeric', 'on' => 'create']],
-        'imrequiredonboth' => [
-            'required' => ['rule' => 'alphaNumeric'],
-        ],
-        'string_required' => 'notBlank',
-        'imalsorequired' => ['rule' => 'alphaNumeric', 'allowEmpty' => false],
-        'imrequiredtoo' => ['rule' => 'notBlank'],
-        'required_one' => ['required' => ['rule' => ['notBlank']]],
-        'imnotrequired' => ['required' => false, 'rule' => 'alphaNumeric', 'allowEmpty' => true],
-        'imalsonotrequired' => [
-            'alpha' => ['rule' => 'alphaNumeric', 'allowEmpty' => true],
-            'between' => ['rule' => ['between', 5, 30]],
-        ],
-        'imalsonotrequired2' => [
-            'alpha' => ['rule' => 'alphaNumeric', 'allowEmpty' => true],
-            'between' => ['rule' => ['between', 5, 30], 'allowEmpty' => true],
-        ],
-        'imnotrequiredeither' => ['required' => true, 'rule' => ['between', 5, 30], 'allowEmpty' => true],
-        'iamrequiredalways' => [
-            'email' => ['rule' => 'email'],
-            'rule_on_create' => ['rule' => ['maxLength', 50], 'on' => 'create'],
-            'rule_on_update' => ['rule' => ['between', 1, 50], 'on' => 'update'],
-        ],
-        'boolean_field' => ['rule' => 'boolean'],
-    ];
-
-    /**
-     * schema method
-     *
-     * @return void
-     */
-    public function setSchema($schema): void
-    {
-        $this->_schema = $schema;
-    }
-
-    /**
-     * hasAndBelongsToMany property
-     *
-     * @var array
-     */
-    public $hasAndBelongsToMany = ['ContactTag' => ['with' => 'ContactTagsContact']];
-
-    /**
-     * hasAndBelongsToMany property
-     *
-     * @var array
-     */
-    public $belongsTo = ['User' => ['className' => 'UserForm']];
-}
-
-/**
- * ContactTagsContact class
- *
- * @package       Cake.Test.Case.View.Helper
- */
-class ContactTagsContact extends CakeTestModel
-{
-    /**
-     * useTable property
-     *
-     * @var bool
-     */
-    public $useTable = false;
-
-    /**
-     * Default schema
-     *
-     * @var array
-     */
-    protected $_schema = [
-        'contact_id' => ['type' => 'integer', 'null' => '', 'default' => '', 'length' => '8'],
-        'contact_tag_id' => [
-            'type' => 'integer', 'null' => '', 'default' => '', 'length' => '8',
-        ],
-    ];
-
-    /**
-     * schema method
-     *
-     * @return void
-     */
-    public function setSchema($schema): void
-    {
-        $this->_schema = $schema;
-    }
-}
-
-/**
- * ContactNonStandardPk class
- *
- * @package       Cake.Test.Case.View.Helper
- */
-class ContactNonStandardPk extends Contact
-{
-    /**
-     * primaryKey property
-     *
-     * @var string
-     */
-    public $primaryKey = 'pk';
-
-    /**
-     * schema method
-     *
-     * @return void
-     */
-    public function schema($field = false): mixed
-    {
-        $this->_schema = parent::schema();
-        $this->_schema['pk'] = $this->_schema['id'];
-        unset($this->_schema['id']);
-
-        return $this->_schema;
-    }
-}
-
-/**
- * ContactTag class
- *
- * @package       Cake.Test.Case.View.Helper
- */
-class ContactTag extends Model
-{
-    /**
-     * useTable property
-     *
-     * @var bool
-     */
-    public $useTable = false;
-
-    /**
-     * schema definition
-     *
-     * @var array
-     */
-    protected $_schema = [
-        'id' => ['type' => 'integer', 'null' => false, 'default' => '', 'length' => '8'],
-        'name' => ['type' => 'string', 'null' => false, 'default' => '', 'length' => '255'],
-        'created' => ['type' => 'date', 'null' => true, 'default' => '', 'length' => ''],
-        'modified' => ['type' => 'datetime', 'null' => true, 'default' => '', 'length' => null],
-    ];
-}
-
-/**
- * UserForm class
- *
- * @package       Cake.Test.Case.View.Helper
- */
-class UserForm extends CakeTestModel
-{
-    /**
-     * useTable property
-     *
-     * @var bool
-     */
-    public $useTable = false;
-
-    /**
-     * hasMany property
-     *
-     * @var array
-     */
-    public $hasMany = [
-        'OpenidUrl' => ['className' => 'OpenidUrl', 'foreignKey' => 'user_form_id',
-        ]];
-
-    /**
-     * schema definition
-     *
-     * @var array
-     */
-    protected $_schema = [
-        'id' => ['type' => 'integer', 'null' => '', 'default' => '', 'length' => '8'],
-        'published' => ['type' => 'date', 'null' => true, 'default' => null, 'length' => null],
-        'other' => ['type' => 'text', 'null' => true, 'default' => null, 'length' => null],
-        'stuff' => ['type' => 'string', 'null' => true, 'default' => null, 'length' => 10],
-        'something' => ['type' => 'string', 'null' => true, 'default' => null, 'length' => 255],
-        'active' => ['type' => 'boolean', 'null' => false, 'default' => false],
-        'created' => ['type' => 'date', 'null' => '1', 'default' => '', 'length' => ''],
-        'updated' => ['type' => 'datetime', 'null' => '1', 'default' => '', 'length' => null],
-    ];
-}
-
-/**
- * OpenidUrl class
- *
- * @package       Cake.Test.Case.View.Helper
- */
-class OpenidUrl extends CakeTestModel
-{
-    /**
-     * useTable property
-     *
-     * @var bool
-     */
-    public $useTable = false;
-
-    /**
-     * belongsTo property
-     *
-     * @var array
-     */
-    public $belongsTo = ['UserForm' => [
-        'className' => 'UserForm', 'foreignKey' => 'user_form_id',
-    ]];
-
-    /**
-     * validate property
-     *
-     * @var array
-     */
-    public $validate = ['openid_not_registered' => []];
-
-    /**
-     * schema method
-     *
-     * @var array
-     */
-    protected $_schema = [
-        'id' => ['type' => 'integer', 'null' => '', 'default' => '', 'length' => '8'],
-        'user_form_id' => [
-            'type' => 'user_form_id', 'null' => '', 'default' => '', 'length' => '8',
-        ],
-        'url' => ['type' => 'string', 'null' => '', 'default' => '', 'length' => '255'],
-    ];
-
-    /**
-     * beforeValidate method
-     *
-     * @return void
-     */
-    public function beforeValidate($options = []): mixed
-    {
-        $this->invalidate('openid_not_registered');
-
-        return true;
-    }
-}
-
-/**
- * ValidateUser class
- *
- * @package       Cake.Test.Case.View.Helper
- */
-class ValidateUser extends CakeTestModel
-{
-    /**
-     * useTable property
-     *
-     * @var bool
-     */
-    public $useTable = false;
-
-    /**
-     * hasOne property
-     *
-     * @var array
-     */
-    public $hasOne = ['ValidateProfile' => [
-        'className' => 'ValidateProfile', 'foreignKey' => 'user_id',
-    ]];
-
-    /**
-     * schema method
-     *
-     * @var array
-     */
-    protected $_schema = [
-        'id' => ['type' => 'integer', 'null' => '', 'default' => '', 'length' => '8'],
-        'name' => ['type' => 'string', 'null' => '', 'default' => '', 'length' => '255'],
-        'email' => ['type' => 'string', 'null' => '', 'default' => '', 'length' => '255'],
-        'balance' => ['type' => 'float', 'null' => false, 'length' => '5,2'],
-        'cost_decimal' => ['type' => 'decimal', 'null' => false, 'length' => '6,3'],
-        'null_decimal' => ['type' => 'decimal', 'null' => false, 'length' => null],
-        'ratio' => ['type' => 'decimal', 'null' => false, 'length' => '10,6'],
-        'population' => ['type' => 'decimal', 'null' => false, 'length' => '15,0'],
-        'created' => ['type' => 'date', 'null' => '1', 'default' => '', 'length' => ''],
-        'updated' => ['type' => 'datetime', 'null' => '1', 'default' => '', 'length' => null],
-    ];
-
-    /**
-     * beforeValidate method
-     *
-     * @return void
-     */
-    public function beforeValidate($options = []): mixed
-    {
-        $this->invalidate('email');
-
-        return false;
-    }
-}
-
-/**
- * ValidateProfile class
- *
- * @package       Cake.Test.Case.View.Helper
- */
-class ValidateProfile extends CakeTestModel
-{
-    /**
-     * useTable property
-     *
-     * @var bool
-     */
-    public $useTable = false;
-
-    /**
-     * schema property
-     *
-     * @var array
-     */
-    protected $_schema = [
-        'id' => ['type' => 'integer', 'null' => '', 'default' => '', 'length' => '8'],
-        'user_id' => ['type' => 'integer', 'null' => '', 'default' => '', 'length' => '8'],
-        'full_name' => ['type' => 'string', 'null' => '', 'default' => '', 'length' => '255'],
-        'city' => ['type' => 'string', 'null' => '', 'default' => '', 'length' => '255'],
-        'created' => ['type' => 'date', 'null' => '1', 'default' => '', 'length' => ''],
-        'updated' => ['type' => 'datetime', 'null' => '1', 'default' => '', 'length' => null],
-    ];
-
-    /**
-     * hasOne property
-     *
-     * @var array
-     */
-    public $hasOne = ['ValidateItem' => [
-        'className' => 'ValidateItem', 'foreignKey' => 'profile_id',
-    ]];
-
-    /**
-     * belongsTo property
-     *
-     * @var array
-     */
-    public $belongsTo = ['ValidateUser' => [
-        'className' => 'ValidateUser', 'foreignKey' => 'user_id',
-    ]];
-
-    /**
-     * beforeValidate method
-     *
-     * @return void
-     */
-    public function beforeValidate($options = []): mixed
-    {
-        $this->invalidate('full_name');
-        $this->invalidate('city');
-
-        return false;
-    }
-}
-
-/**
- * ValidateItem class
- *
- * @package       Cake.Test.Case.View.Helper
- */
-class ValidateItem extends CakeTestModel
-{
-    /**
-     * useTable property
-     *
-     * @var bool
-     */
-    public $useTable = false;
-
-    /**
-     * schema property
-     *
-     * @var array
-     */
-    protected $_schema = [
-        'id' => ['type' => 'integer', 'null' => '', 'default' => '', 'length' => '8'],
-        'profile_id' => ['type' => 'integer', 'null' => '', 'default' => '', 'length' => '8'],
-        'name' => ['type' => 'text', 'null' => '', 'default' => '', 'length' => '255'],
-        'description' => [
-            'type' => 'string', 'null' => '', 'default' => '', 'length' => '255',
-        ],
-        'created' => ['type' => 'date', 'null' => '1', 'default' => '', 'length' => ''],
-        'updated' => ['type' => 'datetime', 'null' => '1', 'default' => '', 'length' => null],
-    ];
-
-    /**
-     * belongsTo property
-     *
-     * @var array
-     */
-    public $belongsTo = ['ValidateProfile' => ['foreignKey' => 'profile_id']];
-
-    /**
-     * beforeValidate method
-     *
-     * @return void
-     */
-    public function beforeValidate($options = []): mixed
-    {
-        $this->invalidate('description');
-
-        return false;
-    }
-}
-
-/**
- * TestMail class
- *
- * @package       Cake.Test.Case.View.Helper
- */
-class TestMail extends CakeTestModel
-{
-    /**
-     * useTable property
-     *
-     * @var bool
-     */
-    public $useTable = false;
-}
+use Cake\Core\App;
+use Cake\Core\CakePlugin;
+use Cake\Core\Configure;
+use Cake\Error\CakeException;
+use Cake\Network\CakeRequest;
+use Cake\Routing\Router;
+use Cake\TestSuite\CakeTestCase;
+use Cake\Utility\ClassRegistry;
+use Cake\Utility\Security;
+use Cake\View\Helper\FormHelper;
+use Cake\View\Helper\HtmlHelper;
+use Cake\View\View;
+use ReflectionProperty;
+use TestApp\Controller\ContactTestController;
+use TestApp\Model\Contact;
+use TestApp\Model\ContactNonStandardPk;
+use TestApp\Model\ContactTag;
+use TestApp\Model\OpenidUrl;
+use TestApp\Model\UserForm;
+use TestApp\Model\ValidateItem;
+use TestApp\Model\ValidateProfile;
+use TestApp\Model\ValidateUser;
+use TestPlugin\Model\TestPluginPost;
 
 /**
  * FormHelperTest class
@@ -504,9 +53,11 @@ class FormHelperTest extends CakeTestCase
     /**
      * Fixtures to be used
      *
-     * @var array
+     * @var array<string>
      */
-    public $fixtures = ['core.post'];
+    public $fixtures = [
+        'core.post',
+    ];
 
     /**
      * Do not load the fixtures by default
@@ -516,6 +67,11 @@ class FormHelperTest extends CakeTestCase
     public $autoFixtures = false;
 
     /**
+     * @var string|null
+     */
+    public ?string $oldSalt = null;
+
+    /**
      * setUp method
      *
      * @return void
@@ -523,6 +79,7 @@ class FormHelperTest extends CakeTestCase
     public function setUp(): void
     {
         parent::setUp();
+        Configure::write('App.namespace', 'TestApp');
 
         Configure::write('Config.language', 'eng');
         Configure::write('App.base', '');
@@ -783,7 +340,7 @@ class FormHelperTest extends CakeTestCase
      */
     public function testTextFieldGenerationForFloats(): void
     {
-        $model = ClassRegistry::getObject('Contact');
+        $model = ClassRegistry::getObject(Contact::class);
         $model->setSchema(['foo' => [
             'type' => 'float',
             'null' => false,
@@ -858,7 +415,7 @@ class FormHelperTest extends CakeTestCase
      */
     public function testTextFieldTypeNumberGenerationForIntegers(): void
     {
-        $model = ClassRegistry::getObject('Contact');
+        $model = ClassRegistry::getObject(Contact::class);
         $model->setSchema(['foo' => [
             'type' => 'integer',
             'null' => false,
@@ -889,7 +446,7 @@ class FormHelperTest extends CakeTestCase
      */
     public function testFileUploadFieldTypeGenerationForBinaries(): void
     {
-        $model = ClassRegistry::getObject('Contact');
+        $model = ClassRegistry::getObject(Contact::class);
         $model->setSchema(['foo' => [
             'type' => 'binary',
             'null' => false,
@@ -2072,7 +1629,7 @@ class FormHelperTest extends CakeTestCase
      */
     public function testTagIsInvalid(): void
     {
-        $Contact = ClassRegistry::getObject('Contact');
+        $Contact = ClassRegistry::getObject(Contact::class);
         $Contact->validationErrors[0]['email'] = $expected = ['Please provide an email'];
 
         $this->Form->setEntity('Contact.0.email');
@@ -2095,7 +1652,7 @@ class FormHelperTest extends CakeTestCase
      */
     public function testTagIsInvalidSaveMany(): void
     {
-        $Contact = ClassRegistry::getObject('Contact');
+        $Contact = ClassRegistry::getObject(Contact::class);
         $Contact->validationErrors[0]['email'] = $expected = ['Please provide an email'];
 
         $this->Form->create('Contact');
@@ -2116,7 +1673,7 @@ class FormHelperTest extends CakeTestCase
      */
     public function testPasswordValidation(): void
     {
-        $Contact = ClassRegistry::getObject('Contact');
+        $Contact = ClassRegistry::getObject(Contact::class);
         $Contact->validationErrors['password'] = ['Please provide a password'];
 
         $result = $this->Form->input('Contact.password');
@@ -2158,7 +1715,7 @@ class FormHelperTest extends CakeTestCase
      */
     public function testPasswordValidationWithOptions(): void
     {
-        $Contact = ClassRegistry::getObject('Contact');
+        $Contact = ClassRegistry::getObject(Contact::class);
         $Contact->validationErrors['password'] = ['Please provide a password'];
 
         $result = $this->Form->input('Contact.password', [
@@ -2299,8 +1856,8 @@ class FormHelperTest extends CakeTestCase
      */
     public function testFormValidationAssociated(): void
     {
-        $this->UserForm = ClassRegistry::getObject('UserForm');
-        $this->UserForm->OpenidUrl = ClassRegistry::getObject('OpenidUrl');
+        $this->UserForm = ClassRegistry::getObject(UserForm::class);
+        $this->UserForm->OpenidUrl = ClassRegistry::getObject(OpenidUrl::class);
 
         $data = [
             'UserForm' => ['name' => 'user'],
@@ -2345,8 +1902,8 @@ class FormHelperTest extends CakeTestCase
      */
     public function testFormValidationAssociatedFirstLevel(): void
     {
-        $this->ValidateUser = ClassRegistry::getObject('ValidateUser');
-        $this->ValidateUser->ValidateProfile = ClassRegistry::getObject('ValidateProfile');
+        $this->ValidateUser = ClassRegistry::getObject(ValidateUser::class);
+        $this->ValidateUser->ValidateProfile = ClassRegistry::getObject(ValidateProfile::class);
 
         $data = [
             'ValidateUser' => ['name' => 'mariano'],
@@ -2402,9 +1959,9 @@ class FormHelperTest extends CakeTestCase
      */
     public function testFormValidationAssociatedSecondLevel(): void
     {
-        $this->ValidateUser = ClassRegistry::getObject('ValidateUser');
-        $this->ValidateUser->ValidateProfile = ClassRegistry::getObject('ValidateProfile');
-        $this->ValidateUser->ValidateProfile->ValidateItem = ClassRegistry::getObject('ValidateItem');
+        $this->ValidateUser = ClassRegistry::getObject(ValidateUser::class);
+        $this->ValidateUser->ValidateProfile = ClassRegistry::getObject(ValidateProfile::class);
+        $this->ValidateUser->ValidateProfile->ValidateItem = ClassRegistry::getObject(ValidateItem::class);
 
         $data = [
             'ValidateUser' => ['name' => 'mariano'],
@@ -2469,7 +2026,7 @@ class FormHelperTest extends CakeTestCase
      */
     public function testFormValidationMultiRecord(): void
     {
-        $Contact = ClassRegistry::getObject('Contact');
+        $Contact = ClassRegistry::getObject(Contact::class);
         $Contact->validationErrors[2] = [
             'name' => ['This field cannot be left blank'],
         ];
@@ -2757,10 +2314,10 @@ class FormHelperTest extends CakeTestCase
         ];
         $this->assertTags($result, $expected);
 
-        unset($this->Form->request->data);
+        $this->Form->request->data = [];
 
-        $Contact = ClassRegistry::getObject('Contact');
-        $Contact->validationErrors['field'] = ['Badness!'];
+        $contact = ClassRegistry::getObject(Contact::class);
+        $contact->validationErrors['field'] = ['Badness!'];
         $result = $this->Form->input('Contact.field');
         $expected = [
             'div' => ['class' => 'input text error'],
@@ -2876,7 +2433,7 @@ class FormHelperTest extends CakeTestCase
         ];
         $this->assertTags($result, $expected);
 
-        $Contact->validationErrors['field'] = ['minLength'];
+        $contact->validationErrors['field'] = ['minLength'];
         $result = $this->Form->input('Contact.field', [
             'error' => [
                 'minLength' => 'Le login doit contenir au moins 2 caractères',
@@ -2896,7 +2453,7 @@ class FormHelperTest extends CakeTestCase
         ];
         $this->assertTags($result, $expected);
 
-        $Contact->validationErrors['field'] = ['maxLength'];
+        $contact->validationErrors['field'] = ['maxLength'];
         $result = $this->Form->input('Contact.field', [
             'error' => [
                 'attributes' => ['wrap' => 'span', 'rel' => 'fake'],
@@ -4129,7 +3686,7 @@ class FormHelperTest extends CakeTestCase
     {
         $this->loadFixtures('Post');
         App::build([
-            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS],
+            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
         ]);
         CakePlugin::load('TestPlugin');
         $this->Form->request['models'] = [
@@ -4141,7 +3698,7 @@ class FormHelperTest extends CakeTestCase
         $this->assertStringContainsString('data[TestPluginPost][id]', $result);
         $this->assertStringContainsString('data[TestPluginPost][author_id]', $result);
         $this->assertStringContainsString('data[TestPluginPost][title]', $result);
-        $this->assertTrue(ClassRegistry::isKeySet('TestPluginPost'));
+        $this->assertTrue(ClassRegistry::isKeySet(TestPluginPost::class));
         $this->assertFalse(ClassRegistry::isKeySet('TestPlugin'));
         $this->assertEquals('TestPluginPost', $this->Form->model());
     }
@@ -4250,7 +3807,7 @@ class FormHelperTest extends CakeTestCase
         $result = $this->Form->text('Model.text');
         $this->assertTags($result, ['input' => ['type' => 'text', 'name' => 'data[Model][text]', 'value' => 'test &lt;strong&gt;HTML&lt;/strong&gt; values', 'id' => 'ModelText']]);
 
-        $Contact = ClassRegistry::getObject('Contact');
+        $Contact = ClassRegistry::getObject(Contact::class);
         $Contact->validationErrors['text'] = [true];
         $this->Form->request->data['Contact']['text'] = 'test';
         $result = $this->Form->text('Contact.text', ['id' => 'theID']);
@@ -4317,7 +3874,7 @@ class FormHelperTest extends CakeTestCase
      */
     public function testError(): void
     {
-        $Contact = ClassRegistry::getObject('Contact');
+        $Contact = ClassRegistry::getObject(Contact::class);
         $Contact->validationErrors['field'] = [1];
         $result = $this->Form->error('Contact.field');
         $this->assertTags($result, ['div' => ['class' => 'error-message'], 'Error in field Field', '/div']);
@@ -4422,7 +3979,7 @@ class FormHelperTest extends CakeTestCase
     public function testInputErrorEscape(): void
     {
         $this->Form->create('ValidateProfile');
-        $ValidateProfile = ClassRegistry::getObject('ValidateProfile');
+        $ValidateProfile = ClassRegistry::getObject(ValidateProfile::class);
         $ValidateProfile->validationErrors['city'] = ['required<br>'];
         $result = $this->Form->input('city', ['error' => ['attributes' => ['escape' => true]]]);
         $this->assertMatchesRegularExpression('/required&lt;br&gt;/', $result);
@@ -4440,7 +3997,7 @@ class FormHelperTest extends CakeTestCase
      */
     public function testPassword(): void
     {
-        $Contact = ClassRegistry::getObject('Contact');
+        $Contact = ClassRegistry::getObject(Contact::class);
         $result = $this->Form->password('Contact.field');
         $this->assertTags($result, ['input' => ['type' => 'password', 'name' => 'data[Contact][field]', 'id' => 'ContactField']]);
 
@@ -6461,7 +6018,7 @@ class FormHelperTest extends CakeTestCase
         ]);
         $this->assertTags($result, $expected);
 
-        $Contact = ClassRegistry::getObject('Contact');
+        $Contact = ClassRegistry::getObject(Contact::class);
         $Contact->validationErrors['tags'] = 'Select atleast one option';
         $result = $this->Form->input('Contact.tags', [
             'options' => ['one'],
@@ -6834,7 +6391,7 @@ class FormHelperTest extends CakeTestCase
         ];
         $this->assertTags($result, $expected);
 
-        $Contact = ClassRegistry::getObject('Contact');
+        $Contact = ClassRegistry::getObject(Contact::class);
         $Contact->validationErrors['field'] = 1;
         $this->Form->request->data['Contact']['field'] = 'myvalue';
         $result = $this->Form->checkbox('Contact.field', ['id' => 'theID', 'value' => 'myvalue']);
@@ -8645,7 +8202,7 @@ class FormHelperTest extends CakeTestCase
      */
     public function testHiddenField(): void
     {
-        $Contact = ClassRegistry::getObject('Contact');
+        $Contact = ClassRegistry::getObject(Contact::class);
         $Contact->validationErrors['field'] = 1;
         $this->Form->request->data['Contact']['field'] = 'test';
         $result = $this->Form->hidden('Contact.field', ['id' => 'theID']);
@@ -9963,7 +9520,7 @@ class FormHelperTest extends CakeTestCase
     public function testCreateNoErrorsWithMockModel(): void
     {
         $encoding = strtolower(Configure::read('App.encoding'));
-        $ContactMock = $this->getMockBuilder('Contact')
+        $ContactMock = $this->getMockBuilder(Contact::class)
             ->disableOriginalConstructor()
             ->getMock();
         ClassRegistry::removeObject('Contact');
@@ -10325,7 +9882,7 @@ class FormHelperTest extends CakeTestCase
      */
     public function testFormInputRequiredDetectionModelValidator(): void
     {
-        ClassRegistry::getObject('ContactTag')->validator()->add('iwillberequired', 'required', ['rule' => 'notBlank']);
+        ClassRegistry::getObject(ContactTag::class)->validator()->add('iwillberequired', 'required', ['rule' => 'notBlank']);
 
         $this->Form->create('ContactTag');
         $result = $this->Form->input('ContactTag.iwillberequired');
@@ -11015,7 +10572,7 @@ class FormHelperTest extends CakeTestCase
         ];
         $this->assertTags($result, $expected);
 
-        $ValidateProfile = ClassRegistry::getObject('ValidateProfile');
+        $ValidateProfile = ClassRegistry::getObject(ValidateProfile::class);
         $ValidateProfile->validationErrors[1]['ValidateItem'][2]['profile_id'] = 'Error';
         $this->Form->request->data['ValidateProfile'][1]['ValidateItem'][2]['profile_id'] = '1';
         $result = $this->Form->input('ValidateProfile.1.ValidateItem.2.profile_id');
@@ -11046,7 +10603,7 @@ class FormHelperTest extends CakeTestCase
     public function testMultiRecordFormValidationErrors(): void
     {
         $this->Form->create('ValidateProfile');
-        $ValidateProfile = ClassRegistry::getObject('ValidateProfile');
+        $ValidateProfile = ClassRegistry::getObject(ValidateProfile::class);
         $ValidateProfile->validationErrors[2]['ValidateItem'][1]['name'] = ['Error in field name'];
         $result = $this->Form->error('ValidateProfile.2.ValidateItem.1.name');
         $this->assertTags($result, ['div' => ['class' => 'error-message'], 'Error in field name', '/div']);
@@ -11067,7 +10624,7 @@ class FormHelperTest extends CakeTestCase
     public function testSaveManyRecordFormValidationErrors(): void
     {
         $this->Form->create('ValidateUser');
-        $ValidateUser = ClassRegistry::getObject('ValidateUser');
+        $ValidateUser = ClassRegistry::getObject(ValidateUser::class);
         $ValidateUser->validationErrors[0]['ValidateItem']['name'] = ['Error in field name'];
 
         $result = $this->Form->error('0.ValidateUser.ValidateItem.name');
@@ -11233,15 +10790,15 @@ class FormHelperTest extends CakeTestCase
     {
         $this->loadFixtures('Post');
         App::build([
-            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS],
+            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
         ]);
         CakePlugin::load('TestPlugin');
         $this->Form->request['models'] = ['TestPluginPost' => ['plugin' => 'TestPlugin', 'className' => 'TestPluginPost']];
 
-        $this->assertFalse(ClassRegistry::isKeySet('TestPluginPost'));
+        $this->assertFalse(ClassRegistry::isKeySet(TestPluginPost::class));
         $this->Form->create('TestPluginPost');
-        $this->assertTrue(ClassRegistry::isKeySet('TestPluginPost'));
-        $this->assertInstanceOf('TestPluginPost', ClassRegistry::getObject('TestPluginPost'));
+        $this->assertTrue(ClassRegistry::isKeySet(TestPluginPost::class));
+        $this->assertInstanceOf(TestPluginPost::class, ClassRegistry::getObject(TestPluginPost::class));
 
         CakePlugin::unload();
         App::build();
@@ -11530,7 +11087,7 @@ class FormHelperTest extends CakeTestCase
      */
     public function testInputErrorClass(): void
     {
-        $Contact = ClassRegistry::getObject('Contact');
+        $Contact = ClassRegistry::getObject(Contact::class);
         $Contact->validationErrors['field'] = ['Badness!'];
 
         $result = $this->Form->input('Contact.field', [

@@ -18,6 +18,14 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\Controller\Component;
+
+use Cake\Controller\Component\FlashComponent;
+use Cake\Controller\ComponentCollection;
+use Cake\Model\Datasource\CakeSession;
+use Cake\TestSuite\CakeTestCase;
+use Exception;
+
 /**
  * FlashComponentTest class
  *
@@ -107,12 +115,12 @@ class FlashComponentTest extends CakeTestCase
         $this->assertEquals($expected, $result);
         CakeSession::delete('Message.flash');
 
-        $this->Flash->set('This is a test message', ['element' => 'MyPlugin.alert']);
+        $this->Flash->set('This is a test message', ['element' => 'TestDispatchPlugin.alert']);
         $expected = [
             [
                 'message' => 'This is a test message',
                 'key' => 'flash',
-                'element' => 'MyPlugin.Flash/alert',
+                'element' => 'TestDispatchPlugin.Flash/alert',
                 'params' => [],
             ],
         ];
@@ -217,12 +225,12 @@ class FlashComponentTest extends CakeTestCase
         $this->assertEquals($expected, $result);
         CakeSession::delete('Message.flash');
 
-        $this->Flash->alert('It worked', ['plugin' => 'MyPlugin']);
+        $this->Flash->alert('It worked', ['plugin' => 'TestDispatchPlugin']);
         $expected = [
             [
                 'message' => 'It worked',
                 'key' => 'flash',
-                'element' => 'MyPlugin.Flash/alert',
+                'element' => 'TestDispatchPlugin.Flash/alert',
                 'params' => [],
             ],
         ];

@@ -16,12 +16,13 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-/**
- * LoggerEngineLog class
- */
-class LoggerEngineLog extends FileLog
-{
-}
+namespace Cake\Test\TestCase\Log;
+
+use Cake\Core\Configure;
+use Cake\Error\CakeLogException;
+use Cake\Log\CakeLogInterface;
+use Cake\Log\LogEngineCollection;
+use Cake\TestSuite\CakeTestCase;
 
 /**
  * LogEngineCollectionTest class
@@ -40,6 +41,7 @@ class LogEngineCollectionTest extends CakeTestCase
     public function setUp(): void
     {
         parent::setUp();
+        Configure::write('App.namespace', 'TestApp');
 
         $this->Collection = new LogEngineCollection();
     }
@@ -52,7 +54,7 @@ class LogEngineCollectionTest extends CakeTestCase
     public function testLoad(): void
     {
         $result = $this->Collection->load('key', ['engine' => 'File']);
-        $this->assertInstanceOf('CakeLogInterface', $result);
+        $this->assertInstanceOf(CakeLogInterface::class, $result);
     }
 
     /**
@@ -63,7 +65,7 @@ class LogEngineCollectionTest extends CakeTestCase
     public function testLoadWithSuffix(): void
     {
         $result = $this->Collection->load('key', ['engine' => 'FileLog']);
-        $this->assertInstanceOf('CakeLogInterface', $result);
+        $this->assertInstanceOf(CakeLogInterface::class, $result);
     }
 
     /**
@@ -74,7 +76,7 @@ class LogEngineCollectionTest extends CakeTestCase
     public function testLoadWithSuffixAtBeginning(): void
     {
         $result = $this->Collection->load('key', ['engine' => 'LoggerEngine']);
-        $this->assertInstanceOf('CakeLogInterface', $result);
+        $this->assertInstanceOf(CakeLogInterface::class, $result);
     }
 
     /**
@@ -86,6 +88,6 @@ class LogEngineCollectionTest extends CakeTestCase
     {
         $this->expectException(CakeLogException::class);
         $result = $this->Collection->load('key', ['engine' => 'ImaginaryFile']);
-        $this->assertInstanceOf('CakeLogInterface', $result);
+        $this->assertInstanceOf(CakeLogInterface::class, $result);
     }
 }

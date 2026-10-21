@@ -13,9 +13,24 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-use PHPUnit\Framework\AssertionFailedError;
+namespace Cake\Test\TestCase\TestSuite;
 
-App::uses('IntegrationTestTrait', 'TestSuite');
+use Cake\Core\App;
+use Cake\Core\Configure;
+use Cake\Error\AuthSecurityException;
+use Cake\Error\ExceptionRenderer;
+use Cake\Error\MissingControllerException;
+use Cake\Error\NotFoundException;
+use Cake\Event\CakeEvent;
+use Cake\Network\CakeResponse;
+use Cake\Routing\Router;
+use Cake\TestSuite\CakeTestCase;
+use Cake\TestSuite\IntegrationTestResponse;
+use Cake\TestSuite\IntegrationTestTrait;
+use InvalidArgumentException;
+use LogicException;
+use PHPUnit\Framework\AssertionFailedError;
+use TestApp\Controller\IntegrationTestsController;
 
 /**
  * IntegrationTestTraitTest
@@ -34,13 +49,14 @@ class IntegrationTestTraitTest extends CakeTestCase
     public function setUp(): void
     {
         parent::setUp();
+        Configure::write('App.namespace', 'TestApp');
         App::build([
-            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS],
-            'Controller' => [CORE_TESTS . DS . 'test_app' . DS . 'Controller' . DS],
-            'View' => [CORE_TESTS . DS . 'test_app' . DS . 'View' . DS],
+            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
+            'Controller' => [CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'Controller' . DS],
+            'View' => [CORE_TESTS . DS . 'test_app' . DS . 'templates' . DS],
         ], App::RESET);
         Configure::write('debug', 2);
-        Configure::write('Exception.renderer', 'ExceptionRenderer');
+        Configure::write('Exception.renderer', ExceptionRenderer::class);
         // Test the core cookie defaults, not the Cookie.type and Cookie.key of the application.
         Configure::delete('Cookie.key');
         Configure::delete('Cookie.type');
@@ -105,8 +121,8 @@ class IntegrationTestTraitTest extends CakeTestCase
         $this->assertSame('Integration index', $this->viewVariable('title'));
         $this->assertSame(['page' => '2', 'sort' => 'title'], $this->viewVariable('query'));
         $this->assertNull($this->viewVariable('missing'));
-        $this->assertInstanceOf('IntegrationTestsController', $this->_controller);
-        $this->assertInstanceOf('IntegrationTestResponse', $this->_response);
+        $this->assertInstanceOf(IntegrationTestsController::class, $this->_controller);
+        $this->assertInstanceOf(IntegrationTestResponse::class, $this->_response);
         $this->assertNull($this->_exception);
     }
 
@@ -749,7 +765,7 @@ class IntegrationTestTraitTest extends CakeTestCase
      */
     public function testAssertFileResponse(): void
     {
-        $file = CORE_TESTS . DS . 'test_app' . DS . 'Controller' . DS . 'IntegrationTestsController.php';
+        $file = CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'Controller' . DS . 'IntegrationTestsController.php';
         $this->get('/integration_tests/file');
 
         $this->assertResponseOk();
@@ -772,7 +788,7 @@ class IntegrationTestTraitTest extends CakeTestCase
         $this->assertResponseCode(404);
         $this->assertResponseContains('Missing integration record');
         $this->assertInstanceOf(NotFoundException::class, $this->_exception);
-        $this->assertInstanceOf('IntegrationTestsController', $this->_controller);
+        $this->assertInstanceOf(IntegrationTestsController::class, $this->_controller);
 
         $this->get('/no_such_controller/index');
         $this->assertResponseCode(404);

@@ -16,9 +16,18 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('AppModel', 'Model');
+namespace Cake\Test\TestCase\Controller\Component\Auth;
 
-require_once CORE_TESTS . DS . 'TestCase' . DS . 'Model' . DS . 'models.php';
+use Cake\Controller\Component\Auth\DigestAuthenticate;
+use Cake\Controller\ComponentCollection;
+use Cake\Core\App;
+use Cake\Error\UnauthorizedException;
+use Cake\Network\CakeRequest;
+use Cake\Network\CakeResponse;
+use Cake\TestSuite\CakeTestCase;
+use Cake\Utility\ClassRegistry;
+
+App::uses('AppModel', 'Model');
 
 /**
  * Test case for DigestAuthentication
@@ -30,9 +39,12 @@ class DigestAuthenticateTest extends CakeTestCase
     /**
      * Fixtures
      *
-     * @var array
+     * @var array<string>
      */
-    public $fixtures = ['core.user', 'core.auth_user'];
+    public $fixtures = [
+        'core.user',
+        'core.auth_user',
+    ];
 
     /**
      * setup
@@ -42,7 +54,7 @@ class DigestAuthenticateTest extends CakeTestCase
     public function setUp(): void
     {
         parent::setUp();
-        $this->Collection = $this->getMock('ComponentCollection');
+        $this->Collection = $this->getMock(ComponentCollection::class);
         $this->server = $_SERVER;
         $this->auth = new DigestAuthenticate($this->Collection, [
             'fields' => ['username' => 'user', 'password' => 'password'],
@@ -57,7 +69,7 @@ class DigestAuthenticateTest extends CakeTestCase
         $User->updateAll(['password' => $User->getDataSource()->value($password)]);
 
         $_SERVER['REQUEST_METHOD'] = 'GET';
-        $this->response = $this->getMock('CakeResponse');
+        $this->response = $this->getMock(CakeResponse::class);
     }
 
     /**

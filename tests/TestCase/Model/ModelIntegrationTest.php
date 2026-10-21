@@ -1,11 +1,4 @@
 <?php
-
-use TestApp\Model\NamespacedArticlesTag;
-use TestApp\Model\NamespacedComment;
-use TestApp\Model\NamespacedHabtmArticle;
-use TestApp\Model\NamespacedHabtmTag;
-use TestApp\Model\NamespacedPost;
-
 /**
  * ModelIntegrationTest file
  *
@@ -23,7 +16,57 @@ use TestApp\Model\NamespacedPost;
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-require_once __DIR__ . DS . 'ModelTestBase.php';
+namespace Cake\Test\TestCase\Model;
+
+use AppModel;
+use Cake\Core\Configure;
+use Cake\Error\MissingTableException;
+use Cake\Model\BehaviorCollection;
+use Cake\Model\ConnectionManager;
+use Cake\Model\Datasource\Database\Mysql;
+use Cake\Model\Datasource\Database\Sqlite;
+use Cake\Model\Datasource\Database\Sqlserver;
+use Cake\Model\Datasource\DboSource;
+use Cake\Model\Model;
+use Cake\Utility\ClassRegistry;
+use Cake\Utility\Hash;
+use TestApp\Model\Ad;
+use TestApp\Model\Apple;
+use TestApp\Model\Article;
+use TestApp\Model\ArticleB;
+use TestApp\Model\ArticleFeatured;
+use TestApp\Model\AssociationTest1;
+use TestApp\Model\Category;
+use TestApp\Model\Comment;
+use TestApp\Model\Content;
+use TestApp\Model\Example;
+use TestApp\Model\Featured;
+use TestApp\Model\FruitsUuidTag;
+use TestApp\Model\Item;
+use TestApp\Model\JoinA;
+use TestApp\Model\ModelA;
+use TestApp\Model\ModelB;
+use TestApp\Model\ModelC;
+use TestApp\Model\ModelD;
+use TestApp\Model\NamespacedArticlesTag;
+use TestApp\Model\NamespacedComment;
+use TestApp\Model\NamespacedHabtmArticle;
+use TestApp\Model\NamespacedHabtmTag;
+use TestApp\Model\NamespacedPost;
+use TestApp\Model\Person;
+use TestApp\Model\Portfolio;
+use TestApp\Model\Post;
+use TestApp\Model\Site;
+use TestApp\Model\Something;
+use TestApp\Model\Tag;
+use TestApp\Model\TagB;
+use TestApp\Model\Test;
+use TestApp\Model\TestAlias;
+use TestApp\Model\TestPluginArticle;
+use TestApp\Model\TheVoid;
+use TestApp\Model\User;
+use TestApp\Model\UuidTag;
+use TestApp\Model\ValidationTest1;
 
 /**
  * DboMock class
@@ -34,7 +77,7 @@ class DboMock extends DboSource
     /**
      * Returns the $field without modifications
      *
-     * @return string
+     * @return array|string
      */
     public function name($field): mixed
     {
@@ -71,27 +114,27 @@ class ModelIntegrationTest extends BaseModelTest
         $Article = new ArticleFeatured();
         $this->assertTrue(isset($Article->belongsTo['User']));
         $this->assertFalse(property_exists($Article, 'User'));
-        $this->assertInstanceOf('User', $Article->User);
+        $this->assertInstanceOf(User::class, $Article->User);
 
         $this->assertTrue(isset($Article->belongsTo['Category']));
         $this->assertFalse(property_exists($Article, 'Category'));
         $this->assertTrue(isset($Article->Category));
-        $this->assertInstanceOf('Category', $Article->Category);
+        $this->assertInstanceOf(Category::class, $Article->Category);
 
         $this->assertTrue(isset($Article->hasMany['Comment']));
         $this->assertFalse(property_exists($Article, 'Comment'));
         $this->assertTrue(isset($Article->Comment));
-        $this->assertInstanceOf('Comment', $Article->Comment);
+        $this->assertInstanceOf(Comment::class, $Article->Comment);
 
         $this->assertTrue(isset($Article->hasAndBelongsToMany['Tag']));
         //There was not enough information to setup the association (joinTable and associationForeignKey)
         //so the model was not lazy loaded
         $this->assertTrue(property_exists($Article, 'Tag'));
         $this->assertTrue(isset($Article->Tag));
-        $this->assertInstanceOf('Tag', $Article->Tag);
+        $this->assertInstanceOf(Tag::class, $Article->Tag);
 
         $this->assertFalse(property_exists($Article, 'ArticleFeaturedsTag'));
-        $this->assertInstanceOf('AppModel', $Article->ArticleFeaturedsTag);
+        $this->assertInstanceOf(AppModel::class, $Article->ArticleFeaturedsTag);
         $this->assertEquals('article_featureds_tags', $Article->hasAndBelongsToMany['Tag']['joinTable']);
         $this->assertEquals('tag_id', $Article->hasAndBelongsToMany['Tag']['associationForeignKey']);
     }
@@ -109,10 +152,10 @@ class ModelIntegrationTest extends BaseModelTest
         $Article = new ArticleB();
         $this->assertTrue(isset($Article->hasAndBelongsToMany['TagB']));
         $this->assertFalse(property_exists($Article, 'TagB'));
-        $this->assertInstanceOf('TagB', $Article->TagB);
+        $this->assertInstanceOf(TagB::class, $Article->TagB);
 
         $this->assertFalse(property_exists($Article, 'ArticlesTag'));
-        $this->assertInstanceOf('AppModel', $Article->ArticlesTag);
+        $this->assertInstanceOf(AppModel::class, $Article->ArticlesTag);
 
         $UuidTag = new UuidTag();
         $this->assertTrue(isset($UuidTag->hasAndBelongsToMany['Fruit']));
@@ -122,7 +165,7 @@ class ModelIntegrationTest extends BaseModelTest
 
         $this->assertFalse(property_exists($UuidTag, 'FruitsUuidTag'));
         $this->assertTrue(isset($UuidTag->FruitsUuidTag));
-        $this->assertInstanceOf('FruitsUuidTag', $UuidTag->FruitsUuidTag);
+        $this->assertInstanceOf(FruitsUuidTag::class, $UuidTag->FruitsUuidTag);
     }
 
     /**
@@ -142,7 +185,7 @@ class ModelIntegrationTest extends BaseModelTest
         $Article->bindModel(['belongsTo' => ['User']]);
         $this->assertTrue(isset($Article->belongsTo['User']));
         $this->assertFalse(property_exists($Article, 'User'));
-        $this->assertInstanceOf('User', $Article->User);
+        $this->assertInstanceOf(User::class, $Article->User);
     }
 
     /**
@@ -1312,13 +1355,13 @@ class ModelIntegrationTest extends BaseModelTest
     {
         $this->loadFixtures('Apple', 'Message', 'Thread', 'Bid');
         $model = new ModelA();
-        $this->assertInstanceOf('ModelA', $model);
+        $this->assertInstanceOf(ModelA::class, $model);
 
-        $this->assertInstanceOf('ModelB', $model->ModelB);
-        $this->assertInstanceOf('ModelD', $model->ModelB->ModelD);
+        $this->assertInstanceOf(ModelB::class, $model->ModelB);
+        $this->assertInstanceOf(ModelD::class, $model->ModelB->ModelD);
 
-        $this->assertInstanceOf('ModelC', $model->ModelC);
-        $this->assertInstanceOf('ModelD', $model->ModelC->ModelD);
+        $this->assertInstanceOf(ModelC::class, $model->ModelC);
+        $this->assertInstanceOf(ModelD::class, $model->ModelC->ModelD);
     }
 
     /**
@@ -1672,15 +1715,15 @@ class ModelIntegrationTest extends BaseModelTest
     {
         $this->loadFixtures('Post');
 
-        $TestModel = ClassRegistry::init('MergeVarPluginPost');
-        $this->assertEquals(['Containable' => null, 'Tree' => null], $TestModel->actsAs);
-        $this->assertTrue(isset($TestModel->Behaviors->Containable));
-        $this->assertTrue(isset($TestModel->Behaviors->Tree));
+        $testModel = ClassRegistry::init('TestPluginMergeVarPost');
+        $this->assertEquals(['Containable' => null, 'Tree' => null], $testModel->actsAs);
+        $this->assertTrue(isset($testModel->Behaviors->Containable));
+        $this->assertTrue(isset($testModel->Behaviors->Tree));
 
-        $TestModel = ClassRegistry::init('MergeVarPluginComment');
+        $testModel = ClassRegistry::init('TestPluginMergeVarComment');
         $expected = ['Containable' => ['some_settings']];
-        $this->assertEquals($expected, $TestModel->actsAs);
-        $this->assertTrue(isset($TestModel->Behaviors->Containable));
+        $this->assertEquals($expected, $testModel->actsAs);
+        $this->assertTrue(isset($testModel->Behaviors->Containable));
     }
 
     /**
@@ -2404,7 +2447,7 @@ class ModelIntegrationTest extends BaseModelTest
         $expected = $db->name('Domain.DomainHandle');
         $this->assertEquals($expected, $result);
 
-        ConnectionManager::create('mock', ['datasource' => 'DboMock']);
+        ConnectionManager::create('mock', ['datasource' => DboMock::class]);
         $TestModel->setDataSource('mock');
         $db = $TestModel->getDataSource();
 
@@ -2447,7 +2490,7 @@ class ModelIntegrationTest extends BaseModelTest
     public function testHasMethod(): void
     {
         $Article = new Article();
-        $Article->Behaviors = $this->getMock('BehaviorCollection');
+        $Article->Behaviors = $this->getMock(BehaviorCollection::class);
 
         $Article->Behaviors->expects($this->exactly(2))
             ->method('hasMethod')
@@ -2545,7 +2588,7 @@ class ModelIntegrationTest extends BaseModelTest
      */
     public function testSchemaNoDB(): void
     {
-        $model = $this->getMock('Article', ['getDataSource']);
+        $model = $this->getMock(Article::class, ['getDataSource']);
         $model->useTable = false;
         $model->expects($this->never())->method('getDataSource');
         $this->assertEmpty($model->schema());
@@ -2559,7 +2602,7 @@ class ModelIntegrationTest extends BaseModelTest
      */
     public function testGetColumnTypeNoDB(): void
     {
-        $model = $this->getMock('Example', ['getDataSource']);
+        $model = $this->getMock(Example::class, ['getDataSource']);
         $model->expects($this->never())->method('getDataSource');
         $result = $model->getColumnType('filefield');
         $this->assertEquals('string', $result);

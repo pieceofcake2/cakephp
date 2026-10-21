@@ -1,7 +1,5 @@
 <?php
 
-use TestApp\Controller\Component\NamespacedComponent;
-
 /**
  * ComponentCollectionTest file
  *
@@ -19,12 +17,20 @@ use TestApp\Controller\Component\NamespacedComponent;
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-/**
- * Extended CookieComponent
- */
-class CookieAliasComponent extends CookieComponent
-{
-}
+namespace Cake\Test\TestCase\Controller;
+
+use Cake\Controller\Component;
+use Cake\Controller\Component\CookieComponent;
+use Cake\Controller\ComponentCollection;
+use Cake\Controller\Controller;
+use Cake\Core\App;
+use Cake\Core\CakePlugin;
+use Cake\Core\Configure;
+use Cake\Error\MissingComponentException;
+use Cake\TestSuite\CakeTestCase;
+use TestApp\Controller\Component\CookieAliasComponent;
+use TestApp\Controller\Component\NamespacedComponent;
+use TestPlugin\Controller\Component\OtherComponent;
 
 class ComponentCollectionTest extends CakeTestCase
 {
@@ -36,6 +42,7 @@ class ComponentCollectionTest extends CakeTestCase
     public function setUp(): void
     {
         parent::setUp();
+        Configure::write('App.namespace', 'TestApp');
         $this->Components = new ComponentCollection();
     }
 
@@ -59,8 +66,8 @@ class ComponentCollectionTest extends CakeTestCase
     public function testLoad(): void
     {
         $result = $this->Components->load('Cookie');
-        $this->assertInstanceOf('CookieComponent', $result);
-        $this->assertInstanceOf('CookieComponent', $this->Components->Cookie);
+        $this->assertInstanceOf(CookieComponent::class, $result);
+        $this->assertInstanceOf(CookieComponent::class, $this->Components->Cookie);
 
         $result = $this->Components->loaded();
         $this->assertEquals(['Cookie'], $result, 'loaded() results are wrong.');
@@ -79,8 +86,8 @@ class ComponentCollectionTest extends CakeTestCase
     public function testLoadWithAlias(): void
     {
         $result = $this->Components->load('Cookie', ['className' => 'CookieAlias', 'somesetting' => true]);
-        $this->assertInstanceOf('CookieAliasComponent', $result);
-        $this->assertInstanceOf('CookieAliasComponent', $this->Components->Cookie);
+        $this->assertInstanceOf(CookieAliasComponent::class, $result);
+        $this->assertInstanceOf(CookieAliasComponent::class, $this->Components->Cookie);
         $this->assertTrue($this->Components->Cookie->settings['somesetting']);
 
         $result = $this->Components->loaded();
@@ -89,13 +96,13 @@ class ComponentCollectionTest extends CakeTestCase
         $this->assertTrue($this->Components->enabled('Cookie'));
 
         $result = $this->Components->load('Cookie');
-        $this->assertInstanceOf('CookieAliasComponent', $result);
+        $this->assertInstanceOf(CookieAliasComponent::class, $result);
 
-        App::build(['Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS]]);
+        App::build(['Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS]]);
         CakePlugin::load('TestPlugin');
         $result = $this->Components->load('SomeOther', ['className' => 'TestPlugin.Other']);
-        $this->assertInstanceOf('OtherComponent', $result);
-        $this->assertInstanceOf('OtherComponent', $this->Components->SomeOther);
+        $this->assertInstanceOf(OtherComponent::class, $result);
+        $this->assertInstanceOf(OtherComponent::class, $this->Components->SomeOther);
 
         $result = $this->Components->loaded();
         $this->assertEquals(['Cookie', 'SomeOther'], $result, 'loaded() results are wrong.');
@@ -111,8 +118,8 @@ class ComponentCollectionTest extends CakeTestCase
     public function testLoadWithEnableFalse(): void
     {
         $result = $this->Components->load('Cookie', ['enabled' => false]);
-        $this->assertInstanceOf('CookieComponent', $result);
-        $this->assertInstanceOf('CookieComponent', $this->Components->Cookie);
+        $this->assertInstanceOf(CookieComponent::class, $result);
+        $this->assertInstanceOf(CookieComponent::class, $this->Components->Cookie);
 
         $this->assertFalse($this->Components->enabled('Cookie'), 'Cookie should be disabled');
     }
@@ -136,12 +143,12 @@ class ComponentCollectionTest extends CakeTestCase
     public function testLoadPluginComponent(): void
     {
         App::build([
-            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS],
+            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
         ]);
         CakePlugin::load('TestPlugin');
         $result = $this->Components->load('TestPlugin.Other');
-        $this->assertInstanceOf('OtherComponent', $result, 'Component class is wrong.');
-        $this->assertInstanceOf('OtherComponent', $this->Components->Other, 'Class is wrong');
+        $this->assertInstanceOf(OtherComponent::class, $result, 'Component class is wrong.');
+        $this->assertInstanceOf(OtherComponent::class, $this->Components->Other, 'Class is wrong');
         App::build();
         CakePlugin::unload();
     }
@@ -177,7 +184,7 @@ class ComponentCollectionTest extends CakeTestCase
      */
     public function testGetController(): void
     {
-        $controller = $this->getMock('Controller');
+        $controller = $this->getMock(Controller::class);
         $controller->components = ['Security'];
         $this->Components->init($controller);
         $result = $this->Components->getController();
@@ -199,9 +206,8 @@ class ComponentCollectionTest extends CakeTestCase
         $result = $this->Components->load('Legacy', ['className' => 'TestApp\Controller\Component\Namespaced']);
         $this->assertInstanceOf(NamespacedComponent::class, $result);
 
-        $this->assertInstanceOf('CookieComponent', $this->Components->load('Cookie'));
+        $this->assertInstanceOf(CookieComponent::class, $this->Components->load('Cookie'));
 
-        Configure::write('App.namespace', 'TestApp');
         $Components = new ComponentCollection();
         $this->assertInstanceOf(NamespacedComponent::class, $Components->load('Namespaced'));
     }
@@ -237,7 +243,7 @@ class ComponentCollectionTest extends CakeTestCase
 
         $Components = new ComponentCollection();
         $result = $Components->load(NamespacedComponent::class, ['className' => 'Cookie']);
-        $this->assertInstanceOf('CookieComponent', $result);
+        $this->assertInstanceOf(CookieComponent::class, $result);
         $this->assertSame(['Namespaced'], $Components->loaded());
     }
 

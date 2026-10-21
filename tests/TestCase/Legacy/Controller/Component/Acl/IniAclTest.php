@@ -1,0 +1,54 @@
+<?php
+/**
+ * IniAclTest file.
+ *
+ * CakePHP(tm) : Rapid Development Framework (https://cakephp.org)
+ * Copyright (c) Cake Software Foundation, Inc. (https://cakefoundation.org)
+ *
+ * Licensed under The MIT License
+ * For full copyright and license information, please see the LICENSE.txt
+ * Redistributions of files must retain the above copyright notice.
+ *
+ * @copyright     Copyright (c) Cake Software Foundation, Inc. (https://cakefoundation.org)
+ * @link          https://cakephp.org CakePHP(tm) Project
+ * @package       Cake.Test.Case.Controller.Component.Acl
+ * @since         CakePHP(tm) v 2.0
+ * @license       https://opensource.org/licenses/mit-license.php MIT License
+ */
+
+namespace Cake\Test\TestCase\Legacy\Controller\Component\Acl;
+
+use Cake\Controller\Component\Acl\IniAcl;
+use Cake\TestSuite\CakeTestCase;
+
+/**
+ * Test case for the IniAcl implementation
+ *
+ * @package       Cake.Test.Case.Controller.Component.Acl
+ */
+class IniAclTest extends CakeTestCase
+{
+    /**
+     * testIniCheck method
+     *
+     * @return void
+     */
+    public function testCheck(): void
+    {
+        $iniFile = CORE_TESTS . DS . 'test_legacy_app' . DS . 'Config' . DS . 'acl.ini.php';
+
+        $Ini = new IniAcl();
+        $Ini->config = $Ini->readConfigFile($iniFile);
+
+        $this->assertFalse($Ini->check('admin', 'ads'));
+        $this->assertTrue($Ini->check('admin', 'posts'));
+
+        $this->assertTrue($Ini->check('jenny', 'posts'));
+        $this->assertTrue($Ini->check('jenny', 'ads'));
+
+        $this->assertTrue($Ini->check('paul', 'posts'));
+        $this->assertFalse($Ini->check('paul', 'ads'));
+
+        $this->assertFalse($Ini->check('nobody', 'comments'));
+    }
+}

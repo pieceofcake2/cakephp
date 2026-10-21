@@ -1,11 +1,5 @@
 <?php
 
-use TestApp\Controller\NamespacedController;
-use TestApp\Model\NamespacedPost;
-use TestApp\View\NamespacedView;
-use TestPluginTwo\Controller\NamespacedPluginController;
-use TestPluginTwo\Model\NamespacedPluginItem;
-
 /**
  * CakePHP(tm) : Rapid Development Framework (https://cakephp.org)
  * Copyright (c) Cake Software Foundation, Inc. (https://cakefoundation.org)
@@ -21,190 +15,40 @@ use TestPluginTwo\Model\NamespacedPluginItem;
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-/**
- * AppController class
- *
- * @package       Cake.Test.Case.Controller
- */
-class ControllerTestAppController extends Controller
-{
-    /**
-     * helpers property
-     *
-     * @var array
-     */
-    public $helpers = ['Html'];
+namespace Cake\Test\TestCase\Controller;
 
-    /**
-     * uses property
-     *
-     * @var array
-     */
-    public $uses = ['ControllerPost'];
-
-    /**
-     * components property
-     *
-     * @var array
-     */
-    public $components = ['Cookie'];
-}
-
-/**
- * ControllerPost class
- *
- * @package       Cake.Test.Case.Controller
- */
-class ControllerPost extends CakeTestModel
-{
-    /**
-     * useTable property
-     *
-     * @var string
-     */
-    public $useTable = 'posts';
-
-    /**
-     * invalidFields property
-     *
-     * @var array
-     */
-    public $invalidFields = ['name' => 'error_msg'];
-
-    /**
-     * lastQuery property
-     *
-     * @var mixed
-     */
-    public $lastQuery = null;
-
-    /**
-     * beforeFind method
-     *
-     * @param mixed $query
-     * @return void
-     */
-    public function beforeFind($query): void
-    {
-        $this->lastQuery = $query;
-    }
-
-    /**
-     * find method
-     *
-     * @param string $type
-     * @param array $options
-     * @return void
-     */
-    public function find($type = 'first', $options = []): mixed
-    {
-        if ($type === 'popular') {
-            $conditions = [$this->name . '.' . $this->primaryKey . ' > ' => '1'];
-            $options = Hash::merge($options, compact('conditions'));
-
-            return parent::find('all', $options);
-        }
-
-        return parent::find($type, $options);
-    }
-}
-
-/**
- * ControllerPostsController class
- *
- * @package       Cake.Test.Case.Controller
- */
-class ControllerCommentsController extends ControllerTestAppController
-{
-    protected $_mergeParent = 'ControllerTestAppController';
-}
-
-/**
- * ControllerComment class
- *
- * @package       Cake.Test.Case.Controller
- */
-class ControllerComment extends CakeTestModel
-{
-    /**
-     * name property
-     *
-     * @var string
-     */
-    public $name = 'Comment';
-
-    /**
-     * useTable property
-     *
-     * @var string
-     */
-    public $useTable = 'comments';
-
-    /**
-     * data property
-     *
-     * @var array
-     */
-    public $data = ['name' => 'Some Name'];
-
-    /**
-     * alias property
-     *
-     * @var string
-     */
-    public $alias = 'ControllerComment';
-}
-
-/**
- * ControllerAlias class
- *
- * @package       Cake.Test.Case.Controller
- */
-class ControllerAlias extends CakeTestModel
-{
-    /**
-     * alias property
-     *
-     * @var string
-     */
-    public $alias = 'ControllerSomeAlias';
-
-    /**
-     * useTable property
-     *
-     * @var string
-     */
-    public $useTable = 'posts';
-}
-
-/**
- * NameTest class
- *
- * @package       Cake.Test.Case.Controller
- */
-class NameTest extends CakeTestModel
-{
-    /**
-     * name property
-     *
-     * @var string
-     */
-    public $name = 'Name';
-
-    /**
-     * useTable property
-     *
-     * @var string
-     */
-    public $useTable = 'comments';
-
-    /**
-     * alias property
-     *
-     * @var string
-     */
-    public $alias = 'Name';
-}
+use Cake\Controller\Component\SecurityComponent;
+use Cake\Controller\ComponentCollection;
+use Cake\Controller\Controller;
+use Cake\Core\App;
+use Cake\Core\CakePlugin;
+use Cake\Core\Configure;
+use Cake\Error\MissingActionException;
+use Cake\Error\PrivateActionException;
+use Cake\Event\CakeEvent;
+use Cake\Event\CakeEventManager;
+use Cake\Network\CakeRequest;
+use Cake\Network\CakeResponse;
+use Cake\Routing\Router;
+use Cake\TestSuite\CakeTestCase;
+use Cake\Utility\ClassRegistry;
+use Cake\Utility\Hash;
+use Cake\View\JsonView;
+use ReflectionMethod;
+use RuntimeException;
+use TestApp\Controller\AnotherTestController;
+use TestApp\Controller\ControllerCommentsController;
+use TestApp\Controller\ControllerTestAppController;
+use TestApp\Controller\NamespacedController;
+use TestApp\Model\Comment;
+use TestApp\Model\ControllerComment;
+use TestApp\Model\ControllerPost;
+use TestApp\Model\NamespacedPost;
+use TestApp\View\NamespacedView;
+use TestPlugin\Controller\TestPluginController;
+use TestPlugin\Model\TestPluginPost;
+use TestTwoPlugin\Controller\NamespacedPluginController;
+use TestTwoPlugin\Model\NamespacedPluginItem;
 
 /**
  * TestController class
@@ -230,11 +74,11 @@ class TestController extends ControllerTestAppController
     /**
      * uses property
      *
-     * @var array
+     * @var array|bool|null
      */
     public $uses = ['ControllerComment', 'ControllerAlias'];
 
-    protected $_mergeParent = 'ControllerTestAppController';
+    protected $_mergeParent = ControllerTestAppController::class;
 
     /**
      * index method
@@ -293,102 +137,6 @@ class TestController extends ControllerTestAppController
 }
 
 /**
- * TestComponent class
- *
- * @package       Cake.Test.Case.Controller
- */
-class TestComponent extends CakeObject
-{
-    /**
-     * beforeRedirect method
-     *
-     * @return void
-     */
-    public function beforeRedirect(): void
-    {
-    }
-
-    /**
-     * initialize method
-     *
-     * @return void
-     */
-    public function initialize(Controller $controller): void
-    {
-    }
-
-    /**
-     * startup method
-     *
-     * @return void
-     */
-    public function startup(Controller $controller): void
-    {
-    }
-
-    /**
-     * shutdown method
-     *
-     * @return void
-     */
-    public function shutdown(Controller $controller): void
-    {
-    }
-
-    /**
-     * beforeRender callback
-     *
-     * @return void
-     */
-    public function beforeRender(Controller $controller): mixed
-    {
-        if ($this->viewclass) {
-            $controller->viewClass = $this->viewclass;
-        }
-
-        return null;
-    }
-}
-
-class Test2Component extends TestComponent
-{
-    public $model;
-
-    public function __construct(ComponentCollection $collection, $settings)
-    {
-        $this->controller = $collection->getController();
-        $this->model = $this->controller->modelClass;
-    }
-
-    public function beforeRender(Controller $controller): mixed
-    {
-        return false;
-    }
-}
-
-/**
- * AnotherTestController class
- *
- * @package       Cake.Test.Case.Controller
- */
-class AnotherTestController extends ControllerTestAppController
-{
-    /**
-     * uses property
-     *
-     * @var array
-     */
-    public $uses = false;
-
-    /**
-     * merge parent
-     *
-     * @var string
-     */
-    protected $_mergeParent = 'ControllerTestAppController';
-}
-
-/**
  * ControllerTest class
  *
  * @package       Cake.Test.Case.Controller
@@ -398,7 +146,7 @@ class ControllerTest extends CakeTestCase
     /**
      * fixtures property
      *
-     * @var array
+     * @var array<string>
      */
     public $fixtures = [
         'core.post',
@@ -413,6 +161,7 @@ class ControllerTest extends CakeTestCase
     public function setUp(): void
     {
         parent::setUp();
+        Configure::write('App.namespace', 'TestApp');
         App::objects('plugin', null, false);
         App::build();
         Router::reload();
@@ -438,14 +187,14 @@ class ControllerTest extends CakeTestCase
     public function testLoadModel(): void
     {
         $request = new CakeRequest('controller_posts/index');
-        $response = $this->getMock('CakeResponse');
+        $response = $this->getMock(CakeResponse::class);
         $Controller = new Controller($request, $response);
 
         $this->assertFalse(isset($Controller->ControllerPost));
 
         $result = $Controller->loadModel('ControllerPost');
         $this->assertTrue($result);
-        $this->assertInstanceOf('ControllerPost', $Controller->ControllerPost);
+        $this->assertInstanceOf(ControllerPost::class, $Controller->ControllerPost);
         $this->assertContains('ControllerPost', $Controller->uses);
     }
 
@@ -457,12 +206,12 @@ class ControllerTest extends CakeTestCase
     public function testLoadModelUsesTrue(): void
     {
         $request = new CakeRequest('controller_posts/index');
-        $response = $this->getMock('CakeResponse');
+        $response = $this->getMock(CakeResponse::class);
         $Controller = new Controller($request, $response);
         $Controller->uses = true;
 
         $Controller->loadModel('ControllerPost');
-        $this->assertInstanceOf('ControllerPost', $Controller->ControllerPost);
+        $this->assertInstanceOf(ControllerPost::class, $Controller->ControllerPost);
         $this->assertContains('ControllerPost', $Controller->uses);
     }
 
@@ -474,25 +223,25 @@ class ControllerTest extends CakeTestCase
     public function testLoadModelInPlugins(): void
     {
         App::build([
-            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS],
-            'Controller' => [CORE_TESTS . DS . 'test_app' . DS . 'Controller' . DS],
-            'Model' => [CORE_TESTS . DS . 'test_app' . DS . 'Model' . DS],
+            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
+            'Controller' => [CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'Controller' . DS],
+            'Model' => [CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'Model' . DS],
         ]);
         CakePlugin::load('TestPlugin');
 
-        $Controller = new TestPluginController();
-        $Controller->plugin = 'TestPlugin';
-        $Controller->uses = false;
+        $controller = new TestPluginController();
+        $controller->plugin = 'TestPlugin';
+        $controller->uses = false;
 
-        $this->assertFalse(isset($Controller->Comment));
+        $this->assertFalse(isset($controller->Comment));
 
-        $result = $Controller->loadModel('Comment');
+        $result = $controller->loadModel('Comment');
         $this->assertTrue($result);
-        $this->assertInstanceOf('Comment', $Controller->Comment);
-        $this->assertTrue(in_array('Comment', $Controller->uses));
+        $this->assertInstanceOf(Comment::class, $controller->Comment);
+        $this->assertTrue(in_array('Comment', $controller->uses));
 
         ClassRegistry::flush();
-        unset($Controller);
+        unset($controller);
     }
 
     /**
@@ -504,25 +253,25 @@ class ControllerTest extends CakeTestCase
     {
         $request = new CakeRequest('controller_posts/index');
 
-        $Controller = new Controller($request);
-        $Controller->uses = ['ControllerPost', 'ControllerComment'];
-        $Controller->constructClasses();
-        $this->assertInstanceOf('ControllerPost', $Controller->ControllerPost);
-        $this->assertInstanceOf('ControllerComment', $Controller->ControllerComment);
+        $controller = new Controller($request);
+        $controller->uses = ['ControllerPost', 'ControllerComment'];
+        $controller->constructClasses();
+        $this->assertInstanceOf(ControllerPost::class, $controller->ControllerPost);
+        $this->assertInstanceOf(ControllerComment::class, $controller->ControllerComment);
 
-        $this->assertEquals('Comment', $Controller->ControllerComment->name);
+        $this->assertEquals('Comment', $controller->ControllerComment->name);
 
-        unset($Controller);
+        unset($controller);
 
-        App::build(['Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS]]);
+        App::build(['Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS]]);
         CakePlugin::load('TestPlugin');
 
-        $Controller = new Controller($request);
-        $Controller->uses = ['TestPlugin.TestPluginPost'];
-        $Controller->constructClasses();
+        $controller = new Controller($request);
+        $controller->uses = ['TestPlugin.TestPluginPost'];
+        $controller->constructClasses();
 
-        $this->assertTrue(isset($Controller->TestPluginPost));
-        $this->assertInstanceOf('TestPluginPost', $Controller->TestPluginPost);
+        $this->assertTrue(isset($controller->TestPluginPost));
+        $this->assertInstanceOf(TestPluginPost::class, $controller->TestPluginPost);
     }
 
     /**
@@ -532,14 +281,14 @@ class ControllerTest extends CakeTestCase
      */
     public function testConstructClassesWithComponents(): void
     {
-        $Controller = new TestPluginController(new CakeRequest(), new CakeResponse());
-        $Controller->uses = ['NameTest'];
-        $Controller->components[] = 'Test2';
+        $controller = new TestPluginController(new CakeRequest(), new CakeResponse());
+        $controller->uses = ['NameTest'];
+        $controller->components[] = 'Test2';
 
-        $Controller->constructClasses();
-        $this->assertEquals('NameTest', $Controller->Test2->model);
-        $this->assertEquals('Name', $Controller->NameTest->name);
-        $this->assertEquals('Name', $Controller->NameTest->alias);
+        $controller->constructClasses();
+        $this->assertEquals('NameTest', $controller->Test2->model);
+        $this->assertEquals('Name', $controller->NameTest->name);
+        $this->assertEquals('Name', $controller->NameTest->alias);
     }
 
     /**
@@ -550,14 +299,14 @@ class ControllerTest extends CakeTestCase
     public function testAliasName(): void
     {
         $request = new CakeRequest('controller_posts/index');
-        $Controller = new Controller($request);
-        $Controller->uses = ['NameTest'];
-        $Controller->constructClasses();
+        $controller = new Controller($request);
+        $controller->uses = ['NameTest'];
+        $controller->constructClasses();
 
-        $this->assertEquals('Name', $Controller->NameTest->name);
-        $this->assertEquals('Name', $Controller->NameTest->alias);
+        $this->assertEquals('Name', $controller->NameTest->name);
+        $this->assertEquals('Name', $controller->NameTest->alias);
 
-        unset($Controller);
+        unset($controller);
     }
 
     /**
@@ -575,34 +324,39 @@ class ControllerTest extends CakeTestCase
         App::build([
             'View' => [CORE_ROOT . DS . 'templates' . DS],
         ], App::RESET);
-        $Controller = new Controller($request, $this->getMock('CakeResponse', ['_sendHeader']));
+        $Controller = new Controller($request, $this->getMock(CakeResponse::class, ['_sendHeader']));
         $Controller->flash('this should work', '/flash');
         $result = $Controller->response->body();
 
-        $expected = '<!DOCTYPE html>
-		<html>
-		<head>
-		<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-		<title>this should work</title>
-		<style><!--
-		P { text-align:center; font:bold 1.1em sans-serif }
-		A { color:#444; text-decoration:none }
-		A:HOVER { text-decoration: underline; color:#44E }
-		--></style>
-		</head>
-		<body>
-		<p><a href="/flash">this should work</a></p>
-		</body>
-		</html>';
+        $expected = <<<EXPECTED
+            <!DOCTYPE html>
+            <html>
+            <head>
+            <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+            <title>this should work</title>
+            <style><!--
+            P { text-align:center; font:bold 1.1em sans-serif }
+            A { color:#444; text-decoration:none }
+            A:HOVER { text-decoration: underline; color:#44E }
+            --></style>
+            </head>
+            <body>
+            <p><a href="/flash">this should work</a></p>
+            </body>
+            </html>
+            EXPECTED;
         $result = str_replace(["\t", "\r\n", "\n"], '', $result);
         $expected = str_replace(["\t", "\r\n", "\n"], '', $expected);
         $this->assertEquals($expected, $result);
 
         App::build([
-            'View' => [CORE_TESTS . DS . 'test_app' . DS . 'View' . DS],
+            'View' => [
+                CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'View' . DS,
+                CORE_TESTS . DS . 'test_app' . DS . 'templates' . DS,
+            ],
         ]);
         $Controller = new Controller($request);
-        $Controller->response = $this->getMock('CakeResponse', ['_sendHeader']);
+        $Controller->response = $this->getMock(CakeResponse::class, ['_sendHeader']);
         $Controller->flash('this should work', '/flash', 1, 'ajax2');
         $result = $Controller->response->body();
         $this->assertMatchesRegularExpression('/Ajax!/', $result);
@@ -659,45 +413,48 @@ class ControllerTest extends CakeTestCase
     public function testRender(): void
     {
         App::build([
-            'View' => [CORE_TESTS . DS . 'test_app' . DS . 'View' . DS],
+            'View' => [
+                CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'View' . DS,
+                CORE_TESTS . DS . 'test_app' . DS . 'templates' . DS,
+            ],
         ], App::RESET);
         ClassRegistry::flush();
         $request = new CakeRequest('controller_posts/index');
         $request->params['action'] = 'index';
 
-        $Controller = new Controller($request, new CakeResponse());
-        $Controller->viewPath = 'Posts';
+        $controller = new Controller($request, new CakeResponse());
+        $controller->viewPath = 'Posts';
 
-        $result = $Controller->render('index');
+        $result = $controller->render('index');
         $this->assertMatchesRegularExpression('/posts index/', (string)$result);
 
-        $Controller->view = 'index';
-        $result = $Controller->render();
+        $controller->view = 'index';
+        $result = $controller->render();
         $this->assertMatchesRegularExpression('/posts index/', (string)$result);
 
-        $result = $Controller->render('/Elements/test_element');
+        $result = $controller->render('/Elements/test_element');
         $this->assertMatchesRegularExpression('/this is the test element/', (string)$result);
-        $Controller->view = null;
+        $controller->view = null;
 
-        $Controller = new TestController($request, new CakeResponse());
-        $Controller->uses = ['ControllerAlias', 'TestPlugin.ControllerComment', 'ControllerPost'];
-        $Controller->helpers = ['Html'];
-        $Controller->constructClasses();
-        $Controller->ControllerComment->validationErrors = ['title' => 'tooShort'];
-        $expected = $Controller->ControllerComment->validationErrors;
+        $controller = new TestController($request, new CakeResponse());
+        $controller->uses = ['ControllerAlias', 'TestPlugin.ControllerComment', 'ControllerPost'];
+        $controller->helpers = ['Html'];
+        $controller->constructClasses();
+        $controller->ControllerComment->validationErrors = ['title' => 'tooShort'];
+        $expected = $controller->ControllerComment->validationErrors;
 
-        $Controller->viewPath = 'Posts';
-        $Controller->render('index');
-        $View = $Controller->View;
-        $this->assertTrue(isset($View->validationErrors['ControllerComment']));
-        $this->assertEquals($expected, $View->validationErrors['ControllerComment']);
+        $controller->viewPath = 'Posts';
+        $controller->render('index');
+        $view = $controller->View;
+        $this->assertTrue(isset($view->validationErrors['ControllerComment']));
+        $this->assertEquals($expected, $view->validationErrors['ControllerComment']);
 
         $expectedModels = [
             'ControllerAlias' => ['plugin' => null, 'className' => 'ControllerAlias'],
             'ControllerComment' => ['plugin' => 'TestPlugin', 'className' => 'ControllerComment'],
             'ControllerPost' => ['plugin' => null, 'className' => 'ControllerPost'],
         ];
-        $this->assertEquals($expectedModels, $Controller->request->params['models']);
+        $this->assertEquals($expectedModels, $controller->request->params['models']);
 
         ClassRegistry::flush();
         App::build();
@@ -712,10 +469,11 @@ class ControllerTest extends CakeTestCase
     {
         App::build([
             'View' => [
-                CORE_TESTS . DS . 'test_app' . DS . 'View' . DS,
+                CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'View' . DS,
+                CORE_TESTS . DS . 'test_app' . DS . 'templates' . DS,
             ],
         ], true);
-        $Controller = new Controller($this->getMock('CakeRequest'), new CakeResponse());
+        $Controller = new Controller($this->getMock(CakeRequest::class), new CakeResponse());
         $Controller->uses = [];
         $Controller->components = ['Test'];
         $Controller->constructClasses();
@@ -734,12 +492,12 @@ class ControllerTest extends CakeTestCase
      */
     public function testComponentCancelRender(): void
     {
-        $Controller = new Controller($this->getMock('CakeRequest'), new CakeResponse());
+        $Controller = new Controller($this->getMock(CakeRequest::class), new CakeResponse());
         $Controller->uses = [];
         $Controller->components = ['Test2'];
         $Controller->constructClasses();
         $result = $Controller->render('index');
-        $this->assertInstanceOf('CakeResponse', $result);
+        $this->assertInstanceOf(CakeResponse::class, $result);
     }
 
     /**
@@ -751,17 +509,17 @@ class ControllerTest extends CakeTestCase
     {
         $request = new CakeRequest('controller_posts/index');
 
-        $Controller = new Controller($request, $this->getMock('CakeResponse'));
-        $this->assertTrue($Controller->beforeScaffold(''));
-        $this->assertTrue($Controller->afterScaffoldSave(''));
-        $this->assertTrue($Controller->afterScaffoldSaveError(''));
-        $this->assertFalse($Controller->scaffoldError(''));
+        $controller = new Controller($request, $this->getMock(CakeResponse::class));
+        $this->assertTrue($controller->beforeScaffold(''));
+        $this->assertTrue($controller->afterScaffoldSave(''));
+        $this->assertTrue($controller->afterScaffoldSaveError(''));
+        $this->assertFalse($controller->scaffoldError(''));
     }
 
     /**
      * Generates status codes for redirect test.
      *
-     * @return void
+     * @return array
      */
     public static function statusCodeProvider(): mixed
     {
@@ -785,18 +543,18 @@ class ControllerTest extends CakeTestCase
      */
     public function testRedirectByCode($code, $msg): void
     {
-        $Controller = new Controller(null);
-        $Controller->response = $this->getMock('CakeResponse', ['header', 'statusCode']);
+        $controller = new Controller(null);
+        $controller->response = $this->getMock(CakeResponse::class, ['header', 'statusCode']);
 
-        $Controller->Components = $this->getMock('ComponentCollection', ['trigger']);
+        $controller->Components = $this->getMock(ComponentCollection::class, ['trigger']);
 
-        $Controller->response->expects($this->once())->method('statusCode')
+        $controller->response->expects($this->once())->method('statusCode')
             ->with($code);
-        $Controller->response->expects($this->once())->method('header')
+        $controller->response->expects($this->once())->method('header')
             ->with('Location', 'https://cakephp.org');
 
-        $Controller->redirect('https://cakephp.org', (int)$code, false);
-        $this->assertFalse($Controller->autoRender);
+        $controller->redirect('https://cakephp.org', (int)$code, false);
+        $this->assertFalse($controller->autoRender);
     }
 
     /**
@@ -807,19 +565,19 @@ class ControllerTest extends CakeTestCase
      */
     public function testRedirectByMessage($code, $msg): void
     {
-        $Controller = new Controller(null);
-        $Controller->response = $this->getMock('CakeResponse', ['header', 'statusCode']);
+        $controller = new Controller(null);
+        $controller->response = $this->getMock(CakeResponse::class, ['header', 'statusCode']);
 
-        $Controller->Components = $this->getMock('ComponentCollection', ['trigger']);
+        $controller->Components = $this->getMock(ComponentCollection::class, ['trigger']);
 
-        $Controller->response->expects($this->once())->method('statusCode')
+        $controller->response->expects($this->once())->method('statusCode')
             ->with($code);
 
-        $Controller->response->expects($this->once())->method('header')
+        $controller->response->expects($this->once())->method('header')
             ->with('Location', 'https://cakephp.org');
 
-        $Controller->redirect('https://cakephp.org', $msg, false);
-        $this->assertFalse($Controller->autoRender);
+        $controller->redirect('https://cakephp.org', $msg, false);
+        $this->assertFalse($controller->autoRender);
     }
 
     /**
@@ -852,20 +610,20 @@ class ControllerTest extends CakeTestCase
      */
     public function testRedirectTriggeringComponentsReturnNull(): void
     {
-        $Controller = new Controller(null);
-        $Controller->response = $this->getMock('CakeResponse', ['header', 'statusCode']);
-        $Controller->Components = $this->getMock('ComponentCollection', ['trigger']);
+        $controller = new Controller(null);
+        $controller->response = $this->getMock(CakeResponse::class, ['header', 'statusCode']);
+        $controller->Components = $this->getMock(ComponentCollection::class, ['trigger']);
 
-        $Controller->Components->expects($this->once())->method('trigger')
+        $controller->Components->expects($this->once())->method('trigger')
             ->will($this->returnValue(null));
 
-        $Controller->response->expects($this->once())->method('statusCode')
+        $controller->response->expects($this->once())->method('statusCode')
             ->with(301);
 
-        $Controller->response->expects($this->once())->method('header')
+        $controller->response->expects($this->once())->method('header')
             ->with('Location', 'https://cakephp.org');
 
-        $Controller->redirect('https://cakephp.org', 301, false);
+        $controller->redirect('https://cakephp.org', 301, false);
     }
 
     /**
@@ -875,20 +633,20 @@ class ControllerTest extends CakeTestCase
      */
     public function testRedirectBeforeRedirectModifyingParams(): void
     {
-        $Controller = new Controller(null);
-        $Controller->response = $this->getMock('CakeResponse', ['header', 'statusCode']);
-        $Controller->Components = $this->getMock('ComponentCollection', ['trigger']);
+        $controller = new Controller(null);
+        $controller->response = $this->getMock(CakeResponse::class, ['header', 'statusCode']);
+        $controller->Components = $this->getMock(ComponentCollection::class, ['trigger']);
 
-        $Controller->Components->expects($this->once())->method('trigger')
+        $controller->Components->expects($this->once())->method('trigger')
             ->will($this->returnValue(['https://book.cakephp.org']));
 
-        $Controller->response->expects($this->once())->method('statusCode')
+        $controller->response->expects($this->once())->method('statusCode')
             ->with(301);
 
-        $Controller->response->expects($this->once())->method('header')
+        $controller->response->expects($this->once())->method('header')
             ->with('Location', 'https://book.cakephp.org');
 
-        $Controller->redirect('https://cakephp.org', 301, false);
+        $controller->redirect('https://cakephp.org', 301, false);
     }
 
     /**
@@ -898,9 +656,9 @@ class ControllerTest extends CakeTestCase
      */
     public function testRedirectBeforeRedirectModifyingParamsArrayReturn(): void
     {
-        $Controller = $this->getMock('Controller', ['header', '_stop']);
-        $Controller->response = $this->getMock('CakeResponse');
-        $Controller->Components = $this->getMock('ComponentCollection', ['trigger']);
+        $controller = $this->getMock(Controller::class, ['header', '_stop']);
+        $controller->response = $this->getMock(CakeResponse::class);
+        $controller->Components = $this->getMock(ComponentCollection::class, ['trigger']);
 
         $return = [
             [
@@ -912,17 +670,17 @@ class ControllerTest extends CakeTestCase
                 'url' => 'http://example.com/test/2',
             ],
         ];
-        $Controller->Components->expects($this->once())->method('trigger')
+        $controller->Components->expects($this->once())->method('trigger')
             ->will($this->returnValue($return));
 
-        $Controller->response->expects($this->once())->method('header')
+        $controller->response->expects($this->once())->method('header')
             ->with('Location', 'http://example.com/test/2');
 
-        $Controller->response->expects($this->once())->method('statusCode')
+        $controller->response->expects($this->once())->method('statusCode')
             ->with(302);
 
-        $Controller->expects($this->never())->method('_stop');
-        $Controller->redirect('https://cakephp.org', 301);
+        $controller->expects($this->never())->method('_stop');
+        $controller->redirect('https://cakephp.org', 301);
     }
 
     /**
@@ -932,16 +690,16 @@ class ControllerTest extends CakeTestCase
      */
     public function testRedirectBeforeRedirectInController(): void
     {
-        $Controller = $this->getMock('Controller', ['_stop', 'beforeRedirect']);
-        $Controller->response = $this->getMock('CakeResponse', ['header']);
-        $Controller->Components = $this->getMock('ComponentCollection', ['trigger']);
+        $controller = $this->getMock(Controller::class, ['_stop', 'beforeRedirect']);
+        $controller->response = $this->getMock(CakeResponse::class, ['header']);
+        $controller->Components = $this->getMock(ComponentCollection::class, ['trigger']);
 
-        $Controller->expects($this->once())->method('beforeRedirect')
+        $controller->expects($this->once())->method('beforeRedirect')
             ->with('https://cakephp.org')
             ->will($this->returnValue(false));
-        $Controller->response->expects($this->never())->method('header');
-        $Controller->expects($this->never())->method('_stop');
-        $Controller->redirect('https://cakephp.org');
+        $controller->response->expects($this->never())->method('header');
+        $controller->expects($this->never())->method('_stop');
+        $controller->redirect('https://cakephp.org');
     }
 
     /**
@@ -951,11 +709,11 @@ class ControllerTest extends CakeTestCase
      */
     public function testRedirectBeforeRedirectInControllerWithArray(): void
     {
-        $Controller = $this->getMock('Controller', ['_stop', 'beforeRedirect']);
-        $Controller->response = $this->getMock('CakeResponse', ['header']);
-        $Controller->Components = $this->getMock('ComponentCollection', ['trigger']);
+        $controller = $this->getMock(Controller::class, ['_stop', 'beforeRedirect']);
+        $controller->response = $this->getMock(CakeResponse::class, ['header']);
+        $controller->Components = $this->getMock(ComponentCollection::class, ['trigger']);
 
-        $Controller->expects($this->once())
+        $controller->expects($this->once())
             ->method('beforeRedirect')
             ->with('https://cakephp.org', null, true)
             ->will($this->returnValue([
@@ -964,15 +722,15 @@ class ControllerTest extends CakeTestCase
                 'exit' => true,
             ]));
 
-        $Controller->response->expects($this->exactly(2))
+        $controller->response->expects($this->exactly(2))
             ->method('header')
             ->withConsecutive(
                 ['Location', 'http://example.org'],
                 ['Content-Type', 'text/html; charset=UTF-8'],
             );
 
-        $Controller->expects($this->once())->method('_stop');
-        $Controller->redirect('https://cakephp.org');
+        $controller->expects($this->once())->method('_stop');
+        $controller->redirect('https://cakephp.org');
     }
 
     /**
@@ -984,54 +742,54 @@ class ControllerTest extends CakeTestCase
     {
         $request = new CakeRequest('controller_posts/index');
 
-        $TestController = new TestController($request);
-        $TestController->constructClasses();
+        $testController = new TestController($request);
+        $testController->constructClasses();
 
-        $testVars = get_class_vars('TestController');
-        $appVars = get_class_vars('ControllerTestAppController');
+        $testVars = get_class_vars(TestController::class);
+        $appVars = get_class_vars(ControllerTestAppController::class);
 
         $components = is_array($appVars['components'])
-                        ? array_merge($appVars['components'], $testVars['components'])
-                        : $testVars['components'];
+            ? array_merge($appVars['components'], $testVars['components'])
+            : $testVars['components'];
         if (!in_array('Session', $components)) {
             $components[] = 'Session';
         }
         $helpers = is_array($appVars['helpers'])
-                    ? array_merge($appVars['helpers'], $testVars['helpers'])
-                    : $testVars['helpers'];
+            ? array_merge($appVars['helpers'], $testVars['helpers'])
+            : $testVars['helpers'];
         $uses = is_array($appVars['uses'])
-                    ? array_merge($appVars['uses'], $testVars['uses'])
-                    : $testVars['uses'];
+            ? array_merge($appVars['uses'], $testVars['uses'])
+            : $testVars['uses'];
 
-        $this->assertEquals(0, count(array_diff_key($TestController->helpers, array_flip($helpers))));
-        $this->assertEquals(0, count(array_diff($TestController->uses, $uses)));
-        $this->assertEquals(count(array_diff_assoc(Hash::normalize($TestController->components), Hash::normalize($components))), 0);
+        $this->assertEquals(0, count(array_diff_key($testController->helpers, array_flip($helpers))));
+        $this->assertEquals(0, count(array_diff($testController->uses, $uses)));
+        $this->assertEquals(count(array_diff_assoc(Hash::normalize($testController->components), Hash::normalize($components))), 0);
 
         $expected = ['ControllerComment', 'ControllerAlias', 'ControllerPost'];
-        $this->assertEquals($expected, $TestController->uses, '$uses was merged incorrectly, ControllerTestAppController models should be last.');
+        $this->assertEquals($expected, $testController->uses, '$uses was merged incorrectly, ControllerTestAppController models should be last.');
 
-        $TestController = new AnotherTestController($request);
-        $TestController->constructClasses();
+        $testController = new AnotherTestController($request);
+        $testController->constructClasses();
 
-        $appVars = get_class_vars('ControllerTestAppController');
-        $testVars = get_class_vars('AnotherTestController');
+        $appVars = get_class_vars(ControllerTestAppController::class);
+        $testVars = get_class_vars(AnotherTestController::class);
 
         $this->assertTrue(in_array('ControllerPost', $appVars['uses']));
         $this->assertFalse($testVars['uses']);
 
-        $this->assertFalse(property_exists($TestController, 'ControllerPost'));
+        $this->assertFalse(property_exists($testController, 'ControllerPost'));
 
-        $TestController = new ControllerCommentsController($request);
-        $TestController->constructClasses();
+        $testController = new ControllerCommentsController($request);
+        $testController->constructClasses();
 
-        $appVars = get_class_vars('ControllerTestAppController');
-        $testVars = get_class_vars('ControllerCommentsController');
+        $appVars = get_class_vars(ControllerTestAppController::class);
+        $testVars = get_class_vars(ControllerCommentsController::class);
 
         $this->assertTrue(in_array('ControllerPost', $appVars['uses']));
         $this->assertEquals(['ControllerPost'], $testVars['uses']);
 
-        $this->assertTrue(isset($TestController->ControllerPost));
-        $this->assertTrue(isset($TestController->ControllerComment));
+        $this->assertTrue(isset($testController->ControllerPost));
+        $this->assertTrue(isset($testController->ControllerComment));
     }
 
     /**
@@ -1043,12 +801,12 @@ class ControllerTest extends CakeTestCase
     {
         $request = new CakeRequest('controller_posts/index');
 
-        $TestController = new TestController($request);
+        $testController = new TestController($request);
 
         $expected = ['foo'];
-        $TestController->components = ['Cookie' => $expected];
-        $TestController->constructClasses();
-        $this->assertEquals($expected, $TestController->components['Cookie']);
+        $testController->components = ['Cookie' => $expected];
+        $testController->constructClasses();
+        $this->assertEquals($expected, $testController->components['Cookie']);
     }
 
     /**
@@ -1061,13 +819,13 @@ class ControllerTest extends CakeTestCase
     {
         $request = new CakeRequest('controller_posts/index');
 
-        $Controller = new Controller($request);
-        $Controller->components = [];
-        $Controller->uses = [];
-        $Controller->constructClasses();
+        $controller = new Controller($request);
+        $controller->components = [];
+        $controller->uses = [];
+        $controller->constructClasses();
 
-        $this->assertFalse(isset($Controller->Session));
-        $this->assertFalse(isset($Controller->Flash));
+        $this->assertFalse(isset($controller->Session));
+        $this->assertFalse(isset($controller->Flash));
     }
 
     /**
@@ -1077,33 +835,33 @@ class ControllerTest extends CakeTestCase
      */
     public function testReferer(): void
     {
-        $request = $this->getMock('CakeRequest');
+        $request = $this->getMock(CakeRequest::class);
 
         $request->expects($this->any())->method('referer')
             ->with(true)
             ->will($this->returnValue('/posts/index'));
 
-        $Controller = new Controller($request);
-        $result = $Controller->referer(null, true);
+        $controller = new Controller($request);
+        $result = $controller->referer(null, true);
         $this->assertEquals('/posts/index', $result);
 
-        $Controller = new Controller($request);
+        $controller = new Controller($request);
         $request->setReturnValue('referer', '/', [true]);
-        $result = $Controller->referer(['controller' => 'posts', 'action' => 'index'], true);
+        $result = $controller->referer(['controller' => 'posts', 'action' => 'index'], true);
         $this->assertEquals('/posts/index', $result);
 
-        $request = $this->getMock('CakeRequest');
+        $request = $this->getMock(CakeRequest::class);
 
         $request->expects($this->any())->method('referer')
             ->with(false)
             ->will($this->returnValue('http://localhost/posts/index'));
 
-        $Controller = new Controller($request);
-        $result = $Controller->referer();
+        $controller = new Controller($request);
+        $result = $controller->referer();
         $this->assertEquals('http://localhost/posts/index', $result);
 
-        $Controller = new Controller(null);
-        $result = $Controller->referer();
+        $controller = new Controller(null);
+        $result = $controller->referer();
         $this->assertEquals('/', $result);
     }
 
@@ -1116,7 +874,7 @@ class ControllerTest extends CakeTestCase
      */
     public function testRefererSlash(): void
     {
-        $request = $this->getMock('CakeRequest', ['referer']);
+        $request = $this->getMock(CakeRequest::class, ['referer']);
         $request->base = '/base';
         $request->expects($this->any())
             ->method('referer')
@@ -1141,12 +899,12 @@ class ControllerTest extends CakeTestCase
     {
         $request = new CakeRequest('controller_posts/index');
 
-        $TestController = new TestController($request);
-        $TestController->setAction('view', 1, 2);
+        $testController = new TestController($request);
+        $testController->setAction('view', 1, 2);
         $expected = ['testId' => 1, 'test2Id' => 2];
-        $this->assertSame($expected, $TestController->request->data);
-        $this->assertSame('view', $TestController->request->params['action']);
-        $this->assertSame('view', $TestController->view);
+        $this->assertSame($expected, $testController->request->data);
+        $this->assertSame('view', $testController->request->params['action']);
+        $this->assertSame('view', $testController->view);
     }
 
     /**
@@ -1159,20 +917,20 @@ class ControllerTest extends CakeTestCase
         ClassRegistry::flush();
         $request = new CakeRequest('controller_posts/index');
 
-        $TestController = new TestController($request);
-        $TestController->constructClasses();
-        $this->assertFalse($TestController->validateErrors());
-        $this->assertEquals(0, $TestController->validate());
+        $testController = new TestController($request);
+        $testController->constructClasses();
+        $this->assertFalse($testController->validateErrors());
+        $this->assertEquals(0, $testController->validate());
 
-        $TestController->ControllerComment->invalidate('some_field', 'error_message');
-        $TestController->ControllerComment->invalidate('some_field2', 'error_message2');
+        $testController->ControllerComment->invalidate('some_field', 'error_message');
+        $testController->ControllerComment->invalidate('some_field2', 'error_message2');
 
-        $comment = new ControllerComment($request);
+        $comment = new ControllerComment();
         $comment->set('someVar', 'data');
-        $result = $TestController->validateErrors($comment);
+        $result = $testController->validateErrors($comment);
         $expected = ['some_field' => ['error_message'], 'some_field2' => ['error_message2']];
         $this->assertSame($expected, $result);
-        $this->assertEquals(2, $TestController->validate($comment));
+        $this->assertEquals(2, $testController->validate($comment));
     }
 
     /**
@@ -1183,12 +941,12 @@ class ControllerTest extends CakeTestCase
     public function testValidateErrorsOnArbitraryModels(): void
     {
         Configure::write('Config.language', 'eng');
-        $TestController = new TestController();
+        $testController = new TestController();
 
-        $Post = new ControllerPost();
-        $Post->validate = ['title' => 'notBlank'];
-        $Post->set('title', '');
-        $result = $TestController->validateErrors($Post);
+        $post = new ControllerPost();
+        $post->validate = ['title' => 'notBlank'];
+        $post->set('title', '');
+        $result = $testController->validateErrors($post);
 
         $expected = ['title' => ['This field cannot be left blank']];
         $this->assertEquals($expected, $result);
@@ -1203,7 +961,7 @@ class ControllerTest extends CakeTestCase
     {
         $request = new CakeRequest('controller_posts/index');
 
-        $Controller = new Controller($request);
+        $controller = new Controller($request);
 
         $data = [
             'Model1' => ['field1' => '23'],
@@ -1215,11 +973,11 @@ class ControllerTest extends CakeTestCase
             'Model2.field2' => 'string',
             'Model3.field3' => '23',
         ];
-        $result = $Controller->postConditions($data);
+        $result = $controller->postConditions($data);
         $this->assertSame($expected, $result);
 
         $data = [];
-        $Controller->data = [
+        $controller->data = [
             'Model1' => ['field1' => '23'],
             'Model2' => ['field2' => 'string'],
             'Model3' => ['field3' => '23'],
@@ -1229,16 +987,16 @@ class ControllerTest extends CakeTestCase
             'Model2.field2' => 'string',
             'Model3.field3' => '23',
         ];
-        $result = $Controller->postConditions($data);
+        $result = $controller->postConditions($data);
         $this->assertSame($expected, $result);
 
         $data = [];
-        $Controller->data = [];
-        $result = $Controller->postConditions($data);
+        $controller->data = [];
+        $result = $controller->postConditions($data);
         $this->assertNull($result);
 
         $data = [];
-        $Controller->data = [
+        $controller->data = [
             'Model1' => ['field1' => '23'],
             'Model2' => ['field2' => 'string'],
             'Model3' => ['field3' => '23'],
@@ -1253,7 +1011,7 @@ class ControllerTest extends CakeTestCase
             'Model2.field2 LIKE' => '%string%',
             'Model3.field3 <=' => '23',
         ];
-        $result = $Controller->postConditions($data, $ops);
+        $result = $controller->postConditions($data, $ops);
         $this->assertSame($expected, $result);
     }
 
@@ -1297,8 +1055,8 @@ class ControllerTest extends CakeTestCase
         $this->expectException(RuntimeException::class);
         $request = new CakeRequest('controller_posts/index');
 
-        $Controller = new Controller($request);
-        $Controller->postConditions($data);
+        $controller = new Controller($request);
+        $controller->postConditions($data);
     }
 
     /**
@@ -1308,16 +1066,17 @@ class ControllerTest extends CakeTestCase
      */
     public function testControllerHttpCodes(): void
     {
-        $response = $this->getMock('CakeResponse', ['httpCodes']);
-        $Controller = new Controller(null, $response);
-        $Controller->response->expects($this->exactly(2))
+        $response = $this->getMock(CakeResponse::class, ['httpCodes']);
+        $controller = new Controller(null, $response);
+        $controller->response
+            ->expects($this->exactly(2))
             ->method('httpCodes')
             ->withConsecutive(
                 [null],
                 [100],
             );
-        $Controller->httpCodes();
-        $Controller->httpCodes(100);
+        $controller->httpCodes();
+        $controller->httpCodes(100);
     }
 
     /**
@@ -1327,23 +1086,25 @@ class ControllerTest extends CakeTestCase
      */
     public function testStartupProcess(): void
     {
-        $Controller = $this->getMock('Controller', ['getEventManager']);
-
-        $eventManager = $this->getMock('CakeEventManager');
+        $controller = $this->getMock(Controller::class, ['getEventManager']);
+        $eventManager = $this->getMock(CakeEventManager::class);
 
         $dispatchedEvents = [];
         $eventManager->expects($this->exactly(2))
             ->method('dispatch')
-            ->willReturnCallback(function ($event) use (&$dispatchedEvents, $Controller) {
-                $this->assertInstanceOf('CakeEvent', $event);
-                $this->assertSame($Controller, $event->subject());
+            ->willReturnCallback(function ($event) use (&$dispatchedEvents, $controller) {
+                $this->assertInstanceOf(CakeEvent::class, $event);
+                $this->assertSame($controller, $event->subject());
                 $dispatchedEvents[] = $event->name();
+
+                return $event;
             });
 
-        $Controller->expects($this->exactly(2))
+        $controller
+            ->expects($this->exactly(2))
             ->method('getEventManager')
             ->will($this->returnValue($eventManager));
-        $Controller->startupProcess();
+        $controller->startupProcess();
 
         $this->assertEquals(['Controller.initialize', 'Controller.startup'], $dispatchedEvents);
     }
@@ -1355,15 +1116,15 @@ class ControllerTest extends CakeTestCase
      */
     public function testStartupProcessIndirect(): void
     {
-        $Controller = $this->getMock('Controller', ['beforeFilter']);
+        $controller = $this->getMock(Controller::class, ['beforeFilter']);
 
-        $Controller->components = ['MockShutdown'];
-        $Controller->Components = $this->getMock('ComponentCollection', ['trigger']);
+        $controller->components = ['MockShutdown'];
+        $controller->Components = $this->getMock(ComponentCollection::class, ['trigger']);
 
-        $Controller->expects($this->once())->method('beforeFilter');
-        $Controller->Components->expects($this->exactly(2))->method('trigger')->with($this->isInstanceOf('CakeEvent'));
+        $controller->expects($this->once())->method('beforeFilter');
+        $controller->Components->expects($this->exactly(2))->method('trigger')->with($this->isInstanceOf(CakeEvent::class));
 
-        $Controller->startupProcess();
+        $controller->startupProcess();
     }
 
     /**
@@ -1373,20 +1134,20 @@ class ControllerTest extends CakeTestCase
      */
     public function testShutdownProcess(): void
     {
-        $Controller = $this->getMock('Controller', ['getEventManager']);
+        $controller = $this->getMock(Controller::class, ['getEventManager']);
 
-        $eventManager = $this->getMock('CakeEventManager');
+        $eventManager = $this->getMock(CakeEventManager::class);
         $eventManager->expects($this->once())->method('dispatch')
             ->with(
                 $this->logicalAnd(
-                    $this->isInstanceOf('CakeEvent'),
+                    $this->isInstanceOf(CakeEvent::class),
                     $this->callback(fn(CakeEvent $event) => $event->name() === 'Controller.shutdown'),
-                    $this->callback(fn(CakeEvent $event) => $event->subject() === $Controller),
+                    $this->callback(fn(CakeEvent $event) => $event->subject() === $controller),
                 ),
             );
-        $Controller->expects($this->once())->method('getEventManager')
+        $controller->expects($this->once())->method('getEventManager')
             ->will($this->returnValue($eventManager));
-        $Controller->shutdownProcess();
+        $controller->shutdownProcess();
     }
 
     /**
@@ -1396,15 +1157,15 @@ class ControllerTest extends CakeTestCase
      */
     public function testShutdownProcessIndirect(): void
     {
-        $Controller = $this->getMock('Controller', ['afterFilter']);
+        $controller = $this->getMock(Controller::class, ['afterFilter']);
 
-        $Controller->components = ['MockShutdown'];
-        $Controller->Components = $this->getMock('ComponentCollection', ['trigger']);
+        $controller->components = ['MockShutdown'];
+        $controller->Components = $this->getMock(ComponentCollection::class, ['trigger']);
 
-        $Controller->expects($this->once())->method('afterFilter');
-        $Controller->Components->expects($this->exactly(1))->method('trigger')->with($this->isInstanceOf('CakeEvent'));
+        $controller->expects($this->once())->method('afterFilter');
+        $controller->Components->expects($this->exactly(1))->method('trigger')->with($this->isInstanceOf(CakeEvent::class));
 
-        $Controller->shutdownProcess();
+        $controller->shutdownProcess();
     }
 
     /**
@@ -1444,10 +1205,10 @@ class ControllerTest extends CakeTestCase
     {
         $request = new CakeRequest('controller_posts/index');
 
-        $Controller = new TestController($request);
-        $Controller->constructClasses();
-        $this->assertInstanceOf('SecurityComponent', $Controller->Security);
-        $this->assertInstanceOf('ControllerComment', $Controller->ControllerComment);
+        $controller = new TestController($request);
+        $controller->constructClasses();
+        $this->assertInstanceOf(SecurityComponent::class, $controller->Security);
+        $this->assertInstanceOf(ControllerComment::class, $controller->ControllerComment);
     }
 
     /**
@@ -1459,39 +1220,39 @@ class ControllerTest extends CakeTestCase
     {
         $request = new CakeRequest('controller_posts/index');
         $request->params['pass'] = $request->params['named'] = [];
-        $response = $this->getMock('CakeResponse', ['httpCodes']);
+        $response = $this->getMock(CakeResponse::class, ['httpCodes']);
 
-        $Controller = new Controller($request, $response);
-        $Controller->uses = ['ControllerPost', 'ControllerComment'];
-        $Controller->passedArgs[] = '1';
-        $Controller->params['url'] = [];
-        $Controller->params['named'] = [
+        $controller = new Controller($request, $response);
+        $controller->uses = ['ControllerPost', 'ControllerComment'];
+        $controller->passedArgs[] = '1';
+        $controller->params['url'] = [];
+        $controller->params['named'] = [
             'posts' => [
                 'page' => 2,
                 'limit' => 2,
             ],
         ];
-        $Controller->constructClasses();
+        $controller->constructClasses();
         $expected = ['page' => 1, 'limit' => 20, 'maxLimit' => 100, 'paramType' => 'named', 'queryScope' => null];
-        $this->assertEquals($expected, $Controller->paginate);
-        $results = Hash::extract($Controller->paginate('ControllerPost'), '{n}.ControllerPost.id');
+        $this->assertEquals($expected, $controller->paginate);
+        $results = Hash::extract($controller->paginate('ControllerPost'), '{n}.ControllerPost.id');
         $this->assertEquals([1, 2, 3], $results);
 
-        $Controller->passedArgs = [];
-        $Controller->paginate = ['limit' => '1'];
-        $this->assertEquals(['limit' => '1'], $Controller->paginate);
-        $Controller->paginate('ControllerPost');
-        $this->assertSame($Controller->params['paging']['ControllerPost']['page'], 1);
-        $this->assertSame($Controller->params['paging']['ControllerPost']['pageCount'], 3);
-        $this->assertFalse($Controller->params['paging']['ControllerPost']['prevPage']);
-        $this->assertTrue($Controller->params['paging']['ControllerPost']['nextPage']);
-        $this->assertNull($Controller->params['paging']['ControllerPost']['queryScope']);
+        $controller->passedArgs = [];
+        $controller->paginate = ['limit' => '1'];
+        $this->assertEquals(['limit' => '1'], $controller->paginate);
+        $controller->paginate('ControllerPost');
+        $this->assertSame($controller->params['paging']['ControllerPost']['page'], 1);
+        $this->assertSame($controller->params['paging']['ControllerPost']['pageCount'], 3);
+        $this->assertFalse($controller->params['paging']['ControllerPost']['prevPage']);
+        $this->assertTrue($controller->params['paging']['ControllerPost']['nextPage']);
+        $this->assertNull($controller->params['paging']['ControllerPost']['queryScope']);
 
-        $Controller->paginate = ['queryScope' => 'posts'];
-        $Controller->paginate('ControllerPost');
-        $this->assertSame($Controller->params['paging']['ControllerPost']['page'], 2);
-        $this->assertSame($Controller->params['paging']['ControllerPost']['pageCount'], 2);
-        $this->assertSame($Controller->params['paging']['ControllerPost']['queryScope'], 'posts');
+        $controller->paginate = ['queryScope' => 'posts'];
+        $controller->paginate('ControllerPost');
+        $this->assertSame($controller->params['paging']['ControllerPost']['page'], 2);
+        $this->assertSame($controller->params['paging']['ControllerPost']['pageCount'], 2);
+        $this->assertSame($controller->params['paging']['ControllerPost']['queryScope'], 'posts');
     }
 
     /**
@@ -1505,7 +1266,7 @@ class ControllerTest extends CakeTestCase
         $this->expectExceptionMessage('Action TestController::missing() could not be found.');
         $url = new CakeRequest('test/missing');
         $url->addParams(['controller' => 'test_controller', 'action' => 'missing']);
-        $response = $this->getMock('CakeResponse');
+        $response = $this->getMock(CakeResponse::class);
 
         $Controller = new TestController($url, $response);
         $Controller->invokeAction($url);
@@ -1522,10 +1283,10 @@ class ControllerTest extends CakeTestCase
         $this->expectExceptionMessage('Private Action TestController::private_m() is not directly accessible.');
         $url = new CakeRequest('test/private_m/');
         $url->addParams(['controller' => 'test_controller', 'action' => 'private_m']);
-        $response = $this->getMock('CakeResponse');
+        $response = $this->getMock(CakeResponse::class);
 
-        $Controller = new TestController($url, $response);
-        $Controller->invokeAction($url);
+        $controller = new TestController($url, $response);
+        $controller->invokeAction($url);
     }
 
     /**
@@ -1539,10 +1300,10 @@ class ControllerTest extends CakeTestCase
         $this->expectExceptionMessage('Private Action TestController::protected_m() is not directly accessible.');
         $url = new CakeRequest('test/protected_m/');
         $url->addParams(['controller' => 'test_controller', 'action' => 'protected_m']);
-        $response = $this->getMock('CakeResponse');
+        $response = $this->getMock(CakeResponse::class);
 
-        $Controller = new TestController($url, $response);
-        $Controller->invokeAction($url);
+        $controller = new TestController($url, $response);
+        $controller->invokeAction($url);
     }
 
     /**
@@ -1556,10 +1317,10 @@ class ControllerTest extends CakeTestCase
         $this->expectExceptionMessage('Private Action TestController::_hidden() is not directly accessible.');
         $url = new CakeRequest('test/_hidden/');
         $url->addParams(['controller' => 'test_controller', 'action' => '_hidden']);
-        $response = $this->getMock('CakeResponse');
+        $response = $this->getMock(CakeResponse::class);
 
-        $Controller = new TestController($url, $response);
-        $Controller->invokeAction($url);
+        $controller = new TestController($url, $response);
+        $controller->invokeAction($url);
     }
 
     /**
@@ -1573,10 +1334,10 @@ class ControllerTest extends CakeTestCase
         $this->expectExceptionMessage('Private Action TestController::redirect() is not directly accessible.');
         $url = new CakeRequest('test/redirect/');
         $url->addParams(['controller' => 'test_controller', 'action' => 'redirect']);
-        $response = $this->getMock('CakeResponse');
+        $response = $this->getMock(CakeResponse::class);
 
-        $Controller = new TestController($url, $response);
-        $Controller->invokeAction($url);
+        $controller = new TestController($url, $response);
+        $controller->invokeAction($url);
     }
 
     /**
@@ -1593,10 +1354,10 @@ class ControllerTest extends CakeTestCase
 
         $url = new CakeRequest('test/admin_add/');
         $url->addParams(['controller' => 'test_controller', 'action' => 'admin_add']);
-        $response = $this->getMock('CakeResponse');
+        $response = $this->getMock(CakeResponse::class);
 
-        $Controller = new TestController($url, $response);
-        $Controller->invokeAction($url);
+        $controller = new TestController($url, $response);
+        $controller->invokeAction($url);
     }
 
     /**
@@ -1613,10 +1374,10 @@ class ControllerTest extends CakeTestCase
 
         $url = new CakeRequest('test/Admin_add/');
         $url->addParams(['controller' => 'test_controller', 'action' => 'Admin_add']);
-        $response = $this->getMock('CakeResponse');
+        $response = $this->getMock(CakeResponse::class);
 
-        $Controller = new TestController($url, $response);
-        $Controller->invokeAction($url);
+        $controller = new TestController($url, $response);
+        $controller->invokeAction($url);
     }
 
     /**
@@ -1632,10 +1393,10 @@ class ControllerTest extends CakeTestCase
             'action' => 'returner',
             'pass' => [],
         ]);
-        $response = $this->getMock('CakeResponse');
+        $response = $this->getMock(CakeResponse::class);
 
-        $Controller = new TestController($url, $response);
-        $result = $Controller->invokeAction($url);
+        $controller = new TestController($url, $response);
+        $result = $controller->invokeAction($url);
         $this->assertEquals('I am from the controller.', $result);
     }
 
@@ -1647,7 +1408,6 @@ class ControllerTest extends CakeTestCase
      */
     public function testNamespacedController(): void
     {
-        Configure::write('App.namespace', 'TestApp');
         $request = new CakeRequest('namespaced/index');
         $Controller = new NamespacedController($request, new CakeResponse());
         $this->assertSame('Namespaced', $Controller->name);
@@ -1667,7 +1427,7 @@ class ControllerTest extends CakeTestCase
         $Controller->viewClass = 'Namespaced';
         $this->assertInstanceOf(NamespacedView::class, $getViewObject->invoke($Controller));
         $Controller->viewClass = 'Json';
-        $this->assertInstanceOf('JsonView', $getViewObject->invoke($Controller));
+        $this->assertInstanceOf(JsonView::class, $getViewObject->invoke($Controller));
     }
 
     /**
@@ -1677,10 +1437,10 @@ class ControllerTest extends CakeTestCase
      */
     public function testNamespacedPluginAppController(): void
     {
-        App::build(['Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS]]);
-        CakePlugin::load('TestPluginTwo');
+        App::build(['Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS]]);
+        CakePlugin::load('TestTwoPlugin');
         $request = new CakeRequest(null, false);
-        $request->addParams(['plugin' => 'test_plugin_two', 'controller' => 'namespaced_plugin', 'action' => 'index']);
+        $request->addParams(['plugin' => 'test_two_plugin', 'controller' => 'namespaced_plugin', 'action' => 'index']);
         $Controller = new NamespacedPluginController($request, new CakeResponse());
         $Controller->constructClasses();
         $helpers = Hash::normalize($Controller->helpers);
@@ -1713,7 +1473,7 @@ class ControllerTest extends CakeTestCase
         $this->assertSame(NamespacedController::class, $Controller->controllerClass);
 
         $Controller = new Controller(new CakeRequest('posts/index'), new CakeResponse());
-        $this->assertSame('Cake\Controller\Controller', $Controller->controllerClass);
+        $this->assertSame(Controller::class, $Controller->controllerClass);
     }
 
     /**
@@ -1739,19 +1499,19 @@ class ControllerTest extends CakeTestCase
     public function testRenderNamespacedPluginModel(): void
     {
         App::build([
-            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS],
-            'View' => [CORE_TESTS . DS . 'test_app' . DS . 'View' . DS],
+            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
+            'View' => [CORE_TESTS . DS . 'test_app' . DS . 'templates' . DS],
         ], App::RESET);
-        CakePlugin::load('TestPluginTwo');
+        CakePlugin::load('TestTwoPlugin');
         ClassRegistry::flush();
         $Controller = new Controller(new CakeRequest('posts/index'), new CakeResponse());
         $Controller->viewPath = 'Posts';
-        $Controller->uses = ['TestPluginTwo.NamespacedPluginItem'];
+        $Controller->uses = ['TestTwoPlugin.NamespacedPluginItem'];
         $Controller->constructClasses();
         $this->assertInstanceOf(NamespacedPluginItem::class, $Controller->NamespacedPluginItem);
 
         $Controller->render('index');
-        $expected = ['plugin' => 'TestPluginTwo', 'className' => 'NamespacedPluginItem'];
+        $expected = ['plugin' => 'TestTwoPlugin', 'className' => 'NamespacedPluginItem'];
         $this->assertSame($expected, $Controller->request->params['models']['NamespacedPluginItem']);
         CakePlugin::unload();
     }
@@ -1765,14 +1525,14 @@ class ControllerTest extends CakeTestCase
     public function testLoadModelNamespacedClassName(): void
     {
         App::build([
-            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS],
+            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
         ], App::RESET);
-        CakePlugin::load('TestPluginTwo');
+        CakePlugin::load('TestTwoPlugin');
         $cases = [
             ['NamespacedPost', NamespacedPost::class],
             [NamespacedPost::class, NamespacedPost::class],
             ['TestApp\Model\NamespacedPost', NamespacedPost::class],
-            ['TestPluginTwo.NamespacedPluginItem', NamespacedPluginItem::class],
+            ['TestTwoPlugin.NamespacedPluginItem', NamespacedPluginItem::class],
             [NamespacedPluginItem::class, NamespacedPluginItem::class],
         ];
         foreach ($cases as [$model, $class]) {
@@ -1807,7 +1567,7 @@ class ControllerTest extends CakeTestCase
     public function testRenderNamespacedClassName(): void
     {
         App::build([
-            'View' => [CORE_TESTS . DS . 'test_app' . DS . 'View' . DS],
+            'View' => [CORE_TESTS . DS . 'test_app' . DS . 'templates' . DS],
         ], App::RESET);
         $cases = [
             'NamespacedPost' => 'NamespacedPost',

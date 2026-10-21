@@ -4,6 +4,11 @@
  *
  * @package       Cake.Test.Fixture
  */
+
+namespace Cake\Test\Fixture;
+
+use Cake\TestSuite\CakeTestCase;
+
 class AssertTagsTestCase extends CakeTestCase
 {
     /**

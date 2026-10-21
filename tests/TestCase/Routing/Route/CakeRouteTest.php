@@ -16,6 +16,13 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\Routing\Route;
+
+use Cake\Core\Configure;
+use Cake\Routing\Route\CakeRoute;
+use Cake\Routing\Router;
+use Cake\TestSuite\CakeTestCase;
+
 /**
  * Test case for CakeRoute
  *
@@ -1032,7 +1039,7 @@ class CakeRouteTest extends CakeTestCase
                 'server' => 'server_name',
             ],
         ]);
-        $this->assertInstanceOf('CakeRoute', $route);
+        $this->assertInstanceOf(CakeRoute::class, $route);
         $this->assertSame('/', $route->match(['controller' => 'pages', 'action' => 'display', 'home']));
         $this->assertFalse($route->match(['controller' => 'pages', 'action' => 'display', 'about']));
         $expected = ['controller' => 'pages', 'action' => 'display', 'pass' => ['home'], 'named' => []];

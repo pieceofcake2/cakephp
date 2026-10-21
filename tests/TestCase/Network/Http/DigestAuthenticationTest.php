@@ -16,6 +16,13 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\Network\Http;
+
+use Cake\Network\Http\DigestAuthentication;
+use Cake\Network\Http\HttpSocket;
+use Cake\Network\Http\HttpSocketResponse;
+use Cake\TestSuite\CakeTestCase;
+
 /**
  * DigestHttpSocket
  *
@@ -34,7 +41,7 @@ class DigestHttpSocket extends HttpSocket
      * request method
      *
      * @param mixed $request
-     * @return void
+     * @return HttpSocketResponse|false
      */
     public function request($request = []): void
     {
@@ -59,7 +66,7 @@ class DigestAuthenticationTest extends CakeTestCase
     /**
      * Socket property
      *
-     * @var mixed
+     * @var DigestHttpSocket|null
      */
     public $HttpSocket = null;
 

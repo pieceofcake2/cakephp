@@ -16,55 +16,14 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-/**
- * SessionTestController class
- *
- * @package       Cake.Test.Case.Controller.Component
- */
-class SessionTestController extends Controller
-{
-    /**
-     * uses property
-     *
-     * @var array
-     */
-    public $uses = [];
+namespace Cake\Test\TestCase\Controller\Component;
 
-    /**
-     * sessionId method
-     *
-     * @return string
-     */
-    public function sessionId(): mixed
-    {
-        return $this->Session->id();
-    }
-}
-
-/**
- * OrangeSessionTestController class
- *
- * @package       Cake.Test.Case.Controller.Component
- */
-class OrangeSessionTestController extends Controller
-{
-    /**
-     * uses property
-     *
-     * @var array
-     */
-    public $uses = [];
-
-    /**
-     * sessionId method
-     *
-     * @return string
-     */
-    public function sessionId(): mixed
-    {
-        return $this->Session->id();
-    }
-}
+use Cake\Controller\Component\SessionComponent;
+use Cake\Controller\ComponentCollection;
+use Cake\Core\CakeObject;
+use Cake\Core\Configure;
+use Cake\Model\Datasource\CakeSession;
+use Cake\TestSuite\CakeTestCase;
 
 /**
  * SessionComponentTest class
@@ -78,9 +37,11 @@ class SessionComponentTest extends CakeTestCase
     /**
      * fixtures
      *
-     * @var string
+     * @var array<string>
      */
-    public $fixtures = ['core.session'];
+    public $fixtures = [
+        'core.session',
+    ];
 
     /**
      * test case startup
@@ -115,6 +76,7 @@ class SessionComponentTest extends CakeTestCase
     public function setUp(): void
     {
         parent::setUp();
+        Configure::write('App.namespace', 'TestApp');
         $_SESSION = null;
         $this->ComponentCollection = new ComponentCollection();
     }
@@ -138,14 +100,14 @@ class SessionComponentTest extends CakeTestCase
      */
     public function testSessionIdConsistentAcrossRequestAction(): void
     {
-        $Object = new CakeObject();
-        $Session = new SessionComponent($this->ComponentCollection);
-        $expected = $Session->id();
+        $object = new CakeObject();
+        $session = new SessionComponent($this->ComponentCollection);
+        $expected = $session->id();
 
-        $result = $Object->requestAction('/session_test/sessionId');
+        $result = $object->requestAction('/session_test/sessionId');
         $this->assertEquals($expected, $result);
 
-        $result = $Object->requestAction('/orange_session_test/sessionId');
+        $result = $object->requestAction('/orange_session_test/sessionId');
         $this->assertEquals($expected, $result);
     }
 
