@@ -92,7 +92,7 @@ class DatabaseSession implements CakeSessionHandlerInterface
      * Method used to read from a database session.
      *
      * @param string|int $id The key of the value to read
-     * @return mixed The value of the key or false if it does not exist
+     * @return mixed The value of the key or an empty string if it does not exist
      */
     public function read($id)
     {

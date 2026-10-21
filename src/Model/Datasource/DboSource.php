@@ -591,7 +591,7 @@ class DboSource extends DataSource
 
     /**
      * Returns number of affected rows in previous database operation. If no previous operation exists,
-     * this returns false.
+     * this returns 0.
      *
      * @param mixed $source The source to check.
      * @return int Number of affected rows
@@ -607,7 +607,7 @@ class DboSource extends DataSource
 
     /**
      * Returns number of rows in previous resultset. If no previous resultset exists,
-     * this returns false.
+     * this returns 0.
      *
      * @param mixed $source Not used
      * @return int Number of rows in resultset
@@ -3205,7 +3205,7 @@ class DboSource extends DataSource
      * Quotes Model.fields
      *
      * @param mixed $conditions The conditions to quote.
-     * @return string or false if no match
+     * @return string The conditions with quoted fields
      */
     protected function _quoteFields($conditions)
     {

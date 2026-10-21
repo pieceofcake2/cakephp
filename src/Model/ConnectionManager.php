@@ -186,7 +186,7 @@ class ConnectionManager
      * @param array|string $connName A string name of the connection, as defined in app/Config/database.php,
      *    or an array containing the filename (without extension) and class name of the object,
      *    to be found in app/Model/Datasource/ or src/Model/Datasource/.
-     * @return bool True on success, null on failure or false if the class is already loaded
+     * @return bool True on success, or false if the class is already loaded
      * @throws MissingDatasourceException
      */
     public static function loadDataSource($connName)
