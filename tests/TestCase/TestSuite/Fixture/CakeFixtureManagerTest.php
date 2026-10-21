@@ -470,7 +470,6 @@ class CakeFixtureManagerTest extends CakeTestCase
      */
     public function testFixturizeMissingCoreFixtureAfterPluginFixture(): void
     {
-        $this->markTestIncomplete('Known bug: a core fixture is also looked for in the paths of the fixture before it');
         App::build(['Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS]], App::RESET);
         CakePlugin::load('TestTwoPlugin');
         $test = $this->_testCaseWith(['plugin.test_two_plugin.namespaced_comment', 'core.this_fixture_does_not_exist']);

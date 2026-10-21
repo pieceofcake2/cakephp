@@ -150,7 +150,9 @@ class CakeFixtureManager
 
             if (str_starts_with($fixture, 'core.')) {
                 $fixture = substr($fixture, strlen('core.'));
-                $fixturePaths[] = CORE_TESTS . DS . 'Fixture';
+                $fixturePaths = [
+                    CORE_TESTS . DS . 'Fixture',
+                ];
             } elseif (str_starts_with($fixture, 'app.')) {
                 $fixturePrefixLess = substr($fixture, strlen('app.'));
                 $fixtureParsedPath = $this->_parseFixturePath($fixturePrefixLess);
