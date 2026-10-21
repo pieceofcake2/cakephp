@@ -480,20 +480,39 @@ class ApiShellTest extends CakeTestCase
     }
 
     /**
+     * Data provider for testHelpOneParameter
+     *
+     * @return array
+     */
+    public static function helpOneParameterProvider(): array
+    {
+        return [
+            'path' => ['Path', "\t<type>\n", "\t\tview\tLook for class in CakePHP view path\n\n\n"],
+            'type' => ['type', "\t<type>\n", "\t\tview\tLook for class in CakePHP view path\n\n\n"],
+            'className' => ['className', "\t<className>\n", "(e.g: Component, HtmlHelper).\n\n\n"],
+            'classname' => ['classname', "\t<className>\n", "(e.g: Component, HtmlHelper).\n\n\n"],
+        ];
+    }
+
+    /**
      * Test the help of one parameter
      *
+     * @dataProvider helpOneParameterProvider
+     * @param string $parameter The parameter name given to help.
+     * @param string $start The expected start of the help.
+     * @param string $end The expected end of the help.
      * @return void
      */
-    public function testHelpOneParameter(): void
+    public function testHelpOneParameter(string $parameter, string $start, string $end): void
     {
         $this->_captureOut();
 
-        $this->Shell->args = ['help', 'Path'];
+        $this->Shell->args = ['help', $parameter];
         $this->Shell->help();
 
         $this->assertCount(2, $this->outCalls);
-        $this->assertStringStartsWith("\t<type>\n", $this->outCalls[1]);
-        $this->assertStringEndsWith("\t\tview\tLook for class in CakePHP view path\n\n\n", $this->outCalls[1]);
+        $this->assertStringStartsWith($start, $this->outCalls[1]);
+        $this->assertStringEndsWith($end, $this->outCalls[1]);
     }
 
     /**

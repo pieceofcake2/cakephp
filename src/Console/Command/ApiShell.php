@@ -194,17 +194,25 @@ class ApiShell extends AppShell
                 "\t\thelper\tLook for class in CakePHP helper path\n" .
                 "\t\tmodel\tLook for class in CakePHP model path\n" .
                 "\t\tview\tLook for class in CakePHP view path\n",
-            'className' => "\t<className>\n" .
+            'classname' => "\t<className>\n" .
                 "\t\tA CakePHP core class name (e.g: Component, HtmlHelper).\n",
         ];
 
+        $command = null;
+        if (isset($this->args[1])) {
+            $command = strtolower($this->args[1]);
+            if ($command === 'type') {
+                $command = 'path';
+            }
+        }
+
         $this->out($head);
-        if (!isset($this->args[1])) {
+        if ($command === null) {
             foreach ($commands as $cmd) {
                 $this->out("{$cmd}\n\n");
             }
-        } elseif (isset($commands[strtolower($this->args[1])])) {
-            $this->out($commands[strtolower($this->args[1])] . "\n\n");
+        } elseif (isset($commands[$command])) {
+            $this->out($commands[$command] . "\n\n");
         } else {
             $this->out(__d('cake_console', 'Command %s not found', $this->args[1]));
         }
