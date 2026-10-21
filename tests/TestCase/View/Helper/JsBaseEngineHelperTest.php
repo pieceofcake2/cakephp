@@ -18,6 +18,7 @@
 
 namespace Cake\Test\TestCase\View\Helper;
 
+use Cake\Error\CakeException;
 use Cake\Routing\Router;
 use Cake\TestSuite\CakeTestCase;
 use Cake\View\Helper\JsBaseEngineHelper;
@@ -411,6 +412,24 @@ class JsBaseEngineHelperTest extends CakeTestCase
     }
 
     /**
+     * Test that value() throws for INF and NAN, which neither JSON nor a JavaScript
+     * number literal can hold, instead of writing INF or NaN into the script.
+     *
+     * @return void
+     */
+    public function testValueOfANonFiniteFloatThrows(): void
+    {
+        foreach ([INF, -INF, NAN] as $float) {
+            try {
+                $this->JsEngine->value($float);
+                $this->fail('No exception for ' . var_export($float, true));
+            } catch (CakeException $e) {
+                $this->assertSame('Inf and NaN cannot be JSON encoded', $e->getMessage());
+            }
+        }
+    }
+
+    /**
      * Test that value() encodes arrays and objects as JSON, and leaves strings
      * unquoted but escaped when $quoteString is false.
      *
@@ -603,6 +622,19 @@ class JsBaseEngineHelperTest extends CakeTestCase
         $decoded = json_decode($result, true);
         $this->assertIsArray($decoded, 'Not JSON: ' . var_export($result, true));
         $this->assertSame(['name' => "a\u{FFFD}b", 'ok' => "caf\u{E9}"], $decoded);
+    }
+
+    /**
+     * Test that object() throws when json_encode() fails, as JsonView does, instead of
+     * returning only the prefix and the postfix.
+     *
+     * @return void
+     */
+    public function testObjectThatCannotBeEncodedThrows(): void
+    {
+        $this->expectException(CakeException::class);
+        $this->expectExceptionMessage('Inf and NaN cannot be JSON encoded');
+        $this->JsEngine->object(['ratio' => INF], ['prefix' => 'var data = ', 'postfix' => ';']);
     }
 
     /**

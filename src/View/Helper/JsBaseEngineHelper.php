@@ -17,6 +17,7 @@
 namespace Cake\View\Helper;
 
 use AppHelper;
+use Cake\Error\CakeException;
 use Cake\I18n\Multibyte;
 use Cake\Routing\Router;
 
@@ -136,6 +137,7 @@ abstract class JsBaseEngineHelper extends AppHelper
      * @param array $data Data to be converted.
      * @param array $options Set of options, see above.
      * @return string A JSON code block
+     * @throws CakeException When the data cannot be encoded, for example INF or NAN.
      */
     public function object($data = [], $options = [])
     {
@@ -144,7 +146,12 @@ abstract class JsBaseEngineHelper extends AppHelper
         ];
         $options += $defaultOptions;
 
-        return $options['prefix'] . json_encode($data, JSON_INVALID_UTF8_SUBSTITUTE) . $options['postfix'];
+        $json = json_encode($data, JSON_INVALID_UTF8_SUBSTITUTE);
+        if ($json === false) {
+            throw new CakeException(json_last_error_msg());
+        }
+
+        return $options['prefix'] . $json . $options['postfix'];
     }
 
     /**
@@ -155,6 +162,7 @@ abstract class JsBaseEngineHelper extends AppHelper
      * @param string $key Key name.
      * @phpstan-param mixed $quoteString
      * @return string|int a JavaScript-safe/JSON representation of $val; an int is returned as it is
+     * @throws CakeException When $val is INF or NAN, or an array or object that cannot be encoded.
      */
     public function value($val = [], $quoteString = null, $key = 'value')
     {
@@ -175,6 +183,9 @@ abstract class JsBaseEngineHelper extends AppHelper
                 $val = $val;
                 break;
             case is_float($val):
+                if (!is_finite($val)) {
+                    throw new CakeException('Inf and NaN cannot be JSON encoded');
+                }
                 $val = sprintf('%.11F', $val);
                 break;
             default:
