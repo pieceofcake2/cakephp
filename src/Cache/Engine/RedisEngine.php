@@ -19,7 +19,6 @@
 namespace Cake\Cache\Engine;
 
 use Cake\Cache\CacheEngine;
-use Cake\Error\CacheException;
 use Cake\Utility\Inflector;
 use Redis;
 use RedisException;
@@ -160,8 +159,7 @@ class RedisEngine extends CacheEngine
      *
      * @param string $key Identifier for the data
      * @param int $offset How much to increment
-     * @return int|false New incremented value, false otherwise
-     * @throws CacheException when you try to increment with compress = true
+     * @return int New incremented value, or 0 when Redis fails
      */
     public function increment($key, $offset = 1)
     {
@@ -173,8 +171,7 @@ class RedisEngine extends CacheEngine
      *
      * @param string $key Identifier for the data
      * @param int $offset How much to subtract
-     * @return int|false New decremented value, false otherwise
-     * @throws CacheException when you try to decrement with compress = true
+     * @return int New decremented value, or 0 when Redis fails
      */
     public function decrement($key, $offset = 1)
     {
