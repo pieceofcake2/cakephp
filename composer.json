@@ -20,7 +20,7 @@
         "phpunit/phpunit": "^9.6",
         "pieceofcake2/app": "^2.5",
         "pieceofcake2/phpcs-cakephp2": "^1.1",
-        "pieceofcake2/phpstan-cakephp2": "^1.0",
+        "pieceofcake2/phpstan-cakephp2": "^1.1",
         "rector/rector": "^2.1"
     },
     "replace": {
@@ -33,7 +33,10 @@
         "ext-intl": "Required to use IntlDateFormatter instead of strftime, if not Symfony polyfill will be used."
     },
     "autoload": {
-        "classmap": ["src/"]
+        "psr-4": {
+            "Cake\\": "src/"
+        },
+        "files": ["src/aliases.php"]
     },
     "config": {
         "sort-packages": true,

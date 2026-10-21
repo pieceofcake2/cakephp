@@ -353,7 +353,7 @@ class DebuggerTest extends CakeTestCase
         $this->assertEquals('APP' . DS, Debugger::trimPath(APP));
         $this->assertEquals('CORE', Debugger::trimPath(CAKE_CORE_INCLUDE_PATH));
         $this->assertEquals('ROOT', Debugger::trimPath(ROOT));
-        $this->assertEquals('CORE' . DS . 'Cake' . DS, Debugger::trimPath(CAKE));
+        $this->assertEquals('CORE' . DS, Debugger::trimPath(CAKE));
         $this->assertEquals('Some/Other/Path', Debugger::trimPath('Some/Other/Path'));
     }
 
@@ -372,12 +372,12 @@ class DebuggerTest extends CakeTestCase
 
         $result = Debugger::exportVar($View);
         $expected = <<<TEXT
-object(View) {
-	Helpers => object(HelperCollection) {}
-	Blocks => object(ViewBlock) {}
+object(Cake\View\View) {
+	Helpers => object(Cake\View\HelperCollection) {}
+	Blocks => object(Cake\View\ViewBlock) {}
 	plugin => null
 	name => ''
-	controllerClass => 'Controller'
+	controllerClass => 'Cake\Controller\Controller'
 	passedArgs => array()
 	helpers => array(
 		(int) 0 => 'Html',
@@ -396,12 +396,12 @@ object(View) {
 	validationErrors => array()
 	hasRendered => false
 	uuids => array()
-	request => object(CakeRequest) {}
-	response => object(CakeResponse) {}
+	request => object(Cake\Network\CakeRequest) {}
+	response => object(Cake\Network\CakeResponse) {}
 	elementCache => 'default'
 	elementCacheSettings => array()
-	Html => object(HtmlHelper) {}
-	Form => object(FormHelper) {}
+	Html => object(Cake\View\Helper\HtmlHelper) {}
+	Form => object(Cake\View\Helper\FormHelper) {}
 	int => (int) 2
 	float => (float) 1.333
 	[protected] _passedVars => array(
@@ -428,7 +428,7 @@ object(View) {
 	[protected] _current => null
 	[protected] _currentType => ''
 	[protected] _stack => array()
-	[protected] _eventManager => object(CakeEventManager) {}
+	[protected] _eventManager => object(Cake\Event\CakeEventManager) {}
 	[protected] _eventManagerConfigured => false
 }
 TEXT;

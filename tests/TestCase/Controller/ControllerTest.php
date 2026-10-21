@@ -1713,7 +1713,7 @@ class ControllerTest extends CakeTestCase
         $this->assertSame(NamespacedController::class, $Controller->controllerClass);
 
         $Controller = new Controller(new CakeRequest('posts/index'), new CakeResponse());
-        $this->assertSame('Controller', $Controller->controllerClass);
+        $this->assertSame('Cake\Controller\Controller', $Controller->controllerClass);
     }
 
     /**

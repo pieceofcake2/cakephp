@@ -5,9 +5,9 @@ parameters:
     level: 5
     phpVersion: 80000
     paths:
-        - src/Cake
+        - src
     excludePaths:
-        - src/Cake/TestSuite/templates/*
+        - src/TestSuite/templates/*
     bootstrapFiles:
         - tests/bootstrap.php
     treatPhpDocTypesAsCertain: false
@@ -22,28 +22,28 @@ parameters:
         # Security::rijndael() and the legacy Security::encrypt()/decrypt() paths only use it when it is loaded.
         -
             message: '#^(Function mcrypt_\w+ not found|Constant MCRYPT_\w+ not found)\.#'
-            path: src/Cake/Utility/Security.php
+            path: src/Utility/Security.php
             reportUnmatched: false
         # DATABASE_CONFIG is defined by the application in app/Config/database.php at runtime.
         -
-            message: '#^Property ConnectionManager::\$config has unknown class DATABASE_CONFIG as its type\.$#'
-            path: src/Cake/Model/ConnectionManager.php
+            message: '#^Property Cake\\Model\\ConnectionManager::\$config has unknown class DATABASE_CONFIG as its type\.$#'
+            path: src/Model/ConnectionManager.php
         # EmailConfig is defined by the application in app/Config/email.php at runtime.
         -
-            message: '#^Property CakeEmail::\$_configInstance has unknown class EmailConfig as its type\.$#'
-            path: src/Cake/Network/Email/CakeEmail.php
+            message: '#^Property Cake\\Network\\Email\\CakeEmail::\$_configInstance has unknown class EmailConfig as its type\.$#'
+            path: src/Network/Email/CakeEmail.php
         # PHPStan expects autoloaders to return void. App::load() returns bool for its other callers,
         # and PHP ignores the return value of autoloaders.
         -
             message: '#^Parameter \#1 \$callback of function spl_autoload_register expects \(callable\(string\)\: void\)\|null, array\{''App'', ''load''\} given\.$#'
             identifier: argument.type
-            path: src/Cake/bootstrap.php
+            path: src/bootstrap.php
         # These traits are provided for application test cases; nothing in src/ uses them.
         -
             identifier: trait.unused
             paths:
-                - src/Cake/TestSuite/EmailTrait.php
-                - src/Cake/TestSuite/IntegrationTestTrait.php
+                - src/TestSuite/EmailTrait.php
+                - src/TestSuite/IntegrationTestTrait.php
     parallel:
         processTimeout: 300.0
         maximumNumberOfProcesses: 4

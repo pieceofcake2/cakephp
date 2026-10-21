@@ -1067,7 +1067,7 @@ class ExceptionRendererTest extends CakeTestCase
         $result = $this->_render(new MissingControllerException(['class' => 'PostsController']));
 
         $this->assertStringContainsString('<title>Error: Missing Controller</title>', $result);
-        $this->assertMatchesRegularExpression('/<span class="header-type">MissingControllerException<\/span>/', $result);
+        $this->assertMatchesRegularExpression('/<span class="header-type">Cake\\\\Error\\\\MissingControllerException<\/span>/', $result);
         $this->assertStringContainsString('<p class="error-subheading">', $result);
         $this->assertStringContainsString('class="code-dump"', $result);
         $this->assertStringContainsString('class="stack-frames"', $result);
@@ -1147,7 +1147,7 @@ class ExceptionRendererTest extends CakeTestCase
 
         $result = $this->_render(new NotFoundException('Nothing to see'));
         $this->assertStringContainsString('<title>Error: Nothing to see</title>', $result);
-        $this->assertStringContainsString('<span class="header-type">NotFoundException</span>', $result);
+        $this->assertStringContainsString('<span class="header-type">Cake\Error\NotFoundException</span>', $result);
         $this->assertStringContainsString('was not found on this server', $result);
         $this->assertStringContainsString('class="stack-frames"', $result);
 
@@ -1287,7 +1287,7 @@ class ExceptionRendererTest extends CakeTestCase
         $response->expects($this->once())
             ->method('body')
             ->with($this->logicalAnd(
-                $this->stringContains('<span class="header-type">MissingHelperException</span>'),
+                $this->stringContains('<span class="header-type">Cake\Error\MissingHelperException</span>'),
                 $this->stringContains('Helper class Fail'),
             ));
 

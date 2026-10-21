@@ -462,6 +462,24 @@ class ClassRegistryTest extends CakeTestCase
     }
 
     /**
+     * Test that a behavior of the core is found by its global name and by its class name in the Cake namespace.
+     *
+     * @return void
+     */
+    public function testCoreBehaviorByGlobalAndNamespacedName(): void
+    {
+        $post = ClassRegistry::init(['class' => NamespacedPost::class, 'alias' => 'BehaviorPost']);
+        $post->Behaviors->load('Containable');
+
+        $behavior = ClassRegistry::getObject('ContainableBehavior');
+        $this->assertInstanceOf('Cake\Model\Behavior\ContainableBehavior', $behavior);
+        $this->assertSame($behavior, ClassRegistry::getObject('Cake\Model\Behavior\ContainableBehavior'));
+        $this->assertTrue(ClassRegistry::isKeySet('ContainableBehavior'));
+        $this->assertTrue(ClassRegistry::isKeySet('Cake\Model\Behavior\ContainableBehavior'));
+        ClassRegistry::flush();
+    }
+
+    /**
      * Test that the only object of a class stored with another alias is found by
      * its fully qualified class name, and that the short names work as before.
      *

@@ -1,0 +1,656 @@
+<?php
+/**
+ * Core Security
+ *
+ * CakePHP(tm) : Rapid Development Framework (https://cakephp.org)
+ * Copyright (c) Cake Software Foundation, Inc. (https://cakefoundation.org)
+ *
+ * Licensed under The MIT License
+ * For full copyright and license information, please see the LICENSE.txt
+ * Redistributions of files must retain the above copyright notice.
+ *
+ * @copyright     Copyright (c) Cake Software Foundation, Inc. (https://cakefoundation.org)
+ * @link          https://cakephp.org CakePHP(tm) Project
+ * @package       Cake.Utility
+ * @since         CakePHP(tm) v .0.10.0.1233
+ * @license       https://opensource.org/licenses/mit-license.php MIT License
+ */
+
+namespace Cake\Utility;
+
+use Cake\Core\Configure;
+use Cake\Error\CakeException;
+use Cake\Log\CakeLog;
+use Throwable;
+
+/**
+ * Security Library contains utility methods related to security
+ *
+ * @package       Cake.Utility
+ */
+class Security
+{
+    /**
+     * Default hash method
+     *
+     * @var string
+     */
+    public static $hashType = null;
+
+    /**
+     * Default cost
+     *
+     * @var string|int
+     */
+    public static $hashCost = '10';
+
+    /**
+     * Largest `Security.cipherSeed` that mt_srand() uses without reducing it.
+     *
+     * @var int
+     */
+    public const MAX_CIPHER_SEED = 4294967295;
+
+    /**
+     * Link to the documentation about replacing the 'cipher' encryption.
+     *
+     * @var string
+     */
+    public const CIPHER_DOCS_URL = 'https://pieceofcake2.github.io/docs/development/configuration.html';
+
+    /**
+     * Whether the 'cipher' deprecation was already reported in this process.
+     *
+     * @var bool
+     */
+    protected static $_cipherDeprecationReported = false;
+
+    /**
+     * Whether an out-of-range `Security.cipherSeed` was already reported in this process.
+     *
+     * @var bool
+     */
+    protected static $_cipherSeedReported = false;
+
+    /**
+     * Get allowed minutes of inactivity based on security level.
+     *
+     * @deprecated 3.0.0 Exists for backwards compatibility only, not used by the core
+     * @return int Allowed inactivity in minutes
+     */
+    public static function inactiveMins()
+    {
+        switch (Configure::read('Security.level')) {
+            case 'high':
+                return 10;
+            case 'medium':
+                return 100;
+            case 'low':
+            default:
+                return 300;
+        }
+    }
+
+    /**
+     * Generate authorization hash.
+     *
+     * @return string Hash
+     * @deprecated 2.8.1 This method was removed in 3.0.0
+     */
+    public static function generateAuthKey()
+    {
+        return Security::hash(CakeText::uuid());
+    }
+
+    /**
+     * Validate authorization hash.
+     *
+     * @param string $authKey Authorization hash
+     * @return bool Success
+     * @deprecated 2.8.1 This method was removed in 3.0.0
+     */
+    public static function validateAuthKey($authKey)
+    {
+        return true;
+    }
+
+    /**
+     * Create a hash from string using given method or fallback on next available method.
+     *
+     * #### Using Blowfish
+     *
+     * - Creating Hashes: *Do not supply a salt*. Cake handles salt creation for
+     * you ensuring that each hashed password will have a *unique* salt.
+     * - Comparing Hashes: Simply pass the originally hashed password as the salt.
+     * The salt is prepended to the hash and php handles the parsing automagically.
+     * For convenience the `BlowfishPasswordHasher` class is available for use with
+     * the AuthComponent.
+     * - Do NOT use a constant salt for blowfish!
+     *
+     * Creating a blowfish/bcrypt hash:
+     *
+     * ```
+     * $hash = Security::hash($password, 'blowfish');
+     * ```
+     *
+     * @param string $string String to hash
+     * @param string $type Method to use (sha1/sha256/md5/blowfish)
+     * @param mixed $salt If true, automatically prepends the application's salt
+     *     value to $string (Security.salt). If you are using blowfish the salt
+     *     must be false or a previously generated salt.
+     * @return string Hash
+     * @link https://book.cakephp.org/2.0/en/core-utility-libraries/security.html#Security::hash
+     */
+    public static function hash($string, $type = null, $salt = false)
+    {
+        if (empty($type)) {
+            $type = static::$hashType;
+        }
+        $type = strtolower((string)$type);
+
+        if ($type === 'blowfish') {
+            return static::_crypt($string, $salt);
+        }
+        if ($salt) {
+            if (!is_string($salt)) {
+                $salt = Configure::read('Security.salt');
+            }
+            $string = $salt . $string;
+        }
+
+        if (!$type || $type === 'sha1') {
+            if (function_exists('sha1')) {
+                return sha1($string);
+            }
+            $type = 'sha256';
+        }
+
+        if (function_exists('hash')) {
+            return hash($type, $string);
+        }
+
+        return md5($string);
+    }
+
+    /**
+     * Sets the default hash method for the Security object. This affects all objects using
+     * Security::hash().
+     *
+     * @param string $hash Method to use (sha1/sha256/md5/blowfish)
+     * @return void
+     * @see Security::hash()
+     */
+    public static function setHash($hash)
+    {
+        static::$hashType = $hash;
+    }
+
+    /**
+     * Sets the cost for they blowfish hash method.
+     *
+     * @param int $cost Valid values are 4-31
+     * @return void
+     */
+    public static function setCost($cost)
+    {
+        if ($cost < 4 || $cost > 31) {
+            trigger_error(__d(
+                'cake_dev',
+                'Invalid value, cost must be between %s and %s',
+                [4, 31],
+            ), E_USER_WARNING);
+
+            return;
+        }
+        static::$hashCost = $cost;
+    }
+
+    /**
+     * Get random bytes from a secure source.
+     *
+     * This method will fall back to an insecure source and trigger a warning,
+     * if it cannot find a secure source of random data.
+     *
+     * @param int $length The number of bytes you want.
+     * @return string Random bytes in binary.
+     */
+    public static function randomBytes($length)
+    {
+        if (function_exists('random_bytes')) {
+            return random_bytes($length);
+        }
+        if (function_exists('openssl_random_pseudo_bytes')) {
+            return openssl_random_pseudo_bytes($length);
+        }
+        if (function_exists('mcrypt_create_iv')) {
+            return mcrypt_create_iv($length, MCRYPT_DEV_URANDOM);
+        }
+        trigger_error(
+            'You do not have a safe source of random data available. ' .
+            'Install either the openssl extension, the mcrypt extension, or paragonie/random_compat. ' .
+            'Falling back to an insecure random source.',
+            E_USER_WARNING,
+        );
+        $bytes = '';
+        $byteLength = 0;
+        while ($byteLength < $length) {
+            $bytes .= static::hash(CakeText::uuid() . uniqid((string)mt_rand(), true), 'sha512', true);
+            $byteLength = strlen($bytes);
+        }
+
+        return substr($bytes, 0, $length);
+    }
+
+    /**
+     * Runs $text through a XOR cipher.
+     *
+     * *Note* This is not a cryptographically strong method and should not be used
+     * for sensitive data. Additionally this method does *not* work in environments
+     * where suhosin is enabled.
+     *
+     * Instead you should use Security::encrypt() when you need strong
+     * encryption.
+     *
+     * The keystream comes from mt_rand() seeded with `Security.cipherSeed`. mt_srand()
+     * keeps only 32 bits, so only a digits-only seed from 1 to 4294967295 is used as
+     * given; other values are reduced (very long ones to seed 0). Even a seed in that
+     * range does not make this method secure.
+     *
+     * The first call in a process writes a deprecation warning to the log, and also
+     * triggers an E_USER_DEPRECATED error when debug is enabled. A `Security.cipherSeed`
+     * outside the range above is logged once as well. The output is not changed.
+     *
+     * @param string $text Encrypted string to decrypt, normal string to encrypt
+     * @param string $key Key to use
+     * @return string Encrypted/Decrypted string
+     * @deprecated 3.0.0 Will be removed in 3.0. Insecure: use Security::encrypt() / Security::decrypt()
+     *   with a key of at least 32 bytes and `Security.useOpenSsl` enabled. For CookieComponent, set
+     *   Configure `Cookie.type` to 'aes' and `Cookie.key` to a random value of at least 32 bytes.
+     *   See https://pieceofcake2.github.io/docs/development/configuration.html
+     */
+    public static function cipher($text, $key)
+    {
+        static::_reportCipherUsage();
+
+        if (empty($key)) {
+            trigger_error(__d('cake_dev', 'You cannot use an empty key for %s', 'Security::cipher()'), E_USER_WARNING);
+
+            return '';
+        }
+
+        // Suppress PHP 8.5+ warning for backward compatibility with existing encrypted data
+        // The cast behavior is undefined for values outside int range, but must remain
+        // consistent with previous PHP versions for decryption to work
+        set_error_handler(function () {
+            return true;
+        }, E_WARNING);
+        mt_srand((int)(float)Configure::read('Security.cipherSeed'));
+        restore_error_handler();
+        $out = '';
+        $keyLength = strlen($key);
+        for ($i = 0, $textLength = strlen((string)$text); $i < $textLength; $i++) {
+            $j = ord(substr($key, $i % $keyLength, 1));
+            while ($j--) {
+                mt_rand(0, 255);
+            }
+            $mask = mt_rand(0, 255);
+            $out .= chr(ord(substr($text, $i, 1)) ^ $mask);
+        }
+        mt_srand();
+
+        return $out;
+    }
+
+    /**
+     * Checks whether a `Security.cipherSeed` value is used by Security::cipher() as given.
+     *
+     * mt_srand() keeps only 32 bits, so only a digits-only value (string or integer)
+     * from 1 to 4294967295 is used as given. This says nothing about security:
+     * Security::cipher() is insecure with any seed.
+     *
+     * @param mixed $seed The seed value, e.g. `Configure::read('Security.cipherSeed')`.
+     * @return bool
+     * @internal
+     */
+    public static function isCipherSeedInRange($seed)
+    {
+        if (is_int($seed)) {
+            return $seed >= 1 && $seed <= static::MAX_CIPHER_SEED;
+        }
+        if (!is_string($seed) || $seed === '' || !ctype_digit($seed)) {
+            return false;
+        }
+        $seed = ltrim($seed, '0');
+        if ($seed === '') {
+            return false;
+        }
+        $max = (string)static::MAX_CIPHER_SEED;
+
+        return strlen($seed) < strlen($max) || (strlen($seed) === strlen($max) && strcmp($seed, $max) <= 0);
+    }
+
+    /**
+     * Reports the use of Security::cipher() once per process, and an out-of-range
+     * `Security.cipherSeed` once per process.
+     *
+     * Messages are written with CakeLog. When debug is enabled the deprecation is also
+     * triggered as E_USER_DEPRECATED. Nothing here throws, and the seed itself is never
+     * written to the log.
+     *
+     * @return void
+     */
+    protected static function _reportCipherUsage()
+    {
+        if (!static::$_cipherDeprecationReported) {
+            static::$_cipherDeprecationReported = true;
+            $trace = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 3);
+            $caller = $trace[2] ?? [];
+            $message = static::_cipherDeprecationMessage(
+                $caller['class'] ?? null,
+                $caller['function'] ?? null,
+            );
+            static::_logCipherWarning($message);
+            if (Configure::read('debug') > 0) {
+                trigger_error($message, E_USER_DEPRECATED);
+            }
+        }
+
+        if (!static::$_cipherSeedReported) {
+            static::$_cipherSeedReported = true;
+            $seed = Configure::read('Security.cipherSeed');
+            if (!static::isCipherSeedInRange($seed)) {
+                static::_logCipherWarning(static::_cipherSeedMessage($seed));
+            }
+        }
+    }
+
+    /**
+     * Builds the deprecation message for Security::cipher(), naming the caller when known.
+     *
+     * @param string|null $class Class of the code that called Security::cipher().
+     * @param string|null $function Function or method that called Security::cipher().
+     * @return string
+     */
+    protected static function _cipherDeprecationMessage($class, $function)
+    {
+        $fix = 'set Configure \'Cookie.type\' to \'aes\' and \'Cookie.key\' to a random value of at least 32 bytes,'
+            . ' with Security.useOpenSsl enabled';
+        if (is_string($class) && $class !== '' && is_a($class, 'CookieComponent', true)) {
+            return 'CookieComponent (type \'cipher\') uses Security::cipher(), which is insecure and deprecated.'
+                . ' ' . ucfirst($fix) . '; existing \'cipher\' cookies are lost once.'
+                . ' See ' . static::CIPHER_DOCS_URL;
+        }
+        $source = 'Security::cipher()';
+        if (is_string($function) && $function !== '' && strpos($function, '{closure') === false) {
+            $source .= ' (called from ' . (is_string($class) && $class !== '' ? $class . '::' : '') . $function . '())';
+        }
+
+        return $source . ' is insecure and deprecated.'
+            . ' Use Security::encrypt() / Security::decrypt() with a key of at least 32 bytes; for CookieComponent, '
+            . $fix . '. See ' . static::CIPHER_DOCS_URL;
+    }
+
+    /**
+     * Builds the message for a `Security.cipherSeed` outside the range used as given.
+     *
+     * The seed value is never included.
+     *
+     * @param mixed $seed The configured seed.
+     * @return string
+     */
+    protected static function _cipherSeedMessage($seed)
+    {
+        set_error_handler(function () {
+            return true;
+        }, E_WARNING);
+        $effective = ((int)(float)$seed) & 0xFFFFFFFF;
+        restore_error_handler();
+        $reduced = $effective === 0
+            ? 'Security::cipher() reduces it to seed 0'
+            : 'Security::cipher() keeps only its lowest 32 bits';
+
+        return 'Security.cipherSeed is not a digits-only number from 1 to ' . static::MAX_CIPHER_SEED
+            . ', so ' . $reduced . '. An in-range seed does not make \'cipher\' secure:'
+            . ' set Configure \'Cookie.type\' to \'aes\' and \'Cookie.key\' to a random value of at least 32 bytes,'
+            . ' with Security.useOpenSsl enabled.'
+            . ' Changing Security.cipherSeed makes existing \'cipher\' values unreadable.'
+            . ' See ' . static::CIPHER_DOCS_URL;
+    }
+
+    /**
+     * Writes a 'cipher' warning to the log without letting a log engine error escape.
+     *
+     * @param string $message The message.
+     * @return void
+     */
+    protected static function _logCipherWarning($message)
+    {
+        try {
+            CakeLog::write(LOG_WARNING, $message);
+        } catch (Throwable $e) {
+            // Logging must never break encryption or decryption.
+        }
+    }
+
+    /**
+     * Encrypts/Decrypts a text using the given key using rijndael method.
+     *
+     * Prior to 2.3.1, a fixed initialization vector was used. This was not
+     * secure. This method now uses a random iv, and will silently upgrade values when
+     * they are re-encrypted.
+     *
+     * @param string $text Encrypted string to decrypt, normal string to encrypt
+     * @param string $key Key to use as the encryption key for encrypted data.
+     * @param string $operation Operation to perform, encrypt or decrypt
+     * @return string Encrypted/Decrypted string
+     */
+    public static function rijndael($text, $key, $operation)
+    {
+        if (empty($key)) {
+            trigger_error(__d('cake_dev', 'You cannot use an empty key for %s', 'Security::rijndael()'), E_USER_WARNING);
+
+            return '';
+        }
+        if (empty($operation) || !in_array($operation, ['encrypt', 'decrypt'])) {
+            trigger_error(__d('cake_dev', 'You must specify the operation for Security::rijndael(), either encrypt or decrypt'), E_USER_WARNING);
+
+            return '';
+        }
+        if (strlen($key) < 32) {
+            trigger_error(__d('cake_dev', 'You must use a key larger than 32 bytes for Security::rijndael()'), E_USER_WARNING);
+
+            return '';
+        }
+        $algorithm = MCRYPT_RIJNDAEL_256;
+        $mode = MCRYPT_MODE_CBC;
+        $ivSize = mcrypt_get_iv_size($algorithm, $mode);
+
+        $cryptKey = substr($key, 0, 32);
+
+        if ($operation === 'encrypt') {
+            $iv = mcrypt_create_iv($ivSize, MCRYPT_RAND);
+
+            return $iv . '$$' . mcrypt_encrypt($algorithm, $cryptKey, $text, $mode, $iv);
+        }
+        // Backwards compatible decrypt with fixed iv
+        if (substr($text, $ivSize, 2) !== '$$') {
+            $iv = substr($key, strlen($key) - 32, 32);
+
+            return rtrim(mcrypt_decrypt($algorithm, $cryptKey, $text, $mode, $iv), "\0");
+        }
+        $iv = substr($text, 0, $ivSize);
+        $text = substr($text, $ivSize + 2);
+
+        return rtrim(mcrypt_decrypt($algorithm, $cryptKey, $text, $mode, $iv), "\0");
+    }
+
+    /**
+     * Generates a pseudo random salt suitable for use with php's crypt() function.
+     * The salt length should not exceed 27. The salt will be composed of
+     * [./0-9A-Za-z]{$length}.
+     *
+     * @param int $length The length of the returned salt
+     * @return string The generated salt
+     */
+    protected static function _salt($length = 22)
+    {
+        $salt = str_replace(
+            ['+', '='],
+            '.',
+            base64_encode(sha1(uniqid(Configure::read('Security.salt'), true), true)),
+        );
+
+        return substr($salt, 0, $length);
+    }
+
+    /**
+     * One way encryption using php's crypt() function. To use blowfish hashing see ``Security::hash()``
+     *
+     * @param string $password The string to be encrypted.
+     * @param mixed $salt false to generate a new salt or an existing salt.
+     * @return string The hashed string or an empty string on error.
+     */
+    protected static function _crypt($password, $salt = false)
+    {
+        if ($salt === false || $salt === null || $salt === '') {
+            $salt = static::_salt(22);
+            $salt = vsprintf('$2a$%02d$%s', [static::$hashCost, $salt]);
+        }
+
+        $invalidCipher = (
+            !str_starts_with($salt, '$2y$') &&
+            !str_starts_with($salt, '$2x$') &&
+            !str_starts_with($salt, '$2a$')
+        );
+        if ($salt === true || $invalidCipher || strlen($salt) < 29) {
+            trigger_error(__d(
+                'cake_dev',
+                'Invalid salt: %s for %s Please visit http://www.php.net/crypt and read the appropriate section for building %s salts.',
+                [$salt, 'blowfish', 'blowfish'],
+            ), E_USER_WARNING);
+
+            return '';
+        }
+
+        return crypt($password, $salt);
+    }
+
+    /**
+     * Encrypt a value using AES-256.
+     *
+     * *Caveat* You cannot properly encrypt/decrypt data with trailing null bytes.
+     * Any trailing null bytes will be removed on decryption due to how PHP pads messages
+     * with nulls prior to encryption.
+     *
+     * @param string|null $plain The value to encrypt. Null is encrypted as an empty string.
+     * @param string $key The 256 bit/32 byte key to use as a cipher key.
+     * @param string $hmacSalt The salt to use for the HMAC process. Leave null to use Security.salt.
+     * @return string Encrypted data.
+     * @throws CakeException On invalid data or key.
+     */
+    public static function encrypt($plain, $key, $hmacSalt = null)
+    {
+        static::_checkKey($key, 'encrypt()');
+        if ($plain === null) {
+            $plain = '';
+        }
+
+        if ($hmacSalt === null) {
+            $hmacSalt = Configure::read('Security.salt');
+        }
+
+        // Generate the encryption and hmac key.
+        $key = substr(hash('sha256', $key . $hmacSalt), 0, 32);
+
+        if (Configure::read('Security.useOpenSsl')) {
+            $method = 'AES-256-CBC';
+            $ivSize = openssl_cipher_iv_length($method);
+            $iv = openssl_random_pseudo_bytes($ivSize);
+            $padLength = (int)ceil((strlen($plain) ?: 1) / $ivSize) * $ivSize;
+            $ciphertext = openssl_encrypt(str_pad($plain, $padLength, "\0"), $method, $key, OPENSSL_RAW_DATA, $iv);
+            // Remove the PKCS#7 padding block for compatibility with mcrypt.
+            // Since we have padded the provided data with \0, the final block contains only padded bytes.
+            // So it can be removed safely.
+            $ciphertext = $iv . substr($ciphertext, 0, -$ivSize);
+        } else {
+            $algorithm = MCRYPT_RIJNDAEL_128;
+            $mode = MCRYPT_MODE_CBC;
+            $ivSize = mcrypt_get_iv_size($algorithm, $mode);
+            $iv = mcrypt_create_iv($ivSize, MCRYPT_DEV_URANDOM);
+            $ciphertext = $iv . mcrypt_encrypt($algorithm, $key, $plain, $mode, $iv);
+        }
+
+        $hmac = hash_hmac('sha256', $ciphertext, $key);
+
+        return $hmac . $ciphertext;
+    }
+
+    /**
+     * Check the encryption key for proper length.
+     *
+     * @param string $key Key to check.
+     * @param string $method The method the key is being checked for.
+     * @return void
+     * @throws CakeException When key length is not 256 bit/32 bytes
+     */
+    protected static function _checkKey($key, $method)
+    {
+        if (strlen($key) < 32) {
+            throw new CakeException(__d('cake_dev', 'Invalid key for %s, key must be at least 256 bits (32 bytes) long.', $method));
+        }
+    }
+
+    /**
+     * Decrypt a value using AES-256.
+     *
+     * @param string $cipher The ciphertext to decrypt.
+     * @param string $key The 256 bit/32 byte key to use as a cipher key.
+     * @param string $hmacSalt The salt to use for the HMAC process. Leave null to use Security.salt.
+     * @return string|false Decrypted data. Any trailing null bytes will be removed.
+     * @throws CakeException On invalid data or key.
+     */
+    public static function decrypt($cipher, $key, $hmacSalt = null)
+    {
+        static::_checkKey($key, 'decrypt()');
+        if (empty($cipher)) {
+            throw new CakeException(__d('cake_dev', 'The data to decrypt cannot be empty.'));
+        }
+        if ($hmacSalt === null) {
+            $hmacSalt = Configure::read('Security.salt');
+        }
+
+        // Generate the encryption and hmac key.
+        $key = substr(hash('sha256', $key . $hmacSalt), 0, 32);
+
+        // Split out hmac for comparison
+        $macSize = 64;
+        $hmac = substr($cipher, 0, $macSize);
+        $cipher = substr($cipher, $macSize);
+
+        $compareHmac = hash_hmac('sha256', $cipher, $key);
+        if ($hmac !== $compareHmac) {
+            return false;
+        }
+
+        if (Configure::read('Security.useOpenSsl')) {
+            $method = 'AES-256-CBC';
+            $ivSize = openssl_cipher_iv_length($method);
+            $iv = substr($cipher, 0, $ivSize);
+            $cipher = substr($cipher, $ivSize);
+            // Regenerate PKCS#7 padding block
+            $padding = openssl_encrypt('', $method, $key, OPENSSL_RAW_DATA, substr($cipher, -$ivSize));
+            $plain = openssl_decrypt($cipher . $padding, $method, $key, OPENSSL_RAW_DATA, $iv);
+        } else {
+            $algorithm = MCRYPT_RIJNDAEL_128;
+            $mode = MCRYPT_MODE_CBC;
+            $ivSize = mcrypt_get_iv_size($algorithm, $mode);
+            $iv = substr($cipher, 0, $ivSize);
+            $cipher = substr($cipher, $ivSize);
+            $plain = mcrypt_decrypt($algorithm, $key, $cipher, $mode, $iv);
+        }
+
+        return rtrim($plain, "\0");
+    }
+}
+
+class_alias(Security::class, 'Security');

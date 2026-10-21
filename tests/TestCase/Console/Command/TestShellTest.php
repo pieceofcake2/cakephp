@@ -87,13 +87,13 @@ class TestShellTest extends CakeTestCase
     {
         $this->Shell->startup();
 
-        $return = $this->Shell->mapFileToCategory('src/Cake/basics.php');
+        $return = $this->Shell->mapFileToCategory(CAKE . 'basics.php');
         $this->assertSame('core', $return);
 
-        $return = $this->Shell->mapFileToCategory('src/Cake/Core/App.php');
+        $return = $this->Shell->mapFileToCategory(CAKE . 'Core/App.php');
         $this->assertSame('core', $return);
 
-        $return = $this->Shell->mapFileToCategory('src/Cake/Some/Deeply/Nested/Structure.php');
+        $return = $this->Shell->mapFileToCategory(CAKE . 'Some/Deeply/Nested/Structure.php');
         $this->assertSame('core', $return);
     }
 
@@ -108,13 +108,13 @@ class TestShellTest extends CakeTestCase
     {
         $this->Shell->startup();
 
-        $return = $this->Shell->mapFileToCase('src/Cake/basics.php', 'core');
+        $return = $this->Shell->mapFileToCase(CAKE . 'basics.php', 'core');
         $this->assertSame('Basics', $return);
 
-        $return = $this->Shell->mapFileToCase('src/Cake/Core/App.php', 'core');
+        $return = $this->Shell->mapFileToCase(CAKE . 'Core/App.php', 'core');
         $this->assertSame('Core/App', $return);
 
-        $return = $this->Shell->mapFileToCase('src/Cake/Some/Deeply/Nested/Structure.php', 'core', false);
+        $return = $this->Shell->mapFileToCase(CAKE . 'Some/Deeply/Nested/Structure.php', 'core', false);
         $this->assertSame('Some/Deeply/Nested/Structure', $return);
     }
 
