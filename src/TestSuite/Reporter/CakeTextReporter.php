@@ -102,6 +102,11 @@ class CakeTextReporter extends CakeBaseReporter
      * Paints the end of the test with a summary of
      * the passes and failures.
      *
+     * The summary is `Test cases run: <complete>/<total>`, where the complete
+     * tests are those that were neither skipped nor incomplete, then the
+     * number of passing tests, failures, exceptions, skipped and incomplete
+     * tests.
+     *
      * @param TestResult $result Result object
      * @return void
      */
@@ -113,11 +118,13 @@ class CakeTextReporter extends CakeBaseReporter
             echo "\nOK\n";
         }
 
-        echo 'Test cases run: ' . $result->count() .
-            '/' . ($result->count() - $result->skippedCount()) .
-            ', Passes: ' . $this->numAssertions .
+        echo 'Test cases run: ' . ($result->count() - $result->skippedCount() - $result->notImplementedCount()) .
+            '/' . $result->count() .
+            ', Passes: ' . count($result->passed()) .
             ', Failures: ' . $result->failureCount() .
-            ', Exceptions: ' . $result->errorCount() . "\n";
+            ', Exceptions: ' . $result->errorCount() .
+            ', Skipped: ' . $result->skippedCount() .
+            ', Incomplete: ' . $result->notImplementedCount() . "\n";
 
         echo 'Time: ' . $result->time() . " seconds\n";
         echo 'Peak memory: ' . number_format(memory_get_peak_usage()) . " bytes\n";

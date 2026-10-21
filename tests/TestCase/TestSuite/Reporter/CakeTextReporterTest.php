@@ -150,7 +150,7 @@ class CakeTextReporterTest extends CakeTestCase
 
         $this->assertSame("Running  Reporter sample\n.", $output);
         $this->assertMatchesRegularExpression(
-            '/^\nOK\nTest cases run: 1\/1, Passes: 2, Failures: 0, Exceptions: 0\n' .
+            '/^\nOK\nTest cases run: 1\/1, Passes: 1, Failures: 0, Exceptions: 0, Skipped: 0, Incomplete: 0\n' .
             'Time: [0-9.E-]+ seconds\nPeak memory: [0-9,]+ bytes\n$/',
             $this->footer($reporter, $result),
         );
@@ -158,9 +158,11 @@ class CakeTextReporterTest extends CakeTestCase
 
     /**
      * Test the summary of a run with a pass, a failure, an exception, a skipped
-     * and an incomplete test. The summary is `Test cases run: <all tests>/<all
-     * tests minus the skipped ones>`, then `Passes: <assertions>`, `Failures:
-     * <failures>` and `Exceptions: <errors>`.
+     * and an incomplete test. The summary is `Test cases run: <complete
+     * tests>/<all tests>`, where the complete tests are neither skipped nor
+     * incomplete, then `Passes: <passing tests>`, `Failures: <failures>`,
+     * `Exceptions: <errors>`, `Skipped: <skipped>` and `Incomplete:
+     * <incomplete>`.
      *
      * @return void
      */
@@ -176,11 +178,8 @@ class CakeTextReporterTest extends CakeTestCase
             'testIncomplete',
         );
 
-        // Pending decision: "Test cases run: 5/4" is the reverse of the "4/5"
-        // of the HTML summary, and "Passes" counts the assertions, not the
-        // passing tests. The assertion keeps the current output.
         $this->assertMatchesRegularExpression(
-            '/^FAILURES!!!\nTest cases run: 5\/4, Passes: 3, Failures: 1, Exceptions: 1\n' .
+            '/^FAILURES!!!\nTest cases run: 3\/5, Passes: 1, Failures: 1, Exceptions: 1, Skipped: 1, Incomplete: 1\n' .
             'Time: [0-9.E-]+ seconds\nPeak memory: [0-9,]+ bytes\n$/',
             $this->footer($reporter, $result),
         );

@@ -178,8 +178,6 @@ class CakeHtmlReporterTest extends CakeTestCase
         );
         $output = $this->runAndPaint($this->reporter(), $suite);
 
-        // Pending decision: the summary counts the incomplete test as complete
-        // ("4/5 test methods complete"). The assertion keeps the current output.
         $parts = [
             'background-image: url(/base/img/test-pass-icon.png);',
             '<link rel="stylesheet" href="/base/css/cake.generic.css" />',
@@ -190,8 +188,8 @@ class CakeHtmlReporterTest extends CakeTestCase
             "<li class='fail'>\n<span>Failed</span>",
             "<li class='skipped'>\n<span>Skipped</span> testSkipped",
             "</ul>\n<div style=\"padding: 8px; margin: 1em 0; background-color: red; color: white;\">" .
-                "4/5 test methods complete:\n<strong>1</strong> passes, <strong>1</strong> fails, " .
-                '<strong>3</strong> assertions and <strong>1</strong> exceptions.</div>',
+                "3/5 test methods complete:\n<strong>1</strong> passes, <strong>1</strong> fails, " .
+                '<strong>1</strong> skipped, <strong>1</strong> incomplete, <strong>3</strong> assertions and <strong>1</strong> exceptions.</div>',
             '<img src="/base/img/cake.power.gif"',
         ];
         $offset = 0;
@@ -229,7 +227,7 @@ class CakeHtmlReporterTest extends CakeTestCase
         $this->assertStringContainsString(
             '<div style="padding: 8px; margin: 1em 0; background-color: green; color: white;">' .
             "1/1 test methods complete:\n<strong>1</strong> passes, <strong>0</strong> fails, " .
-            '<strong>2</strong> assertions and <strong>0</strong> exceptions.</div>',
+            '<strong>0</strong> skipped, <strong>0</strong> incomplete, <strong>2</strong> assertions and <strong>0</strong> exceptions.</div>',
             $output,
         );
     }

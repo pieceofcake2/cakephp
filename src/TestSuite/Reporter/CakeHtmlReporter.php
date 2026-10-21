@@ -159,6 +159,9 @@ class CakeHtmlReporter extends CakeBaseReporter
      * Paints the end of the test with a summary of
      * the passes and failures.
      *
+     * The summary counts as complete the tests that were neither skipped
+     * nor incomplete.
+     *
      * @param TestResult $result Result object
      * @return void
      */
@@ -171,10 +174,12 @@ class CakeHtmlReporter extends CakeBaseReporter
         echo '<div style="';
         echo "padding: 8px; margin: 1em 0; background-color: $colour; color: white;";
         echo '">';
-        echo ($result->count() - $result->skippedCount()) . '/' . $result->count();
+        echo ($result->count() - $result->skippedCount() - $result->notImplementedCount()) . '/' . $result->count();
         echo " test methods complete:\n";
         echo '<strong>' . count($result->passed()) . '</strong> passes, ';
         echo '<strong>' . $result->failureCount() . '</strong> fails, ';
+        echo '<strong>' . $result->skippedCount() . '</strong> skipped, ';
+        echo '<strong>' . $result->notImplementedCount() . '</strong> incomplete, ';
         echo '<strong>' . $this->numAssertions . '</strong> assertions and ';
         echo '<strong>' . $result->errorCount() . '</strong> exceptions.';
         echo "</div>\n";
