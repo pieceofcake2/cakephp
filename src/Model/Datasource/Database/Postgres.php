@@ -387,8 +387,7 @@ class Postgres extends DboSource
      * Deletes all the records in a table and drops all associated auto-increment sequences
      *
      * @param Model|string $table A string or model class representing the table to be truncated
-     * @param bool $reset true for resetting the sequence, false to leave it as is.
-     *    and if 1, sequences are not modified
+     * @param bool $reset false (the default) to restart the sequences, true to leave them as they are.
      * @return bool True on success, false on failure.
      */
     public function truncate($table, $reset = false)

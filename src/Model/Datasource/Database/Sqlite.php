@@ -250,7 +250,7 @@ class Sqlite extends DboSource
      * primary key, where applicable.
      *
      * @param Model|string $table A string or model class representing the table to be truncated
-     * @return bool SQL TRUNCATE TABLE statement, false if not applicable.
+     * @return PDOStatement|bool The result of execute(): a PDOStatement or true on success, false on failure.
      */
     public function truncate($table)
     {
