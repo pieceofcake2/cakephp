@@ -287,11 +287,16 @@ class DboSourceTest extends CakeTestCase
     protected function _orderCollectingDeprecations(array $args, &$errors): mixed
     {
         $errors = [];
-        set_error_handler(function ($errno, $errstr) use (&$errors) {
-            $errors[] = $errstr;
+        // Without a mask, so that the other errors still reach the handler of PHPUnit
+        $previous = set_error_handler(function ($errno, $errstr, $errfile, $errline) use (&$errors, &$previous) {
+            if ($errno === E_USER_DEPRECATED) {
+                $errors[] = $errstr;
 
-            return true;
-        }, E_USER_DEPRECATED);
+                return true;
+            }
+
+            return $previous ? $previous($errno, $errstr, $errfile, $errline) : false;
+        });
         try {
             return $this->testDb->order(...$args);
         } finally {
