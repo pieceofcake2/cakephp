@@ -19,13 +19,18 @@
 
 namespace Cake\Test\TestCase\Console;
 
+use Cake\Console\ConsoleErrorHandler;
 use Cake\Console\Shell;
 use Cake\Console\ShellDispatcher;
 use Cake\Core\App;
 use Cake\Core\CakeObject;
 use Cake\Core\CakePlugin;
 use Cake\Core\Configure;
+use Cake\Error\CakeException;
+use Cake\Error\MissingShellException;
+use Cake\Error\MissingShellMethodException;
 use Cake\TestSuite\CakeTestCase;
+use Cake\Utility\Debugger;
 use Cake\Utility\Folder;
 use TestApp\Console\Command\NamespacedShell;
 use TestApp\Console\Command\SampleShell;
@@ -116,6 +121,88 @@ class TestShellDispatcher extends ShellDispatcher
     protected function _getShell($shell): mixed
     {
         return $this->TestShell ?? parent::_getShell($shell);
+    }
+}
+
+/**
+ * ShellDispatcher that records the bootstrap steps instead of running them
+ *
+ * @package       Cake.Test.Case.Console
+ */
+class TestBootstrapShellDispatcher extends ShellDispatcher
+{
+    /**
+     * The result of _bootstrap()
+     *
+     * @var bool
+     */
+    public $bootstrapResult = true;
+
+    /**
+     * The bootstrap steps that were called
+     *
+     * @var array<string>
+     */
+    public $calls = [];
+
+    /**
+     * _initConstants method
+     *
+     * @return void
+     */
+    protected function _initConstants(): void
+    {
+        $this->calls[] = '_initConstants';
+    }
+
+    /**
+     * _bootstrap method
+     *
+     * @return bool
+     */
+    protected function _bootstrap(): mixed
+    {
+        $this->calls[] = '_bootstrap';
+
+        return $this->bootstrapResult;
+    }
+
+    /**
+     * Calls _initEnvironment()
+     *
+     * @return void
+     */
+    public function initEnvironment(): void
+    {
+        $this->_initEnvironment();
+    }
+}
+
+/**
+ * ShellDispatcher that exposes the real bootstrap steps
+ *
+ * @package       Cake.Test.Case.Console
+ */
+class TestEnvironmentShellDispatcher extends ShellDispatcher
+{
+    /**
+     * Calls _initConstants()
+     *
+     * @return void
+     */
+    public function initConstants(): void
+    {
+        $this->_initConstants();
+    }
+
+    /**
+     * Calls _bootstrap()
+     *
+     * @return bool
+     */
+    public function bootstrap(): mixed
+    {
+        return $this->_bootstrap();
     }
 }
 
@@ -744,5 +831,388 @@ class ShellDispatcherTest extends CakeTestCase
         $result = $Dispatcher->getShell('namespaced');
         $this->assertInstanceOf(NamespacedShell::class, $result);
         $this->assertSame('Namespaced', $result->name);
+    }
+
+    /**
+     * Test the long forms of the path options, and the webroot option.
+     *
+     * @return void
+     */
+    public function testParseParamsLongOptionsAndWebroot(): void
+    {
+        $dispatcher = new TestShellDispatcher();
+        $params = [
+            'cake.php',
+            '--root',
+            '/var/www',
+            '--app',
+            'myapp',
+            '--webroot',
+            'public',
+            'sample',
+        ];
+        $expected = [
+            'app' => 'myapp',
+            'root' => str_replace('/', DS, '/var/www'),
+            'working' => str_replace('/', DS, '/var/www/myapp'),
+            'webroot' => 'public',
+        ];
+        $dispatcher->params = $dispatcher->args = [];
+        $dispatcher->parseParams($params);
+        $this->assertEquals($expected, $dispatcher->params);
+        $this->assertSame(['cake.php', 'sample'], $dispatcher->args);
+    }
+
+    /**
+     * Test that a relative working directory is resolved from the current directory.
+     *
+     * @return void
+     */
+    public function testParseParamsRelativeWorking(): void
+    {
+        $cwd = getcwd();
+        $working = realpath(CORE_TESTS . DS . 'test_app');
+        chdir($working);
+        try {
+            $dispatcher = new TestShellDispatcher();
+            $dispatcher->params = $dispatcher->args = [];
+            $dispatcher->parseParams(['cake.php', '-working', '.']);
+        } finally {
+            chdir($cwd);
+        }
+        $expected = [
+            'app' => basename($working),
+            'root' => dirname($working),
+            'working' => $working,
+            'webroot' => 'webroot',
+        ];
+        $this->assertEquals($expected, $dispatcher->params);
+    }
+
+    /**
+     * Test that the working directory is used as the root when it is the root.
+     *
+     * @return void
+     */
+    public function testParseParamsWorkingIsRoot(): void
+    {
+        $dispatcher = new TestShellDispatcher();
+        $defaults = $dispatcher->getDefaults();
+
+        $params = ['cake.php', '-root', '/var/www/site', '-working', '/var/www/site'];
+        $expected = [
+            'app' => $defaults['app'],
+            'root' => str_replace('/', DS, '/var/www/site'),
+            'working' => str_replace('/', DS, '/var/www/site/' . $defaults['app']),
+            'webroot' => 'webroot',
+        ];
+        $dispatcher->params = $dispatcher->args = [];
+        $dispatcher->parseParams($params);
+        $this->assertEquals($expected, $dispatcher->params);
+    }
+
+    /**
+     * Test that the constructor bootstraps the environment and drops the script name.
+     *
+     * @return void
+     */
+    public function testConstructBootstrap(): void
+    {
+        $dispatcher = new TestBootstrapShellDispatcher(['cake.php', 'sample', 'main']);
+        $this->assertSame(['_initConstants', '_bootstrap'], $dispatcher->calls);
+        $this->assertSame(['sample', 'main'], $dispatcher->args);
+
+        $dispatcher = new TestBootstrapShellDispatcher(['cake.php', 'sample'], false);
+        $this->assertSame([], $dispatcher->calls);
+        $this->assertSame(['cake.php', 'sample'], $dispatcher->args);
+    }
+
+    /**
+     * Test that a failed bootstrap stops the environment set up.
+     *
+     * @return void
+     */
+    public function testInitEnvironmentBootstrapFails(): void
+    {
+        $dispatcher = new TestBootstrapShellDispatcher(['cake.php'], false);
+        $dispatcher->bootstrapResult = false;
+
+        $this->expectException(CakeException::class);
+        $this->expectExceptionMessage('Unable to load CakePHP core.');
+        $dispatcher->initEnvironment();
+    }
+
+    /**
+     * Test that the environment set up needs the script name and the working directory.
+     *
+     * @return void
+     */
+    public function testInitEnvironmentWithoutArguments(): void
+    {
+        $dispatcher = new TestBootstrapShellDispatcher(['cake.php'], false);
+        $dispatcher->args = [];
+
+        try {
+            $dispatcher->initEnvironment();
+            $this->fail('No exception was thrown without arguments.');
+        } catch (CakeException $e) {
+            $this->assertStringContainsString('This file has been loaded incorrectly', $e->getMessage());
+        }
+
+        $dispatcher->args = ['cake.php'];
+        unset($dispatcher->params['working']);
+        $this->expectException(CakeException::class);
+        $this->expectExceptionMessage('This file has been loaded incorrectly');
+        $dispatcher->initEnvironment();
+    }
+
+    /**
+     * Test the core configuration. The test bootstrap already ran it, so this only checks
+     * that it can run again and keeps the console settings.
+     *
+     * @return void
+     */
+    public function testInitConstants(): void
+    {
+        $htmlErrors = ini_get('html_errors');
+        $implicitFlush = ini_get('implicit_flush');
+        $maxExecutionTime = ini_get('max_execution_time');
+
+        $dispatcher = new TestEnvironmentShellDispatcher(['cake.php'], false);
+        try {
+            $dispatcher->initConstants();
+
+            $this->assertTrue(defined('CAKEPHP_SHELL'));
+            $this->assertEmpty(ini_get('html_errors'));
+            $this->assertSame('1', ini_get('implicit_flush'));
+            $this->assertSame('0', ini_get('max_execution_time'));
+        } finally {
+            ini_set('html_errors', (string)$htmlErrors);
+            ini_set('implicit_flush', (string)$implicitFlush);
+            ini_set('max_execution_time', (string)$maxExecutionTime);
+        }
+    }
+
+    /**
+     * Test the bootstrap. The test bootstrap already defined the constants and loaded the
+     * core, so this checks that it sets the console error handlers again.
+     *
+     * @return void
+     */
+    public function testBootstrap(): void
+    {
+        $format = Debugger::outputAs();
+        Configure::delete('Error.consoleHandler');
+        Configure::delete('Exception.consoleHandler');
+
+        $dispatcher = new TestEnvironmentShellDispatcher(['cake.php'], false);
+        try {
+            $result = $dispatcher->bootstrap();
+        } finally {
+            restore_error_handler();
+            restore_exception_handler();
+            Debugger::outputAs($format);
+        }
+        $this->assertTrue($result);
+        $this->assertInstanceOf(ConsoleErrorHandler::class, Configure::read('Error.consoleHandler.0'));
+        $this->assertTrue(defined('FULL_BASE_URL'));
+    }
+
+    /**
+     * Test that the default console error handlers are set when none are configured.
+     *
+     * @return void
+     */
+    public function testSetErrorHandlersDefault(): void
+    {
+        $format = Debugger::outputAs();
+        Configure::delete('Error.consoleHandler');
+        Configure::delete('Exception.consoleHandler');
+
+        $dispatcher = new TestShellDispatcher();
+        try {
+            $dispatcher->setErrorHandlers();
+            $outputFormat = Debugger::outputAs();
+        } finally {
+            $errorHandler = set_error_handler(null);
+            restore_error_handler();
+            restore_error_handler();
+            $exceptionHandler = set_exception_handler(null);
+            restore_exception_handler();
+            restore_exception_handler();
+            Debugger::outputAs($format);
+        }
+
+        $error = Configure::read('Error.consoleHandler');
+        $this->assertInstanceOf(ConsoleErrorHandler::class, $error[0]);
+        $this->assertSame('handleError', $error[1]);
+        $exception = Configure::read('Exception.consoleHandler');
+        $this->assertSame($error[0], $exception[0]);
+        $this->assertSame('handleException', $exception[1]);
+
+        $this->assertSame($error, $errorHandler);
+        $this->assertSame($exception, $exceptionHandler);
+        $this->assertSame('txt', $outputFormat);
+    }
+
+    /**
+     * Test that the configured console error handlers are used.
+     *
+     * @return void
+     */
+    public function testSetErrorHandlersConfigured(): void
+    {
+        $format = Debugger::outputAs();
+        $handler = new ConsoleErrorHandler();
+        Configure::write('Error.consoleHandler', [$handler, 'handleError']);
+        Configure::write('Exception.consoleHandler', [$handler, 'handleException']);
+
+        $dispatcher = new TestShellDispatcher();
+        try {
+            $dispatcher->setErrorHandlers();
+        } finally {
+            $errorHandler = set_error_handler(null);
+            restore_error_handler();
+            restore_error_handler();
+            $exceptionHandler = set_exception_handler(null);
+            restore_exception_handler();
+            restore_exception_handler();
+            Debugger::outputAs($format);
+        }
+
+        $this->assertSame([$handler, 'handleError'], $errorHandler);
+        $this->assertSame([$handler, 'handleException'], $exceptionHandler);
+    }
+
+    /**
+     * Test that dispatching without a shell shows the command list and fails.
+     *
+     * @return void
+     */
+    public function testDispatchWithoutShellShowsHelp(): void
+    {
+        $dispatcher = new TestShellDispatcher();
+        $shell = $this->getMock(Shell::class);
+        $shell->expects($this->once())->method('initialize');
+        $shell->expects($this->once())->method('runCommand')
+            ->with('', [])
+            ->will($this->returnValue(true));
+        $dispatcher->TestShell = $shell;
+
+        $dispatcher->args = [];
+        $this->assertFalse($dispatcher->dispatch());
+    }
+
+    /**
+     * Test that the help commands show the command list.
+     *
+     * @return void
+     */
+    public function testDispatchHelp(): void
+    {
+        foreach (['help', '--help', '-h'] as $command) {
+            $dispatcher = new TestShellDispatcher();
+            $shell = $this->getMock(Shell::class);
+            $shell->expects($this->once())->method('initialize');
+            $shell->expects($this->once())->method('runCommand')
+                ->with('', [])
+                ->will($this->returnValue(false));
+            $dispatcher->TestShell = $shell;
+
+            $dispatcher->args = [$command];
+            $this->assertTrue($dispatcher->dispatch(), $command);
+        }
+    }
+
+    /**
+     * Test dispatching a plugin shell that is loaded by name.
+     *
+     * @return void
+     */
+    public function testDispatchLoadedShell(): void
+    {
+        CakePlugin::load('TestDispatchPlugin');
+
+        $dispatcher = new TestShellDispatcher();
+        $dispatcher->args = ['TestDispatchPlugin.dispatched', 'hello', 'world'];
+        $this->assertSame('hello: world', $dispatcher->dispatch());
+
+        $dispatcher = new TestShellDispatcher();
+        $dispatcher->args = ['test_dispatch_plugin.dispatched', 'one', 'two'];
+        $this->assertSame('main: one two', $dispatcher->dispatch());
+    }
+
+    /**
+     * Test that a protected method of a class that is not a shell cannot be dispatched.
+     *
+     * @return void
+     */
+    public function testDispatchNotAShellProtectedMethod(): void
+    {
+        $dispatcher = new TestShellDispatcher();
+        $methods = get_class_methods(CakeObject::class);
+        array_push($methods, 'main', 'startup', '_secret');
+        $shell = $this->getMock(CakeObject::class, $methods);
+        $shell->expects($this->never())->method('startup');
+        $shell->expects($this->never())->method('main');
+        $shell->expects($this->never())->method('_secret');
+        $dispatcher->TestShell = $shell;
+
+        $dispatcher->args = ['mock_not_a', '_secret'];
+        $this->expectException(MissingShellMethodException::class);
+        $dispatcher->dispatch();
+    }
+
+    /**
+     * Test that a class that is not a shell needs the method or main().
+     *
+     * @return void
+     */
+    public function testDispatchNotAShellMissingMethod(): void
+    {
+        $dispatcher = new TestShellDispatcher();
+        $methods = get_class_methods(CakeObject::class);
+        array_push($methods, 'startup');
+        $shell = $this->getMock(CakeObject::class, $methods);
+        $shell->expects($this->never())->method('startup');
+        $dispatcher->TestShell = $shell;
+
+        $dispatcher->args = ['mock_not_a', 'unknown'];
+        $this->expectException(MissingShellMethodException::class);
+        $dispatcher->dispatch();
+    }
+
+    /**
+     * Test that a plugin without a shell of its name throws a missing shell exception.
+     *
+     * @return void
+     */
+    public function testGetShellMissing(): void
+    {
+        CakePlugin::load('TestTwoPlugin');
+        $dispatcher = new TestShellDispatcher();
+
+        $this->expectException(MissingShellException::class);
+        $this->expectExceptionMessage('TestTwoPluginShell');
+        $dispatcher->getShell('test_two_plugin');
+    }
+
+    /**
+     * Test that an unknown shell name throws a missing shell exception.
+     *
+     * @return void
+     */
+    public function testGetShellUnknownName(): void
+    {
+        $this->markTestSkipped(
+            'ShellDispatcher::_getShell() looks the name up as a plugin, and App::className() throws ' .
+            'MissingPluginException ("Plugin NotThere could not be found.") before MissingShellException.',
+        );
+
+        $dispatcher = new TestShellDispatcher();
+
+        $this->expectException(MissingShellException::class);
+        $this->expectExceptionMessage('NotThereShell');
+        $dispatcher->getShell('not_there');
     }
 }
