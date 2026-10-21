@@ -416,16 +416,21 @@ class Sqlserver extends DboSource
     /**
      * Generates and executes an SQL INSERT statement for given model, fields, and values.
      * Removes Identity (primary key) column from update data before returning to parent, if
-     * value is empty.
+     * value is empty. Without $fields, the data of the model is inserted.
      *
      * @param Model $model The model to insert into.
-     * @param array $fields The fields to set.
-     * @param array $values The values to set.
+     * @param array|null $fields The fields to set.
+     * @param array|null $values The values to set.
      * @return bool
      */
     public function create(Model $model, $fields = null, $values = null)
     {
-        if (!empty($values)) {
+        if (!$fields) {
+            $fields = [];
+            if (isset($model->data[$model->alias])) {
+                $fields = $model->data[$model->alias];
+            }
+        } elseif (!empty($values)) {
             $fields = array_combine($fields, $values);
         }
         $primaryKey = $this->_getPrimaryKey($model);

@@ -523,6 +523,26 @@ class SqlserverTest extends CakeTestCase
     }
 
     /**
+     * Test that create() without fields inserts the data of the model, and turns on
+     * IDENTITY_INSERT around it when the data has a primary key, as with fields.
+     *
+     * @return void
+     */
+    public function testCreateWithoutFieldsInsertsTheModelData(): void
+    {
+        $this->db->describe = $this->model->schema();
+        $this->model->data = ['SqlserverTestModel' => ['id' => 5, 'name' => 'Jim']];
+
+        $this->db->create($this->model);
+
+        $this->assertCount(3, $this->db->simulated);
+        $this->assertMatchesRegularExpression('/^SET IDENTITY_INSERT (\[[^\]]+\]\.)?\[sqlserver_test_models\] ON$/', $this->db->simulated[0]);
+        $this->assertMatchesRegularExpression('/^INSERT INTO (\[[^\]]+\]\.)?\[sqlserver_test_models\] \(\[id\], \[name\]\) VALUES /', $this->db->simulated[1]);
+        $this->assertStringContainsString("'Jim'", $this->db->simulated[1]);
+        $this->assertMatchesRegularExpression('/^SET IDENTITY_INSERT (\[[^\]]+\]\.)?\[sqlserver_test_models\] OFF$/', $this->db->simulated[2]);
+    }
+
+    /**
      * testGetPrimaryKey method
      *
      * @return void
