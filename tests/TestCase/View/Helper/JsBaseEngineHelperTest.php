@@ -334,9 +334,8 @@ class JsBaseEngineHelperTest extends CakeTestCase
      */
     public function testEscapeStrayContinuationByte(): void
     {
-        $this->markTestIncomplete('Known bug: escape() silently drops a stray UTF-8 continuation byte');
-
         $this->assertSame('a?b', $this->JsEngine->escape("a\x80b"));
+        $this->assertSame('\u00e9??', $this->JsEngine->escape("\xC3\xA9\xA9\xBF"));
     }
 
     /**

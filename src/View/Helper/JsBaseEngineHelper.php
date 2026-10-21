@@ -242,6 +242,10 @@ abstract class JsBaseEngineHelper extends AppHelper
                 case $ord <= 0x7F:
                     $return .= $string[$i];
                     break;
+                case ($ord & 0xC0) == 0x80:
+                    // A continuation byte without a lead byte is not valid UTF-8.
+                    $return .= '?';
+                    break;
                 case ($ord & 0xE0) == 0xC0:
                     if ($i + 1 >= $length) {
                         $i += 1;
