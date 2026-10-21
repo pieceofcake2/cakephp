@@ -23,6 +23,7 @@ use Cake\Controller\ComponentCollection;
 use Cake\Controller\Controller;
 use Cake\Core\App;
 use Cake\Core\Configure;
+use Cake\Error\CakeException;
 use Cake\Utility\Hash;
 
 /**
@@ -584,7 +585,12 @@ class AclShell extends AppShell
      */
     protected function _getNodeId($class, $identifier)
     {
-        $node = $this->Acl->{$class}->node($identifier);
+        try {
+            $node = $this->Acl->{$class}->node($identifier);
+        } catch (CakeException $e) {
+            // AclNode::node() throws for a Model.foreign_key reference that is not found
+            $node = false;
+        }
         if (empty($node)) {
             if (is_array($identifier)) {
                 $identifier = var_export($identifier, true);

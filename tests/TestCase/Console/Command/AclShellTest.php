@@ -741,16 +741,15 @@ class AclShellTest extends CakeTestCase
     /**
      * Test create with a Model.foreign_key parent that does not exist.
      *
-     * AclNode::node() throws for a Model.foreign_key reference that is not found,
-     * so the exception reaches the caller before AclShell can report it.
-     *
      * @return void
      */
     public function testCreateWithMissingModelParent(): void
     {
-        $this->Task->expects($this->never())->method('error');
-        $this->expectException(CakeException::class);
-        $this->expectExceptionMessage("Couldn't find Aro node identified by");
+        $this->_errorThrows();
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage(
+            'Could not find node using reference "' . var_export(['model' => 'User', 'foreign_key' => '99'], true) . '"',
+        );
 
         $this->Task->args = ['aro', 'User.99', 'child'];
         $this->Task->create();
