@@ -121,6 +121,45 @@ class CakeSessionTest extends CakeTestCase
     }
 
     /**
+     * The session ini settings saved by _preserveSessionIni(), restored in tearDown().
+     *
+     * @var array<string, string|false>|null
+     */
+    protected ?array $_sessionIni = null;
+
+    /**
+     * Saves the session ini settings, so that tearDown() restores what the test changes.
+     *
+     * @return void
+     */
+    protected function _preserveSessionIni(): void
+    {
+        $this->_sessionIni = ini_get_all('session', false);
+    }
+
+    /**
+     * Restores the session ini settings saved by _preserveSessionIni().
+     *
+     * The save handler is left out: ini_set() refuses the "user" handler, and the
+     * tests change it through session_set_save_handler() only.
+     *
+     * @return void
+     */
+    protected function _restoreSessionIni(): void
+    {
+        if ($this->_sessionIni === null) {
+            return;
+        }
+        foreach ($this->_sessionIni as $setting => $value) {
+            if ($setting === 'session.save_handler' || $value === false || ini_get($setting) === $value) {
+                continue;
+            }
+            ini_set($setting, $value);
+        }
+        $this->_sessionIni = null;
+    }
+
+    /**
      * tearDown method
      *
      * @return void
@@ -131,6 +170,7 @@ class CakeSessionTest extends CakeTestCase
             session_write_close();
         }
         unset($_SESSION);
+        $this->_restoreSessionIni();
 
         parent::tearDown();
     }
@@ -938,14 +978,26 @@ class CakeSessionTest extends CakeTestCase
      */
     public function testErrorAfterInvalidSession(): void
     {
+        $this->_preserveSessionIni();
+        $userAgent = TestCakeSession::userAgent();
+        $error = TestCakeSession::$error;
+        $lastError = TestCakeSession::$lastError;
+        $valid = TestCakeSession::$valid;
         Configure::write('Session.checkAgent', true);
-        TestCakeSession::start();
-        $this->assertTrue(TestCakeSession::valid());
-        $this->assertFalse(TestCakeSession::error());
+        try {
+            TestCakeSession::start();
+            $this->assertTrue(TestCakeSession::valid());
+            $this->assertFalse(TestCakeSession::error());
 
-        TestCakeSession::userAgent('another agent');
-        $this->assertFalse(TestCakeSession::valid());
-        $this->assertSame('Session Highjacking Attempted !!!', TestCakeSession::error());
+            TestCakeSession::userAgent('another agent');
+            $this->assertFalse(TestCakeSession::valid());
+            $this->assertSame('Session Highjacking Attempted !!!', TestCakeSession::error());
+        } finally {
+            TestCakeSession::setUserAgent($userAgent);
+            TestCakeSession::$error = $error;
+            TestCakeSession::$lastError = $lastError;
+            TestCakeSession::$valid = $valid;
+        }
     }
 
     /**
@@ -956,6 +1008,7 @@ class CakeSessionTest extends CakeTestCase
      */
     public function testUserAgentFromRequest(): void
     {
+        $this->_preserveSessionIni();
         $previous = TestCakeSession::userAgent();
         $_SERVER['HTTP_USER_AGENT'] = 'CakeSessionTest Agent';
         try {
@@ -974,6 +1027,7 @@ class CakeSessionTest extends CakeTestCase
      */
     public function testAutoRegenerateRenewsTheSessionId(): void
     {
+        $this->_preserveSessionIni();
         // The files handler, as a handler of an earlier test may not store the data
         Configure::write('Session', ['defaults' => 'cake', 'timeout' => 120, 'autoRegenerate' => true]);
         $createdPath = !is_dir(TMP . 'sessions') && mkdir(TMP . 'sessions');
@@ -1012,6 +1066,7 @@ class CakeSessionTest extends CakeTestCase
      */
     public function testClearRenewsTheSession(): void
     {
+        $this->_preserveSessionIni();
         $this->markTestIncomplete('Known bug: clear() sets $_SESSION to null before renew(), so the stored data is kept and read back.');
         // The files handler, as a handler of an earlier test may not store the data
         Configure::write('Session', ['defaults' => 'cake', 'timeout' => 120]);
@@ -1041,21 +1096,30 @@ class CakeSessionTest extends CakeTestCase
     }
 
     /**
-     * Test that the session cookie is secure on a HTTPS request.
+     * Test that the session cookie is made secure on a HTTPS request, and left
+     * as it is on a plain HTTP request.
      *
      * @return void
      */
     public function testCookieSecureOnHttps(): void
     {
-        $previous = ini_get('session.cookie_secure');
-        TestCakeSession::destroy();
-        $_SERVER['HTTPS'] = 'on';
+        $this->_preserveSessionIni();
+        $server = $_SERVER;
+        unset($_SERVER['HTTPS'], $_SERVER['SCRIPT_URI']);
         try {
+            TestCakeSession::destroy();
+            ini_set('session.cookie_secure', '0');
             TestCakeSession::start();
-            $this->assertSame('1', ini_get('session.cookie_secure'));
+            $this->assertSame('0', ini_get('session.cookie_secure'), 'Not secure without HTTPS.');
+            session_write_close();
+
+            TestCakeSession::destroy();
+            $_SERVER['HTTPS'] = 'on';
+            TestCakeSession::start();
+            $this->assertSame('1', ini_get('session.cookie_secure'), 'Secure with HTTPS.');
         } finally {
             session_write_close();
-            ini_set('session.cookie_secure', $previous);
+            $_SERVER = $server;
         }
     }
 
@@ -1068,16 +1132,16 @@ class CakeSessionTest extends CakeTestCase
     {
         $this->markTestIncomplete('Known bug: _configureSession() checks Session.session.save_path instead of Session.ini.session.save_path.');
         $path = TMP . 'cake_session_test_' . getmypid();
+        $this->_preserveSessionIni();
         Configure::write('debug', 2);
-        Configure::write('Session.ini.session.save_path', $path);
-        $previous = ini_get('session.save_path');
+        Configure::write('Session.ini', ['session.save_path' => $path]);
         TestCakeSession::destroy();
         try {
             TestCakeSession::start();
             $this->assertDirectoryExists($path);
         } finally {
             session_write_close();
-            ini_set('session.save_path', $previous);
+            ini_set('session.save_path', (string)$this->_sessionIni['session.save_path']);
             if (is_dir($path)) {
                 array_map('unlink', glob($path . DS . '*'));
                 rmdir($path);
@@ -1086,21 +1150,29 @@ class CakeSessionTest extends CakeTestCase
     }
 
     /**
-     * Test that a session handler that cannot be found is reported with its
-     * name without the plugin.
+     * Test that a session handler that cannot be found in a loaded plugin is
+     * reported with its name without the plugin.
      *
      * @return void
      */
     public function testMissingHandler(): void
     {
+        $this->_preserveSessionIni();
+        App::build(['Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS]], App::RESET);
+        CakePlugin::load('TestPlugin');
         TestCakeSession::destroy();
         Configure::write('Session', [
             'defaults' => 'cake',
             'handler' => ['engine' => 'TestPlugin.NoSuchSession'],
         ]);
-        $this->expectException(CakeSessionException::class);
-        $this->expectExceptionMessage('Could not load NoSuchSession to handle the session.');
-        TestCakeSession::start();
+        try {
+            TestCakeSession::start();
+            $this->fail('No CakeSessionException was thrown.');
+        } catch (CakeSessionException $e) {
+            $this->assertSame('Could not load NoSuchSession to handle the session.', $e->getMessage());
+        } finally {
+            CakePlugin::unload('TestPlugin');
+        }
     }
 
     /**
@@ -1111,6 +1183,7 @@ class CakeSessionTest extends CakeTestCase
      */
     public function testHandlerWithoutInterface(): void
     {
+        $this->_preserveSessionIni();
         TestCakeSession::destroy();
         Configure::write('Session', [
             'defaults' => 'cake',
