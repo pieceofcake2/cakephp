@@ -135,7 +135,7 @@ class ApiShell extends AppShell
                         $this->out($list);
                     }
 
-                    if (isset($methods[--$number])) {
+                    if (ctype_digit($number) && isset($methods[--$number])) {
                         $method = $parsed[$methods[$number]];
                         $this->hr();
                         $this->out($class . '::' . $method['method'] . $method['parameters']);

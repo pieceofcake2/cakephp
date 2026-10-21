@@ -360,6 +360,30 @@ class ApiShellTest extends CakeTestCase
     }
 
     /**
+     * Test that 'l' lists the methods again, and other input that is not a number is ignored
+     *
+     * @return void
+     */
+    public function testInteractiveListAgain(): void
+    {
+        $this->Shell->initialize();
+        $this->Shell->expects($this->exactly(3))
+            ->method('in')
+            ->will($this->onConsecutiveCalls('l', 'x', 'q'));
+        $this->Shell->expects($this->once())->method('hr');
+        $this->_captureOut();
+
+        $this->Shell->args = ['view', 'View'];
+        $this->Shell->main();
+
+        $this->assertCount(4, $this->outCalls);
+        $this->assertSame('View', $this->outCalls[0]);
+        $this->assertIsArray($this->outCalls[1]);
+        $this->assertSame($this->outCalls[1], $this->outCalls[2]);
+        $this->assertSame('Done', $this->outCalls[3]);
+    }
+
+    /**
      * Test that main() without arguments shows the help of the option parser
      *
      * @return void
