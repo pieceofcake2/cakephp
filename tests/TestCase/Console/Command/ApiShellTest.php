@@ -22,9 +22,7 @@ use Cake\Console\Command\ApiShell;
 use Cake\Console\ConsoleInput;
 use Cake\Console\ConsoleOptionParser;
 use Cake\Console\ConsoleOutput;
-use Cake\Core\App;
 use Cake\TestSuite\CakeTestCase;
-use Closure;
 use RuntimeException;
 
 /**
@@ -59,7 +57,6 @@ class ApiShellTest extends CakeTestCase
             ['in', 'out', 'err', 'createFile', 'hr', '_stop'],
             [$out, $out, $in],
         );
-        $this->_clearClassList();
     }
 
     /**
@@ -69,23 +66,9 @@ class ApiShellTest extends CakeTestCase
      */
     public function tearDown(): void
     {
-        $this->_clearClassList();
         unset($this->Shell);
 
         parent::tearDown();
-    }
-
-    /**
-     * App::objects('class', $path) keeps one list for every path, so each test starts
-     * without the list of the previous lookup.
-     *
-     * @return void
-     */
-    protected function _clearClassList(): void
-    {
-        Closure::bind(function () {
-            unset(static::$_objects['app']['class']);
-        }, null, App::class)();
     }
 
     /**
@@ -249,6 +232,29 @@ class ApiShellTest extends CakeTestCase
 
         $this->assertSame('CacheHelper', $this->outCalls[0]);
         $this->assertNotEmpty(preg_grep('/^\d+\. afterRenderFile\(\$viewFile, \$output\)$/', $this->outCalls[1]));
+    }
+
+    /**
+     * Test that the classes of each path are listed again for every lookup
+     *
+     * @return void
+     */
+    public function testClassLookupOfTwoTypes(): void
+    {
+        $this->Shell->initialize();
+        $this->Shell->expects($this->exactly(2))->method('in')->will($this->returnValue('q'));
+        $this->Shell->expects($this->never())->method('err');
+        $this->_captureOut();
+
+        $this->Shell->args = ['model', 'Model'];
+        $this->Shell->main();
+        $this->Shell->args = ['helper', 'HtmlHelper'];
+        $this->Shell->main();
+
+        $this->assertSame('Model', $this->outCalls[0]);
+        $this->assertNotEmpty(preg_grep('/^\d+\. save\(/', $this->outCalls[1]));
+        $this->assertSame('HtmlHelper', $this->outCalls[3]);
+        $this->assertNotEmpty(preg_grep('/^\d+\. link\(/', $this->outCalls[4]));
     }
 
     /**
