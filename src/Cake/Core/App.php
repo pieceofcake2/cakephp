@@ -553,6 +553,55 @@ class App
     }
 
     /**
+     * Returns the name of a class from the name used in the configuration, or null if the class does not exist.
+     *
+     * - A name with a backslash is a fully qualified class name. The suffix is added only when the name does
+     *   not end with it: both `'Acme\Cache\Memory'` and `MemoryEngine::class` return
+     *   `Acme\Cache\MemoryEngine` with the suffix `Engine`.
+     * - Other names may have a plugin prefix (`'MyPlugin.Name'`). The class is looked up in the namespace of
+     *   the plugin, or of the application set in `App.namespace`, as `<Namespace>\<Type>\<Name><Suffix>`,
+     *   then as the global class `<Name><Suffix>` declared with `App::uses()` in the `<Type>` package.
+     *
+     * Usage:
+     *
+     * `App::className('Auth', 'Controller/Component', 'Component');` returns `AuthComponent`
+     *
+     * `App::className('MyPlugin.Memory', 'Cache/Engine', 'Engine');` returns `MyPlugin\Cache\Engine\MemoryEngine`
+     * if that class exists, or `MemoryEngine` from the `Cache/Engine` package of the plugin
+     *
+     * @param string $class The class name, with a plugin prefix or as a fully qualified class name
+     * @param string $type The package of the class, e.g. `Controller/Component`
+     * @param string $suffix The suffix of the class name, e.g. `Component`
+     * @return string|null The class name, or null if the class does not exist
+     * @phpstan-return class-string|null
+     */
+    public static function className($class, $type = '', $suffix = '')
+    {
+        if (str_contains($class, '\\')) {
+            $class = ltrim($class, '\\');
+            if (!str_ends_with($class, $suffix)) {
+                $class .= $suffix;
+            }
+
+            return class_exists($class) ? $class : null;
+        }
+
+        [$plugin, $name] = pluginSplit($class);
+        $namespace = $plugin ?: Configure::read('App.namespace');
+        if (is_string($namespace) && $namespace !== '') {
+            $fullName = str_replace('/', '\\', rtrim($namespace, '\\') . '\\' . ($type !== '' ? $type . '\\' : '') . $name) . $suffix;
+            if (class_exists($fullName)) {
+                return $fullName;
+            }
+        }
+
+        $className = $name . $suffix;
+        static::uses($className, $plugin ? $plugin . '.' . $type : $type);
+
+        return class_exists($className) ? $className : null;
+    }
+
+    /**
      * Method to handle the automatic class loading. It will look for each class' package
      * defined using App::uses() and with this information it will resolve the package name to a full path
      * to load the class from. File name for each class should follow the class name. For instance,
@@ -578,7 +627,12 @@ class App
 
         $file = static::_mapped($className, $plugin);
         if ($file) {
-            return include $file;
+            $loaded = include_once $file;
+            if (class_exists($className, false) || !static::_aliasAppClass($className, $package, $plugin)) {
+                return $loaded;
+            }
+
+            return true;
         }
         $paths = static::path($package, $plugin);
 
@@ -598,12 +652,40 @@ class App
             $file = $path . $normalizedClassName . '.php';
             if (file_exists($file)) {
                 static::_map($file, $className, $plugin);
+                $loaded = include_once $file;
+                if (class_exists($className, false) || !static::_aliasAppClass($className, $package, $plugin)) {
+                    return $loaded;
+                }
 
-                return include $file;
+                return true;
             }
         }
 
-        return false;
+        return static::_aliasAppClass($className, $package, $plugin);
+    }
+
+    /**
+     * Declares the global name of an application base class (AppController, AppModel, AppHelper or AppShell)
+     * for the class of the same name in App.namespace, e.g. AppController for App\Controller\AppController,
+     * so that the core classes that extend it work in a namespaced application.
+     *
+     * @param string $className The global class name
+     * @param string $package The package of the class, e.g. Controller
+     * @param string|null $plugin The plugin name
+     * @return bool Whether the global name is declared
+     */
+    protected static function _aliasAppClass($className, $package, $plugin)
+    {
+        $appNamespace = Configure::read('App.namespace');
+        if ($plugin || !$appNamespace || !in_array($className, ['AppController', 'AppModel', 'AppHelper', 'AppShell'], true)) {
+            return false;
+        }
+        $namespaced = trim($appNamespace, '\\') . '\\' . str_replace('/', '\\', $package) . '\\' . $className;
+        if (!class_exists($namespaced)) {
+            return false;
+        }
+
+        return class_alias($namespaced, $className);
     }
 
     /**
@@ -730,8 +812,11 @@ class App
         }
         $name = Inflector::camelize($name);
         App::uses($name, $plugin . $type);
+        if (class_exists($name)) {
+            return true;
+        }
 
-        return class_exists($name);
+        return static::className($plugin . $name, $type) !== null;
     }
 
     /**

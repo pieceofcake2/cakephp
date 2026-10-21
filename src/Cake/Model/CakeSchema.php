@@ -239,18 +239,18 @@ class CakeSchema extends CakeObject
                     $plugin = $this->plugin . '.';
                 }
 
-                App::uses($importModel, $plugin . 'Model');
-                if (!class_exists($importModel)) {
+                $className = App::className($plugin . $importModel, 'Model');
+                if ($className === null) {
                     continue;
                 }
 
-                $vars = get_class_vars($model);
+                $vars = get_class_vars($className);
                 if (empty($vars['useDbConfig']) || $vars['useDbConfig'] != $options['connection']) {
                     continue;
                 }
 
                 try {
-                    $Object = ClassRegistry::init(['class' => $model, 'ds' => $options['connection']]);
+                    $Object = ClassRegistry::init(['class' => $plugin . $model, 'ds' => $options['connection']]);
                 } catch (CakeException) {
                     continue;
                 }
@@ -284,7 +284,7 @@ class CakeSchema extends CakeObject
                     if (!isset($assocData['with'])) {
                         continue;
                     }
-                    $class = $assocData['with'];
+                    $class = substr($assocData['with'], (int)strrpos('\\' . $assocData['with'], '\\'));
                     if (!is_object($Object->$class)) {
                         continue;
                     }

@@ -1,4 +1,7 @@
 <?php
+
+use TestApp\Model\Datasource\Session\NamespacedSession;
+
 /**
  * SessionTest file
  *
@@ -900,5 +903,26 @@ class CakeSessionTest extends CakeTestCase
         TestCakeSession::start();
         $this->assertNotEquals($data, $_SESSION);
         $this->assertEquals('bogus!', $_SESSION['Config']['userAgent']);
+    }
+
+    /**
+     * Test a session handler by fully qualified class name and from App.namespace.
+     *
+     * @return void
+     */
+    public function testUsingNamespacedHandler(): void
+    {
+        foreach ([NamespacedSession::class, 'NamespacedSession'] as $engine) {
+            Configure::write('App.namespace', 'TestApp');
+            Configure::write('Session', [
+                'defaults' => 'cake',
+                'handler' => ['engine' => $engine],
+            ]);
+
+            TestCakeSession::start();
+            $this->assertTrue(TestCakeSession::started());
+            TestCakeSession::destroy();
+            $this->assertFalse(TestCakeSession::started());
+        }
     }
 }

@@ -1,4 +1,7 @@
 <?php
+
+use TestApp\Console\Command\NamespacedShell;
+
 /**
  * ShellDispatcherTest file
  *
@@ -694,5 +697,19 @@ class ShellDispatcherTest extends CakeTestCase
         } finally {
             $Folder->delete();
         }
+    }
+
+    /**
+     * Test that shells are found in App.namespace.
+     *
+     * @return void
+     */
+    public function testGetShellNamespaced(): void
+    {
+        Configure::write('App.namespace', 'TestApp');
+        $Dispatcher = new TestShellDispatcher();
+        $result = $Dispatcher->getShell('namespaced');
+        $this->assertInstanceOf(NamespacedShell::class, $result);
+        $this->assertSame('Namespaced', $result->name);
     }
 }

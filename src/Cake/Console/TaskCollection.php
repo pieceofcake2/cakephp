@@ -32,6 +32,11 @@ class TaskCollection extends ObjectCollection
     protected $_Shell;
 
     /**
+     * @var string
+     */
+    protected static $_suffix = 'Task';
+
+    /**
      * The directory inside each shell path that contains tasks.
      *
      * @var string
@@ -76,17 +81,15 @@ class TaskCollection extends ObjectCollection
         if (!isset($alias)) {
             $alias = $name;
         }
+        $alias = static::_alias($alias);
 
         if (isset($this->_loaded[$alias])) {
             return $this->_loaded[$alias];
         }
-        $taskClass = $name . 'Task';
-        App::uses($taskClass, $plugin . 'Console/Command/Task');
-
-        $exists = class_exists($taskClass);
-        if (!$exists) {
+        $taskClass = App::className($task, 'Console/Command/Task', 'Task');
+        if ($taskClass === null) {
             throw new MissingTaskException([
-                'class' => $taskClass,
+                'class' => static::_className($name),
                 'plugin' => substr((string)$plugin, 0, -1),
             ]);
         }

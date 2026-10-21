@@ -1,4 +1,7 @@
 <?php
+
+use TestApp\View\NamespacedView;
+
 /**
  * RequestHandlerComponentTest file
  *
@@ -1045,5 +1048,32 @@ class RequestHandlerComponentTest extends CakeTestCase
         $RequestHandler->response = $this->getMock('CakeResponse', ['notModified']);
         $RequestHandler->response->expects($this->never())->method('notModified');
         $this->assertNull($RequestHandler->beforeRender($this->Controller));
+    }
+
+    /**
+     * Test renderAs() with a view class in a namespace.
+     *
+     * @return void
+     */
+    public function testRenderAsNamespacedView(): void
+    {
+        $this->RequestHandler->viewClassMap('csv', NamespacedView::class);
+        $this->RequestHandler->renderAs($this->Controller, 'csv');
+        $this->assertSame(NamespacedView::class, $this->Controller->viewClass);
+
+        $this->_init();
+        $this->RequestHandler->viewClassMap('csv', 'TestApp\View\Namespaced');
+        $this->RequestHandler->renderAs($this->Controller, 'csv');
+        $this->assertSame('TestApp\View\NamespacedView', $this->Controller->viewClass);
+
+        $this->_init();
+        $this->RequestHandler->renderAs($this->Controller, 'json');
+        $this->assertSame('Json', $this->Controller->viewClass);
+
+        Configure::write('App.namespace', 'TestApp');
+        $this->_init();
+        $this->RequestHandler->viewClassMap('csv', 'Namespaced');
+        $this->RequestHandler->renderAs($this->Controller, 'csv');
+        $this->assertSame(NamespacedView::class, $this->Controller->viewClass);
     }
 }

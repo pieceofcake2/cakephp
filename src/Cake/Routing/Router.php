@@ -214,7 +214,8 @@ class Router
             return static::$_routeClass;
         }
 
-        static::$_routeClass = static::_validateRouteClass($routeClass);
+        [, $name] = pluginSplit($routeClass);
+        static::$_routeClass = static::_validateRouteClass(App::className($routeClass, 'Routing/Route') ?? $name);
 
         return null;
     }
@@ -230,7 +231,7 @@ class Router
     {
         if (
             $routeClass !== 'CakeRoute' &&
-            (!class_exists($routeClass) || !is_subclass_of($routeClass, 'CakeRoute'))
+            (!class_exists($routeClass) || !is_a($routeClass, 'CakeRoute', true))
         ) {
             throw new RouterException(__d('cake_dev', 'Route class not found, or route class is not a subclass of CakeRoute'));
         }
@@ -370,15 +371,11 @@ class Router
         }
         $routeClass = static::$_routeClass;
         if (isset($options['routeClass'])) {
-            if (!str_contains($options['routeClass'], '.')) {
-                $routeClass = $options['routeClass'];
-            } else {
-                [, $routeClass] = pluginSplit($options['routeClass'], true);
-            }
-            $routeClass = static::_validateRouteClass($routeClass);
+            [, $name] = pluginSplit($options['routeClass']);
+            $routeClass = static::_validateRouteClass(App::className($options['routeClass'], 'Routing/Route') ?? $name);
             unset($options['routeClass']);
         }
-        if ($routeClass === 'RedirectRoute' && isset($defaults['redirect'])) {
+        if (is_a($routeClass, 'RedirectRoute', true) && !is_subclass_of($routeClass, 'RedirectRoute') && isset($defaults['redirect'])) {
             $defaults = $defaults['redirect'];
         }
         static::$routes[] = new $routeClass($route, $defaults, $options);

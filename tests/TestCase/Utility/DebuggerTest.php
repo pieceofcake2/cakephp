@@ -377,6 +377,7 @@ object(View) {
 	Blocks => object(ViewBlock) {}
 	plugin => null
 	name => ''
+	controllerClass => 'Controller'
 	passedArgs => array()
 	helpers => array(
 		(int) 0 => 'Html',
@@ -417,7 +418,8 @@ object(View) {
 		(int) 10 => 'request',
 		(int) 11 => 'plugin',
 		(int) 12 => 'passedArgs',
-		(int) 13 => 'cacheAction'
+		(int) 13 => 'cacheAction',
+		(int) 14 => 'controllerClass'
 	)
 	[protected] _scripts => array()
 	[protected] _paths => array()

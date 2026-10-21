@@ -1,4 +1,7 @@
 <?php
+
+use TestApp\Utility\NamespacedTime;
+
 /**
  * TimeHelperTest file
  *
@@ -227,5 +230,40 @@ class TimeHelperTest extends CakeTestCase
         $this->assertFalse(isset($Time->undefinedAttribute));
 
         CakeTime::$niceFormat = $original;
+    }
+
+    /**
+     * Test the engine by fully qualified class name and from App.namespace.
+     *
+     * @return void
+     */
+    public function testNamespacedEngine(): void
+    {
+        $View = new View(null);
+        $Helper = new TimeHelper($View, ['engine' => NamespacedTime::class]);
+        $this->assertInstanceOf(NamespacedTime::class, $this->getEngine($Helper));
+
+        Configure::write('App.namespace', 'TestApp');
+        $Helper = new TimeHelper($View, ['engine' => 'NamespacedTime']);
+        $this->assertInstanceOf(NamespacedTime::class, $this->getEngine($Helper));
+
+        $Helper = new TimeHelper($View);
+        $this->assertInstanceOf('CakeTime', $this->getEngine($Helper));
+    }
+
+    /**
+     * Returns the engine of a helper.
+     *
+     * @param Helper $Helper The helper
+     * @return object
+     */
+    protected function getEngine(Helper $Helper): object
+    {
+        $property = new ReflectionProperty($Helper, '_engine');
+        if (PHP_VERSION_ID < 80100) {
+            $property->setAccessible(true);
+        }
+
+        return $property->getValue($Helper);
     }
 }

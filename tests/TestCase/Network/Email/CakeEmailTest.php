@@ -1,4 +1,7 @@
 <?php
+
+use TestApp\Network\Email\NamespacedTransport;
+
 /**
  * CakeEmailTest file
  *
@@ -3055,5 +3058,22 @@ HTML;
             $this->assertStringContainsString('The DSN scheme "ses+smtp" is not supported.', $e->getMessage());
             $this->assertStringNotContainsString('secret', $e->getMessage());
         }
+    }
+
+    /**
+     * Test that a transport can be set by fully qualified class name.
+     *
+     * @return void
+     */
+    public function testTransportNamespaced(): void
+    {
+        $this->CakeEmail->transport(NamespacedTransport::class);
+        $this->assertInstanceOf(NamespacedTransport::class, $this->CakeEmail->transportClass());
+
+        $this->CakeEmail->transport('TestApp\Network\Email\Namespaced');
+        $this->assertInstanceOf(NamespacedTransport::class, $this->CakeEmail->transportClass());
+
+        $this->CakeEmail->transport('Debug');
+        $this->assertInstanceOf('DebugTransport', $this->CakeEmail->transportClass());
     }
 }

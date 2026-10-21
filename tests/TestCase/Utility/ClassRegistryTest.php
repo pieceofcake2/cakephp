@@ -1,4 +1,9 @@
 <?php
+
+use TestApp\Model\NamespacedComment;
+use TestApp\Model\NamespacedPost;
+use TestPluginTwo\Model\TestPluginTwoAppModel;
+
 /**
  * ClassRegistryTest file
  *
@@ -362,5 +367,136 @@ class ClassRegistryTest extends CakeTestCase
     public function testGetObjectUnknownKey(): void
     {
         $this->assertFalse(ClassRegistry::getObject('ThisKeyIsNotRegistered'));
+    }
+
+    /**
+     * Test that models are found in App.namespace and named without the namespace.
+     *
+     * @return void
+     */
+    public function testInitNamespacedModel(): void
+    {
+        Configure::write('App.namespace', 'TestApp');
+        $result = ClassRegistry::init('NamespacedPost');
+        $this->assertInstanceOf(NamespacedPost::class, $result);
+        $this->assertSame('NamespacedPost', $result->name);
+        $this->assertSame('NamespacedPost', $result->alias);
+    }
+
+    /**
+     * Test that a model in App.namespace merges the vars of the AppModel of the namespace, and that the
+     * AppModel of a plugin namespace is used for a plugin model without a class.
+     *
+     * @return void
+     */
+    public function testNamespacedAppModels(): void
+    {
+        Configure::write('App.namespace', 'TestApp');
+        $Comment = ClassRegistry::init('NamespacedComment');
+        $this->assertInstanceOf(NamespacedComment::class, $Comment);
+        $this->assertContains('Containable', $Comment->Behaviors->loaded());
+
+        App::build(['Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS]]);
+        CakePlugin::load('TestPluginTwo');
+        $Model = ClassRegistry::init(['class' => 'TestPluginTwo.NoSuchModel', 'table' => false]);
+        $this->assertInstanceOf(TestPluginTwoAppModel::class, $Model);
+        CakePlugin::unload();
+    }
+
+    /**
+     * Test that the object stored for an alias is returned for a model in App.namespace.
+     *
+     * @return void
+     */
+    public function testDuplicateNamespacedModel(): void
+    {
+        Configure::write('App.namespace', 'TestApp');
+        $post = ClassRegistry::init(['class' => 'NamespacedPost', 'alias' => 'Article']);
+        $this->assertInstanceOf(NamespacedPost::class, $post);
+        $this->assertSame($post, ClassRegistry::init(['class' => 'NamespacedPost', 'alias' => 'Article']));
+    }
+
+    /**
+     * Test that an object stored with the short name of its class is found by its fully qualified class name.
+     *
+     * @return void
+     */
+    public function testFullyQualifiedClassNameAsKey(): void
+    {
+        $post = ClassRegistry::init(['class' => NamespacedPost::class, 'alias' => 'NamespacedPost']);
+        $this->assertSame($post, ClassRegistry::getObject('NamespacedPost'));
+        $this->assertSame($post, ClassRegistry::getObject(NamespacedPost::class));
+        $this->assertSame($post, ClassRegistry::getObject('\\' . NamespacedPost::class));
+        $this->assertTrue(ClassRegistry::isKeySet(NamespacedPost::class));
+
+        ClassRegistry::removeObject(NamespacedPost::class);
+        $this->assertFalse(ClassRegistry::getObject('NamespacedPost'));
+
+        // Not an object of another class with the same short name
+        ClassRegistry::addObject('NamespacedPost', new NamespacedComment());
+        $this->assertFalse(ClassRegistry::getObject(NamespacedPost::class));
+    }
+
+    /**
+     * Test that a fully qualified class name without an alias gives the short class name as the alias,
+     * and that the class name and the alias work as before.
+     *
+     * @return void
+     */
+    public function testInitFullyQualifiedClassNameAlias(): void
+    {
+        $post = ClassRegistry::init(NamespacedPost::class);
+        $this->assertSame('NamespacedPost', $post->alias);
+        $this->assertSame($post, ClassRegistry::getObject('NamespacedPost'));
+        $this->assertSame($post, ClassRegistry::init(['class' => NamespacedPost::class]));
+
+        Configure::write('App.namespace', 'TestApp');
+        $this->assertSame($post, ClassRegistry::init('NamespacedPost'));
+        $this->assertSame($post, ClassRegistry::init(['class' => 'NamespacedPost']));
+
+        $copy = ClassRegistry::init(['class' => NamespacedPost::class, 'alias' => 'NamespacedPostCopy']);
+        $this->assertSame('NamespacedPostCopy', $copy->alias);
+        $this->assertNotSame($post, $copy);
+        $this->assertSame($copy, ClassRegistry::getObject('NamespacedPostCopy'));
+        ClassRegistry::flush();
+    }
+
+    /**
+     * Test that the only object of a class stored with another alias is found by
+     * its fully qualified class name, and that the short names work as before.
+     *
+     * @return void
+     */
+    public function testFullyQualifiedClassNameOfOtherAlias(): void
+    {
+        $article = ClassRegistry::init(['class' => 'RegisterArticle', 'alias' => 'Article']);
+        $this->assertFalse(ClassRegistry::getObject('RegisterArticle'));
+        $this->assertFalse(ClassRegistry::isKeySet('RegisterArticle'));
+        $this->assertSame($article, ClassRegistry::getObject('\RegisterArticle'));
+
+        $post = ClassRegistry::init(['class' => NamespacedPost::class, 'alias' => 'Post']);
+        $this->assertSame($post, ClassRegistry::getObject('Post'));
+        $this->assertSame($post, ClassRegistry::getObject(NamespacedPost::class));
+        $this->assertSame($post, ClassRegistry::getObject('\\' . NamespacedPost::class));
+        $this->assertTrue(ClassRegistry::isKeySet(NamespacedPost::class));
+        $this->assertFalse(ClassRegistry::getObject('NamespacedPost'));
+        $this->assertFalse(ClassRegistry::getObject(NamespacedComment::class));
+
+        // Not an object of a subclass
+        ClassRegistry::addObject('Comment', new class extends NamespacedPost {
+        });
+        $this->assertSame($post, ClassRegistry::getObject(NamespacedPost::class));
+
+        // Ambiguous for two objects of the class
+        $other = ClassRegistry::init(['class' => NamespacedPost::class, 'alias' => 'OtherPost']);
+        $this->assertFalse(ClassRegistry::getObject(NamespacedPost::class));
+        $this->assertFalse(ClassRegistry::isKeySet(NamespacedPost::class));
+
+        ClassRegistry::removeObject('OtherPost');
+        ClassRegistry::removeObject(NamespacedPost::class);
+        $this->assertFalse(ClassRegistry::getObject('Post'));
+        $this->assertSame($article, ClassRegistry::getObject('Article'));
+        $this->assertNotSame($post, $other);
+        ClassRegistry::flush();
     }
 }

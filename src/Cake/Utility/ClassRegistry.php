@@ -152,7 +152,7 @@ class ClassRegistry
                 }
 
                 if (empty($settings['alias'])) {
-                    $settings['alias'] = $class;
+                    $settings['alias'] = substr($class, (int)strrpos('\\' . $class, '\\'));
                 }
                 $alias = $settings['alias'];
 
@@ -164,10 +164,18 @@ class ClassRegistry
                 }
 
                 App::uses($plugin . 'AppModel', $pluginPath . 'Model');
-                App::uses($class, $pluginPath . 'Model');
+                $className = App::className($pluginPath . $class, 'Model') ?? $class;
+                if ($className !== $class) {
+                    $model = $_this->_duplicate($alias, $className);
+                    if ($model) {
+                        $_this->map($alias, $class);
 
-                if (class_exists($class) || interface_exists($class)) {
-                    $reflection = new ReflectionClass($class);
+                        return $model;
+                    }
+                }
+
+                if (class_exists($className) || interface_exists($className)) {
+                    $reflection = new ReflectionClass($className);
                     if ($reflection->isAbstract() || $reflection->isInterface()) {
                         throw new CakeException(__d('cake_dev', 'Cannot create instance of %s, as it is abstract or is an interface', $class));
                     }
@@ -201,8 +209,10 @@ class ClassRegistry
                     $appModel = 'AppModel';
                     if ($strict) {
                         return false;
-                    } elseif ($plugin && class_exists($plugin . 'AppModel')) {
-                        $appModel = $plugin . 'AppModel';
+                    } elseif ($plugin && ($pluginAppModel = App::className($plugin . '.' . $plugin . 'AppModel', 'Model')) !== null) {
+                        $appModel = $pluginAppModel;
+                    } elseif (Configure::read('App.namespace')) {
+                        $appModel = App::className('AppModel', 'Model') ?? 'AppModel';
                     }
 
                     $settings['name'] = $class;
@@ -248,7 +258,7 @@ class ClassRegistry
     public static function removeObject($key)
     {
         $_this = ClassRegistry::getInstance();
-        $key = Inflector::underscore($key);
+        $key = $_this->_objectKey($key);
         if (isset($_this->_objects[$key])) {
             unset($_this->_objects[$key]);
         }
@@ -263,7 +273,7 @@ class ClassRegistry
     public static function isKeySet($key)
     {
         $_this = ClassRegistry::getInstance();
-        $key = Inflector::underscore($key);
+        $key = $_this->_objectKey($key);
 
         return isset($_this->_objects[$key]) || isset($_this->_map[$key]);
     }
@@ -287,7 +297,7 @@ class ClassRegistry
     public static function getObject($key)
     {
         $_this = ClassRegistry::getInstance();
-        $key = Inflector::underscore($key);
+        $key = $_this->_objectKey($key);
         $return = false;
         if (isset($_this->_objects[$key])) {
             $return = $_this->_objects[$key];
@@ -299,6 +309,40 @@ class ClassRegistry
         }
 
         return $return;
+    }
+
+    /**
+     * Returns the key in the registry for a key or a fully qualified class name. An object stored with
+     * the short name of a class, e.g. TranslateBehavior or the alias Post, is also found by the fully
+     * qualified name of its class, e.g. TranslateBehavior::class or Post::class. Otherwise the key of
+     * the only object of exactly that class is returned, e.g. for the alias Article of a Post.
+     *
+     * @param string|null $key Key or class name
+     * @return string The key in the registry
+     */
+    protected function _objectKey($key)
+    {
+        $underscored = Inflector::underscore($key);
+        if (empty($key) || isset($this->_objects[$underscored]) || !str_contains($key, '\\')) {
+            return $underscored;
+        }
+        $class = ltrim($key, '\\');
+        $short = Inflector::underscore(substr($class, strrpos($class, '\\') + 1));
+        if (isset($this->_objects[$short]) && $this->_objects[$short] instanceof $class) {
+            return $short;
+        }
+        if (!class_exists($class)) {
+            return $underscored;
+        }
+        $class = (new ReflectionClass($class))->getName();
+        $keys = [];
+        foreach ($this->_objects as $objectKey => $object) {
+            if ($object::class === $class) {
+                $keys[] = $objectKey;
+            }
+        }
+
+        return count($keys) === 1 ? $keys[0] : $underscored;
     }
 
     /**

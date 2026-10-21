@@ -1,4 +1,8 @@
 <?php
+
+use TestApp\Controller\Component\Auth\NamespacedAuthenticate;
+use TestApp\Controller\Component\Auth\NamespacedAuthorize;
+
 /**
  * AuthComponentTest file
  *
@@ -1987,5 +1991,31 @@ class AuthComponentTest extends CakeTestCase
         ];
 
         $this->assertEquals($expectedUser, $this->Controller->Auth->user());
+    }
+
+    /**
+     * Test that authentication and authorization objects can be set by fully qualified class name.
+     *
+     * @return void
+     */
+    public function testNamespacedAuthObjects(): void
+    {
+        $this->Auth->authenticate = [NamespacedAuthenticate::class];
+        $result = $this->Auth->constructAuthenticate();
+        $this->assertInstanceOf(NamespacedAuthenticate::class, $result[0]);
+
+        $this->Auth->authorize = [NamespacedAuthorize::class];
+        $result = $this->Auth->constructAuthorize();
+        $this->assertInstanceOf(NamespacedAuthorize::class, $result[0]);
+
+        $this->Auth->authenticate = ['TestApp\Controller\Component\Auth\Namespaced', 'Form'];
+        $result = $this->Auth->constructAuthenticate();
+        $this->assertInstanceOf(NamespacedAuthenticate::class, $result[0]);
+        $this->assertInstanceOf('FormAuthenticate', $result[1]);
+
+        $this->Auth->authorize = ['TestApp\Controller\Component\Auth\Namespaced', 'Controller'];
+        $result = $this->Auth->constructAuthorize();
+        $this->assertInstanceOf(NamespacedAuthorize::class, $result[0]);
+        $this->assertInstanceOf('ControllerAuthorize', $result[1]);
     }
 }

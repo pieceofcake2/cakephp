@@ -110,10 +110,11 @@ class CakeTestFixture
     public function __construct()
     {
         if ($this->name === null) {
-            if (preg_match('/^(.*)Fixture$/', static::class, $matches)) {
+            $className = substr(static::class, (int)strrpos('\\' . static::class, '\\'));
+            if (preg_match('/^(.*)Fixture$/', $className, $matches)) {
                 $this->name = $matches[1];
             } else {
-                $this->name = static::class;
+                $this->name = $className;
             }
         }
         $connection = 'test';
@@ -149,10 +150,10 @@ class CakeTestFixture
 
             $this->Schema->connection = $import['connection'];
             if (isset($import['model'])) {
-                [$plugin, $modelClass] = pluginSplit($import['model'], true);
-                App::uses($modelClass, $plugin . 'Model');
-                if (!class_exists($modelClass)) {
-                    throw new MissingModelException(['class' => $modelClass]);
+                $modelClass = App::className($import['model'], 'Model');
+                if ($modelClass === null) {
+                    [, $name] = pluginSplit($import['model']);
+                    throw new MissingModelException(['class' => $name]);
                 }
                 $model = new $modelClass(null, null, $import['connection']);
                 $db = $model->getDataSource();

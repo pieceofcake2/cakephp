@@ -267,19 +267,19 @@ class ShellDispatcher
         [$plugin, $shell] = pluginSplit($shell, true);
 
         $plugin = Inflector::camelize($plugin);
-        $class = Inflector::camelize($shell) . 'Shell';
+        $shell = Inflector::camelize($shell);
 
         App::uses('AppShell', 'Console/Command');
-        App::uses($class, $plugin . 'Console/Command');
+        $class = App::className($plugin . $shell, 'Console/Command', 'Shell');
 
-        if (!class_exists($class)) {
-            $plugin = Inflector::camelize($shell) . '.';
-            App::uses($class, $plugin . 'Console/Command');
+        if ($class === null) {
+            $plugin = $shell . '.';
+            $class = App::className($plugin . $shell, 'Console/Command', 'Shell');
         }
 
-        if (!class_exists($class)) {
+        if ($class === null) {
             throw new MissingShellException([
-                'class' => $class,
+                'class' => $shell . 'Shell',
             ]);
         }
         $Shell = new $class();

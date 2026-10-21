@@ -213,7 +213,7 @@ class Helper extends CakeObject
             $this->settings = Hash::merge($this->settings, $settings);
         }
         if (!empty($this->helpers)) {
-            $this->_helperMap = ObjectCollection::normalizeObjectArray($this->helpers);
+            $this->_helperMap = HelperCollection::normalizeObjectArray($this->helpers);
         }
     }
 

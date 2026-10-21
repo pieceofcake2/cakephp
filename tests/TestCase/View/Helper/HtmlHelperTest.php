@@ -1,4 +1,7 @@
 <?php
+
+use TestApp\Configure\NamespacedReader;
+
 /**
  * HtmlHelperTest file
  *
@@ -2518,5 +2521,20 @@ class HtmlHelperTest extends CakeTestCase
         $this->assertEquals($expected, $helper->parseAttributes(['require']));
         $this->assertEquals($expected, $helper->parseAttributes(['require' => true]));
         $this->assertEquals('', $helper->parseAttributes(['require' => false]));
+    }
+
+    /**
+     * Test loadConfig() with a reader by fully qualified class name and from App.namespace.
+     *
+     * @return void
+     */
+    public function testLoadConfigNamespacedReader(): void
+    {
+        $path = CORE_TESTS . DS . 'test_app' . DS . 'Config' . DS;
+        foreach ([NamespacedReader::class, 'TestApp\Configure\Namespaced', 'namespaced'] as $reader) {
+            Configure::write('App.namespace', 'TestApp');
+            $result = $this->Html->loadConfig(['htmlhelper_tags', $reader], $path);
+            $this->assertSame('start form', $result['tags']['form'], $reader);
+        }
     }
 }

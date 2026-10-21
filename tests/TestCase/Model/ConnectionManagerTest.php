@@ -1,4 +1,7 @@
 <?php
+
+use TestApp\Model\Datasource\NamespacedSource;
+
 /**
  * Connection Manager tests
  *
@@ -785,5 +788,18 @@ class ConnectionManagerTest extends CakeTestCase
         } finally {
             $this->_restoreDsnClassMap($original);
         }
+    }
+
+    /**
+     * Test a datasource from App.namespace.
+     *
+     * @return void
+     */
+    public function testNamespacedDatasource(): void
+    {
+        Configure::write('App.namespace', 'TestApp');
+        $source = ConnectionManager::create('namespaced_source', ['datasource' => 'NamespacedSource']);
+        $this->assertInstanceOf(NamespacedSource::class, $source);
+        ConnectionManager::drop('namespaced_source');
     }
 }

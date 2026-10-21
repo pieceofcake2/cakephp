@@ -444,7 +444,7 @@ class CakeSchemaTest extends CakeTestCase
         'core.post', 'core.tag', 'core.posts_tag', 'core.test_plugin_comment',
         'core.datatype', 'core.auth_user', 'core.author',
         'core.test_plugin_article', 'core.user', 'core.comment',
-        'core.prefix_test',
+        'core.prefix_test', 'core.article', 'core.articles_tag',
     ];
 
     /**
@@ -738,6 +738,48 @@ class CakeSchemaTest extends CakeTestCase
 
         $idHasKey = isset($read['tables']['non_conventional']['id']['key']);
         $this->assertFalse($idHasKey, 'id key should not be set');
+    }
+
+    /**
+     * Test reading the schema of a plugin with namespaced models.
+     *
+     * @return void
+     */
+    public function testSchemaReadWithNamespacedPluginModels(): void
+    {
+        App::build(['Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS]]);
+        CakePlugin::load('TestPluginTwo');
+
+        $Schema = new CakeSchema();
+        $Schema->plugin = 'TestPluginTwo';
+        $read = $Schema->read([
+            'connection' => 'test',
+            'name' => 'TestApp',
+            'models' => ['NamespacedPluginPost'],
+        ]);
+        $this->assertArrayHasKey('posts', $read['tables']);
+
+        CakePlugin::unload();
+        App::build();
+    }
+
+    /**
+     * Test reading the join table of a model with a fully qualified class name as join model.
+     *
+     * @return void
+     */
+    public function testSchemaReadWithNamespacedJoinModel(): void
+    {
+        Configure::write('App.namespace', 'TestApp');
+        $Schema = new CakeSchema();
+        $read = $Schema->read([
+            'connection' => 'test',
+            'name' => 'TestApp',
+            'models' => ['NamespacedHabtmArticle'],
+        ]);
+        $this->assertArrayHasKey('articles', $read['tables']);
+        $this->assertArrayHasKey('articles_tags', $read['tables']);
+        ClassRegistry::flush();
     }
 
     /**

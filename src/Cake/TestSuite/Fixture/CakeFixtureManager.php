@@ -164,6 +164,17 @@ class CakeFixtureManager
                 ];
             }
 
+            $className = Inflector::camelize($fixture);
+            foreach ($this->_fixtureNamespaces($fixtureIndex) as $namespace) {
+                $fixtureClass = $namespace . '\\Test\\Fixture\\' . $className . 'Fixture';
+                if (class_exists($fixtureClass)) {
+                    $this->_loaded[$fixtureIndex] = new $fixtureClass();
+                    $this->_fixtureMap[$className . 'Fixture'] = $this->_loaded[$fixtureIndex];
+
+                    continue 2;
+                }
+            }
+
             $loaded = false;
             foreach ($fixturePaths as $path) {
                 $className = Inflector::camelize($fixture);
@@ -183,6 +194,29 @@ class CakeFixtureManager
                 throw new UnexpectedValueException(__d('cake_dev', 'Referenced fixture class %s (%s) not found', $className, $firstPath));
             }
         }
+    }
+
+    /**
+     * Returns the namespaces to look for a namespaced fixture class in, e.g. Cake for core.article.
+     *
+     * @param string $fixture The fixture name, e.g. core.article, app.article or plugin.debug_kit.article
+     * @return array<string>
+     */
+    protected function _fixtureNamespaces($fixture)
+    {
+        $appNamespace = Configure::read('App.namespace');
+        $appNamespaces = $appNamespace ? [trim($appNamespace, '\\')] : [];
+        if (str_starts_with($fixture, 'core.')) {
+            return ['Cake'];
+        }
+        if (str_starts_with($fixture, 'app.')) {
+            return $appNamespaces;
+        }
+        if (str_starts_with($fixture, 'plugin.')) {
+            return [Inflector::camelize(explode('.', $fixture, 3)[1])];
+        }
+
+        return array_merge($appNamespaces, ['Cake']);
     }
 
     /**

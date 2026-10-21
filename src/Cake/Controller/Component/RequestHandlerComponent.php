@@ -668,12 +668,9 @@ class RequestHandlerComponent extends Component
         } else {
             $viewClass = Inflector::classify($type);
         }
-        $viewName = $viewClass . 'View';
-        if (!class_exists($viewName)) {
-            App::uses($viewName, $pluginDot . 'View');
-        }
-        if (class_exists($viewName)) {
-            $controller->viewClass = $viewClass;
+        $viewName = App::className($pluginDot . $viewClass, 'View', 'View');
+        if ($viewName !== null) {
+            $controller->viewClass = str_contains($viewName, '\\') ? $viewName : $viewClass;
         } elseif (empty($this->_renderType)) {
             $controller->viewPath .= DS . $type;
         } else {
@@ -694,8 +691,7 @@ class RequestHandlerComponent extends Component
 
         if (!in_array($helper, $controller->helpers) && empty($controller->helpers[$helper])) {
             App::uses('AppHelper', 'View/Helper');
-            App::uses($helper . 'Helper', 'View/Helper');
-            if (class_exists($helper . 'Helper')) {
+            if (App::className($helper, 'View/Helper', 'Helper') !== null) {
                 $controller->helpers[] = $helper;
             }
         }

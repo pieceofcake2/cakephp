@@ -1,4 +1,7 @@
 <?php
+
+use TestApp\Cache\Engine\NamespacedEngine;
+
 /**
  * CacheTest file
  *
@@ -683,5 +686,20 @@ class CacheTest extends CakeTestCase
         $engine = $this->getMockForAbstractClass('CacheEngine');
 
         $this->assertNull($engine->add('key', 'value', 10));
+    }
+
+    /**
+     * Test that a cache engine can be configured by fully qualified class name.
+     *
+     * @return void
+     */
+    public function testConfigNamespacedEngine(): void
+    {
+        foreach ([NamespacedEngine::class, 'TestApp\Cache\Engine\Namespaced'] as $engine) {
+            Cache::config('namespaced', ['engine' => $engine, 'path' => TMP . 'tests']);
+            $this->assertInstanceOf(NamespacedEngine::class, Cache::engine('namespaced'));
+            $this->assertTrue(Cache::write('key', 'value', 'namespaced'));
+            Cache::drop('namespaced');
+        }
     }
 }

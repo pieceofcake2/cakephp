@@ -91,7 +91,7 @@ class Dispatcher implements CakeEventListener
 
         foreach ($filters as $index => $filter) {
             $settings = [];
-            if (is_array($filter) && !is_int($index) && class_exists($index)) {
+            if (is_array($filter) && !is_int($index) && App::className($index, 'Routing/Filter') !== null) {
                 $settings = $filter;
                 $filter = $index;
             }
@@ -99,10 +99,10 @@ class Dispatcher implements CakeEventListener
                 $filter = ['callable' => $filter];
             }
             if (is_string($filter['callable'])) {
-                [$plugin, $callable] = pluginSplit($filter['callable'], true);
-                App::uses($callable, $plugin . 'Routing/Filter');
-                if (!class_exists($callable)) {
-                    throw new MissingDispatcherFilterException($callable);
+                $callable = App::className($filter['callable'], 'Routing/Filter');
+                if ($callable === null) {
+                    [, $name] = pluginSplit($filter['callable']);
+                    throw new MissingDispatcherFilterException($name);
                 }
                 $manager->attach(new $callable($settings));
             } else {
@@ -261,12 +261,11 @@ class Dispatcher implements CakeEventListener
         if (!empty($request->params['controller'])) {
             $controller = Inflector::camelize($request->params['controller']);
         }
-        if ($pluginPath . $controller) {
-            $class = $controller . 'Controller';
+        if ($pluginPath . $controller && !str_contains((string)$controller, '.')) {
             App::uses('AppController', 'Controller');
             App::uses($pluginName . 'AppController', $pluginPath . 'Controller');
-            App::uses($class, $pluginPath . 'Controller');
-            if (class_exists($class)) {
+            $class = App::className($pluginPath . $controller, 'Controller', 'Controller');
+            if ($class !== null) {
                 return $class;
             }
         }

@@ -1,4 +1,7 @@
 <?php
+
+use TestApp\Error\NamespacedRenderer;
+
 /**
  * ErrorHandlerTest file
  *
@@ -421,5 +424,24 @@ class ErrorHandlerTest extends CakeTestCase
 
         restore_error_handler();
         $this->assertTrue($result);
+    }
+
+    /**
+     * Test an exception renderer by fully qualified class name and from App.namespace.
+     *
+     * @return void
+     */
+    public function testHandleExceptionNamespacedRenderer(): void
+    {
+        foreach ([NamespacedRenderer::class => NamespacedRenderer::class, 'NamespacedRenderer' => 'TestApp'] as $renderer => $namespace) {
+            if ($namespace === 'TestApp') {
+                Configure::write('App.namespace', 'TestApp');
+            }
+            Configure::write('Exception.renderer', $renderer);
+            ob_start();
+            ErrorHandler::handleException(new NotFoundException('Kaboom!'));
+            $result = ob_get_clean();
+            $this->assertSame('rendered by ' . NamespacedRenderer::class, $result);
+        }
     }
 }

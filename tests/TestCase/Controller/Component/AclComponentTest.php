@@ -1,4 +1,7 @@
 <?php
+
+use TestApp\Controller\Component\Acl\NamespacedAcl;
+
 /**
  * AclComponentTest file
  *
@@ -88,5 +91,20 @@ class AclComponentTest extends CakeTestCase
         $this->expectException(CakeException::class);
         $thing = new StdClass();
         $this->Acl->adapter($thing);
+    }
+
+    /**
+     * Test an ACL implementation from App.namespace.
+     *
+     * @return void
+     */
+    public function testNamespacedAdapter(): void
+    {
+        Configure::write('App.namespace', 'TestApp');
+        Configure::write('Acl.classname', 'NamespacedAcl');
+        $Collection = new ComponentCollection();
+        $Acl = new AclComponent($Collection);
+        $this->assertInstanceOf(NamespacedAcl::class, $Acl->adapter());
+        $this->assertTrue($Acl->check('namespaced', 'controllers'));
     }
 }

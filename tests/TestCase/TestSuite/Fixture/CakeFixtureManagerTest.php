@@ -1,4 +1,8 @@
 <?php
+
+use TestApp\Test\Fixture\NamespacedArticleFixture;
+use TestPluginTwo\Test\Fixture\NamespacedCommentFixture;
+
 /**
  * CakeFixtureManager file
  *
@@ -133,5 +137,37 @@ class CakeFixtureManagerTest extends CakeTestCase
             ->will($this->returnValue([$MockFixture->table]));
 
         $fixtureManager->loadSingle('Uuid', $db, false);
+    }
+
+    /**
+     * Test that fixtures are found in the namespaces of the application and of plugins.
+     *
+     * @return void
+     */
+    public function testLoadNamespacedFixtures(): void
+    {
+        Configure::write('App.namespace', 'TestApp');
+        App::build(['Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS]], App::RESET);
+        CakePlugin::load('TestPluginTwo');
+
+        $loadFixtures = new ReflectionMethod($this->fixtureManager, '_loadFixtures');
+        if (PHP_VERSION_ID < 80100) {
+            $loadFixtures->setAccessible(true);
+        }
+        $loadFixtures->invoke($this->fixtureManager, ['app.namespaced_article', 'namespaced_article', 'plugin.test_plugin_two.namespaced_comment']);
+        $loaded = new ReflectionProperty($this->fixtureManager, '_loaded');
+        if (PHP_VERSION_ID < 80100) {
+            $loaded->setAccessible(true);
+        }
+        $fixtures = $loaded->getValue($this->fixtureManager);
+
+        $this->assertInstanceOf(NamespacedArticleFixture::class, $fixtures['app.namespaced_article']);
+        $this->assertInstanceOf(NamespacedArticleFixture::class, $fixtures['namespaced_article']);
+        $this->assertInstanceOf(NamespacedCommentFixture::class, $fixtures['plugin.test_plugin_two.namespaced_comment']);
+
+        // The name and the table come from the class name without the namespace
+        $this->assertSame('NamespacedArticle', $fixtures['app.namespaced_article']->name);
+        $this->assertSame('namespaced_articles', $fixtures['app.namespaced_article']->table);
+        $this->assertSame('namespaced_comments', $fixtures['plugin.test_plugin_two.namespaced_comment']->table);
     }
 }

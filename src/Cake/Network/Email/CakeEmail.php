@@ -1044,11 +1044,10 @@ class CakeEmail
             return $this->_transportClass;
         }
         $transportName = $overridden ? self::$_transportOverride : $this->_transportName;
-        [$plugin, $transportClassname] = pluginSplit($transportName, true);
-        $transportClassname .= 'Transport';
-        App::uses($transportClassname, $plugin . 'Network/Email');
-        if (!class_exists($transportClassname)) {
-            throw new SocketException(__d('cake_dev', 'Class "%s" not found.', $transportClassname));
+        $transportClassname = App::className($transportName, 'Network/Email', 'Transport');
+        if ($transportClassname === null) {
+            [, $name] = pluginSplit($transportName);
+            throw new SocketException(__d('cake_dev', 'Class "%s" not found.', $name . 'Transport'));
         } elseif (!method_exists($transportClassname, 'send')) {
             throw new SocketException(__d('cake_dev', 'The "%s" does not have a %s method.', $transportClassname, 'send()'));
         }
@@ -2037,9 +2036,8 @@ class CakeEmail
         }
         $viewClass = $this->_viewRender;
         if ($viewClass !== 'View') {
-            [$plugin, $viewClass] = pluginSplit($viewClass, true);
-            $viewClass .= 'View';
-            App::uses($viewClass, $plugin . 'View');
+            [, $name] = pluginSplit($viewClass);
+            $viewClass = App::className($viewClass, 'View', 'View') ?? $name . 'View';
         }
 
         /** @var View $View */

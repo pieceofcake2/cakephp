@@ -67,6 +67,13 @@ class Controller extends CakeObject implements CakeEventListener
     public $name = null;
 
     /**
+     * The class name of this controller, e.g. App\Controller\PostsController.
+     *
+     * @var string
+     */
+    public $controllerClass;
+
+    /**
      * An array containing the class names of models this controller uses.
      *
      * Example: `public $uses = array('Product', 'Post', 'Comment');`
@@ -320,8 +327,9 @@ class Controller extends CakeObject implements CakeEventListener
      */
     public function __construct($request = null, $response = null)
     {
+        $this->controllerClass = static::class;
         if ($this->name === null) {
-            $this->name = substr(static::class, 0, -10);
+            $this->name = substr(static::class, (int)strrpos('\\' . static::class, '\\'), -10);
         }
 
         if (!$this->viewPath) {
@@ -368,7 +376,7 @@ class Controller extends CakeObject implements CakeEventListener
         if (is_array($this->uses)) {
             foreach ($this->uses as $modelClass) {
                 [$plugin, $class] = pluginSplit($modelClass, true);
-                if ($name === $class) {
+                if ($name === substr($class, (int)strrpos('\\' . $class, '\\'))) {
                     return $this->loadModel($modelClass);
                 }
             }
@@ -566,14 +574,29 @@ class Controller extends CakeObject implements CakeEventListener
     protected function _mergeControllerVars()
     {
         $pluginController = $pluginDot = null;
-        $mergeParent = is_subclass_of($this, $this->_mergeParent);
+        $mergeParentClass = $this->_mergeParent;
+        if (!is_subclass_of($this, $mergeParentClass) && Configure::read('App.namespace')) {
+            $mergeParentClass = App::className($mergeParentClass, 'Controller') ?? $mergeParentClass;
+        }
+        if (!is_subclass_of($this, $mergeParentClass) && !str_contains($this->_mergeParent, '\\')) {
+            foreach (class_parents($this) as $parent) {
+                if (substr($parent, (int)strrpos('\\' . $parent, '\\')) === $this->_mergeParent) {
+                    $mergeParentClass = $parent;
+                    break;
+                }
+            }
+        }
+        $mergeParent = is_subclass_of($this, $mergeParentClass);
         $pluginVars = [];
         $appVars = [];
 
         if (!empty($this->plugin)) {
             $pluginController = $this->plugin . 'AppController';
             if (!is_subclass_of($this, $pluginController)) {
-                $pluginController = null;
+                $pluginController = $this->plugin . '\\Controller\\' . $pluginController;
+                if (!class_exists($pluginController) || !is_subclass_of($this, $pluginController)) {
+                    $pluginController = null;
+                }
             }
             $pluginDot = $this->plugin . '.';
         }
@@ -584,9 +607,9 @@ class Controller extends CakeObject implements CakeEventListener
         }
 
         if ($mergeParent || !empty($pluginController)) {
-            $appVars = get_class_vars($this->_mergeParent);
+            $appVars = get_class_vars($mergeParentClass);
             $merge = ['components', 'helpers'];
-            $this->_mergeVars($merge, $this->_mergeParent, true);
+            $this->_mergeVars($merge, $mergeParentClass, true);
         }
 
         if ($this->uses === null) {
@@ -661,7 +684,8 @@ class Controller extends CakeObject implements CakeEventListener
         $this->_mergeControllerVars();
         if ($this->uses) {
             $this->uses = (array)$this->uses;
-            [, $this->modelClass] = pluginSplit(reset($this->uses));
+            [, $modelClass] = pluginSplit(reset($this->uses));
+            $this->modelClass = substr($modelClass, (int)strrpos('\\' . $modelClass, '\\'));
         }
         $this->Components->init($this);
 
@@ -765,11 +789,12 @@ class Controller extends CakeObject implements CakeEventListener
         }
 
         [$plugin, $modelClass] = pluginSplit($modelClass, true);
+        $alias = substr($modelClass, (int)strrpos('\\' . $modelClass, '\\'));
 
-        $this->{$modelClass} = ClassRegistry::init([
-            'class' => $plugin . $modelClass, 'alias' => $modelClass, 'id' => $id,
+        $this->{$alias} = ClassRegistry::init([
+            'class' => $plugin . $modelClass, 'alias' => $alias, 'id' => $id,
         ]);
-        if (!$this->{$modelClass}) {
+        if (!$this->{$alias}) {
             throw new MissingModelException($modelClass);
         }
 
@@ -984,7 +1009,7 @@ class Controller extends CakeObject implements CakeEventListener
         if (!empty($this->uses) && is_array($this->uses)) {
             foreach ($this->uses as $model) {
                 [$plugin, $className] = pluginSplit($model);
-                $this->request->params['models'][$className] = compact('plugin', 'className');
+                $this->request->params['models'][substr($className, (int)strrpos('\\' . $className, '\\'))] = compact('plugin', 'className');
             }
         }
 
@@ -995,8 +1020,11 @@ class Controller extends CakeObject implements CakeEventListener
             $currentObject = ClassRegistry::getObject($currentModel);
             if ($currentObject instanceof Model) {
                 $className = $currentObject::class;
-                [$plugin] = pluginSplit(App::location($className));
-                $this->request->params['models'][$currentObject->alias] = compact('plugin', 'className');
+                // Keep the plugin and the name from $uses for a namespaced model
+                if (!str_contains($className, '\\') || !isset($this->request->params['models'][$currentObject->alias])) {
+                    [$plugin] = pluginSplit(App::location($className));
+                    $this->request->params['models'][$currentObject->alias] = compact('plugin', 'className');
+                }
                 $this->View->validationErrors[$currentObject->alias] =& $currentObject->validationErrors;
             }
         }
@@ -1318,9 +1346,8 @@ class Controller extends CakeObject implements CakeEventListener
     {
         $viewClass = $this->viewClass;
         if ($this->viewClass !== 'View') {
-            [$plugin, $viewClass] = pluginSplit($viewClass, true);
-            $viewClass = $viewClass . 'View';
-            App::uses($viewClass, $plugin . 'View');
+            [, $name] = pluginSplit($viewClass);
+            $viewClass = App::className($viewClass, 'View', 'View') ?? $name . 'View';
         }
 
         return new $viewClass($this);

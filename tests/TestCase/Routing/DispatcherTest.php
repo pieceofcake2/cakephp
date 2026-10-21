@@ -1,4 +1,8 @@
 <?php
+
+use TestApp\Controller\NamespacedController;
+use TestApp\Routing\Filter\NamespacedFilter;
+
 /**
  * DispatcherTest file
  *
@@ -777,6 +781,26 @@ class DispatcherTest extends CakeTestCase
         $Dispatcher = new TestDispatcher();
         Configure::write('App.baseUrl', '/index.php');
         $url = new CakeRequest('some_controller/home/param:value/param2:value2');
+        $response = $this->getMock('CakeResponse');
+
+        $Dispatcher->dispatch($url, $response, ['return' => 1]);
+    }
+
+    /**
+     * Test that a controller name with a dot is not split into a plugin name.
+     *
+     * @return void
+     */
+    public function testMissingControllerWithDot(): void
+    {
+        $this->expectException(MissingControllerException::class);
+        $this->expectExceptionMessage('Controller class TestPlugin.testsController could not be found.');
+        Router::connect('/:controller/:action/*');
+        App::build(['Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS]], App::RESET);
+        CakePlugin::load('TestPlugin');
+
+        $Dispatcher = new TestDispatcher();
+        $url = new CakeRequest('test_plugin.tests/index');
         $response = $this->getMock('CakeResponse');
 
         $Dispatcher->dispatch($url, $response, ['return' => 1]);
@@ -1832,5 +1856,59 @@ class DispatcherTest extends CakeTestCase
         $event = new CakeEvent('Dispatcher.beforeDispatch', $this);
 
         $this->assertNull($filter->beforeDispatch($event));
+    }
+
+    /**
+     * Test that controllers are found in App.namespace.
+     *
+     * @return void
+     */
+    public function testDispatchNamespacedController(): void
+    {
+        Configure::write('App.namespace', 'TestApp');
+        Router::connect('/:controller/:action/*');
+        $Dispatcher = new TestDispatcher();
+        $url = new CakeRequest('namespaced/index');
+        $response = $this->getMock('CakeResponse');
+
+        $Dispatcher->dispatch($url, $response, ['return' => 1]);
+        $this->assertInstanceOf(NamespacedController::class, $Dispatcher->controller);
+        $this->assertSame('Namespaced', $Dispatcher->controller->name);
+    }
+
+    /**
+     * Test dispatcher filters by fully qualified class name and from App.namespace.
+     *
+     * @return void
+     */
+    public function testNamespacedDispatcherFilter(): void
+    {
+        foreach ([NamespacedFilter::class, 'NamespacedFilter'] as $filter) {
+            Configure::write('App.namespace', 'TestApp');
+            Configure::write('Dispatcher.filters', [$filter]);
+            NamespacedFilter::$called = false;
+            $dispatcher = new TestDispatcher();
+            $response = $this->getMock('CakeResponse', ['send']);
+            $dispatcher->dispatch(new CakeRequest('/'), $response, ['return' => 1]);
+            $this->assertTrue(NamespacedFilter::$called, $filter);
+        }
+    }
+
+    /**
+     * Test the settings of dispatcher filters by fully qualified class name and from App.namespace.
+     *
+     * @return void
+     */
+    public function testNamespacedDispatcherFilterSettings(): void
+    {
+        foreach ([NamespacedFilter::class, 'NamespacedFilter'] as $filter) {
+            Configure::write('App.namespace', 'TestApp');
+            Configure::write('Dispatcher.filters', [$filter => ['service' => 'google.com']]);
+            NamespacedFilter::$calledSettings = [];
+            $dispatcher = new TestDispatcher();
+            $response = $this->getMock('CakeResponse', ['send']);
+            $dispatcher->dispatch(new CakeRequest('/'), $response, ['return' => 1]);
+            $this->assertSame('google.com', NamespacedFilter::$calledSettings['service'] ?? null, $filter);
+        }
     }
 }

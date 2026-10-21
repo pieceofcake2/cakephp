@@ -83,6 +83,13 @@ class View extends CakeObject
     public $name = null;
 
     /**
+     * The class name of the controller, e.g. App\Controller\PostsController.
+     *
+     * @var string|null
+     */
+    public $controllerClass = null;
+
+    /**
      * Current passed params
      *
      * @var mixed
@@ -232,7 +239,7 @@ class View extends CakeObject
      */
     protected $_passedVars = [
         'viewVars', 'autoLayout', 'ext', 'helpers', 'view', 'layout', 'name', 'theme',
-        'layoutPath', 'viewPath', 'request', 'plugin', 'passedArgs', 'cacheAction',
+        'layoutPath', 'viewPath', 'request', 'plugin', 'passedArgs', 'cacheAction', 'controllerClass',
     ];
 
     /**
@@ -947,9 +954,8 @@ class View extends CakeObject
     public function loadHelpers()
     {
         $helpers = HelperCollection::normalizeObjectArray($this->helpers);
-        foreach ($helpers as $properties) {
-            [, $class] = pluginSplit($properties['class']);
-            $this->{$class} = $this->Helpers->load($properties['class'], $properties['settings']);
+        foreach ($helpers as $name => $properties) {
+            $this->{$name} = $this->Helpers->load($properties['class'], $properties['settings']);
         }
     }
 

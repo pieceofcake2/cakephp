@@ -1,4 +1,10 @@
 <?php
+
+use Composer\Autoload\ClassLoader;
+use TestApp\Controller\Component\NamespacedComponent;
+use TestApp\Model\NamespacedPost;
+use TestApp\View\Helper\NamespacedHelper;
+
 /**
  * AppTest file.
  *
@@ -973,5 +979,151 @@ class AppTest extends CakeTestCase
             ['1G', 1, '1048577K'],
             ['-1', 100000, '-1'],
         ];
+    }
+
+    /**
+     * Test that App::className() returns the global class declared with App::uses().
+     *
+     * @return void
+     */
+    public function testClassName(): void
+    {
+        $this->assertSame('AuthComponent', App::className('Auth', 'Controller/Component', 'Component'));
+        $this->assertSame('FileEngine', App::className('File', 'Cache/Engine', 'Engine'));
+        $this->assertNull(App::className('DoesNotExist', 'Controller/Component', 'Component'));
+
+        App::build(['Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS]], App::RESET);
+        CakePlugin::load('TestPlugin');
+        $this->assertSame('OtherComponent', App::className('TestPlugin.Other', 'Controller/Component', 'Component'));
+    }
+
+    /**
+     * Test that App::className() accepts fully qualified class names with or without the suffix.
+     *
+     * @return void
+     */
+    public function testClassNameFullyQualified(): void
+    {
+        $expected = NamespacedComponent::class;
+        $this->assertSame($expected, App::className($expected, 'Controller/Component', 'Component'));
+        $this->assertSame($expected, App::className('TestApp\Controller\Component\Namespaced', 'Controller/Component', 'Component'));
+        $this->assertSame($expected, App::className('\\' . $expected, 'Controller/Component', 'Component'));
+        $this->assertSame(NamespacedPost::class, App::className(NamespacedPost::class, 'Model'));
+        $this->assertNull(App::className('TestApp\Controller\Component\DoesNotExist', 'Controller/Component', 'Component'));
+        $this->assertNull(App::className(NamespacedPost::class, 'Controller/Component', 'Component'));
+    }
+
+    /**
+     * Test that App::className() looks in the App.namespace namespace first.
+     *
+     * @return void
+     */
+    public function testClassNameAppNamespace(): void
+    {
+        Configure::write('App.namespace', 'TestApp');
+
+        $result = App::className('Namespaced', 'Controller/Component', 'Component');
+        $this->assertSame(NamespacedComponent::class, $result);
+        $this->assertSame(NamespacedPost::class, App::className('NamespacedPost', 'Model'));
+        $this->assertSame('AuthComponent', App::className('Auth', 'Controller/Component', 'Component'));
+    }
+
+    /**
+     * Test that App::import() finds namespaced classes in App.namespace and in the namespace of a plugin.
+     *
+     * @return void
+     */
+    public function testImportNamespacedClass(): void
+    {
+        Configure::write('App.namespace', 'TestApp');
+        App::build(['Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS]], App::RESET);
+        CakePlugin::load('TestPluginTwo');
+
+        $this->assertTrue(App::import('Controller', 'Namespaced'));
+        $this->assertTrue(App::import('Model', 'NamespacedPost'));
+        $this->assertTrue(App::import('Controller', 'TestPluginTwo.NamespacedPlugin'));
+        $this->assertFalse(App::import('Controller', 'DoesNotExist'));
+    }
+
+    /**
+     * Test that loading a global name from the file of a namespaced class that is already loaded
+     * does not declare the class again.
+     *
+     * @return void
+     */
+    public function testLoadFileOfLoadedNamespacedClass(): void
+    {
+        $this->assertTrue(class_exists(NamespacedPost::class));
+        App::build(['Model' => [CORE_TESTS . DS . 'test_app' . DS . 'Namespaced' . DS . 'Model' . DS]], App::RESET);
+        App::uses('NamespacedPost', 'Model');
+        $this->assertFalse(class_exists('NamespacedPost'));
+    }
+
+    /**
+     * @return array
+     */
+    public static function appClassFromAppNamespaceProvider(): array
+    {
+        return [[false], [true]];
+    }
+
+    /**
+     * Test that the global name of an application base class is declared for the class in App.namespace
+     * when the application has no global one, so that the core classes that extend it work.
+     *
+     * @dataProvider appClassFromAppNamespaceProvider
+     * @param bool $cached Whether the file of the class is in the file map that App caches
+     * @return void
+     */
+    public function testLoadAppClassFromAppNamespace($cached): void
+    {
+        $loader = new ReflectionClass(ClassLoader::class);
+        $script = '<?php' . "\n" .
+            'define("DS", DIRECTORY_SEPARATOR);' . "\n" .
+            'define("ROOT", ' . var_export(ROOT, true) . ');' . "\n" .
+            'define("APP_DIR", ' . var_export(APP_DIR, true) . ');' . "\n" .
+            'define("WWW_ROOT", ' . var_export(WWW_ROOT, true) . ');' . "\n" .
+            'require ' . var_export(dirname($loader->getFileName(), 2) . DS . 'autoload.php', true) . ';' . "\n" .
+            'require ' . var_export(CORE_ROOT . DS . 'config' . DS . 'init.php', true) . ';' . "\n" .
+            'require CAKE . "bootstrap.php";' . "\n" .
+            'Configure::write("App.namespace", "TestApp");' . "\n" .
+            'App::build(["Controller" => [' . var_export(CORE_TESTS . DS . 'test_app' . DS . 'Namespaced' . DS . 'Controller' . DS, true) . ']], App::RESET);' . "\n" .
+            // The test app has a global AppController in the classmap; load it with App::load() like an application without one
+            'spl_autoload_register(function ($class) { if ($class === "AppController") { App::load($class); } }, true, true);' . "\n" .
+            // The file map that App caches is neither read nor written
+            'Closure::bind(function () { static::$_map = []; }, null, App::class)();' . "\n" .
+            ($cached ? 'Closure::bind(function () { static::$_map["AppController"] = ' . var_export(CORE_TESTS . DS . 'test_app' . DS . 'Namespaced' . DS . 'Controller' . DS . 'AppController.php', true) . '; }, null, App::class)();' . "\n" : '') .
+            'App::uses("AppController", "Controller");' . "\n" .
+            'echo (new ReflectionClass("AppController"))->getName(), "\n";' . "\n" .
+            'echo get_parent_class("CakeErrorController"), "\n";' . "\n" .
+            'Closure::bind(function () { static::$_cacheChange = false; static::$_objectCacheChange = false; }, null, App::class)();' . "\n";
+        $file = TMP . 'app_class_from_app_namespace.php';
+        file_put_contents($file, $script);
+        try {
+            $process = proc_open([PHP_BINARY, '-d', 'display_errors=stderr', $file], [1 => ['pipe', 'w'], 2 => ['pipe', 'w']], $pipes);
+            $output = stream_get_contents($pipes[1]);
+            $errors = stream_get_contents($pipes[2]);
+            fclose($pipes[1]);
+            fclose($pipes[2]);
+            proc_close($process);
+        } finally {
+            unlink($file);
+        }
+
+        // CakeErrorController of the core extends it
+        $this->assertSame("TestApp\\Controller\\AppController\nTestApp\\Controller\\AppController\n", $output, $errors);
+    }
+
+    /**
+     * Test that App::className() looks in the namespace of a plugin.
+     *
+     * @return void
+     */
+    public function testClassNamePluginNamespace(): void
+    {
+        Configure::write('App.namespace', 'Other');
+
+        $result = App::className('TestApp.Namespaced', 'View/Helper', 'Helper');
+        $this->assertSame(NamespacedHelper::class, $result);
     }
 }

@@ -1,4 +1,7 @@
 <?php
+
+use TestApp\Model\NamespacedPost;
+
 /**
  * ScaffoldTest file
  *
@@ -258,6 +261,34 @@ class ScaffoldTest extends CakeTestCase
         $this->assertEquals('scaffoldMock', $result['pluralVar']);
         $this->assertEquals(['id', 'user_id', 'title', 'body', 'published', 'created', 'updated'], $result['scaffoldFields']);
         $this->assertArrayHasKey('plugin', $result['associations']['belongsTo']['User']);
+    }
+
+    /**
+     * Test that the controller of an association with a fully qualified class name is named
+     * by the short name like for the short name.
+     *
+     * @return void
+     */
+    public function testScaffoldAssociationsNamespacedClassName(): void
+    {
+        $this->Controller->request->addParams([
+            'plugin' => null, 'pass' => [], 'form' => [], 'named' => [],
+            'controller' => 'scaffold_mock', 'action' => 'index',
+        ]);
+        $this->Controller->constructClasses();
+        $cases = ['NamespacedPost' => 'NamespacedPost', NamespacedPost::class => NamespacedPost::class];
+        foreach ($cases as $className => $expected) {
+            Configure::write('App.namespace', $className === 'NamespacedPost' ? 'TestApp' : null);
+            $this->Controller->ScaffoldMock->bindModel(['belongsTo' => [
+                'NamespacedPost' => ['className' => $className, 'foreignKey' => 'user_id'],
+            ]]);
+            $Scaffold = new TestScaffoldMock($this->Controller, $this->Controller->request);
+            $result = $Scaffold->controller->viewVars['associations']['belongsTo']['NamespacedPost'];
+            $this->assertSame('namespaced_posts', $result['controller']);
+            $this->assertNull($result['plugin']);
+            $this->Controller->ScaffoldMock->unbindModel(['belongsTo' => ['NamespacedPost']]);
+            ClassRegistry::removeObject('NamespacedPost');
+        }
     }
 
     /**
