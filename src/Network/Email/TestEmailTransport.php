@@ -15,10 +15,7 @@
 
 namespace Cake\Network\Email;
 
-use Cake\Core\App;
 use Cake\TestSuite\EmailTrait;
-
-App::uses('DebugTransport', 'Network/Email');
 
 /**
  * Email transport that captures sent emails for test assertions.

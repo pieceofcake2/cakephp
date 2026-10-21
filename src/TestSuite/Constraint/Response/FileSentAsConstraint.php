@@ -15,10 +15,6 @@
 
 namespace Cake\TestSuite\Constraint\Response;
 
-use Cake\Core\App;
-
-App::uses('ResponseConstraintBase', 'TestSuite/Constraint/Response');
-
 /**
  * Asserts the path of the file sent with `CakeResponse::file()`.
  *

@@ -15,10 +15,6 @@
 
 namespace Cake\TestSuite\Constraint\Response;
 
-use Cake\Core\App;
-
-App::uses('HeaderContainsConstraint', 'TestSuite/Constraint/Response');
-
 /**
  * Asserts that a response header does not contain a string.
  *

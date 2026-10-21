@@ -15,10 +15,6 @@
 
 namespace Cake\TestSuite\Constraint\Response;
 
-use Cake\Core\App;
-
-App::uses('HeaderEqualsConstraint', 'TestSuite/Constraint/Response');
-
 /**
  * Asserts that a response header contains a string.
  *

@@ -17,11 +17,8 @@
 namespace Cake\View\Helper;
 
 use AppHelper;
-use Cake\Core\App;
 use Cake\I18n\Multibyte;
 use Cake\Routing\Router;
-
-App::uses('AppHelper', 'View/Helper');
 
 /**
  * JsEngineBaseClass

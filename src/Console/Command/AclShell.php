@@ -25,8 +25,6 @@ use Cake\Core\App;
 use Cake\Core\Configure;
 use Cake\Utility\Hash;
 
-App::uses('AppShell', 'Console/Command');
-
 /**
  * Shell for ACL management. This console is known to have issues with zend.ze1_compatibility_mode
  * being enabled. Be sure to turn it off when using this shell.
@@ -69,9 +67,9 @@ class AclShell extends AppShell
         }
 
         $class = Configure::read('Acl.classname');
-        [$plugin, $class] = pluginSplit($class, true);
-        App::uses($class, $plugin . 'Controller/Component/Acl');
-        if ($class !== 'DB_ACL' && !is_a($class, 'DbAcl', true)) {
+        $className = App::className($class, 'Controller/Component/Acl');
+        [, $class] = pluginSplit($class);
+        if ($class !== 'DB_ACL' && !is_a((string)$className, 'DbAcl', true)) {
             $out = "--------------------------------------------------\n";
             $out .= __d('cake_console', 'Error: Your current CakePHP configuration is set to an ACL implementation other than DB.') . "\n";
             $out .= __d('cake_console', 'Please change your core config to reflect your decision to use DbAcl before attempting to use this script') . "\n";

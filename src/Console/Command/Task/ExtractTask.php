@@ -28,8 +28,6 @@ use Cake\Utility\Hash;
 use Cake\Utility\Inflector;
 use ReflectionClass;
 
-App::uses('AppShell', 'Console/Command');
-
 /**
  * Language string extractor
  *
@@ -516,12 +514,11 @@ class ExtractTask extends AppShell
      */
     protected function _extractPluginValidationMessages($plugin = null)
     {
-        App::uses('AppModel', 'Model');
         if (!empty($plugin)) {
             if (!CakePlugin::loaded($plugin)) {
                 return;
             }
-            App::uses($plugin . 'AppModel', $plugin . '.Model');
+            App::className($plugin . '.' . $plugin . 'AppModel', 'Model');
             $plugin = $plugin . '.';
         }
         $models = App::objects($plugin . 'Model', null, false);

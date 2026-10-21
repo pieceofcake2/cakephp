@@ -15,10 +15,7 @@
 
 namespace Cake\TestSuite\Constraint\Email;
 
-use Cake\Core\App;
 use Cake\Network\Email\CakeEmail;
-
-App::uses('MailContainsConstraint', 'TestSuite/Constraint/Email');
 
 /**
  * Asserts that a string is in the html message of an email.

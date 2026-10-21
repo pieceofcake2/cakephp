@@ -17,7 +17,6 @@ namespace Cake\Console\Command;
 
 use Cake\Cache\Cache;
 use Cake\Console\ConsoleOptionParser;
-use Cake\Core\App;
 use Cake\Core\Configure;
 use Cake\Model\CakeSchema;
 use Cake\Model\ConnectionManager;
@@ -26,8 +25,6 @@ use Cake\Utility\File;
 use Cake\Utility\Folder;
 use Cake\Utility\Inflector;
 use PDOException;
-
-App::uses('AppShell', 'Console/Command');
 
 /**
  * Schema is a command-line database management utility for automating programmer chores.

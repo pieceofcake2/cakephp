@@ -27,8 +27,6 @@ use Cake\Utility\CakeText;
 use Cake\Utility\Hash;
 use Cake\View\View;
 
-App::uses('AppHelper', 'View/Helper');
-
 /**
  * Text helper library.
  *

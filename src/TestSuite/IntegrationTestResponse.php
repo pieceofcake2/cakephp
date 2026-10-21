@@ -15,11 +15,7 @@
 
 namespace Cake\TestSuite;
 
-use Cake\Core\App;
 use Cake\Network\CakeResponse;
-
-App::uses('CakeResponse', 'Network');
-App::uses('IntegrationTestStop', 'TestSuite');
 
 /**
  * Response used by `IntegrationTestTrait` for dispatched requests.

@@ -15,10 +15,6 @@
 
 namespace Cake\TestSuite\Constraint\Email;
 
-use Cake\Core\App;
-
-App::uses('MailSentWithConstraint', 'TestSuite/Constraint/Email');
-
 /**
  * Asserts that an email was sent from an address.
  *

@@ -21,11 +21,8 @@
 namespace Cake\View\Helper;
 
 use AppHelper;
-use Cake\Core\App;
 use Cake\Utility\Xml;
 use DateTime;
-
-App::uses('AppHelper', 'View/Helper');
 
 /**
  * RSS Helper class for easy output RSS structures.

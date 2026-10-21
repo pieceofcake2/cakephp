@@ -19,11 +19,8 @@
 namespace Cake\View\Helper;
 
 use AppHelper;
-use Cake\Core\App;
 use Cake\Model\Datasource\CakeSession;
 use UnexpectedValueException;
-
-App::uses('AppHelper', 'View/Helper');
 
 /**
  * FlashHelper class to render flash messages.

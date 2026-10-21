@@ -22,8 +22,6 @@ use Cake\Routing\Dispatcher;
 use Cake\Routing\Router;
 use Cake\Utility\Hash;
 
-App::uses('AppShell', 'Console/Command');
-
 /**
  * Provides a very basic 'interactive' console for CakePHP apps.
  *
@@ -94,9 +92,8 @@ class ConsoleShell extends AppShell
         $this->models = App::objects('Model');
 
         foreach ($this->models as $model) {
-            $class = $model;
-            App::uses($class, 'Model');
-            $this->{$class} = new $class();
+            $class = App::className($model, 'Model');
+            $this->{$model} = new $class();
         }
         $this->out(__d('cake_console', 'Model classes:'));
         $this->hr();

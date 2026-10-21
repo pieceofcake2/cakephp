@@ -15,10 +15,6 @@
 
 namespace Cake\TestSuite\Constraint\View;
 
-use Cake\Core\App;
-
-App::uses('TemplateFileEqualsConstraint', 'TestSuite/Constraint/View');
-
 /**
  * Asserts that a string is part of the path of the rendered layout file.
  *

@@ -1008,7 +1008,6 @@ class AppTest extends CakeTestCase
             // The file map that App caches is neither read nor written
             'Closure::bind(function () { static::$_map = []; }, null, App::class)();' . "\n" .
             ($cached ? 'Closure::bind(function () { static::$_map["AppController"] = ' . var_export(CORE_TESTS . DS . 'test_app' . DS . 'Namespaced' . DS . 'Controller' . DS . 'AppController.php', true) . '; }, null, App::class)();' . "\n" : '') .
-            'App::uses("AppController", "Controller");' . "\n" .
             'echo (new ReflectionClass("AppController"))->getName(), "\n";' . "\n" .
             'echo get_parent_class("CakeErrorController"), "\n";' . "\n" .
             'Closure::bind(function () { static::$_cacheChange = false; static::$_objectCacheChange = false; }, null, App::class)();' . "\n";

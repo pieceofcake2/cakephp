@@ -4,7 +4,6 @@ namespace Cake\View\Helper;
 
 use AppHelper;
 use Cake\Controller\Component\SecurityComponent;
-use Cake\Core\App;
 use Cake\Core\Configure;
 use Cake\Error\CakeException;
 use Cake\Model\Model;
@@ -32,8 +31,6 @@ use function PHP81_BC\strftime;
  * @since         CakePHP(tm) v 0.10.0.1076
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
-
-App::uses('AppHelper', 'View/Helper');
 
 /**
  * Form helper library.

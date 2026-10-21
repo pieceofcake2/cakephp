@@ -148,9 +148,16 @@ class App
     /**
      * Holds the location of each class
      *
+     * The base classes of the application are found in their packages without being declared.
+     *
      * @var array
      */
-    protected static $_classMap = [];
+    protected static $_classMap = [
+        'AppController' => 'Controller',
+        'AppModel' => 'Model',
+        'AppHelper' => 'View/Helper',
+        'AppShell' => 'Console/Command',
+    ];
 
     /**
      * Holds the possible paths for each package name
@@ -551,7 +558,7 @@ class App
      *   `Acme\Cache\MemoryEngine` with the suffix `Engine`.
      * - Other names may have a plugin prefix (`'MyPlugin.Name'`). The class is looked up in the namespace of
      *   the plugin, or of the application set in `App.namespace`, as `<Namespace>\<Type>\<Name><Suffix>`,
-     *   then as the global class `<Name><Suffix>` declared with `App::uses()` in the `<Type>` package.
+     *   then as the global class `<Name><Suffix>` in the `<Type>` package.
      *
      * Usage:
      *
@@ -587,7 +594,7 @@ class App
         }
 
         $className = $name . $suffix;
-        static::uses($className, $plugin ? $plugin . '.' . $type : $type);
+        static::$_classMap[$className] = $plugin ? $plugin . '.' . $type : $type;
 
         return class_exists($className) ? $className : null;
     }
@@ -793,16 +800,16 @@ class App
                 $extends = array_pop($parts);
                 $extendType = implode('/', $parts);
             }
-            App::uses($extends, $extendType);
+            static::$_classMap[$extends] = $extendType;
             if ($plugin && in_array($originalType, ['controller', 'model'])) {
-                App::uses($plugin . $extends, $plugin . '.' . $type);
+                static::$_classMap[$plugin . $extends] = $plugin . '.' . $type;
             }
         }
         if ($plugin) {
             $plugin .= '.';
         }
         $name = Inflector::camelize($name);
-        App::uses($name, $plugin . $type);
+        static::$_classMap[$name] = $plugin . $type;
         if (class_exists($name)) {
             return true;
         }

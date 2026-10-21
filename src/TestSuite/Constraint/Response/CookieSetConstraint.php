@@ -15,10 +15,6 @@
 
 namespace Cake\TestSuite\Constraint\Response;
 
-use Cake\Core\App;
-
-App::uses('ResponseConstraintBase', 'TestSuite/Constraint/Response');
-
 /**
  * Asserts that a cookie with a non-empty value is set in the response.
  *

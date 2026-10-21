@@ -18,12 +18,9 @@ namespace Cake\Console\Command;
 
 use Cake\Console\ConsoleOptionParser;
 use Cake\Console\ConsoleOutput;
-use Cake\Core\App;
 use Cake\Core\CakePlugin;
 use Cake\Utility\Inflector;
 use SimpleXmlElement;
-
-App::uses('AppShell', 'Console/Command');
 
 /**
  * Shows a list of commands available from the console.

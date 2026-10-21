@@ -15,7 +15,6 @@
 
 namespace Cake\TestSuite;
 
-use Cake\Core\App;
 use Cake\Network\Email\TestEmailTransport;
 use Cake\TestSuite\Constraint\Email\MailContainsAttachmentConstraint;
 use Cake\TestSuite\Constraint\Email\MailContainsConstraint;
@@ -27,9 +26,6 @@ use Cake\TestSuite\Constraint\Email\MailSentToConstraint;
 use Cake\TestSuite\Constraint\Email\MailSentWithConstraint;
 use Cake\TestSuite\Constraint\Email\MailSubjectContainsConstraint;
 use Cake\TestSuite\Constraint\Email\NoMailSentConstraint;
-
-App::uses('CakeEmail', 'Network/Email');
-App::uses('TestEmailTransport', 'Network/Email');
 
 /**
  * Make assertions on emails sent through `CakeEmail`.
