@@ -3383,7 +3383,10 @@ class DboSource extends DataSource
                 $key = $this->name($key);
             }
 
-            $key .= ' ' . trim($dir);
+            $key .= ' ';
+            if ($dir !== null && $dir !== false) {
+                $key .= trim($dir);
+            }
 
             $result[] = $key;
         }
