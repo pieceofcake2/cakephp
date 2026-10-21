@@ -648,7 +648,7 @@ class Sqlserver extends DboSource
                 }
 
                 // For older versions use the subquery version of pagination.
-                if (version_compare($this->getVersion(), '11', '<') && preg_match('/FETCH\sFIRST\s+([0-9]+)/i', $limit, $offset)) {
+                if (!empty($limit) && version_compare($this->getVersion(), '11', '<') && preg_match('/FETCH\sFIRST\s+([0-9]+)/i', $limit, $offset)) {
                     preg_match('/OFFSET\s*(\d+)\s*.*?(\d+)\s*ROWS/', $limit, $limitOffset);
 
                     $limit = 'TOP ' . (int)$limitOffset[2];
@@ -666,7 +666,7 @@ class Sqlserver extends DboSource
 
                     return trim($sql);
                 }
-                if (str_contains($limit, 'FETCH')) {
+                if (!empty($limit) && str_contains($limit, 'FETCH')) {
                     return trim("SELECT {$fields} FROM {$table} {$alias}{$lock} {$joins} {$conditions} {$group}{$having} {$order} {$limit}");
                 }
 
