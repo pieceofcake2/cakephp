@@ -8656,26 +8656,25 @@ class ModelWriteTest extends BaseModelTest
 
     /**
      * Test that a counterCache field that does not exist in the parent table is
-     * skipped instead of breaking the save.
+     * skipped instead of breaking the save, while an existing counter field of the
+     * same association is still updated.
      *
      * @return void
      */
     public function testCounterCacheSkipsMissingColumn(): void
     {
-        $this->loadFixtures('Article', 'Comment', 'User', 'Attachment');
-        $Comment = new Comment();
-        $Comment->bindModel(['belongsTo' => ['Article' => ['counterCache' => 'comment_count']]], false);
+        $this->loadFixtures('CounterCacheUser', 'CounterCachePost');
+        $Post = new CounterCachePost();
+        $Post->belongsTo['User']['counterCache'] = ['post_count' => [], 'missing_count' => []];
 
-        $Comment->create();
-        $result = $Comment->save(['article_id' => 2, 'user_id' => 1, 'comment' => 'Counted']);
-        $this->assertSame('Counted', $result['Comment']['comment']);
+        $Post->create();
+        $result = $Post->save(['Post' => ['title' => 'Counted', 'user_id' => 301]]);
+        $this->assertSame('Counted', $result['Post']['title']);
 
-        $article = $Comment->Article->find('first', [
-            'conditions' => ['Article.id' => 2],
-            'recursive' => -1,
-        ]);
-        $this->assertSame('2007-03-18 10:43:31', $article['Article']['updated']);
-        $this->assertSame(3, $Comment->find('count', ['conditions' => ['Comment.article_id' => 2]]));
+        $user = $Post->User->find('first', ['conditions' => ['User.id' => 301], 'recursive' => -1]);
+        $this->assertEquals(2, $user['User']['post_count'], 'The existing counter is updated.');
+        $this->assertEquals(1, $user['User']['posts_published'], 'The other columns are kept.');
+        $this->assertArrayNotHasKey('missing_count', $user['User']);
     }
 
     /**
@@ -8691,9 +8690,12 @@ class ModelWriteTest extends BaseModelTest
         $this->loadFixtures('Article', 'Comment', 'User', 'Attachment');
 
         $dir = CACHE . 'views' . DS;
+        $createdDir = !is_dir($dir) && mkdir($dir, 0777, true);
+        // A unique prefix, so that the test touches no other cached view.
+        $prefix = 'model_write_test_' . getmypid() . '_';
         $files = ['comments_index', 'articles_view_1', 'users_index', 'attachments_index', 'tags_index'];
         foreach ($files as $file) {
-            touch($dir . $file . '.php');
+            touch($dir . $prefix . $file . '.php');
         }
 
         $existing = [];
@@ -8703,10 +8705,13 @@ class ModelWriteTest extends BaseModelTest
             $Comment->save(['article_id' => 1, 'user_id' => 1, 'comment' => 'Clear the cache']);
         } finally {
             foreach ($files as $file) {
-                if (file_exists($dir . $file . '.php')) {
+                if (file_exists($dir . $prefix . $file . '.php')) {
                     $existing[] = $file;
-                    unlink($dir . $file . '.php');
+                    unlink($dir . $prefix . $file . '.php');
                 }
+            }
+            if ($createdDir) {
+                rmdir($dir);
             }
         }
         $this->assertSame(['tags_index'], $existing);

@@ -28,7 +28,6 @@ use Cake\Model\Datasource\Database\Sqlite;
 use Cake\Model\Datasource\Database\Sqlserver;
 use Cake\Model\Datasource\DboSource;
 use Cake\Model\Model;
-use Cake\TestSuite\Fixture\CakeTestModel;
 use Cake\Utility\ClassRegistry;
 use Cake\Utility\Hash;
 use TestApp\Model\Ad;
@@ -54,6 +53,7 @@ use TestApp\Model\NamespacedComment;
 use TestApp\Model\NamespacedHabtmArticle;
 use TestApp\Model\NamespacedHabtmTag;
 use TestApp\Model\NamespacedPost;
+use TestApp\Model\NoSchemaModel;
 use TestApp\Model\Person;
 use TestApp\Model\Portfolio;
 use TestApp\Model\Post;
@@ -2875,14 +2875,4 @@ class ModelIntegrationTest extends BaseModelTest
         ]];
         $this->assertSame($expected, $errors);
     }
-}
-
-/**
- * Model without a table and without a schema.
- */
-class NoSchemaModel extends CakeTestModel
-{
-    public $name = 'NoSchemaModel';
-
-    public $useTable = false;
 }

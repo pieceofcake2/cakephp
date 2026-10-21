@@ -24,7 +24,6 @@ use Cake\Model\Datasource\Database\Mysql;
 use Cake\Model\Datasource\Database\Postgres;
 use Cake\Model\Datasource\Database\Sqlite;
 use Cake\Model\Datasource\Database\Sqlserver;
-use Cake\TestSuite\Fixture\CakeTestModel;
 use Cake\Utility\ClassRegistry;
 use Cake\Utility\Hash;
 use PDOException;
@@ -53,6 +52,7 @@ use TestApp\Model\Post;
 use TestApp\Model\Product;
 use TestApp\Model\Project;
 use TestApp\Model\Something;
+use TestApp\Model\StringAssociationComment;
 use TestApp\Model\Thread;
 use TestApp\Model\TranslatedArticle;
 use TestApp\Model\User;
@@ -9331,16 +9331,4 @@ class ModelReadTest extends BaseModelTest
         $this->assertSame('1 + 1', $Article->getVirtualField('Article.two'));
         $this->assertFalse($Article->getVirtualField('title'));
     }
-}
-
-/**
- * Comment model that declares its associations as a string.
- */
-class StringAssociationComment extends CakeTestModel
-{
-    public $name = 'StringAssociationComment';
-
-    public $useTable = 'comments';
-
-    public $belongsTo = 'Article, User';
 }

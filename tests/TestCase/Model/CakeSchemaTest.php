@@ -27,6 +27,7 @@ use Cake\Model\ConnectionManager;
 use Cake\Model\Datasource\Database\Sqlite;
 use Cake\TestSuite\CakeTestCase;
 use Cake\TestSuite\Fixture\CakeTestFixture;
+use Cake\TestSuite\Fixture\CakeTestModel;
 use Cake\Utility\ClassRegistry;
 use Exception;
 use MyOtherAppSchema;
@@ -295,6 +296,27 @@ class NonConventionalPrimaryKeyFixture extends CakeTestFixture
         'id' => ['type' => 'integer'],
         'name' => 'string',
     ];
+}
+
+/**
+ * A model whose table does not exist.
+ *
+ * It is defined here and not in the test app, so that a read() of all the models
+ * of the test app is not broken by it.
+ *
+ * @package       Cake.Test.Case.Model
+ */
+class SchemaMissingTableModel extends CakeTestModel
+{
+    /**
+     * @var string
+     */
+    public $name = 'SchemaMissingTable';
+
+    /**
+     * @var string|false|null
+     */
+    public $useTable = 'schema_missing_tables';
 }
 
 /**
@@ -1175,7 +1197,8 @@ class CakeSchemaTest extends CakeTestCase
 
     /**
      * Test that write() with a schema object applies the given options over the
-     * properties of the object.
+     * properties of the object: the file option names the file, which holds the
+     * class named after the object and its table.
      *
      * @return void
      */
@@ -1196,6 +1219,30 @@ class CakeSchemaTest extends CakeTestCase
         $Writer->write($Schema, ['file' => 'cov_object_options.php']);
 
         $this->assertFileExists($path . DS . 'cov_object_options.php');
+        $content = (string)file_get_contents($path . DS . 'cov_object_options.php');
+        $this->assertStringContainsString('class CovObjectOptionsSchema extends CakeSchema {', $content);
+        $this->assertStringContainsString("\tpublic \$widgets = array(\n", $content);
+    }
+
+    /**
+     * Test that write() without tables writes the tables that it reads from the
+     * connection of the schema.
+     *
+     * @return void
+     */
+    public function testWriteWithoutTablesWritesTheTablesItReads(): void
+    {
+        $this->markTestIncomplete('Known bug: write() without tables calls read() and discards its result');
+
+        $path = TMP . 'tests';
+        $this->_schemaFiles[] = $path . DS . 'cov_read_tables.php';
+        $Schema = new CakeSchema(['name' => 'CovReadTables', 'path' => $path, 'connection' => 'test']);
+
+        $content = $Schema->write(['name' => 'CovReadTables', 'path' => $path, 'file' => 'cov_read_tables.php', 'connection' => 'test']);
+
+        $this->assertIsString($content);
+        $this->assertStringContainsString("\tpublic \$posts = array(\n", $content);
+        $this->assertStringContainsString("\tpublic \$tags = array(\n", $content);
     }
 
     /**
@@ -1227,8 +1274,8 @@ class CakeSchemaTest extends CakeTestCase
     }
 
     /**
-     * Test that read() skips the models it cannot read: the AppModel, unknown
-     * models and models without a table.
+     * Test that read() goes on past the models it cannot use, such as an unknown
+     * model, and reads the table of a usable model together with its join table.
      *
      * @return void
      */
@@ -1261,7 +1308,7 @@ class CakeSchemaTest extends CakeTestCase
         $read = $this->Schema->read([
             'connection' => 'test',
             'name' => 'TestApp',
-            'models' => ['SchemaMissingTable', 'SchemaTag'],
+            'models' => [SchemaMissingTableModel::class, 'SchemaTag'],
         ]);
 
         $this->assertArrayHasKey('tags', $read['tables']);

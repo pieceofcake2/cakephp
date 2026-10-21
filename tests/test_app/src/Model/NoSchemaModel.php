@@ -17,16 +17,11 @@ namespace TestApp\Model;
 use Cake\TestSuite\Fixture\CakeTestModel;
 
 /**
- * SchemaMissingTable class
- *
- * A model whose table does not exist, used by CakeSchemaTest.
+ * Model without a table and without a schema, used by ModelIntegrationTest.
  */
-class SchemaMissingTable extends CakeTestModel
+class NoSchemaModel extends CakeTestModel
 {
-    /**
-     * useTable property
-     *
-     * @var string|bool|null
-     */
-    public $useTable = 'schema_missing_tables';
+    public $name = 'NoSchemaModel';
+
+    public $useTable = false;
 }

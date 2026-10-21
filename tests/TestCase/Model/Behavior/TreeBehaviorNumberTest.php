@@ -1798,7 +1798,8 @@ class TreeBehaviorNumberTest extends CakeTestCase
     }
 
     /**
-     * Test that removeFromTree() accepts the id in an array.
+     * Test that removeFromTree() accepts the id and the delete flag in an array:
+     * the node is deleted and its children are moved up to the root, its parent.
      *
      * @return void
      */
@@ -1806,18 +1807,27 @@ class TreeBehaviorNumberTest extends CakeTestCase
     {
         $this->Tree = new NumberTree();
         $this->Tree->initialize(2, 2);
+        $root = $this->Tree->findByName('1. Root');
         $node = $this->Tree->findByName('1.1');
 
         $this->assertTrue($this->Tree->removeFromTree(['id' => $node['NumberTree']['id'], 'delete' => true]));
 
         $this->assertSame([], $this->Tree->findByName('1.1'));
         $this->assertSame(6, $this->Tree->find('count'));
+        $children = $this->Tree->children($root['NumberTree']['id'], true, ['name', 'parent_id']);
+        $this->assertSame(['1.1.1', '1.1.2', '1.2'], Hash::extract($children, '{n}.NumberTree.name'));
+        $this->assertEquals(
+            array_fill(0, 3, $root['NumberTree']['id']),
+            Hash::extract($children, '{n}.NumberTree.parent_id'),
+        );
         $this->assertTrue($this->Tree->verify());
     }
 
     /**
      * Test children() and childCount() with no id, with a missing id, and with
-     * the node already loaded in the model data.
+     * the node already loaded in the model data: then childCount() counts from the
+     * lft and rght of the loaded data, which the test changes after read() to tell
+     * that path apart from a count from the database.
      *
      * @return void
      */
@@ -1836,8 +1846,11 @@ class TreeBehaviorNumberTest extends CakeTestCase
         $this->assertSame(0, $this->Tree->childCount(999999));
 
         $node = $this->Tree->findByName('1.2');
+        $other = $this->Tree->findByName('1.1');
         $this->Tree->read(null, $node['NumberTree']['id']);
-        $this->assertSame(2, $this->Tree->childCount($node['NumberTree']['id']));
+        $this->Tree->data['NumberTree']['rght'] = $this->Tree->data['NumberTree']['lft'] + 11;
+        $this->assertSame(5, $this->Tree->childCount($node['NumberTree']['id']));
+        $this->assertSame(2, $this->Tree->childCount($other['NumberTree']['id']), 'Another node is counted from the database.');
     }
 
     /**

@@ -51,6 +51,9 @@ abstract class BaseModelTest extends CakeTestCase
      * @var array<string>
      */
     public $fixtures = [
+        // ModelIntegrationTest::testTreeWithContainable() loads these.
+        'core.ad',
+        'core.campaign',
         'core.category',
         'core.category_thread',
         'core.user',
