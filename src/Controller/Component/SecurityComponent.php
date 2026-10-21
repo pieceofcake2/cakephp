@@ -461,7 +461,7 @@ class SecurityComponent extends Component
      * Check if authentication is required
      *
      * @param Controller $controller Instantiating controller
-     * @return bool|null True if authentication required
+     * @return bool True if authentication required
      * @throws AuthSecurityException
      * @deprecated 2.8.1 This feature is confusing and not useful.
      */

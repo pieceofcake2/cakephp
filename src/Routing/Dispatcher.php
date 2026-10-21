@@ -244,7 +244,7 @@ class Dispatcher implements CakeEventListener
      *
      * @param CakeRequest $request Request object
      * @param CakeResponse $response Response for the controller.
-     * @return mixed name of controller if not loaded, or object if loaded
+     * @return mixed false if controller could not be loaded, or object if loaded
      */
     protected function _getController($request, $response)
     {

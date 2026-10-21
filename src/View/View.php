@@ -526,7 +526,7 @@ class View extends CakeObject
     }
 
     /**
-     * Renders a layout. Returns output from _render(). Returns false on error.
+     * Renders a layout. Returns output from _render().
      * Several variables are created for use in layout.
      *
      * - `title_for_layout` - A backwards compatible place holder, you should set this value if you want more control.
@@ -546,7 +546,7 @@ class View extends CakeObject
      *
      * @param string $content Content to render in a view, wrapped by the surrounding layout.
      * @param string $layout Layout name
-     * @return mixed Rendered output, or false on error
+     * @return mixed Rendered output
      * @triggers View.beforeLayout $this, array($layoutFileName)
      * @triggers View.afterLayout $this, array($layoutFileName)
      * @throws CakeException if there is an error in the view.
