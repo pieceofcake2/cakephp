@@ -1215,4 +1215,224 @@ EXPECTED;
         $result = pluginSplit('Blog.Post', false, 'Ultimate');
         $this->assertEquals(['Blog', 'Post'], $result);
     }
+
+    /**
+     * Test that config() includes the files under CONFIG, and only returns
+     * true when all of the given files exist.
+     *
+     * @return void
+     */
+    public function testConfig(): void
+    {
+        $file = 'basics_test_config_' . getmypid();
+        file_put_contents(TMP . $file . '.php', '<?php \Cake\Core\Configure::write(\'BasicsTest.config\', \'loaded\');');
+
+        $configParts = explode(DS, rtrim(realpath(CONFIG), DS));
+        $tmpParts = explode(DS, rtrim(realpath(TMP), DS));
+        while ($configParts && $tmpParts && $configParts[0] === $tmpParts[0]) {
+            array_shift($configParts);
+            array_shift($tmpParts);
+        }
+        $name = str_repeat('..' . DS, count($configParts)) . implode(DS, array_merge($tmpParts, [$file]));
+
+        try {
+            $this->assertTrue(config($name));
+            $this->assertSame('loaded', Configure::read('BasicsTest.config'));
+            $this->assertFalse(config($name, 'basics_test_missing_config'));
+            $this->assertFalse(config('basics_test_missing_config'));
+        } finally {
+            unlink(TMP . $file . '.php');
+        }
+    }
+
+    /**
+     * Test that debug(), pr() and stackTrace() print nothing when debug is off.
+     *
+     * @return void
+     */
+    public function testDebugFunctionsWithDebugOff(): void
+    {
+        Configure::write('debug', 0);
+        ob_start();
+        debug('this-is-a-test');
+        pr(['this-is-a-test']);
+        stackTrace();
+        $this->assertSame('', ob_get_clean());
+    }
+
+    /**
+     * Test sortByKey() in both orders and with the sort types, and with a value
+     * that is not an array.
+     *
+     * @return void
+     */
+    public function testSortByKey(): void
+    {
+        $data = [
+            'a' => ['id' => 10, 'name' => 'beta'],
+            'b' => ['id' => 2, 'name' => 'alpha'],
+            'c' => ['id' => 33, 'name' => 'Gamma'],
+        ];
+
+        $result = sortByKey($data, 'id');
+        $this->assertSame([$data['b'], $data['a'], $data['c']], $result);
+
+        $result = sortByKey($data, 'id', 'desc');
+        $this->assertSame([$data['c'], $data['a'], $data['b']], $result);
+
+        $result = sortByKey($data, 'name', 'asc', SORT_STRING);
+        $this->assertSame([$data['c'], $data['b'], $data['a']], $result);
+
+        $result = sortByKey($data, 'name', 'asc', SORT_STRING | SORT_FLAG_CASE);
+        $this->assertSame([$data['b'], $data['a'], $data['c']], $result);
+
+        $notArray = 'string';
+        $this->assertNull(sortByKey($notArray, 'id'));
+    }
+
+    /**
+     * Test the values that env() reads from getenv() and the values that it
+     * emulates when $_SERVER and $_ENV do not have them.
+     *
+     * @return void
+     */
+    public function testEnvEmulation(): void
+    {
+        $server = $_SERVER;
+        $env = $_ENV;
+        $name = 'CAKE_BASICS_TEST_' . getmypid();
+
+        try {
+            $_SERVER = $_ENV = [];
+            putenv($name . '=from getenv');
+            $this->assertSame('from getenv', env($name));
+            $_ENV[$name] = 'from $_ENV';
+            $this->assertSame('from $_ENV', env($name));
+            putenv($name);
+            unset($_ENV[$name]);
+            $this->assertNull(env($name));
+
+            $_SERVER = ['REMOTE_ADDR' => '10.0.0.1', 'SERVER_ADDR' => '10.0.0.1'];
+            $this->assertSame('10.0.0.1', env('REMOTE_ADDR'));
+            $_SERVER['HTTP_PC_REMOTE_ADDR'] = '192.0.2.10';
+            $this->assertSame('192.0.2.10', env('REMOTE_ADDR'));
+            $_SERVER['REMOTE_ADDR'] = '192.0.2.20';
+            $this->assertSame('192.0.2.20', env('REMOTE_ADDR'));
+
+            $_SERVER = [
+                'SCRIPT_NAME' => '/app/index.php',
+                'SCRIPT_FILENAME' => '/var/www/app/index.php',
+            ];
+            $this->assertSame('/var/www', env('DOCUMENT_ROOT'));
+            $this->assertSame('/app/index.php', env('PHP_SELF'));
+
+            $_SERVER = [
+                'SCRIPT_NAME' => '/app/index',
+                'SCRIPT_FILENAME' => '/var/www/app/index.php',
+            ];
+            $this->assertSame('/var/www', env('DOCUMENT_ROOT'));
+
+            $_SERVER = [
+                'DOCUMENT_ROOT' => '/srv/site',
+                'SCRIPT_FILENAME' => '/srv/site/webroot/index.php',
+            ];
+            $this->assertSame('/webroot/index.php', env('PHP_SELF'));
+
+            $_SERVER = [];
+            $this->assertFalse(env('CGI_MODE'));
+            $this->assertSame('', env('DOCUMENT_ROOT'));
+        } finally {
+            putenv($name);
+            $_SERVER = $server;
+            $_ENV = $env;
+        }
+    }
+
+    /**
+     * Test cache() with the tmp target, with an expired file that it deletes,
+     * and with an unknown target that it does not write.
+     *
+     * @return void
+     */
+    public function testCacheTargets(): void
+    {
+        $this->skipIf((bool)Configure::read('Cache.disable'), 'Cache is disabled, skipping cache() tests.');
+        $file = 'basics_test_cache_' . getmypid();
+
+        try {
+            $this->assertSame('tmp data', cache($file, 'tmp data', '+1 hour', 'TMP'));
+            $this->assertSame('tmp data', file_get_contents(TMP . $file));
+            $this->assertSame('tmp data', cache($file, null, '+1 hour', 'tmp'));
+
+            touch(TMP . $file, time() - 7200);
+            clearstatcache();
+            $this->assertNull(cache($file, null, 3600, 'tmp'));
+            $this->assertFileDoesNotExist(TMP . $file);
+
+            $this->assertSame('data', cache($file, 'data', '+1 hour', 'unknown'));
+            $this->assertFileDoesNotExist(TMP . $file);
+            $this->assertFileDoesNotExist(CACHE . $file);
+        } finally {
+            if (file_exists(TMP . $file)) {
+                unlink(TMP . $file);
+            }
+        }
+    }
+
+    /**
+     * Test that clearCache() returns false when no file matches.
+     *
+     * @return void
+     */
+    public function testClearCacheWithoutMatches(): void
+    {
+        $this->assertFalse(clearCache('basics_test_no_such_cache_' . getmypid(), 'views', '.cache'));
+        $this->assertFalse(clearCache('basics_test_no_such_cache', 'basics_test_no_such_dir'));
+    }
+
+    /**
+     * Test the translation functions with a context, with the domain,
+     * category and plural variants.
+     *
+     * @return void
+     */
+    public function testTranslateWithContext(): void
+    {
+        Configure::write('Config.language', 'nld');
+
+        $this->assertSame('brief', __x('mail', 'letter'));
+        $this->assertSame('brieven', __xn('mail', 'letter', 'letters', 2));
+        $this->assertSame('brief', __xn('mail', 'letter', 'letters', 1));
+        $this->assertSame('letters', __xn('character', 'letter', 'letters', 2));
+        $this->assertSame('danspartij', __dx('default', 'social gathering', 'ball'));
+        $this->assertSame('brieven', __dxn('default', 'mail', 'letter', 'letters', 3));
+        $this->assertSame('bal', __dxc('default', 'spherical object', 'ball', 6));
+        $this->assertSame('brief', __dxcn('default', 'mail', 'letter', 'letters', 1, 6));
+        $this->assertSame('saldo', __xc('money', 'balance', 6));
+        $this->assertSame('balans', __('balance'));
+        $this->assertSame('No context 2', __x('mail', 'No context %d', 2));
+    }
+
+    /**
+     * Test that the translation functions return null for an empty message.
+     *
+     * @return void
+     */
+    public function testTranslateEmptyMessage(): void
+    {
+        $this->assertNull(__(''));
+        $this->assertNull(__n('', 'plural', 2));
+        $this->assertNull(__d('default', ''));
+        $this->assertNull(__dn('default', '', 'plural', 2));
+        $this->assertNull(__dc('default', '', 6));
+        $this->assertNull(__dcn('default', '', 'plural', 2, 6));
+        $this->assertNull(__c('', 6));
+        $this->assertNull(__x('context', ''));
+        $this->assertNull(__xn('context', '', 'plural', 2));
+        $this->assertNull(__dx('default', 'context', ''));
+        $this->assertNull(__dxn('default', 'context', '', 'plural', 2));
+        $this->assertNull(__dxc('default', 'context', '', 6));
+        $this->assertNull(__dxcn('default', 'context', '', 'plural', 2, 6));
+        $this->assertNull(__xc('context', '', 6));
+    }
 }
