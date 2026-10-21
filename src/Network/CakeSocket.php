@@ -243,7 +243,15 @@ class CakeSocket
 
         $this->connected = is_resource($this->connection);
         if ($this->connected) {
-            stream_set_timeout($this->connection, $this->config['timeout']);
+            // stream_set_timeout() takes the seconds and the microseconds apart, so a
+            // fractional timeout like 0.5 is split instead of truncated to whole seconds.
+            $seconds = (int)floor($this->config['timeout']);
+            $microseconds = (int)round(($this->config['timeout'] - $seconds) * 1000000);
+            if ($microseconds === 1000000) {
+                $seconds++;
+                $microseconds = 0;
+            }
+            stream_set_timeout($this->connection, $seconds, $microseconds);
 
             if (
                 !empty($this->config['request']) &&

@@ -827,7 +827,6 @@ class CakeSocketTest extends CakeTestCase
      */
     public function testConnectWithFractionalTimeout(): void
     {
-        $this->markTestIncomplete('Known bug: connect() passes a float timeout to stream_set_timeout(), which takes whole seconds.');
         $port = $this->_listen();
         $socket = new CakeSocket(['host' => '127.0.0.1', 'port' => $port, 'timeout' => 0.5]);
         $this->assertTrue($socket->connect());
