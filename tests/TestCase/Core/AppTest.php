@@ -6,6 +6,28 @@ use TestApp\Model\NamespacedPost;
 use TestApp\View\Helper\NamespacedHelper;
 
 /**
+ * AppTest file.
+ *
+ * CakePHP(tm) : Rapid Development Framework (https://cakephp.org)
+ * Copyright (c) Cake Software Foundation, Inc. (https://cakefoundation.org)
+ *
+ * Licensed under The MIT License
+ * For full copyright and license information, please see the LICENSE.txt
+ * Redistributions of files must retain the above copyright notice.
+ *
+ * @copyright     Copyright (c) Cake Software Foundation, Inc. (https://cakefoundation.org)
+ * @link          https://cakephp.org CakePHP(tm) Project
+ * @package       Cake.Test.Case.Core
+ * @since         CakePHP(tm) v 2.0
+ * @license       https://opensource.org/licenses/mit-license.php MIT License
+ */
+
+/**
+ * AppTest class
+ *
+ * @package       Cake.Test.Case.Core
+ */
+/**
  * Keeps the messages that are logged.
  *
  * @package       Cake.Test.Case.Core
@@ -32,28 +54,6 @@ class AppTestCaptureLog extends BaseLog
     }
 }
 
-/**
- * AppTest file.
- *
- * CakePHP(tm) : Rapid Development Framework (https://cakephp.org)
- * Copyright (c) Cake Software Foundation, Inc. (https://cakefoundation.org)
- *
- * Licensed under The MIT License
- * For full copyright and license information, please see the LICENSE.txt
- * Redistributions of files must retain the above copyright notice.
- *
- * @copyright     Copyright (c) Cake Software Foundation, Inc. (https://cakefoundation.org)
- * @link          https://cakephp.org CakePHP(tm) Project
- * @package       Cake.Test.Case.Core
- * @since         CakePHP(tm) v 2.0
- * @license       https://opensource.org/licenses/mit-license.php MIT License
- */
-
-/**
- * AppTest class
- *
- * @package       Cake.Test.Case.Core
- */
 class AppTest extends CakeTestCase
 {
     /**
