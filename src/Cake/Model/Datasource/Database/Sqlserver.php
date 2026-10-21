@@ -480,7 +480,7 @@ class Sqlserver extends DboSource
                 $rt = ' TOP';
             }
             $rt .= sprintf(' %u', $limit);
-            if ((is_int($offset) || ctype_digit($offset)) && $offset > 0) {
+            if ((is_int($offset) || (is_string($offset) && ctype_digit($offset))) && $offset > 0) {
                 $rt = sprintf(' OFFSET %u ROWS FETCH FIRST %u ROWS ONLY', $offset, $limit);
             }
 
@@ -637,7 +637,7 @@ class Sqlserver extends DboSource
                 $having = !empty($having) ? " $having" : '';
                 $lock = !empty($lock) ? " $lock" : '';
 
-                if (str_contains($limit, 'TOP') && str_starts_with($fields, 'DISTINCT ')) {
+                if (!empty($limit) && str_contains($limit, 'TOP') && str_starts_with($fields, 'DISTINCT ')) {
                     $limit = 'DISTINCT ' . trim($limit);
                     $fields = substr($fields, 9);
                 }

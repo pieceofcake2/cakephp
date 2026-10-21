@@ -17,6 +17,7 @@
 - **Mysql**: The `Mysql` datasource uses the `Pdo\Mysql::ATTR_*` constants instead of `PDO::MYSQL_ATTR_*`, deprecated since PHP 8.5. The core requires `symfony/polyfill-php84`, which defines `Pdo\Mysql` with the same values before PHP 8.4
 - **RedisEngine**: `RedisEngine::delete()` deletes the key with `Redis::del()` instead of `Redis::delete()`, which phpredis deprecates
 - **Security**: `Security::encrypt()` encrypts `null` as the empty string, instead of passing it to `strlen()` (deprecated since PHP 8.1)
+- **Sqlserver**: `Sqlserver::limit()` checks that the offset is a string before `ctype_digit()`, and `renderStatement()` checks that a limit is given before it looks for `TOP`, instead of passing `null` or other types to them (deprecated since PHP 8.1)
 
 ### Tests
 
