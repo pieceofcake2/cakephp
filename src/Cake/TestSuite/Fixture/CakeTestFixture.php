@@ -58,6 +58,13 @@ class CakeTestFixture
     public $created = [];
 
     /**
+     * The model or table to import the schema and records from.
+     *
+     * @var array|string|null
+     */
+    public $import = null;
+
+    /**
      * Fields / Schema for the fixture.
      * This array should match the output of Model::schema()
      *
@@ -171,7 +178,7 @@ class CakeTestFixture
                 ClassRegistry::flush();
             }
 
-            if (!empty($db->config['prefix']) && str_starts_with($this->table, $db->config['prefix'])) {
+            if (!empty($db->config['prefix']) && str_starts_with((string)$this->table, $db->config['prefix'])) {
                 $this->table = str_replace($db->config['prefix'], '', $this->table);
             }
 

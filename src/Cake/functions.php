@@ -258,7 +258,7 @@ if (!function_exists('pluginSplit')) {
      */
     function pluginSplit(?string $name, bool $dotAppend = false, ?string $plugin = null): array
     {
-        if (str_contains($name, '.')) {
+        if (str_contains((string)$name, '.')) {
             $parts = explode('.', $name, 2);
             if ($dotAppend) {
                 $parts[0] .= '.';
@@ -367,13 +367,13 @@ if (!function_exists('env')) {
                 $name = env('SCRIPT_NAME');
                 $filename = env('SCRIPT_FILENAME');
                 $offset = 0;
-                if (!strpos($name, '.php')) {
+                if (!strpos((string)$name, '.php')) {
                     $offset = 4;
                 }
 
-                return substr($filename, 0, -(strlen($name) + $offset));
+                return substr((string)$filename, 0, -(strlen((string)$name) + $offset));
             case 'PHP_SELF':
-                return str_replace(env('DOCUMENT_ROOT'), '', env('SCRIPT_FILENAME'));
+                return str_replace((string)env('DOCUMENT_ROOT'), '', (string)env('SCRIPT_FILENAME'));
             case 'CGI_MODE':
                 return PHP_SAPI === 'cgi';
             case 'HTTP_BASE':
@@ -500,7 +500,7 @@ if (!function_exists('clearCache')) {
     function clearCache(array|string|null $params = null, string $type = 'views', string $ext = '.php'): bool
     {
         if (is_string($params) || $params === null) {
-            $params = preg_replace('/\/\//', '/', $params);
+            $params = preg_replace('/\/\//', '/', (string)$params);
             $cache = CACHE . $type . DS . $params;
 
             if (is_file($cache . $ext)) {

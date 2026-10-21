@@ -418,7 +418,7 @@ class Sqlserver extends DboSource
         }
         $primaryKey = $this->_getPrimaryKey($model);
 
-        if (array_key_exists($primaryKey, $fields)) {
+        if (!empty($primaryKey) && array_key_exists($primaryKey, $fields)) {
             if (empty($fields[$primaryKey])) {
                 unset($fields[$primaryKey]);
             } else {
@@ -426,7 +426,7 @@ class Sqlserver extends DboSource
             }
         }
         $result = parent::create($model, array_keys($fields), array_values($fields));
-        if (array_key_exists($primaryKey, $fields) && !empty($fields[$primaryKey])) {
+        if (!empty($primaryKey) && array_key_exists($primaryKey, $fields) && !empty($fields[$primaryKey])) {
             $this->_execute('SET IDENTITY_INSERT ' . $this->fullTableName($model) . ' OFF');
         }
 
@@ -480,7 +480,7 @@ class Sqlserver extends DboSource
                 $rt = ' TOP';
             }
             $rt .= sprintf(' %u', $limit);
-            if ((is_int($offset) || ctype_digit($offset)) && $offset > 0) {
+            if ((is_int($offset) || (is_string($offset) && ctype_digit($offset))) && $offset > 0) {
                 $rt = sprintf(' OFFSET %u ROWS FETCH FIRST %u ROWS ONLY', $offset, $limit);
             }
 
@@ -637,7 +637,7 @@ class Sqlserver extends DboSource
                 $having = !empty($having) ? " $having" : '';
                 $lock = !empty($lock) ? " $lock" : '';
 
-                if (str_contains($limit, 'TOP') && str_starts_with($fields, 'DISTINCT ')) {
+                if (!empty($limit) && str_contains($limit, 'TOP') && str_starts_with($fields, 'DISTINCT ')) {
                     $limit = 'DISTINCT ' . trim($limit);
                     $fields = substr($fields, 9);
                 }
@@ -648,7 +648,7 @@ class Sqlserver extends DboSource
                 }
 
                 // For older versions use the subquery version of pagination.
-                if (version_compare($this->getVersion(), '11', '<') && preg_match('/FETCH\sFIRST\s+([0-9]+)/i', $limit, $offset)) {
+                if (!empty($limit) && version_compare($this->getVersion(), '11', '<') && preg_match('/FETCH\sFIRST\s+([0-9]+)/i', $limit, $offset)) {
                     preg_match('/OFFSET\s*(\d+)\s*.*?(\d+)\s*ROWS/', $limit, $limitOffset);
 
                     $limit = 'TOP ' . (int)$limitOffset[2];
@@ -666,7 +666,7 @@ class Sqlserver extends DboSource
 
                     return trim($sql);
                 }
-                if (str_contains($limit, 'FETCH')) {
+                if (!empty($limit) && str_contains($limit, 'FETCH')) {
                     return trim("SELECT {$fields} FROM {$table} {$alias}{$lock} {$joins} {$conditions} {$group}{$having} {$order} {$limit}");
                 }
 

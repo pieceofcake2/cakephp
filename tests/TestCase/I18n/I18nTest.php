@@ -2279,9 +2279,13 @@ class I18nTest extends CakeTestCase
         I18n::translate('dummy', null, 'missing_plural_test');
         $I18n = I18n::getInstance();
         $domainsProperty = new ReflectionProperty('I18n', '_domains');
-        $domainsProperty->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $domainsProperty->setAccessible(true);
+        }
         $langProperty = new ReflectionProperty('I18n', '_lang');
-        $langProperty->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $langProperty->setAccessible(true);
+        }
         $domains = $domainsProperty->getValue($I18n);
         $domains['missing_plural_test'][$langProperty->getValue($I18n)]['LC_MESSAGES']['apple'][''] = ['one apple'];
         $domainsProperty->setValue($I18n, $domains);

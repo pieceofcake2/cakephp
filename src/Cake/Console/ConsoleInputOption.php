@@ -91,7 +91,7 @@ class ConsoleInputOption
             $this->_default = $default;
             $this->_choices = $choices;
         }
-        if (strlen($this->_short) > 1) {
+        if (strlen((string)$this->_short) > 1) {
             throw new ConsoleException(
                 __d('cake_console', 'Short option "%s" is invalid, short options must be one letter.', $this->_short),
             );
@@ -221,7 +221,7 @@ class ConsoleInputOption
         $option = $parent->addChild('option');
         $option->addAttribute('name', '--' . $this->_name);
         $short = '';
-        if (strlen($this->_short)) {
+        if (strlen((string)$this->_short)) {
             $short = '-' . $this->_short;
         }
         $option->addAttribute('short', $short);

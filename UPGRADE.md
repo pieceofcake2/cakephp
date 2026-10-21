@@ -33,6 +33,14 @@ Templates in `templates/` may use the `.php` extension and the directory names o
 - `View/` directories are not searched for `.php` files, as they also hold view and helper classes. A view that sets `$ext = '.php'` still finds its templates there, as before.
 - To move templates, rename `.ctp` to `.php`, and `Layouts/`, `Elements/`, `Emails/` and `Errors/` to `layout/`, `element/`, `email/` and `Error/`; email layouts move from `Layouts/Emails/html/` to `layout/email/html/`.
 
+### PHP 8.1 to 8.5 Deprecations ([PR #96](https://github.com/pieceofcake2/cakephp/pull/96))
+
+The core no longer triggers the deprecations of PHP 8.1 to 8.5 in its code. Most applications only need to update.
+
+- **`Xml::build()` `loadEntities`**: The option is removed. It only decided whether `Xml` called `libxml_disable_entity_loader()`, which PHP 8 deprecates and which no longer changes anything with libxml 2.9 and later: external entities are not loaded either way. Passing the option is ignored, so you can remove it from your calls.
+- **`CakeRequest::input()` with a decoding callback**: It returns `null` without calling the callback when the request has no body. `RequestHandlerComponent` sets the same empty data as before. If a callback of your own handled an empty body, handle `null` instead.
+- **`symfony/polyfill-php84`**: The core requires it for the `Pdo\Mysql` constants on PHP 8.0 to 8.3. Composer installs it.
+
 ## v2.12.11
 
 ### Request URLs with Extra Leading Slashes ([GHSA-wh43-gc93-wh4c](https://github.com/pieceofcake2/cakephp/security/advisories/GHSA-wh43-gc93-wh4c), [PR #90](https://github.com/pieceofcake2/cakephp/pull/90))

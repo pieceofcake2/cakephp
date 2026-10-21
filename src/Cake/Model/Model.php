@@ -241,7 +241,7 @@ class Model extends CakeObject implements CakeEventListener
     /**
      * Alias name for model.
      *
-     * @var string
+     * @var string|null
      */
     public $alias = null;
 

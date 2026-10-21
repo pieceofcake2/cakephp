@@ -87,7 +87,7 @@ class TaskCollection extends ObjectCollection
         if (!$exists) {
             throw new MissingTaskException([
                 'class' => $taskClass,
-                'plugin' => substr($plugin, 0, -1),
+                'plugin' => substr((string)$plugin, 0, -1),
             ]);
         }
 

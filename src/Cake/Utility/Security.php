@@ -139,7 +139,7 @@ class Security
         if (empty($type)) {
             $type = static::$hashType;
         }
-        $type = strtolower($type);
+        $type = strtolower((string)$type);
 
         if ($type === 'blowfish') {
             return static::_crypt($string, $salt);
@@ -156,10 +156,6 @@ class Security
                 return sha1($string);
             }
             $type = 'sha256';
-        }
-
-        if ($type === 'sha256' && function_exists('mhash')) {
-            return bin2hex(mhash(MHASH_SHA256, $string));
         }
 
         if (function_exists('hash')) {
@@ -285,7 +281,7 @@ class Security
         restore_error_handler();
         $out = '';
         $keyLength = strlen($key);
-        for ($i = 0, $textLength = strlen($text); $i < $textLength; $i++) {
+        for ($i = 0, $textLength = strlen((string)$text); $i < $textLength; $i++) {
             $j = ord(substr($key, $i % $keyLength, 1));
             while ($j--) {
                 mt_rand(0, 255);
@@ -539,7 +535,7 @@ class Security
      * Any trailing null bytes will be removed on decryption due to how PHP pads messages
      * with nulls prior to encryption.
      *
-     * @param string $plain The value to encrypt.
+     * @param string|null $plain The value to encrypt. Null is encrypted as an empty string.
      * @param string $key The 256 bit/32 byte key to use as a cipher key.
      * @param string $hmacSalt The salt to use for the HMAC process. Leave null to use Security.salt.
      * @return string Encrypted data.
@@ -548,6 +544,9 @@ class Security
     public static function encrypt($plain, $key, $hmacSalt = null)
     {
         static::_checkKey($key, 'encrypt()');
+        if ($plain === null) {
+            $plain = '';
+        }
 
         if ($hmacSalt === null) {
             $hmacSalt = Configure::read('Security.salt');

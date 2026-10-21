@@ -2956,7 +2956,9 @@ HTML;
     protected function _resetDsnClassMap(): void
     {
         $property = new ReflectionProperty('CakeEmail', '_dsnClassMap');
-        $property->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $property->setAccessible(true);
+        }
         $property->setValue(null, null);
     }
 

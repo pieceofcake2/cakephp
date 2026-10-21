@@ -133,7 +133,7 @@ class HelperCollection extends ObjectCollection implements CakeEventListener
         if (!class_exists($helperClass)) {
             throw new MissingHelperException([
                 'class' => $helperClass,
-                'plugin' => substr($plugin, 0, -1),
+                'plugin' => substr((string)$plugin, 0, -1),
             ]);
         }
         $this->_loaded[$alias] = new $helperClass($this->_View, $settings);

@@ -1068,15 +1068,21 @@ SQL;
 
         $reflection = new ReflectionClass($db);
         $connectionProperty = $reflection->getProperty('_connection');
-        $connectionProperty->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $connectionProperty->setAccessible(true);
+        }
         $connectionProperty->setValue($db, $mockConnection);
 
         $versionProperty = $reflection->getProperty('_version');
-        $versionProperty->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $versionProperty->setAccessible(true);
+        }
         $versionProperty->setValue($db, null);
 
         $serverTypeProperty = $reflection->getProperty('serverType');
-        $serverTypeProperty->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $serverTypeProperty->setAccessible(true);
+        }
         $serverTypeProperty->setValue($db, '');
 
         // Call getVersion first to initialize the properties
@@ -1117,15 +1123,21 @@ SQL;
 
         $reflection = new ReflectionClass($db);
         $connectionProperty = $reflection->getProperty('_connection');
-        $connectionProperty->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $connectionProperty->setAccessible(true);
+        }
         $connectionProperty->setValue($db, $mockConnection);
 
         $versionProperty = $reflection->getProperty('_version');
-        $versionProperty->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $versionProperty->setAccessible(true);
+        }
         $versionProperty->setValue($db, null);
 
         $serverTypeProperty = $reflection->getProperty('serverType');
-        $serverTypeProperty->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $serverTypeProperty->setAccessible(true);
+        }
         $serverTypeProperty->setValue($db, '');
 
         // Call getVersion first to initialize the properties
@@ -1166,15 +1178,21 @@ SQL;
 
         $reflection = new ReflectionClass($db);
         $connectionProperty = $reflection->getProperty('_connection');
-        $connectionProperty->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $connectionProperty->setAccessible(true);
+        }
         $connectionProperty->setValue($db, $mockConnection);
 
         $versionProperty = $reflection->getProperty('_version');
-        $versionProperty->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $versionProperty->setAccessible(true);
+        }
         $versionProperty->setValue($db, null);
 
         $serverTypeProperty = $reflection->getProperty('serverType');
-        $serverTypeProperty->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $serverTypeProperty->setAccessible(true);
+        }
         $serverTypeProperty->setValue($db, '');
 
         // Call getVersion first to initialize the properties
@@ -1215,15 +1233,21 @@ SQL;
 
         $reflection = new ReflectionClass($db);
         $connectionProperty = $reflection->getProperty('_connection');
-        $connectionProperty->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $connectionProperty->setAccessible(true);
+        }
         $connectionProperty->setValue($db, $mockConnection);
 
         $versionProperty = $reflection->getProperty('_version');
-        $versionProperty->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $versionProperty->setAccessible(true);
+        }
         $versionProperty->setValue($db, null);
 
         $serverTypeProperty = $reflection->getProperty('serverType');
-        $serverTypeProperty->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $serverTypeProperty->setAccessible(true);
+        }
         $serverTypeProperty->setValue($db, '');
 
         // Call getVersion first to initialize the properties
@@ -1264,15 +1288,21 @@ SQL;
 
         $reflection = new ReflectionClass($db);
         $connectionProperty = $reflection->getProperty('_connection');
-        $connectionProperty->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $connectionProperty->setAccessible(true);
+        }
         $connectionProperty->setValue($db, $mockConnection);
 
         $versionProperty = $reflection->getProperty('_version');
-        $versionProperty->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $versionProperty->setAccessible(true);
+        }
         $versionProperty->setValue($db, null);
 
         $serverTypeProperty = $reflection->getProperty('serverType');
-        $serverTypeProperty->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $serverTypeProperty->setAccessible(true);
+        }
         $serverTypeProperty->setValue($db, '');
 
         // Call getVersion first to initialize the properties
@@ -1313,15 +1343,21 @@ SQL;
 
         $reflection = new ReflectionClass($db);
         $connectionProperty = $reflection->getProperty('_connection');
-        $connectionProperty->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $connectionProperty->setAccessible(true);
+        }
         $connectionProperty->setValue($db, $mockConnection);
 
         $versionProperty = $reflection->getProperty('_version');
-        $versionProperty->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $versionProperty->setAccessible(true);
+        }
         $versionProperty->setValue($db, null);
 
         $serverTypeProperty = $reflection->getProperty('serverType');
-        $serverTypeProperty->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $serverTypeProperty->setAccessible(true);
+        }
         $serverTypeProperty->setValue($db, '');
 
         // Call getVersion first to initialize the properties
@@ -1542,7 +1578,9 @@ SQL;
 
         $reflection = new ReflectionClass($db);
         $connectionProperty = $reflection->getProperty('_connection');
-        $connectionProperty->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $connectionProperty->setAccessible(true);
+        }
         $connectionProperty->setValue($db, $mockConnection);
 
         $version = $db->getVersion();
@@ -1558,7 +1596,9 @@ SQL;
 
         $reflection = new ReflectionClass($db);
         $connectionProperty = $reflection->getProperty('_connection');
-        $connectionProperty->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $connectionProperty->setAccessible(true);
+        }
         $connectionProperty->setValue($db, $mockConnection);
 
         $version = $db->getVersion();
@@ -1574,7 +1614,9 @@ SQL;
 
         $reflection = new ReflectionClass($db);
         $connectionProperty = $reflection->getProperty('_connection');
-        $connectionProperty->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $connectionProperty->setAccessible(true);
+        }
         $connectionProperty->setValue($db, $mockConnection);
 
         $version = $db->getVersion();
@@ -1590,7 +1632,9 @@ SQL;
 
         $reflection = new ReflectionClass($db);
         $connectionProperty = $reflection->getProperty('_connection');
-        $connectionProperty->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $connectionProperty->setAccessible(true);
+        }
         $connectionProperty->setValue($db, $mockConnection);
 
         $version = $db->getVersion();
@@ -1606,7 +1650,9 @@ SQL;
 
         $reflection = new ReflectionClass($db);
         $connectionProperty = $reflection->getProperty('_connection');
-        $connectionProperty->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $connectionProperty->setAccessible(true);
+        }
         $connectionProperty->setValue($db, $mockConnection);
 
         $version = $db->getVersion();
@@ -1622,7 +1668,9 @@ SQL;
 
         $reflection = new ReflectionClass($db);
         $connectionProperty = $reflection->getProperty('_connection');
-        $connectionProperty->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $connectionProperty->setAccessible(true);
+        }
         $connectionProperty->setValue($db, $mockConnection);
 
         $version = $db->getVersion();
@@ -1638,7 +1686,9 @@ SQL;
 
         $reflection = new ReflectionClass($db);
         $connectionProperty = $reflection->getProperty('_connection');
-        $connectionProperty->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $connectionProperty->setAccessible(true);
+        }
         $connectionProperty->setValue($db, $mockConnection);
 
         $version = $db->getVersion();
@@ -1654,7 +1704,9 @@ SQL;
 
         $reflection = new ReflectionClass($db);
         $connectionProperty = $reflection->getProperty('_connection');
-        $connectionProperty->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $connectionProperty->setAccessible(true);
+        }
         $connectionProperty->setValue($db, $mockConnection);
 
         $version1 = $db->getVersion();
@@ -1672,7 +1724,9 @@ SQL;
 
         $reflection = new ReflectionClass($db);
         $connectionProperty = $reflection->getProperty('_connection');
-        $connectionProperty->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $connectionProperty->setAccessible(true);
+        }
         $connectionProperty->setValue($db, $mockConnection);
 
         $version = $db->getVersion();
@@ -1688,7 +1742,9 @@ SQL;
 
         $reflection = new ReflectionClass($db);
         $connectionProperty = $reflection->getProperty('_connection');
-        $connectionProperty->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $connectionProperty->setAccessible(true);
+        }
         $connectionProperty->setValue($db, $mockConnection);
 
         $version = $db->getVersion();
@@ -1727,14 +1783,18 @@ SQL;
 
         $reflection = new ReflectionClass($db);
         $connectionProperty = $reflection->getProperty('_connection');
-        $connectionProperty->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $connectionProperty->setAccessible(true);
+        }
         $connectionProperty->setValue($db, $mockConnection);
 
         $db->getVersion(); // This sets the server type
         $serverType = $db->getServerType();
         $this->assertEquals('MySQL', $serverType);
         $property = $reflection->getProperty('serverType');
-        $property->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $property->setAccessible(true);
+        }
         $this->assertEquals('MySQL', $property->getValue($db));
 
         // Test MariaDB
@@ -1747,14 +1807,18 @@ SQL;
 
         $reflection = new ReflectionClass($db);
         $connectionProperty = $reflection->getProperty('_connection');
-        $connectionProperty->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $connectionProperty->setAccessible(true);
+        }
         $connectionProperty->setValue($db, $mockConnection);
 
         $db->getVersion(); // This sets the server type
         $serverType = $db->getServerType();
         $this->assertEquals('MariaDB', $serverType);
         $property = $reflection->getProperty('serverType');
-        $property->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $property->setAccessible(true);
+        }
         $this->assertEquals('MariaDB', $property->getValue($db));
 
         // Test Aurora MySQL
@@ -1767,14 +1831,18 @@ SQL;
 
         $reflection = new ReflectionClass($db);
         $connectionProperty = $reflection->getProperty('_connection');
-        $connectionProperty->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $connectionProperty->setAccessible(true);
+        }
         $connectionProperty->setValue($db, $mockConnection);
 
         $db->getVersion(); // This sets the server type
         $serverType = $db->getServerType();
         $this->assertEquals('Aurora MySQL', $serverType);
         $property = $reflection->getProperty('serverType');
-        $property->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $property->setAccessible(true);
+        }
         $this->assertEquals('Aurora MySQL', $property->getValue($db));
     }
 
@@ -5139,7 +5207,9 @@ SQL;
             ->method('query')
             ->will($this->returnValue(false));
         $property = new ReflectionProperty('Mysql', '_connection');
-        $property->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $property->setAccessible(true);
+        }
         $property->setValue($db, $connection);
 
         $this->assertSame([], $db->listDetailedSources());

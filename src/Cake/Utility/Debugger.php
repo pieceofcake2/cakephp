@@ -708,7 +708,9 @@ class Debugger
             foreach ($filters as $filter => $visibility) {
                 $reflectionProperties = $ref->getProperties($filter);
                 foreach ($reflectionProperties as $reflectionProperty) {
-                    $reflectionProperty->setAccessible(true);
+                    if (PHP_VERSION_ID < 80100) {
+                        $reflectionProperty->setAccessible(true);
+                    }
 
                     if (!$reflectionProperty->isInitialized($var)) {
                         continue;
