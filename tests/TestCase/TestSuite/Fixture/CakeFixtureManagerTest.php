@@ -23,6 +23,7 @@ use Cake\Core\App;
 use Cake\Core\CakePlugin;
 use Cake\Core\Configure;
 use Cake\Error\MissingDatasourceConfigException;
+use Cake\Model\CakeSchema;
 use Cake\Model\ConnectionManager;
 use Cake\Model\Datasource\DboSource;
 use Cake\Test\Fixture\UuidFixture;
@@ -210,6 +211,29 @@ class CakeFixtureManagerTest extends CakeTestCase
     }
 
     /**
+     * Creates the fixture_manager_posts table with an extra column that the fixture schema does not
+     * have. The datasource builds the table, so that the primary key gets the sequence or the
+     * identity of the database (PostgreSQL, SQL Server).
+     *
+     * @param DboSource $db The datasource
+     * @param bool $nullTitle Whether the title column allows null
+     * @return void
+     */
+    protected function _createPostsTable(DboSource $db, bool $nullTitle): void
+    {
+        $schema = new CakeSchema(['name' => 'FixtureManagerTest']);
+        $schema->tables = [
+            'fixture_manager_posts' => [
+                'id' => ['type' => 'integer', 'key' => 'primary'],
+                'title' => ['type' => 'string', 'length' => 255, 'null' => $nullTitle],
+                'extra' => ['type' => 'string', 'length' => 10, 'null' => true],
+            ],
+        ];
+        $db->execute($db->createSchema($schema));
+        $db->cacheSources = false;
+    }
+
+    /**
      * Returns the titles in the fixture_manager_posts table, ordered by id.
      *
      * @return array<int, string> The titles, indexed by id.
@@ -279,7 +303,7 @@ class CakeFixtureManagerTest extends CakeTestCase
         $this->fixtureManager->fixturize($test);
         $this->fixtureManager->load($test);
         $db = ConnectionManager::getDataSource('test');
-        $db->execute('INSERT INTO ' . $db->fullTableName('fixture_manager_posts') . " (id, title) VALUES (3, 'Added by the test')");
+        $db->execute('INSERT INTO ' . $db->fullTableName('fixture_manager_posts') . " (title) VALUES ('Added by the test')");
 
         $this->fixtureManager->unload($test);
 
@@ -303,8 +327,8 @@ class CakeFixtureManagerTest extends CakeTestCase
     {
         Configure::write('App.namespace', 'TestApp');
         $db = ConnectionManager::getDataSource('test');
-        $db->execute('CREATE TABLE ' . $db->fullTableName('fixture_manager_posts') . ' (id INTEGER PRIMARY KEY, title VARCHAR(255) NOT NULL, extra VARCHAR(10))');
-        $db->execute('INSERT INTO ' . $db->fullTableName('fixture_manager_posts') . " (id, title) VALUES (9, 'Old row')");
+        $this->_createPostsTable($db, false);
+        $db->execute('INSERT INTO ' . $db->fullTableName('fixture_manager_posts') . " (title) VALUES ('Old row')");
         $test = $this->_testCaseWith(['app.fixture_manager_post'], false);
         $this->fixtureManager->fixturize($test);
 
@@ -314,7 +338,7 @@ class CakeFixtureManagerTest extends CakeTestCase
         // The table was not re-created from the fixture schema, so the extra column is still there.
         $this->assertArrayHasKey('extra', $db->describe('fixture_manager_posts'));
 
-        $db->execute('INSERT INTO ' . $db->fullTableName('fixture_manager_posts') . " (id, title) VALUES (3, 'Added by the test')");
+        $db->execute('INSERT INTO ' . $db->fullTableName('fixture_manager_posts') . " (title) VALUES ('Added by the test')");
         $this->fixtureManager->load($test);
 
         $this->assertSame([1 => 'First Post', 2 => 'Second Post'], $this->_postTitles());
@@ -335,8 +359,8 @@ class CakeFixtureManagerTest extends CakeTestCase
     {
         Configure::write('App.namespace', 'TestApp');
         $db = ConnectionManager::getDataSource('test');
-        $db->execute('CREATE TABLE ' . $db->fullTableName('fixture_manager_posts') . ' (id INTEGER PRIMARY KEY, title VARCHAR(255), extra VARCHAR(10))');
-        $db->execute('INSERT INTO ' . $db->fullTableName('fixture_manager_posts') . " (id, title) VALUES (9, 'Old row')");
+        $this->_createPostsTable($db, true);
+        $db->execute('INSERT INTO ' . $db->fullTableName('fixture_manager_posts') . " (title) VALUES ('Old row')");
         $test = $this->_testCaseWith(['app.fixture_manager_post'], true);
         $this->fixtureManager->fixturize($test);
 
