@@ -211,11 +211,9 @@ class CakeHtmlReporterTest extends CakeTestCase
      */
     public function testPageStartsWithDoctypeAndTitle(): void
     {
-        $this->markTestIncomplete('Known bug: header.php lost its doctype, <html>, <head> and <title> opening.');
-
         $output = $this->runAndPaint($this->reporter(), ReporterSampleCase::buildSuite('testPasses'));
 
-        $this->assertStringStartsWith('<!DOCTYPE html>', $output);
+        $this->assertStringStartsWith("<!DOCTYPE html>\n<html>\n    <head>\n        <meta charset=\"utf-8\">\n", $output);
         $this->assertStringContainsString('<title>CakePHP Test Suite ' . Configure::version() . '</title>', $output);
     }
 
