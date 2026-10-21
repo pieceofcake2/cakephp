@@ -11,6 +11,11 @@
 - **HtmlHelper `html5` setting**: `HtmlHelper` outputs the tags of HTML5 by default: `script()`, `css()` and the `<style>` of `css()` with `rel` `import` have no `type` attribute, and `scriptBlock()` and `scriptStart()` neither add `type="text/javascript"` nor wrap the script in CDATA. Set `'html5' => false` in the settings of the helper for the former output: `public $helpers = ['Html' => ['html5' => false]];`. The `safe` option of `scriptBlock()`, `scriptStart()` and the methods of `JsHelper` still adds the CDATA when it is `true`; its default follows the setting
 - **Test pages**: The test runner and the code coverage report of the web test runner use the tags of HTML5
 
+### Deprecations: `App::uses()` ([PR #98](https://github.com/pieceofcake2/cakephp/pull/98))
+
+- **App::uses()**: Deprecated. Composer loads the classes of the core, of `pieceofcake2/app` and of the plugins installed with it, and the core finds the classes named in the configuration without it. The first call in a process logs a warning with the file and line of the call, and triggers `E_USER_DEPRECATED` when `debug` is above 0. The call still works
+- **Core**: The core no longer calls `App::uses()`. `AppController`, `AppModel`, `AppHelper` and `AppShell` of the application are found in their packages without it, and the classes that the core loads from an application or a plugin are found with `App::className()`. The code that `CacheHelper` writes into cached views and the code that the error pages suggest no longer contain it
+
 ### Enhancements: The Framework in the `Cake` Namespace ([PR #92](https://github.com/pieceofcake2/cakephp/pull/92))
 
 - **Namespaced classes**: The classes of the framework are in the `Cake` namespace, following their directories: `Cake\Controller\Controller`, `Cake\Network\CakeRequest`, `Cake\Utility\Hash`, ... Applications and plugins can `use` them, e.g. `use Cake\Controller\Component;`
