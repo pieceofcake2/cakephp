@@ -78,7 +78,7 @@
 
 ### Tests: Error Handler of the Test Bootstrap ([PR #103](https://github.com/pieceofcake2/cakephp/pull/103))
 
-- **Applications follow their phpunit.xml**: The test bootstrap of the core, which applications load, no longer registers a PHPUnit error handler that turns deprecations into exceptions. It removes the handler of CakePHP, so PHPUnit installs its own, configured by the `phpunit.xml` of the core or of the application. The core still fails on deprecations; an application decides with `convertDeprecationsToExceptions`
+- **Application tests follow their phpunit.xml**: The test bootstrap no longer turns every deprecation into an exception in the tests of applications
 
 ### Tests: Namespaced Tests and `AllLegacyTests` ([PR #95](https://github.com/pieceofcake2/cakephp/pull/95))
 

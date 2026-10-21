@@ -129,6 +129,15 @@ An application or a plugin does not need `App::uses()` when Composer loads its c
 - The classes named in the configuration (`$components`, `$helpers`, `$uses`, associations, engines and the other settings) are found without `App::uses()`, as before.
 - The core no longer calls `App::uses()`. `AppController`, `AppModel`, `AppHelper` and `AppShell` of the application are found in their packages without it.
 
+### Errors in the Tests of Applications ([PR #103](https://github.com/pieceofcake2/cakephp/pull/103))
+
+The tests of an application now follow its `phpunit.xml`, as PHPUnit does by default:
+
+- Warnings and notices fail the tests. Before, CakePHP only displayed them.
+- Deprecations are shown and do not fail the tests, unless `convertDeprecationsToExceptions="true"` is set.
+
+To keep the former behaviour, set `convertWarningsToExceptions="false"` and `convertNoticesToExceptions="false"` in `phpunit.xml`.
+
 ## v2.12.11
 
 ### Request URLs with Extra Leading Slashes ([GHSA-wh43-gc93-wh4c](https://github.com/pieceofcake2/cakephp/security/advisories/GHSA-wh43-gc93-wh4c), [PR #90](https://github.com/pieceofcake2/cakephp/pull/90))

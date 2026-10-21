@@ -48,8 +48,7 @@ Closure::bind(function () {
 
 // The bootstrap of CakePHP and the application leave out E_DEPRECATED, which the tests report
 error_reporting(E_ALL);
-// PHPUnit installs its error handler, configured by the phpunit.xml of the core or of the
-// application, only when no other handler is set, so remove the one of CakePHP
+// Let PHPUnit install its own error handler, configured by phpunit.xml
 set_error_handler(null);
 
 // Security::cipher() reports its deprecation and an out-of-range Security.cipherSeed once
