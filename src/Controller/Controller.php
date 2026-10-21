@@ -958,15 +958,13 @@ class Controller extends CakeObject implements CakeEventListener
      * ```
      *
      * @param string $action The new action to be 'redirected' to.
-     *   Any other parameters passed to this method will be passed as parameters to the new action.
+     * @param mixed ...$args The parameters of the new action.
      * @return mixed Returns the return value of the called action
      */
-    public function setAction($action)
+    public function setAction($action, ...$args)
     {
         $this->request->params['action'] = $action;
         $this->view = $action;
-        $args = func_get_args();
-        unset($args[0]);
 
         return call_user_func_array([&$this, $action], $args);
     }
@@ -974,12 +972,12 @@ class Controller extends CakeObject implements CakeEventListener
     /**
      * Returns number of errors in a submitted FORM.
      *
+     * @param Model ...$args The models to validate
      * @return int Number of errors
      * @deprecated 3.0.0 This method will be removed in 3.0
      */
-    public function validate()
+    public function validate(...$args)
     {
-        $args = func_get_args();
         $errors = call_user_func_array([&$this, 'validateErrors'], $args);
 
         if ($errors === false) {
@@ -995,13 +993,12 @@ class Controller extends CakeObject implements CakeEventListener
      *
      * `$errors = $this->validateErrors($this->Article, $this->User);`
      *
+     * @param Model ...$objects The models to validate
      * @return array|false Validation errors, or false if none
      * @deprecated 3.0.0 This method will be removed in 3.0
      */
-    public function validateErrors()
+    public function validateErrors(...$objects)
     {
-        $objects = func_get_args();
-
         if (empty($objects)) {
             return false;
         }

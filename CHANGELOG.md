@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Breaking Changes: Variadic Arguments ([PR #89](https://github.com/pieceofcake2/cakephp/pull/89))
+
+- **`func_get_args()` replaced with variadic parameters**: The methods that took a variable number of arguments declare them as `...$args`, so that PHP and static analysis see them: `Shell::dispatchShell()`, `AuthComponent::allow()` / `deny()`, `SecurityComponent::require*()`, `Controller::setAction()` / `validate()` / `validateErrors()`, `ContainableBehavior::contain()`, `DboSource::query()`, `Model::isUnique()` / `query()`, `CakeRequest::data()` / `param()` / `input()` / `allowMethod()` / `onlyAllow()`, `Router::parseExtensions()`, `CakeTestCase::loadFixtures()`, `Hash::merge()`, `Sanitize::stripTags()`, `Set::merge()`, `HtmlHelper::css()` / `useTag()`. The calls do not change. A class that overrides one of these methods with the former signature fails with a fatal error: see UPGRADE
+
 ### Enhancements: Plugins in the CakePHP 5 Layout ([PR #88](https://github.com/pieceofcake2/cakephp/pull/88))
 
 - **Plugin directories**: Plugins may use the directories of the CakePHP 5 layout, as the application already does: `src/` for the namespaced classes (`src/Controller/`, `src/Model/`, ..., loaded by Composer), `templates/` for the views, `resources/locales/` for the translations, `vendor/` for the vendor files and `config/` for `bootstrap.php`, `routes.php`, configuration files and schemas. `App::path()` and `I18n` search them, when they exist, before the directories of the CakePHP 2 layout (`Controller/`, `View/`, `Locale/`, `Vendor/`), which are still searched. `App::uses()` and `App::load()` keep loading global classes from the CakePHP 2 directories

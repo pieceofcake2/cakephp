@@ -17,6 +17,58 @@ Before migrating to this fork, ensure:
 
 ## Unreleased
 
+### Variadic Arguments ([PR #89](https://github.com/pieceofcake2/cakephp/pull/89))
+
+The methods that took a variable number of arguments with `func_get_args()` now declare them as `...$args`. The calls do not change: `$this->Auth->allow('index', 'view')`, `$this->Post->query($sql, $params, false)` and the others work as before.
+
+A class that **overrides** one of these methods must declare the same variadic parameter: PHP refuses an override with fewer parameters, and stops with `Fatal error: Declaration of AppModel::query($sql) must be compatible with Model::query($sql, ...$params)` when the class is loaded.
+
+| Method | Signature |
+| --- | --- |
+| `Shell::dispatchShell()` | `dispatchShell(...$args)` |
+| `AuthComponent::allow()`, `deny()` | `allow(...$args)`, `deny(...$args)` |
+| `SecurityComponent::requirePost()`, `requireGet()`, `requirePut()`, `requireDelete()`, `requireSecure()`, `requireAuth()` | `requirePost(...$args)`, ... |
+| `Controller::setAction()` | `setAction($action, ...$args)` |
+| `Controller::validate()`, `validateErrors()` | `validate(...$args)`, `validateErrors(...$objects)` |
+| `ContainableBehavior::contain()` | `contain(Model $Model, ...$args)` |
+| `DboSource::query()` | `query(...$args)` |
+| `Model::isUnique()` | `isUnique($fields, $or = true, ...$args)` |
+| `Model::query()` | `query($sql, ...$params)` |
+| `CakeRequest::data()`, `param()` | `data($name, ...$args)`, `param($name, ...$args)` |
+| `CakeRequest::input()` | `input($callback = null, ...$args)` |
+| `CakeRequest::allowMethod()`, `onlyAllow()` | `allowMethod($methods, ...$args)`, `onlyAllow($methods, ...$args)` |
+| `Router::parseExtensions()` | `parseExtensions(...$extensions)` (static) |
+| `CakeTestCase::loadFixtures()` | `loadFixtures(...$args)` |
+| `Hash::merge()` | `merge(array $data, $merge, ...$args)` (static) |
+| `Sanitize::stripTags()` | `stripTags($str, ...$tags)` (static) |
+| `Set::merge()` | `merge($data, $merge = null, ...$args)` (static) |
+| `HtmlHelper::css()` | `css($path, $options = [], ...$args)` |
+| `HtmlHelper::useTag()` | `useTag($tag, ...$args)` |
+
+For example, an `AppModel` that caches queries:
+
+```php
+// Before
+public function query($sql)
+{
+    return parent::query(...func_get_args());
+}
+
+// After
+public function query($sql, ...$params)
+{
+    return parent::query($sql, ...$params);
+}
+```
+
+The `rector` command of [pieceofcake2/upgrade](https://pieceofcake2.github.io/upgrade/) adds the variadic parameters to the overrides. The changed code also runs on the versions before, so run it before you update:
+
+```bash
+bin/cake upgrade rector --rules variadic-arguments src tests
+```
+
+`CakeRequest::input(null)` now returns the raw input, as `input()` does; it called `null` before.
+
 ### Plugins in the CakePHP 5 Layout ([PR #88](https://github.com/pieceofcake2/cakephp/pull/88))
 
 A plugin may use the CakePHP 5 layout: namespaced classes in `src/`, views in `templates/`, translations in `resources/locales/`, vendor files in `vendor/` and `bootstrap.php`, `routes.php`, configuration files and schemas in `config/`. CakePHP searches these directories before the directories of the CakePHP 2 layout, which are still searched, so nothing changes for a plugin that does not have them.

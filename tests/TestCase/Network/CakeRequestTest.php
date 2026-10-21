@@ -2611,6 +2611,20 @@ class CakeRequestTest extends CakeTestCase
     }
 
     /**
+     * input(null) returns the raw input, as input() does
+     *
+     * @return void
+     */
+    public function testInputNullCallback(): void
+    {
+        $request = $this->getMock('CakeRequest', ['_readInput']);
+        $request->expects($this->once())->method('_readInput')
+            ->will($this->returnValue('I came from stdin'));
+
+        $this->assertSame('I came from stdin', $request->input(null));
+    }
+
+    /**
      * Test that input() returns null without calling the callback when there is no input.
      *
      * @return void

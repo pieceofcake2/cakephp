@@ -237,7 +237,7 @@ class ApiShell extends AppShell
             }
             $args = [];
             foreach ($method->getParameters() as $param) {
-                $paramString = '$' . $param->getName();
+                $paramString = ($param->isVariadic() ? '...$' : '$') . $param->getName();
                 if ($param->isDefaultValueAvailable()) {
                     $paramString .= ' = ' . str_replace("\n", '', var_export($param->getDefaultValue(), true));
                 }

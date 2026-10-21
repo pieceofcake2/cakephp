@@ -44,12 +44,13 @@ class Set
      *
      * @param array $data Array to be merged
      * @param array $merge Array to merge with
+     * @param array ...$args More arrays to merge with
      * @return array Merged array
      * @link https://book.cakephp.org/2.0/en/core-utility-libraries/set.html#Set::merge
      */
-    public static function merge($data, $merge = null)
+    public static function merge($data, $merge = null, ...$args)
     {
-        $args = func_get_args();
+        $args = [$data, $merge, ...$args];
         if (empty($args[1]) && count($args) <= 2) {
             return (array)$args[0];
         }

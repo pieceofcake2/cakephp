@@ -717,12 +717,13 @@ class Hash
      *
      * @param array $data Array to be merged
      * @param mixed $merge Array to merge with. The argument and all trailing arguments will be array cast when merged
+     * @param mixed ...$args More arrays to merge with
      * @return array Merged array
      * @link https://book.cakephp.org/2.0/en/core-utility-libraries/hash.html#Hash::merge
      */
-    public static function merge(array $data, $merge)
+    public static function merge(array $data, $merge, ...$args)
     {
-        $args = array_slice(func_get_args(), 1);
+        $args = [$merge, ...$args];
         $return = $data;
 
         foreach ($args as &$curArg) {

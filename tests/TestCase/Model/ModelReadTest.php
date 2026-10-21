@@ -7433,6 +7433,28 @@ class ModelReadTest extends BaseModelTest
     }
 
     /**
+     * isUnique() with the fields as separate arguments, the last one `$or`, and as a validation rule with a list
+     * of fields
+     *
+     * @return void
+     */
+    public function testIsUniqueWithSeparateFields(): void
+    {
+        $this->loadFixtures('User');
+        $TestModel = new User();
+        $TestModel->set(['user' => 'nate', 'password' => 'other']);
+
+        $this->assertFalse($TestModel->isUnique('user'));
+        $this->assertFalse($TestModel->isUnique('user', 'password'));
+        $this->assertTrue($TestModel->isUnique('user', 'password', false));
+
+        $TestModel->validate = ['user' => ['rule' => ['isUnique', ['user', 'password'], false]]];
+        $this->assertTrue($TestModel->validates());
+        $TestModel->set(['user' => 'nate', 'password' => '5f4dcc3b5aa765d61d8327deb882cf99']);
+        $this->assertFalse($TestModel->validates());
+    }
+
+    /**
      * test find('count') method
      *
      * @return void

@@ -278,13 +278,13 @@ class SecurityComponent extends Component
     /**
      * Sets the actions that require a POST request, or empty for all actions
      *
+     * @param array|string ...$args Actions, or an array of them; none for all actions
      * @return void
      * @deprecated 3.0.0 Use CakeRequest::onlyAllow() instead.
      * @link https://book.cakephp.org/2.0/en/core-libraries/components/security-component.html#SecurityComponent::requirePost
      */
-    public function requirePost()
+    public function requirePost(...$args)
     {
-        $args = func_get_args();
         $this->_requireMethod('Post', $args);
     }
 
@@ -292,11 +292,11 @@ class SecurityComponent extends Component
      * Sets the actions that require a GET request, or empty for all actions
      *
      * @deprecated 3.0.0 Use CakeRequest::onlyAllow() instead.
+     * @param array|string ...$args Actions, or an array of them; none for all actions
      * @return void
      */
-    public function requireGet()
+    public function requireGet(...$args)
     {
-        $args = func_get_args();
         $this->_requireMethod('Get', $args);
     }
 
@@ -304,11 +304,11 @@ class SecurityComponent extends Component
      * Sets the actions that require a PUT request, or empty for all actions
      *
      * @deprecated 3.0.0 Use CakeRequest::onlyAllow() instead.
+     * @param array|string ...$args Actions, or an array of them; none for all actions
      * @return void
      */
-    public function requirePut()
+    public function requirePut(...$args)
     {
-        $args = func_get_args();
         $this->_requireMethod('Put', $args);
     }
 
@@ -316,23 +316,23 @@ class SecurityComponent extends Component
      * Sets the actions that require a DELETE request, or empty for all actions
      *
      * @deprecated 3.0.0 Use CakeRequest::onlyAllow() instead.
+     * @param array|string ...$args Actions, or an array of them; none for all actions
      * @return void
      */
-    public function requireDelete()
+    public function requireDelete(...$args)
     {
-        $args = func_get_args();
         $this->_requireMethod('Delete', $args);
     }
 
     /**
      * Sets the actions that require a request that is SSL-secured, or empty for all actions
      *
+     * @param array|string ...$args Actions, or an array of them; none for all actions
      * @return void
      * @link https://book.cakephp.org/2.0/en/core-libraries/components/security-component.html#SecurityComponent::requireSecure
      */
-    public function requireSecure()
+    public function requireSecure(...$args)
     {
-        $args = func_get_args();
         $this->_requireMethod('Secure', $args);
     }
 
@@ -343,12 +343,12 @@ class SecurityComponent extends Component
      * set in SecurityComponent::$allowedControllers and
      * SecurityComponent::$allowedActions.
      *
+     * @param array|string ...$args Actions, or an array of them; none for all actions
      * @return void
      * @link https://book.cakephp.org/2.0/en/core-libraries/components/security-component.html#SecurityComponent::requireAuth
      */
-    public function requireAuth()
+    public function requireAuth(...$args)
     {
-        $args = func_get_args();
         $this->_requireMethod('Auth', $args);
     }
 
