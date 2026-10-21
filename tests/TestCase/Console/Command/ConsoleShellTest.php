@@ -327,12 +327,14 @@ class ConsoleShellTest extends CakeTestCase
             'Article unbind hasMany Comment',
             'Article unbind belongsTo Missing',
             'Article unbind notAnAssociation User',
+            'Missing unbind hasMany Comment',
         ]);
         $this->Shell->main();
 
         $invalid = 'Please verify you are using valid models, valid current association, and valid association types';
         $expected = [
             'Removed hasMany association between Article and Comment',
+            $invalid,
             $invalid,
             $invalid,
             $invalid,

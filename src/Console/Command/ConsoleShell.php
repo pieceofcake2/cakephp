@@ -320,12 +320,15 @@ class ConsoleShell extends AppShell
         $modelB = $tmp[3];
 
         // Verify that there is actually an association to unbind
-        $currentAssociations = $this->{$modelA}->getAssociated();
         $validCurrentAssociation = false;
 
-        foreach ($currentAssociations as $model => $currentAssociation) {
-            if ($model === $modelB && $association === $currentAssociation) {
-                $validCurrentAssociation = true;
+        if ($this->_isValidModel($modelA)) {
+            $currentAssociations = $this->{$modelA}->getAssociated();
+
+            foreach ($currentAssociations as $model => $currentAssociation) {
+                if ($model === $modelB && $association === $currentAssociation) {
+                    $validCurrentAssociation = true;
+                }
             }
         }
 
