@@ -560,15 +560,46 @@ class IntegrationTestTraitTest extends CakeTestCase
     public function testRequestCookiesOtherCiphers(): void
     {
         $key = str_repeat('a', 32);
-        foreach (['aes', 'rijndael'] as $type) {
-            if ($type === 'rijndael' && !function_exists('mcrypt_encrypt')) {
-                continue;
-            }
+        $this->cookieEncrypted('CakeCookie[value]', 'secret aes', 'aes', $key);
+        $this->assertSame('secret aes', $this->_decrypt($this->_cookie['CakeCookie[value]'], 'aes', $key));
+
+        if (function_exists('mcrypt_encrypt')) {
             $this->_cookieEncryptionKey = null;
-            $this->cookieEncrypted('CakeCookie[value]', 'secret ' . $type, $type, $key);
-            $encrypted = $this->_cookie['CakeCookie[value]'];
-            $this->assertSame('secret ' . $type, $this->_decrypt($encrypted, $type, $key));
+            $this->_expectMcryptDeprecation(function () use ($key) {
+                $this->cookieEncrypted('CakeCookie[value]', 'secret rijndael', 'rijndael', $key);
+                $this->assertSame('secret rijndael', $this->_decrypt($this->_cookie['CakeCookie[value]'], 'rijndael', $key));
+            });
         }
+    }
+
+    /**
+     * Calls a function that uses mcrypt, and checks that mcrypt reports the deprecation of its functions.
+     *
+     * Other deprecations go on to the previous error handler.
+     *
+     * @param callable $callback Function to call.
+     * @return mixed The return value of $callback.
+     */
+    protected function _expectMcryptDeprecation(callable $callback): mixed
+    {
+        $deprecations = [];
+        $previous = set_error_handler(function ($errno, $errstr, $errfile, $errline) use (&$deprecations, &$previous) {
+            if (str_starts_with($errstr, 'Function mcrypt_')) {
+                $deprecations[] = $errstr;
+
+                return true;
+            }
+
+            return $previous ? $previous($errno, $errstr, $errfile, $errline) : false;
+        }, E_DEPRECATED);
+        try {
+            $result = $callback();
+        } finally {
+            restore_error_handler();
+        }
+        $this->assertNotEmpty($deprecations, 'mcrypt reports the deprecation of its functions.');
+
+        return $result;
     }
 
     /**

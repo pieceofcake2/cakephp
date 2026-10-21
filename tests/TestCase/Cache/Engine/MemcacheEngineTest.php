@@ -430,14 +430,22 @@ class MemcacheEngineTest extends CakeTestCase
         $memcache = new TestMemcacheEngine();
         $memcache->settings['compress'] = false;
 
-        $mock = $this->getMock('Memcache');
-        $memcache->setMemcache($mock);
-        $mock->expects($this->once())
-            ->method('set')
-            ->with('key', 'value', false, 0);
+        // A mock of Memcache would copy the implicitly nullable parameters of the extension, deprecated since PHP 8.4
+        $spy = new class () extends Memcache {
+            public $sets = [];
+
+            public function set($key, $value = null, $flags = 0, $exptime = 0, $cas = 0): bool
+            {
+                $this->sets[] = [$key, $value, $flags, $exptime];
+
+                return true;
+            }
+        };
+        $memcache->setMemcache($spy);
 
         $value = 'value';
         $memcache->write('key', $value, 50 * DAY);
+        $this->assertSame([['key', 'value', false, 0]], $spy->sets);
     }
 
     /**
