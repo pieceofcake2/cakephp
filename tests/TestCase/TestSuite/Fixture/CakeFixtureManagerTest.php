@@ -63,7 +63,9 @@ class CakeFixtureManagerTest extends CakeTestCase
     public function tearDown(): void
     {
         $db = ConnectionManager::getDataSource('test');
+        // The tests create these tables; drop them so that a failing test leaves nothing behind.
         $db->execute('DROP TABLE IF EXISTS ' . $db->fullTableName('fixture_manager_posts'));
+        $db->execute('DROP TABLE IF EXISTS ' . $db->fullTableName('namespaced_articles'));
         unset($this->fixtureManager);
         CakePlugin::unload('TestTwoPlugin');
 
@@ -292,7 +294,8 @@ class CakeFixtureManagerTest extends CakeTestCase
     /**
      * Test that with dropTables disabled an existing table is kept and only emptied, and that
      * the table is remembered as created, so that the next load() truncates it again without
-     * creating it.
+     * creating it: the extra column that the fixture schema does not have is still there after
+     * both loads.
      *
      * @return void
      */
@@ -315,6 +318,7 @@ class CakeFixtureManagerTest extends CakeTestCase
         $this->fixtureManager->load($test);
 
         $this->assertSame([1 => 'First Post', 2 => 'Second Post'], $this->_postTitles());
+        $this->assertArrayHasKey('extra', $db->describe('fixture_manager_posts'));
 
         // The kept table counts as created by the fixture, so shutDown() drops it.
         $this->fixtureManager->shutDown();
@@ -371,6 +375,8 @@ class CakeFixtureManagerTest extends CakeTestCase
     {
         Configure::write('App.namespace', 'TestApp');
         $first = $this->_testCaseWith(['app.fixture_manager_post']);
+        // fixturize() processes each test case class once, so the second test case must be of
+        // another class: mocking other methods than _testCaseWith() does gives it its own mock class.
         $second = $this->getMock(CakeTestCase::class, ['setUp']);
         $second->fixtures = ['app.fixture_manager_post', 'app.namespaced_article'];
         $loaded = new ReflectionProperty($this->fixtureManager, '_loaded');
@@ -391,7 +397,7 @@ class CakeFixtureManagerTest extends CakeTestCase
 
     /**
      * Test that loadSingle() creates the table of a fixture that is not loaded automatically,
-     * on the connection of the fixture, and that it rejects a fixture that was not fixturized.
+     * and that it rejects a fixture that was not fixturized.
      *
      * @return void
      */

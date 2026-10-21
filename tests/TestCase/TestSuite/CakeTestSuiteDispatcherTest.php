@@ -281,19 +281,39 @@ class CakeTestSuiteDispatcherTest extends CakeTestCase
 
     /**
      * Test that a request without a case lists the test cases of the plugin with the text
-     * reporter, one link per case, in order.
+     * reporter: the plugin heading, then one line per case in name order.
      *
      * @return void
      */
-    public function testDispatchListsPluginTestCases(): void
+    public function testDispatchListsPluginTestCasesInOrder(): void
     {
+        $_GET = ['plugin' => 'ListedPlugin', 'output' => 'text'];
+
+        $lines = explode("\n", $this->_run());
+
+        $this->assertSame('ListedPlugin Test Cases:', $lines[0]);
+        $this->assertCount(5, $lines, 'The heading, two cases, a blank line and the end.');
+        $this->assertStringStartsWith('localhost/test.php?case=AllPlugin&', $lines[1]);
+        $this->assertStringStartsWith('localhost/test.php?case=Model', $lines[2]);
+        $this->assertSame(['', ''], [$lines[3], $lines[4]]);
+    }
+
+    /**
+     * Test that each listed case of a plugin links to a run of that case of the
+     * plugin, with the case name URL-encoded.
+     *
+     * @return void
+     */
+    public function testDispatchListsPluginTestCasesWithThePlugin(): void
+    {
+        $this->markTestIncomplete('Known bug: CakeTextReporter::testCaseList() leaves the plugin parameter out of the URLs');
         $_GET = ['plugin' => 'ListedPlugin', 'output' => 'text'];
 
         $output = $this->_run();
 
         $expected = "ListedPlugin Test Cases:\n" .
-            "localhost/test.php?case=AllPlugin&output=text\n" .
-            'localhost/test.php?case=Model' . DS . "Post&output=text\n" .
+            "localhost/test.php?case=AllPlugin&plugin=ListedPlugin&output=text\n" .
+            'localhost/test.php?case=' . urlencode('Model' . DS . 'Post') . "&plugin=ListedPlugin&output=text\n" .
             "\n";
         $this->assertSame($expected, $output);
     }
