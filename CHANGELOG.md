@@ -16,6 +16,7 @@
 - **No request input or URL**: `CakeRequest::input()` with a decoding callback returns `null` when there is no input, and `CacheHelper` writes no cache file when the request has no URL, instead of passing `null` to the string functions of PHP
 - **Mysql**: The `Mysql` datasource uses the `Pdo\Mysql::ATTR_*` constants instead of `PDO::MYSQL_ATTR_*`, deprecated since PHP 8.5. The core requires `symfony/polyfill-php84`, which defines `Pdo\Mysql` with the same values before PHP 8.4
 - **RedisEngine**: `RedisEngine::delete()` deletes the key with `Redis::del()` instead of `Redis::delete()`, which phpredis deprecates
+- **Security**: `Security::encrypt()` encrypts `null` as the empty string, instead of passing it to `strlen()` (deprecated since PHP 8.1)
 
 ### Tests
 

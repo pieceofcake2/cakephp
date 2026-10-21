@@ -535,7 +535,7 @@ class Security
      * Any trailing null bytes will be removed on decryption due to how PHP pads messages
      * with nulls prior to encryption.
      *
-     * @param string $plain The value to encrypt.
+     * @param string|null $plain The value to encrypt. Null is encrypted as an empty string.
      * @param string $key The 256 bit/32 byte key to use as a cipher key.
      * @param string $hmacSalt The salt to use for the HMAC process. Leave null to use Security.salt.
      * @return string Encrypted data.
@@ -544,6 +544,9 @@ class Security
     public static function encrypt($plain, $key, $hmacSalt = null)
     {
         static::_checkKey($key, 'encrypt()');
+        if ($plain === null) {
+            $plain = '';
+        }
 
         if ($hmacSalt === null) {
             $hmacSalt = Configure::read('Security.salt');
