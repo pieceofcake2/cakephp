@@ -69,7 +69,7 @@ class TestsuiteShell extends TestShell
             $params['core'] = true;
         } elseif ($category === 'app') {
             $params['app'] = true;
-        } elseif ($category !== 'core') {
+        } else {
             $params['plugin'] = $category;
         }
 
