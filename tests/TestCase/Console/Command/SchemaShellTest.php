@@ -743,17 +743,33 @@ class SchemaShellTest extends CakeTestCase
     }
 
     /**
-     * Loads I18nSchema from the schema file of the application.
+     * Creates a shell mock that also mocks _run()
      *
-     * The tests that read the schema from another path need the class to be loaded already.
-     *
-     * @return void
+     * @return SchemaShell&MockObject
      */
-    protected function _loadI18nSchema(): void
+    protected function _shellWithRun(): SchemaShell
     {
-        if (!class_exists('I18nSchema', false)) {
-            require_once CONFIG . 'Schema' . DS . 'i18n.php';
-        }
+        $out = $this->getMock(ConsoleOutput::class, [], [], '', false);
+        $in = $this->getMock(ConsoleInput::class, [], [], '', false);
+
+        return $this->getMock(
+            SchemaShell::class,
+            ['in', 'out', 'hr', 'createFile', 'error', 'err', '_stop', '_run'],
+            [$out, $out, $in],
+        );
+    }
+
+    /**
+     * Creates the temporary directory with a copy of the i18n schema file of the application
+     *
+     * @return string The directory
+     */
+    protected function _copyI18nSchema(): string
+    {
+        $path = $this->_createFiles([]);
+        copy(CONFIG . 'Schema' . DS . 'i18n.php', $path . DS . 'i18n.php');
+
+        return $path;
     }
 
     /**
@@ -922,11 +938,10 @@ class SchemaShellTest extends CakeTestCase
      */
     public function testDumpWriteDefaultFileName(): void
     {
-        $this->_loadI18nSchema();
         $this->Shell->params = [
             'name' => 'i18n',
             'connection' => 'test',
-            'path' => $this->_createFiles([]),
+            'path' => $this->_copyI18nSchema(),
             'write' => true,
         ];
         $out = $this->_record('out');
@@ -948,11 +963,10 @@ class SchemaShellTest extends CakeTestCase
      */
     public function testDumpWriteFileNameWithoutExtension(): void
     {
-        $this->_loadI18nSchema();
         $this->Shell->params = [
             'name' => 'i18n',
             'connection' => 'test',
-            'path' => $this->_createFiles([]),
+            'path' => $this->_copyI18nSchema(),
             'write' => 'translations',
         ];
         $this->Shell->expects($this->once())->method('_stop');
@@ -1047,23 +1061,34 @@ class SchemaShellTest extends CakeTestCase
      */
     public function testCreateSnapshot(): void
     {
-        $this->_loadI18nSchema();
-        $this->Shell = $this->getMock(
-            SchemaShell::class,
-            ['in', 'out', 'hr', 'createFile', 'error', 'err', '_stop', '_run'],
-            [&$this->Dispatcher],
-        );
+        $path = $this->_createFiles([]);
+        $snapshot = <<<'PHP'
+<?php
+class SchemaShellSnapshotSchema extends CakeSchema
+{
+    public $name = 'SchemaShellSnapshot';
+
+    public $snapshot_items = [
+        'id' => ['type' => 'integer', 'null' => false, 'key' => 'primary'],
+        'indexes' => ['PRIMARY' => ['column' => 'id', 'unique' => 1]],
+    ];
+}
+PHP;
+        file_put_contents($path . DS . 'schema_shell_snapshot_3.php', $snapshot);
+
+        $this->Shell = $this->_shellWithRun();
         $this->Shell->params = [
             'connection' => 'test',
+            'path' => $path,
             'snapshot' => 3,
             'yes' => true,
         ];
-        $this->Shell->args = ['i18n'];
+        $this->Shell->args = ['SchemaShellSnapshot'];
         $schemas = [];
         $this->Shell->expects($this->exactly(2))
             ->method('_run')
             ->willReturnCallback(function ($contents, $event, $Schema) use (&$schemas) {
-                $schemas[$event] = $Schema;
+                $schemas[$event] = [$contents, $Schema];
 
                 return null;
             });
@@ -1072,7 +1097,11 @@ class SchemaShellTest extends CakeTestCase
         $this->Shell->create();
 
         $this->assertSame(['drop', 'create'], array_keys($schemas));
-        $this->assertSame('i18n_3.php', $schemas['create']->file);
+        [$contents, $Schema] = $schemas['create'];
+        $this->assertInstanceOf('SchemaShellSnapshotSchema', $Schema);
+        $this->assertSame('schema_shell_snapshot_3.php', $Schema->file);
+        $this->assertSame(['snapshot_items'], array_keys($contents));
+        $this->assertMatchesRegularExpression('/CREATE TABLE.*?snapshot_items/', $contents['snapshot_items']);
     }
 
     /**
@@ -1136,11 +1165,7 @@ class SchemaShellTest extends CakeTestCase
      */
     public function testUpdateAllTables(): void
     {
-        $this->Shell = $this->getMock(
-            SchemaShell::class,
-            ['in', 'out', 'hr', 'createFile', 'error', 'err', '_stop', '_run'],
-            [&$this->Dispatcher],
-        );
+        $this->Shell = $this->_shellWithRun();
         $this->Shell->params = [
             'connection' => 'test',
             'force' => true,
@@ -1175,11 +1200,7 @@ class SchemaShellTest extends CakeTestCase
      */
     public function testUpdateAnswerNo(): void
     {
-        $this->Shell = $this->getMock(
-            SchemaShell::class,
-            ['in', 'out', 'hr', 'createFile', 'error', 'err', '_stop', '_run'],
-            [&$this->Dispatcher],
-        );
+        $this->Shell = $this->_shellWithRun();
         $this->Shell->params = [
             'connection' => 'test',
             'force' => true,
@@ -1194,17 +1215,13 @@ class SchemaShellTest extends CakeTestCase
     }
 
     /**
-     * Test that update with a table that has no changes does nothing
+     * Test that update with a table that is not in the schema does nothing
      *
      * @return void
      */
-    public function testUpdateUpToDate(): void
+    public function testUpdateTableNotInSchema(): void
     {
-        $this->Shell = $this->getMock(
-            SchemaShell::class,
-            ['in', 'out', 'hr', 'createFile', 'error', 'err', '_stop', '_run'],
-            [&$this->Dispatcher],
-        );
+        $this->Shell = $this->_shellWithRun();
         $this->Shell->params = [
             'connection' => 'test',
             'force' => true,
