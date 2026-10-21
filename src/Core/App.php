@@ -249,10 +249,27 @@ class App
             $pluginPath = CakePlugin::path($plugin);
             $packageFormat = static::_packageFormat();
             if (!empty($packageFormat[$type])) {
-                foreach ($packageFormat[$type] as $f) {
-                    $_path = sprintf($f, $pluginPath);
-                    if ($f !== $_path) {
-                        $path[] = $_path;
+                $modernPaths = [
+                    'View' => 'templates',
+                    'Locale' => 'resources' . DS . 'locales',
+                    'Vendor' => 'vendor',
+                ];
+                if (isset($modernPaths[$type]) && is_dir($pluginPath . $modernPaths[$type])) {
+                    $path[] = $pluginPath . $modernPaths[$type] . DS;
+                }
+
+                // src/ holds classes only: the templates, translations and vendor files of the CakePHP 5
+                // layout are in the directories above, so src/View/ is never searched for templates
+                $basePaths = [$pluginPath];
+                if (!isset($modernPaths[$type]) && is_dir($pluginPath . 'src')) {
+                    array_unshift($basePaths, $pluginPath . 'src' . DS);
+                }
+                foreach ($basePaths as $basePath) {
+                    foreach ($packageFormat[$type] as $f) {
+                        $_path = sprintf($f, $basePath);
+                        if ($f !== $_path) {
+                            $path[] = $_path;
+                        }
                     }
                 }
             }

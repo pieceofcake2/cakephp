@@ -193,6 +193,21 @@ class CakePlugin
     }
 
     /**
+     * Returns the filesystem path for the configuration files of a plugin: `config/` of the CakePHP 5 layout,
+     * else `Config/` of the CakePHP 2 layout.
+     *
+     * @param string $plugin name of the plugin in CamelCase format
+     * @return string path to the configuration folder of the plugin
+     * @throws MissingPluginException if the folder for plugin was not found or plugin has not been loaded
+     */
+    public static function configPath($plugin)
+    {
+        $path = static::path($plugin);
+
+        return $path . (is_dir($path . 'config') ? 'config' : 'Config') . DS;
+    }
+
+    /**
      * Loads the bootstrapping files for a plugin, or calls the initialization setup in the configuration
      *
      * @param string $plugin name of the plugin
@@ -209,10 +224,10 @@ class CakePlugin
             return call_user_func_array($config['bootstrap'], [$plugin, $config]);
         }
 
-        $path = static::path($plugin);
+        $path = static::configPath($plugin);
         if ($config['bootstrap'] === true) {
             return static::_includeFile(
-                $path . 'Config' . DS . 'bootstrap.php',
+                $path . 'bootstrap.php',
                 $config['ignoreMissing'],
             );
         }
@@ -220,7 +235,7 @@ class CakePlugin
         $bootstrap = (array)$config['bootstrap'];
         foreach ($bootstrap as $file) {
             static::_includeFile(
-                $path . 'Config' . DS . $file . '.php',
+                $path . $file . '.php',
                 $config['ignoreMissing'],
             );
         }
@@ -250,7 +265,7 @@ class CakePlugin
         }
 
         return (bool)static::_includeFile(
-            static::path($plugin) . 'Config' . DS . 'routes.php',
+            static::configPath($plugin) . 'routes.php',
             $config['ignoreMissing'],
         );
     }

@@ -1840,6 +1840,23 @@ class I18nTest extends CakeTestCase
     }
 
     /**
+     * Test that translations are read from the resources/locales directory of a plugin.
+     *
+     * @return void
+     */
+    public function testPluginTranslationInResourcesLocales(): void
+    {
+        App::build([
+            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
+        ]);
+        CakePlugin::load('TestPluginModern');
+
+        Configure::write('Config.language', 'po');
+        $result = __d('test_plugin_modern', 'Plural Rule 1');
+        $this->assertSame('Plural Rule 1 (from resources/locales)', $result);
+    }
+
+    /**
      * testPoMultipleLineTranslation method
      *
      * @return void
@@ -2262,9 +2279,13 @@ class I18nTest extends CakeTestCase
         I18n::translate('dummy', null, 'missing_plural_test');
         $I18n = I18n::getInstance();
         $domainsProperty = new ReflectionProperty('I18n', '_domains');
-        $domainsProperty->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $domainsProperty->setAccessible(true);
+        }
         $langProperty = new ReflectionProperty('I18n', '_lang');
-        $langProperty->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $langProperty->setAccessible(true);
+        }
         $domains = $domainsProperty->getValue($I18n);
         $domains['missing_plural_test'][$langProperty->getValue($I18n)]['LC_MESSAGES']['apple'][''] = ['one apple'];
         $domainsProperty->setValue($I18n, $domains);

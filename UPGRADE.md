@@ -17,29 +17,29 @@ Before migrating to this fork, ensure:
 
 ## Unreleased
 
-### `App::uses()` Is Deprecated ([PR #98](https://github.com/pieceofcake2/cakephp/pull/98))
+### Plugins in the CakePHP 5 Layout ([PR #88](https://github.com/pieceofcake2/cakephp/pull/88))
 
-An application or a plugin does not need `App::uses()` when Composer loads its classes. `pieceofcake2/app` loads `src/` with a classmap.
+A plugin may use the CakePHP 5 layout: namespaced classes in `src/`, views in `templates/`, translations in `resources/locales/`, vendor files in `vendor/` and `bootstrap.php`, `routes.php`, configuration files and schemas in `config/`. CakePHP searches these directories before the directories of the CakePHP 2 layout, which are still searched, so nothing changes for a plugin that does not have them.
 
-- The first call of `App::uses()` in a process logs a warning with the file and line of the call. With `debug` above 0, it also triggers `E_USER_DEPRECATED`. The call still works.
-- To remove the calls, let Composer load your classes, then delete the `App::uses()` lines:
-  - an application: `"autoload": {"classmap": ["src/"]}` in its `composer.json`, then `composer dump-autoload`;
-  - a plugin: a classmap or PSR-4 in the `composer.json` of the plugin.
-- The classes named in the configuration (`$components`, `$helpers`, `$uses`, associations, engines and the other settings) are found without `App::uses()`, as before.
-- The core no longer calls `App::uses()`. `AppController`, `AppModel`, `AppHelper` and `AppShell` of the application are found in their packages without it.
+- The classes in `src/` are namespaced classes, e.g. `MyPlugin\Controller\Component\GreetingComponent` in `src/Controller/Component/GreetingComponent.php`, loaded by Composer with the `psr-4` entry of the plugin (`"MyPlugin\\": "src/"`). `App::uses()` does not look in `src/`.
+- A plugin that already has one of these directories for another purpose gets more search paths, searched first: a file of the same name in `templates/` or `resources/locales/` is used instead of the one in `View/` or `Locale/`. `src/` is searched only for classes (`src/Controller/`, `src/View/Helper/`, ...), never for templates, so the view classes in `src/View/` are not read as templates. For example, `App::objects('MyPlugin.Controller')` also lists the files in `src/Controller/`, and `App::import('Vendor', 'MyPlugin.foo')` also looks in the Composer `vendor/` directory of a plugin checked out for development.
+- A plugin with both `Config/` and `config/` (only possible on a case-sensitive file system) uses `config/`. On a case-insensitive file system, the paths of a plugin with `Config/` are shown as `config/`; they are the same directory.
 
-### The Framework in the `Cake` Namespace ([PR #92](https://github.com/pieceofcake2/cakephp/pull/92))
+### Templates in the CakePHP 5 Style ([PR #94](https://github.com/pieceofcake2/cakephp/pull/94))
 
-The classes of the framework moved into the `Cake` namespace, e.g. `Cake\Controller\Controller`. The global names of CakePHP 2 are aliases of the same classes, so code that extends, type-hints, catches or loads `Controller`, `CakeRequest` or `NotFoundException` keeps working without changes.
+Templates in `templates/` may use the `.php` extension and the directory names of CakePHP 5 (`layout/`, `element/`, `email/`, `Error/`). Nothing changes for `.ctp` templates and for the `View/` directories of the CakePHP 2 layout.
 
-- **`src/Cake/` moved to `src/`**: e.g. `src/Controller/Controller.php`, loaded with PSR-4. The `CAKE` constant is `src/`, and `Debugger` shows the core files as `CORE/Controller/Controller.php`. `src/Cake/bootstrap.php` (named by `webroot/index.php` and `webroot/test.php` of the application skeleton) and `src/Cake/TestSuite/Fixture/CakeFixtureInjector.php` (named by the listener of `phpunit.xml.dist`) still work; update them to `src/bootstrap.php` and `src/TestSuite/Fixture/CakeFixtureInjector.php` when you can. Code that builds other paths below `src/Cake/` must drop `Cake/`.
+- In a `templates/` directory, a `foo.php` template is used instead of a `foo.ctp` template next to it, and `layout/default.php` or `layout/default.ctp` instead of `Layouts/default.ctp`. Check that no `.php` files other than templates are left in `templates/`.
+- `View/` directories are not searched for `.php` files, as they also hold view and helper classes. A view that sets `$ext = '.php'` still finds its templates there, as before.
+- To move templates, rename `.ctp` to `.php`, and `Layouts/`, `Elements/`, `Emails/` and `Errors/` to `layout/`, `element/`, `email/` and `Error/`; email layouts move from `Layouts/Emails/html/` to `layout/email/html/`.
 
-- **Class names as strings**: `get_class()`, `static::class`, `ReflectionClass::getName()` and `CakeObject::toString()` return the namespaced name, e.g. `Cake\Network\CakeRequest`. Compare classes with `instanceof` or `is_a()`, not with the string of the global name (`get_class($x) === 'CakeRequest'` is now false).
-- **Logs and messages**: The error log, `Debugger` output and the debug error pages show the namespaced names, e.g. `Error: [Cake\Error\NotFoundException] ...`. Update log filters or alerts that match `[NotFoundException]`.
-- **Serialized objects**: Objects serialized before the update (`O:12:"CakeResponse"`) still unserialize, as instances of the namespaced class. Objects serialized after it use the namespaced names and cannot be read by an older version.
-- **Your own classes named like a core class** in the global namespace still conflict, as before.
-- **Static analysis**: PHPStan resolves the aliases. pieceofcake2/phpstan-cakephp2 needs a version that compares the namespaced classes (see its changelog).
-- New code can import the namespaced classes: `use Cake\Controller\Component;`.
+### PHP 8.1 to 8.5 Deprecations ([PR #96](https://github.com/pieceofcake2/cakephp/pull/96))
+
+The core no longer triggers the deprecations of PHP 8.1 to 8.5 in its code. Most applications only need to update.
+
+- **`Xml::build()` `loadEntities`**: The option is removed. It only decided whether `Xml` called `libxml_disable_entity_loader()`, which PHP 8 deprecates and which no longer changes anything with libxml 2.9 and later: external entities are not loaded either way. Passing the option is ignored, so you can remove it from your calls.
+- **`CakeRequest::input()` with a decoding callback**: It returns `null` without calling the callback when the request has no body. `RequestHandlerComponent` sets the same empty data as before. If a callback of your own handled an empty body, handle `null` instead.
+- **`symfony/polyfill-php84`**: The core requires it for the `Pdo\Mysql` constants on PHP 8.0 to 8.3. Composer installs it.
 
 ### Classes in a Namespace: `App::className()` and `App.namespace` ([PR #91](https://github.com/pieceofcake2/cakephp/pull/91))
 
@@ -51,6 +51,31 @@ Nothing changes for an application that uses only global class names and does no
 - `App.namespace` is new and not set by default. When you set it, CakePHP first looks for controllers, shells, models, components, helpers, behaviors and the other classes above in that namespace, e.g. `App\Model\Post` for `ClassRegistry::init('Post')`, then for the global classes. A class in the namespace with the same short name as a global class is used instead of it.
 - `Controller` and `View` have the new public property `$controllerClass`, and the view vars passed from a controller include it. If a subclass declares a property of that name, rename it.
 - Fully qualified class names as keys of `$components`, `$helpers`, `$actsAs`, `$tasks`, `$uses` and the model associations, or given to `load()` and `loadModel()`, get the short class name without the namespace and the suffix as their alias, e.g. `$this->Greeting` for `GreetingComponent::class` and `$this->Post` for `Post::class`, the same as `'Greeting' => ['className' => GreetingComponent::class]`. This also applies to a key with its own `'className'`, which keeps that class. Before, the alias contained the backslashes; such aliases are now the short class name, so code that uses the alias with the backslashes (`$this->{'Acme\Controller\Component\GreetingComponent'}`, `Components->loaded()`, the association keys or the alias in conditions) must use the short name, e.g. `Greeting`. When a parent and a child class name the same object, one by its class name and one by its short name, the settings are merged into one entry with the class name in `'className'`, as for two short names. `'with' => PostsTag::class` of a hasAndBelongsToMany association finds the join model `PostsTag`.
+
+### The Framework in the `Cake` Namespace ([PR #92](https://github.com/pieceofcake2/cakephp/pull/92))
+
+The classes of the framework moved into the `Cake` namespace, e.g. `Cake\Controller\Controller`. The global names of CakePHP 2 are aliases of the same classes, so code that extends, type-hints, catches or loads `Controller`, `CakeRequest` or `NotFoundException` keeps working without changes.
+
+- **`src/Cake/` moved to `src/`**: e.g. `src/Controller/Controller.php`, loaded with PSR-4. The `CAKE` constant is `src/`, and `Debugger` shows the core files as `CORE/Controller/Controller.php`. `src/Cake/bootstrap.php` (named by `webroot/index.php` and `webroot/test.php` of the application skeleton) and `src/Cake/TestSuite/Fixture/CakeFixtureInjector.php` (named by the listener of `phpunit.xml.dist`) still work; update them to `src/bootstrap.php` and `src/TestSuite/Fixture/CakeFixtureInjector.php` when you can. Code that builds other paths below `src/Cake/` must drop `Cake/`.
+
+- **Class names as strings**: `get_class()`, `static::class`, `ReflectionClass::getName()` and `CakeObject::toString()` return the namespaced name, e.g. `Cake\Network\CakeRequest`. Compare classes with `instanceof` or `is_a()`, not with the string of the global name (`get_class($x) === 'CakeRequest'` is now false).
+- **Logs and messages**: The error log, `Debugger` output and the debug error pages show the namespaced names, e.g. `Error: [Cake\Error\NotFoundException] ...`. Update log filters or alerts that match `[NotFoundException]`.
+- **Serialized objects**: Objects serialized before the update (`O:12:"CakeResponse"`) still unserialize, as instances of the namespaced class. Objects serialized after it use the namespaced names and cannot be read by an older version.
+- **Your own classes named like a core class** in the global namespace still conflict, as before.
+- **Overriding a core class**: A global class registered with `App::uses()` (e.g. `Dispatcher` in `src/Lib/Routing/Dispatcher.php`) no longer replaces the core class, because the core uses the namespaced name (`Cake\Routing\Dispatcher`); PHP warns that the global name is already in use. Copy the core file to the same path below `src/Cake/` (`src/Cake/Routing/Dispatcher.php`), keep its namespace and its `class_alias()`, and let Composer load it with the classmap of `src/`. Exclude the core file with `exclude-from-classmap` (`vendor/pieceofcake2/cakephp/src/Routing/Dispatcher.php`), so that `composer dump-autoload -o` does not warn about an ambiguous class. In an application with only PSR-4 for `src/`, add `src/Cake/` to the classmap.
+- **Static analysis**: PHPStan resolves the aliases. pieceofcake2/phpstan-cakephp2 needs a version that compares the namespaced classes (see its changelog).
+- New code can import the namespaced classes: `use Cake\Controller\Component;`.
+
+### `App::uses()` Is Deprecated ([PR #98](https://github.com/pieceofcake2/cakephp/pull/98))
+
+An application or a plugin does not need `App::uses()` when Composer loads its classes. `pieceofcake2/app` loads `src/` with a classmap.
+
+- The first call of `App::uses()` in a process logs a warning with the file and line of the call. With `debug` above 0, it also triggers `E_USER_DEPRECATED`. The call still works.
+- To remove the calls, let Composer load your classes, then delete the `App::uses()` lines:
+  - an application: `"autoload": {"classmap": ["src/"]}` in its `composer.json`, then `composer dump-autoload`;
+  - a plugin: a classmap or PSR-4 in the `composer.json` of the plugin.
+- The classes named in the configuration (`$components`, `$helpers`, `$uses`, associations, engines and the other settings) are found without `App::uses()`, as before.
+- The core no longer calls `App::uses()`. `AppController`, `AppModel`, `AppHelper` and `AppShell` of the application are found in their packages without it.
 
 ## v2.12.11
 

@@ -128,6 +128,28 @@ class MissingWidgetThingException extends NotFoundException
 }
 
 /**
+ * PDOException with the query details that the pdo_error view shows.
+ *
+ * @package       Cake.Test.Case.Error
+ */
+class TestPDOException extends PDOException
+{
+    /**
+     * The SQL query
+     *
+     * @var string
+     */
+    public $queryString;
+
+    /**
+     * The query parameters
+     *
+     * @var array
+     */
+    public $params;
+}
+
+/**
  * ExceptionRendererTest class
  *
  * @package       Cake.Test.Case.Error
@@ -915,7 +937,7 @@ class ExceptionRendererTest extends CakeTestCase
      */
     public function testPDOException(): void
     {
-        $exception = new PDOException('There was an error in the SQL query');
+        $exception = new TestPDOException('There was an error in the SQL query');
         $exception->queryString = 'SELECT * from poo_query < 5 and :seven';
         $exception->params = ['seven' => 7];
         $ExceptionRenderer = new ExceptionRenderer($exception);

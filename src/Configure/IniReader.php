@@ -232,7 +232,7 @@ class IniReader implements ConfigReaderInterface
         }
 
         if ($plugin) {
-            $file = CakePlugin::path($plugin) . 'Config' . DS . $key;
+            $file = CakePlugin::configPath($plugin) . $key;
         } else {
             $file = $this->_path . $key;
         }

@@ -94,7 +94,7 @@ class CakeSchema extends CakeObject
             $this->plugin = $options['plugin'];
         }
 
-        if (strtolower($this->name) === 'cake') {
+        if (strtolower((string)$this->name) === 'cake') {
             $this->name = 'App';
         }
 
@@ -134,7 +134,7 @@ class CakeSchema extends CakeObject
         if (file_exists($this->path . DS . $file) && is_file($this->path . DS . $file)) {
             $this->file = $file;
         } elseif (!empty($this->plugin)) {
-            $this->path = CakePlugin::path($this->plugin) . 'Config' . DS . 'Schema';
+            $this->path = CakePlugin::configPath($this->plugin) . 'Schema';
         }
     }
 

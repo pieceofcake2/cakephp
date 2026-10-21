@@ -306,6 +306,9 @@ class CacheHelper extends AppHelper
             $cacheTime = strtotime($timestamp, $now);
         }
         $path = $this->request->here();
+        if (empty($path)) {
+            return null;
+        }
         if ($path === '/') {
             $path = 'home';
         }

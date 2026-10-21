@@ -239,7 +239,7 @@ class Hash
 
             // Pattern matches and other operators.
             if ($op === '=' && $val && $val[0] === '/') {
-                if (!preg_match($val, $prop)) {
+                if (!preg_match($val, (string)$prop)) {
                     return false;
                 }
             } elseif (

@@ -23,6 +23,7 @@ use Cake\Error\MissingConnectionException;
 use Cake\Model\Datasource\DboSource;
 use Cake\Model\Model;
 use PDO;
+use Pdo\Mysql as PdoMysql;
 use PDOException;
 use PDOStatement;
 
@@ -203,15 +204,15 @@ class Mysql extends DboSource
 
         $flags = $config['flags'] + [
             PDO::ATTR_PERSISTENT => $config['persistent'],
-            PDO::MYSQL_ATTR_USE_BUFFERED_QUERY => true,
+            PdoMysql::ATTR_USE_BUFFERED_QUERY => true,
             PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
         ];
         if (!empty($config['ssl_key']) && !empty($config['ssl_cert'])) {
-            $flags[PDO::MYSQL_ATTR_SSL_KEY] = $config['ssl_key'];
-            $flags[PDO::MYSQL_ATTR_SSL_CERT] = $config['ssl_cert'];
+            $flags[PdoMysql::ATTR_SSL_KEY] = $config['ssl_key'];
+            $flags[PdoMysql::ATTR_SSL_CERT] = $config['ssl_cert'];
         }
         if (!empty($config['ssl_ca'])) {
-            $flags[PDO::MYSQL_ATTR_SSL_CA] = $config['ssl_ca'];
+            $flags[PdoMysql::ATTR_SSL_CA] = $config['ssl_ca'];
         }
         if (empty($config['unix_socket'])) {
             $dsn = "mysql:host={$config['host']};port={$config['port']};dbname={$config['database']}";

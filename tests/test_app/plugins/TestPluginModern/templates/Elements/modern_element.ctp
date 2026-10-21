@@ -1,0 +1,1 @@
+<?php echo 'this is the element in the templates directory of a plugin'; ?>
