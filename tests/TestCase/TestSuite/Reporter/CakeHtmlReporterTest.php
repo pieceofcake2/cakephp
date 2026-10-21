@@ -255,7 +255,7 @@ class CakeHtmlReporterTest extends CakeTestCase
         $this->assertStringContainsString(
             "-'expected &lt;b&gt;bold&lt;/b&gt;'\n+'actual &lt;b&gt;bold&lt;/b&gt;'\n</pre></div>\n" .
             "<div class='msg'>Test case: $test</div>\n" .
-            "<div class='msg'><a href='/test.php?plugin=Blog&amp;case=Model/Post&amp;filter=testFails'>" .
+            "<div class='msg'><a href='/test.php?plugin=Blog&amp;case=Model%2FPost&amp;filter=testFails'>" .
             "Rerun only this test: $test</a></div>\n" .
             "<div class='msg'>Stack trace:<br />",
             $output,
@@ -387,6 +387,83 @@ class CakeHtmlReporterTest extends CakeTestCase
     }
 
     /**
+     * Test that the links below the summary URL-encode the run parameters and
+     * escape the script URL, so that a request cannot inject HTML.
+     *
+     * @return void
+     */
+    public function testLinksEscapeTheRunParameters(): void
+    {
+        $_SERVER['PHP_SELF'] = "/test.php/'><script>alert(1)</script>";
+        $reporter = $this->reporter([
+            'case' => "Model/Post'><script>alert(2)</script>",
+            'plugin' => '"><script>alert(3)</script>',
+            'filter' => "testFoo'><script>alert(4)</script>",
+        ]);
+        $output = $this->runAndPaint($reporter, ReporterSampleCase::buildSuite('testPasses', 'testFails'));
+
+        $this->assertStringNotContainsString('<script>', $output);
+        $base = '/test.php/&#039;&gt;&lt;script&gt;alert(1)&lt;/script&gt;';
+        $query = $base . '?plugin=' . urlencode('"><script>alert(3)</script>') .
+            '&amp;case=' . urlencode("Model/Post'><script>alert(2)</script>") .
+            '&amp;filter=' . urlencode("testFoo'><script>alert(4)</script>");
+        $this->assertStringContainsString(
+            "<p><a href='$base?show=cases&amp;plugin=" . urlencode('"><script>alert(3)</script>') . "'>Run more tests</a> | " .
+            "<a href='$query&amp;show_passes=1'>Show Passes</a> | \n",
+            $output,
+        );
+        $this->assertStringContainsString("<a href='$query&amp;filter=testFails'>", $output);
+    }
+
+    /**
+     * Test that the names of failed and skipped tests are escaped, in the text
+     * and in the link that reruns the test.
+     *
+     * @return void
+     */
+    public function testTestNamesAreEscaped(): void
+    {
+        $output = $this->runAndPaint(
+            $this->reporter(),
+            ReporterSampleCase::buildSuite('testFailsWithData', 'testSkippedWithData'),
+        );
+
+        $this->assertStringNotContainsString('<b>', $output);
+        $name = 'testFailsWithData with data set "<b>pass</b>"';
+        $test = ReporterSampleCase::class . '::' . htmlspecialchars($name, ENT_QUOTES) . '()';
+        $this->assertStringContainsString("<div class='msg'>Test case: $test</div>\n", $output);
+        $this->assertStringContainsString(
+            "<a href='/test.php?plugin=Blog&amp;case=Model%2FPost&amp;filter=" . urlencode($name) . "'>" .
+            "Rerun only this test: $test</a>",
+            $output,
+        );
+        $this->assertStringContainsString(
+            '<span>Skipped</span> testSkippedWithData with data set &quot;&lt;b&gt;pass&lt;/b&gt;&quot;: Skipped</li>',
+            $output,
+        );
+    }
+
+    /**
+     * Test that the test case list escapes the script URL and URL-encodes the plugin.
+     *
+     * @return void
+     */
+    public function testTestCaseListEscapesTheUrl(): void
+    {
+        $_SERVER['PHP_SELF'] = "/test.php/'><script>alert(1)</script>";
+        $output = $this->capture(function (): void {
+            $this->reporter(['plugin' => 'ReporterPlugin'])->testCaseList();
+        });
+
+        $this->assertStringNotContainsString('<script>', $output);
+        $this->assertStringContainsString(
+            "<li><a href='/test.php/&#039;&gt;&lt;script&gt;alert(1)&lt;/script&gt;?case=" .
+            urlencode('Model' . DS . 'Article') . "&amp;plugin=ReporterPlugin'>Model / Article</a></li>\n",
+            $output,
+        );
+    }
+
+    /**
      * Test that the menu links the app, every plugin in name order, and the core tests.
      *
      * @return void
@@ -424,9 +501,9 @@ class CakeHtmlReporterTest extends CakeTestCase
         $this->assertSame(
             "<h3>ReporterPlugin Test Cases:</h3>\n<ul>" .
             "<li><a href='/test.php?case=" . urlencode('Controller' . DS . 'PostsController') .
-            "&plugin=ReporterPlugin'>Controller / PostsController</a></li>\n" .
+            "&amp;plugin=ReporterPlugin'>Controller / PostsController</a></li>\n" .
             "<li><a href='/test.php?case=" . urlencode('Model' . DS . 'Article') .
-            "&plugin=ReporterPlugin'>Model / Article</a></li>\n" .
+            "&amp;plugin=ReporterPlugin'>Model / Article</a></li>\n" .
             "</ul>\n",
             $output,
         );
@@ -446,7 +523,7 @@ class CakeHtmlReporterTest extends CakeTestCase
         $case = 'TestSuite' . DS . 'Reporter' . DS . 'CakeHtmlReporter';
         $this->assertStringStartsWith("<h3>Core Test Cases:</h3>\n<ul><li>", $output);
         $this->assertStringContainsString(
-            "<li><a href='/test.php?case=" . urlencode($case) . "&core=true'>TestSuite / Reporter / CakeHtmlReporter</a></li>\n",
+            "<li><a href='/test.php?case=" . urlencode($case) . "&amp;core=true'>TestSuite / Reporter / CakeHtmlReporter</a></li>\n",
             $output,
         );
     }

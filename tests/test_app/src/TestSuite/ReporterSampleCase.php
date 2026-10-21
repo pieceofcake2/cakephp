@@ -118,6 +118,30 @@ class ReporterSampleCase extends TestCase
     }
 
     /**
+     * Fails for a data set whose name contains HTML.
+     *
+     * @param int $value A value.
+     * @return void
+     * @dataProvider htmlNamedProvider
+     */
+    public function testFailsWithData(int $value): void
+    {
+        $this->assertSame(2, $value);
+    }
+
+    /**
+     * Is skipped for a data set whose name contains HTML.
+     *
+     * @param int $value A value.
+     * @return void
+     * @dataProvider htmlNamedProvider
+     */
+    public function testSkippedWithData(int $value): void
+    {
+        $this->markTestSkipped('Skipped');
+    }
+
+    /**
      * Data sets whose names contain HTML.
      *
      * @return array

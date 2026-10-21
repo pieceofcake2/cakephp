@@ -117,8 +117,8 @@ class CakeHtmlReporter extends CakeBaseReporter
             $buffer = "<h3>Core Test Cases:</h3>\n<ul>";
             $urlExtra = '&core=true';
         } elseif ($plugin) {
-            $buffer = '<h3>' . Inflector::humanize($plugin) . " Test Cases:</h3>\n<ul>";
-            $urlExtra = '&plugin=' . $plugin;
+            $buffer = '<h3>' . $this->_escape(Inflector::humanize($plugin)) . " Test Cases:</h3>\n<ul>";
+            $urlExtra = '&plugin=' . urlencode($plugin);
         }
 
         if (count($testCases) < 1) {
@@ -129,7 +129,8 @@ class CakeHtmlReporter extends CakeBaseReporter
             $title = explode(DS, str_replace('.test.php', '', $testCase));
             $title[count($title) - 1] = Inflector::camelize($title[count($title) - 1]);
             $title = implode(' / ', $title);
-                $buffer .= "<li><a href='" . $this->baseUrl() . '?case=' . urlencode($testCase) . $urlExtra . "'>" . $title . "</a></li>\n";
+            $url = $this->baseUrl() . '?case=' . urlencode($testCase) . $urlExtra;
+            $buffer .= "<li><a href='" . $this->_escape($url) . "'>" . $this->_escape($title) . "</a></li>\n";
         }
         $buffer .= "</ul>\n";
         echo $buffer;
@@ -210,15 +211,19 @@ class CakeHtmlReporter extends CakeBaseReporter
     protected function _paintLinks()
     {
         [$show, $query] = $this->_getQueryLink();
+        $baseUrl = $this->_escape($this->baseUrl());
 
-        echo "<p><a href='" . $this->baseUrl() . $show . "'>Run more tests</a> | <a href='" . $this->baseUrl() . $query . "&amp;show_passes=1'>Show Passes</a> | \n";
-        echo "<a href='" . $this->baseUrl() . $query . "&amp;debug=1'>Enable Debug Output</a> | \n";
-        echo "<a href='" . $this->baseUrl() . $query . "&amp;code_coverage=true'>Analyze Code Coverage</a> | \n";
-        echo "<a href='" . $this->baseUrl() . $query . "&amp;code_coverage=true&amp;show_passes=1&amp;debug=1'>All options enabled</a></p>\n";
+        echo "<p><a href='" . $baseUrl . $show . "'>Run more tests</a> | <a href='" . $baseUrl . $query . "&amp;show_passes=1'>Show Passes</a> | \n";
+        echo "<a href='" . $baseUrl . $query . "&amp;debug=1'>Enable Debug Output</a> | \n";
+        echo "<a href='" . $baseUrl . $query . "&amp;code_coverage=true'>Analyze Code Coverage</a> | \n";
+        echo "<a href='" . $baseUrl . $query . "&amp;code_coverage=true&amp;show_passes=1&amp;debug=1'>All options enabled</a></p>\n";
     }
 
     /**
      * Convert an array of parameters into a query string url
+     *
+     * The keys and values are URL-encoded, and the parameters are joined
+     * with `&amp;`, so the result can be put into an HTML attribute as is.
      *
      * @param array $url Url hash to be converted
      * @return string Converted url query string
@@ -228,7 +233,7 @@ class CakeHtmlReporter extends CakeBaseReporter
         $out = '?';
         $params = [];
         foreach ($url as $key => $value) {
-            $params[] = "$key=$value";
+            $params[] = urlencode((string)$key) . '=' . urlencode((string)$value);
         }
         $out .= implode('&amp;', $params);
 
@@ -290,10 +295,10 @@ class CakeHtmlReporter extends CakeBaseReporter
         }
 
         echo "</pre></div>\n";
-        echo "<div class='msg'>" . __d('cake_dev', 'Test case: %s', $testName) . "</div>\n";
+        echo "<div class='msg'>" . __d('cake_dev', 'Test case: %s', $this->_escape($testName)) . "</div>\n";
         if (!str_contains($className, 'PHPUnit_')) {
             [, $query] = $this->_getQueryLink();
-            echo "<div class='msg'><a href='" . $this->baseUrl() . $query . '&amp;filter=' . $test->getName() . "'>" . __d('cake_dev', 'Rerun only this test: %s', $testName) . "</a></div>\n";
+            echo "<div class='msg'><a href='" . $this->_escape($this->baseUrl()) . $query . '&amp;filter=' . urlencode($test->getName()) . "'>" . __d('cake_dev', 'Rerun only this test: %s', $this->_escape($testName)) . "</a></div>\n";
         }
         echo "<div class='msg'>" . __d('cake_dev', 'Stack trace:') . '<br />' . $trace . "</div>\n";
         echo "</li>\n";
@@ -336,10 +341,10 @@ class CakeHtmlReporter extends CakeBaseReporter
         $testName = $test::class . '(' . $test->getName() . ')';
 
         echo "<li class='fail'>\n";
-        echo '<span>' . $message::class . '</span>';
+        echo '<span>' . $this->_escape($message::class) . '</span>';
 
         echo "<div class='msg'>" . $this->_htmlEntities($message->getMessage()) . "</div>\n";
-        echo "<div class='msg'>" . __d('cake_dev', 'Test case: %s', $testName) . "</div>\n";
+        echo "<div class='msg'>" . __d('cake_dev', 'Test case: %s', $this->_escape($testName)) . "</div>\n";
         echo "<div class='msg'>" . __d('cake_dev', 'Stack trace:') . '<br />' . $trace . "</div>\n";
         echo "</li>\n";
         $this->_buffer .= ob_get_clean();
@@ -357,7 +362,7 @@ class CakeHtmlReporter extends CakeBaseReporter
         ob_start();
         echo "<li class='skipped'>\n";
         echo '<span>Skipped</span> ';
-        echo $test->getName() . ': ' . $this->_htmlEntities($message->getMessage());
+        echo $this->_escape($test->getName()) . ': ' . $this->_htmlEntities($message->getMessage());
         echo "</li>\n";
         $this->_buffer .= ob_get_clean();
     }
@@ -385,6 +390,17 @@ class CakeHtmlReporter extends CakeBaseReporter
     }
 
     /**
+     * Escapes a value for HTML text and for HTML attributes in single or double quotes.
+     *
+     * @param string $text The value to escape.
+     * @return string The escaped value.
+     */
+    protected function _escape($text)
+    {
+        return htmlspecialchars($text, ENT_QUOTES, $this->_characterSet);
+    }
+
+    /**
      * Gets a formatted stack trace.
      *
      * @param Exception $e Exception to get a stack trace for.
@@ -396,9 +412,9 @@ class CakeHtmlReporter extends CakeBaseReporter
         $out = [];
         foreach ($trace as $frame) {
             if (isset($frame['file']) && isset($frame['line'])) {
-                $out[] = $frame['file'] . ' : ' . $frame['line'];
+                $out[] = $this->_escape($frame['file']) . ' : ' . $frame['line'];
             } elseif (isset($frame['class']) && isset($frame['function'])) {
-                $out[] = $frame['class'] . '::' . $frame['function'];
+                $out[] = $this->_escape($frame['class'] . '::' . $frame['function']);
             } else {
                 $out[] = '[internal]';
             }
@@ -418,7 +434,7 @@ class CakeHtmlReporter extends CakeBaseReporter
         if (!$this->_headerSent) {
             $this->paintHeader();
         }
-        $this->_buffer .= '<h2>' . __d('cake_dev', 'Running  %s', $suite->getName()) . '</h2>';
+        $this->_buffer .= '<h2>' . __d('cake_dev', 'Running  %s', $this->_escape($suite->getName())) . '</h2>';
     }
 
     /**
