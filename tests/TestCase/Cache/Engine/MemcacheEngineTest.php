@@ -354,12 +354,12 @@ class MemcacheEngineTest extends CakeTestCase
     {
         Cache::config('long_memcache', [
             'engine' => 'Memcache',
-            'duration' => '+3 seconds',
+            'duration' => '+4 seconds',
             'servers' => ['127.0.0.1:11211'],
         ]);
         Cache::config('short_memcache', [
             'engine' => 'Memcache',
-            'duration' => '+1 seconds',
+            'duration' => '+2 seconds',
             'servers' => ['127.0.0.1:11211'],
         ]);
         Cache::config('some_file', ['engine' => 'File']);
@@ -374,7 +374,8 @@ class MemcacheEngineTest extends CakeTestCase
         sleep(1);
         $this->assertEquals('yay', Cache::read('duration_test', 'long_memcache'), 'Value was not read %s');
 
-        sleep(3);
+        // memcached counts the durations in whole seconds, so wait until both have surely expired
+        sleep(5);
         $this->assertFalse(Cache::read('short_duration_test', 'short_memcache'), 'Cache was not invalidated %s');
         $this->assertFalse(Cache::read('duration_test', 'long_memcache'), 'Value did not expire %s');
 
