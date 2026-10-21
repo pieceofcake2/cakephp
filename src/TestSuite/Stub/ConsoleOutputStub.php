@@ -23,8 +23,6 @@ use Cake\Console\ConsoleOutput;
  * You can use this class by injecting it into a Helper instance:
  *
  * ```
- * App::uses("ConsoleOutputStub", "TestSuite/Stub");
- *
  * $output = new ConsoleOutputStub();
  * $helper = new ProgressHelper($output);
  * ```
