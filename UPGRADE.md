@@ -138,6 +138,26 @@ The tests of an application now follow its `phpunit.xml`, as PHPUnit does by def
 
 To keep the former behaviour, set `convertWarningsToExceptions="false"` and `convertNoticesToExceptions="false"` in `phpunit.xml`.
 
+### Bug Fixes That Change Results ([PR #107](https://github.com/pieceofcake2/cakephp/pull/107))
+
+Some of the fixed bugs gave results that code may rely on:
+
+- **`Debugger::excerpt($file, $line, $context)`**: `$line` is the line number (1-based), and the excerpt shows `$context` lines above and below it. Before, the core passed `$line - 1` to highlight the right line, and the excerpt was shifted upwards. If you call `excerpt()` with `$line - 1`, pass `$line`.
+- **`JsBaseEngineHelper::value()` and `object()`**: They throw `CakeException` for `INF`, `NAN` and other data that `json_encode()` cannot encode, instead of writing `INF` or returning only the prefix and postfix.
+- **`__('0')`**: The translation functions translate the message `'0'` instead of returning `null`. `FormHelper::input('0')` gets the label `0`.
+- **CakeSocket through a proxy**: A status other than 2xx in reply to `CONNECT` throws `SocketException` with the status as its code and closes the connection. Before, the answer was not read, and TLS was started with the proxy, which failed with an unrelated crypto error.
+- **`DataSource::insertQueryData()`**: Throws `NotImplementedException` when the datasource has no `value()` method, instead of an `Error` for the undefined method.
+- **The query string of `JqueryEngineHelper::request()`**: For array `data`, a nested array becomes `key[sub]=value` instead of `Array`, a `null` value is left out instead of giving `key=`, and `false` gives `key=0` instead of `key=`. The values are still not URL-encoded.
+- **`CakeSocket::reset()`**: Closes an open connection when the state that it sets replaces the connection, instead of dropping it open.
+- **`CakeSession::clear()`**: Removes the session data. Before, the data stayed in the store and came back under the new session id.
+- **`Folder::realpath()` and `Folder::cd()`**: A relative path with `..` is resolved from the current directory, as one without `..` already was, so `cd('../sibling')` works. Before, it lost the current directory, or gave `false` when it went above it.
+- **`CakeSchema::write()` without tables**: Writes the tables that `read()` finds on the connection of the schema. Before, it wrote a schema without tables.
+- **`core.*` fixtures**: Are looked up only in the fixtures of the core. Before, a file of the same name in the fixtures of the application or of a plugin loaded before could be used instead.
+- **Scaffold `list`**: The `list` action is no longer scaffolded and gives `MissingActionException`. It had no view since CakePHP 1.2 and only worked with a `scaffold.list.ctp` of your own. Link to `index` instead.
+- **Test summaries**: The summaries of the test reporters count as complete the tests that were neither skipped nor incomplete, count the passing tests as passes and show the skipped and incomplete tests. If you parse them, they now read:
+  - HTML: `<complete>/<total> test methods complete: N passes, N fails, N skipped, N incomplete, N assertions and N exceptions.`
+  - Text: `Test cases run: <complete>/<total>, Passes: N, Failures: N, Exceptions: N, Skipped: N, Incomplete: N`
+
 ## v2.12.11
 
 ### Request URLs with Extra Leading Slashes ([GHSA-wh43-gc93-wh4c](https://github.com/pieceofcake2/cakephp/security/advisories/GHSA-wh43-gc93-wh4c), [PR #90](https://github.com/pieceofcake2/cakephp/pull/90))
