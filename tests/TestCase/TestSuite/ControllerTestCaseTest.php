@@ -1,4 +1,5 @@
 <?php
+
 /**
  * ControllerTestCaseTest file
  *
@@ -18,88 +19,31 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\TestSuite;
+
+use Cake\Controller\Component\EmailComponent;
+use Cake\Core\App;
+use Cake\Core\CakePlugin;
+use Cake\Core\Configure;
+use Cake\Error\MissingActionException;
+use Cake\Error\MissingComponentException;
+use Cake\Error\MissingControllerException;
+use Cake\Network\CakeResponse;
+use Cake\Routing\Router;
+use Cake\TestSuite\CakeTestCase;
+use Cake\TestSuite\ControllerTestCase;
+use Cake\TestSuite\ControllerTestDispatcher;
+use Cake\Utility\ClassRegistry;
+use PHPUnit\Framework\MockObject\MockObject;
+use TestApp\Controller\Component\NamespacedComponent;
+use TestApp\Controller\NamespacedController;
+use TestApp\Model\NamespacedPost;
+use TestApp\Model\Post;
+use TestPlugin\Controller\Component\PluginsComponent;
+use TestPlugin\Controller\Component\TestPluginEmailComponent;
+use TestPlugin\Model\TestPluginComment;
+
 App::uses('AppModel', 'Model');
-
-require_once dirname(__DIR__) . DS . 'Model' . DS . 'models.php';
-
-if (!class_exists('AppController', false)) {
-    /**
-     * AppController class
-     *
-     * @package       Cake.Test.Case.TestSuite
-     */
-    class AppController extends Controller
-    {
-        /**
-         * helpers property
-         *
-         * @var array
-         */
-        public $helpers = ['Html'];
-
-        /**
-         * uses property
-         *
-         * @var array
-         */
-        public $uses = ['ControllerPost'];
-
-        /**
-         * components property
-         *
-         * @var array
-         */
-        public $components = ['Cookie'];
-    }
-} elseif (!defined('APP_CONTROLLER_EXISTS')) {
-    define('APP_CONTROLLER_EXISTS', true);
-}
-
-/**
- * PostsController class
- */
-if (!class_exists('PostsController')) {
-
-    /**
-     * PostsController
-     *
-     * @package       Cake.Test.Case.TestSuite
-     */
-    class PostsController extends AppController
-    {
-        /**
-         * Components array
-         *
-         * @var array
-         */
-        public $components = [
-            'RequestHandler',
-            'Email',
-            'AliasedEmail' => [
-                'className' => 'Email',
-            ],
-            'AliasedPluginEmail' => [
-                'className' => 'TestPlugin.TestPluginEmail',
-            ],
-            'Auth',
-        ];
-    }
-}
-
-/**
- * ControllerTestCaseTest controller
- *
- * @package       Cake.Test.Case.TestSuite
- */
-class ControllerTestCaseTestController extends AppController
-{
-    /**
-     * Uses array
-     *
-     * @param array
-     */
-    public $uses = ['TestPlugin.TestPluginComment'];
-}
 
 /**
  * ControllerTestCaseTest
@@ -111,9 +55,15 @@ class ControllerTestCaseTest extends CakeTestCase
     /**
      * fixtures property
      *
-     * @var array
+     * @var array<string>
      */
-    public $fixtures = ['core.post', 'core.author', 'core.test_plugin_comment'];
+    public $fixtures = [
+        'core.post',
+        'core.author',
+        'core.test_plugin_comment',
+    ];
+
+    public ?ControllerTestCase $Case = null;
 
     /**
      * reset environment.
@@ -123,14 +73,20 @@ class ControllerTestCaseTest extends CakeTestCase
     public function setUp(): void
     {
         parent::setUp();
+
+        Configure::write('App.namespace', 'TestApp');
+
         App::build([
-            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS],
-            'Controller' => [CORE_TESTS . DS . 'test_app' . DS . 'Controller' . DS],
-            'Model' => [CORE_TESTS . DS . 'test_app' . DS . 'Model' . DS],
-            'View' => [CORE_TESTS . DS . 'test_app' . DS . 'View' . DS],
+            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
+            'Controller' => [CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'Controller' . DS],
+            'Model' => [CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'Model' . DS],
+            'View' => [
+                CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'View' . DS,
+                CORE_TESTS . DS . 'test_app' . DS . 'templates' . DS,
+            ],
         ], App::RESET);
-        CakePlugin::load(['TestPlugin', 'TestPluginTwo']);
-        $this->Case = $this->getMockForAbstractClass('ControllerTestCase');
+        CakePlugin::load(['TestPlugin', 'TestTwoPlugin']);
+        $this->Case = $this->getMockForAbstractClass(ControllerTestCase::class);
         Router::reload();
     }
 
@@ -157,46 +113,46 @@ class ControllerTestCaseTest extends CakeTestCase
         if (defined('APP_CONTROLLER_EXISTS')) {
             $this->markTestSkipped('AppController exists, cannot run.');
         }
-        $Posts = $this->Case->generate('Posts');
-        $this->assertEquals('Posts', $Posts->name);
-        $this->assertEquals('Post', $Posts->modelClass);
-        $this->assertNull($Posts->response->send());
+        $posts = $this->Case->generate('Posts');
+        $this->assertEquals('Posts', $posts->name);
+        $this->assertEquals('Post', $posts->modelClass);
+        $this->assertNull($posts->response->send());
 
-        $Posts = $this->Case->generate('Posts', [
+        $posts = $this->Case->generate('Posts', [
             'methods' => [
                 'render',
             ],
         ]);
-        $this->assertNull($Posts->render('index'));
+        $this->assertNull($posts->render('index'));
 
-        $Posts = $this->Case->generate('Posts', [
+        $posts = $this->Case->generate('Posts', [
             'models' => ['Post'],
             'components' => ['RequestHandler'],
         ]);
 
-        $this->assertInstanceOf('Post', $Posts->Post);
-        $this->assertNull($Posts->Post->save([]));
-        $this->assertNull($Posts->Post->find('all'));
-        $this->assertEquals('posts', $Posts->Post->useTable);
-        $this->assertNull($Posts->RequestHandler->isAjax());
+        $this->assertInstanceOf(Post::class, $posts->Post);
+        $this->assertNull($posts->Post->save([]));
+        $this->assertNull($posts->Post->find('all'));
+        $this->assertEquals('posts', $posts->Post->useTable);
+        $this->assertNull($posts->RequestHandler->isAjax());
 
-        $Posts = $this->Case->generate('Posts', [
+        $posts = $this->Case->generate('Posts', [
             'models' => [
                 'Post' => true,
             ],
         ]);
-        $this->assertNull($Posts->Post->save([]));
-        $this->assertNull($Posts->Post->find('all'));
+        $this->assertNull($posts->Post->save([]));
+        $this->assertNull($posts->Post->find('all'));
 
-        $Posts = $this->Case->generate('Posts', [
+        $posts = $this->Case->generate('Posts', [
             'models' => [
                 'Post' => ['save'],
             ],
         ]);
-        $this->assertNull($Posts->Post->save([]));
-        $this->assertIsArray($Posts->Post->find('all'));
+        $this->assertNull($posts->Post->save([]));
+        $this->assertIsArray($posts->Post->find('all'));
 
-        $Posts = $this->Case->generate('Posts', [
+        $posts = $this->Case->generate('Posts', [
             'models' => ['Post'],
             'components' => [
                 'RequestHandler' => ['isPut'],
@@ -204,15 +160,17 @@ class ControllerTestCaseTest extends CakeTestCase
                 'Session',
             ],
         ]);
-        $Posts->RequestHandler->expects($this->once())
+        $posts->RequestHandler
+            ->expects($this->once())
             ->method('isPut')
             ->will($this->returnValue(true));
-        $this->assertTrue($Posts->RequestHandler->isPut());
+        $this->assertTrue($posts->RequestHandler->isPut());
 
-        $Posts->Auth->Session->expects($this->any())
+        $posts->Auth->Session
+            ->expects($this->any())
             ->method('write')
             ->will($this->returnValue('written!'));
-        $this->assertEquals('written!', $Posts->Auth->Session->write('something'));
+        $this->assertEquals('written!', $posts->Auth->Session->write('something'));
     }
 
     /**
@@ -247,7 +205,7 @@ class ControllerTestCaseTest extends CakeTestCase
      */
     public function testGenerateWithPlugin(): void
     {
-        $Tests = $this->Case->generate('TestPlugin.Tests', [
+        $tests = $this->Case->generate('TestPlugin.Tests', [
             'models' => [
                 'TestPlugin.TestPluginComment',
             ],
@@ -255,23 +213,23 @@ class ControllerTestCaseTest extends CakeTestCase
                 'TestPlugin.Plugins',
             ],
         ]);
-        $this->assertEquals('Tests', $Tests->name);
-        $this->assertInstanceOf('PluginsComponent', $Tests->Plugins);
+        $this->assertEquals('Tests', $tests->name);
+        $this->assertInstanceOf(PluginsComponent::class, $tests->Plugins);
 
         $result = ClassRegistry::init('TestPlugin.TestPluginComment');
-        $this->assertInstanceOf('TestPluginComment', $result);
+        $this->assertInstanceOf(TestPluginComment::class, $result);
 
-        $Tests = $this->Case->generate('ControllerTestCaseTest', [
+        $tests = $this->Case->generate('ControllerTestCaseTest', [
             'models' => [
                 'TestPlugin.TestPluginComment' => ['save'],
             ],
         ]);
-        $this->assertInstanceOf('TestPluginComment', $Tests->TestPluginComment);
-        $Tests->TestPluginComment->expects($this->exactly(2))
+        $this->assertInstanceOf(TestPluginComment::class, $tests->TestPluginComment);
+        $tests->TestPluginComment->expects($this->exactly(2))
             ->method('save')
             ->willReturnOnConsecutiveCalls(true, false);
-        $this->assertTrue($Tests->TestPluginComment->save([]));
-        $this->assertFalse($Tests->TestPluginComment->save([]));
+        $this->assertTrue($tests->TestPluginComment->save([]));
+        $this->assertFalse($tests->TestPluginComment->save([]));
     }
 
     /**
@@ -281,17 +239,17 @@ class ControllerTestCaseTest extends CakeTestCase
      */
     public function testGenerateWithMockedAliasedComponent(): void
     {
-        $Posts = $this->Case->generate('Posts', [
+        $posts = $this->Case->generate('Posts', [
             'components' => [
                 'AliasedEmail' => ['send'],
             ],
         ]);
-        $Posts->AliasedEmail->expects($this->once())
+        $posts->AliasedEmail->expects($this->once())
             ->method('send')
-            ->will($this->returnValue(true));
+            ->willReturn(['foo' => 'bar']);
 
-        $this->assertInstanceOf('EmailComponent', $Posts->AliasedEmail);
-        $this->assertTrue($Posts->AliasedEmail->send());
+        $this->assertInstanceOf(EmailComponent::class, $posts->AliasedEmail);
+        $this->assertNotEmpty($posts->AliasedEmail->send());
     }
 
     /**
@@ -301,17 +259,17 @@ class ControllerTestCaseTest extends CakeTestCase
      */
     public function testGenerateWithMockedAliasedPluginComponent(): void
     {
-        $Posts = $this->Case->generate('Posts', [
+        $posts = $this->Case->generate('Posts', [
             'components' => [
                 'AliasedPluginEmail' => ['send'],
             ],
         ]);
-        $Posts->AliasedPluginEmail->expects($this->once())
+        $posts->AliasedPluginEmail->expects($this->once())
             ->method('send')
-            ->will($this->returnValue(true));
+            ->willReturn(['foo' => 'bar']);
 
-        $this->assertInstanceOf('TestPluginEmailComponent', $Posts->AliasedPluginEmail);
-        $this->assertTrue($Posts->AliasedPluginEmail->send());
+        $this->assertInstanceOf(TestPluginEmailComponent::class, $posts->AliasedPluginEmail);
+        $this->assertNotEmpty($posts->AliasedPluginEmail->send());
     }
 
     /**
@@ -390,7 +348,7 @@ class ControllerTestCaseTest extends CakeTestCase
     public function testUseRoutes(): void
     {
         Router::connect('/:controller/:action/*');
-        include CORE_TESTS . DS . 'test_app' . DS . 'Config' . DS . 'routes.php';
+        include CORE_TESTS . DS . 'test_app' . DS . 'config' . DS . 'routes.php';
 
         $controller = $this->Case->generate('TestsApps');
         $controller->Components->load('RequestHandler');
@@ -399,7 +357,7 @@ class ControllerTestCaseTest extends CakeTestCase
         $expected = ['cakephp' => 'cool'];
         $this->assertEquals($expected, $result);
 
-        include CORE_TESTS . DS . 'test_app' . DS . 'Config' . DS . 'routes.php';
+        include CORE_TESTS . DS . 'test_app' . DS . 'config' . DS . 'routes.php';
         $result = $this->Case->testAction('/some_alias');
         $this->assertEquals(5, $result);
     }
@@ -413,7 +371,7 @@ class ControllerTestCaseTest extends CakeTestCase
     {
         $this->expectException(MissingActionException::class);
         Router::connect('/:controller/:action/*');
-        include CORE_TESTS . DS . 'test_app' . DS . 'Config' . DS . 'routes.php';
+        include CORE_TESTS . DS . 'test_app' . DS . 'config' . DS . 'routes.php';
 
         $this->Case->loadRoutes = false;
         $this->Case->testAction('/tests_apps/missing_action.json', ['return' => 'view']);
@@ -826,5 +784,55 @@ class ControllerTestCaseTest extends CakeTestCase
         }
         $this->assertSame([], $deprecations);
         $this->assertSame($response, $Dispatch->response);
+    }
+
+    /**
+     * Test generate() and getMockForModel() with classes in App.namespace.
+     *
+     * @return void
+     */
+    public function testGenerateNamespaced(): void
+    {
+        $Controller = $this->Case->generate('Namespaced', [
+            'components' => ['Namespaced'],
+        ]);
+        $this->assertInstanceOf(NamespacedController::class, $Controller);
+        $this->assertSame('Namespaced', $Controller->name);
+        $this->assertInstanceOf(NamespacedComponent::class, $Controller->Components->Namespaced);
+
+        $Model = $this->Case->getMockForModel('NamespacedPost', ['save']);
+        $this->assertInstanceOf(NamespacedPost::class, $Model);
+        $this->assertSame('NamespacedPost', $Model->name);
+    }
+
+    /**
+     * Test generate() with fully qualified class names, and that the missing class has the suffix once.
+     *
+     * @return void
+     */
+    public function testGenerateNamespacedClassName(): void
+    {
+        $Controller = $this->Case->generate(NamespacedController::class, [
+            'components' => [NamespacedComponent::class => ['initialize']],
+        ]);
+        $this->assertInstanceOf(NamespacedController::class, $Controller);
+        $this->assertInstanceOf(NamespacedComponent::class, $Controller->Components->Namespaced);
+        $this->assertInstanceOf(MockObject::class, $Controller->Components->Namespaced);
+        $this->assertTrue($Controller->Components->enabled('Namespaced'));
+
+        $cases = [
+            ['TestApp\Controller\NoSuch', [], 'TestApp\Controller\NoSuchController'],
+            ['TestApp\Controller\NoSuchController', [], 'TestApp\Controller\NoSuchController'],
+            [NamespacedController::class, ['TestApp\Controller\Component\NoSuch'], 'TestApp\Controller\Component\NoSuchComponent'],
+            [NamespacedController::class, ['TestApp\Controller\Component\NoSuchComponent'], 'TestApp\Controller\Component\NoSuchComponent'],
+        ];
+        foreach ($cases as [$controller, $components, $expected]) {
+            try {
+                $this->Case->generate($controller, ['components' => $components]);
+                $this->fail('No exception for ' . $expected);
+            } catch (MissingControllerException | MissingComponentException $e) {
+                $this->assertSame($expected, $e->getAttributes()['class']);
+            }
+        }
     }
 }

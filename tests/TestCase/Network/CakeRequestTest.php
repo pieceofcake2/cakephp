@@ -16,6 +16,17 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\Network;
+
+use Cake\Core\Configure;
+use Cake\Error\CakeException;
+use Cake\Error\MethodNotAllowedException;
+use Cake\Network\CakeRequest;
+use Cake\Routing\Router;
+use Cake\TestSuite\CakeTestCase;
+use Cake\Utility\Xml;
+use DOMDocument;
+
 /**
  * TestCakeRequest
  *
@@ -36,9 +47,7 @@ class TestCakeRequest extends CakeRequest
         if (empty($url)) {
             $url = $this->_url();
         }
-        if ($url[0] === '/') {
-            $url = substr($url, 1);
-        }
+        $url = ltrim($url, '/\\');
         $this->url = $url;
 
         if ($parseEnvironment) {
@@ -340,7 +349,7 @@ class CakeRequestTest extends CakeTestCase
             'Article' => ['title'],
         ]];
 
-        $request = $this->getMock('TestCakeRequest', ['_readInput']);
+        $request = $this->getMock(TestCakeRequest::class, ['_readInput']);
         $request->expects($this->once())
             ->method('_readInput')
             ->will($this->returnValue('data[Article][]=title'));
@@ -348,14 +357,14 @@ class CakeRequestTest extends CakeTestCase
         $this->assertEquals($data['data'], $request->data);
 
         $data = ['one' => 1, 'two' => 'three'];
-        $request = $this->getMock('TestCakeRequest', ['_readInput']);
+        $request = $this->getMock(TestCakeRequest::class, ['_readInput']);
         $request->expects($this->once())
             ->method('_readInput')
             ->will($this->returnValue('one=1&two=three'));
         $request->reConstruct();
         $this->assertEquals($data, $request->data);
 
-        $request = $this->getMock('TestCakeRequest', ['_readInput']);
+        $request = $this->getMock(TestCakeRequest::class, ['_readInput']);
         $request->expects($this->once())
             ->method('_readInput')
             ->will($this->returnValue('data[Article][title]=Testing&action=update'));
@@ -371,7 +380,7 @@ class CakeRequestTest extends CakeTestCase
             'Article' => ['title'],
             'Tag' => ['Tag' => [1, 2]],
         ]];
-        $request = $this->getMock('TestCakeRequest', ['_readInput']);
+        $request = $this->getMock(TestCakeRequest::class, ['_readInput']);
         $request->expects($this->once())
             ->method('_readInput')
             ->will($this->returnValue('data[Article][]=title&Tag[Tag][]=1&Tag[Tag][]=2'));
@@ -382,7 +391,7 @@ class CakeRequestTest extends CakeTestCase
             'Article' => ['title' => 'some title'],
             'Tag' => ['Tag' => [1, 2]],
         ]];
-        $request = $this->getMock('TestCakeRequest', ['_readInput']);
+        $request = $this->getMock(TestCakeRequest::class, ['_readInput']);
         $request->expects($this->once())
             ->method('_readInput')
             ->will($this->returnValue('data[Article][title]=some%20title&Tag[Tag][]=1&Tag[Tag][]=2'));
@@ -393,7 +402,7 @@ class CakeRequestTest extends CakeTestCase
             'a' => [1, 2],
             'b' => [1, 2],
         ];
-        $request = $this->getMock('TestCakeRequest', ['_readInput']);
+        $request = $this->getMock(TestCakeRequest::class, ['_readInput']);
         $request->expects($this->once())
             ->method('_readInput')
             ->will($this->returnValue('a[]=1&a[]=2&b[]=1&b[]=2'));
@@ -411,7 +420,7 @@ class CakeRequestTest extends CakeTestCase
         $_SERVER['REQUEST_METHOD'] = 'PUT';
         $_SERVER['CONTENT_TYPE'] = 'application/json';
 
-        $request = $this->getMock('TestCakeRequest', ['_readInput']);
+        $request = $this->getMock(TestCakeRequest::class, ['_readInput']);
         $request->expects($this->once())
             ->method('_readInput')
             ->will($this->returnValue('{"Article":["title"]}'));
@@ -1178,10 +1187,10 @@ class CakeRequestTest extends CakeTestCase
         $request->params['action'] = 'add';
         $this->assertFalse($request->isIndex());
 
-        $request->return = true;
+        $request->params['return'] = true;
         $this->assertTrue($request->isCallMe());
 
-        $request->return = false;
+        $request->params['return'] = false;
         $this->assertFalse($request->isCallMe());
 
         $request->addDetector('extension', ['param' => 'ext', 'options' => ['pdf', 'png', 'txt']]);
@@ -2323,7 +2332,7 @@ class CakeRequestTest extends CakeTestCase
             'action' => 'index',
         ]);
 
-        $this->assertInstanceOf('CakeRequest', $request->param('some', 'thing'), 'Method has not returned $this');
+        $this->assertInstanceOf(CakeRequest::class, $request->param('some', 'thing'), 'Method has not returned $this');
 
         $request->param('Post.null', null);
         $this->assertNull($request->params['Post']['null']);
@@ -2427,6 +2436,134 @@ class CakeRequestTest extends CakeTestCase
     }
 
     /**
+     * Data provider for the request URLs with extra leading slashes or backslashes.
+     *
+     * @return array
+     */
+    public static function protocolRelativeUrlProvider(): array
+    {
+        return [
+            ['//contacts/career/1', 'contacts/career/1'],
+            ['///evil.example.com/posts', 'evil.example.com/posts'],
+            ['/\\evil.example.com', 'evil.example.com'],
+            ['/\\/evil.example.com', 'evil.example.com'],
+            ['\\\\evil.example.com', 'evil.example.com'],
+            ['\\/evil.example.com', 'evil.example.com'],
+            ['//', ''],
+        ];
+    }
+
+    /**
+     * Test that the request URL and here() never start with `//` or `/\`, so that a form
+     * or a redirect to the current URL can not go to another host.
+     *
+     * @dataProvider protocolRelativeUrlProvider
+     * @param string $url The request URL.
+     * @param string $expected The expected request URL without leading slashes.
+     * @return void
+     */
+    public function testHereProtocolRelative(string $url, string $expected): void
+    {
+        Configure::write('App.base', '');
+        $_GET = [];
+        $request = new CakeRequest($url);
+
+        $this->assertSame($expected, $request->url);
+        $this->assertSame('/' . $expected, $request->here);
+        $this->assertSame('/' . $expected, $request->here());
+        $this->assertSame('/' . $expected, $request->here(false));
+
+        Configure::write('App.base', '/base_path');
+        $_GET = ['page' => '2'];
+        $request = new CakeRequest($url);
+
+        $this->assertSame($expected, $request->url);
+        $this->assertSame('/base_path/' . $expected . '?page=2', $request->here());
+        $this->assertSame('/' . $expected . '?page=2', $request->here(false));
+    }
+
+    /**
+     * Test that here() collapses the leading slashes of a `$here` set by the application.
+     *
+     * @return void
+     */
+    public function testHereCollapsesLeadingSlashesOfHere(): void
+    {
+        Configure::write('App.base', '');
+        $_GET = [];
+        $request = new CakeRequest('posts');
+
+        $request->here = '//evil.example.com/posts';
+        $this->assertSame('/evil.example.com/posts', $request->here());
+        $this->assertSame('/evil.example.com/posts', $request->here(false));
+
+        $request->here = '/\\evil.example.com/posts';
+        $this->assertSame('/evil.example.com/posts', $request->here());
+
+        $request->base = '/admin';
+        $request->here = '/admin//evil.example.com/posts';
+        $this->assertSame('/evil.example.com/posts', $request->here(false));
+        $this->assertSame('/admin//evil.example.com/posts', $request->here());
+    }
+
+    /**
+     * Test that a request URI with extra leading slashes is routed as before,
+     * and here() is a path on the same host.
+     *
+     * @return void
+     */
+    public function testHereProtocolRelativeFromEnvironment(): void
+    {
+        Router::connect('/contacts/:action/*', ['controller' => 'contacts']);
+
+        $_SERVER['PHP_SELF'] = '/index.php';
+        $_SERVER['REQUEST_URI'] = '//contacts/career/1?job=2';
+        $_GET = ['job' => '2'];
+        $request = new CakeRequest();
+        $this->assertSame('', $request->base);
+        $this->assertSame('contacts/career/1', $request->url);
+        $this->assertSame('/contacts/career/1?job=2', $request->here(false));
+        $this->assertSame(Router::parse('/contacts/career/1'), Router::parse($request->url));
+
+        $_SERVER['REQUEST_URI'] = '/\\evil.example.com/contacts';
+        $_GET = [];
+        $request = new CakeRequest();
+        $this->assertSame('evil.example.com/contacts', $request->url);
+        $this->assertSame('/evil.example.com/contacts', $request->here(false));
+
+        // An application in a sub directory: `/admin//evil.example.com` would be `//evil.example.com` without the base.
+        $_SERVER['PHP_SELF'] = '/admin/' . APP_DIR . '/' . WEBROOT_DIR . '/index.php';
+        $_SERVER['REQUEST_URI'] = '/admin//evil.example.com/posts';
+        $request = new CakeRequest();
+        $this->assertSame('/admin', $request->base);
+        $this->assertSame('evil.example.com/posts', $request->url);
+        $this->assertSame('/admin/evil.example.com/posts', $request->here());
+        $this->assertSame('/evil.example.com/posts', $request->here(false));
+
+        $_SERVER['PATH_INFO'] = '//evil.example.com/posts';
+        $request = new CakeRequest();
+        $this->assertSame('evil.example.com/posts', $request->url);
+        $this->assertSame('/evil.example.com/posts', $request->here(false));
+        unset($_SERVER['PATH_INFO']);
+
+        // No URL rewriting (App.baseUrl).
+        $_SERVER['DOCUMENT_ROOT'] = '/Users/markstory/Sites';
+        $_SERVER['PHP_SELF'] = '/cake/index.php//evil.example.com/posts';
+        $_SERVER['REQUEST_URI'] = '/cake/index.php//evil.example.com/posts';
+        Configure::write('App', [
+            'dir' => APP_DIR,
+            'webroot' => WEBROOT_DIR,
+            'base' => false,
+            'baseUrl' => '/cake/index.php',
+        ]);
+        $request = new CakeRequest();
+        $this->assertSame('/cake/index.php', $request->base);
+        $this->assertSame('evil.example.com/posts', $request->url);
+        $this->assertSame('/cake/index.php/evil.example.com/posts', $request->here());
+        $this->assertSame('/evil.example.com/posts', $request->here(false));
+    }
+
+    /**
      * Test the input() method.
      *
      * @return void
@@ -2450,7 +2587,7 @@ class CakeRequestTest extends CakeTestCase
      */
     public function testInput(): void
     {
-        $request = $this->getMock('CakeRequest', ['_readInput']);
+        $request = $this->getMock(CakeRequest::class, ['_readInput']);
         $request->expects($this->once())->method('_readInput')
             ->will($this->returnValue('I came from stdin'));
 
@@ -2465,7 +2602,7 @@ class CakeRequestTest extends CakeTestCase
      */
     public function testInputDecode(): void
     {
-        $request = $this->getMock('CakeRequest', ['_readInput']);
+        $request = $this->getMock(CakeRequest::class, ['_readInput']);
         $request->expects($this->once())->method('_readInput')
             ->will($this->returnValue('{"name":"value"}'));
 
@@ -2488,6 +2625,34 @@ class CakeRequestTest extends CakeTestCase
     }
 
     /**
+     * Test that input() returns null without calling the callback when there is no input.
+     *
+     * @return void
+     */
+    public function testInputDecodeEmpty(): void
+    {
+        foreach (['', null] as $input) {
+            $request = $this->getMock('CakeRequest', ['_readInput']);
+            $request->expects($this->once())->method('_readInput')
+                ->will($this->returnValue($input));
+
+            $called = false;
+            $result = $request->input(function () use (&$called) {
+                $called = true;
+
+                return [];
+            });
+            $this->assertNull($result);
+            $this->assertFalse($called);
+        }
+
+        $request = $this->getMock('CakeRequest', ['_readInput']);
+        $request->expects($this->once())->method('_readInput')
+            ->will($this->returnValue('0'));
+        $this->assertSame(0, $request->input('json_decode'));
+    }
+
+    /**
      * Test input() decoding with additional arguments.
      *
      * @return void
@@ -2501,12 +2666,12 @@ class CakeRequestTest extends CakeTestCase
 </post>
 XML;
 
-        $request = $this->getMock('CakeRequest', ['_readInput']);
+        $request = $this->getMock(CakeRequest::class, ['_readInput']);
         $request->expects($this->once())->method('_readInput')
             ->will($this->returnValue($xml));
 
-        $result = $request->input('Xml::build', ['return' => 'domdocument']);
-        $this->assertInstanceOf('DOMDocument', $result);
+        $result = $request->input([Xml::class, 'build'], ['return' => 'domdocument']);
+        $this->assertInstanceOf(DOMDocument::class, $result);
         $this->assertEquals(
             'Test',
             $result->getElementsByTagName('title')->item(0)->childNodes->item(0)->wholeText,
@@ -2579,7 +2744,7 @@ XML;
             $this->assertEquals(['Allow' => 'POST, DELETE'], $e->responseHeader());
         }
 
-        $this->expectException('MethodNotAllowedException');
+        $this->expectException(MethodNotAllowedException::class);
         $request->allowMethod('POST');
     }
 

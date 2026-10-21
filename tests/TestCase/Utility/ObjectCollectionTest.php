@@ -16,11 +16,33 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\Utility;
+
+use Cake\Core\CakeObject;
+use Cake\Error\CakeException;
+use Cake\Event\CakeEvent;
+use Cake\TestSuite\CakeTestCase;
+use Cake\Utility\ObjectCollection;
+
 /**
  * A generic object class
  */
 class GenericObject
 {
+    /**
+     * The collection that loaded the object
+     *
+     * @var GenericObjectCollection
+     */
+    protected $_Collection;
+
+    /**
+     * Settings
+     *
+     * @var array
+     */
+    public $settings = [];
+
     /**
      * Constructor
      *
@@ -86,24 +108,24 @@ class GenericObjectCollection extends ObjectCollection
     /**
      * Loads a generic object
      *
-     * @param string $object CakeObject name
-     * @param array $settings Settings array
-     * @return array List of loaded objects
+     * @param string $name CakeObject name
+     * @param array $options Settings array
+     * @return object List of loaded objects
      */
     public function load($object, $settings = []): mixed
     {
-        [, $name] = pluginSplit($object);
-        if (isset($this->_loaded[$name])) {
-            return $this->_loaded[$name];
+        [, $_name] = pluginSplit($object);
+        if (isset($this->_loaded[$_name])) {
+            return $this->_loaded[$_name];
         }
-        $objectClass = $name . 'GenericObject';
-        $this->_loaded[$name] = new $objectClass($this, $settings);
+        $objectClass = __NAMESPACE__ . '\\' . $_name . 'GenericObject';
+        $this->_loaded[$_name] = new $objectClass($this, $settings);
         $enable = $settings['enabled'] ?? true;
         if ($enable === true) {
-            $this->enable($name);
+            $this->enable($_name);
         }
 
-        return $this->_loaded[$name];
+        return $this->_loaded[$_name];
     }
 
     /**
@@ -111,7 +133,7 @@ class GenericObjectCollection extends ObjectCollection
      * settings
      *
      * @param string $name Name of the object
-     * @param CakeObject $object The object to use
+     * @param object $object The object to use
      * @param array $settings Settings to apply for the object
      * @return array Loaded objects
      */
@@ -132,6 +154,8 @@ class GenericObjectCollection extends ObjectCollection
 
 class ObjectCollectionTest extends CakeTestCase
 {
+    public ?GenericObjectCollection $Objects = null;
+
     /**
      * setUp
      *
@@ -150,7 +174,7 @@ class ObjectCollectionTest extends CakeTestCase
      */
     public function tearDown(): void
     {
-        unset($this->Objects);
+        $this->Objects = null;
 
         parent::tearDown();
     }
@@ -163,8 +187,8 @@ class ObjectCollectionTest extends CakeTestCase
     public function testLoad(): void
     {
         $result = $this->Objects->load('First');
-        $this->assertInstanceOf('FirstGenericObject', $result);
-        $this->assertInstanceOf('FirstGenericObject', $this->Objects->First);
+        $this->assertInstanceOf(FirstGenericObject::class, $result);
+        $this->assertInstanceOf(FirstGenericObject::class, $this->Objects->First);
 
         $result = $this->Objects->loaded();
         $this->assertEquals(['First'], $result, 'loaded() results are wrong.');
@@ -212,10 +236,10 @@ class ObjectCollectionTest extends CakeTestCase
         $this->assertEquals(['First'], $result, 'loaded objects are wrong');
 
         $result = $this->Objects->set('First', new SecondGenericObject($this->Objects));
-        $this->assertInstanceOf('SecondGenericObject', $result['First'], 'set failed');
+        $this->assertInstanceOf(SecondGenericObject::class, $result['First'], 'set failed');
 
         $result = $this->Objects->set('Second', new SecondGenericObject($this->Objects));
-        $this->assertInstanceOf('SecondGenericObject', $result['Second'], 'set failed');
+        $this->assertInstanceOf(SecondGenericObject::class, $result['Second'], 'set failed');
 
         $this->assertEquals(2, count($result));
     }
@@ -227,9 +251,9 @@ class ObjectCollectionTest extends CakeTestCase
      */
     protected function _makeMockClasses(): void
     {
-        $this->FirstGenericObject = $this->getMock('FirstGenericObject', [], [], '', false);
-        $this->SecondGenericObject = $this->getMock('SecondGenericObject', [], [], '', false);
-        $this->ThirdGenericObject = $this->getMock('ThirdGenericObject', [], [], '', false);
+        $this->FirstGenericObject = $this->getMock(FirstGenericObject::class, [], [], '', false);
+        $this->SecondGenericObject = $this->getMock(SecondGenericObject::class, [], [], '', false);
+        $this->ThirdGenericObject = $this->getMock(ThirdGenericObject::class, [], [], '', false);
     }
 
     /**

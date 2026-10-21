@@ -18,102 +18,16 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-/**
- * Test case AppController
- *
- * @package       Cake.Test.Case.Controller
- */
-class MergeVarsAppController extends Controller
-{
-    /**
-     * components
-     *
-     * @var array
-     */
-    public $components = ['MergeVar' => ['flag', 'otherFlag', 'redirect' => false]];
+namespace Cake\Test\TestCase\Controller;
 
-    /**
-     * helpers
-     *
-     * @var array
-     */
-    public $helpers = ['MergeVar' => ['format' => 'html', 'terse']];
-}
-
-/**
- * MergeVar Component
- *
- * @package       Cake.Test.Case.Controller
- */
-class MergeVarComponent extends CakeObject
-{
-}
-
-/**
- * Additional controller for testing
- *
- * @package       Cake.Test.Case.Controller
- */
-class MergeVariablesController extends MergeVarsAppController
-{
-    /**
-     * uses
-     *
-     * @var arrays
-     */
-    public $uses = [];
-
-    /**
-     * parent for mergeVars
-     *
-     * @var string
-     */
-    protected $_mergeParent = 'MergeVarsAppController';
-}
-
-/**
- * MergeVarPlugin App Controller
- *
- * @package       Cake.Test.Case.Controller
- */
-class MergeVarPluginAppController extends MergeVarsAppController
-{
-    /**
-     * components
-     *
-     * @var array
-     */
-    public $components = ['Auth' => ['setting' => 'val', 'otherVal']];
-
-    /**
-     * helpers
-     *
-     * @var array
-     */
-    public $helpers = ['Js'];
-
-    /**
-     * parent for mergeVars
-     *
-     * @var string
-     */
-    protected $_mergeParent = 'MergeVarsAppController';
-}
-
-/**
- * MergePostsController
- *
- * @package       Cake.Test.Case.Controller
- */
-class MergePostsController extends MergeVarPluginAppController
-{
-    /**
-     * uses
-     *
-     * @var array
-     */
-    public $uses = [];
-}
+use Cake\Controller\Controller;
+use Cake\Core\Configure;
+use Cake\TestSuite\CakeTestCase;
+use Cake\View\View;
+use TestApp\Controller\AppController as NamespacedAppController;
+use TestApp\Controller\MergePostsController;
+use TestApp\Controller\MergeVariablesController;
+use TestApp\View\Helper\NamespacedHelper;
 
 /**
  * Test Case for Controller Merging of Vars.
@@ -137,18 +51,29 @@ class ControllerMergeVarsTest extends CakeTestCase
     }
 
     /**
+     * setUp method
+     *
+     * @return void
+     */
+    public function setUp(): void
+    {
+        parent::setUp();
+        Configure::write('App.namespace', 'TestApp');
+    }
+
+    /**
      * test component merges with redeclared components
      *
      * @return void
      */
     public function testComponentMergingWithRedeclarations(): void
     {
-        $Controller = new MergeVariablesController();
-        $Controller->components['MergeVar'] = ['remote', 'redirect' => true];
-        $Controller->constructClasses();
+        $controller = new MergeVariablesController();
+        $controller->components['MergeVar'] = ['remote', 'redirect' => true];
+        $controller->constructClasses();
 
         $expected = ['MergeVar' => ['flag', 'otherFlag', 'redirect' => true, 'remote']];
-        $this->assertEquals($expected, $Controller->components, 'Merging of settings is wrong. %s');
+        $this->assertEquals($expected, $controller->components, 'Merging of settings is wrong. %s');
     }
 
     /**
@@ -192,34 +117,34 @@ class ControllerMergeVarsTest extends CakeTestCase
      */
     public function testMergeVarsWithPlugin(): void
     {
-        $Controller = new MergePostsController();
-        $Controller->components = ['Email' => ['ports' => 'open']];
-        $Controller->plugin = 'MergeVarPlugin';
-        $Controller->constructClasses();
+        $controller = new MergePostsController();
+        $controller->components = ['Email' => ['ports' => 'open']];
+        $controller->plugin = 'TestMergeVarPlugin';
+        $controller->constructClasses();
 
         $expected = [
             'MergeVar' => ['flag', 'otherFlag', 'redirect' => false],
             'Auth' => ['setting' => 'val', 'otherVal'],
             'Email' => ['ports' => 'open'],
         ];
-        $this->assertEquals($expected, $Controller->components, 'Components are unexpected.');
+        $this->assertEquals($expected, $controller->components, 'Components are unexpected.');
 
         $expected = [
             'MergeVar' => ['format' => 'html', 'terse'],
             'Js' => null,
         ];
-        $this->assertEquals($expected, $Controller->helpers, 'Helpers are unexpected.');
+        $this->assertEquals($expected, $controller->helpers, 'Helpers are unexpected.');
 
-        $Controller = new MergePostsController();
-        $Controller->components = [];
-        $Controller->plugin = 'MergeVarPlugin';
-        $Controller->constructClasses();
+        $controller = new MergePostsController();
+        $controller->components = [];
+        $controller->plugin = 'TestMergeVarPlugin';
+        $controller->constructClasses();
 
         $expected = [
             'MergeVar' => ['flag', 'otherFlag', 'redirect' => false],
             'Auth' => ['setting' => 'val', 'otherVal'],
         ];
-        $this->assertEquals($expected, $Controller->components, 'Components are unexpected.');
+        $this->assertEquals($expected, $controller->components, 'Components are unexpected.');
     }
 
     /**
@@ -250,5 +175,28 @@ class ControllerMergeVarsTest extends CakeTestCase
         $Controller->uses = ['Test', 'TestAlias'];
         $Controller->constructClasses();
         $this->assertEquals($Controller->uses[0], $Controller->modelClass);
+    }
+
+    /**
+     * Test that a short name in the AppController and a fully qualified class name in a controller
+     * are merged into one entry.
+     *
+     * @return void
+     */
+    public function testMergeVarsNamespacedClassName(): void
+    {
+        $Controller = new class extends NamespacedAppController {
+            public $uses = [];
+
+            public $helpers = [NamespacedHelper::class => ['b' => 2]];
+        };
+        $Controller->constructClasses();
+        $expected = ['Namespaced' => ['b' => 2, 'className' => NamespacedHelper::class]];
+        $this->assertSame($expected, $Controller->helpers);
+
+        $View = new View($Controller);
+        $View->loadHelpers();
+        $this->assertSame(['Namespaced'], $View->Helpers->loaded());
+        $this->assertSame(2, $View->Namespaced->settings['b']);
     }
 }

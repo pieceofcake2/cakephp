@@ -1,8 +1,9 @@
 <?php
 /**
- * Basic CakePHP functionality.
+ * Former path of src/bootstrap.php
  *
- * Handles loading of core files needed on every request
+ * The classes of CakePHP are in src/ since CakePHP 2.13. This file stays at its former path for the applications
+ * and plugins that name it, e.g. in webroot/index.php or in the listener of phpunit.xml.dist.
  *
  * CakePHP(tm) : Rapid Development Framework (https://cakephp.org)
  * Copyright (c) Cake Software Foundation, Inc. (https://cakefoundation.org)
@@ -13,55 +14,7 @@
  *
  * @copyright     Copyright (c) Cake Software Foundation, Inc. (https://cakefoundation.org)
  * @link          https://cakephp.org CakePHP(tm) Project
- * @package       Cake
- * @since         CakePHP(tm) v 0.2.9
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-define('TIME_START', microtime(true));
-
-error_reporting(E_ALL & ~E_DEPRECATED);
-
-require_once dirname(__DIR__, 2) . '/config/init.php';
-require_once dirname(__DIR__, 2) . '/config/define.php';
-
-require_once CAKE . 'basics.php';
-require_once CAKE . 'functions.php';
-
-spl_autoload_register(['App', 'load'], true, true);
-
-App::$bootstrapping = true;
-
-/**
- * Full URL prefix
- */
-if (!defined('FULL_BASE_URL')) {
-    $s = null;
-    if (env('HTTPS')) {
-        $s = 's';
-    }
-
-    $httpHost = env('HTTP_HOST');
-
-    if (isset($httpHost)) {
-        define('FULL_BASE_URL', 'http' . $s . '://' . $httpHost);
-        Configure::write('App.fullBaseUrl', FULL_BASE_URL);
-    }
-    unset($httpHost, $s);
-}
-
-Configure::write('App.imageBaseUrl', IMAGES_URL);
-Configure::write('App.cssBaseUrl', CSS_URL);
-Configure::write('App.jsBaseUrl', JS_URL);
-
-Configure::bootstrap($boot ?? true);
-
-if (function_exists('mb_internal_encoding')) {
-    $encoding = Configure::read('App.encoding');
-    if (!empty($encoding)) {
-        mb_internal_encoding($encoding);
-    }
-    if (!empty($encoding) && function_exists('mb_regex_encoding')) {
-        mb_regex_encoding($encoding);
-    }
-}
+require_once dirname(__DIR__) . '/bootstrap.php';

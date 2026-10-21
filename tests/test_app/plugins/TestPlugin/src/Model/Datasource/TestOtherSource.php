@@ -1,0 +1,51 @@
+<?php
+
+namespace TestPlugin\Model\Datasource;
+
+use Cake\Model\Datasource\DataSource;
+use Cake\Model\Model;
+
+class TestOtherSource extends DataSource
+{
+    public function describe($model)
+    {
+        return compact('model');
+    }
+
+    public function listSources($data = null)
+    {
+        return ['test_source'];
+    }
+
+    public function create(
+        Model $model,
+        $fields = null,
+        $values = null,
+    ) {
+        return true;
+    }
+
+    public function read(
+        Model $model,
+        $queryData = [],
+        $recursive = null,
+    ) {
+        return compact('model', 'queryData');
+    }
+
+    public function update(
+        Model $model,
+        $fields = [],
+        $values = [],
+        $conditions = null,
+    ) {
+        return true;
+    }
+
+    public function delete(
+        Model $model,
+        $id = null,
+    ) {
+        return true;
+    }
+}

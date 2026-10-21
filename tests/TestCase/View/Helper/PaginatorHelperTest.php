@@ -16,6 +16,17 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\View\Helper;
+
+use Cake\Core\Configure;
+use Cake\Error\CakeException;
+use Cake\Network\CakeRequest;
+use Cake\Routing\Router;
+use Cake\TestSuite\CakeTestCase;
+use Cake\View\Helper\HtmlHelper;
+use Cake\View\Helper\PaginatorHelper;
+use Cake\View\View;
+
 if (!defined('FULL_BASE_URL')) {
     define('FULL_BASE_URL', 'https://cakephp.org');
 }
@@ -39,7 +50,7 @@ class PaginatorHelperTest extends CakeTestCase
         $controller = null;
         $this->View = new View($controller);
         $this->Paginator = new PaginatorHelper($this->View);
-        $this->Paginator->Js = $this->getMock('PaginatorHelper', [], [$this->View]);
+        $this->Paginator->Js = $this->getMock(PaginatorHelper::class, [], [$this->View]);
         $this->Paginator->request = new CakeRequest(null, false);
         $this->Paginator->request->addParams([
             'paging' => [
@@ -2741,28 +2752,28 @@ class PaginatorHelperTest extends CakeTestCase
         Router::setRequestInfo([
             [
                 'pass' => [], 'named' => [], 'prefix' => null, 'form' => [],
-                'controller' => 'magazines', 'plugin' => 'my_plugin', 'action' => 'index',
-                'url' => ['ext' => 'html', 'url' => 'my_plugin/magazines']],
-            ['base' => '', 'here' => '/my_plugin/magazines', 'webroot' => '/'],
+                'controller' => 'magazines', 'plugin' => 'test_dispatch_plugin', 'action' => 'index',
+                'url' => ['ext' => 'html', 'url' => 'test_dispatch_plugin/magazines']],
+            ['base' => '', 'here' => '/test_dispatch_plugin/magazines', 'webroot' => '/'],
         ]);
 
         $result = $this->Paginator->link('Page 3', ['page' => 3]);
         $expected = [
-            'a' => ['href' => '/my_plugin/magazines/index/page:3'], 'Page 3', '/a',
+            'a' => ['href' => '/test_dispatch_plugin/magazines/index/page:3'], 'Page 3', '/a',
         ];
         $this->assertTags($result, $expected);
 
         $this->Paginator->options(['url' => ['action' => 'another_index']]);
         $result = $this->Paginator->link('Page 3', ['page' => 3]);
         $expected = [
-            'a' => ['href' => '/my_plugin/magazines/another_index/page:3'], 'Page 3', '/a',
+            'a' => ['href' => '/test_dispatch_plugin/magazines/another_index/page:3'], 'Page 3', '/a',
         ];
         $this->assertTags($result, $expected);
 
         $this->Paginator->options(['url' => ['controller' => 'issues']]);
         $result = $this->Paginator->link('Page 3', ['page' => 3]);
         $expected = [
-            'a' => ['href' => '/my_plugin/issues/index/page:3'], 'Page 3', '/a',
+            'a' => ['href' => '/test_dispatch_plugin/issues/index/page:3'], 'Page 3', '/a',
         ];
         $this->assertTags($result, $expected);
 
@@ -2859,7 +2870,7 @@ class PaginatorHelperTest extends CakeTestCase
     public function testMockAjaxProviderClassInjection(): void
     {
         $this->expectException(CakeException::class);
-        $mock = $this->getMock('PaginatorHelper', [], [$this->View], 'PaginatorMockJsHelper');
+        $mock = $this->getMock(PaginatorHelper::class, [], [$this->View], 'PaginatorMockJsHelper');
         $Paginator = new PaginatorHelper($this->View, ['ajax' => 'PaginatorMockJs']);
         $Paginator->request->params['paging'] = [
             'Article' => [

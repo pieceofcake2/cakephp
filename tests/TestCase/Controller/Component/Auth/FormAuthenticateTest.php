@@ -1,4 +1,5 @@
 <?php
+
 /**
  * CakePHP(tm) : Rapid Development Framework (https://cakephp.org)
  * Copyright (c) Cake Software Foundation, Inc. (https://cakefoundation.org)
@@ -14,9 +15,23 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('AppModel', 'Model');
+namespace Cake\Test\TestCase\Controller\Component\Auth;
 
-require_once CORE_TESTS . DS . 'TestCase' . DS . 'Model' . DS . 'models.php';
+use Cake\Cache\Cache;
+use Cake\Controller\Component\Auth\BlowfishPasswordHasher;
+use Cake\Controller\Component\Auth\FormAuthenticate;
+use Cake\Controller\ComponentCollection;
+use Cake\Core\App;
+use Cake\Core\CakePlugin;
+use Cake\Core\Configure;
+use Cake\Network\CakeRequest;
+use Cake\Network\CakeResponse;
+use Cake\TestSuite\CakeTestCase;
+use Cake\Utility\ClassRegistry;
+use Cake\Utility\Security;
+use TestApp\Controller\Component\Auth\NamespacedPasswordHasher;
+
+App::uses('AppModel', 'Model');
 
 /**
  * Test case for FormAuthentication
@@ -28,9 +43,12 @@ class FormAuthenticateTest extends CakeTestCase
     /**
      * Fixtrues
      *
-     * @var array
+     * @var array<string>
      */
-    public $fixtures = ['core.user', 'core.auth_user'];
+    public $fixtures = [
+        'core.user',
+        'core.auth_user',
+    ];
 
     /**
      * setup
@@ -40,7 +58,7 @@ class FormAuthenticateTest extends CakeTestCase
     public function setUp(): void
     {
         parent::setUp();
-        $this->Collection = $this->getMock('ComponentCollection');
+        $this->Collection = $this->getMock(ComponentCollection::class);
         $this->auth = new FormAuthenticate($this->Collection, [
             'fields' => ['username' => 'user', 'password' => 'password'],
             'userModel' => 'User',
@@ -48,7 +66,7 @@ class FormAuthenticateTest extends CakeTestCase
         $password = Security::hash('password', null, true);
         $User = ClassRegistry::init('User');
         $User->updateAll(['password' => $User->getDataSource()->value($password)]);
-        $this->response = $this->getMock('CakeResponse');
+        $this->response = $this->getMock(CakeResponse::class);
     }
 
     /**
@@ -134,7 +152,7 @@ class FormAuthenticateTest extends CakeTestCase
             ]];
 
         $this->auth = $this->getMock(
-            'FormAuthenticate',
+            FormAuthenticate::class,
             ['_checkFields'],
             [
                 $this->Collection,
@@ -272,7 +290,7 @@ class FormAuthenticateTest extends CakeTestCase
     {
         Cache::delete('object_map', '_cake_core_');
         App::build([
-            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS],
+            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
         ], App::RESET);
         CakePlugin::load('TestPlugin');
 
@@ -350,5 +368,26 @@ class FormAuthenticateTest extends CakeTestCase
             'hashType' => 'sha1',
         ];
         $this->assertFalse($this->auth->authenticate($request, $this->response));
+    }
+
+    /**
+     * Test that a password hasher can be set by fully qualified class name.
+     *
+     * @return void
+     */
+    public function testNamespacedPasswordHasher(): void
+    {
+        $auth = new FormAuthenticate($this->Collection, [
+            'passwordHasher' => NamespacedPasswordHasher::class,
+        ]);
+        $this->assertInstanceOf(NamespacedPasswordHasher::class, $auth->passwordHasher());
+
+        $auth = new FormAuthenticate($this->Collection, [
+            'passwordHasher' => 'TestApp\Controller\Component\Auth\Namespaced',
+        ]);
+        $this->assertInstanceOf(NamespacedPasswordHasher::class, $auth->passwordHasher());
+
+        $auth = new FormAuthenticate($this->Collection, ['passwordHasher' => 'Blowfish']);
+        $this->assertInstanceOf(BlowfishPasswordHasher::class, $auth->passwordHasher());
     }
 }

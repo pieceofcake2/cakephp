@@ -16,9 +16,25 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('AppModel', 'Model');
+namespace Cake\Test\TestCase\Model\Datasource\Database;
 
-require_once dirname(__DIR__, 2) . DS . 'models.php';
+use Cake\Cache\Cache;
+use Cake\Core\App;
+use Cake\Core\Configure;
+use Cake\Error\MissingConnectionException;
+use Cake\Model\CakeSchema;
+use Cake\Model\ConnectionManager;
+use Cake\Model\Datasource\Database\Sqlite;
+use Cake\Model\Datasource\DboSource;
+use Cake\Model\Model;
+use Cake\TestSuite\CakeTestCase;
+use Cake\Utility\ClassRegistry;
+use Cake\Utility\Validation;
+use PDOStatement;
+use TestApp\Model\TestModel;
+use TestApp\Model\User;
+
+App::uses('AppModel', 'Model');
 
 /**
  * DboSqliteTestDb class
@@ -37,14 +53,16 @@ class DboSqliteTestDb extends Sqlite
     /**
      * execute method
      *
-     * @param mixed $sql
-     * @return void
+     * @param string $sql
+     * @param array $params
+     * @param array $prepareOptions
+     * @return PDOStatement|bool
      */
     protected function _execute($sql, $params = [], $prepareOptions = []): mixed
     {
         $this->simulated[] = $sql;
 
-        return null;
+        return false;
     }
 
     /**
@@ -75,14 +93,14 @@ class SqliteTest extends CakeTestCase
     /**
      * Fixtures
      *
-     * @var object
+     * @var array<string>
      */
     public $fixtures = ['core.user', 'core.uuid', 'core.datatype', 'core.article'];
 
     /**
      * Actual DB connection used in testing
      *
-     * @var DboSource
+     * @var DboSource|null
      */
     public $Dbo = null;
 
@@ -94,6 +112,7 @@ class SqliteTest extends CakeTestCase
     public function setUp(): void
     {
         parent::setUp();
+        Configure::write('App.namespace', 'TestApp');
         Configure::write('Cache.disable', true);
         $this->Dbo = ConnectionManager::getDataSource('test');
         if (!$this->Dbo instanceof Sqlite) {

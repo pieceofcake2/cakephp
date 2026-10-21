@@ -1,4 +1,5 @@
 <?php
+
 /**
  * TextHelperTest file
  *
@@ -15,6 +16,21 @@
  * @since         CakePHP(tm) v 1.2.0.4206
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
+
+namespace Cake\Test\TestCase\View\Helper;
+
+use Cake\Core\App;
+use Cake\Core\CakePlugin;
+use Cake\Core\Configure;
+use Cake\TestSuite\CakeTestCase;
+use Cake\Utility\CakeText;
+use Cake\View\Helper;
+use Cake\View\Helper\TextHelper;
+use Cake\View\View;
+use ReflectionProperty;
+use TestApp\Utility\NamespacedText;
+use TestApp\Utility\TestAppEngine;
+use TestPlugin\Utility\TestPluginEngine;
 
 /**
  * TextHelperTestObject
@@ -50,6 +66,8 @@ class CakeTextMock
  */
 class TextHelperTest extends CakeTestCase
 {
+    public ?View $View = null;
+
     /**
      * setUp method
      *
@@ -58,6 +76,9 @@ class TextHelperTest extends CakeTestCase
     public function setUp(): void
     {
         parent::setUp();
+
+        Configure::write('App.namespace', 'TestApp');
+
         $this->View = new View(null);
         $this->Text = new TextHelper($this->View);
     }
@@ -69,7 +90,7 @@ class TextHelperTest extends CakeTestCase
      */
     public function tearDown(): void
     {
-        unset($this->View);
+        $this->View = null;
 
         parent::tearDown();
     }
@@ -82,29 +103,34 @@ class TextHelperTest extends CakeTestCase
     public function testTextHelperProxyMethodCalls(): void
     {
         $methods = [
-            'highlight', 'stripLinks', 'truncate', 'tail', 'excerpt', 'toList',
+            'highlight' => ['who', 'what', []],
+            'stripLinks' => ['who'],
+            'truncate' => ['who'],
+            'tail' => ['who'],
+            'excerpt' => ['who', 'what'],
+            'toList' => [['who', 'what']],
         ];
 
-        $CakeText = $this->getMock('CakeTextMock', $methods);
-        $Text = new TextHelperTestObject($this->View, ['engine' => 'CakeTextMock']);
-        $Text->attach($CakeText);
+        $cakeText = $this->getMock(CakeTextMock::class, array_keys($methods));
+        $text = new TextHelperTestObject($this->View, ['engine' => CakeTextMock::class]);
+        $text->attach($cakeText);
 
         $calledMethods = [];
-        foreach ($methods as $method) {
-            $CakeText->expects($this->once())
+        foreach ($methods as $method => $args) {
+            $cakeText->expects($this->once())
                 ->method($method)
                 ->willReturnCallback(function () use ($method, &$calledMethods) {
                     $calledMethods[] = $method;
 
-                    return null;
+                    return '';
                 });
         }
 
-        foreach ($methods as $method) {
-            $Text->{$method}('who', 'what', 'when', 'where', 'how');
+        foreach ($methods as $method => $args) {
+            $text->{$method}(...$args);
         }
 
-        $this->assertEquals($methods, $calledMethods);
+        $this->assertEquals(array_keys($methods), $calledMethods);
     }
 
     /**
@@ -115,17 +141,17 @@ class TextHelperTest extends CakeTestCase
     public function testEngineOverride(): void
     {
         App::build([
-            'Utility' => [CORE_TESTS . DS . 'test_app' . DS . 'Utility' . DS],
+            'Utility' => [CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'Utility' . DS],
         ], App::REGISTER);
-        $Text = new TextHelperTestObject($this->View, ['engine' => 'TestAppEngine']);
-        $this->assertInstanceOf('TestAppEngine', $Text->engine());
+        $Text = new TextHelperTestObject($this->View, ['engine' => TestAppEngine::class]);
+        $this->assertInstanceOf(TestAppEngine::class, $Text->engine());
 
         App::build([
-            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS],
+            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
         ]);
         CakePlugin::load('TestPlugin');
         $Text = new TextHelperTestObject($this->View, ['engine' => 'TestPlugin.TestPluginEngine']);
-        $this->assertInstanceOf('TestPluginEngine', $Text->engine());
+        $this->assertInstanceOf(TestPluginEngine::class, $Text->engine());
         CakePlugin::unload('TestPlugin');
     }
 
@@ -579,5 +605,39 @@ TEXT;
 TEXT;
         $result = $this->Text->autoParagraph($text);
         $this->assertTextEquals($expected, $result);
+    }
+
+    /**
+     * Test the engine by fully qualified class name and from App.namespace.
+     *
+     * @return void
+     */
+    public function testNamespacedEngine(): void
+    {
+        $View = new View(null);
+        $Helper = new TextHelper($View, ['engine' => NamespacedText::class]);
+        $this->assertInstanceOf(NamespacedText::class, $this->getEngine($Helper));
+
+        $Helper = new TextHelper($View, ['engine' => 'NamespacedText']);
+        $this->assertInstanceOf(NamespacedText::class, $this->getEngine($Helper));
+
+        $Helper = new TextHelper($View);
+        $this->assertInstanceOf(CakeText::class, $this->getEngine($Helper));
+    }
+
+    /**
+     * Returns the engine of a helper.
+     *
+     * @param Helper $Helper The helper
+     * @return object
+     */
+    protected function getEngine(Helper $Helper): object
+    {
+        $property = new ReflectionProperty($Helper, '_engine');
+        if (PHP_VERSION_ID < 80100) {
+            $property->setAccessible(true);
+        }
+
+        return $property->getValue($Helper);
     }
 }

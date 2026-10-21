@@ -1,4 +1,5 @@
 <?php
+
 /**
  * CakeFixtureManager file
  *
@@ -15,6 +16,22 @@
  * @since         CakePHP v 2.5
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
+
+namespace Cake\Test\TestCase\TestSuite\Fixture;
+
+use Cake\Core\App;
+use Cake\Core\CakePlugin;
+use Cake\Core\Configure;
+use Cake\Model\ConnectionManager;
+use Cake\Model\Datasource\DboSource;
+use Cake\Test\Fixture\UuidFixture;
+use Cake\TestSuite\CakeTestCase;
+use Cake\TestSuite\Fixture\CakeFixtureManager;
+use ReflectionClass;
+use ReflectionMethod;
+use ReflectionProperty;
+use TestApp\Test\Fixture\NamespacedArticleFixture;
+use TestTwoPlugin\Test\Fixture\NamespacedCommentFixture;
 
 /**
  * Test Case for CakeFixtureManager class
@@ -55,7 +72,7 @@ class CakeFixtureManagerTest extends CakeTestCase
      */
     public function testLoadTruncatesTable(): void
     {
-        $MockFixture = $this->getMock('UuidFixture', ['truncate', 'insert']);
+        $MockFixture = $this->getMock(UuidFixture::class, ['truncate', 'insert']);
         // The table name is derived from the class name, which is the mock class name here.
         $MockFixture->table = 'uuids';
         $MockFixture
@@ -81,10 +98,12 @@ class CakeFixtureManagerTest extends CakeTestCase
         $fixtureManagerReflection = new ReflectionClass($fixtureManager);
 
         $loadedProperty = $fixtureManagerReflection->getProperty('_loaded');
-        $loadedProperty->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $loadedProperty->setAccessible(true);
+        }
         $loadedProperty->setValue($fixtureManager, ['core.uuid' => $MockFixture]);
 
-        $TestCase = $this->getMock('CakeTestCase');
+        $TestCase = $this->getMock(CakeTestCase::class);
         $TestCase->fixtures = ['core.uuid'];
         $TestCase->autoFixtures = true;
         $TestCase->dropTables = false;
@@ -106,7 +125,7 @@ class CakeFixtureManagerTest extends CakeTestCase
      */
     public function testLoadSingleTruncatesTable(): void
     {
-        $MockFixture = $this->getMock('UuidFixture', ['truncate']);
+        $MockFixture = $this->getMock(UuidFixture::class, ['truncate']);
         // The table name is derived from the class name, which is the mock class name here.
         $MockFixture->table = 'uuids';
         $MockFixture
@@ -118,16 +137,50 @@ class CakeFixtureManagerTest extends CakeTestCase
         $fixtureManagerReflection = new ReflectionClass($fixtureManager);
 
         $fixtureMapProperty = $fixtureManagerReflection->getProperty('_fixtureMap');
-        $fixtureMapProperty->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $fixtureMapProperty->setAccessible(true);
+        }
         $fixtureMapProperty->setValue($fixtureManager, ['UuidFixture' => $MockFixture]);
 
-        $dboMethods = array_diff(get_class_methods('DboSource'), ['enabled']);
-        $db = $this->getMock('DboSource', $dboMethods);
+        $dboMethods = array_diff(get_class_methods(DboSource::class), ['enabled']);
+        $db = $this->getMock(DboSource::class, $dboMethods);
         $db->config['prefix'] = '';
         $db->expects($this->any())
             ->method('listSources')
             ->will($this->returnValue([$MockFixture->table]));
 
         $fixtureManager->loadSingle('Uuid', $db, false);
+    }
+
+    /**
+     * Test that fixtures are found in the namespaces of the application and of plugins.
+     *
+     * @return void
+     */
+    public function testLoadNamespacedFixtures(): void
+    {
+        Configure::write('App.namespace', 'TestApp');
+        App::build(['Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS]], App::RESET);
+        CakePlugin::load('TestTwoPlugin');
+
+        $loadFixtures = new ReflectionMethod($this->fixtureManager, '_loadFixtures');
+        if (PHP_VERSION_ID < 80100) {
+            $loadFixtures->setAccessible(true);
+        }
+        $loadFixtures->invoke($this->fixtureManager, ['app.namespaced_article', 'namespaced_article', 'plugin.test_two_plugin.namespaced_comment']);
+        $loaded = new ReflectionProperty($this->fixtureManager, '_loaded');
+        if (PHP_VERSION_ID < 80100) {
+            $loaded->setAccessible(true);
+        }
+        $fixtures = $loaded->getValue($this->fixtureManager);
+
+        $this->assertInstanceOf(NamespacedArticleFixture::class, $fixtures['app.namespaced_article']);
+        $this->assertInstanceOf(NamespacedArticleFixture::class, $fixtures['namespaced_article']);
+        $this->assertInstanceOf(NamespacedCommentFixture::class, $fixtures['plugin.test_two_plugin.namespaced_comment']);
+
+        // The name and the table come from the class name without the namespace
+        $this->assertSame('NamespacedArticle', $fixtures['app.namespaced_article']->name);
+        $this->assertSame('namespaced_articles', $fixtures['app.namespaced_article']->table);
+        $this->assertSame('namespaced_comments', $fixtures['plugin.test_two_plugin.namespaced_comment']->table);
     }
 }

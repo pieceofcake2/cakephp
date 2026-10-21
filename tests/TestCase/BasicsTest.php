@@ -16,6 +16,18 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase;
+
+use Cake\Core\App;
+use Cake\Core\Configure;
+use Cake\Log\CakeLog;
+use Cake\Network\CakeResponse;
+use Cake\TestSuite\CakeTestCase;
+use Cake\Utility\Debugger;
+use Cake\Utility\Folder;
+use InvalidArgumentException;
+use stdClass;
+
 require_once CAKE . 'basics.php';
 
 /**
@@ -34,7 +46,7 @@ class BasicsTest extends CakeTestCase
     {
         parent::setUp();
         App::build([
-            'Locale' => [CORE_TESTS . DS . 'test_app' . DS . 'Locale' . DS],
+            'Locale' => [CORE_TESTS . DS . 'test_app' . DS . 'resources' . DS . 'locales' . DS],
         ]);
     }
 
@@ -307,9 +319,7 @@ class BasicsTest extends CakeTestCase
 
         $result = cache('basics_test');
         $this->assertEquals('simple cache write', $result);
-        if (file_exists(CACHE . 'basics_test')) {
-            unlink(CACHE . 'basics_test');
-        }
+        unlink(CACHE . 'basics_test');
 
         cache('basics_test', 'expired', '+1 second');
         sleep(2);
@@ -1058,11 +1068,11 @@ EXPECTED;
         $result = ob_get_clean();
         $expected = <<<EXPECTED
 
-########## DEBUG ##########
-'<div>this-is-a-test</div>'
-###########################
+            ########## DEBUG ##########
+            '<div>this-is-a-test</div>'
+            ###########################
 
-EXPECTED;
+            EXPECTED;
         $expected = sprintf($expected, str_replace([CORE_ROOT, ROOT], '', __FILE__), __LINE__ - 9);
         $this->assertEquals($expected, $result);
 

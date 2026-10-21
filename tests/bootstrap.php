@@ -3,6 +3,9 @@
  * Bootstrap for phpunit command
  */
 
+use Cake\Cache\Cache;
+use Cake\Console\ShellDispatcher;
+use Cake\Core\App;
 use Composer\InstalledVersions;
 use PHPUnit\Util\ErrorHandler;
 
@@ -35,6 +38,17 @@ if (isset($GLOBALS['_composer_autoload_path'])) {
 
 new ShellDispatcher([$_SERVER['argv'][0]]);
 
+// AllTests and AllLegacyTests have classes of the same names in other files, so the files
+// that the other test suite cached for them are not used
+Cache::delete('file_map', '_cake_core_');
+Cache::delete('object_map', '_cake_core_');
+Closure::bind(function () {
+    static::$_map = [];
+    static::$_objects = [];
+}, null, App::class)();
+
+// The bootstrap of CakePHP and the application leave out E_DEPRECATED, which the tests report
+error_reporting(E_ALL);
 set_error_handler(new ErrorHandler(true, true, true, true));
 
 // Security::cipher() reports its deprecation and an out-of-range Security.cipherSeed once
@@ -44,3 +58,9 @@ Closure::bind(function () {
     static::$_cipherDeprecationReported = true;
     static::$_cipherSeedReported = true;
 }, null, Security::class)();
+
+// App::uses() reports its deprecation once per process. Many tests and the test application
+// use it on purpose, so mark it as reported here; AppTest resets it to test the report.
+Closure::bind(function () {
+    static::$_usesDeprecationReported = true;
+}, null, App::class)();

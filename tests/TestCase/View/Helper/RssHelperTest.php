@@ -16,6 +16,14 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\View\Helper;
+
+use Cake\TestSuite\CakeTestCase;
+use Cake\Utility\File;
+use Cake\Utility\Folder;
+use Cake\View\Helper\RssHelper;
+use Cake\View\View;
+
 /**
  * RssHelperTest class
  *

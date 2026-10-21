@@ -18,7 +18,12 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-require_once __DIR__ . DS . 'ModelTestBase.php';
+namespace Cake\Test\TestCase\Model;
+
+use Cake\Model\ConnectionManager;
+use Cake\Model\Datasource\Database\Sqlite;
+use Cake\Utility\ClassRegistry;
+use Cake\Utility\Hash;
 
 /**
  * ModelCrossSchemaHabtmTest
@@ -30,11 +35,14 @@ class ModelCrossSchemaHabtmTest extends BaseModelTest
     /**
      * Fixtures to be used
      *
-     * @var array
+     * @var array<string>
      */
     public $fixtures = [
-        'core.player', 'core.guild', 'core.guilds_player',
-        'core.armor', 'core.armors_player',
+        'core.player',
+        'core.guild',
+        'core.guilds_player',
+        'core.armor',
+        'core.armors_player',
     ];
 
     /**

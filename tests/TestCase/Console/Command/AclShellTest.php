@@ -16,6 +16,19 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\Console\Command;
+
+use Cake\Console\Command\AclShell;
+use Cake\Console\ConsoleInput;
+use Cake\Console\ConsoleOutput;
+use Cake\Controller\Component\Acl\DbAcl;
+use Cake\Controller\Component\AclComponent;
+use Cake\Controller\ComponentCollection;
+use Cake\Core\Configure;
+use Cake\TestSuite\CakeTestCase;
+use Cake\Utility\ClassRegistry;
+use PHPUnit\Framework\MockObject\MockObject;
+
 /**
  * AclShellTest class
  *
@@ -26,9 +39,15 @@ class AclShellTest extends CakeTestCase
     /**
      * Fixtures
      *
-     * @var array
+     * @var array<string>
      */
-    public $fixtures = ['core.aco', 'core.aro', 'core.aros_aco'];
+    public $fixtures = [
+        'core.aco',
+        'core.aro',
+        'core.aros_aco',
+    ];
+
+    public AclShell|MockObject|null $Task = null;
 
     /**
      * setUp method
@@ -41,11 +60,11 @@ class AclShellTest extends CakeTestCase
         Configure::write('Acl.database', 'test');
         Configure::write('Acl.classname', 'DbAcl');
 
-        $out = $this->getMock('ConsoleOutput', [], [], '', false);
-        $in = $this->getMock('ConsoleInput', [], [], '', false);
+        $out = $this->getMock(ConsoleOutput::class, [], [], '', false);
+        $in = $this->getMock(ConsoleInput::class, [], [], '', false);
 
         $this->Task = $this->getMock(
-            'AclShell',
+            AclShell::class,
             ['in', 'out', 'hr', 'createFile', 'error', 'err', 'clear', 'dispatchShell'],
             [$out, $out, $in],
         );
@@ -73,10 +92,13 @@ class AclShellTest extends CakeTestCase
         $this->Task->args[0] = 'aro';
 
         $outCalls = [];
-        $this->Task->expects($this->any())
+        $this->Task
+            ->expects($this->any())
             ->method('out')
             ->willReturnCallback(function ($message = '') use (&$outCalls) {
                 $outCalls[] = $message;
+
+                return 0;
             });
 
         $this->Task->view();
@@ -97,10 +119,13 @@ class AclShellTest extends CakeTestCase
         $this->Task->args = ['aro', 'admins'];
 
         $outCalls = [];
-        $this->Task->expects($this->any())
+        $this->Task
+            ->expects($this->any())
             ->method('out')
             ->willReturnCallback(function ($message = '') use (&$outCalls) {
                 $outCalls[] = $message;
+
+                return 0;
             });
 
         $this->Task->view();
@@ -137,10 +162,13 @@ class AclShellTest extends CakeTestCase
     public function testCreate(): void
     {
         $outCalls = [];
-        $this->Task->expects($this->any())
+        $this->Task
+            ->expects($this->any())
             ->method('out')
             ->willReturnCallback(function ($message, $newlines = 1) use (&$outCalls) {
                 $outCalls[] = ['message' => $message, 'newlines' => $newlines];
+
+                return 0;
             });
 
         $this->Task->args = ['aro', 'root', 'User.1'];
@@ -193,10 +221,13 @@ class AclShellTest extends CakeTestCase
     {
         $this->Task->args = ['aro', 'AuthUser.1'];
         $outCalls = [];
-        $this->Task->expects($this->once())
+        $this->Task
+            ->expects($this->once())
             ->method('out')
             ->willReturnCallback(function ($message, $newlines = 1) use (&$outCalls) {
                 $outCalls[] = ['message' => $message, 'newlines' => $newlines];
+
+                return 0;
             });
         $this->Task->delete();
 
@@ -233,16 +264,19 @@ class AclShellTest extends CakeTestCase
     {
         $this->Task->args = ['AuthUser.2', 'ROOT/Controller1', 'create'];
         $outCalls = [];
-        $this->Task->expects($this->once())
+        $this->Task
+            ->expects($this->once())
             ->method('out')
             ->willReturnCallback(function ($message, $newlines = 1) use (&$outCalls) {
                 $outCalls[] = ['message' => $message, 'newlines' => $newlines];
+
+                return 0;
             });
         $this->Task->grant();
         $node = $this->Task->Acl->Aro->node(['model' => 'AuthUser', 'foreign_key' => 2]);
         $node = $this->Task->Acl->Aro->read(null, $node[0]['Aro']['id']);
 
-        $this->assertFalse(empty($node['Aco'][0]));
+        $this->assertNotEmpty($node['Aco'][0]);
         $this->assertEquals(1, $node['Aco'][0]['Permission']['_create']);
 
         $this->assertCount(1, $outCalls);
@@ -259,17 +293,20 @@ class AclShellTest extends CakeTestCase
     {
         $this->Task->args = ['AuthUser.2', 'ROOT/Controller1', 'create'];
         $outCalls = [];
-        $this->Task->expects($this->once())
+        $this->Task
+            ->expects($this->once())
             ->method('out')
             ->willReturnCallback(function ($message, $newlines = 1) use (&$outCalls) {
                 $outCalls[] = ['message' => $message, 'newlines' => $newlines];
+
+                return 0;
             });
 
         $this->Task->deny();
 
         $node = $this->Task->Acl->Aro->node(['model' => 'AuthUser', 'foreign_key' => 2]);
         $node = $this->Task->Acl->Aro->read(null, $node[0]['Aro']['id']);
-        $this->assertFalse(empty($node['Aco'][0]));
+        $this->assertNotEmpty($node['Aco'][0]);
         $this->assertEquals(-1, $node['Aco'][0]['Permission']['_create']);
 
         $this->assertCount(1, $outCalls);
@@ -285,10 +322,13 @@ class AclShellTest extends CakeTestCase
     public function testCheck(): void
     {
         $outCalls = [];
-        $this->Task->expects($this->exactly(4))
+        $this->Task
+            ->expects($this->exactly(4))
             ->method('out')
             ->willReturnCallback(function ($message, $newlines = 1) use (&$outCalls) {
                 $outCalls[] = ['message' => $message, 'newlines' => $newlines];
+
+                return 0;
             });
 
         $this->Task->args = ['AuthUser.2', 'ROOT/Controller1', '*'];
@@ -304,13 +344,13 @@ class AclShellTest extends CakeTestCase
         $this->Task->check();
 
         $this->assertMatchesRegularExpression('/not allowed/', $outCalls[0]['message']);
-        $this->assertEquals(true, $outCalls[0]['newlines']);
+        $this->assertEquals(1, $outCalls[0]['newlines']);
         $this->assertMatchesRegularExpression('/granted/', $outCalls[1]['message']);
-        $this->assertEquals(true, $outCalls[1]['newlines']);
+        $this->assertEquals(1, $outCalls[1]['newlines']);
         $this->assertMatchesRegularExpression('/is.*allowed/', $outCalls[2]['message']);
-        $this->assertEquals(true, $outCalls[2]['newlines']);
+        $this->assertEquals(1, $outCalls[2]['newlines']);
         $this->assertMatchesRegularExpression('/not.*allowed/', $outCalls[3]['message']);
-        $this->assertEquals(true, $outCalls[3]['newlines']);
+        $this->assertEquals(1, $outCalls[3]['newlines']);
     }
 
     /**
@@ -321,10 +361,13 @@ class AclShellTest extends CakeTestCase
     public function testInherit(): void
     {
         $outCalls = [];
-        $this->Task->expects($this->exactly(2))
+        $this->Task
+            ->expects($this->exactly(2))
             ->method('out')
             ->willReturnCallback(function ($message, $newlines = 1) use (&$outCalls) {
                 $outCalls[] = ['message' => $message, 'newlines' => $newlines];
+
+                return 0;
             });
 
         $this->Task->args = ['AuthUser.2', 'ROOT/Controller1', 'create'];
@@ -335,13 +378,13 @@ class AclShellTest extends CakeTestCase
 
         $node = $this->Task->Acl->Aro->node(['model' => 'AuthUser', 'foreign_key' => 2]);
         $node = $this->Task->Acl->Aro->read(null, $node[0]['Aro']['id']);
-        $this->assertFalse(empty($node['Aco'][0]));
+        $this->assertNotEmpty($node['Aco'][0]);
         $this->assertEquals(0, $node['Aco'][0]['Permission']['_create']);
 
         $this->assertMatchesRegularExpression('/Permission .*granted/', $outCalls[0]['message']);
-        $this->assertEquals(true, $outCalls[0]['newlines']);
+        $this->assertEquals(1, $outCalls[0]['newlines']);
         $this->assertMatchesRegularExpression('/Permission .*inherited/', $outCalls[1]['message']);
-        $this->assertEquals(true, $outCalls[1]['newlines']);
+        $this->assertEquals(1, $outCalls[1]['newlines']);
     }
 
     /**
@@ -357,10 +400,13 @@ class AclShellTest extends CakeTestCase
         $second = $node[1]['Aro']['id'];
         $last = $node[2]['Aro']['id'];
         $outCalls = [];
-        $this->Task->expects($this->any())
+        $this->Task
+            ->expects($this->any())
             ->method('out')
             ->willReturnCallback(function ($message = '') use (&$outCalls) {
                 $outCalls[] = $message;
+
+                return 0;
             });
         $this->Task->getPath();
 
@@ -380,5 +426,23 @@ class AclShellTest extends CakeTestCase
             ->with('schema create DbAcl');
 
         $this->Task->initdb();
+    }
+
+    /**
+     * Test that DbAcl is accepted by its global name and by its name in the Cake namespace.
+     *
+     * @return void
+     */
+    public function testStartupWithDbAclByGlobalAndNamespacedName(): void
+    {
+        $out = $this->getMock(ConsoleOutput::class, [], [], '', false);
+        $in = $this->getMock(ConsoleInput::class, [], [], '', false);
+        $shell = $this->getMock(AclShell::class, ['in', 'out', 'hr', 'error', 'err', '_stop'], [$out, $out, $in]);
+        $shell->expects($this->never())->method('error');
+        $shell->expects($this->never())->method('_stop');
+        foreach (['DbAcl', DbAcl::class] as $class) {
+            Configure::write('Acl.classname', $class);
+            $shell->startup();
+        }
     }
 }

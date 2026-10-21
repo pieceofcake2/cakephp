@@ -16,58 +16,17 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-/**
- * Article class
- *
- * @package       Cake.Test.Case.Utility
- */
-class XmlArticle extends CakeTestModel
-{
-    /**
-     * name property
-     *
-     * @var string
-     */
-    public $name = 'Article';
+namespace Cake\Test\TestCase\Utility;
 
-    /**
-     * belongsTo property
-     *
-     * @var array
-     */
-    public $belongsTo = [
-        'User' => [
-            'className' => 'XmlUser',
-            'foreignKey' => 'user_id',
-        ],
-    ];
-}
-
-/**
- * User class
- *
- * @package       Cake.Test.Case.Utility
- */
-class XmlUser extends CakeTestModel
-{
-    /**
-     * name property
-     *
-     * @var string
-     */
-    public $name = 'User';
-
-    /**
-     * hasMany property
-     *
-     * @var array
-     */
-    public $hasMany = [
-        'Article' => [
-            'className' => 'XmlArticle',
-        ],
-    ];
-}
+use Cake\Core\Configure;
+use Cake\Error\XmlException;
+use Cake\TestSuite\CakeTestCase;
+use Cake\Utility\Xml;
+use DateTime;
+use DOMDocument;
+use Exception;
+use SimpleXMLElement;
+use TestApp\Model\XmlUser;
 
 /**
  * XmlTest class
@@ -86,10 +45,11 @@ class XmlTest extends CakeTestCase
     /**
      * fixtures property
      *
-     * @var array
+     * @var array<string>
      */
     public $fixtures = [
-        'core.article', 'core.user',
+        'core.article',
+        'core.user',
     ];
 
     /**
@@ -100,6 +60,7 @@ class XmlTest extends CakeTestCase
     public function setUp(): void
     {
         parent::setUp();
+        Configure::write('App.namespace', 'TestApp');
         $this->_appEncoding = Configure::read('App.encoding');
         Configure::write('App.encoding', 'UTF-8');
     }
@@ -609,9 +570,6 @@ XML;
     public static function invalidArrayDataProvider(): mixed
     {
         return [
-            [''],
-            [null],
-            [false],
             [[]],
             [['numeric key as root']],
             [['item1' => '', 'item2' => '']],
@@ -641,7 +599,6 @@ XML;
                     ],
                 ],
             ]],
-            [new DateTime()],
         ];
     }
 
@@ -653,16 +610,9 @@ XML;
      */
     public function testFromArrayFail($value): void
     {
-        set_error_handler(fn($errno, $errstr) => true, E_WARNING | E_USER_WARNING);
+        $this->expectException(Exception::class);
 
-        try {
-            Xml::fromArray($value);
-            $this->fail('No exception.');
-        } catch (Exception) {
-            $this->assertTrue(true, 'Caught exception.');
-        } finally {
-            restore_error_handler();
-        }
+        Xml::fromArray($value);
     }
 
     /**

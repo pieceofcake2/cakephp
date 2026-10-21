@@ -16,15 +16,14 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-/**
- * SessionTestModel
- *
- * @package       Cake.Test.Case.Model.Datasource.Session
- */
-class SessionTestModel extends Model
-{
-    public $useTable = 'sessions';
-}
+namespace Cake\Test\TestCase\Model\Datasource\Session;
+
+use Cake\Core\Configure;
+use Cake\Model\Datasource\Database\Sqlite;
+use Cake\Model\Datasource\Session\DatabaseSession;
+use Cake\TestSuite\CakeTestCase;
+use Cake\Utility\ClassRegistry;
+use TestApp\Model\SessionTestModel;
 
 /**
  * Database session test.
@@ -38,9 +37,11 @@ class DatabaseSessionTest extends CakeTestCase
     /**
      * fixtures
      *
-     * @var string
+     * @var array<string>
      */
-    public $fixtures = ['core.session'];
+    public $fixtures = [
+        'core.session',
+    ];
 
     /**
      * test case startup
@@ -74,6 +75,7 @@ class DatabaseSessionTest extends CakeTestCase
     public function setUp(): void
     {
         parent::setUp();
+        Configure::write('App.namespace', 'TestApp');
         $this->storage = new DatabaseSession();
     }
 
@@ -101,7 +103,7 @@ class DatabaseSessionTest extends CakeTestCase
         new DatabaseSession();
 
         $session = ClassRegistry::getObject('session');
-        $this->assertInstanceOf('SessionTestModel', $session);
+        $this->assertInstanceOf(SessionTestModel::class, $session);
         $this->assertEquals('Session', $session->alias);
         $this->assertEquals('test', $session->useDbConfig);
         $this->assertEquals('sessions', $session->useTable);
@@ -209,13 +211,14 @@ class DatabaseSessionTest extends CakeTestCase
         ClassRegistry::removeObject('Session');
 
         $mockedModel = $this->getMockForModel(
-            'SessionTestModel',
+            SessionTestModel::class,
             ['exists'],
             ['alias' => 'MockedSessionTestModel', 'table' => 'sessions'],
         );
         Configure::write('Session.handler.model', 'MockedSessionTestModel');
 
-        $mockedModel->expects($this->exactly(4))
+        $mockedModel
+            ->expects($this->exactly(4))
             ->method('exists')
             ->willReturnOnConsecutiveCalls(
                 false, // First save

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * RouterTest file
  *
@@ -15,6 +16,23 @@
  * @since         CakePHP(tm) v 1.2.0.4206
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
+
+namespace Cake\Test\TestCase\Routing;
+
+use Cake\Core\App;
+use Cake\Core\CakeObject;
+use Cake\Core\CakePlugin;
+use Cake\Core\Configure;
+use Cake\Error\RouterException;
+use Cake\Network\CakeRequest;
+use Cake\Network\CakeResponse;
+use Cake\Routing\Route\CakeRoute;
+use Cake\Routing\Route\PluginShortRoute;
+use Cake\Routing\Route\RedirectRoute;
+use Cake\Routing\Router;
+use Cake\TestSuite\CakeTestCase;
+use TestApp\Routing\Route\NamespacedRoute;
+use TestPlugin\Routing\Route\TestRoute;
 
 if (!defined('FULL_BASE_URL')) {
     define('FULL_BASE_URL', 'https://cakephp.org');
@@ -35,6 +53,9 @@ class RouterTest extends CakeTestCase
     public function setUp(): void
     {
         parent::setUp();
+
+        Configure::write('App.namespace', 'TestApp');
+
         Configure::write('Routing', ['admin' => null, 'prefixes' => []]);
     }
 
@@ -164,7 +185,7 @@ class RouterTest extends CakeTestCase
     {
         App::build([
             'Plugin' => [
-                CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS,
+                CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS,
             ],
         ]);
         $resources = Router::mapResources('TestPlugin.TestPlugin');
@@ -203,7 +224,7 @@ class RouterTest extends CakeTestCase
     {
         App::build([
             'Plugin' => [
-                CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS,
+                CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS,
             ],
         ]);
         CakePlugin::load('TestPlugin');
@@ -214,7 +235,7 @@ class RouterTest extends CakeTestCase
             ],
         ]);
         $route = end(Router::$routes);
-        $this->assertInstanceOf('TestRoute', $route);
+        $this->assertInstanceOf(TestRoute::class, $route);
         $this->assertEquals('^(bar)$', $route->options['foo']);
     }
 
@@ -227,7 +248,7 @@ class RouterTest extends CakeTestCase
     {
         App::build([
             'Plugin' => [
-                CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS,
+                CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS,
             ],
         ]);
         $resources = Router::mapResources('TestPlugin.TestPlugin', ['prefix' => '/api/']);
@@ -494,8 +515,8 @@ class RouterTest extends CakeTestCase
         Router::connect('/page/*', ['plugin' => null, 'controller' => 'pages', 'action' => 'view']);
         Router::parse('/');
 
-        $result = Router::url(['plugin' => 'my_plugin', 'controller' => 'pages', 'action' => 'view', 'my-page']);
-        $expected = '/my_plugin/pages/view/my-page';
+        $result = Router::url(['plugin' => 'test_dispatch_plugin', 'controller' => 'pages', 'action' => 'view', 'my-page']);
+        $expected = '/test_dispatch_plugin/pages/view/my-page';
         $this->assertEquals($expected, $result);
 
         Router::reload();
@@ -1346,7 +1367,7 @@ class RouterTest extends CakeTestCase
         $paths = App::path('plugins');
         App::build([
             'plugins' => [
-                CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS,
+                CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS,
             ],
         ], App::RESET);
         CakePlugin::load(['TestPlugin']);
@@ -2437,19 +2458,19 @@ class RouterTest extends CakeTestCase
     {
         App::build([
             'plugins' => [
-                CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS,
+                CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS,
             ],
         ], App::RESET);
-        CakePlugin::load(['TestPlugin', 'PluginJs']);
+        CakePlugin::load(['TestPlugin', 'TestJsPlugin']);
         Router::reload();
         require CORE_ROOT . DS . 'config' . DS . 'routes.php';
 
-        $result = Router::url(['plugin' => 'plugin_js', 'controller' => 'js_file', 'action' => 'index']);
-        $this->assertEquals('/plugin_js/js_file', $result);
+        $result = Router::url(['plugin' => 'test_js_plugin', 'controller' => 'js_file', 'action' => 'index']);
+        $this->assertEquals('/test_js_plugin/js_file', $result);
 
-        $result = Router::parse('/plugin_js/js_file');
+        $result = Router::parse('/test_js_plugin/js_file');
         $expected = [
-            'plugin' => 'plugin_js', 'controller' => 'js_file', 'action' => 'index',
+            'plugin' => 'test_js_plugin', 'controller' => 'js_file', 'action' => 'index',
             'named' => [], 'pass' => [],
         ];
         $this->assertEquals($expected, $result);
@@ -2473,7 +2494,7 @@ class RouterTest extends CakeTestCase
      */
     public function testUsingCustomRouteClass(): void
     {
-        $this->getMock('CakeRoute', [], [], 'MockConnectedRoute', false);
+        $this->getMock(CakeRoute::class, [], [], 'MockConnectedRoute', false);
         $routes = Router::connect(
             '/:slug',
             ['controller' => 'posts', 'action' => 'view'],
@@ -2497,7 +2518,7 @@ class RouterTest extends CakeTestCase
     {
         App::build([
             'Plugin' => [
-                CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS,
+                CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS,
             ],
         ]);
         CakePlugin::load('TestPlugin');
@@ -2506,7 +2527,7 @@ class RouterTest extends CakeTestCase
             ['controller' => 'posts', 'action' => 'view'],
             ['routeClass' => 'TestPlugin.TestRoute', 'slug' => '[a-z_-]+'],
         );
-        $this->assertInstanceOf('TestRoute', $routes[0]);
+        $this->assertInstanceOf(TestRoute::class, $routes[0]);
         CakePlugin::unload('TestPlugin');
     }
 
@@ -2518,7 +2539,7 @@ class RouterTest extends CakeTestCase
     public function testCustomRouteException(): void
     {
         $this->expectException(RouterException::class);
-        Router::connect('/:controller', [], ['routeClass' => 'CakeObject']);
+        Router::connect('/:controller', [], ['routeClass' => CakeObject::class]);
     }
 
     /**
@@ -2759,7 +2780,7 @@ class RouterTest extends CakeTestCase
     {
         $url = 'http://example.com/posts/view/1';
 
-        $this->getMock('CakeRoute', [], ['/'], 'MockReturnRoute');
+        $this->getMock(CakeRoute::class, [], ['/'], 'MockReturnRoute');
         $routes = Router::connect('/:controller/:action', [], ['routeClass' => 'MockReturnRoute']);
         $routes[0]->expects($this->any())->method('match')
             ->will($this->returnValue($url));
@@ -2877,7 +2898,7 @@ class RouterTest extends CakeTestCase
     {
         Router::redirect('/blog', ['controller' => 'posts'], ['status' => 302]);
         $this->assertEquals(1, count(Router::$routes));
-        Router::$routes[0]->response = $this->getMock('CakeResponse', ['_sendHeader']);
+        Router::$routes[0]->response = $this->getMock(CakeResponse::class, ['_sendHeader']);
         Router::$routes[0]->stop = false;
         $this->assertEquals(302, Router::$routes[0]->options['status']);
 
@@ -2886,7 +2907,7 @@ class RouterTest extends CakeTestCase
         $this->assertEquals(Router::url('/posts', true), $header['Location']);
         $this->assertEquals(302, Router::$routes[0]->response->statusCode());
 
-        Router::$routes[0]->response = $this->getMock('CakeResponse', ['_sendHeader']);
+        Router::$routes[0]->response = $this->getMock(CakeResponse::class, ['_sendHeader']);
         Router::parse('/not-a-match');
         $this->assertEquals([], Router::$routes[0]->response->header());
     }
@@ -2898,7 +2919,7 @@ class RouterTest extends CakeTestCase
      */
     public function testDefaultRouteClass(): void
     {
-        $this->getMock('CakeRoute', [], ['/test'], 'TestDefaultRouteClass');
+        $this->getMock(CakeRoute::class, [], ['/test'], 'TestDefaultRouteClass');
         Router::defaultRouteClass('TestDefaultRouteClass');
 
         $result = Router::connect('/', ['controller' => 'pages', 'action' => 'display', 'home']);
@@ -2939,7 +2960,7 @@ class RouterTest extends CakeTestCase
     public function testSettingInvalidDefaultRouteException(): void
     {
         $this->expectException(RouterException::class);
-        Router::defaultRouteClass('CakeObject');
+        Router::defaultRouteClass(CakeObject::class);
     }
 
     /**
@@ -2998,5 +3019,49 @@ class RouterTest extends CakeTestCase
         $result = Router::queryString('foo=bar&', ['php' => 'nut', 'jose' => 'zap']);
         $expected = '?foo=bar&php=nut&jose=zap';
         $this->assertEquals($expected, $result);
+    }
+
+    /**
+     * Test route classes by fully qualified class name and from App.namespace.
+     *
+     * @return void
+     */
+    public function testNamespacedRouteClass(): void
+    {
+        $routes = Router::connect('/namespaced', ['controller' => 'posts'], ['routeClass' => NamespacedRoute::class]);
+        $this->assertInstanceOf(NamespacedRoute::class, end($routes));
+
+        $routes = Router::connect('/short', ['controller' => 'posts'], ['routeClass' => 'NamespacedRoute']);
+        $this->assertInstanceOf(NamespacedRoute::class, end($routes));
+
+        $routes = Router::connect('/global', ['controller' => 'posts'], ['routeClass' => 'PluginShortRoute']);
+        $this->assertInstanceOf(PluginShortRoute::class, end($routes));
+
+        Router::defaultRouteClass('NamespacedRoute');
+        $this->assertSame(NamespacedRoute::class, Router::defaultRouteClass());
+        $routes = Router::connect('/default', ['controller' => 'posts']);
+        $this->assertInstanceOf(NamespacedRoute::class, end($routes));
+        Router::defaultRouteClass('CakeRoute');
+    }
+
+    /**
+     * Test the route classes of the core by their global names and by their names in the Cake namespace.
+     *
+     * @return void
+     */
+    public function testCoreRouteClassByGlobalAndNamespacedName(): void
+    {
+        foreach (['CakeRoute', CakeRoute::class] as $class) {
+            Router::defaultRouteClass($class);
+            $this->assertSame($class, Router::defaultRouteClass());
+        }
+        Router::defaultRouteClass('CakeRoute');
+
+        foreach (['RedirectRoute', RedirectRoute::class] as $class) {
+            Router::reload();
+            Router::connect('/blog', ['redirect' => ['controller' => 'posts']], ['routeClass' => $class]);
+            $this->assertInstanceOf(RedirectRoute::class, Router::$routes[0], $class);
+            $this->assertSame(['controller' => 'posts'], Router::$routes[0]->redirect, $class);
+        }
     }
 }

@@ -18,6 +18,19 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\Console\Command\Task;
+
+use Cake\Console\Command\Task\ExtractTask;
+use Cake\Console\ConsoleInput;
+use Cake\Console\ConsoleOutput;
+use Cake\Core\App;
+use Cake\Core\CakePlugin;
+use Cake\Core\Configure;
+use Cake\TestSuite\CakeTestCase;
+use Cake\Utility\Folder;
+use ReflectionMethod;
+use ReflectionProperty;
+
 /**
  * ExtractTaskTest class
  *
@@ -33,11 +46,12 @@ class ExtractTaskTest extends CakeTestCase
     public function setUp(): void
     {
         parent::setUp();
-        $out = $this->getMock('ConsoleOutput', [], [], '', false);
-        $in = $this->getMock('ConsoleInput', [], [], '', false);
+        Configure::write('App.namespace', 'TestApp');
+        $out = $this->getMock(ConsoleOutput::class, [], [], '', false);
+        $in = $this->getMock(ConsoleInput::class, [], [], '', false);
 
         $this->Task = $this->getMock(
-            'ExtractTask',
+            ExtractTask::class,
             ['in', 'out', 'err', '_stop'],
             [$out, $out, $in],
         );
@@ -70,7 +84,7 @@ class ExtractTaskTest extends CakeTestCase
     {
         $this->Task->interactive = false;
 
-        $this->Task->params['paths'] = CORE_TESTS . DS . 'test_app' . DS . 'View' . DS . 'Pages';
+        $this->Task->params['paths'] = CORE_TESTS . DS . 'test_app' . DS . 'templates' . DS . 'Pages';
         $this->Task->params['output'] = $this->path . DS;
         $this->Task->params['extract-core'] = 'no';
         $this->Task->expects($this->never())->method('err');
@@ -197,7 +211,7 @@ class ExtractTaskTest extends CakeTestCase
     {
         $this->Task->interactive = false;
 
-        $this->Task->params['paths'] = CORE_TESTS . DS . 'test_app' . DS . 'View' . DS . 'Pages';
+        $this->Task->params['paths'] = CORE_TESTS . DS . 'test_app' . DS . 'templates' . DS . 'Pages';
         $this->Task->params['output'] = $this->path . DS;
         $this->Task->params['extract-core'] = 'no';
         $this->Task->params['merge'] = 'no';
@@ -228,7 +242,7 @@ class ExtractTaskTest extends CakeTestCase
     {
         $this->Task->interactive = false;
 
-        $this->Task->params['paths'] = CORE_TESTS . DS . 'test_app' . DS . 'View' . DS . 'Pages';
+        $this->Task->params['paths'] = CORE_TESTS . DS . 'test_app' . DS . 'templates' . DS . 'Pages';
         $this->Task->params['output'] = $this->path . DS;
         $this->Task->params['extract-core'] = 'no';
         $this->Task->params['merge'] = 'no';
@@ -257,7 +271,7 @@ class ExtractTaskTest extends CakeTestCase
     {
         $this->Task->interactive = false;
 
-        $this->Task->params['paths'] = CORE_TESTS . DS . 'test_app' . DS . 'View';
+        $this->Task->params['paths'] = CORE_TESTS . DS . 'test_app' . DS . 'templates';
         $this->Task->params['output'] = $this->path . DS;
         $this->Task->params['exclude'] = 'Pages,Layouts';
         $this->Task->params['extract-core'] = 'no';
@@ -286,8 +300,8 @@ class ExtractTaskTest extends CakeTestCase
         $this->Task->interactive = false;
 
         $this->Task->params['paths'] =
-            CORE_TESTS . DS . 'test_app' . DS . 'View' . DS . 'Pages,' .
-            CORE_TESTS . DS . 'test_app' . DS . 'View' . DS . 'Posts';
+            CORE_TESTS . DS . 'test_app' . DS . 'templates' . DS . 'Pages,' .
+            CORE_TESTS . DS . 'test_app' . DS . 'templates' . DS . 'Posts';
 
         $this->Task->params['output'] = $this->path . DS;
         $this->Task->params['extract-core'] = 'no';
@@ -309,12 +323,12 @@ class ExtractTaskTest extends CakeTestCase
     public function testExtractExcludePlugins(): void
     {
         App::build([
-            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS],
+            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
         ]);
-        $this->out = $this->getMock('ConsoleOutput', [], [], '', false);
-        $this->in = $this->getMock('ConsoleInput', [], [], '', false);
+        $this->out = $this->getMock(ConsoleOutput::class, [], [], '', false);
+        $this->in = $this->getMock(ConsoleInput::class, [], [], '', false);
         $this->Task = $this->getMock(
-            'ExtractTask',
+            ExtractTask::class,
             ['_isExtractingApp', '_extractValidationMessages', 'in', 'out', 'err', 'clear', '_stop'],
             [$this->out, $this->out, $this->in],
         );
@@ -337,13 +351,13 @@ class ExtractTaskTest extends CakeTestCase
     public function testExtractPlugin(): void
     {
         App::build([
-            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS],
+            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
         ]);
 
-        $this->out = $this->getMock('ConsoleOutput', [], [], '', false);
-        $this->in = $this->getMock('ConsoleInput', [], [], '', false);
+        $this->out = $this->getMock(ConsoleOutput::class, [], [], '', false);
+        $this->in = $this->getMock(ConsoleInput::class, [], [], '', false);
         $this->Task = $this->getMock(
-            'ExtractTask',
+            ExtractTask::class,
             ['_isExtractingApp', 'in', 'out', 'err', 'clear', '_stop'],
             [$this->out, $this->out, $this->in],
         );
@@ -367,17 +381,20 @@ class ExtractTaskTest extends CakeTestCase
     public function testExtractModelValidation(): void
     {
         App::build([
-            'Model' => [CORE_TESTS . DS . 'test_app' . DS . 'Model' . DS],
-            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS],
+            'Model' => [CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'Model' . DS],
+            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
         ], App::RESET);
-        $this->out = $this->getMock('ConsoleOutput', [], [], '', false);
-        $this->in = $this->getMock('ConsoleInput', [], [], '', false);
+        $this->out = $this->getMock(ConsoleOutput::class, [], [], '', false);
+        $this->in = $this->getMock(ConsoleInput::class, [], [], '', false);
         $this->Task = $this->getMock(
-            'ExtractTask',
+            ExtractTask::class,
             ['_isExtractingApp', 'in', 'out', 'err', 'clear', '_stop'],
             [$this->out, $this->out, $this->in],
         );
-        $this->Task->expects($this->exactly(2))->method('_isExtractingApp')->will($this->returnValue(true));
+        $this->Task
+            ->expects($this->exactly(2))
+            ->method('_isExtractingApp')
+            ->will($this->returnValue(true));
 
         $this->Task->params['paths'] = CORE_TESTS . DS . 'test_app' . DS;
         $this->Task->params['output'] = $this->path . DS;
@@ -406,16 +423,21 @@ class ExtractTaskTest extends CakeTestCase
     public function testExtractModelValidationWithDomainInModel(): void
     {
         App::build([
-            'Model' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS . 'TestPlugin' . DS . 'Model' . DS],
+            'Model' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS . 'TestPlugin' . DS . 'src' . DS . 'Model' . DS],
         ]);
-        $this->out = $this->getMock('ConsoleOutput', [], [], '', false);
-        $this->in = $this->getMock('ConsoleInput', [], [], '', false);
+        // The models of the application are the namespaced models of the plugin here
+        Configure::write('App.namespace', 'TestPlugin');
+        $this->out = $this->getMock(ConsoleOutput::class, [], [], '', false);
+        $this->in = $this->getMock(ConsoleInput::class, [], [], '', false);
         $this->Task = $this->getMock(
-            'ExtractTask',
+            ExtractTask::class,
             ['_isExtractingApp', 'in', 'out', 'err', 'clear', '_stop'],
             [$this->out, $this->out, $this->in],
         );
-        $this->Task->expects($this->exactly(2))->method('_isExtractingApp')->will($this->returnValue(true));
+        $this->Task
+            ->expects($this->exactly(2))
+            ->method('_isExtractingApp')
+            ->will($this->returnValue(true));
 
         $this->Task->params['paths'] = CORE_TESTS . DS . 'test_app' . DS;
         $this->Task->params['output'] = $this->path . DS;
@@ -425,8 +447,8 @@ class ExtractTaskTest extends CakeTestCase
 
         $this->Task->execute();
         $result = file_get_contents($this->path . DS . 'test_plugin.pot');
-        $this->assertStringContainsString('Plugin/TestPlugin/Model/TestPluginPost.php:validation for field title', $result);
-        $this->assertStringContainsString('Plugin/TestPlugin/Model/TestPluginPost.php:validation for field body', $result);
+        $this->assertStringContainsString('plugins/TestPlugin/src/Model/TestPluginPost.php:validation for field title', $result);
+        $this->assertStringContainsString('plugins/TestPlugin/src/Model/TestPluginPost.php:validation for field body', $result);
         $this->assertStringContainsString('msgid "Post title is required"', $result);
         $this->assertStringContainsString('msgid "Post body is required"', $result);
         $this->assertStringContainsString('msgid "Post body is super required"', $result);
@@ -440,12 +462,12 @@ class ExtractTaskTest extends CakeTestCase
     public function testExtractModelValidationInPlugin(): void
     {
         App::build([
-            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS],
+            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
         ]);
-        $this->out = $this->getMock('ConsoleOutput', [], [], '', false);
-        $this->in = $this->getMock('ConsoleInput', [], [], '', false);
+        $this->out = $this->getMock(ConsoleOutput::class, [], [], '', false);
+        $this->in = $this->getMock(ConsoleInput::class, [], [], '', false);
         $this->Task = $this->getMock(
-            'ExtractTask',
+            ExtractTask::class,
             ['_isExtractingApp', 'in', 'out', 'err', 'clear', '_stop'],
             [$this->out, $this->out, $this->in],
         );
@@ -529,22 +551,30 @@ class ExtractTaskTest extends CakeTestCase
             "__dcn('domain', 'first singular', 'first plural', 1000, 6);\n" .
             "__dcn('domain', 'second singular', 'second plural', 1, 6);\n";
 
-        $tokens = new ReflectionProperty('ExtractTask', '_tokens');
-        $tokens->setAccessible(true);
+        $tokens = new ReflectionProperty(ExtractTask::class, '_tokens');
+        if (PHP_VERSION_ID < 80100) {
+            $tokens->setAccessible(true);
+        }
         $tokens->setValue($this->Task, array_values(array_filter(
             token_get_all($code),
             fn($token) => !is_array($token) || ($token[0] !== T_WHITESPACE && $token[0] !== T_INLINE_HTML),
         )));
-        $file = new ReflectionProperty('ExtractTask', '_file');
-        $file->setAccessible(true);
+        $file = new ReflectionProperty(ExtractTask::class, '_file');
+        if (PHP_VERSION_ID < 80100) {
+            $file->setAccessible(true);
+        }
         $file->setValue($this->Task, 'test.php');
 
-        $parse = new ReflectionMethod('ExtractTask', '_parse');
-        $parse->setAccessible(true);
+        $parse = new ReflectionMethod(ExtractTask::class, '_parse');
+        if (PHP_VERSION_ID < 80100) {
+            $parse->setAccessible(true);
+        }
         $parse->invoke($this->Task, '__dcn', ['domain', 'singular', 'plural', 'count', 'category']);
 
-        $translations = new ReflectionProperty('ExtractTask', '_translations');
-        $translations->setAccessible(true);
+        $translations = new ReflectionProperty(ExtractTask::class, '_translations');
+        if (PHP_VERSION_ID < 80100) {
+            $translations->setAccessible(true);
+        }
         $result = $translations->getValue($this->Task);
 
         $this->assertArrayHasKey('first singular', $result['LC_MESSAGES']['domain']);

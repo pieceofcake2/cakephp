@@ -1,56 +1,13 @@
 <?php
 
+namespace Cake\Test\TestCase\Controller;
+
+use Cake\Core\App;
+use Cake\Core\Configure;
+use Cake\Model\Datasource\CakeSession;
+use Cake\TestSuite\ControllerTestCase;
+
 App::uses('AppController', 'Controller');
-
-/**
- * TransSessionIdController class for testing session.use_trans_sid=1.
- *
- * @package       Cake.Test.Case.Controller
- */
-class TransSessionIdController extends AppController
-{
-    /**
-     * autoRender property
-     *
-     * @var bool
-     */
-    public $autoRender = false;
-
-    /**
-     * Constructor.
-     *
-     * @param CakeRequest $request Request object for this controller.
-     * @param CakeResponse $response Response object for this controller.
-     */
-    public function __construct($request = null, $response = null)
-    {
-        parent::__construct($request, $response);
-        $ini = Configure::read('Session.ini');
-        $ini['session.use_cookies'] = 0;
-        $ini['session.use_only_cookies'] = 0;
-        $ini['session.use_trans_sid'] = 1;
-        Configure::write('Session.ini', $ini);
-    }
-
-    /**
-     * For testing redirect URL with session.use_trans_sid=1.
-     *
-     * @return CakeResponse|null
-     */
-    public function next(): mixed
-    {
-        $sessionName = session_name();
-        $sessionId = $this->Session->id();
-
-        return $this->redirect([
-            'controller' => 'trans_session_id',
-            'action' => 'next_step',
-            '?' => [
-                $sessionName => $sessionId,
-            ],
-        ]);
-    }
-}
 
 /**
  * ApplicationControllerTest class for testing controllers by using ControllerTestCase.
@@ -69,8 +26,13 @@ class ApplicationControllerTest extends ControllerTestCase
      */
     public function setUp(): void
     {
-        CakeSession::destroy();
         parent::setUp();
+        Configure::write('App.namespace', 'TestApp');
+
+        CakeSession::destroy();
+
+        Configure::write('Security.salt', 'YJfIxfs2guVoUubWDYhG93b0qyJfIxfs2guwvniR2G0FgaC9mi');
+        Configure::write('Security.cipherSeed', 770011223369876);
     }
 
     /**
@@ -80,9 +42,52 @@ class ApplicationControllerTest extends ControllerTestCase
      */
     public function tearDown(): void
     {
-        CakeSession::destroy();
+        try {
+            CakeSession::destroy();
+        } finally {
+            parent::tearDown();
+        }
+    }
 
-        parent::tearDown();
+    /**
+     * Tests the redirect and session config without cookies.
+     *
+     * @return void
+     */
+    public function testRedirect(): void
+    {
+        // Use the default cache limiter of CakeSession, not the one of the application skeleton
+        Configure::delete('Session.cacheLimiter');
+
+        $level = ob_get_level();
+        $this->testAction('/trans_session_id/next', [
+            'method' => 'GET',
+            'return' => 'vars',
+        ]);
+        while (ob_get_level() > $level) {
+            ob_end_clean();
+        }
+
+        $this->assertStringContainsString('/trans_session_id/next_step?CAKEPHP=' . CakeSession::id(), $this->headers['Location']);
+
+        $expectedConfig = [
+            'cookie' => 'CAKEPHP',
+            'timeout' => 240,
+            'ini' => [
+                'session.cookie_path' => '/',
+                'session.cookie_lifetime' => 14400,
+                'session.name' => 'CAKEPHP',
+                'session.gc_maxlifetime' => 14400,
+                'session.cookie_httponly' => 1,
+                'session.use_cookies' => 0,
+                'session.use_trans_sid' => 0,
+            ],
+            'defaults' => 'php',
+            'cookieTimeout' => 240,
+            'cacheLimiter' => 'must-revalidate',
+        ];
+        $actualConfig = Configure::read('Session');
+        $this->assertEquals($expectedConfig, $actualConfig);
     }
 
     /**
@@ -90,8 +95,16 @@ class ApplicationControllerTest extends ControllerTestCase
      *
      * @return void
      */
-    public function testRedirect(): void
+    public function testRedirectWithTransSid(): void
     {
+        $this->skipIf(PHP_VERSION_ID >= 80400, 'PHP 8.4 deprecates session.use_trans_sid and disabling session.use_only_cookies.');
+
+        // Use the default cache limiter of CakeSession, not the one of the application skeleton
+        Configure::delete('Session.cacheLimiter');
+        Configure::write('Session.ini', [
+            'session.use_only_cookies' => 0,
+            'session.use_trans_sid' => 1,
+        ]);
         $sessionId = 'o7k64tlhil9pakp89j6d8ovlqk';
 
         $level = ob_get_level();

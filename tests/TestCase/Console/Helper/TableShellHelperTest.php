@@ -13,6 +13,12 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\Console\Helper;
+
+use Cake\Console\Helper\TableShellHelper;
+use Cake\TestSuite\CakeTestCase;
+use Cake\TestSuite\Stub\ConsoleOutputStub;
+
 /**
  * ProgressHelper test.
  *

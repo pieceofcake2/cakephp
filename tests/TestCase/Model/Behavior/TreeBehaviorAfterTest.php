@@ -16,9 +16,13 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('AppModel', 'Model');
+namespace Cake\Test\TestCase\Model\Behavior;
 
-require_once dirname(__DIR__) . DS . 'models.php';
+use Cake\Core\App;
+use Cake\TestSuite\CakeTestCase;
+use TestApp\Model\AfterTree;
+
+App::uses('AppModel', 'Model');
 
 /**
  * TreeBehaviorAfterTest class
@@ -49,9 +53,11 @@ class TreeBehaviorAfterTest extends CakeTestCase
     /**
      * fixtures property
      *
-     * @var array
+     * @var array<string>
      */
-    public $fixtures = ['core.after_tree'];
+    public $fixtures = [
+        'core.after_tree',
+    ];
 
     /**
      * Tests the afterSave callback in the model

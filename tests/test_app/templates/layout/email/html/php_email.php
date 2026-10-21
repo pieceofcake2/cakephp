@@ -1,0 +1,1 @@
+<?= 'php email layout: ' . $this->fetch('content') ?>

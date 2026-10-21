@@ -16,9 +16,19 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('AppModel', 'Model');
+namespace Cake\Test\TestCase\Controller\Component\Auth;
 
-require_once CORE_TESTS . DS . 'TestCase' . DS . 'Model' . DS . 'models.php';
+use Cake\Controller\Component\Auth\BasicAuthenticate;
+use Cake\Controller\ComponentCollection;
+use Cake\Core\App;
+use Cake\Error\UnauthorizedException;
+use Cake\Network\CakeRequest;
+use Cake\Network\CakeResponse;
+use Cake\TestSuite\CakeTestCase;
+use Cake\Utility\ClassRegistry;
+use Cake\Utility\Security;
+
+App::uses('AppModel', 'Model');
 
 /**
  * Test case for BasicAuthentication
@@ -30,9 +40,13 @@ class BasicAuthenticateTest extends CakeTestCase
     /**
      * Fixtures
      *
-     * @var array
+     * @var array<string>
      */
-    public $fixtures = ['core.user', 'core.auth_user', 'core.article'];
+    public $fixtures = [
+        'core.user',
+        'core.auth_user',
+        'core.article',
+    ];
 
     /**
      * setup
@@ -42,7 +56,7 @@ class BasicAuthenticateTest extends CakeTestCase
     public function setUp(): void
     {
         parent::setUp();
-        $this->Collection = $this->getMock('ComponentCollection');
+        $this->Collection = $this->getMock(ComponentCollection::class);
         $this->auth = new BasicAuthenticate($this->Collection, [
             'fields' => ['username' => 'user', 'password' => 'password'],
             'userModel' => 'User',
@@ -53,7 +67,7 @@ class BasicAuthenticateTest extends CakeTestCase
         $password = Security::hash('password', null, true);
         $User = ClassRegistry::init('User');
         $User->updateAll(['password' => $User->getDataSource()->value($password)]);
-        $this->response = $this->getMock('CakeResponse');
+        $this->response = $this->getMock(CakeResponse::class);
     }
 
     /**

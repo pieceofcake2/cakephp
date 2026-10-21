@@ -1,5 +1,8 @@
 <?php
 
+namespace Cake\Test\TestCase\Model\Behavior;
+
+use Cake\TestSuite\CakeTestSuite;
 use PHPUnit\Framework\TestSuite;
 
 /**
@@ -30,7 +33,7 @@ class TreeBehaviorTest extends TestSuite
     /**
      * suite method, defines tests for this suite.
      *
-     * @return void
+     * @return TestSuite
      */
     public static function suite(): mixed
     {

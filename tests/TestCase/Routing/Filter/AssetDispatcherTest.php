@@ -14,6 +14,19 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\Routing\Filter;
+
+use Cake\Core\App;
+use Cake\Core\CakePlugin;
+use Cake\Core\Configure;
+use Cake\Event\CakeEvent;
+use Cake\Network\CakeRequest;
+use Cake\Network\CakeResponse;
+use Cake\Routing\Filter\AssetDispatcher;
+use Cake\Routing\Router;
+use Cake\TestSuite\CakeTestCase;
+use DateTime;
+
 /**
  * AssetDispatcherTest
  *
@@ -47,14 +60,17 @@ class AssetDispatcherTest extends CakeTestCase
     public function testAssetFilterForThemeAndPlugins(): void
     {
         $filter = new AssetDispatcher();
-        $response = $this->getMock('CakeResponse', ['_sendHeader']);
+        $response = $this->getMock(CakeResponse::class, ['_sendHeader']);
         Configure::write('Asset.filter', [
             'js' => '',
             'css' => '',
         ]);
         App::build([
-            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS],
-            'View' => [CORE_TESTS . DS . 'test_app' . DS . 'View' . DS],
+            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
+            'View' => [
+                CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'View' . DS,
+                CORE_TESTS . DS . 'test_app' . DS . 'templates' . DS,
+            ],
         ], App::RESET);
 
         $request = new CakeRequest('theme/test_theme/ccss/cake.generic.css');
@@ -98,14 +114,17 @@ class AssetDispatcherTest extends CakeTestCase
     public function testNoHandleRoutedExtension(): void
     {
         $filter = new AssetDispatcher();
-        $response = $this->getMock('CakeResponse', ['_sendHeader']);
+        $response = $this->getMock(CakeResponse::class, ['_sendHeader']);
         Configure::write('Asset.filter', [
             'js' => '',
             'css' => '',
         ]);
         App::build([
-            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS],
-            'View' => [CORE_TESTS . DS . 'test_app' . DS . 'View' . DS],
+            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
+            'View' => [
+                CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'View' . DS,
+                CORE_TESTS . DS . 'test_app' . DS . 'templates' . DS,
+            ],
         ], App::RESET);
         Router::parseExtensions('json');
         Router::connect('/test_plugin/api/v1/:action', ['controller' => 'api']);
@@ -133,13 +152,16 @@ class AssetDispatcherTest extends CakeTestCase
             'css' => '',
         ]);
         App::build([
-            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS],
-            'View' => [CORE_TESTS . DS . 'test_app' . DS . 'View' . DS],
+            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
+            'View' => [
+                CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'View' . DS,
+                CORE_TESTS . DS . 'test_app' . DS . 'templates' . DS,
+            ],
         ]);
         $time = filemtime(App::themePath('TestTheme') . 'webroot' . DS . 'img' . DS . 'cake.power.gif');
         $time = new DateTime('@' . $time);
 
-        $response = $this->getMock('CakeResponse', ['send', 'checkNotModified']);
+        $response = $this->getMock(CakeResponse::class, ['send', 'checkNotModified']);
         $request = new CakeRequest('theme/test_theme/img/cake.power.gif');
 
         $response->expects($this->once())->method('checkNotModified')
@@ -153,7 +175,7 @@ class AssetDispatcherTest extends CakeTestCase
         $this->assertEquals(200, $response->statusCode());
         $this->assertEquals($time->format('D, j M Y H:i:s') . ' GMT', $response->modified());
 
-        $response = $this->getMock('CakeResponse', ['_sendHeader', 'checkNotModified']);
+        $response = $this->getMock(CakeResponse::class, ['_sendHeader', 'checkNotModified']);
         $request = new CakeRequest('theme/test_theme/img/cake.power.gif');
         $response->expects($this->once())->method('checkNotModified')
             ->with($request)
@@ -173,7 +195,7 @@ class AssetDispatcherTest extends CakeTestCase
     {
         $filter = new AssetDispatcher();
 
-        $response = $this->getMock('CakeResponse', ['_sendHeader']);
+        $response = $this->getMock(CakeResponse::class, ['_sendHeader']);
         $request = new CakeRequest('//index.php');
         $event = new CakeEvent('Dispatcher.beforeRequest', $this, compact('request', 'response'));
 
@@ -190,10 +212,13 @@ class AssetDispatcherTest extends CakeTestCase
     public function test404OnDoubleDot(): void
     {
         App::build([
-            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS],
-            'View' => [CORE_TESTS . DS . 'test_app' . DS . 'View' . DS],
+            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
+            'View' => [
+                CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'View' . DS,
+                CORE_TESTS . DS . 'test_app' . DS . 'templates' . DS,
+            ],
         ], App::RESET);
-        $response = $this->getMock('CakeResponse', ['_sendHeader']);
+        $response = $this->getMock(CakeResponse::class, ['_sendHeader']);
         $request = new CakeRequest('theme/test_theme/../../../../../../../../VERSION.txt');
         $event = new CakeEvent('Dispatcher.beforeRequest', $this, compact('request', 'response'));
         $filter = new AssetDispatcher();
@@ -210,11 +235,14 @@ class AssetDispatcherTest extends CakeTestCase
     public function test404OnDoubleDotEncoded(): void
     {
         App::build([
-            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS],
-            'View' => [CORE_TESTS . DS . 'test_app' . DS . 'View' . DS],
+            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
+            'View' => [
+                CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'View' . DS,
+                CORE_TESTS . DS . 'test_app' . DS . 'templates' . DS,
+            ],
         ], App::RESET);
 
-        $response = $this->getMock('CakeResponse', ['_sendHeader', 'send']);
+        $response = $this->getMock(CakeResponse::class, ['_sendHeader', 'send']);
         $request = new CakeRequest('theme/test_theme/%2e./%2e./%2e./%2e./%2e./%2e./%2e./%2e./VERSION.txt');
         $event = new CakeEvent('Dispatcher.beforeRequest', $this, compact('request', 'response'));
 
@@ -236,16 +264,19 @@ class AssetDispatcherTest extends CakeTestCase
     public function testAssetContentLength(): void
     {
         Router::reload();
-        Configure::write('Dispatcher.filters', ['AssetDispatcher']);
+        Configure::write('Dispatcher.filters', [AssetDispatcher::class]);
         App::build([
-            'View' => [CORE_TESTS . DS . 'test_app' . DS . 'View' . DS],
+            'View' => [
+                CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'View' . DS,
+                CORE_TESTS . DS . 'test_app' . DS . 'templates' . DS,
+            ],
         ]);
 
         $url = 'theme/test_theme/css/test_asset.css';
-        $file = 'View/Themed/TestTheme/webroot/css/test_asset.css';
+        $file = 'templates/Themed/TestTheme/webroot/css/test_asset.css';
 
         $request = new CakeRequest($url);
-        $response = $this->getMock('CakeResponse', ['_sendHeader', 'send']);
+        $response = $this->getMock(CakeResponse::class, ['_sendHeader', 'send']);
         $event = new CakeEvent('Dispatcher.beforeRequest', $this, compact('request', 'response'));
 
         $filter = new AssetDispatcher();
@@ -257,6 +288,6 @@ class AssetDispatcherTest extends CakeTestCase
         $this->assertEquals($file, $result);
 
         $headers = $response->header();
-        $this->assertFalse($headers['Content-Length']);
+        $this->assertFalse($headers['Content-Length'] ?? false);
     }
 }

@@ -1,4 +1,5 @@
 <?php
+
 /**
  * HtmlHelperTest file
  *
@@ -16,6 +17,23 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\View\Helper;
+
+use Cake\Controller\Controller;
+use Cake\Core\App;
+use Cake\Core\CakePlugin;
+use Cake\Core\Configure;
+use Cake\Error\ConfigureException;
+use Cake\Network\CakeRequest;
+use Cake\Routing\Router;
+use Cake\TestSuite\CakeTestCase;
+use Cake\Utility\File;
+use Cake\Utility\Folder;
+use Cake\View\Helper\HtmlHelper;
+use Cake\View\View;
+use InvalidArgumentException;
+use TestApp\Configure\NamespacedReader;
+
 App::uses('AppHelper', 'View/Helper');
 
 if (!defined('FULL_BASE_URL')) {
@@ -32,16 +50,16 @@ class TheHtmlTestController extends Controller
     /**
      * name property
      *
-     * @var string
+     * @var string|null
      */
     public $name = 'TheTest';
 
     /**
      * uses property
      *
-     * @var mixed
+     * @var array|bool|null
      */
-    public $uses = null;
+    public $uses = [];
 }
 
 class TestHtmlHelper extends HtmlHelper
@@ -49,11 +67,11 @@ class TestHtmlHelper extends HtmlHelper
     /**
      * expose a method as public
      *
-     * @param string $options
-     * @param string $exclude
+     * @param array|string|null $options
+     * @param array $exclude
      * @param string $insertBefore
-     * @param string $insertAfter
-     * @return void
+     * @param string|null $insertAfter
+     * @return string
      */
     public function parseAttributes($options, $exclude = null, $insertBefore = ' ', $insertAfter = null): mixed
     {
@@ -141,13 +159,13 @@ class HtmlHelperTest extends CakeTestCase
     public function setUp(): void
     {
         parent::setUp();
-        $this->View = $this->getMock('View', ['append'], [new TheHtmlTestController()]);
+        $this->View = $this->getMock(View::class, ['append'], [new TheHtmlTestController()]);
         $this->Html = new TestHtmlHelper($this->View);
         $this->Html->request = new CakeRequest(null, false);
         $this->Html->request->webroot = '';
 
         App::build([
-            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS],
+            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
         ]);
 
         Configure::write('Asset.timestamp', false);
@@ -525,7 +543,10 @@ class HtmlHelperTest extends CakeTestCase
         new File($testfile, true);
 
         App::build([
-            'View' => [CORE_TESTS . DS . 'test_app' . DS . 'View' . DS],
+            'View' => [
+                CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'View' . DS,
+                CORE_TESTS . DS . 'test_app' . DS . 'templates' . DS,
+            ],
         ]);
         Configure::write('Asset.timestamp', true);
         Configure::write('debug', 1);
@@ -600,7 +621,10 @@ class HtmlHelperTest extends CakeTestCase
     public function testThemeAssetsInMainWebrootPath(): void
     {
         App::build([
-            'View' => [CORE_TESTS . DS . 'test_app' . DS . 'View' . DS],
+            'View' => [
+                CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'View' . DS,
+                CORE_TESTS . DS . 'test_app' . DS . 'templates' . DS,
+            ],
         ]);
         $webRoot = Configure::read('App.www_root');
         Configure::write('App.www_root', CORE_TESTS . DS . 'test_app' . DS . 'webroot' . DS);
@@ -608,14 +632,14 @@ class HtmlHelperTest extends CakeTestCase
         $this->Html->theme = 'test_theme';
         $result = $this->Html->css('webroot_test');
         $expected = [
-            'link' => ['rel' => 'stylesheet', 'type' => 'text/css', 'href' => 'preg:/.*theme\/test_theme\/css\/webroot_test\.css/'],
+            'link' => ['rel' => 'stylesheet', 'href' => 'preg:/.*theme\/test_theme\/css\/webroot_test\.css/'],
         ];
         $this->assertTags($result, $expected);
 
         $this->Html->theme = 'test_theme';
         $result = $this->Html->css('theme_webroot');
         $expected = [
-            'link' => ['rel' => 'stylesheet', 'type' => 'text/css', 'href' => 'preg:/.*theme\/test_theme\/css\/theme_webroot\.css/'],
+            'link' => ['rel' => 'stylesheet', 'href' => 'preg:/.*theme\/test_theme\/css\/theme_webroot\.css/'],
         ];
         $this->assertTags($result, $expected);
 
@@ -653,7 +677,7 @@ class HtmlHelperTest extends CakeTestCase
 
         $result = $this->Html->css('screen');
         $expected = [
-            'link' => ['rel' => 'stylesheet', 'type' => 'text/css', 'href' => 'preg:/.*css\/screen\.css/'],
+            'link' => ['rel' => 'stylesheet', 'href' => 'preg:/.*css\/screen\.css/'],
         ];
         $this->assertTags($result, $expected);
 
@@ -736,7 +760,7 @@ class HtmlHelperTest extends CakeTestCase
 
         $result = $this->Html->css('screen', ['rel' => 'import']);
         $expected = [
-            'style' => ['type' => 'text/css'],
+            '<style',
             'preg:/@import url\(.*css\/screen\.css\);/',
             '/style',
         ];
@@ -754,7 +778,7 @@ class HtmlHelperTest extends CakeTestCase
 
         $result = $this->Html->css('screen', ['once' => true]);
         $expected = [
-            'link' => ['rel' => 'stylesheet', 'type' => 'text/css', 'href' => 'preg:/.*css\/screen\.css/'],
+            'link' => ['rel' => 'stylesheet', 'href' => 'preg:/.*css\/screen\.css/'],
         ];
         $this->assertTags($result, $expected);
 
@@ -764,7 +788,7 @@ class HtmlHelperTest extends CakeTestCase
         // Default is once=false
         $result = $this->Html->css('screen');
         $expected = [
-            'link' => ['rel' => 'stylesheet', 'type' => 'text/css', 'href' => 'preg:/.*css\/screen\.css/'],
+            'link' => ['rel' => 'stylesheet', 'href' => 'preg:/.*css\/screen\.css/'],
         ];
         $this->assertTags($result, $expected);
     }
@@ -783,7 +807,6 @@ class HtmlHelperTest extends CakeTestCase
         $expected = [
             'link' => [
                 'rel' => 'stylesheet',
-                'type' => 'text/css',
                 'href' => 'preg:/.*css\/TestPlugin\.style\.css/',
             ],
         ];
@@ -792,7 +815,7 @@ class HtmlHelperTest extends CakeTestCase
 
         $result = $this->Html->css('screen', 'import');
         $expected = [
-            'style' => ['type' => 'text/css'],
+            '<style',
             'preg:/@import url\(.*css\/screen\.css\);/',
             '/style',
         ];
@@ -817,7 +840,7 @@ class HtmlHelperTest extends CakeTestCase
 
         $result = $this->Html->css('screen', null, ['fullBase' => true]);
         $expected = [
-            'link' => ['rel' => 'stylesheet', 'type' => 'text/css', 'href' => $here . 'css/screen.css'],
+            'link' => ['rel' => 'stylesheet', 'href' => $here . 'css/screen.css'],
         ];
         $this->assertTags($result, $expected);
     }
@@ -834,7 +857,7 @@ class HtmlHelperTest extends CakeTestCase
 
         $result = $this->Html->css('TestPlugin.test_plugin_asset');
         $expected = [
-            'link' => ['rel' => 'stylesheet', 'type' => 'text/css', 'href' => 'preg:/.*test_plugin\/css\/test_plugin_asset\.css/'],
+            'link' => ['rel' => 'stylesheet', 'href' => 'preg:/.*test_plugin\/css\/test_plugin_asset\.css/'],
         ];
         $this->assertTags($result, $expected);
 
@@ -877,7 +900,7 @@ class HtmlHelperTest extends CakeTestCase
         Configure::write('Asset.timestamp', true);
 
         $expected = [
-            'link' => ['rel' => 'stylesheet', 'type' => 'text/css', 'href' => ''],
+            'link' => ['rel' => 'stylesheet', 'href' => ''],
         ];
 
         $result = $this->Html->css('cake.generic');
@@ -920,7 +943,7 @@ class HtmlHelperTest extends CakeTestCase
         Configure::write('Asset.timestamp', true);
 
         $expected = [
-            'link' => ['rel' => 'stylesheet', 'type' => 'text/css', 'href' => ''],
+            'link' => ['rel' => 'stylesheet', 'href' => ''],
         ];
 
         $result = $this->Html->css('TestPlugin.test_plugin_asset');
@@ -1044,64 +1067,64 @@ class HtmlHelperTest extends CakeTestCase
     {
         $result = $this->Html->script('foo');
         $expected = [
-            'script' => ['type' => 'text/javascript', 'src' => 'js/foo.js'],
+            'script' => ['src' => 'js/foo.js'],
         ];
         $this->assertTags($result, $expected);
 
         $result = $this->Html->script(['foobar', 'bar']);
         $expected = [
-            ['script' => ['type' => 'text/javascript', 'src' => 'js/foobar.js']],
+            ['script' => ['src' => 'js/foobar.js']],
             '/script',
-            ['script' => ['type' => 'text/javascript', 'src' => 'js/bar.js']],
+            ['script' => ['src' => 'js/bar.js']],
             '/script',
         ];
         $this->assertTags($result, $expected);
 
         $result = $this->Html->script('jquery-1.3');
         $expected = [
-            'script' => ['type' => 'text/javascript', 'src' => 'js/jquery-1.3.js'],
+            'script' => ['src' => 'js/jquery-1.3.js'],
         ];
         $this->assertTags($result, $expected);
 
         $result = $this->Html->script('test.json');
         $expected = [
-            'script' => ['type' => 'text/javascript', 'src' => 'js/test.json.js'],
+            'script' => ['src' => 'js/test.json.js'],
         ];
         $this->assertTags($result, $expected);
 
         $result = $this->Html->script('http://example.com/test.json');
         $expected = [
-            'script' => ['type' => 'text/javascript', 'src' => 'http://example.com/test.json'],
+            'script' => ['src' => 'http://example.com/test.json'],
         ];
         $this->assertTags($result, $expected);
 
         $result = $this->Html->script('/plugin/js/jquery-1.3.2.js?someparam=foo');
         $expected = [
-            'script' => ['type' => 'text/javascript', 'src' => '/plugin/js/jquery-1.3.2.js?someparam=foo'],
+            'script' => ['src' => '/plugin/js/jquery-1.3.2.js?someparam=foo'],
         ];
         $this->assertTags($result, $expected);
 
         $result = $this->Html->script('test.json.js?foo=bar');
         $expected = [
-            'script' => ['type' => 'text/javascript', 'src' => 'js/test.json.js?foo=bar'],
+            'script' => ['src' => 'js/test.json.js?foo=bar'],
         ];
         $this->assertTags($result, $expected);
 
         $result = $this->Html->script('test.json.js?foo=bar&other=test');
         $expected = [
-            'script' => ['type' => 'text/javascript', 'src' => 'js/test.json.js?foo=bar&amp;other=test'],
+            'script' => ['src' => 'js/test.json.js?foo=bar&amp;other=test'],
         ];
         $this->assertTags($result, $expected);
 
         $result = $this->Html->script('foo2', ['pathPrefix' => '/my/custom/path/']);
         $expected = [
-            'script' => ['type' => 'text/javascript', 'src' => '/my/custom/path/foo2.js'],
+            'script' => ['src' => '/my/custom/path/foo2.js'],
         ];
         $this->assertTags($result, $expected);
 
         $result = $this->Html->script('foo3', ['pathPrefix' => 'https://cakephp.org/assets/js/']);
         $expected = [
-            'script' => ['type' => 'text/javascript', 'src' => 'https://cakephp.org/assets/js/foo3.js'],
+            'script' => ['src' => 'https://cakephp.org/assets/js/foo3.js'],
         ];
         $this->assertTags($result, $expected);
 
@@ -1109,7 +1132,7 @@ class HtmlHelperTest extends CakeTestCase
         Configure::write('App.jsBaseUrl', '//cdn.cakephp.org/js/');
         $result = $this->Html->script('foo4');
         $expected = [
-            'script' => ['type' => 'text/javascript', 'src' => '//cdn.cakephp.org/js/foo4.js'],
+            'script' => ['src' => '//cdn.cakephp.org/js/foo4.js'],
         ];
         $this->assertTags($result, $expected);
         Configure::write('App.jsBaseUrl', $previousConfig);
@@ -1125,7 +1148,7 @@ class HtmlHelperTest extends CakeTestCase
 
         $result = $this->Html->script('jquery-1.3.2', ['defer' => true, 'encoding' => 'utf-8']);
         $expected = [
-            'script' => ['type' => 'text/javascript', 'src' => 'js/jquery-1.3.2.js', 'defer' => 'defer', 'encoding' => 'utf-8'],
+            'script' => ['src' => 'js/jquery-1.3.2.js', 'defer' => 'defer', 'encoding' => 'utf-8'],
         ];
         $this->assertTags($result, $expected);
     }
@@ -1142,40 +1165,40 @@ class HtmlHelperTest extends CakeTestCase
 
         $result = $this->Html->script('TestPlugin.foo');
         $expected = [
-            'script' => ['type' => 'text/javascript', 'src' => 'test_plugin/js/foo.js'],
+            'script' => ['src' => 'test_plugin/js/foo.js'],
         ];
         $this->assertTags($result, $expected);
 
         $result = $this->Html->script(['TestPlugin.foobar', 'TestPlugin.bar']);
         $expected = [
-            ['script' => ['type' => 'text/javascript', 'src' => 'test_plugin/js/foobar.js']],
+            ['script' => ['src' => 'test_plugin/js/foobar.js']],
             '/script',
-            ['script' => ['type' => 'text/javascript', 'src' => 'test_plugin/js/bar.js']],
+            ['script' => ['src' => 'test_plugin/js/bar.js']],
             '/script',
         ];
         $this->assertTags($result, $expected);
 
         $result = $this->Html->script('TestPlugin.jquery-1.3');
         $expected = [
-            'script' => ['type' => 'text/javascript', 'src' => 'test_plugin/js/jquery-1.3.js'],
+            'script' => ['src' => 'test_plugin/js/jquery-1.3.js'],
         ];
         $this->assertTags($result, $expected);
 
         $result = $this->Html->script('TestPlugin.test.json');
         $expected = [
-            'script' => ['type' => 'text/javascript', 'src' => 'test_plugin/js/test.json.js'],
+            'script' => ['src' => 'test_plugin/js/test.json.js'],
         ];
         $this->assertTags($result, $expected);
 
         $result = $this->Html->script('TestPlugin./jquery-1.3.2.js?someparam=foo');
         $expected = [
-            'script' => ['type' => 'text/javascript', 'src' => 'test_plugin/jquery-1.3.2.js?someparam=foo'],
+            'script' => ['src' => 'test_plugin/jquery-1.3.2.js?someparam=foo'],
         ];
         $this->assertTags($result, $expected);
 
         $result = $this->Html->script('TestPlugin.test.json.js?foo=bar');
         $expected = [
-            'script' => ['type' => 'text/javascript', 'src' => 'test_plugin/js/test.json.js?foo=bar'],
+            'script' => ['src' => 'test_plugin/js/test.json.js?foo=bar'],
         ];
         $this->assertTags($result, $expected);
 
@@ -1190,7 +1213,7 @@ class HtmlHelperTest extends CakeTestCase
 
         $result = $this->Html->script('TestPlugin.jquery-1.3.2', ['defer' => true, 'encoding' => 'utf-8']);
         $expected = [
-            'script' => ['type' => 'text/javascript', 'src' => 'test_plugin/js/jquery-1.3.2.js', 'defer' => 'defer', 'encoding' => 'utf-8'],
+            'script' => ['src' => 'test_plugin/js/jquery-1.3.2.js', 'defer' => 'defer', 'encoding' => 'utf-8'],
         ];
         $this->assertTags($result, $expected);
 
@@ -1241,13 +1264,13 @@ class HtmlHelperTest extends CakeTestCase
 
         $result = $this->Html->script('jquery-1.3');
         $expected = [
-            'script' => ['type' => 'text/javascript', 'src' => 'cjs/jquery-1.3.js'],
+            'script' => ['src' => 'cjs/jquery-1.3.js'],
         ];
         $this->assertTags($result, $expected);
 
         $result = $this->Html->script('//example.com/js/jquery-1.3.js');
         $expected = [
-            'script' => ['type' => 'text/javascript', 'src' => '//example.com/js/jquery-1.3.js'],
+            'script' => ['src' => '//example.com/js/jquery-1.3.js'],
         ];
         $this->assertTags($result, $expected);
     }
@@ -1263,15 +1286,15 @@ class HtmlHelperTest extends CakeTestCase
 
         $result = $this->Html->script('foo', ['fullBase' => true]);
         $expected = [
-            'script' => ['type' => 'text/javascript', 'src' => $here . 'js/foo.js'],
+            'script' => ['src' => $here . 'js/foo.js'],
         ];
         $this->assertTags($result, $expected);
 
         $result = $this->Html->script(['foobar', 'bar'], ['fullBase' => true]);
         $expected = [
-            ['script' => ['type' => 'text/javascript', 'src' => $here . 'js/foobar.js']],
+            ['script' => ['src' => $here . 'js/foobar.js']],
             '/script',
-            ['script' => ['type' => 'text/javascript', 'src' => $here . 'js/bar.js']],
+            ['script' => ['src' => $here . 'js/bar.js']],
             '/script',
         ];
         $this->assertTags($result, $expected);
@@ -1290,14 +1313,17 @@ class HtmlHelperTest extends CakeTestCase
         new File($testfile, true);
 
         App::build([
-            'View' => [CORE_TESTS . DS . 'test_app' . DS . 'View' . DS],
+            'View' => [
+                CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'View' . DS,
+                CORE_TESTS . DS . 'test_app' . DS . 'templates' . DS,
+            ],
         ]);
 
         $this->Html->webroot = '/';
         $this->Html->theme = 'test_theme';
         $result = $this->Html->script('__test_js.js');
         $expected = [
-            'script' => ['src' => '/theme/test_theme/js/__test_js.js', 'type' => 'text/javascript'],
+            'script' => ['src' => '/theme/test_theme/js/__test_js.js'],
         ];
         $this->assertTags($result, $expected);
 
@@ -1313,10 +1339,16 @@ class HtmlHelperTest extends CakeTestCase
     /**
      * test Script block generation
      *
+     * With the html5 setting off: the type text/javascript and CDATA by default
+     *
      * @return void
      */
-    public function testScriptBlock(): void
+    public function testScriptBlockXhtml(): void
     {
+        $request = $this->Html->request;
+        $this->Html = new TestHtmlHelper($this->View, ['html5' => false]);
+        $this->Html->request = $request;
+
         $result = $this->Html->scriptBlock('window.foo = 2;');
         $expected = [
             'script' => ['type' => 'text/javascript'],
@@ -1384,12 +1416,46 @@ class HtmlHelperTest extends CakeTestCase
     }
 
     /**
-     * test script tag output buffering when using scriptStart() and scriptEnd();
+     * testScriptBlock method
      *
      * @return void
      */
-    public function testScriptStartAndScriptEnd(): void
+    public function testScriptBlock(): void
     {
+        $result = $this->Html->scriptBlock('window.foo = 2;');
+        $this->assertTags($result, ['<script', 'window.foo = 2;', '/script']);
+        $this->assertSame('<script>window.foo = 2;</script>', $result);
+
+        $result = $this->Html->scriptBlock('window.foo = 2;', ['type' => 'text/x-handlebars-template']);
+        $this->assertTags($result, ['script' => ['type' => 'text/x-handlebars-template'], 'window.foo = 2;', '/script']);
+
+        $result = $this->Html->scriptBlock('window.foo = 2;', ['safe' => true]);
+        $expected = [
+            '<script',
+            $this->cDataStart,
+            'window.foo = 2;',
+            $this->cDataEnd,
+            '/script',
+        ];
+        $this->assertTags($result, $expected);
+
+        $result = $this->Html->scriptBlock('window.foo = 2;', ['nonce' => 'abc']);
+        $this->assertSame('<script nonce="abc">window.foo = 2;</script>', $result);
+    }
+
+    /**
+     * test script tag output buffering when using scriptStart() and scriptEnd();
+     *
+     * With the html5 setting off: the type text/javascript and CDATA by default
+     *
+     * @return void
+     */
+    public function testScriptStartAndScriptEndXhtml(): void
+    {
+        $request = $this->Html->request;
+        $this->Html = new TestHtmlHelper($this->View, ['html5' => false]);
+        $this->Html->request = $request;
+
         $result = $this->Html->scriptStart(['safe' => true]);
         $this->assertNull($result);
         echo 'this is some javascript';
@@ -1438,6 +1504,48 @@ class HtmlHelperTest extends CakeTestCase
 
         $result = $this->Html->scriptEnd();
         $this->assertNull($result);
+    }
+
+    /**
+     * test script tag output buffering when using scriptStart() and scriptEnd();
+     *
+     * @return void
+     */
+    public function testScriptStartAndScriptEnd(): void
+    {
+        $result = $this->Html->scriptStart();
+        $this->assertNull($result);
+        echo 'this is some javascript';
+
+        $result = $this->Html->scriptEnd();
+        $this->assertSame('<script>this is some javascript</script>', $result);
+
+        $this->Html->scriptStart(['safe' => true]);
+        echo 'this is some javascript';
+
+        $result = $this->Html->scriptEnd();
+        $this->assertTags($result, ['<script', $this->cDataStart, 'this is some javascript', $this->cDataEnd, '/script']);
+    }
+
+    /**
+     * With the html5 setting off, the link, style and script tags have their type
+     *
+     * @return void
+     */
+    public function testXhtmlTags(): void
+    {
+        $request = $this->Html->request;
+        $this->Html = new TestHtmlHelper($this->View, ['html5' => false]);
+        $this->Html->request = $request;
+
+        $result = $this->Html->css('screen');
+        $this->assertTags($result, ['link' => ['rel' => 'stylesheet', 'type' => 'text/css', 'href' => 'preg:/.*css\/screen\.css/']]);
+
+        $result = $this->Html->css('screen', ['rel' => 'import']);
+        $this->assertTags($result, ['style' => ['type' => 'text/css'], 'preg:/@import url\(.*css\/screen\.css\);/', '/style']);
+
+        $result = $this->Html->script('foo');
+        $this->assertTags($result, ['script' => ['type' => 'text/javascript', 'src' => 'js/foo.js'], '/script']);
     }
 
     /**
@@ -2361,7 +2469,7 @@ class HtmlHelperTest extends CakeTestCase
 
     public function testLoadConfig(): void
     {
-        $path = CORE_TESTS . DS . 'test_app' . DS . 'Config' . DS;
+        $path = CORE_TESTS . DS . 'test_app' . DS . 'config' . DS;
 
         $result = $this->Html->loadConfig('htmlhelper_tags', $path);
         $expected = [
@@ -2404,7 +2512,7 @@ class HtmlHelperTest extends CakeTestCase
     public function testLoadConfigWrongReader(): void
     {
         $this->expectException(ConfigureException::class);
-        $path = CORE_TESTS . DS . 'test_app' . DS . 'Config' . DS;
+        $path = CORE_TESTS . DS . 'test_app' . DS . 'config' . DS;
         $this->Html->loadConfig(['htmlhelper_tags', 'wrong_reader'], $path);
     }
 
@@ -2437,5 +2545,20 @@ class HtmlHelperTest extends CakeTestCase
         $this->assertEquals($expected, $helper->parseAttributes(['require']));
         $this->assertEquals($expected, $helper->parseAttributes(['require' => true]));
         $this->assertEquals('', $helper->parseAttributes(['require' => false]));
+    }
+
+    /**
+     * Test loadConfig() with a reader by fully qualified class name and from App.namespace.
+     *
+     * @return void
+     */
+    public function testLoadConfigNamespacedReader(): void
+    {
+        $path = CORE_TESTS . DS . 'test_app' . DS . 'config' . DS;
+        foreach ([NamespacedReader::class, 'TestApp\Configure\Namespaced', 'namespaced'] as $reader) {
+            Configure::write('App.namespace', 'TestApp');
+            $result = $this->Html->loadConfig(['htmlhelper_tags', $reader], $path);
+            $this->assertSame('start form', $result['tags']['form'], $reader);
+        }
     }
 }

@@ -2,6 +2,8 @@
 <phpunit xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
          xsi:noNamespaceSchemaLocation="./vendor/phpunit/phpunit/phpunit.xsd"
          bootstrap="./tests/bootstrap.php"
+         defaultTestSuite="AllTests"
+         convertDeprecationsToExceptions="true"
          backupGlobals="true"
          stderr="true"
          colors="true">
@@ -10,11 +12,14 @@
         <env name="APP_DEBUG" value="2"/>
     </php>
     <listeners>
-        <listener class="CakeFixtureInjector" file="./src/Cake/TestSuite/Fixture/CakeFixtureInjector.php"/>
+        <listener class="CakeFixtureInjector" file="./src/TestSuite/Fixture/CakeFixtureInjector.php"/>
     </listeners>
     <testsuites>
-        <testsuite name="All Tests">
+        <testsuite name="AllTests">
             <file>./tests/TestCase/AllTestsTest.php</file>
+        </testsuite>
+        <testsuite name="AllLegacyTests">
+            <file>./tests/TestCase/Legacy/AllLegacyTestsTest.php</file>
         </testsuite>
     </testsuites>
     <coverage>

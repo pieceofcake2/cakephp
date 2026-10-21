@@ -12,14 +12,15 @@
         "composer/ca-bundle": "^1.5",
         "php81_bc/strftime": "^0.7.5",
         "symfony/polyfill-intl-icu": "^1.29",
-        "symfony/polyfill-mbstring": "^1.29"
+        "symfony/polyfill-mbstring": "^1.29",
+        "symfony/polyfill-php84": "^1.31"
     },
     "require-dev": {
         "phpstan/phpstan": "^2.1",
         "phpunit/phpunit": "^9.6",
         "pieceofcake2/app": "^2.5",
         "pieceofcake2/phpcs-cakephp2": "^1.1",
-        "pieceofcake2/phpstan-cakephp2": "^1.0",
+        "pieceofcake2/phpstan-cakephp2": "^1.1",
         "rector/rector": "^2.1"
     },
     "replace": {
@@ -32,7 +33,10 @@
         "ext-intl": "Required to use IntlDateFormatter instead of strftime, if not Symfony polyfill will be used."
     },
     "autoload": {
-        "classmap": ["src/"]
+        "psr-4": {
+            "Cake\\": "src/"
+        },
+        "files": ["src/aliases.php"]
     },
     "config": {
         "sort-packages": true,
@@ -41,7 +45,20 @@
         }
     },
     "autoload-dev": {
-        "classmap": ["tests/test_app/"],
+        "psr-4": {
+            "Cake\\Test\\Fixture\\": "tests/Fixture/",
+            "Cake\\Test\\TestCase\\": "tests/TestCase/",
+            "TestApp\\": "tests/test_app/src/",
+            "TestArticlesPlugin\\": "tests/test_app/plugins/TestArticlesPlugin/src/",
+            "TestDispatchPlugin\\": "tests/test_app/plugins/TestDispatchPlugin/src/",
+            "TestJsPlugin\\": "tests/test_app/plugins/TestJsPlugin/src/",
+            "TestMergeVarPlugin\\": "tests/test_app/plugins/TestMergeVarPlugin/src/",
+            "TestModernPlugin\\": "tests/test_app/plugins/TestModernPlugin/src/",
+            "TestNamespacedPlugin\\": "tests/test_legacy_app/plugins/TestNamespacedPlugin/src/",
+            "TestPlugin\\": "tests/test_app/plugins/TestPlugin/src/",
+            "TestRegistryPlugin\\": "tests/test_app/plugins/TestRegistryPlugin/src/",
+            "TestTwoPlugin\\": "tests/test_app/plugins/TestTwoPlugin/src/"
+        },
         "exclude-from-classmap": [
             "vendor/pieceofcake2/app/src/Controller/AppController.php",
             "vendor/pieceofcake2/app/src/Controller/PagesController.php",

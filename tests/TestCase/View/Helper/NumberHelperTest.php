@@ -1,4 +1,5 @@
 <?php
+
 /**
  * NumberHelperTest file
  *
@@ -15,6 +16,21 @@
  * @since         CakePHP(tm) v 1.2.0.4206
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
+
+namespace Cake\Test\TestCase\View\Helper;
+
+use Cake\Core\App;
+use Cake\Core\CakePlugin;
+use Cake\Core\Configure;
+use Cake\TestSuite\CakeTestCase;
+use Cake\Utility\CakeNumber;
+use Cake\View\Helper;
+use Cake\View\Helper\NumberHelper;
+use Cake\View\View;
+use ReflectionProperty;
+use TestApp\Utility\NamespacedNumber;
+use TestApp\Utility\TestAppEngine;
+use TestPlugin\Utility\TestPluginEngine;
 
 /**
  * NumberHelperTestObject class
@@ -35,8 +51,108 @@ class NumberHelperTestObject extends NumberHelper
 /**
  * CakeNumberMock class
  */
-class CakeNumberMock
+class CakeNumberMock extends CakeNumber
 {
+    /**
+     * Track called methods
+     *
+     * @var array
+     */
+    public static array $calledMethods = [];
+
+    /**
+     * Reset called methods
+     *
+     * @return void
+     */
+    public static function reset(): void
+    {
+        self::$calledMethods = [];
+    }
+
+    /**
+     * Mock precision method
+     *
+     * @param float $value
+     * @param int $precision
+     * @return string
+     */
+    public static function precision($value, $precision = 3): string
+    {
+        self::$calledMethods[] = 'precision';
+
+        return '1.000';
+    }
+
+    /**
+     * Mock toReadableSize method
+     *
+     * @param int $size
+     * @return string
+     */
+    public static function toReadableSize($size): string
+    {
+        self::$calledMethods[] = 'toReadableSize';
+
+        return '1 KB';
+    }
+
+    /**
+     * Mock toPercentage method
+     *
+     * @param float $value
+     * @param int $precision
+     * @param array $options
+     * @return string
+     */
+    public static function toPercentage($value, $precision = 2, $options = []): string
+    {
+        self::$calledMethods[] = 'toPercentage';
+
+        return '50%';
+    }
+
+    /**
+     * Mock format method
+     *
+     * @param string|float $value
+     * @param array|string|int|false $options
+     * @return string
+     */
+    public static function format($value, $options = false): string
+    {
+        self::$calledMethods[] = 'format';
+
+        return '1,000';
+    }
+
+    /**
+     * Mock currency method
+     *
+     * @param float $value
+     * @param string|null $currency
+     * @param array $options
+     * @return string
+     */
+    public static function currency($value, $currency = null, $options = []): string
+    {
+        self::$calledMethods[] = 'currency';
+
+        return '$100';
+    }
+
+    /**
+     * Mock addFormat method
+     *
+     * @param string $formatName
+     * @param array $options
+     * @return void
+     */
+    public static function addFormat($formatName, $options): void
+    {
+        self::$calledMethods[] = 'addFormat';
+        // Mock implementation - does nothing
+    }
 }
 
 /**
@@ -46,6 +162,8 @@ class CakeNumberMock
  */
 class NumberHelperTest extends CakeTestCase
 {
+    public ?View $View = null;
+
     /**
      * setUp method
      *
@@ -54,6 +172,9 @@ class NumberHelperTest extends CakeTestCase
     public function setUp(): void
     {
         parent::setUp();
+
+        Configure::write('App.namespace', 'TestApp');
+
         $this->View = new View(null);
     }
 
@@ -64,7 +185,7 @@ class NumberHelperTest extends CakeTestCase
      */
     public function tearDown(): void
     {
-        unset($this->View);
+        $this->View = null;
 
         parent::tearDown();
     }
@@ -77,30 +198,22 @@ class NumberHelperTest extends CakeTestCase
     public function testNumberHelperProxyMethodCalls(): void
     {
         $methods = [
-            'precision', 'toReadableSize', 'toPercentage', 'format',
-            'currency', 'addFormat',
+            'precision' => [1],
+            'toReadableSize' => [1024],
+            'toPercentage' => [0.5],
+            'format' => [1234.56],
+            'currency' => [100],
+            'addFormat' => ['test', []],
         ];
 
-        $CakeNumber = $this->getMock('CakeNumberMock', $methods);
-        $Number = new NumberHelperTestObject($this->View, ['engine' => 'CakeNumberMock']);
-        $Number->attach($CakeNumber);
+        CakeNumberMock::reset();
+        $number = new NumberHelper($this->View, ['engine' => CakeNumberMock::class]);
 
-        $calledMethods = [];
-        foreach ($methods as $method) {
-            $CakeNumber->expects($this->once())
-                ->method($method)
-                ->willReturnCallback(function () use ($method, &$calledMethods) {
-                    $calledMethods[] = $method;
-
-                    return null;
-                });
+        foreach ($methods as $method => $args) {
+            $number->{$method}(...$args);
         }
 
-        foreach ($methods as $method) {
-            $Number->{$method}('who', 'what', 'when', 'where', 'how');
-        }
-
-        $this->assertEquals($methods, $calledMethods);
+        $this->assertEquals(array_keys($methods), CakeNumberMock::$calledMethods);
     }
 
     /**
@@ -111,17 +224,51 @@ class NumberHelperTest extends CakeTestCase
     public function testEngineOverride(): void
     {
         App::build([
-            'Utility' => [CORE_TESTS . DS . 'test_app' . DS . 'Utility' . DS],
+            'Utility' => [CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'Utility' . DS],
         ], App::REGISTER);
-        $Number = new NumberHelperTestObject($this->View, ['engine' => 'TestAppEngine']);
-        $this->assertInstanceOf('TestAppEngine', $Number->engine());
+        $number = new NumberHelperTestObject($this->View, ['engine' => TestAppEngine::class]);
+        $this->assertInstanceOf(TestAppEngine::class, $number->engine());
 
         App::build([
-            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS],
+            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
         ]);
         CakePlugin::load('TestPlugin');
-        $Number = new NumberHelperTestObject($this->View, ['engine' => 'TestPlugin.TestPluginEngine']);
-        $this->assertInstanceOf('TestPluginEngine', $Number->engine());
+        $number = new NumberHelperTestObject($this->View, ['engine' => 'TestPlugin.TestPluginEngine']);
+        $this->assertInstanceOf(TestPluginEngine::class, $number->engine());
         CakePlugin::unload('TestPlugin');
+    }
+
+    /**
+     * Test the engine by fully qualified class name and from App.namespace.
+     *
+     * @return void
+     */
+    public function testNamespacedEngine(): void
+    {
+        $View = new View(null);
+        $Helper = new NumberHelper($View, ['engine' => NamespacedNumber::class]);
+        $this->assertInstanceOf(NamespacedNumber::class, $this->getEngine($Helper));
+
+        $Helper = new NumberHelper($View, ['engine' => 'NamespacedNumber']);
+        $this->assertInstanceOf(NamespacedNumber::class, $this->getEngine($Helper));
+
+        $Helper = new NumberHelper($View);
+        $this->assertInstanceOf(CakeNumber::class, $this->getEngine($Helper));
+    }
+
+    /**
+     * Returns the engine of a helper.
+     *
+     * @param Helper $Helper The helper
+     * @return object
+     */
+    protected function getEngine(Helper $Helper): object
+    {
+        $property = new ReflectionProperty($Helper, '_engine');
+        if (PHP_VERSION_ID < 80100) {
+            $property->setAccessible(true);
+        }
+
+        return $property->getValue($Helper);
     }
 }

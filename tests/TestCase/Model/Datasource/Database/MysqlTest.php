@@ -1,7 +1,4 @@
 <?php
-
-use PHPUnit\Framework\Error;
-
 /**
  * DboMysqlTest file
  *
@@ -19,9 +16,40 @@ use PHPUnit\Framework\Error;
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-App::uses('AppModel', 'Model');
+namespace Cake\Test\TestCase\Model\Datasource\Database;
 
-require_once dirname(__DIR__, 2) . DS . 'models.php';
+use Cake\Core\App;
+use Cake\Core\Configure;
+use Cake\Error\MissingConnectionException;
+use Cake\Model\CakeSchema;
+use Cake\Model\ConnectionManager;
+use Cake\Model\Datasource\Database\Mysql;
+use Cake\Model\Datasource\DboSource;
+use Cake\Model\Model;
+use Cake\TestSuite\CakeTestCase;
+use Cake\TestSuite\Fixture\CakeTestModel;
+use Cake\Utility\ClassRegistry;
+use Cake\Utility\Set;
+use PDO;
+use PDOStatement;
+use PHPUnit\Framework\Error;
+use ReflectionClass;
+use ReflectionProperty;
+use stdClass;
+use TestApp\Model\Apple;
+use TestApp\Model\Article;
+use TestApp\Model\Article2;
+use TestApp\Model\Category2;
+use TestApp\Model\Featured2;
+use TestApp\Model\Post;
+use TestApp\Model\TestModel;
+use TestApp\Model\TestModel4;
+use TestApp\Model\TestModel5;
+use TestApp\Model\TestModel8;
+use TestApp\Model\TestModel9;
+use TypeError;
+
+App::uses('AppModel', 'Model');
 
 /**
  * DboMysqlTest class
@@ -40,18 +68,29 @@ class MysqlTest extends CakeTestCase
     /**
      * fixtures property
      *
-     * @var array
+     * @var array<string>
      */
     public $fixtures = [
-        'core.apple', 'core.article', 'core.articles_tag', 'core.attachment', 'core.comment',
-        'core.sample', 'core.tag', 'core.user', 'core.post', 'core.author', 'core.data_test',
-        'core.binary_test', 'core.inno', 'core.unsigned',
+        'core.apple',
+        'core.article',
+        'core.articles_tag',
+        'core.attachment',
+        'core.comment',
+        'core.sample',
+        'core.tag',
+        'core.user',
+        'core.post',
+        'core.author',
+        'core.data_test',
+        'core.binary_test',
+        'core.inno',
+        'core.unsigned',
     ];
 
     /**
      * The Dbo instance to be tested
      *
-     * @var DboSource
+     * @var DboSource|null
      */
     public $Dbo = null;
 
@@ -68,6 +107,7 @@ class MysqlTest extends CakeTestCase
     public function setUp(): void
     {
         parent::setUp();
+        Configure::write('App.namespace', 'TestApp');
         $this->Dbo = ConnectionManager::getDataSource('test');
         if (!($this->Dbo instanceof Mysql)) {
             $this->markTestSkipped('The MySQL extension is not available.');
@@ -381,7 +421,7 @@ class MysqlTest extends CakeTestCase
     {
         $name = $this->Dbo->fullTableName('simple');
 
-        $mockDbo = $this->getMock('Mysql', ['connect', '_execute', 'getVersion']);
+        $mockDbo = $this->getMock(Mysql::class, ['connect', '_execute', 'getVersion']);
         $columnData = [
             ['0' => [
                 'Table' => 'with_compound_keys',
@@ -456,7 +496,7 @@ class MysqlTest extends CakeTestCase
         ];
 
         $mockDbo->expects($this->once())->method('getVersion')->will($this->returnValue('4.1'));
-        $resultMock = $this->getMock('PDOStatement', ['fetch', 'closeCursor']);
+        $resultMock = $this->getMock(PDOStatement::class, ['fetch', 'closeCursor']);
         $mockDbo->expects($this->once())
             ->method('_execute')
             ->with('SHOW INDEX FROM ' . $name)
@@ -865,8 +905,8 @@ class MysqlTest extends CakeTestCase
      */
     public function testGetCharsetNameCaching(): void
     {
-        $db = $this->getMock('Mysql', ['connect', '_execute', 'getVersion']);
-        $queryResult = $this->getMock('PDOStatement');
+        $db = $this->getMock(Mysql::class, ['connect', '_execute', 'getVersion']);
+        $queryResult = $this->getMock(PDOStatement::class);
 
         $db->expects($this->exactly(2))->method('getVersion')->will($this->returnValue('5.1'));
 
@@ -1057,8 +1097,8 @@ SQL;
      */
     public function testUtf8mb4SupportedMariaDB(): void
     {
-        $db = $this->getMock('Mysql', ['connect', '_execute']);
-        $mockConnection = $this->getMock('MockPDO', ['getAttribute']);
+        $db = $this->getMock(Mysql::class, ['connect', '_execute']);
+        $mockConnection = $this->getMock(MockPDO::class, ['getAttribute']);
 
         // Test MariaDB 5.5+ (should support utf8mb4)
         $mockConnection->expects($this->once())
@@ -1068,15 +1108,21 @@ SQL;
 
         $reflection = new ReflectionClass($db);
         $connectionProperty = $reflection->getProperty('_connection');
-        $connectionProperty->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $connectionProperty->setAccessible(true);
+        }
         $connectionProperty->setValue($db, $mockConnection);
 
         $versionProperty = $reflection->getProperty('_version');
-        $versionProperty->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $versionProperty->setAccessible(true);
+        }
         $versionProperty->setValue($db, null);
 
         $serverTypeProperty = $reflection->getProperty('serverType');
-        $serverTypeProperty->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $serverTypeProperty->setAccessible(true);
+        }
         $serverTypeProperty->setValue($db, '');
 
         // Call getVersion first to initialize the properties
@@ -1084,7 +1130,7 @@ SQL;
         $this->assertTrue($db->utf8mb4Supported());
 
         // Test MariaDB 5.4 (should not support utf8mb4)
-        $mockConnection2 = $this->getMock('MockPDO', ['getAttribute']);
+        $mockConnection2 = $this->getMock(MockPDO::class, ['getAttribute']);
         $mockConnection2->expects($this->once())
             ->method('getAttribute')
             ->with(PDO::ATTR_SERVER_VERSION)
@@ -1106,8 +1152,8 @@ SQL;
      */
     public function testUtf8mb4SupportedAuroraMySQL(): void
     {
-        $db = $this->getMock('Mysql', ['connect', '_execute']);
-        $mockConnection = $this->getMock('MockPDO', ['getAttribute']);
+        $db = $this->getMock(Mysql::class, ['connect', '_execute']);
+        $mockConnection = $this->getMock(MockPDO::class, ['getAttribute']);
 
         // Test Aurora MySQL 5.7+ (should support utf8mb4)
         $mockConnection->expects($this->once())
@@ -1117,15 +1163,21 @@ SQL;
 
         $reflection = new ReflectionClass($db);
         $connectionProperty = $reflection->getProperty('_connection');
-        $connectionProperty->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $connectionProperty->setAccessible(true);
+        }
         $connectionProperty->setValue($db, $mockConnection);
 
         $versionProperty = $reflection->getProperty('_version');
-        $versionProperty->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $versionProperty->setAccessible(true);
+        }
         $versionProperty->setValue($db, null);
 
         $serverTypeProperty = $reflection->getProperty('serverType');
-        $serverTypeProperty->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $serverTypeProperty->setAccessible(true);
+        }
         $serverTypeProperty->setValue($db, '');
 
         // Call getVersion first to initialize the properties
@@ -1133,7 +1185,7 @@ SQL;
         $this->assertTrue($db->utf8mb4Supported());
 
         // Test Aurora MySQL 5.6 (should not support utf8mb4)
-        $mockConnection2 = $this->getMock('MockPDO', ['getAttribute']);
+        $mockConnection2 = $this->getMock(MockPDO::class, ['getAttribute']);
         $mockConnection2->expects($this->once())
             ->method('getAttribute')
             ->with(PDO::ATTR_SERVER_VERSION)
@@ -1155,8 +1207,8 @@ SQL;
      */
     public function testUtf8mb4SupportedRegularMySQL(): void
     {
-        $db = $this->getMock('Mysql', ['connect', '_execute']);
-        $mockConnection = $this->getMock('MockPDO', ['getAttribute']);
+        $db = $this->getMock(Mysql::class, ['connect', '_execute']);
+        $mockConnection = $this->getMock(MockPDO::class, ['getAttribute']);
 
         // Test MySQL 5.5.3+ (should support utf8mb4)
         $mockConnection->expects($this->once())
@@ -1166,15 +1218,21 @@ SQL;
 
         $reflection = new ReflectionClass($db);
         $connectionProperty = $reflection->getProperty('_connection');
-        $connectionProperty->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $connectionProperty->setAccessible(true);
+        }
         $connectionProperty->setValue($db, $mockConnection);
 
         $versionProperty = $reflection->getProperty('_version');
-        $versionProperty->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $versionProperty->setAccessible(true);
+        }
         $versionProperty->setValue($db, null);
 
         $serverTypeProperty = $reflection->getProperty('serverType');
-        $serverTypeProperty->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $serverTypeProperty->setAccessible(true);
+        }
         $serverTypeProperty->setValue($db, '');
 
         // Call getVersion first to initialize the properties
@@ -1182,7 +1240,7 @@ SQL;
         $this->assertTrue($db->utf8mb4Supported());
 
         // Test MySQL 5.5.2 (should not support utf8mb4)
-        $mockConnection2 = $this->getMock('MockPDO', ['getAttribute']);
+        $mockConnection2 = $this->getMock(MockPDO::class, ['getAttribute']);
         $mockConnection2->expects($this->once())
             ->method('getAttribute')
             ->with(PDO::ATTR_SERVER_VERSION)
@@ -1204,8 +1262,8 @@ SQL;
      */
     public function testIntegerDisplayWidthDeprecatedMariaDB(): void
     {
-        $db = $this->getMock('Mysql', ['connect', '_execute']);
-        $mockConnection = $this->getMock('MockPDO', ['getAttribute']);
+        $db = $this->getMock(Mysql::class, ['connect', '_execute']);
+        $mockConnection = $this->getMock(MockPDO::class, ['getAttribute']);
 
         // Test MariaDB 10.4 (should never deprecate integer display width)
         $mockConnection->expects($this->once())
@@ -1215,15 +1273,21 @@ SQL;
 
         $reflection = new ReflectionClass($db);
         $connectionProperty = $reflection->getProperty('_connection');
-        $connectionProperty->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $connectionProperty->setAccessible(true);
+        }
         $connectionProperty->setValue($db, $mockConnection);
 
         $versionProperty = $reflection->getProperty('_version');
-        $versionProperty->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $versionProperty->setAccessible(true);
+        }
         $versionProperty->setValue($db, null);
 
         $serverTypeProperty = $reflection->getProperty('serverType');
-        $serverTypeProperty->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $serverTypeProperty->setAccessible(true);
+        }
         $serverTypeProperty->setValue($db, '');
 
         // Call getVersion first to initialize the properties
@@ -1231,7 +1295,7 @@ SQL;
         $this->assertFalse($db->integerDisplayWidthDeprecated());
 
         // Test MariaDB 10.6 (still should not deprecate)
-        $mockConnection2 = $this->getMock('MockPDO', ['getAttribute']);
+        $mockConnection2 = $this->getMock(MockPDO::class, ['getAttribute']);
         $mockConnection2->expects($this->once())
             ->method('getAttribute')
             ->with(PDO::ATTR_SERVER_VERSION)
@@ -1253,8 +1317,8 @@ SQL;
      */
     public function testIntegerDisplayWidthDeprecatedAuroraMySQL(): void
     {
-        $db = $this->getMock('Mysql', ['connect', '_execute']);
-        $mockConnection = $this->getMock('MockPDO', ['getAttribute']);
+        $db = $this->getMock(Mysql::class, ['connect', '_execute']);
+        $mockConnection = $this->getMock(MockPDO::class, ['getAttribute']);
 
         // Test Aurora MySQL 8.0+ (should be deprecated)
         $mockConnection->expects($this->once())
@@ -1264,15 +1328,21 @@ SQL;
 
         $reflection = new ReflectionClass($db);
         $connectionProperty = $reflection->getProperty('_connection');
-        $connectionProperty->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $connectionProperty->setAccessible(true);
+        }
         $connectionProperty->setValue($db, $mockConnection);
 
         $versionProperty = $reflection->getProperty('_version');
-        $versionProperty->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $versionProperty->setAccessible(true);
+        }
         $versionProperty->setValue($db, null);
 
         $serverTypeProperty = $reflection->getProperty('serverType');
-        $serverTypeProperty->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $serverTypeProperty->setAccessible(true);
+        }
         $serverTypeProperty->setValue($db, '');
 
         // Call getVersion first to initialize the properties
@@ -1280,7 +1350,7 @@ SQL;
         $this->assertTrue($db->integerDisplayWidthDeprecated());
 
         // Test Aurora MySQL 5.7 (should not be deprecated)
-        $mockConnection2 = $this->getMock('MockPDO', ['getAttribute']);
+        $mockConnection2 = $this->getMock(MockPDO::class, ['getAttribute']);
         $mockConnection2->expects($this->once())
             ->method('getAttribute')
             ->with(PDO::ATTR_SERVER_VERSION)
@@ -1302,8 +1372,8 @@ SQL;
      */
     public function testIntegerDisplayWidthDeprecatedRegularMySQL(): void
     {
-        $db = $this->getMock('Mysql', ['connect', '_execute']);
-        $mockConnection = $this->getMock('MockPDO', ['getAttribute']);
+        $db = $this->getMock(Mysql::class, ['connect', '_execute']);
+        $mockConnection = $this->getMock(MockPDO::class, ['getAttribute']);
 
         // Test MySQL 8.0.17+ (should be deprecated)
         $mockConnection->expects($this->once())
@@ -1313,15 +1383,21 @@ SQL;
 
         $reflection = new ReflectionClass($db);
         $connectionProperty = $reflection->getProperty('_connection');
-        $connectionProperty->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $connectionProperty->setAccessible(true);
+        }
         $connectionProperty->setValue($db, $mockConnection);
 
         $versionProperty = $reflection->getProperty('_version');
-        $versionProperty->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $versionProperty->setAccessible(true);
+        }
         $versionProperty->setValue($db, null);
 
         $serverTypeProperty = $reflection->getProperty('serverType');
-        $serverTypeProperty->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $serverTypeProperty->setAccessible(true);
+        }
         $serverTypeProperty->setValue($db, '');
 
         // Call getVersion first to initialize the properties
@@ -1329,7 +1405,7 @@ SQL;
         $this->assertTrue($db->integerDisplayWidthDeprecated());
 
         // Test MySQL 8.0.16 (should not be deprecated)
-        $mockConnection2 = $this->getMock('MockPDO', ['getAttribute']);
+        $mockConnection2 = $this->getMock(MockPDO::class, ['getAttribute']);
         $mockConnection2->expects($this->once())
             ->method('getAttribute')
             ->with(PDO::ATTR_SERVER_VERSION)
@@ -1474,8 +1550,8 @@ SQL;
      */
     public function testListSources(): void
     {
-        $db = $this->getMock('Mysql', ['connect', '_execute']);
-        $queryResult = $this->getMock('PDOStatement');
+        $db = $this->getMock(Mysql::class, ['connect', '_execute']);
+        $queryResult = $this->getMock(PDOStatement::class);
         $db->expects($this->once())
             ->method('_execute')
             ->with('SHOW TABLES FROM `cake`')
@@ -1533,8 +1609,8 @@ SQL;
     public function testGetVersionWithMockedResponses(): void
     {
         // Test regular MySQL version
-        $db = $this->getMock('Mysql', ['connect', '_execute']);
-        $mockConnection = $this->getMock('stdClass', ['getAttribute']);
+        $db = $this->getMock(Mysql::class, ['connect', '_execute']);
+        $mockConnection = $this->getMock(MockPDO::class, ['getAttribute']);
         $mockConnection->expects($this->once())
             ->method('getAttribute')
             ->with(PDO::ATTR_SERVER_VERSION)
@@ -1542,15 +1618,17 @@ SQL;
 
         $reflection = new ReflectionClass($db);
         $connectionProperty = $reflection->getProperty('_connection');
-        $connectionProperty->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $connectionProperty->setAccessible(true);
+        }
         $connectionProperty->setValue($db, $mockConnection);
 
         $version = $db->getVersion();
         $this->assertEquals('8.0.33', $version);
 
         // Test MariaDB version
-        $db = $this->getMock('Mysql', ['connect', '_execute']);
-        $mockConnection = $this->getMock('stdClass', ['getAttribute']);
+        $db = $this->getMock(Mysql::class, ['connect', '_execute']);
+        $mockConnection = $this->getMock(MockPDO::class, ['getAttribute']);
         $mockConnection->expects($this->once())
             ->method('getAttribute')
             ->with(PDO::ATTR_SERVER_VERSION)
@@ -1558,15 +1636,17 @@ SQL;
 
         $reflection = new ReflectionClass($db);
         $connectionProperty = $reflection->getProperty('_connection');
-        $connectionProperty->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $connectionProperty->setAccessible(true);
+        }
         $connectionProperty->setValue($db, $mockConnection);
 
         $version = $db->getVersion();
         $this->assertEquals('10.6.12', $version);
 
         // Test Aurora MySQL version
-        $db = $this->getMock('Mysql', ['connect', '_execute']);
-        $mockConnection = $this->getMock('stdClass', ['getAttribute']);
+        $db = $this->getMock(Mysql::class, ['connect', '_execute']);
+        $mockConnection = $this->getMock(MockPDO::class, ['getAttribute']);
         $mockConnection->expects($this->once())
             ->method('getAttribute')
             ->with(PDO::ATTR_SERVER_VERSION)
@@ -1574,15 +1654,17 @@ SQL;
 
         $reflection = new ReflectionClass($db);
         $connectionProperty = $reflection->getProperty('_connection');
-        $connectionProperty->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $connectionProperty->setAccessible(true);
+        }
         $connectionProperty->setValue($db, $mockConnection);
 
         $version = $db->getVersion();
         $this->assertEquals('8.0', $version);
 
         // Test MySQL 5.7 version
-        $db = $this->getMock('Mysql', ['connect', '_execute']);
-        $mockConnection = $this->getMock('stdClass', ['getAttribute']);
+        $db = $this->getMock(Mysql::class, ['connect', '_execute']);
+        $mockConnection = $this->getMock(MockPDO::class, ['getAttribute']);
         $mockConnection->expects($this->once())
             ->method('getAttribute')
             ->with(PDO::ATTR_SERVER_VERSION)
@@ -1590,15 +1672,17 @@ SQL;
 
         $reflection = new ReflectionClass($db);
         $connectionProperty = $reflection->getProperty('_connection');
-        $connectionProperty->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $connectionProperty->setAccessible(true);
+        }
         $connectionProperty->setValue($db, $mockConnection);
 
         $version = $db->getVersion();
         $this->assertEquals('5.7.42', $version);
 
         // Test MySQL 5.5.3 version
-        $db = $this->getMock('Mysql', ['connect', '_execute']);
-        $mockConnection = $this->getMock('stdClass', ['getAttribute']);
+        $db = $this->getMock(Mysql::class, ['connect', '_execute']);
+        $mockConnection = $this->getMock(MockPDO::class, ['getAttribute']);
         $mockConnection->expects($this->once())
             ->method('getAttribute')
             ->with(PDO::ATTR_SERVER_VERSION)
@@ -1606,15 +1690,17 @@ SQL;
 
         $reflection = new ReflectionClass($db);
         $connectionProperty = $reflection->getProperty('_connection');
-        $connectionProperty->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $connectionProperty->setAccessible(true);
+        }
         $connectionProperty->setValue($db, $mockConnection);
 
         $version = $db->getVersion();
         $this->assertEquals('5.5.3', $version);
 
         // Test MariaDB 5.5 version
-        $db = $this->getMock('Mysql', ['connect', '_execute']);
-        $mockConnection = $this->getMock('stdClass', ['getAttribute']);
+        $db = $this->getMock(Mysql::class, ['connect', '_execute']);
+        $mockConnection = $this->getMock(MockPDO::class, ['getAttribute']);
         $mockConnection->expects($this->once())
             ->method('getAttribute')
             ->with(PDO::ATTR_SERVER_VERSION)
@@ -1622,15 +1708,17 @@ SQL;
 
         $reflection = new ReflectionClass($db);
         $connectionProperty = $reflection->getProperty('_connection');
-        $connectionProperty->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $connectionProperty->setAccessible(true);
+        }
         $connectionProperty->setValue($db, $mockConnection);
 
         $version = $db->getVersion();
         $this->assertEquals('5.5.68', $version);
 
         // Test Aurora MySQL 5.7 version
-        $db = $this->getMock('Mysql', ['connect', '_execute']);
-        $mockConnection = $this->getMock('stdClass', ['getAttribute']);
+        $db = $this->getMock(Mysql::class, ['connect', '_execute']);
+        $mockConnection = $this->getMock(MockPDO::class, ['getAttribute']);
         $mockConnection->expects($this->once())
             ->method('getAttribute')
             ->with(PDO::ATTR_SERVER_VERSION)
@@ -1638,15 +1726,17 @@ SQL;
 
         $reflection = new ReflectionClass($db);
         $connectionProperty = $reflection->getProperty('_connection');
-        $connectionProperty->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $connectionProperty->setAccessible(true);
+        }
         $connectionProperty->setValue($db, $mockConnection);
 
         $version = $db->getVersion();
         $this->assertEquals('5.7', $version);
 
         // Test version caching
-        $db = $this->getMock('Mysql', ['connect', '_execute']);
-        $mockConnection = $this->getMock('stdClass', ['getAttribute']);
+        $db = $this->getMock(Mysql::class, ['connect', '_execute']);
+        $mockConnection = $this->getMock(MockPDO::class, ['getAttribute']);
         $mockConnection->expects($this->once()) // Only once even though we call getVersion twice
             ->method('getAttribute')
             ->with(PDO::ATTR_SERVER_VERSION)
@@ -1654,7 +1744,9 @@ SQL;
 
         $reflection = new ReflectionClass($db);
         $connectionProperty = $reflection->getProperty('_connection');
-        $connectionProperty->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $connectionProperty->setAccessible(true);
+        }
         $connectionProperty->setValue($db, $mockConnection);
 
         $version1 = $db->getVersion();
@@ -1663,8 +1755,8 @@ SQL;
         $this->assertEquals('8.0.33', $version2);
 
         // Test non-matching version pattern (fallback to original string)
-        $db = $this->getMock('Mysql', ['connect', '_execute']);
-        $mockConnection = $this->getMock('stdClass', ['getAttribute']);
+        $db = $this->getMock(Mysql::class, ['connect', '_execute']);
+        $mockConnection = $this->getMock(MockPDO::class, ['getAttribute']);
         $mockConnection->expects($this->once())
             ->method('getAttribute')
             ->with(PDO::ATTR_SERVER_VERSION)
@@ -1672,15 +1764,17 @@ SQL;
 
         $reflection = new ReflectionClass($db);
         $connectionProperty = $reflection->getProperty('_connection');
-        $connectionProperty->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $connectionProperty->setAccessible(true);
+        }
         $connectionProperty->setValue($db, $mockConnection);
 
         $version = $db->getVersion();
         $this->assertEquals('unknown-version', $version);
 
         // Test empty version string
-        $db = $this->getMock('Mysql', ['connect', '_execute']);
-        $mockConnection = $this->getMock('stdClass', ['getAttribute']);
+        $db = $this->getMock(Mysql::class, ['connect', '_execute']);
+        $mockConnection = $this->getMock(MockPDO::class, ['getAttribute']);
         $mockConnection->expects($this->once())
             ->method('getAttribute')
             ->with(PDO::ATTR_SERVER_VERSION)
@@ -1688,7 +1782,9 @@ SQL;
 
         $reflection = new ReflectionClass($db);
         $connectionProperty = $reflection->getProperty('_connection');
-        $connectionProperty->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $connectionProperty->setAccessible(true);
+        }
         $connectionProperty->setValue($db, $mockConnection);
 
         $version = $db->getVersion();
@@ -1718,8 +1814,8 @@ SQL;
     public function testGetServerTypeWithMockedResponses(): void
     {
         // Test regular MySQL
-        $db = $this->getMock('Mysql', ['connect', '_execute']);
-        $mockConnection = $this->getMock('stdClass', ['getAttribute']);
+        $db = $this->getMock(Mysql::class, ['connect', '_execute']);
+        $mockConnection = $this->getMock(MockPDO::class, ['getAttribute']);
         $mockConnection->expects($this->once())
             ->method('getAttribute')
             ->with(PDO::ATTR_SERVER_VERSION)
@@ -1727,19 +1823,23 @@ SQL;
 
         $reflection = new ReflectionClass($db);
         $connectionProperty = $reflection->getProperty('_connection');
-        $connectionProperty->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $connectionProperty->setAccessible(true);
+        }
         $connectionProperty->setValue($db, $mockConnection);
 
         $db->getVersion(); // This sets the server type
         $serverType = $db->getServerType();
         $this->assertEquals('MySQL', $serverType);
         $property = $reflection->getProperty('serverType');
-        $property->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $property->setAccessible(true);
+        }
         $this->assertEquals('MySQL', $property->getValue($db));
 
         // Test MariaDB
-        $db = $this->getMock('Mysql', ['connect', '_execute']);
-        $mockConnection = $this->getMock('stdClass', ['getAttribute']);
+        $db = $this->getMock(Mysql::class, ['connect', '_execute']);
+        $mockConnection = $this->getMock(MockPDO::class, ['getAttribute']);
         $mockConnection->expects($this->once())
             ->method('getAttribute')
             ->with(PDO::ATTR_SERVER_VERSION)
@@ -1747,19 +1847,23 @@ SQL;
 
         $reflection = new ReflectionClass($db);
         $connectionProperty = $reflection->getProperty('_connection');
-        $connectionProperty->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $connectionProperty->setAccessible(true);
+        }
         $connectionProperty->setValue($db, $mockConnection);
 
         $db->getVersion(); // This sets the server type
         $serverType = $db->getServerType();
         $this->assertEquals('MariaDB', $serverType);
         $property = $reflection->getProperty('serverType');
-        $property->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $property->setAccessible(true);
+        }
         $this->assertEquals('MariaDB', $property->getValue($db));
 
         // Test Aurora MySQL
-        $db = $this->getMock('Mysql', ['connect', '_execute']);
-        $mockConnection = $this->getMock('stdClass', ['getAttribute']);
+        $db = $this->getMock(Mysql::class, ['connect', '_execute']);
+        $mockConnection = $this->getMock(MockPDO::class, ['getAttribute']);
         $mockConnection->expects($this->once())
             ->method('getAttribute')
             ->with(PDO::ATTR_SERVER_VERSION)
@@ -1767,14 +1871,18 @@ SQL;
 
         $reflection = new ReflectionClass($db);
         $connectionProperty = $reflection->getProperty('_connection');
-        $connectionProperty->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $connectionProperty->setAccessible(true);
+        }
         $connectionProperty->setValue($db, $mockConnection);
 
         $db->getVersion(); // This sets the server type
         $serverType = $db->getServerType();
         $this->assertEquals('Aurora MySQL', $serverType);
         $property = $reflection->getProperty('serverType');
-        $property->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $property->setAccessible(true);
+        }
         $this->assertEquals('Aurora MySQL', $property->getValue($db));
     }
 
@@ -1785,14 +1893,14 @@ SQL;
      */
     public function testGetEncoding(): void
     {
-        $db = $this->getMock('Mysql', ['connect', '_execute']);
-        $queryResult = $this->getMock('PDOStatement');
+        $db = $this->getMock(Mysql::class, ['connect', '_execute']);
+        $queryResult = $this->getMock(PDOStatement::class);
 
         $db->expects($this->once())
             ->method('_execute')
             ->with('SHOW VARIABLES LIKE ?', ['character_set_client'])
             ->will($this->returnValue($queryResult));
-        $result = new StdClass();
+        $result = new stdClass();
         $result->Value = 'utf-8';
         $queryResult->expects($this->once())
             ->method('fetchObject')
@@ -1810,7 +1918,7 @@ SQL;
     public function testFieldDoubleEscaping(): void
     {
         $db = $this->Dbo->config['database'];
-        $test = $this->getMock('Mysql', ['connect', '_execute', 'execute']);
+        $test = $this->getMock(Mysql::class, ['connect', '_execute', 'execute']);
         $test->config['database'] = $db;
 
         $test->expects($this->exactly(2))
@@ -1820,7 +1928,7 @@ SQL;
                 ['SELECT [Article].[id] FROM [cakephp_test].[articles] AS [Article]   WHERE 1 = 1'],
             );
 
-        $this->Model = $this->getMock('Article2', ['getDataSource']);
+        $this->Model = $this->getMock(Article2::class, ['getDataSource']);
         $this->Model->alias = 'Article';
         $this->Model->expects($this->any())
             ->method('getDataSource')
@@ -1857,7 +1965,7 @@ SQL;
      */
     public function testGenerateAssociationQuerySelfJoin(): void
     {
-        $this->Dbo = $this->getMock('Mysql', ['connect', '_execute', 'execute']);
+        $this->Dbo = $this->getMock(Mysql::class, ['connect', '_execute', 'execute']);
         $this->startTime = microtime(true);
         $this->Model = new Article2();
         $this->_buildRelatedModels($this->Model);
@@ -1963,7 +2071,16 @@ SQL;
                 } elseif (isset($assocData['className'])) {
                     $className = $assocData['className'];
                 }
-                $model->$className = new $className();
+
+                // Try to resolve class name using App::className()
+                $class = App::className($className, 'Model');
+
+                // Fall back to legacy loading for backward compatibility
+                if (!$class) {
+                    $class = $className;
+                }
+
+                $model->$className = new $class();
                 $model->$className->schema();
             }
         }
@@ -2018,15 +2135,15 @@ SQL;
     public function testReadCustomJoinsAfterGeneratedJoins(): void
     {
         $db = $this->Dbo->config['database'];
-        $test = $this->getMock('Mysql', ['connect', '_execute', 'execute']);
+        $test = $this->getMock(Mysql::class, ['connect', '_execute', 'execute']);
         $test->config['database'] = $db;
 
-        $this->Model = $this->getMock('TestModel9', ['getDataSource']);
+        $this->Model = $this->getMock(TestModel9::class, ['getDataSource']);
         $this->Model->expects($this->any())
             ->method('getDataSource')
             ->will($this->returnValue($test));
 
-        $this->Model->TestModel8 = $this->getMock('TestModel8', ['getDataSource']);
+        $this->Model->TestModel8 = $this->getMock(TestModel8::class, ['getDataSource']);
         $this->Model->TestModel8->expects($this->any())
             ->method('getDataSource')
             ->will($this->returnValue($test));
@@ -2062,15 +2179,15 @@ SQL;
     public function testGenerateInnerJoinAssociationQuery(): void
     {
         $db = $this->Dbo->config['database'];
-        $test = $this->getMock('Mysql', ['connect', '_execute', 'execute']);
+        $test = $this->getMock(Mysql::class, ['connect', '_execute', 'execute']);
         $test->config['database'] = $db;
 
-        $this->Model = $this->getMock('TestModel9', ['getDataSource']);
+        $this->Model = $this->getMock(TestModel9::class, ['getDataSource']);
         $this->Model->expects($this->any())
             ->method('getDataSource')
             ->will($this->returnValue($test));
 
-        $this->Model->TestModel8 = $this->getMock('TestModel8', ['getDataSource']);
+        $this->Model->TestModel8 = $this->getMock(TestModel8::class, ['getDataSource']);
         $this->Model->TestModel8->expects($this->any())
             ->method('getDataSource')
             ->will($this->returnValue($test));
@@ -4063,7 +4180,7 @@ SQL;
         ];
 
         $warningCaught = false;
-        set_error_handler(function ($errno, $errstr) use (&$warningCaught) {
+        set_error_handler(function () use (&$warningCaught) {
             $warningCaught = true;
 
             return true;
@@ -4238,10 +4355,10 @@ SQL;
     public function testHasAny(): void
     {
         $db = $this->Dbo->config['database'];
-        $this->Dbo = $this->getMock('Mysql', ['connect', '_execute', 'execute', 'value']);
+        $this->Dbo = $this->getMock(Mysql::class, ['connect', '_execute', 'execute', 'value']);
         $this->Dbo->config['database'] = $db;
 
-        $this->Model = $this->getMock('TestModel', ['getDataSource']);
+        $this->Model = $this->getMock(TestModel::class, ['getDataSource']);
         $this->Model->expects($this->any())
             ->method('getDataSource')
             ->will($this->returnValue($this->Dbo));
@@ -4857,7 +4974,7 @@ SQL;
         $test = ConnectionManager::getDatasource('test');
         $db = $test->config['database'];
 
-        $this->Dbo = $this->getMock('Mysql', ['execute'], [$test->config]);
+        $this->Dbo = $this->getMock(Mysql::class, ['execute'], [$test->config]);
 
         $this->Dbo->expects($this->exactly(3))
             ->method('execute')
@@ -4889,7 +5006,7 @@ SQL;
         $test = ConnectionManager::getDatasource('test');
         $db = $test->config['database'];
 
-        $this->Dbo = $this->getMock('Mysql', ['execute'], [$test->config]);
+        $this->Dbo = $this->getMock(Mysql::class, ['execute'], [$test->config]);
 
         $this->Dbo->expects($this->exactly(3))
             ->method('execute')
@@ -4921,7 +5038,7 @@ SQL;
         $test = ConnectionManager::getDatasource('test');
         $db = $test->config['database'];
 
-        $this->Dbo = $this->getMock('Mysql', ['execute'], [$test->config]);
+        $this->Dbo = $this->getMock(Mysql::class, ['execute'], [$test->config]);
 
         $this->Dbo->expects($this->exactly(2))
             ->method('execute')
@@ -4950,20 +5067,20 @@ SQL;
         $schema = $db->config['database'];
         $Article = new Article();
 
-        $this->Dbo = $this->getMock('Mysql', ['execute'], [$db->config]);
+        $this->Dbo = $this->getMock(Mysql::class, ['execute'], [$db->config]);
         $this->Dbo->expects($this->once())
             ->method('execute')
             ->with("TRUNCATE TABLE `$schema`.`articles`");
         $this->Dbo->truncate($Article);
 
-        $this->Dbo = $this->getMock('Mysql', ['execute'], [$db->config]);
+        $this->Dbo = $this->getMock(Mysql::class, ['execute'], [$db->config]);
         $this->Dbo->expects($this->once())
             ->method('execute')
             ->with("TRUNCATE TABLE `$schema`.`articles`");
         $this->Dbo->truncate('articles');
 
         // #2355: prevent duplicate prefix
-        $this->Dbo = $this->getMock('Mysql', ['execute'], [$db->config]);
+        $this->Dbo = $this->getMock(Mysql::class, ['execute'], [$db->config]);
         $this->Dbo->config['prefix'] = 'tbl_';
         $Article->tablePrefix = 'tbl_';
         $this->Dbo->expects($this->once())
@@ -4971,7 +5088,7 @@ SQL;
             ->with("TRUNCATE TABLE `$schema`.`tbl_articles`");
         $this->Dbo->truncate($Article);
 
-        $this->Dbo = $this->getMock('Mysql', ['execute'], [$db->config]);
+        $this->Dbo = $this->getMock(Mysql::class, ['execute'], [$db->config]);
         $this->Dbo->config['prefix'] = 'tbl_';
         $this->Dbo->expects($this->once())
             ->method('execute')
@@ -5117,7 +5234,7 @@ SQL;
      */
     public function testListSourcesQueryFailure(): void
     {
-        $db = $this->getMock('Mysql', ['_execute'], [['database' => 'cake_test'], false]);
+        $db = $this->getMock(Mysql::class, ['_execute'], [['database' => 'cake_test'], false]);
         $db->cacheSources = false;
         $db->expects($this->once())
             ->method('_execute')
@@ -5134,12 +5251,14 @@ SQL;
     public function testListDetailedSourcesQueryFailure(): void
     {
         $db = new Mysql(['database' => 'cake_test'], false);
-        $connection = $this->getMock('PDO', ['query'], [], '', false);
+        $connection = $this->getMock(PDO::class, ['query'], [], '', false);
         $connection->expects($this->once())
             ->method('query')
             ->will($this->returnValue(false));
-        $property = new ReflectionProperty('Mysql', '_connection');
-        $property->setAccessible(true);
+        $property = new ReflectionProperty(Mysql::class, '_connection');
+        if (PHP_VERSION_ID < 80100) {
+            $property->setAccessible(true);
+        }
         $property->setValue($db, $connection);
 
         $this->assertSame([], $db->listDetailedSources());

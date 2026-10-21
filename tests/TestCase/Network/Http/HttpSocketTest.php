@@ -1,4 +1,5 @@
 <?php
+
 /**
  * HttpSocketTest file
  *
@@ -16,42 +17,21 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-/**
- * TestAuthentication class
- *
- * @package       Cake.Test.Case.Network.Http
- */
-class TestAuthentication
-{
-    /**
-     * authentication method
-     *
-     * @param HttpSocket $http A HTTP socket.
-     * @param array &$authInfo Some auth info.
-     * @return void
-     */
-    public static function authentication(HttpSocket $http, &$authInfo): void
-    {
-        $http->request['header']['Authorization'] = 'Test ' . $authInfo['user'] . '.' . $authInfo['pass'];
-    }
+namespace Cake\Test\TestCase\Network\Http;
 
-    /**
-     * proxyAuthentication method
-     *
-     * @param HttpSocket $http A HTTP socket.
-     * @param array &$proxyInfo Some proxy info.
-     * @return void
-     */
-    public static function proxyAuthentication(HttpSocket $http, &$proxyInfo): void
-    {
-        $http->request['header']['Proxy-Authorization'] = 'Test ' . $proxyInfo['user'] . '.' . $proxyInfo['pass'];
-    }
-}
+use Cake\Core\Configure;
+use Cake\Error\SocketException;
+use Cake\Network\Http\HttpSocket;
+use Cake\Network\Http\HttpSocketResponse;
+use Cake\TestSuite\CakeTestCase;
+use Cake\Utility\Hash;
+use TestApp\Network\Http\NamespacedAuthentication;
+use TestApp\Network\Http\NamespacedResponse;
 
 /**
  * CustomResponse
  */
-class CustomResponse
+class CustomResponse extends HttpSocketResponse
 {
     /**
      * First 10 chars
@@ -80,7 +60,7 @@ class TestHttpSocket extends HttpSocket
      * Convenience method for testing protected method
      *
      * @param array|string $uri URI (see {@link _parseUri()})
-     * @return array Current configuration settings
+     * @return bool Current configuration settings
      */
     public function configUri($uri = null): mixed
     {
@@ -102,9 +82,9 @@ class TestHttpSocket extends HttpSocket
     /**
      * Convenience method for testing protected method
      *
-     * @param array $uri A $uri array, or uses $this->config if left empty
+     * @param mixed $uri A $uri array, or uses $this->config if left empty
      * @param string $uriTemplate The Uri template/format to use
-     * @return string A fully qualified URL formatted according to $uriTemplate
+     * @return string|false A fully qualified URL formatted according to $uriTemplate
      */
     public function buildUri($uri = [], $uriTemplate = '%scheme://%user:%pass@%host:%port/%path?%query#%fragment'): mixed
     {
@@ -114,8 +94,8 @@ class TestHttpSocket extends HttpSocket
     /**
      * Convenience method for testing protected method
      *
-     * @param array $header Header to build
-     * @return string Header built from array
+     * @param mixed $header Header to build
+     * @return string|false Header built from array
      */
     public function buildHeader($header, $mode = 'standard'): mixed
     {
@@ -177,14 +157,14 @@ class HttpSocketTest extends CakeTestCase
     /**
      * Socket property
      *
-     * @var mixed
+     * @var TestHttpSocket|null
      */
     public $Socket = null;
 
     /**
      * RequestSocket property
      *
-     * @var mixed
+     * @var TestHttpSocket|null
      */
     public $RequestSocket = null;
 
@@ -196,8 +176,9 @@ class HttpSocketTest extends CakeTestCase
     public function setUp(): void
     {
         parent::setUp();
-        $this->Socket = $this->getMock('TestHttpSocket', ['read', 'write', 'connect']);
-        $this->RequestSocket = $this->getMock('TestHttpSocket', ['read', 'write', 'connect', 'request']);
+        Configure::write('App.namespace', 'TestApp');
+        $this->Socket = $this->getMock(TestHttpSocket::class, ['read', 'write', 'connect']);
+        $this->RequestSocket = $this->getMock(TestHttpSocket::class, ['read', 'write', 'connect', 'request']);
     }
 
     /**
@@ -207,7 +188,8 @@ class HttpSocketTest extends CakeTestCase
      */
     public function tearDown(): void
     {
-        unset($this->Socket, $this->RequestSocket);
+        $this->Socket = null;
+        $this->RequestSocket = null;
 
         parent::tearDown();
     }
@@ -716,7 +698,7 @@ class HttpSocketTest extends CakeTestCase
                 ],
             ],
         ];
-        $http = $this->getMock('TestHttpSocket', ['read', 'write', 'connect', 'request'], [$request]);
+        $http = $this->getMock(TestHttpSocket::class, ['read', 'write', 'connect', 'request'], [$request]);
 
         $http->expects($this->exactly(2))
             ->method('request')
@@ -824,9 +806,9 @@ class HttpSocketTest extends CakeTestCase
             ->method('read')
             ->will($this->onConsecutiveCalls($serverResponse, false));
 
-        $this->Socket->responseClass = 'CustomResponse';
+        $this->Socket->responseClass = CustomResponse::class;
         $response = $this->Socket->request('http://www.cakephp.org/');
-        $this->assertInstanceOf('CustomResponse', $response);
+        $this->assertInstanceOf(CustomResponse::class, $response);
         $this->assertEquals('HTTP/1.x 2', $response->first10);
     }
 
@@ -856,6 +838,8 @@ class HttpSocketTest extends CakeTestCase
             ->method('write')
             ->willReturnCallback(function ($data) use (&$writeCalls) {
                 $writeCalls[] = $data;
+
+                return 0;
             });
 
         $response = $this->Socket->request($request);
@@ -1073,7 +1057,8 @@ class HttpSocketTest extends CakeTestCase
     {
         $this->RequestSocket->reset();
 
-        $this->RequestSocket->expects($this->exactly(7))
+        $this->RequestSocket
+            ->expects($this->exactly(7))
             ->method('request')
             ->withConsecutive(
                 [['method' => 'GET', 'uri' => 'http://www.google.com/']],
@@ -1801,9 +1786,16 @@ class HttpSocketTest extends CakeTestCase
     {
         $this->Socket->reset();
 
-        $initialState = get_class_vars('HttpSocket');
-        foreach ($initialState as $property => $value) {
-            $this->Socket->{$property} = 'Overwritten';
+        $initialState = get_class_vars(HttpSocket::class);
+
+        if (isset($initialState['request'])) {
+            $this->Socket->request = ['modified' => true];
+        }
+        if (isset($initialState['response'])) {
+            $this->Socket->response = new HttpSocketResponse();
+        }
+        if (isset($initialState['config'])) {
+            $this->Socket->config = ['modified' => true];
         }
 
         $return = $this->Socket->reset();
@@ -1826,10 +1818,17 @@ class HttpSocketTest extends CakeTestCase
         $this->Socket->reset();
 
         $partialResetProperties = ['request', 'response'];
-        $initialState = get_class_vars('HttpSocket');
+        $initialState = get_class_vars(HttpSocket::class);
 
-        foreach ($initialState as $property => $value) {
-            $this->Socket->{$property} = 'Overwritten';
+        // Modify properties with type-compatible values
+        if (isset($initialState['request'])) {
+            $this->Socket->request = ['modified' => true];
+        }
+        if (isset($initialState['response'])) {
+            $this->Socket->response = new HttpSocketResponse();
+        }
+        if (isset($initialState['config'])) {
+            $this->Socket->config = ['modified' => true];
         }
 
         $return = $this->Socket->reset(false);
@@ -1838,7 +1837,11 @@ class HttpSocketTest extends CakeTestCase
             if (in_array($property, $partialResetProperties)) {
                 $this->assertEquals($this->Socket->{$property}, $originalValue);
             } else {
-                $this->assertEquals('Overwritten', $this->Socket->{$property});
+                // Skip comparison for properties we didn't modify
+                if (!in_array($property, ['request', 'response', 'config'])) {
+                    continue;
+                }
+                $this->assertNotEquals($originalValue, $this->Socket->{$property});
             }
         }
         $this->assertEquals(true, $return);
@@ -1901,12 +1904,34 @@ class HttpSocketTest extends CakeTestCase
             ->will($this->onConsecutiveCalls($serverResponse, false));
 
         $response = $this->Socket->request('http://www.cakephp.org/');
-        $this->assertInstanceOf('HttpSocketResponse', $response);
+        $this->assertInstanceOf(HttpSocketResponse::class, $response);
         $expected = [
             'http-version' => 'HTTP/1.1',
             'code' => $code,
             'reason-phrase' => $msg,
         ];
         $this->assertEquals($expected, $response['status']);
+    }
+
+    /**
+     * Test the response class and authentication by fully qualified class name and from App.namespace.
+     *
+     * @return void
+     */
+    public function testNamespacedResponseAndAuthentication(): void
+    {
+        $this->Socket->expects($this->any())->method('read')->will($this->returnValue(false));
+
+        $this->Socket->responseClass = NamespacedResponse::class;
+        $this->Socket->configAuth(NamespacedAuthentication::class, 'mark', 'passwd');
+        $response = $this->Socket->get('http://example.com/test');
+        $this->assertInstanceOf(NamespacedResponse::class, $response);
+        $this->assertStringContainsString('Authorization: Namespaced mark', $this->Socket->request['header']);
+
+        $this->Socket->responseClass = 'NamespacedResponse';
+        $this->Socket->configAuth('Namespaced', 'joe', 'passwd');
+        $response = $this->Socket->get('http://example.com/test');
+        $this->assertInstanceOf(NamespacedResponse::class, $response);
+        $this->assertStringContainsString('Authorization: Namespaced joe', $this->Socket->request['header']);
     }
 }

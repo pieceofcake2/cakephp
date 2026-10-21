@@ -1,4 +1,5 @@
 <?php
+
 /**
  * TimeHelperTest file
  *
@@ -15,6 +16,21 @@
  * @since         CakePHP(tm) v 1.2.0.4206
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
+
+namespace Cake\Test\TestCase\View\Helper;
+
+use Cake\Core\App;
+use Cake\Core\CakePlugin;
+use Cake\Core\Configure;
+use Cake\TestSuite\CakeTestCase;
+use Cake\Utility\CakeTime;
+use Cake\View\Helper;
+use Cake\View\Helper\TimeHelper;
+use Cake\View\View;
+use ReflectionProperty;
+use TestApp\Utility\NamespacedTime;
+use TestApp\Utility\TestAppEngine;
+use TestPlugin\Utility\TestPluginEngine;
 
 /**
  * TimeHelperTestObject class
@@ -54,6 +70,8 @@ class TimeHelperTest extends CakeTestCase
 
     public $CakeTime = null;
 
+    public ?View $View = null;
+
     /**
      * setUp method
      *
@@ -62,6 +80,9 @@ class TimeHelperTest extends CakeTestCase
     public function setUp(): void
     {
         parent::setUp();
+
+        Configure::write('App.namespace', 'TestApp');
+
         $this->View = new View(null);
     }
 
@@ -72,7 +93,7 @@ class TimeHelperTest extends CakeTestCase
      */
     public function tearDown(): void
     {
-        unset($this->View);
+        $this->View = null;
 
         parent::tearDown();
     }
@@ -85,40 +106,75 @@ class TimeHelperTest extends CakeTestCase
     public function testTimeHelperProxyMethodCalls(): void
     {
         $methods = [
-            'convertSpecifiers', 'convert', 'serverOffset', 'fromString',
-            'nice', 'niceShort', 'daysAsSql', 'dayAsSql',
-            'isToday', 'isThisMonth', 'isThisYear', 'wasYesterday',
-            'isTomorrow', 'toQuarter', 'toUnix', 'toAtom', 'toRSS',
-            'wasWithinLast', 'gmt', 'format', 'i18nFormat',
+            'convertSpecifiers' => ['string'],
+            'convert' => [0, 0],
+            'serverOffset' => [],
+            'fromString' => [null],
+            'nice' => [null],
+            'niceShort' => [null],
+            'daysAsSql' => [null, null, 'string', null],
+            'dayAsSql' => [null, 'string', null],
+            'isToday' => [null, null],
+            'isFuture' => [null, null],
+            'isPast' => [null, null],
+            'isThisWeek' => [null, null],
+            'isThisMonth' => [null, null],
+            'isThisYear' => [null, null],
+            'wasYesterday' => [null, null],
+            'isTomorrow' => [null, null],
+            'toQuarter' => [null, false],
+            'toUnix' => [null, null],
+            'toServer' => [null, null],
+            'toAtom' => [null, null],
+            'toRSS' => [null, null],
+            'timeAgoInWords' => [null],
+            'wasWithinLast' => [0, null],
+            'gmt' => [null],
+            'format' => [0],
+            'i18nFormat' => [null],
         ];
 
-        $CakeTime = $this->getMock('CakeTimeMock', $methods);
-        $Time = new TimeHelperTestObject($this->View, ['engine' => 'CakeTimeMock']);
-        $Time->attach($CakeTime);
+        $cakeTime = $this->getMock(CakeTimeMock::class, array_keys($methods));
+        $time = new TimeHelperTestObject($this->View, ['engine' => CakeTimeMock::class]);
+        $time->attach($cakeTime);
 
         $calledMethods = [];
-        foreach ($methods as $method) {
-            $CakeTime->expects($this->once())
+        foreach (array_keys($methods) as $method) {
+            $cakeTime
+                ->expects($this->once())
                 ->method($method)
                 ->willReturnCallback(function () use ($method, &$calledMethods) {
                     $calledMethods[] = $method;
+
+                    if (in_array($method, ['convertSpecifiers', 'i18nFormat'], true)) {
+                        return 'string';
+                    }
+                    if (in_array($method, ['convert', 'serverOffset', 'fromString', 'gmt'], true)) {
+                        return 0;
+                    }
+                    if (in_array($method, ['wasWithinLast'], true)) {
+                        return true;
+                    }
+                    if (in_array($method, ['header'], true)) {
+                        return [];
+                    }
 
                     return null;
                 });
         }
 
-        foreach ($methods as $method) {
-            $Time->{$method}('who', 'what', 'when', 'where', 'how');
+        foreach ($methods as $method => $args) {
+            $time->{$method}(...$args);
         }
 
-        $this->assertEquals($methods, $calledMethods);
+        $this->assertEquals(array_keys($methods), $calledMethods);
 
-        $CakeTime = $this->getMock('CakeTimeMock', ['timeAgoInWords']);
-        $Time = new TimeHelperTestObject($this->View, ['engine' => 'CakeTimeMock']);
-        $Time->attach($CakeTime);
+        $cakeTime = $this->getMock(CakeTimeMock::class, ['timeAgoInWords']);
+        $time = new TimeHelperTestObject($this->View, ['engine' => CakeTimeMock::class]);
+        $time->attach($cakeTime);
 
         $timeAgoInWordsCalled = false;
-        $CakeTime->expects($this->once())
+        $cakeTime->expects($this->once())
             ->method('timeAgoInWords')
             ->willReturnCallback(function () use (&$timeAgoInWordsCalled) {
                 $timeAgoInWordsCalled = true;
@@ -126,7 +182,7 @@ class TimeHelperTest extends CakeTestCase
                 return null;
             });
 
-        $Time->timeAgoInWords('who', ['what']);
+        $time->timeAgoInWords('who', ['what']);
 
         $this->assertTrue($timeAgoInWordsCalled);
     }
@@ -139,17 +195,17 @@ class TimeHelperTest extends CakeTestCase
     public function testEngineOverride(): void
     {
         App::build([
-            'Utility' => [CORE_TESTS . DS . 'test_app' . DS . 'Utility' . DS],
+            'Utility' => [CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'Utility' . DS],
         ], App::REGISTER);
-        $Time = new TimeHelperTestObject($this->View, ['engine' => 'TestAppEngine']);
-        $this->assertInstanceOf('TestAppEngine', $Time->engine());
+        $Time = new TimeHelperTestObject($this->View, ['engine' => TestAppEngine::class]);
+        $this->assertInstanceOf(TestAppEngine::class, $Time->engine());
 
         App::build([
-            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS],
+            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
         ]);
         CakePlugin::load('TestPlugin');
         $Time = new TimeHelperTestObject($this->View, ['engine' => 'TestPlugin.TestPluginEngine']);
-        $this->assertInstanceOf('TestPluginEngine', $Time->engine());
+        $this->assertInstanceOf(TestPluginEngine::class, $Time->engine());
         CakePlugin::unload('TestPlugin');
     }
 
@@ -227,5 +283,39 @@ class TimeHelperTest extends CakeTestCase
         $this->assertFalse(isset($Time->undefinedAttribute));
 
         CakeTime::$niceFormat = $original;
+    }
+
+    /**
+     * Test the engine by fully qualified class name and from App.namespace.
+     *
+     * @return void
+     */
+    public function testNamespacedEngine(): void
+    {
+        $View = new View(null);
+        $Helper = new TimeHelper($View, ['engine' => NamespacedTime::class]);
+        $this->assertInstanceOf(NamespacedTime::class, $this->getEngine($Helper));
+
+        $Helper = new TimeHelper($View, ['engine' => 'NamespacedTime']);
+        $this->assertInstanceOf(NamespacedTime::class, $this->getEngine($Helper));
+
+        $Helper = new TimeHelper($View);
+        $this->assertInstanceOf(CakeTime::class, $this->getEngine($Helper));
+    }
+
+    /**
+     * Returns the engine of a helper.
+     *
+     * @param Helper $Helper The helper
+     * @return object
+     */
+    protected function getEngine(Helper $Helper): object
+    {
+        $property = new ReflectionProperty($Helper, '_engine');
+        if (PHP_VERSION_ID < 80100) {
+            $property->setAccessible(true);
+        }
+
+        return $property->getValue($Helper);
     }
 }

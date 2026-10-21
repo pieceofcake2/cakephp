@@ -14,6 +14,16 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\Console\Command\Task;
+
+use Cake\Console\Command\AclShell;
+use Cake\Console\Command\Task\CommandTask;
+use Cake\Console\ConsoleInput;
+use Cake\Console\ConsoleOutput;
+use Cake\Core\App;
+use Cake\Core\CakePlugin;
+use Cake\TestSuite\CakeTestCase;
+
 /**
  * CommandTaskTest class
  *
@@ -31,19 +41,19 @@ class CommandTaskTest extends CakeTestCase
         parent::setUp();
         App::build([
             'Plugin' => [
-                CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS,
+                CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS,
             ],
             'Console/Command' => [
-                CORE_TESTS . DS . 'test_app' . DS . 'Console' . DS . 'Command' . DS,
+                CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'Console' . DS . 'Command' . DS,
             ],
         ], App::RESET);
-        CakePlugin::load(['TestPlugin', 'TestPluginTwo']);
+        CakePlugin::load(['TestPlugin', 'TestTwoPlugin']);
 
-        $out = $this->getMock('ConsoleOutput', [], [], '', false);
-        $in = $this->getMock('ConsoleInput', [], [], '', false);
+        $out = $this->getMock(ConsoleOutput::class, [], [], '', false);
+        $in = $this->getMock(ConsoleInput::class, [], [], '', false);
 
         $this->CommandTask = $this->getMock(
-            'CommandTask',
+            CommandTask::class,
             ['in', '_stop', 'clear'],
             [$out, $out, $in],
         );
@@ -88,11 +98,12 @@ class CommandTaskTest extends CakeTestCase
                 'example',
                 'test_plugin',
             ],
-            'TestPluginTwo' => [
+            'TestTwoPlugin' => [
                 'example',
                 'welcome',
             ],
             'app' => [
+                'namespaced',
                 'sample',
             ],
         ];
@@ -111,8 +122,8 @@ class CommandTaskTest extends CakeTestCase
         $expected = [
             'TestPlugin.example',
             'TestPlugin.test_plugin',
-            'TestPluginTwo.example',
-            'TestPluginTwo.welcome',
+            'TestTwoPlugin.example',
+            'TestTwoPlugin.welcome',
             'acl',
             'api',
             'command_list',
@@ -123,6 +134,7 @@ class CommandTaskTest extends CakeTestCase
             'server',
             'test',
             'testsuite',
+            'namespaced',
             'sample',
         ];
         $this->assertEquals($expected, $result);
@@ -175,7 +187,7 @@ class CommandTaskTest extends CakeTestCase
     public function testGetShell(): void
     {
         $result = $this->CommandTask->getShell('acl');
-        $this->assertInstanceOf('AclShell', $result);
+        $this->assertInstanceOf(AclShell::class, $result);
     }
 
     /**
@@ -197,7 +209,7 @@ class CommandTaskTest extends CakeTestCase
     public function testGetShellCore(): void
     {
         $result = $this->CommandTask->getShell('core.acl');
-        $this->assertInstanceOf('AclShell', $result);
+        $this->assertInstanceOf(AclShell::class, $result);
     }
 
     /**

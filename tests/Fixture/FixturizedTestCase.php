@@ -4,14 +4,23 @@
  *
  * @package       Cake.Test.Fixture
  */
+
+namespace Cake\Test\Fixture;
+
+use Cake\TestSuite\CakeTestCase;
+use Cake\TestSuite\Fixture\CakeFixtureManager;
+use Exception;
+
 class FixturizedTestCase extends CakeTestCase
 {
     /**
      * Fixtures to use in this thes
      *
-     * @var array
+     * @var array<string>
      */
-    public $fixtures = ['core.category'];
+    public $fixtures = [
+        'core.category',
+    ];
 
     /**
      * test that the shared fixture is correctly set
@@ -20,7 +29,7 @@ class FixturizedTestCase extends CakeTestCase
      */
     public function testFixturePresent()
     {
-        $this->assertInstanceOf('CakeFixtureManager', $this->fixtureManager);
+        $this->assertInstanceOf(CakeFixtureManager::class, $this->fixtureManager);
     }
 
     /**

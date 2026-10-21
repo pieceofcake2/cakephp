@@ -16,199 +16,26 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\Model\Datasource\Database;
+
+use ArrayIterator;
+use Cake\Core\App;
+use Cake\Core\Configure;
+use Cake\Model\ConnectionManager;
+use Cake\Model\Datasource\Database\Sqlserver;
+use Cake\Model\Datasource\DboSource;
+use Cake\Model\Datasource\PDOExceptionWithQueryString;
+use Cake\TestSuite\CakeTestCase;
+use Cake\Utility\ClassRegistry;
+use PDO;
+use PDOException;
+use PDOStatement;
+use ReflectionMethod;
+use ReflectionProperty;
+use TestApp\Model\Datasource\Database\SqlserverTestDb;
+use TestApp\Model\SqlserverTestModel;
+
 App::uses('AppModel', 'Model');
-
-require_once dirname(__DIR__, 2) . DS . 'models.php';
-
-/**
- * SqlserverTestDb class
- *
- * @package       Cake.Test.Case.Model.Datasource.Database
- */
-class SqlserverTestDb extends Sqlserver
-{
-    /**
-     * simulated property
-     *
-     * @var array
-     */
-    public $simulated = [];
-
-    /**
-     * execute results stack
-     *
-     * @var array
-     */
-    public $executeResultsStack = [];
-
-    /**
-     * @var array|null
-     */
-    public ?array $describe = null;
-
-    /**
-     * execute method
-     *
-     * @param mixed $sql
-     * @param mixed $params
-     * @param mixed $prepareOptions
-     * @return mixed
-     */
-    protected function _execute($sql, $params = [], $prepareOptions = []): mixed
-    {
-        $this->simulated[] = $sql;
-
-        return empty($this->executeResultsStack) ? null : array_pop($this->executeResultsStack);
-    }
-
-    /**
-     * fetchAll method
-     *
-     * @param Model $model
-     * @param mixed $conditions
-     * @return string
-     */
-    protected function _matchRecords(Model $model, $conditions = null): string
-    {
-        return $this->conditions(['id' => [1, 2]]);
-    }
-
-    /**
-     * getLastQuery method
-     *
-     * @return string
-     */
-    public function getLastQuery(): string
-    {
-        return $this->simulated[count($this->simulated) - 1];
-    }
-
-    /**
-     * getPrimaryKey method
-     *
-     * @param mixed $model
-     * @return string
-     */
-    public function getPrimaryKey($model): mixed
-    {
-        return parent::_getPrimaryKey($model);
-    }
-
-    /**
-     * clearFieldMappings method
-     *
-     * @return void
-     */
-    public function clearFieldMappings(): void
-    {
-        $this->_fieldMappings = [];
-    }
-
-    /**
-     * describe method
-     *
-     * @param Model|string $model
-     * @return array
-     */
-    public function describe($model): array
-    {
-        return empty($this->describe) ? parent::describe($model) : $this->describe;
-    }
-}
-
-/**
- * SqlserverTestModel class
- *
- * @package       Cake.Test.Case.Model.Datasource.Database
- */
-class SqlserverTestModel extends CakeTestModel
-{
-    /**
-     * useTable property
-     *
-     * @var bool
-     */
-    public $useTable = false;
-
-    /**
-     * _schema property
-     *
-     * @var array
-     */
-    protected $_schema = [
-        'id' => ['type' => 'integer', 'null' => '', 'default' => '', 'length' => '8', 'key' => 'primary'],
-        'client_id' => ['type' => 'integer', 'null' => '', 'default' => '0', 'length' => '11'],
-        'name' => ['type' => 'string', 'null' => '', 'default' => '', 'length' => '255'],
-        'login' => ['type' => 'string', 'null' => '', 'default' => '', 'length' => '255'],
-        'passwd' => ['type' => 'string', 'null' => '1', 'default' => '', 'length' => '255'],
-        'addr_1' => ['type' => 'string', 'null' => '1', 'default' => '', 'length' => '255'],
-        'addr_2' => ['type' => 'string', 'null' => '1', 'default' => '', 'length' => '25'],
-        'zip_code' => ['type' => 'string', 'null' => '1', 'default' => '', 'length' => '155'],
-        'city' => ['type' => 'string', 'null' => '1', 'default' => '', 'length' => '155'],
-        'country' => ['type' => 'string', 'null' => '1', 'default' => '', 'length' => '155'],
-        'phone' => ['type' => 'string', 'null' => '1', 'default' => '', 'length' => '155'],
-        'fax' => ['type' => 'string', 'null' => '1', 'default' => '', 'length' => '155'],
-        'url' => ['type' => 'string', 'null' => '1', 'default' => '', 'length' => '255'],
-        'email' => ['type' => 'string', 'null' => '1', 'default' => '', 'length' => '155'],
-        'comments' => ['type' => 'text', 'null' => '1', 'default' => '', 'length' => ''],
-        'last_login' => ['type' => 'datetime', 'null' => '1', 'default' => '', 'length' => ''],
-        'created' => ['type' => 'date', 'null' => '1', 'default' => '', 'length' => ''],
-        'updated' => ['type' => 'datetime', 'null' => '1', 'default' => '', 'length' => null],
-    ];
-
-    /**
-     * belongsTo property
-     *
-     * @var array
-     */
-    public $belongsTo = [
-        'SqlserverClientTestModel' => [
-            'foreignKey' => 'client_id',
-        ],
-    ];
-
-    /**
-     * find method
-     *
-     * @param mixed $conditions
-     * @param mixed $fields
-     * @param mixed $order
-     * @param mixed $recursive
-     * @return mixed
-     */
-    public function find($conditions = null, $fields = null, $order = null, $recursive = null): mixed
-    {
-        return $conditions;
-    }
-}
-
-/**
- * SqlserverClientTestModel class
- *
- * @package       Cake.Test.Case.Model.Datasource.Database
- */
-class SqlserverClientTestModel extends CakeTestModel
-{
-    /**
-     * useTable property
-     *
-     * @var bool
-     */
-    public $useTable = false;
-
-    /**
-     * _schema property
-     *
-     * @var array
-     */
-    protected $_schema = [
-        'id' => ['type' => 'integer', 'null' => '', 'default' => '', 'length' => '8', 'key' => 'primary'],
-        'name' => ['type' => 'string', 'null' => '', 'default' => '', 'length' => '255'],
-        'email' => ['type' => 'string', 'null' => '1', 'default' => '', 'length' => '155'],
-        'created' => ['type' => 'datetime', 'null' => '1', 'default' => '', 'length' => ''],
-        'updated' => ['type' => 'datetime', 'null' => '1', 'default' => '', 'length' => null],
-    ];
-}
 
 /**
  * SqlserverTestResultIterator class
@@ -253,7 +80,7 @@ class SqlserverTest extends CakeTestCase
     /**
      * The Dbo instance to be tested
      *
-     * @var DboSource
+     * @var DboSource|null
      */
     public $db = null;
 
@@ -267,9 +94,14 @@ class SqlserverTest extends CakeTestCase
     /**
      * fixtures property
      *
-     * @var array
+     * @var array<string>
      */
-    public $fixtures = ['core.user', 'core.category', 'core.author', 'core.post'];
+    public $fixtures = [
+        'core.user',
+        'core.category',
+        'core.author',
+        'core.post',
+    ];
 
     /**
      * Sets up a Dbo class instance for testing
@@ -279,6 +111,7 @@ class SqlserverTest extends CakeTestCase
     public function setUp(): void
     {
         parent::setUp();
+        Configure::write('App.namespace', 'TestApp');
         $this->Dbo = ConnectionManager::getDataSource('test');
         if (!($this->Dbo instanceof Sqlserver)) {
             $this->markTestSkipped('Please configure the test datasource to use SQL Server.');
@@ -436,7 +269,7 @@ class SqlserverTest extends CakeTestCase
      */
     public function testDescribe(): void
     {
-        $SqlserverTableDescription = new SqlserverTestResultIterator([
+        $tableData = [
             (object)[
                 'Default' => '((0))',
                 'Field' => 'count',
@@ -489,8 +322,24 @@ class SqlserverTest extends CakeTestCase
                 'Null' => 'YES',
                 'Size' => '0',
             ],
-        ]);
-        $this->db->executeResultsStack = [$SqlserverTableDescription];
+        ];
+
+        $sqlserverTableDescription = $this->getMockBuilder(PDOStatement::class)
+            ->disableOriginalConstructor()
+            ->getMock();
+
+        $index = 0;
+        $sqlserverTableDescription->expects($this->any())
+            ->method('fetch')
+            ->willReturnCallback(function () use ($tableData, &$index) {
+                if ($index >= count($tableData)) {
+                    return false;
+                }
+
+                return $tableData[$index++];
+            });
+
+        $this->db->executeResultsStack = [$sqlserverTableDescription];
         $dummyModel = $this->model;
         $result = $this->db->describe($dummyModel);
         $expected = [
@@ -761,7 +610,7 @@ SQL;
      */
     public function testBuildStatementWithHaving(): void
     {
-        $db = $this->getMock('SqlserverTestDb', ['getVersion'], [$this->Dbo->config]);
+        $db = $this->getMock(SqlserverTestDb::class, ['getVersion'], [$this->Dbo->config]);
 
         $db->expects($this->any())
             ->method('getVersion')
@@ -793,7 +642,7 @@ SQL;
      */
     public function testBuildStatementWithLockingHint(): void
     {
-        $db = $this->getMock('SqlserverTestDb', ['getVersion'], [$this->Dbo->config]);
+        $db = $this->getMock(SqlserverTestDb::class, ['getVersion'], [$this->Dbo->config]);
 
         $db->expects($this->any())
             ->method('getVersion')
@@ -824,7 +673,7 @@ SQL;
      */
     public function testBuildStatementWithHavingForLegacyVersion(): void
     {
-        $db = $this->getMock('SqlserverTestDb', ['getVersion'], [$this->Dbo->config]);
+        $db = $this->getMock(SqlserverTestDb::class, ['getVersion'], [$this->Dbo->config]);
 
         $db->expects($this->any())
             ->method('getVersion')
@@ -863,7 +712,7 @@ SQL;
      */
     public function testBuildStatementWithLockingHintForLegacyVersion(): void
     {
-        $db = $this->getMock('SqlserverTestDb', ['getVersion'], [$this->Dbo->config]);
+        $db = $this->getMock(SqlserverTestDb::class, ['getVersion'], [$this->Dbo->config]);
 
         $db->expects($this->any())
             ->method('getVersion')
@@ -901,7 +750,7 @@ SQL;
      */
     public function testListSourcesQueryFailure(): void
     {
-        $db = $this->getMock('Sqlserver', ['_execute', 'getSchemaName'], [$this->Dbo->config, false]);
+        $db = $this->getMock(Sqlserver::class, ['_execute', 'getSchemaName'], [$this->Dbo->config, false]);
         $db->cacheSources = false;
         $db->expects($this->once())
             ->method('_execute')
@@ -919,15 +768,19 @@ SQL;
     public function testExecuteFailureQueryString(): void
     {
         $db = new Sqlserver($this->Dbo->config, false);
-        $connection = $this->getMock('PDO', ['exec'], [], '', false);
+        $connection = $this->getMock(PDO::class, ['exec'], [], '', false);
         $connection->expects($this->once())
             ->method('exec')
             ->will($this->throwException(new PDOException('failed')));
-        $property = new ReflectionProperty('Sqlserver', '_connection');
-        $property->setAccessible(true);
+        $property = new ReflectionProperty(Sqlserver::class, '_connection');
+        if (PHP_VERSION_ID < 80100) {
+            $property->setAccessible(true);
+        }
         $property->setValue($db, $connection);
-        $execute = new ReflectionMethod('Sqlserver', '_execute');
-        $execute->setAccessible(true);
+        $execute = new ReflectionMethod(Sqlserver::class, '_execute');
+        if (PHP_VERSION_ID < 80100) {
+            $execute->setAccessible(true);
+        }
 
         $exception = null;
         $deprecations = [];
@@ -948,7 +801,7 @@ SQL;
             error_reporting($level);
         }
         $this->assertSame([], $deprecations);
-        $this->assertInstanceOf('PDOExceptionWithQueryString', $exception);
+        $this->assertInstanceOf(PDOExceptionWithQueryString::class, $exception);
         $this->assertSame('DELETE FROM missing_table', $exception->queryString);
     }
 }

@@ -1,5 +1,4 @@
 <?php
-
 /**
  * Test case for HtmlCoverageReport
  *
@@ -19,6 +18,14 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\TestSuite;
+
+use Cake\Core\App;
+use Cake\Core\CakePlugin;
+use Cake\TestSuite\CakeTestCase;
+use Cake\TestSuite\Coverage\HtmlCoverageReport;
+use Cake\TestSuite\Reporter\CakeHtmlReporter;
+use Cake\TestSuite\Reporter\CakeTextReporter;
 use PHPUnit\Framework\TestResult;
 use SebastianBergmann\CodeCoverage\CodeCoverage;
 use SebastianBergmann\CodeCoverage\Driver\Driver;
@@ -33,6 +40,8 @@ use SebastianBergmann\CodeCoverage\RawCodeCoverageData;
  */
 class HtmlCoverageReportTest extends CakeTestCase
 {
+    public ?HtmlCoverageReport $Coverage = null;
+
     /**
      * setUp
      *
@@ -46,13 +55,28 @@ class HtmlCoverageReportTest extends CakeTestCase
         // Therefore, CakeBaseReporter are unnecessary.
         parent::setUp();
         App::build([
-            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS],
+            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
         ], App::RESET);
         CakePlugin::load(['TestPlugin']);
         $reporter = new CakeHtmlReporter();
         $reporter->params = ['app' => false, 'plugin' => false, 'group' => false];
-        $coverage = [];
+        $rawData = RawCodeCoverageData::fromXdebugWithPathCoverage([]);
+        $coverage = new ProcessedCodeCoverageData();
+        $coverage->initializeUnseenData($rawData);
         $this->Coverage = new HtmlCoverageReport($coverage, $reporter);
+    }
+
+    /**
+     * tearDown
+     *
+     * @return void
+     */
+    public function tearDown(): void
+    {
+        CakePlugin::unload();
+        $this->Coverage = null;
+
+        parent::tearDown();
     }
 
     /**
@@ -119,16 +143,16 @@ class HtmlCoverageReportTest extends CakeTestCase
             'line 10',
         ];
         $coverage = [
-            1 => [['id' => 'HtmlCoverageReportTest::testGenerateDiff']],
+            1 => [['id' => self::class . '::testGenerateDiff']],
             2 => -2,
-            3 => [['id' => 'HtmlCoverageReportTest::testGenerateDiff']],
-            4 => [['id' => 'HtmlCoverageReportTest::testGenerateDiff']],
+            3 => [['id' => self::class . '::testGenerateDiff']],
+            4 => [['id' => self::class . '::testGenerateDiff']],
             5 => -1,
-            6 => [['id' => 'HtmlCoverageReportTest::testGenerateDiff']],
-            7 => [['id' => 'HtmlCoverageReportTest::testGenerateDiff']],
-            8 => [['id' => 'HtmlCoverageReportTest::testGenerateDiff']],
+            6 => [['id' => self::class . '::testGenerateDiff']],
+            7 => [['id' => self::class . '::testGenerateDiff']],
+            8 => [['id' => self::class . '::testGenerateDiff']],
             9 => -1,
-            10 => [['id' => 'HtmlCoverageReportTest::testGenerateDiff']],
+            10 => [['id' => self::class . '::testGenerateDiff']],
         ];
         $result = $this->Coverage->generateDiff('myfile.php', $file, $coverage);
         $this->assertMatchesRegularExpression('/myfile\.php Code coverage\: \d+\.?\d*\%/', $result);
@@ -167,16 +191,16 @@ class HtmlCoverageReportTest extends CakeTestCase
             'line 10',
         ];
         $coverage = [
-            1 => ['HtmlCoverageReportTest::testGenerateDiff'],
+            1 => [self::class . '::testGenerateDiff'],
             2 => null,
-            3 => ['HtmlCoverageReportTest::testGenerateDiff'],
-            4 => ['HtmlCoverageReportTest::testGenerateDiff'],
+            3 => [self::class . '::testGenerateDiff'],
+            4 => [self::class . '::testGenerateDiff'],
             5 => [],
-            6 => ['HtmlCoverageReportTest::testGenerateDiff'],
-            7 => ['HtmlCoverageReportTest::testGenerateDiff'],
-            8 => ['HtmlCoverageReportTest::testGenerateDiff'],
+            6 => [self::class . '::testGenerateDiff'],
+            7 => [self::class . '::testGenerateDiff'],
+            8 => [self::class . '::testGenerateDiff'],
             9 => [],
-            10 => ['HtmlCoverageReportTest::testSomething', 'HtmlCoverageReportTest::testGenerateDiff'],
+            10 => [self::class . '::testSomething', self::class . '::testGenerateDiff'],
         ];
 
         $result = $this->Coverage->generateDiff('myfile.php', $file, $coverage);
@@ -212,44 +236,31 @@ class HtmlCoverageReportTest extends CakeTestCase
         ];
 
         $coverage = [
-            1 => [['id' => 'HtmlCoverageReportTest::testAwesomeness']],
+            1 => [['id' => self::class . '::testAwesomeness']],
             2 => -2,
-            3 => [['id' => 'HtmlCoverageReportTest::testCakeIsSuperior']],
-            4 => [['id' => 'HtmlCoverageReportTest::testOther']],
+            3 => [['id' => self::class . '::testCakeIsSuperior']],
+            4 => [['id' => self::class . '::testOther']],
             5 => -1,
         ];
 
         $result = $this->Coverage->generateDiff('myfile.php', $file, $coverage);
 
         $this->assertTrue(
-            str_contains($result, "title=\"Covered by:\nHtmlCoverageReportTest::testAwesomeness\n\"><span class=\"line-num\">1"),
+            str_contains($result, "title=\"Covered by:\n" . self::class . "::testAwesomeness\n\"><span class=\"line-num\">1"),
             'Missing method coverage for line 1',
         );
         $this->assertTrue(
-            str_contains($result, "title=\"Covered by:\nHtmlCoverageReportTest::testCakeIsSuperior\n\"><span class=\"line-num\">3"),
+            str_contains($result, "title=\"Covered by:\n" . self::class . "::testCakeIsSuperior\n\"><span class=\"line-num\">3"),
             'Missing method coverage for line 3',
         );
         $this->assertTrue(
-            str_contains($result, "title=\"Covered by:\nHtmlCoverageReportTest::testOther\n\"><span class=\"line-num\">4"),
+            str_contains($result, "title=\"Covered by:\n" . self::class . "::testOther\n\"><span class=\"line-num\">4"),
             'Missing method coverage for line 4',
         );
         $this->assertTrue(
             str_contains($result, 'title=""><span class="line-num">5'),
             'Coverage report is wrong for line 5',
         );
-    }
-
-    /**
-     * tearDown
-     *
-     * @return void
-     */
-    public function tearDown(): void
-    {
-        CakePlugin::unload();
-        unset($this->Coverage);
-
-        parent::tearDown();
     }
 
     /**
@@ -276,7 +287,7 @@ class HtmlCoverageReportTest extends CakeTestCase
             }
         };
         $data = new ProcessedCodeCoverageData();
-        $data->setLineCoverage([$file => [1 => ['HtmlCoverageReportTest::testReporterFooter'], 2 => []]]);
+        $data->setLineCoverage([$file => [1 => [self::class . '::testReporterFooter'], 2 => []]]);
         $coverage = new CodeCoverage($driver, new Filter());
         $coverage->setData($data);
 

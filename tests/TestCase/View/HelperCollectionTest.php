@@ -1,4 +1,5 @@
 <?php
+
 /**
  * HelperCollectionTest file
  *
@@ -16,12 +17,21 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-/**
- * Extended HtmlHelper
- */
-class HtmlAliasHelper extends HtmlHelper
-{
-}
+namespace Cake\Test\TestCase\View;
+
+use Cake\Core\App;
+use Cake\Core\CakePlugin;
+use Cake\Core\Configure;
+use Cake\Error\MissingHelperException;
+use Cake\TestSuite\CakeTestCase;
+use Cake\View\Helper;
+use Cake\View\Helper\FormHelper;
+use Cake\View\Helper\HtmlHelper;
+use Cake\View\HelperCollection;
+use Cake\View\View;
+use TestApp\View\Helper\HtmlAliasHelper;
+use TestApp\View\Helper\NamespacedHelper;
+use TestPlugin\View\Helper\OtherHelperHelper;
 
 /**
  * HelperCollectionTest
@@ -38,7 +48,10 @@ class HelperCollectionTest extends CakeTestCase
     public function setUp(): void
     {
         parent::setUp();
-        $this->View = $this->getMock('View', [], [null]);
+
+        Configure::write('App.namespace', 'TestApp');
+
+        $this->View = $this->getMock(View::class, [], [null]);
         $this->Helpers = new HelperCollection($this->View);
     }
 
@@ -63,8 +76,8 @@ class HelperCollectionTest extends CakeTestCase
     public function testLoad(): void
     {
         $result = $this->Helpers->load('Html');
-        $this->assertInstanceOf('HtmlHelper', $result);
-        $this->assertInstanceOf('HtmlHelper', $this->Helpers->Html);
+        $this->assertInstanceOf(HtmlHelper::class, $result);
+        $this->assertInstanceOf(HtmlHelper::class, $this->Helpers->Html);
 
         $result = $this->Helpers->loaded();
         $this->assertEquals(['Html'], $result, 'loaded() results are wrong.');
@@ -80,16 +93,16 @@ class HelperCollectionTest extends CakeTestCase
     public function testLazyLoad(): void
     {
         $result = $this->Helpers->Html;
-        $this->assertInstanceOf('HtmlHelper', $result);
+        $this->assertInstanceOf(HtmlHelper::class, $result);
 
         $result = $this->Helpers->Form;
-        $this->assertInstanceOf('FormHelper', $result);
+        $this->assertInstanceOf(FormHelper::class, $result);
 
-        App::build(['Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS]]);
+        App::build(['Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS]]);
         $this->View->plugin = 'TestPlugin';
         CakePlugin::load(['TestPlugin']);
         $result = $this->Helpers->OtherHelper;
-        $this->assertInstanceOf('OtherHelperHelper', $result);
+        $this->assertInstanceOf(OtherHelperHelper::class, $result);
     }
 
     /**
@@ -111,8 +124,8 @@ class HelperCollectionTest extends CakeTestCase
     public function testLoadWithAlias(): void
     {
         $result = $this->Helpers->load('Html', ['className' => 'HtmlAlias']);
-        $this->assertInstanceOf('HtmlAliasHelper', $result);
-        $this->assertInstanceOf('HtmlAliasHelper', $this->Helpers->Html);
+        $this->assertInstanceOf(HtmlAliasHelper::class, $result);
+        $this->assertInstanceOf(HtmlAliasHelper::class, $this->Helpers->Html);
 
         $result = $this->Helpers->loaded();
         $this->assertEquals(['Html'], $result, 'loaded() results are wrong.');
@@ -120,13 +133,13 @@ class HelperCollectionTest extends CakeTestCase
         $this->assertTrue($this->Helpers->enabled('Html'));
 
         $result = $this->Helpers->load('Html');
-        $this->assertInstanceOf('HtmlAliasHelper', $result);
+        $this->assertInstanceOf(HtmlAliasHelper::class, $result);
 
-        App::build(['Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS]]);
+        App::build(['Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS]]);
         CakePlugin::load(['TestPlugin']);
         $result = $this->Helpers->load('SomeOther', ['className' => 'TestPlugin.OtherHelper']);
-        $this->assertInstanceOf('OtherHelperHelper', $result);
-        $this->assertInstanceOf('OtherHelperHelper', $this->Helpers->SomeOther);
+        $this->assertInstanceOf(OtherHelperHelper::class, $result);
+        $this->assertInstanceOf(OtherHelperHelper::class, $this->Helpers->SomeOther);
 
         $result = $this->Helpers->loaded();
         $this->assertEquals(['Html', 'SomeOther'], $result, 'loaded() results are wrong.');
@@ -141,8 +154,8 @@ class HelperCollectionTest extends CakeTestCase
     public function testLoadWithEnabledFalse(): void
     {
         $result = $this->Helpers->load('Html', ['enabled' => false]);
-        $this->assertInstanceOf('HtmlHelper', $result);
-        $this->assertInstanceOf('HtmlHelper', $this->Helpers->Html);
+        $this->assertInstanceOf(HtmlHelper::class, $result);
+        $this->assertInstanceOf(HtmlHelper::class, $this->Helpers->Html);
 
         $this->assertFalse($this->Helpers->enabled('Html'), 'Html should be disabled');
     }
@@ -166,12 +179,12 @@ class HelperCollectionTest extends CakeTestCase
     public function testLoadPluginHelper(): void
     {
         App::build([
-            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS],
+            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
         ]);
         CakePlugin::load(['TestPlugin']);
         $result = $this->Helpers->load('TestPlugin.OtherHelper');
-        $this->assertInstanceOf('OtherHelperHelper', $result, 'Helper class is wrong.');
-        $this->assertInstanceOf('OtherHelperHelper', $this->Helpers->OtherHelper, 'Class is wrong');
+        $this->assertInstanceOf(OtherHelperHelper::class, $result, 'Helper class is wrong.');
+        $this->assertInstanceOf(OtherHelperHelper::class, $this->Helpers->OtherHelper, 'Class is wrong');
 
         App::build();
     }
@@ -195,5 +208,106 @@ class HelperCollectionTest extends CakeTestCase
 
         $result = $this->Helpers->loaded();
         $this->assertEquals(['Form'], $result, 'loaded helpers is wrong');
+    }
+
+    /**
+     * Test loading helpers by fully qualified class name and from App.namespace.
+     *
+     * @return void
+     */
+    public function testLoadNamespaced(): void
+    {
+        $result = $this->Helpers->load('Namespaced', ['className' => NamespacedHelper::class]);
+        $this->assertInstanceOf(NamespacedHelper::class, $result);
+        $this->assertSame($result, $this->Helpers->Namespaced);
+
+        $result = $this->Helpers->load('WithoutSuffix', ['className' => 'TestApp\View\Helper\Namespaced']);
+        $this->assertInstanceOf(NamespacedHelper::class, $result);
+
+        $this->assertInstanceOf(HtmlHelper::class, $this->Helpers->load('Html'));
+
+        $Helpers = new HelperCollection($this->View);
+        $this->assertInstanceOf(NamespacedHelper::class, $Helpers->load('Namespaced'));
+    }
+
+    /**
+     * Test that a fully qualified class name as the name gives the short name as alias
+     * like the short name with className.
+     *
+     * @return void
+     */
+    public function testLoadNamespacedClassName(): void
+    {
+        $expected = $this->Helpers->load('Namespaced', ['className' => NamespacedHelper::class, 'foo' => 'bar']);
+
+        foreach ([NamespacedHelper::class, 'TestApp\View\Helper\Namespaced'] as $name) {
+            $Helpers = new HelperCollection($this->View);
+            $result = $Helpers->load($name, ['foo' => 'bar']);
+            $this->assertInstanceOf(NamespacedHelper::class, $result);
+            $this->assertSame($result, $Helpers->Namespaced);
+            $this->assertSame($this->Helpers->loaded(), $Helpers->loaded());
+            $this->assertSame($expected->settings['foo'], $result->settings['foo']);
+            $this->assertSame($result, $Helpers->load($name));
+            $this->assertTrue($Helpers->enabled($name));
+            $Helpers->unload($name);
+            $this->assertSame([], $Helpers->loaded());
+        }
+    }
+
+    /**
+     * Test that fully qualified class names as keys of $helpers give the
+     * short names as aliases like the short names with className.
+     *
+     * @return void
+     */
+    public function testLoadHelpersNamespacedClassName(): void
+    {
+        $cases = [
+            ['Namespaced' => ['className' => NamespacedHelper::class, 'foo' => 'bar']],
+            [NamespacedHelper::class => ['foo' => 'bar']],
+            ['TestApp\View\Helper\Namespaced' => ['foo' => 'bar']],
+        ];
+        foreach ($cases as $helpers) {
+            $View = new View(null);
+            $View->helpers = $helpers;
+            $View->loadHelpers();
+            $this->assertTrue(property_exists($View, 'Namespaced'));
+            $this->assertInstanceOf(NamespacedHelper::class, $View->Namespaced);
+            $this->assertSame($View->Namespaced, $View->Helpers->Namespaced);
+            $this->assertSame(['Namespaced'], $View->Helpers->loaded());
+            $this->assertSame('bar', $View->Namespaced->settings['foo']);
+        }
+
+        $Helper = new class ($this->View) extends Helper {
+            public $helpers = [NamespacedHelper::class];
+        };
+        $this->View->expects($this->once())->method('loadHelper')
+            ->with(NamespacedHelper::class)
+            ->will($this->returnValue($expected = new NamespacedHelper($this->View)));
+        $this->assertSame($expected, $Helper->Namespaced);
+    }
+
+    /**
+     * Test that the missing class of a fully qualified class name has the suffix once.
+     *
+     * @return void
+     */
+    public function testLoadMissingNamespacedClassName(): void
+    {
+        $cases = [
+            'NoSuch' => 'NoSuchHelper',
+            'TestApp\View\Helper\Missing' => 'TestApp\View\Helper\MissingHelper',
+            'TestApp\View\Helper\MissingHelper' => 'TestApp\View\Helper\MissingHelper',
+            '\TestApp\View\Helper\MissingHelper' => 'TestApp\View\Helper\MissingHelper',
+        ];
+        foreach ($cases as $name => $expected) {
+            $Collection = new HelperCollection($this->View);
+            try {
+                $Collection->load($name);
+                $this->fail('No exception for ' . $name);
+            } catch (MissingHelperException $e) {
+                $this->assertSame($expected, $e->getAttributes()['class']);
+            }
+        }
     }
 }

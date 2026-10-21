@@ -16,6 +16,16 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\Controller\Component\Acl;
+
+use Cake\Controller\Component\Acl\PhpAcl;
+use Cake\Controller\Component\Acl\PhpAro;
+use Cake\Controller\Component\AclComponent;
+use Cake\Controller\ComponentCollection;
+use Cake\Core\Configure;
+use Cake\Error\AclException;
+use Cake\TestSuite\CakeTestCase;
+
 /**
  * Test case for the PhpAcl implementation
  *
@@ -31,12 +41,12 @@ class PhpAclTest extends CakeTestCase
     public function setUp(): void
     {
         parent::setUp();
-        Configure::write('Acl.classname', 'PhpAcl');
+        Configure::write('Acl.classname', PhpAcl::class);
         $Collection = new ComponentCollection();
         $this->PhpAcl = new PhpAcl();
         $this->Acl = new AclComponent($Collection, [
             'adapter' => [
-                'config' => CORE_TESTS . DS . 'test_app' . DS . 'Config' . DS . 'acl.php',
+                'config' => CORE_TESTS . DS . 'test_app' . DS . 'config' . DS . 'acl.php',
             ],
         ]);
     }
@@ -290,7 +300,7 @@ class PhpAclTest extends CakeTestCase
      */
     public function testInvalidConfigWithAroMissing(): void
     {
-        $this->expectException('AclException');
+        $this->expectException(AclException::class);
         $this->expectExceptionMessage('"roles" section not found in configuration');
         $config = ['aco' => ['allow' => ['foo' => '']]];
         $this->PhpAcl->build($config);
@@ -298,7 +308,7 @@ class PhpAclTest extends CakeTestCase
 
     public function testInvalidConfigWithAcosMissing(): void
     {
-        $this->expectException('AclException');
+        $this->expectException(AclException::class);
         $this->expectExceptionMessage('Neither "allow" nor "deny" rules were provided in configuration.');
 
         $config = [
@@ -354,14 +364,10 @@ class PhpAclTest extends CakeTestCase
         $noticeTriggered = false;
         $noticeMessage = '';
         set_error_handler(function ($errno, $errstr) use (&$noticeTriggered, &$noticeMessage) {
-            if ($errno === E_NOTICE || $errno === E_USER_NOTICE) {
-                $noticeTriggered = true;
-                $noticeMessage = $errstr;
+            $noticeTriggered = true;
+            $noticeMessage = $errstr;
 
-                return true;
-            }
-
-            return false;
+            return true;
         }, E_NOTICE | E_USER_NOTICE);
 
         try {

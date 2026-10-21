@@ -14,6 +14,16 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\Network;
+
+use Cake\Error\CakeException;
+use Cake\Error\NotFoundException;
+use Cake\Network\CakeRequest;
+use Cake\Network\CakeResponse;
+use Cake\TestSuite\CakeTestCase;
+use DateTime;
+use DateTimeZone;
+
 /**
  * CakeResponseTest
  *
@@ -216,7 +226,7 @@ class CakeResponseTest extends CakeTestCase
      */
     public function testSend(): void
     {
-        $response = $this->getMock('CakeResponse', ['_sendHeader', '_sendContent', '_setCookies']);
+        $response = $this->getMock(CakeResponse::class, ['_sendHeader', '_sendContent', '_setCookies']);
         $response->header([
             'Content-Language' => 'es',
             'WWW-Authenticate' => 'Negotiate',
@@ -270,7 +280,7 @@ class CakeResponseTest extends CakeTestCase
      */
     public function testSendChangingContentType($original, $expected): void
     {
-        $response = $this->getMock('CakeResponse', ['_sendHeader', '_sendContent', '_setCookies']);
+        $response = $this->getMock(CakeResponse::class, ['_sendHeader', '_sendContent', '_setCookies']);
         $response->type($original);
         $response->body('the response body');
 
@@ -299,7 +309,7 @@ class CakeResponseTest extends CakeTestCase
      */
     public function testSendChangingContentTypeWithoutCharset(): void
     {
-        $response = $this->getMock('CakeResponse', ['_sendHeader', '_sendContent', '_setCookies']);
+        $response = $this->getMock(CakeResponse::class, ['_sendHeader', '_sendContent', '_setCookies']);
         $response->type('js');
         $response->charset('');
 
@@ -330,7 +340,7 @@ class CakeResponseTest extends CakeTestCase
      */
     public function testSendWithLocation(): void
     {
-        $response = $this->getMock('CakeResponse', ['_sendHeader', '_sendContent', '_setCookies']);
+        $response = $this->getMock(CakeResponse::class, ['_sendHeader', '_sendContent', '_setCookies']);
         $response->header('Location', 'http://www.example.com');
 
         $response->expects($this->once())
@@ -355,13 +365,17 @@ class CakeResponseTest extends CakeTestCase
     public function testDisableCache(): void
     {
         $response = new CakeResponse();
+        $before = gmdate('D, d M Y H:i:s') . ' GMT';
+        $response->disableCache();
+        $after = gmdate('D, d M Y H:i:s') . ' GMT';
+        $headers = $response->header();
+        $this->assertContains($headers['Last-Modified'], [$before, $after]);
         $expected = [
             'Expires' => 'Mon, 26 Jul 1997 05:00:00 GMT',
-            'Last-Modified' => gmdate('D, d M Y H:i:s') . ' GMT',
+            'Last-Modified' => $headers['Last-Modified'],
             'Cache-Control' => 'no-store, no-cache, must-revalidate, post-check=0, pre-check=0',
         ];
-        $response->disableCache();
-        $this->assertEquals($expected, $response->header());
+        $this->assertEquals($expected, $headers);
     }
 
     /**
@@ -564,7 +578,7 @@ class CakeResponseTest extends CakeTestCase
      */
     public function testSendContentLength(): void
     {
-        $response = $this->getMock('CakeResponse', ['_sendHeader', '_sendContent']);
+        $response = $this->getMock(CakeResponse::class, ['_sendHeader', '_sendContent']);
         $response->body('the response body');
         $response->expects($this->once())->method('_sendContent')->with('the response body');
         $response->expects($this->exactly(3))
@@ -576,7 +590,7 @@ class CakeResponseTest extends CakeTestCase
             );
         $response->send();
 
-        $response = $this->getMock('CakeResponse', ['_sendHeader', '_sendContent']);
+        $response = $this->getMock(CakeResponse::class, ['_sendHeader', '_sendContent']);
         $body = '長い長い長いSubjectの場合はfoldingするのが正しいんだけどいったいどうなるんだろう？';
         $response->body($body);
         $response->expects($this->once())->method('_sendContent')->with($body);
@@ -589,7 +603,7 @@ class CakeResponseTest extends CakeTestCase
             );
         $response->send();
 
-        $response = $this->getMock('CakeResponse', ['_sendHeader', '_sendContent', 'outputCompressed']);
+        $response = $this->getMock(CakeResponse::class, ['_sendHeader', '_sendContent', 'outputCompressed']);
         $body = '長い長い長いSubjectの場合はfoldingするのが正しいんだけどいったいどうなるんだろう？';
         $response->body($body);
         $response->expects($this->once())->method('outputCompressed')->will($this->returnValue(true));
@@ -597,7 +611,7 @@ class CakeResponseTest extends CakeTestCase
         $response->expects($this->exactly(2))->method('_sendHeader');
         $response->send();
 
-        $response = $this->getMock('CakeResponse', ['_sendHeader', '_sendContent', 'outputCompressed']);
+        $response = $this->getMock(CakeResponse::class, ['_sendHeader', '_sendContent', 'outputCompressed']);
         $body = 'hwy';
         $response->body($body);
         $response->header('Content-Length', 1);
@@ -612,7 +626,7 @@ class CakeResponseTest extends CakeTestCase
             );
         $response->send();
 
-        $response = $this->getMock('CakeResponse', ['_sendHeader', '_sendContent']);
+        $response = $this->getMock(CakeResponse::class, ['_sendHeader', '_sendContent']);
         $body = 'content';
         $response->statusCode(301);
         $response->body($body);
@@ -621,10 +635,10 @@ class CakeResponseTest extends CakeTestCase
         $response->send();
 
         ob_start();
-        $this->getMock('CakeResponse', ['_sendHeader', '_sendContent']);
+        $this->getMock(CakeResponse::class, ['_sendHeader', '_sendContent']);
         $goofyOutput = 'I am goofily sending output in the controller';
         echo $goofyOutput;
-        $response = $this->getMock('CakeResponse', ['_sendHeader', '_sendContent']);
+        $response = $this->getMock(CakeResponse::class, ['_sendHeader', '_sendContent']);
         $body = '長い長い長いSubjectの場合はfoldingするのが正しいんだけどいったいどうなるんだろう？';
         $response->body($body);
         $response->expects($this->once())->method('_sendContent')->with($body);
@@ -646,7 +660,7 @@ class CakeResponseTest extends CakeTestCase
      */
     public function testProtocol(): void
     {
-        $response = $this->getMock('CakeResponse', ['_sendHeader', '_sendContent']);
+        $response = $this->getMock(CakeResponse::class, ['_sendHeader', '_sendContent']);
         $response->protocol('HTTP/1.0');
         $this->assertEquals('HTTP/1.0', $response->protocol());
         $sendHeaderCalls = [];
@@ -666,7 +680,7 @@ class CakeResponseTest extends CakeTestCase
      */
     public function testLength(): void
     {
-        $response = $this->getMock('CakeResponse', ['_sendHeader', '_sendContent']);
+        $response = $this->getMock(CakeResponse::class, ['_sendHeader', '_sendContent']);
         $response->length(100);
         $this->assertEquals(100, $response->length());
         $sendHeaderCalls = [];
@@ -678,7 +692,7 @@ class CakeResponseTest extends CakeTestCase
         $response->send();
         $this->assertEquals(['Content-Length', 100], $sendHeaderCalls[1]);
 
-        $response = $this->getMock('CakeResponse', ['_sendHeader', '_sendContent']);
+        $response = $this->getMock(CakeResponse::class, ['_sendHeader', '_sendContent']);
         $response->length(false);
         $this->assertFalse($response->length());
         $response->expects($this->exactly(2))
@@ -693,7 +707,7 @@ class CakeResponseTest extends CakeTestCase
      */
     public function testUnmodifiedContent(): void
     {
-        $response = $this->getMock('CakeResponse', ['_sendHeader', '_sendContent']);
+        $response = $this->getMock(CakeResponse::class, ['_sendHeader', '_sendContent']);
         $response->body('This is a body');
         $response->statusCode(204);
         $response->expects($this->once())
@@ -701,14 +715,14 @@ class CakeResponseTest extends CakeTestCase
         $response->send();
         $this->assertFalse(array_key_exists('Content-Type', $response->header()));
 
-        $response = $this->getMock('CakeResponse', ['_sendHeader', '_sendContent']);
+        $response = $this->getMock(CakeResponse::class, ['_sendHeader', '_sendContent']);
         $response->body('This is a body');
         $response->statusCode(304);
         $response->expects($this->once())
             ->method('_sendContent')->with('');
         $response->send();
 
-        $response = $this->getMock('CakeResponse', ['_sendHeader', '_sendContent']);
+        $response = $this->getMock(CakeResponse::class, ['_sendHeader', '_sendContent']);
         $response->body('This is a body');
         $response->statusCode(200);
         $response->expects($this->once())
@@ -723,7 +737,7 @@ class CakeResponseTest extends CakeTestCase
      */
     public function testExpires(): void
     {
-        $response = $this->getMock('CakeResponse', ['_sendHeader', '_sendContent']);
+        $response = $this->getMock(CakeResponse::class, ['_sendHeader', '_sendContent']);
         $now = new DateTime('now', new DateTimeZone('America/Los_Angeles'));
         $response->expires($now);
         $now->setTimeZone(new DateTimeZone('UTC'));
@@ -737,7 +751,7 @@ class CakeResponseTest extends CakeTestCase
         $response->send();
         $this->assertEquals(['Expires', $now->format('D, j M Y H:i:s') . ' GMT'], $sendHeaderCalls[1]);
 
-        $response = $this->getMock('CakeResponse', ['_sendHeader', '_sendContent']);
+        $response = $this->getMock(CakeResponse::class, ['_sendHeader', '_sendContent']);
         $now = time();
         $response->expires($now);
         $this->assertEquals(gmdate('D, j M Y H:i:s', $now) . ' GMT', $response->expires());
@@ -750,7 +764,7 @@ class CakeResponseTest extends CakeTestCase
         $response->send();
         $this->assertEquals(['Expires', gmdate('D, j M Y H:i:s', $now) . ' GMT'], $sendHeaderCalls[1]);
 
-        $response = $this->getMock('CakeResponse', ['_sendHeader', '_sendContent']);
+        $response = $this->getMock(CakeResponse::class, ['_sendHeader', '_sendContent']);
         $time = new DateTime('+1 day', new DateTimeZone('UTC'));
         $response->expires('+1 day');
         $this->assertEquals($time->format('D, j M Y H:i:s') . ' GMT', $response->expires());
@@ -771,7 +785,7 @@ class CakeResponseTest extends CakeTestCase
      */
     public function testModified(): void
     {
-        $response = $this->getMock('CakeResponse', ['_sendHeader', '_sendContent']);
+        $response = $this->getMock(CakeResponse::class, ['_sendHeader', '_sendContent']);
         $now = new DateTime('now', new DateTimeZone('America/Los_Angeles'));
         $response->modified($now);
         $now->setTimeZone(new DateTimeZone('UTC'));
@@ -785,7 +799,7 @@ class CakeResponseTest extends CakeTestCase
         $response->send();
         $this->assertEquals(['Last-Modified', $now->format('D, j M Y H:i:s') . ' GMT'], $sendHeaderCalls[1]);
 
-        $response = $this->getMock('CakeResponse', ['_sendHeader', '_sendContent']);
+        $response = $this->getMock(CakeResponse::class, ['_sendHeader', '_sendContent']);
         $now = time();
         $response->modified($now);
         $this->assertEquals(gmdate('D, j M Y H:i:s', $now) . ' GMT', $response->modified());
@@ -798,7 +812,7 @@ class CakeResponseTest extends CakeTestCase
         $response->send();
         $this->assertEquals(['Last-Modified', gmdate('D, j M Y H:i:s', $now) . ' GMT'], $sendHeaderCalls[1]);
 
-        $response = $this->getMock('CakeResponse', ['_sendHeader', '_sendContent']);
+        $response = $this->getMock(CakeResponse::class, ['_sendHeader', '_sendContent']);
         $time = new DateTime('+1 day', new DateTimeZone('UTC'));
         $response->modified('+1 day');
         $this->assertEquals($time->format('D, j M Y H:i:s') . ' GMT', $response->modified());
@@ -819,7 +833,7 @@ class CakeResponseTest extends CakeTestCase
      */
     public function testSharable(): void
     {
-        $response = $this->getMock('CakeResponse', ['_sendHeader', '_sendContent']);
+        $response = $this->getMock(CakeResponse::class, ['_sendHeader', '_sendContent']);
         $this->assertNull($response->sharable());
         $response->sharable(true);
         $headers = $response->header();
@@ -833,7 +847,7 @@ class CakeResponseTest extends CakeTestCase
         $response->send();
         $this->assertEquals(['Cache-Control', 'public'], $sendHeaderCalls[1]);
 
-        $response = $this->getMock('CakeResponse', ['_sendHeader', '_sendContent']);
+        $response = $this->getMock(CakeResponse::class, ['_sendHeader', '_sendContent']);
         $response->sharable(false);
         $headers = $response->header();
         $this->assertEquals('private', $headers['Cache-Control']);
@@ -846,7 +860,7 @@ class CakeResponseTest extends CakeTestCase
         $response->send();
         $this->assertEquals(['Cache-Control', 'private'], $sendHeaderCalls[1]);
 
-        $response = $this->getMock('CakeResponse', ['_sendHeader', '_sendContent']);
+        $response = $this->getMock(CakeResponse::class, ['_sendHeader', '_sendContent']);
         $response->sharable(true);
         $headers = $response->header();
         $this->assertEquals('public', $headers['Cache-Control']);
@@ -884,7 +898,7 @@ class CakeResponseTest extends CakeTestCase
      */
     public function testMaxAge(): void
     {
-        $response = $this->getMock('CakeResponse', ['_sendHeader', '_sendContent']);
+        $response = $this->getMock(CakeResponse::class, ['_sendHeader', '_sendContent']);
         $this->assertNull($response->maxAge());
         $response->maxAge(3600);
         $this->assertEquals(3600, $response->maxAge());
@@ -899,7 +913,7 @@ class CakeResponseTest extends CakeTestCase
         $response->send();
         $this->assertEquals(['Cache-Control', 'max-age=3600'], $sendHeaderCalls[1]);
 
-        $response = $this->getMock('CakeResponse', ['_sendHeader', '_sendContent']);
+        $response = $this->getMock(CakeResponse::class, ['_sendHeader', '_sendContent']);
         $response->maxAge(3600);
         $response->sharable(false);
         $headers = $response->header();
@@ -921,7 +935,7 @@ class CakeResponseTest extends CakeTestCase
      */
     public function testSharedMaxAge(): void
     {
-        $response = $this->getMock('CakeResponse', ['_sendHeader', '_sendContent']);
+        $response = $this->getMock(CakeResponse::class, ['_sendHeader', '_sendContent']);
         $this->assertNull($response->maxAge());
         $response->sharedMaxAge(3600);
         $this->assertEquals(3600, $response->sharedMaxAge());
@@ -936,7 +950,7 @@ class CakeResponseTest extends CakeTestCase
         $response->send();
         $this->assertEquals(['Cache-Control', 's-maxage=3600'], $sendHeaderCalls[1]);
 
-        $response = $this->getMock('CakeResponse', ['_sendHeader', '_sendContent']);
+        $response = $this->getMock(CakeResponse::class, ['_sendHeader', '_sendContent']);
         $response->sharedMaxAge(3600);
         $response->sharable(true);
         $headers = $response->header();
@@ -958,7 +972,7 @@ class CakeResponseTest extends CakeTestCase
      */
     public function testMustRevalidate(): void
     {
-        $response = $this->getMock('CakeResponse', ['_sendHeader', '_sendContent']);
+        $response = $this->getMock(CakeResponse::class, ['_sendHeader', '_sendContent']);
         $this->assertFalse($response->mustRevalidate());
         $response->mustRevalidate(true);
         $this->assertTrue($response->mustRevalidate());
@@ -975,7 +989,7 @@ class CakeResponseTest extends CakeTestCase
         $response->mustRevalidate(false);
         $this->assertFalse($response->mustRevalidate());
 
-        $response = $this->getMock('CakeResponse', ['_sendHeader', '_sendContent']);
+        $response = $this->getMock(CakeResponse::class, ['_sendHeader', '_sendContent']);
         $response->sharedMaxAge(3600);
         $response->mustRevalidate(true);
         $headers = $response->header();
@@ -997,7 +1011,7 @@ class CakeResponseTest extends CakeTestCase
      */
     public function testVary(): void
     {
-        $response = $this->getMock('CakeResponse', ['_sendHeader', '_sendContent']);
+        $response = $this->getMock(CakeResponse::class, ['_sendHeader', '_sendContent']);
         $response->vary('Accept-encoding');
         $this->assertEquals(['Accept-encoding'], $response->vary());
         $sendHeaderCalls = [];
@@ -1009,7 +1023,7 @@ class CakeResponseTest extends CakeTestCase
         $response->send();
         $this->assertEquals(['Vary', 'Accept-encoding'], $sendHeaderCalls[1]);
 
-        $response = $this->getMock('CakeResponse', ['_sendHeader', '_sendContent']);
+        $response = $this->getMock(CakeResponse::class, ['_sendHeader', '_sendContent']);
         $response->vary(['Accept-language', 'Accept-encoding']);
         $sendHeaderCalls = [];
         $response->expects($this->any())
@@ -1029,7 +1043,7 @@ class CakeResponseTest extends CakeTestCase
      */
     public function testEtag(): void
     {
-        $response = $this->getMock('CakeResponse', ['_sendHeader', '_sendContent']);
+        $response = $this->getMock(CakeResponse::class, ['_sendHeader', '_sendContent']);
         $response->etag('something');
         $this->assertEquals('"something"', $response->etag());
         $sendHeaderCalls = [];
@@ -1041,7 +1055,7 @@ class CakeResponseTest extends CakeTestCase
         $response->send();
         $this->assertEquals(['Etag', '"something"'], $sendHeaderCalls[1]);
 
-        $response = $this->getMock('CakeResponse', ['_sendHeader', '_sendContent']);
+        $response = $this->getMock(CakeResponse::class, ['_sendHeader', '_sendContent']);
         $response->etag('something', true);
         $this->assertEquals('W/"something"', $response->etag());
         $sendHeaderCalls = [];
@@ -1061,7 +1075,7 @@ class CakeResponseTest extends CakeTestCase
      */
     public function testNotModified(): void
     {
-        $response = $this->getMock('CakeResponse', ['_sendHeader', '_sendContent']);
+        $response = $this->getMock(CakeResponse::class, ['_sendHeader', '_sendContent']);
         $response->body('something');
         $response->statusCode(200);
         $response->length(100);
@@ -1081,7 +1095,7 @@ class CakeResponseTest extends CakeTestCase
     public function testCheckNotModifiedByEtagStar(): void
     {
         $_SERVER['HTTP_IF_NONE_MATCH'] = '*';
-        $response = $this->getMock('CakeResponse', ['notModified']);
+        $response = $this->getMock(CakeResponse::class, ['notModified']);
         $response->etag('something');
         $response->expects($this->once())->method('notModified');
         $response->checkNotModified(new CakeRequest());
@@ -1095,7 +1109,7 @@ class CakeResponseTest extends CakeTestCase
     public function testCheckNotModifiedByEtagExact(): void
     {
         $_SERVER['HTTP_IF_NONE_MATCH'] = 'W/"something", "other"';
-        $response = $this->getMock('CakeResponse', ['notModified']);
+        $response = $this->getMock(CakeResponse::class, ['notModified']);
         $response->etag('something', true);
         $response->expects($this->once())->method('notModified');
         $this->assertTrue($response->checkNotModified(new CakeRequest()));
@@ -1110,7 +1124,7 @@ class CakeResponseTest extends CakeTestCase
     {
         $_SERVER['HTTP_IF_NONE_MATCH'] = 'W/"something", "other"';
         $_SERVER['HTTP_IF_MODIFIED_SINCE'] = '2012-01-01 00:00:00';
-        $response = $this->getMock('CakeResponse', ['notModified']);
+        $response = $this->getMock(CakeResponse::class, ['notModified']);
         $response->etag('something', true);
         $response->modified('2012-01-01 00:00:00');
         $response->expects($this->once())->method('notModified');
@@ -1126,7 +1140,7 @@ class CakeResponseTest extends CakeTestCase
     {
         $_SERVER['HTTP_IF_NONE_MATCH'] = 'W/"something", "other"';
         $_SERVER['HTTP_IF_MODIFIED_SINCE'] = '2012-01-01 00:00:00';
-        $response = $this->getMock('CakeResponse', ['notModified']);
+        $response = $this->getMock(CakeResponse::class, ['notModified']);
         $response->etag('something', true);
         $response->modified('2012-01-01 00:00:01');
         $response->expects($this->never())->method('notModified');
@@ -1142,7 +1156,7 @@ class CakeResponseTest extends CakeTestCase
     {
         $_SERVER['HTTP_IF_NONE_MATCH'] = 'W/"something-else", "other"';
         $_SERVER['HTTP_IF_MODIFIED_SINCE'] = '2012-01-01 00:00:00';
-        $response = $this->getMock('CakeResponse', ['notModified']);
+        $response = $this->getMock(CakeResponse::class, ['notModified']);
         $response->etag('something', true);
         $response->modified('2012-01-01 00:00:00');
         $response->expects($this->never())->method('notModified');
@@ -1157,7 +1171,7 @@ class CakeResponseTest extends CakeTestCase
     public function testCheckNotModifiedByTime(): void
     {
         $_SERVER['HTTP_IF_MODIFIED_SINCE'] = '2012-01-01 00:00:00';
-        $response = $this->getMock('CakeResponse', ['notModified']);
+        $response = $this->getMock(CakeResponse::class, ['notModified']);
         $response->modified('2012-01-01 00:00:00');
         $response->expects($this->once())->method('notModified');
         $this->assertTrue($response->checkNotModified(new CakeRequest()));
@@ -1172,7 +1186,7 @@ class CakeResponseTest extends CakeTestCase
     {
         $_SERVER['HTTP_IF_NONE_MATCH'] = 'W/"something", "other"';
         $_SERVER['HTTP_IF_MODIFIED_SINCE'] = '2012-01-01 00:00:00';
-        $response = $this->getMock('CakeResponse', ['notModified']);
+        $response = $this->getMock(CakeResponse::class, ['notModified']);
         $response->expects($this->never())->method('notModified');
         $this->assertFalse($response->checkNotModified(new CakeRequest()));
     }
@@ -1278,7 +1292,7 @@ class CakeResponseTest extends CakeTestCase
     {
         $_SERVER['HTTP_ORIGIN'] = $origin;
 
-        $response = $this->getMock('CakeResponse', ['header']);
+        $response = $this->getMock(CakeResponse::class, ['header']);
 
         if (!$expectedOrigin) {
             $response->expects($this->never())->method('header');
@@ -1312,7 +1326,7 @@ class CakeResponseTest extends CakeTestCase
     {
         $fooRequest = new CakeRequest();
 
-        $secureRequest = $this->getMock('CakeRequest', ['is']);
+        $secureRequest = $this->getMock(CakeRequest::class, ['is']);
         $secureRequest->expects($this->any())
             ->method('is')
             ->with('ssl')
@@ -1401,7 +1415,7 @@ class CakeResponseTest extends CakeTestCase
      */
     public function testFile(): void
     {
-        $response = $this->getMock('CakeResponse', [
+        $response = $this->getMock(CakeResponse::class, [
             'header',
             'type',
             '_sendHeader',
@@ -1430,7 +1444,7 @@ class CakeResponseTest extends CakeTestCase
             ->method('_isActive')
             ->will($this->returnValue(true));
 
-        $response->file(CORE_TESTS . DS . 'test_app' . DS . 'Vendor' . DS . 'css' . DS . 'test_asset.css');
+        $response->file(CORE_TESTS . DS . 'test_app' . DS . 'vendor' . DS . 'css' . DS . 'test_asset.css');
 
         ob_start();
         $result = $response->send();
@@ -1449,7 +1463,7 @@ class CakeResponseTest extends CakeTestCase
         $currentUserAgent = $_SERVER['HTTP_USER_AGENT'] ?? null;
         $_SERVER['HTTP_USER_AGENT'] = 'Some generic browser';
 
-        $response = $this->getMock('CakeResponse', [
+        $response = $this->getMock(CakeResponse::class, [
             'header',
             'type',
             'download',
@@ -1484,7 +1498,7 @@ class CakeResponseTest extends CakeTestCase
             ->method('_isActive')
             ->will($this->returnValue(true));
 
-        $response->file(CORE_TESTS . DS . 'test_app' . DS . 'Config' . DS . 'no_section.ini');
+        $response->file(CORE_TESTS . DS . 'test_app' . DS . 'config' . DS . 'no_section.ini');
 
         ob_start();
         $result = $response->send();
@@ -1506,7 +1520,7 @@ class CakeResponseTest extends CakeTestCase
         $currentUserAgent = $_SERVER['HTTP_USER_AGENT'] ?? null;
         $_SERVER['HTTP_USER_AGENT'] = 'Opera/9.80 (Windows NT 6.0; U; en) Presto/2.8.99 Version/11.10';
 
-        $response = $this->getMock('CakeResponse', [
+        $response = $this->getMock(CakeResponse::class, [
             'header',
             'type',
             'download',
@@ -1543,7 +1557,7 @@ class CakeResponseTest extends CakeTestCase
             ->method('_isActive')
             ->will($this->returnValue(true));
 
-        $response->file(CORE_TESTS . DS . 'test_app' . DS . 'Config' . DS . 'no_section.ini');
+        $response->file(CORE_TESTS . DS . 'test_app' . DS . 'config' . DS . 'no_section.ini');
 
         ob_start();
         $result = $response->send();
@@ -1565,7 +1579,7 @@ class CakeResponseTest extends CakeTestCase
         $currentUserAgent = $_SERVER['HTTP_USER_AGENT'] ?? null;
         $_SERVER['HTTP_USER_AGENT'] = 'Mozilla/5.0 (compatible; MSIE 8.0; Windows NT 5.2; Trident/4.0; Media Center PC 4.0; SLCC1; .NET CLR 3.0.04320)';
 
-        $response = $this->getMock('CakeResponse', [
+        $response = $this->getMock(CakeResponse::class, [
             'header',
             'type',
             'download',
@@ -1602,7 +1616,7 @@ class CakeResponseTest extends CakeTestCase
             ->method('_isActive')
             ->will($this->returnValue(true));
 
-        $response->file(CORE_TESTS . DS . 'test_app' . DS . 'Config' . DS . 'no_section.ini', [
+        $response->file(CORE_TESTS . DS . 'test_app' . DS . 'config' . DS . 'no_section.ini', [
             'name' => 'config.ini',
         ]);
 
@@ -1626,7 +1640,7 @@ class CakeResponseTest extends CakeTestCase
         $currentUserAgent = $_SERVER['HTTP_USER_AGENT'] ?? null;
         $_SERVER['HTTP_USER_AGENT'] = 'Some generic browser';
 
-        $response = $this->getMock('CakeResponse', [
+        $response = $this->getMock(CakeResponse::class, [
             'header',
             'type',
             'download',
@@ -1647,12 +1661,14 @@ class CakeResponseTest extends CakeTestCase
             ->method('header')
             ->willReturnCallback(function () use (&$headerCalls) {
                 $headerCalls[] = func_get_args();
+
+                return [];
             });
 
         $response->expects($this->never())
             ->method('download');
 
-        $response->file(CORE_TESTS . DS . 'test_app' . DS . 'Config' . DS . 'no_section.ini', [
+        $response->file(CORE_TESTS . DS . 'test_app' . DS . 'config' . DS . 'no_section.ini', [
             'download' => false,
         ]);
 
@@ -1671,7 +1687,7 @@ class CakeResponseTest extends CakeTestCase
      */
     public function testConnectionAbortedOnBuffering(): void
     {
-        $response = $this->getMock('CakeResponse', [
+        $response = $this->getMock(CakeResponse::class, [
             'header',
             'type',
             'download',
@@ -1694,7 +1710,7 @@ class CakeResponseTest extends CakeTestCase
         $response->expects($this->once())->method('_clearBuffer');
         $response->expects($this->never())->method('_flushBuffer');
 
-        $response->file(CORE_TESTS . DS . 'test_app' . DS . 'Vendor' . DS . 'css' . DS . 'test_asset.css');
+        $response->file(CORE_TESTS . DS . 'test_app' . DS . 'vendor' . DS . 'css' . DS . 'test_asset.css');
 
         $result = $response->send();
         $this->assertNull($result);
@@ -1707,7 +1723,7 @@ class CakeResponseTest extends CakeTestCase
      */
     public function testFileUpperExtension(): void
     {
-        $response = $this->getMock('CakeResponse', [
+        $response = $this->getMock(CakeResponse::class, [
             'header',
             'type',
             'download',
@@ -1727,7 +1743,7 @@ class CakeResponseTest extends CakeTestCase
             ->method('_isActive')
             ->will($this->returnValue(true));
 
-        $result = $response->file(CORE_TESTS . DS . 'test_app' . DS . 'Vendor' . DS . 'img' . DS . 'test_2.JPG');
+        $result = $response->file(CORE_TESTS . DS . 'test_app' . DS . 'vendor' . DS . 'img' . DS . 'test_2.JPG');
 
         $this->assertNotFalse($result);
     }
@@ -1739,7 +1755,7 @@ class CakeResponseTest extends CakeTestCase
      */
     public function testFileExtensionNotSet(): void
     {
-        $response = $this->getMock('CakeResponse', [
+        $response = $this->getMock(CakeResponse::class, [
             'header',
             'type',
             'download',
@@ -1759,7 +1775,7 @@ class CakeResponseTest extends CakeTestCase
             ->method('_isActive')
             ->will($this->returnValue(true));
 
-        $result = $response->file(CORE_TESTS . DS . 'test_app' . DS . 'Vendor' . DS . 'img' . DS . 'test_2.JPG');
+        $result = $response->file(CORE_TESTS . DS . 'test_app' . DS . 'vendor' . DS . 'img' . DS . 'test_2.JPG');
 
         $this->assertNotFalse($result);
     }
@@ -1798,7 +1814,7 @@ class CakeResponseTest extends CakeTestCase
     public function testFileRangeOffsets($range, $length, $offsetResponse): void
     {
         $_SERVER['HTTP_RANGE'] = $range;
-        $response = $this->getMock('CakeResponse', [
+        $response = $this->getMock(CakeResponse::class, [
             'header',
             'type',
             '_sendHeader',
@@ -1812,6 +1828,8 @@ class CakeResponseTest extends CakeTestCase
             ->method('header')
             ->willReturnCallback(function () use (&$headerCalls) {
                 $headerCalls[] = func_get_args();
+
+                return [];
             });
 
         $response->expects($this->any())
@@ -1819,7 +1837,7 @@ class CakeResponseTest extends CakeTestCase
             ->will($this->returnValue(true));
 
         $response->file(
-            CORE_TESTS . DS . 'test_app' . DS . 'Vendor' . DS . 'css' . DS . 'test_asset.css',
+            CORE_TESTS . DS . 'test_app' . DS . 'vendor' . DS . 'css' . DS . 'test_asset.css',
             ['download' => true],
         );
 
@@ -1844,7 +1862,7 @@ class CakeResponseTest extends CakeTestCase
     public function testFileRange(): void
     {
         $_SERVER['HTTP_RANGE'] = 'bytes=8-25';
-        $response = $this->getMock('CakeResponse', [
+        $response = $this->getMock(CakeResponse::class, [
             'header',
             'type',
             '_sendHeader',
@@ -1878,7 +1896,7 @@ class CakeResponseTest extends CakeTestCase
             ->will($this->returnValue(true));
 
         $response->file(
-            CORE_TESTS . DS . 'test_app' . DS . 'Vendor' . DS . 'css' . DS . 'test_asset.css',
+            CORE_TESTS . DS . 'test_app' . DS . 'vendor' . DS . 'css' . DS . 'test_asset.css',
             ['download' => true],
         );
 
@@ -1922,13 +1940,13 @@ class CakeResponseTest extends CakeTestCase
     public function testFileRangeInvalid($range): void
     {
         $_SERVER['HTTP_RANGE'] = $range;
-        $response = $this->getMock('CakeResponse', [
+        $response = $this->getMock(CakeResponse::class, [
             '_sendHeader',
             '_isActive',
         ]);
 
         $response->file(
-            CORE_TESTS . DS . 'test_app' . DS . 'Vendor' . DS . 'css' . DS . 'test_asset.css',
+            CORE_TESTS . DS . 'test_app' . DS . 'vendor' . DS . 'css' . DS . 'test_asset.css',
             ['download' => true],
         );
 
@@ -1950,13 +1968,13 @@ class CakeResponseTest extends CakeTestCase
     public function testFileRangeReversed(): void
     {
         $_SERVER['HTTP_RANGE'] = 'bytes=30-5';
-        $response = $this->getMock('CakeResponse', [
+        $response = $this->getMock(CakeResponse::class, [
             '_sendHeader',
             '_isActive',
         ]);
 
         $response->file(
-            CORE_TESTS . DS . 'test_app' . DS . 'Vendor' . DS . 'css' . DS . 'test_asset.css',
+            CORE_TESTS . DS . 'test_app' . DS . 'vendor' . DS . 'css' . DS . 'test_asset.css',
             ['download' => true],
         );
 
@@ -1979,7 +1997,7 @@ class CakeResponseTest extends CakeTestCase
     public function testFileRangeOffsetsNoDownload($range, $length, $offsetResponse): void
     {
         $_SERVER['HTTP_RANGE'] = $range;
-        $response = $this->getMock('CakeResponse', [
+        $response = $this->getMock(CakeResponse::class, [
             'header',
             'type',
             '_sendHeader',
@@ -1993,6 +2011,8 @@ class CakeResponseTest extends CakeTestCase
             ->method('header')
             ->willReturnCallback(function () use (&$headerCalls) {
                 $headerCalls[] = func_get_args();
+
+                return [];
             });
 
         $response->expects($this->any())
@@ -2000,7 +2020,7 @@ class CakeResponseTest extends CakeTestCase
             ->will($this->returnValue(true));
 
         $response->file(
-            CORE_TESTS . DS . 'test_app' . DS . 'Vendor' . DS . 'css' . DS . 'test_asset.css',
+            CORE_TESTS . DS . 'test_app' . DS . 'vendor' . DS . 'css' . DS . 'test_asset.css',
             ['download' => false],
         );
 
@@ -2026,7 +2046,7 @@ class CakeResponseTest extends CakeTestCase
     public function testFileRangeNoDownload(): void
     {
         $_SERVER['HTTP_RANGE'] = 'bytes=8-25';
-        $response = $this->getMock('CakeResponse', [
+        $response = $this->getMock(CakeResponse::class, [
             'header',
             'type',
             '_sendHeader',
@@ -2058,7 +2078,7 @@ class CakeResponseTest extends CakeTestCase
             ->will($this->returnValue(true));
 
         $response->file(
-            CORE_TESTS . DS . 'test_app' . DS . 'Vendor' . DS . 'css' . DS . 'test_asset.css',
+            CORE_TESTS . DS . 'test_app' . DS . 'vendor' . DS . 'css' . DS . 'test_asset.css',
             ['download' => false],
         );
 
@@ -2078,7 +2098,7 @@ class CakeResponseTest extends CakeTestCase
     public function testFileRangeInvalidNoDownload(): void
     {
         $_SERVER['HTTP_RANGE'] = 'bytes=30-2';
-        $response = $this->getMock('CakeResponse', [
+        $response = $this->getMock(CakeResponse::class, [
             'header',
             'type',
             '_sendHeader',
@@ -2098,7 +2118,7 @@ class CakeResponseTest extends CakeTestCase
             );
 
         $response->file(
-            CORE_TESTS . DS . 'test_app' . DS . 'Vendor' . DS . 'css' . DS . 'test_asset.css',
+            CORE_TESTS . DS . 'test_app' . DS . 'vendor' . DS . 'css' . DS . 'test_asset.css',
             ['download' => false],
         );
 

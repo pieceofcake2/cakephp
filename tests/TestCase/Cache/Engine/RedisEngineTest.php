@@ -16,6 +16,14 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\Cache\Engine;
+
+use Cake\Cache\Cache;
+use Cake\Cache\Engine\RedisEngine;
+use Cake\Core\Configure;
+use Cake\TestSuite\CakeTestCase;
+use Redis;
+
 /**
  * RedisEngineTest class
  *
@@ -36,14 +44,13 @@ class RedisEngineTest extends CakeTestCase
     public function setUp(): void
     {
         parent::setUp();
-        $this->skipIf(!class_exists('Redis'), 'Redis is not installed or configured properly.');
+        $this->skipIf(!class_exists(Redis::class), 'Redis is not installed or configured properly.');
 
         $this->_cacheDisable = Configure::read('Cache.disable');
         Configure::write('Cache.disable', false);
 
-        // @codingStandardsIgnoreStart
+        // phpcs:ignore
         $socket = @fsockopen('127.0.0.1', 6379, $errno, $errstr, 1);
-        // @codingStandardsIgnoreEnd
         $this->skipIf(!$socket, 'Redis is not running.');
         fclose($socket);
 

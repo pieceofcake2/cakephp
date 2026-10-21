@@ -16,6 +16,14 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\Cache\Engine;
+
+use Cake\Cache\Cache;
+use Cake\Cache\Engine\MemcacheEngine;
+use Cake\Core\Configure;
+use Cake\TestSuite\CakeTestCase;
+use Memcache;
+
 /**
  * TestMemcacheEngine
  *
@@ -55,7 +63,7 @@ class MemcacheEngineTest extends CakeTestCase
     public function setUp(): void
     {
         parent::setUp();
-        $this->skipIf(!class_exists('Memcache'), 'Memcache is not installed or configured properly.');
+        $this->skipIf(!class_exists(Memcache::class), 'Memcache is not installed or configured properly.');
 
         $this->_cacheDisable = Configure::read('Cache.disable');
         Configure::write('Cache.disable', false);
@@ -117,11 +125,10 @@ class MemcacheEngineTest extends CakeTestCase
 
         foreach ($servers as $server) {
             [$host, $port] = explode(':', $server);
-            //@codingStandardsIgnoreStart
-            if (!@$Memcache->connect($host, $port)) {
+
+            if (!@$Memcache->connect($host, $port)) { // phpcs:ignore
                 $available = false;
             }
-            //@codingStandardsIgnoreEnd
         }
 
         $this->skipIf(!$available, 'Need memcache servers at ' . implode(', ', $servers) . ' to run this test.');
@@ -212,7 +219,7 @@ class MemcacheEngineTest extends CakeTestCase
      */
     public function testReadAndWriteCache(): void
     {
-        Cache::set(['duration' => 1], null, 'memcache');
+        Cache::set(['duration' => 10], null, 'memcache');
 
         $result = Cache::read('test', 'memcache');
         $expecting = '';
@@ -347,12 +354,12 @@ class MemcacheEngineTest extends CakeTestCase
     {
         Cache::config('long_memcache', [
             'engine' => 'Memcache',
-            'duration' => '+3 seconds',
+            'duration' => '+4 seconds',
             'servers' => ['127.0.0.1:11211'],
         ]);
         Cache::config('short_memcache', [
             'engine' => 'Memcache',
-            'duration' => '+1 seconds',
+            'duration' => '+2 seconds',
             'servers' => ['127.0.0.1:11211'],
         ]);
         Cache::config('some_file', ['engine' => 'File']);
@@ -360,13 +367,15 @@ class MemcacheEngineTest extends CakeTestCase
         $this->assertTrue(Cache::write('duration_test', 'yay', 'long_memcache'));
         $this->assertTrue(Cache::write('short_duration_test', 'boo', 'short_memcache'));
 
+        usleep(500);
         $this->assertEquals('yay', Cache::read('duration_test', 'long_memcache'), 'Value was not read %s');
         $this->assertEquals('boo', Cache::read('short_duration_test', 'short_memcache'), 'Value was not read %s');
 
         sleep(1);
         $this->assertEquals('yay', Cache::read('duration_test', 'long_memcache'), 'Value was not read %s');
 
-        sleep(3);
+        // memcached counts the durations in whole seconds, so wait until both have surely expired
+        sleep(5);
         $this->assertFalse(Cache::read('short_duration_test', 'short_memcache'), 'Cache was not invalidated %s');
         $this->assertFalse(Cache::read('duration_test', 'long_memcache'), 'Value did not expire %s');
 
@@ -430,14 +439,22 @@ class MemcacheEngineTest extends CakeTestCase
         $memcache = new TestMemcacheEngine();
         $memcache->settings['compress'] = false;
 
-        $mock = $this->getMock('Memcache');
-        $memcache->setMemcache($mock);
-        $mock->expects($this->once())
-            ->method('set')
-            ->with('key', 'value', false, 0);
+        // A mock of Memcache would copy the implicitly nullable parameters of the extension, deprecated since PHP 8.4
+        $spy = new class () extends Memcache {
+            public $sets = [];
+
+            public function set($key, $value = null, $flags = 0, $exptime = 0, $cas = 0): bool
+            {
+                $this->sets[] = [$key, $value, $flags, $exptime];
+
+                return true;
+            }
+        };
+        $memcache->setMemcache($spy);
 
         $value = 'value';
         $memcache->write('key', $value, 50 * DAY);
+        $this->assertSame([['key', 'value', false, 0]], $spy->sets);
     }
 
     /**

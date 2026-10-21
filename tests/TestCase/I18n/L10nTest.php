@@ -16,6 +16,12 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\I18n;
+
+use Cake\Core\Configure;
+use Cake\I18n\L10n;
+use Cake\TestSuite\CakeTestCase;
+
 /**
  * L10nTest class
  *

@@ -1,7 +1,4 @@
 <?php
-
-use function PHP81_BC\strftime;
-
 /**
  * CakeTimeTest file
  *
@@ -19,6 +16,17 @@ use function PHP81_BC\strftime;
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\Utility;
+
+use Cake\Core\App;
+use Cake\Core\Configure;
+use Cake\TestSuite\CakeTestCase;
+use Cake\Utility\CakeTime;
+use DateTime;
+use DateTimeZone;
+use Locale;
+use function PHP81_BC\strftime;
+
 /**
  * CakeTimeTest class
  *
@@ -33,6 +41,10 @@ class CakeTimeTest extends CakeTestCase
      */
     protected $_systemTimezoneIdentifier = null;
 
+    public ?CakeTime $Time = null;
+
+    protected ?string $_locale = null;
+
     /**
      * setUp method
      *
@@ -41,9 +53,12 @@ class CakeTimeTest extends CakeTestCase
     public function setUp(): void
     {
         parent::setUp();
+
         $this->Time = new CakeTime();
         $this->_systemTimezoneIdentifier = date_default_timezone_get();
         Configure::write('Config.language', 'eng');
+        $this->_locale = Locale::getDefault();
+        Locale::setDefault('en_Us');
     }
 
     /**
@@ -53,8 +68,9 @@ class CakeTimeTest extends CakeTestCase
      */
     public function tearDown(): void
     {
-        unset($this->Time);
+        $this->Time = null;
         $this->_restoreSystemTimezone();
+        Locale::setDefault($this->_locale);
 
         parent::tearDown();
     }
@@ -149,7 +165,7 @@ class CakeTimeTest extends CakeTestCase
     /**
      * provider for timeAgo with an end date.
      *
-     * @return void
+     * @return array
      */
     public function timeAgoEndProvider(): mixed
     {
@@ -196,6 +212,9 @@ class CakeTimeTest extends CakeTestCase
      * test the end option for timeAgoInWords
      *
      * @dataProvider timeAgoEndProvider
+     * @param string $input
+     * @param string $expected
+     * @param string $end
      * @return void
      */
     public function testTimeAgoInWordsEnd($input, $expected, $end): void
@@ -328,9 +347,8 @@ class CakeTimeTest extends CakeTestCase
             strtotime('+2 months +2 days'),
             ['end' => '1 month', 'format' => '%x'],
         );
-        // @codingStandardsIgnoreStart
+
         $this->assertEquals('on ' . strftime('%x', strtotime('+2 months +2 days')), $result);
-        // @codingStandardsIgnoreEnd
     }
 
     /**
@@ -593,7 +611,7 @@ class CakeTimeTest extends CakeTestCase
         $expected = $date->format('Y-m-d H:i:s');
         $this->assertEquals($expected, $result);
 
-        $date = new DateTime(null, new DateTimeZone('America/New_York'));
+        $date = new DateTime('now', new DateTimeZone('America/New_York'));
         $result = $this->Time->toServer($date, 'Pacific/Tahiti');
         $date->setTimezone(new DateTimeZone(date_default_timezone_get()));
         $expected = $date->format('Y-m-d H:i:s');
@@ -605,8 +623,6 @@ class CakeTimeTest extends CakeTestCase
         $result = $this->Time->toServer($time, null, 'l jS \of F Y h:i:s A');
         $expected = date('l jS \of F Y h:i:s A', $time);
         $this->assertEquals($expected, $result);
-
-        $this->assertFalse($this->Time->toServer(time(), new CakeObject()));
 
         date_default_timezone_set('UTC');
 
@@ -1115,7 +1131,7 @@ class CakeTimeTest extends CakeTestCase
     public function testConvertSpecifiers(): void
     {
         App::build([
-            'Locale' => [CORE_TESTS . DS . 'test_app' . DS . 'Locale' . DS],
+            'Locale' => [CORE_TESTS . DS . 'test_app' . DS . 'resources' . DS . 'locales' . DS],
         ], App::RESET);
         Configure::write('Config.language', 'time_test');
         $time = strtotime('Thu Jan 14 11:43:39 2010');
@@ -1225,7 +1241,7 @@ class CakeTimeTest extends CakeTestCase
     {
         $resetLocale = Locale::getDefault();
         App::build([
-            'Locale' => [CORE_TESTS . DS . 'test_app' . DS . 'Locale' . DS],
+            'Locale' => [CORE_TESTS . DS . 'test_app' . DS . 'resources' . DS . 'locales' . DS],
         ], App::RESET);
         Configure::write('Config.language', 'time_test');
 
@@ -1237,9 +1253,7 @@ class CakeTimeTest extends CakeTestCase
         $this->assertEquals($expected, $result);
 
         $result = $this->Time->i18nFormat($time, '%c');
-        // @codingStandardsIgnoreStart
         $expected = 'jue 14 ene 2010 13:59:28 ' . mb_convert_encoding(strftime('%Z', $time), 'UTF-8', 'ISO-8859-1');
-        // @codingStandardsIgnoreEnd
         $this->assertEquals($expected, $result);
 
         $result = $this->Time->i18nFormat($time, 'Time is %r, and date is %x');

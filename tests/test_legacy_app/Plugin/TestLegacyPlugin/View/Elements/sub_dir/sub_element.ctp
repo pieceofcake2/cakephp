@@ -1,0 +1,1 @@
+Content from TestLegacyPlugin.Elements/sub_dir/sub_element

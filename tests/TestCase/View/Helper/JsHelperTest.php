@@ -18,6 +18,18 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\View\Helper;
+
+use Cake\Core\Configure;
+use Cake\Network\CakeRequest;
+use Cake\TestSuite\CakeTestCase;
+use Cake\View\Helper\FormHelper;
+use Cake\View\Helper\HtmlHelper;
+use Cake\View\Helper\JsBaseEngineHelper;
+use Cake\View\Helper\JsHelper;
+use Cake\View\View;
+use stdClass;
+
 /**
  * JsEncodingObject
  *
@@ -27,9 +39,7 @@ class JsEncodingObject
 {
     protected $_title = 'Old thing';
 
-    //@codingStandardsIgnoreStart
     private $__noshow = 'Never ever';
-    //@codingStandardsIgnoreEnd
 }
 
 /**
@@ -63,7 +73,7 @@ class OptionEngineHelper extends JsBaseEngineHelper
      *
      * @param array $options
      * @param array $safe
-     * @return void
+     * @return string
      */
     public function testParseOptions($options, $safe = []): mixed
     {
@@ -147,6 +157,10 @@ class JsHelperTest extends CakeTestCase
      */
     public $cDataEnd = 'preg:/[^\]]*\]\]\>[\s\r\n]*/';
 
+    public ?View $View = null;
+
+    public ?JsHelper $Js = null;
+
     /**
      * setUp method
      *
@@ -159,7 +173,7 @@ class JsHelperTest extends CakeTestCase
         Configure::write('Asset.timestamp', false);
 
         $controller = null;
-        $this->View = $this->getMock('View', ['append'], [&$controller]);
+        $this->View = $this->getMock(View::class, ['append'], [&$controller]);
         $this->Js = new JsHelper($this->View, 'Option');
         $request = new CakeRequest(null, false);
         $this->Js->request = $request;
@@ -179,7 +193,8 @@ class JsHelperTest extends CakeTestCase
      */
     public function tearDown(): void
     {
-        unset($this->Js);
+        $this->View = null;
+        $this->Js = null;
 
         parent::tearDown();
     }
@@ -194,7 +209,7 @@ class JsHelperTest extends CakeTestCase
         $request = new CakeRequest(null, false);
 
         $this->Js = new JsHelper($this->View, ['TestJs']);
-        $this->Js->TestJsEngine = $this->getMock('JsBaseEngineHelper', [], [$this->View]);
+        $this->Js->TestJsEngine = $this->getMock(JsBaseEngineHelper::class, [], [$this->View]);
         $this->Js->request = $request;
         $this->Js->Html = new HtmlHelper($this->View);
         $this->Js->Html->request = $request;
@@ -219,8 +234,8 @@ class JsHelperTest extends CakeTestCase
         $js = new JsHelper($this->View, 'prototype');
         $this->assertEquals(['Html', 'Form', 'prototypeEngine'], $js->helpers);
 
-        $js = new JsHelper($this->View, 'MyPlugin.Dojo');
-        $this->assertEquals(['Html', 'Form', 'MyPlugin.DojoEngine'], $js->helpers);
+        $js = new JsHelper($this->View, 'TestDispatchPlugin.Dojo');
+        $this->assertEquals(['Html', 'Form', 'TestDispatchPlugin.DojoEngine'], $js->helpers);
     }
 
     /**
@@ -233,14 +248,10 @@ class JsHelperTest extends CakeTestCase
         $warningTriggered = false;
         $warningMessage = '';
         set_error_handler(function ($errno, $errstr) use (&$warningTriggered, &$warningMessage) {
-            if ($errno === E_WARNING || $errno === E_USER_WARNING) {
-                $warningTriggered = true;
-                $warningMessage = $errstr;
+            $warningTriggered = true;
+            $warningMessage = $errstr;
 
-                return true;
-            }
-
-            return false;
+            return true;
         }, E_WARNING | E_USER_WARNING);
 
         try {
@@ -253,7 +264,7 @@ class JsHelperTest extends CakeTestCase
 
             $this->Js->event('click', 'callback');
 
-            $this->Js->TestJsEngine = new StdClass();
+            $this->Js->TestJsEngine = new stdClass();
             $this->Js->someMethodThatSurelyDoesntExist();
         } finally {
             restore_error_handler();
@@ -341,10 +352,8 @@ class JsHelperTest extends CakeTestCase
         $this->Js->buffer('two = 2;');
         $result = $this->Js->writeBuffer(['onDomReady' => false, 'cache' => false, 'clear' => false]);
         $expected = [
-            'script' => ['type' => 'text/javascript'],
-            $this->cDataStart,
+            '<script',
             "one = 1;\ntwo = 2;",
-            $this->cDataEnd,
             '/script',
         ];
         $this->assertTags($result, $expected);
@@ -359,6 +368,29 @@ class JsHelperTest extends CakeTestCase
     }
 
     /**
+     * With the html5 setting of HtmlHelper off, the script blocks of the buffer have their type and CDATA
+     *
+     * @return void
+     */
+    public function testWriteScriptsXhtml(): void
+    {
+        $this->_useMock();
+        $request = $this->Js->Html->request;
+        $this->Js->Html = new HtmlHelper($this->View, ['html5' => false]);
+        $this->Js->Html->request = $request;
+        $this->Js->buffer('one = 1;');
+        $result = $this->Js->writeBuffer(['onDomReady' => false, 'cache' => false]);
+        $expected = [
+            'script' => ['type' => 'text/javascript'],
+            $this->cDataStart,
+            'one = 1;',
+            $this->cDataEnd,
+            '/script',
+        ];
+        $this->assertTags($result, $expected);
+    }
+
+    /**
      * test that writing the buffer with inline = false includes a script tag.
      *
      * @return void
@@ -369,7 +401,7 @@ class JsHelperTest extends CakeTestCase
 
         $this->View->expects($this->once())
             ->method('append')
-            ->with('script', $this->matchesRegularExpression('#<script type="text\/javascript">window.app \= \{"foo"\:1\}\;<\/script>#'));
+            ->with('script', $this->matchesRegularExpression('#<script>window.app \= \{"foo"\:1\}\;<\/script>#'));
 
         $this->Js->writeBuffer(['onDomReady' => false, 'inline' => false, 'safe' => false]);
     }
@@ -410,12 +442,12 @@ class JsHelperTest extends CakeTestCase
 
         Configure::write('Cache.disable', false);
         $this->Js->request->webroot = '/';
-        $this->Js->JsBaseEngine = $this->getMock('JsBaseEngineHelper', [], [$this->View]);
+        $this->Js->JsBaseEngine = $this->getMock(JsBaseEngineHelper::class, [], [$this->View]);
         $this->Js->buffer('one = 1;');
         $this->Js->buffer('two = 2;');
         $result = $this->Js->writeBuffer(['onDomReady' => false, 'cache' => true]);
         $expected = [
-            'script' => ['type' => 'text/javascript', 'src' => 'preg:/(.)*\.js/'],
+            'script' => ['src' => 'preg:/(.)*\.js/'],
         ];
         $this->assertTags($result, $expected);
         preg_match('/src="(.*\.js)"/', $result, $filename);
@@ -447,15 +479,17 @@ class JsHelperTest extends CakeTestCase
 
         $callSequence = [];
 
-        $this->Js->TestJsEngine->expects($this->once())
+        $this->Js->TestJsEngine
+            ->expects($this->once())
             ->method('get')
             ->willReturnCallback(function () use (&$callSequence) {
                 $callSequence[] = 'get';
 
-                return null;
+                return $this->Js->TestJsEngine;
             });
 
-        $this->Js->TestJsEngine->expects($this->once())
+        $this->Js->TestJsEngine
+            ->expects($this->once())
             ->method('request')
             ->with('/posts/view/1', $options)
             ->willReturnCallback(function () use (&$callSequence) {
@@ -464,13 +498,14 @@ class JsHelperTest extends CakeTestCase
                 return '--ajax code--';
             });
 
-        $this->Js->TestJsEngine->expects($this->once())
+        $this->Js->TestJsEngine
+            ->expects($this->once())
             ->method('event')
             ->with('click', '--ajax code--', $options + ['buffer' => null])
             ->willReturnCallback(function () use (&$callSequence) {
                 $callSequence[] = 'event';
 
-                return null;
+                return '';
             });
 
         $result = $this->Js->link('test link', '/posts/view/1', $options);
@@ -585,10 +620,8 @@ class JsHelperTest extends CakeTestCase
             'a' => ['id' => 'preg:/link-\d+/', 'href' => '/posts/view/1'],
             'test link',
             '/a',
-            'script' => ['type' => 'text/javascript'],
-            $this->cDataStart,
+            '<script',
             '-event handler-',
-            $this->cDataEnd,
             '/script',
         ];
         $this->assertTags($result, $expected);
@@ -636,7 +669,7 @@ class JsHelperTest extends CakeTestCase
             'a' => ['id' => 'preg:/link-\d+/', 'href' => '/posts/view/1'],
             'test link',
             '/a',
-            'script' => ['type' => 'text/javascript'],
+            '<script',
             '-event handler-',
             '/script',
         ];
@@ -661,7 +694,7 @@ class JsHelperTest extends CakeTestCase
             ->willReturnCallback(function () use (&$callSequence) {
                 $callSequence[] = 'get';
 
-                return null;
+                return $this->Js->TestJsEngine;
             });
 
         $this->Js->TestJsEngine->expects($this->once())
@@ -685,13 +718,14 @@ class JsHelperTest extends CakeTestCase
             'method' => 'post', 'dataExpression' => true, 'buffer' => null,
         ];
 
-        $this->Js->TestJsEngine->expects($this->once())
+        $this->Js->TestJsEngine
+            ->expects($this->once())
             ->method('event')
             ->with('click', 'ajax-code', $params)
             ->willReturnCallback(function () use (&$callSequence) {
                 $callSequence[] = 'event';
 
-                return null;
+                return '';
             });
 
         $result = $this->Js->submit('Save', $options);
@@ -722,7 +756,7 @@ class JsHelperTest extends CakeTestCase
             ->willReturnCallback(function () use (&$callSequence) {
                 $callSequence[] = 'get';
 
-                return null;
+                return $this->Js->TestJsEngine;
             });
 
         $this->Js->TestJsEngine->expects($this->once())
@@ -740,7 +774,9 @@ class JsHelperTest extends CakeTestCase
             'dataExpression' => true,
         ];
 
-        $this->Js->TestJsEngine->expects($this->once())
+        $this->Js
+            ->TestJsEngine
+            ->expects($this->once())
             ->method('request')
             ->with('/custom/url', $requestParams)
             ->willReturnCallback(function () use (&$callSequence) {
@@ -754,13 +790,15 @@ class JsHelperTest extends CakeTestCase
             'method' => 'post', 'dataExpression' => true, 'buffer' => null,
         ];
 
-        $this->Js->TestJsEngine->expects($this->once())
+        $this->Js
+            ->TestJsEngine
+            ->expects($this->once())
             ->method('event')
             ->with('click', 'ajax-code', $params)
             ->willReturnCallback(function () use (&$callSequence) {
                 $callSequence[] = 'event';
 
-                return null;
+                return '';
             });
 
         $options = ['update' => '#content', 'id' => 'test-submit', 'url' => '/custom/url'];
@@ -834,7 +872,7 @@ class JsHelperTest extends CakeTestCase
             'div' => ['class' => 'submit'],
             'input' => ['type' => 'submit', 'id' => $options['id'], 'value' => 'Save'],
             '/div',
-            'script' => ['type' => 'text/javascript'],
+            '<script',
             'event-handler',
             '/script',
         ];
@@ -920,6 +958,9 @@ class JsHelperTest extends CakeTestCase
  */
 class JsBaseEngineTest extends CakeTestCase
 {
+    public ?View $View = null;
+    public ?OptionEngineHelper $JsEngine = null;
+
     /**
      * setUp method
      *
@@ -929,7 +970,7 @@ class JsBaseEngineTest extends CakeTestCase
     {
         parent::setUp();
         $controller = null;
-        $this->View = $this->getMock('View', ['append'], [&$controller]);
+        $this->View = $this->getMock(View::class, ['append'], [&$controller]);
         $this->JsEngine = new OptionEngineHelper($this->View);
     }
 
@@ -940,7 +981,8 @@ class JsBaseEngineTest extends CakeTestCase
      */
     public function tearDown(): void
     {
-        unset($this->JsEngine);
+        $this->View = null;
+        $this->JsEngine = null;
 
         parent::tearDown();
     }

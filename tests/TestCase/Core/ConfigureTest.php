@@ -1,7 +1,22 @@
 <?php
 
+namespace Cake\Test\TestCase\Core;
+
+use Cake\Cache\Cache;
+use Cake\Configure\PhpReader;
+use Cake\Core\App;
+use Cake\Core\CakePlugin;
+use Cake\Core\Configure;
+use Cake\Error\ConfigureException;
+use Cake\TestSuite\CakeTestCase;
+use Cake\Utility\Folder;
 use Composer\Autoload\ClassLoader;
+use Exception;
 use PHPUnit\Framework\Error;
+use ReflectionClass;
+use RuntimeException;
+use stdClass;
+use TypeError;
 
 /**
  * ConfigureTest file
@@ -87,7 +102,7 @@ class ConfigureTest extends CakeTestCase
     {
         $result = $this->_bootstrapInSeparateProcess([]);
         $this->assertSame(
-            "ConfigureException: Can't find application core file. Please create " . $result['config'] . 'core.php, and make sure it is readable by PHP.',
+            "Cake\\Error\\ConfigureException: Can't find application core file. Please create " . $result['config'] . 'core.php, and make sure it is readable by PHP.',
             $result['output'],
         );
     }
@@ -101,7 +116,7 @@ class ConfigureTest extends CakeTestCase
     {
         $result = $this->_bootstrapInSeparateProcess(['core.php' => '<?php return true;']);
         $this->assertSame(
-            "ConfigureException: Can't find application bootstrap file. Please create " . $result['config'] . 'bootstrap.php, and make sure it is readable by PHP.',
+            "Cake\\Error\\ConfigureException: Can't find application bootstrap file. Please create " . $result['config'] . 'bootstrap.php, and make sure it is readable by PHP.',
             $result['output'],
         );
     }
@@ -169,7 +184,9 @@ class ConfigureTest extends CakeTestCase
         ];
         Configure::write('App', $expected);
 
+        $level = error_reporting();
         Configure::bootstrap(true);
+        error_reporting($level);
         $this->_restoreError = true;
         $result = Configure::read('App');
 
@@ -419,7 +436,7 @@ class ConfigureTest extends CakeTestCase
      */
     public function testLoadWithMerge(): void
     {
-        Configure::config('test', new PhpReader(CORE_TESTS . DS . 'test_app' . DS . 'Config' . DS));
+        Configure::config('test', new PhpReader(CORE_TESTS . DS . 'test_app' . DS . 'config' . DS));
 
         $result = Configure::load('var_test', 'test');
         $this->assertTrue($result);
@@ -443,7 +460,7 @@ class ConfigureTest extends CakeTestCase
      */
     public function testLoadNoMerge(): void
     {
-        Configure::config('test', new PhpReader(CORE_TESTS . DS . 'test_app' . DS . 'Config' . DS));
+        Configure::config('test', new PhpReader(CORE_TESTS . DS . 'test_app' . DS . 'config' . DS));
 
         $result = Configure::load('var_test', 'test');
         $this->assertTrue($result);
@@ -466,7 +483,7 @@ class ConfigureTest extends CakeTestCase
     public function testLoadPlugin(): void
     {
         App::build([
-            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS],
+            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
         ], App::RESET);
         Configure::config('test', new PhpReader());
         CakePlugin::load('TestPlugin');
@@ -566,7 +583,7 @@ class ConfigureTest extends CakeTestCase
     public function testReaderExceptionOnIncorrectClass(): void
     {
         $this->expectException(Error::class);
-        $reader = new StdClass();
+        $reader = new stdClass();
 
         try {
             Configure::config('test', $reader);

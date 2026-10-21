@@ -13,14 +13,17 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-/**
- * DebuggerTestCaseDebugger class
- *
- * @package       Cake.Test.Case.Utility
- */
-class DebuggerTestCaseDebugger extends Debugger
-{
-}
+namespace Cake\Test\TestCase\Utility;
+
+use Cake\Controller\Controller;
+use Cake\Core\Configure;
+use Cake\Error\CakeException;
+use Cake\Log\CakeLog;
+use Cake\TestSuite\CakeTestCase;
+use Cake\Utility\Debugger;
+use Cake\View\View;
+use InvalidArgumentException;
+use TestApp\Utility\DebuggerTestCaseDebugger;
 
 /**
  * DebuggerTest class
@@ -136,7 +139,7 @@ class DebuggerTest extends CakeTestCase
         // are not output when a PHP error occurs.
         // Except for the above, Debugger::output() works.
         // However, it is incomplete, so marked.
-        set_error_handler('Debugger::showError');
+        set_error_handler([Debugger::class, 'showError']);
 
         $result = Debugger::output(false);
         $this->assertEquals('', $result);
@@ -193,7 +196,7 @@ class DebuggerTest extends CakeTestCase
      */
     public function testOutputEncodeDescription(): void
     {
-        set_error_handler('Debugger::showError');
+        set_error_handler([Debugger::class, 'showError']);
 
         ob_start();
         Debugger::output('js');
@@ -214,7 +217,7 @@ class DebuggerTest extends CakeTestCase
      */
     public function testChangeOutputFormats(): void
     {
-        set_error_handler('Debugger::showError');
+        set_error_handler([Debugger::class, 'showError']);
 
         Debugger::output('js', [
             'traceLine' => '{:reference} - <a href="txmt://open?url=file://{:file}' .
@@ -278,7 +281,7 @@ class DebuggerTest extends CakeTestCase
      */
     public function testAddFormat(): void
     {
-        set_error_handler('Debugger::showError');
+        set_error_handler([Debugger::class, 'showError']);
 
         Debugger::addFormat('js', [
             'traceLine' => '{:reference} - <a href="txmt://open?url=file://{:file}' .
@@ -319,7 +322,7 @@ class DebuggerTest extends CakeTestCase
      */
     public function testAddFormatCallback(): void
     {
-        set_error_handler('Debugger::showError');
+        set_error_handler([Debugger::class, 'showError']);
 
         Debugger::addFormat('callback', ['callback' => [$this, 'customFormat']]);
         Debugger::outputAs('callback');
@@ -353,7 +356,7 @@ class DebuggerTest extends CakeTestCase
         $this->assertEquals('APP' . DS, Debugger::trimPath(APP));
         $this->assertEquals('CORE', Debugger::trimPath(CAKE_CORE_INCLUDE_PATH));
         $this->assertEquals('ROOT', Debugger::trimPath(ROOT));
-        $this->assertEquals('CORE' . DS . 'Cake' . DS, Debugger::trimPath(CAKE));
+        $this->assertEquals('CORE' . DS, Debugger::trimPath(CAKE));
         $this->assertEquals('Some/Other/Path', Debugger::trimPath('Some/Other/Path'));
     }
 
@@ -372,11 +375,12 @@ class DebuggerTest extends CakeTestCase
 
         $result = Debugger::exportVar($View);
         $expected = <<<TEXT
-object(View) {
-	Helpers => object(HelperCollection) {}
-	Blocks => object(ViewBlock) {}
+object(Cake\View\View) {
+	Helpers => object(Cake\View\HelperCollection) {}
+	Blocks => object(Cake\View\ViewBlock) {}
 	plugin => null
 	name => ''
+	controllerClass => 'Cake\Controller\Controller'
 	passedArgs => array()
 	helpers => array(
 		(int) 0 => 'Html',
@@ -395,12 +399,12 @@ object(View) {
 	validationErrors => array()
 	hasRendered => false
 	uuids => array()
-	request => object(CakeRequest) {}
-	response => object(CakeResponse) {}
+	request => object(Cake\Network\CakeRequest) {}
+	response => object(Cake\Network\CakeResponse) {}
 	elementCache => 'default'
 	elementCacheSettings => array()
-	Html => object(HtmlHelper) {}
-	Form => object(FormHelper) {}
+	Html => object(Cake\View\Helper\HtmlHelper) {}
+	Form => object(Cake\View\Helper\FormHelper) {}
 	int => (int) 2
 	float => (float) 1.333
 	[protected] _passedVars => array(
@@ -417,7 +421,8 @@ object(View) {
 		(int) 10 => 'request',
 		(int) 11 => 'plugin',
 		(int) 12 => 'passedArgs',
-		(int) 13 => 'cacheAction'
+		(int) 13 => 'cacheAction',
+		(int) 14 => 'controllerClass'
 	)
 	[protected] _scripts => array()
 	[protected] _paths => array()
@@ -426,7 +431,7 @@ object(View) {
 	[protected] _current => null
 	[protected] _currentType => ''
 	[protected] _stack => array()
-	[protected] _eventManager => object(CakeEventManager) {}
+	[protected] _eventManager => object(Cake\Event\CakeEventManager) {}
 	[protected] _eventManagerConfigured => false
 }
 TEXT;
@@ -619,16 +624,16 @@ TEXT;
     public function testGetInstance(): void
     {
         $result = Debugger::getInstance();
-        $this->assertInstanceOf('Debugger', $result);
+        $this->assertInstanceOf(Debugger::class, $result);
 
-        $result = Debugger::getInstance('DebuggerTestCaseDebugger');
-        $this->assertInstanceOf('DebuggerTestCaseDebugger', $result);
+        $result = Debugger::getInstance(DebuggerTestCaseDebugger::class);
+        $this->assertInstanceOf(DebuggerTestCaseDebugger::class, $result);
 
         $result = Debugger::getInstance();
-        $this->assertInstanceOf('DebuggerTestCaseDebugger', $result);
+        $this->assertInstanceOf(DebuggerTestCaseDebugger::class, $result);
 
         $result = Debugger::getInstance('Debugger');
-        $this->assertInstanceOf('Debugger', $result);
+        $this->assertInstanceOf(Debugger::class, $result);
     }
 
     /**
@@ -690,7 +695,7 @@ TEXT;
     public function testTraceExclude(): void
     {
         $result = Debugger::trace();
-        $this->assertMatchesRegularExpression('/^DebuggerTest::testTraceExclude/', $result);
+        $this->assertMatchesRegularExpression('/^Cake\\\\Test\\\\TestCase\\\\Utility\\\\DebuggerTest::testTraceExclude/', $result);
 
         $result = Debugger::trace([
             'exclude' => ['DebuggerTest::testTraceExclude'],

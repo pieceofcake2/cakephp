@@ -16,6 +16,13 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\Console;
+
+use Cake\Console\ConsoleOptionParser;
+use Cake\Console\HelpFormatter;
+use Cake\TestSuite\CakeTestCase;
+use SimpleXMLElement;
+
 /**
  * HelpFormatterTest
  *
@@ -518,7 +525,7 @@ TEXT;
 
         $formatter = new HelpFormatter($parser);
         $result = $formatter->xml(false);
-        $this->assertInstanceOf('SimpleXmlElement', $result);
+        $this->assertInstanceOf(SimpleXMLElement::class, $result);
     }
 
     /**

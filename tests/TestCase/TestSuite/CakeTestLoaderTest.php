@@ -13,6 +13,14 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+namespace Cake\Test\TestCase\TestSuite;
+
+use Cake\Core\App;
+use Cake\Core\CakePlugin;
+use Cake\TestSuite\CakeTestCase;
+use Cake\TestSuite\CakeTestLoader;
+use Cake\Utility\Folder;
+
 /**
  * TestCakeTestLoader
  *

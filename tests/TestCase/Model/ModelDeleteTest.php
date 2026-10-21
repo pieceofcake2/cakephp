@@ -16,7 +16,26 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
-require_once __DIR__ . DS . 'ModelTestBase.php';
+namespace Cake\Test\TestCase\Model;
+
+use Cake\Core\App;
+use Cake\Core\CakePlugin;
+use Cake\Utility\ClassRegistry;
+use PDOException;
+use TestApp\Model\Article;
+use TestApp\Model\Article10;
+use TestApp\Model\ArticleB;
+use TestApp\Model\BeforeDeleteComment;
+use TestApp\Model\Bidding;
+use TestApp\Model\Book;
+use TestApp\Model\CallbackPostTestModel;
+use TestApp\Model\Cd;
+use TestApp\Model\CounterCacheUser;
+use TestApp\Model\JoinA;
+use TestApp\Model\OverallFavorite;
+use TestApp\Model\Portfolio;
+use TestApp\Model\ThePaper;
+use TestApp\Model\Uuid;
 
 /**
  * ModelDeleteTest
@@ -466,7 +485,7 @@ class ModelDeleteTest extends BaseModelTest
     public function testDeleteAllFailedFind(): void
     {
         $this->loadFixtures('Article');
-        $TestModel = $this->getMock('Article', ['find']);
+        $TestModel = $this->getMock(Article::class, ['find']);
         $TestModel->expects($this->once())
             ->method('find')
             ->will($this->returnValue(null));
@@ -651,16 +670,22 @@ class ModelDeleteTest extends BaseModelTest
      */
     public function testDeleteLinksWithPLuginJoinModel(): void
     {
-        $this->loadFixtures('Article', 'ArticlesTag', 'Tag');
-        $Article = new Article();
-        $Article->unbindModel(['hasAndBelongsToMany' => ['Tag']], false);
-        unset($Article->Tag, $Article->ArticleTags);
-        $Article->bindModel(['hasAndBelongsToMany' => [
+        App::build([
+            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
+        ], App::RESET);
+        CakePlugin::load('TestPlugin');
+
+        $this->loadFixtures('Article', 'ArticlesTag', 'Tag', 'Comment', 'Attachment');
+        $article = new Article();
+        $article->unbindModel(['hasAndBelongsToMany' => ['Tag']], false);
+        unset($article->Tag, $article->ArticleTags);
+        $article->bindModel(['hasAndBelongsToMany' => [
             'Tag' => ['with' => 'TestPlugin.ArticlesTag'],
         ]], false);
 
-        $Article->ArticlesTag->order = null;
-        $this->assertTrue($Article->delete(1));
+        $article->ArticlesTag->order = null;
+        $this->assertTrue($article->delete(1));
+        CakePlugin::unload();
     }
 
     /**
