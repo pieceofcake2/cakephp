@@ -140,4 +140,112 @@ class CommandListShellTest extends CakeTestCase
         $find = '<shell name="welcome" call_as="TestTwoPlugin.welcome" provider="TestTwoPlugin" help="TestTwoPlugin.welcome -h"/>';
         $this->assertStringContainsString($find, $output);
     }
+
+    /**
+     * Test that startup() shows the welcome text, but not for the XML output
+     *
+     * @return void
+     */
+    public function testStartup(): void
+    {
+        $this->Shell->startup();
+        $this->assertStringContainsString('Welcome to CakePHP', $this->Shell->stdout->output);
+
+        $this->Shell->stdout->output = '';
+        $this->Shell->params['xml'] = true;
+        $this->Shell->startup();
+        $this->assertSame('', $this->Shell->stdout->output);
+    }
+
+    /**
+     * Test that the text output sorts the commands of each group
+     *
+     * @return void
+     */
+    public function testMainSortsCommands(): void
+    {
+        $this->Shell->Command = $this->getMock(CommandTask::class, ['getShellList'], [], '', false);
+        $this->Shell->Command->expects($this->once())
+            ->method('getShellList')
+            ->will($this->returnValue([
+                'CORE' => ['zeta', 'alpha', 'mu'],
+                'app' => ['second', 'first'],
+            ]));
+        $this->Shell->stdout->outputAs(ConsoleOutput::PLAIN);
+
+        $this->Shell->main();
+        $output = $this->Shell->stdout->output;
+
+        $this->assertStringContainsString('[CORE] alpha, mu, zeta', $output);
+        $this->assertStringContainsString('[app] first, second', $output);
+        $this->assertLessThan(strpos($output, '[app]'), strpos($output, '[CORE]'));
+        $this->assertStringContainsString('To get help on a specific command, type cake shell_name --help', $output);
+    }
+
+    /**
+     * Test that nothing is listed when there are no shells
+     *
+     * @return void
+     */
+    public function testMainEmptyShellList(): void
+    {
+        $this->Shell->Command = $this->getMock(CommandTask::class, ['getShellList'], [], '', false);
+        $this->Shell->Command->expects($this->exactly(2))
+            ->method('getShellList')
+            ->will($this->returnValue([]));
+
+        $this->Shell->main();
+        $output = $this->Shell->stdout->output;
+        $this->assertStringContainsString('Available Shells:', $output);
+        $this->assertStringNotContainsString('To run an app or core command', $output);
+
+        $this->Shell->stdout->output = '';
+        $this->Shell->params['xml'] = true;
+        $this->Shell->main();
+        $this->assertSame('', $this->Shell->stdout->output);
+    }
+
+    /**
+     * Test that the XML output prefixes the commands of loaded plugins only
+     *
+     * @return void
+     */
+    public function testMainXmlPluginPrefix(): void
+    {
+        $this->Shell->Command = $this->getMock(CommandTask::class, ['getShellList'], [], '', false);
+        $this->Shell->Command->expects($this->once())
+            ->method('getShellList')
+            ->will($this->returnValue([
+                'CORE' => ['acl'],
+                'TestPlugin' => ['example'],
+                'NotLoaded' => ['thing'],
+            ]));
+        $this->Shell->params['xml'] = true;
+
+        $this->Shell->main();
+        $output = $this->Shell->stdout->output;
+
+        $this->assertStringStartsWith('<?xml version="1.0"?>', $output);
+        $this->assertStringContainsString('<shell name="acl" call_as="acl" provider="CORE" help="acl -h"/>', $output);
+        $this->assertStringContainsString('<shell name="example" call_as="TestPlugin.example" provider="TestPlugin" help="TestPlugin.example -h"/>', $output);
+        $this->assertStringContainsString('<shell name="thing" call_as="thing" provider="NotLoaded" help="thing -h"/>', $output);
+        $this->assertStringNotContainsString('Current Paths', $output);
+    }
+
+    /**
+     * Test the option parser
+     *
+     * @return void
+     */
+    public function testGetOptionParser(): void
+    {
+        $parser = $this->Shell->getOptionParser();
+        $options = $parser->options();
+
+        $this->assertArrayHasKey('sort', $options);
+        $this->assertArrayHasKey('xml', $options);
+        $this->assertTrue($options['xml']->isBoolean());
+        $this->assertTrue($options['sort']->isBoolean());
+        $this->assertStringContainsString('Get the list of available shells for this CakePHP application.', $parser->help());
+    }
 }
