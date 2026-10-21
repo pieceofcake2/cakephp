@@ -537,7 +537,8 @@ class CakeSession
     /**
      * Clears the session.
      *
-     * Optionally also clears the session id and renews the session.
+     * Empties the session data. Optionally also clears the session id and renews
+     * the session, which keeps the empty data under a new id.
      *
      * @param bool $renew If the session should also be renewed. Defaults to true.
      * @return void
@@ -550,7 +551,7 @@ class CakeSession
             return;
         }
 
-        $_SESSION = null;
+        $_SESSION = [];
         static::$id = null;
         static::renew();
     }

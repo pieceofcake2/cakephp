@@ -1067,7 +1067,6 @@ class CakeSessionTest extends CakeTestCase
     public function testClearRenewsTheSession(): void
     {
         $this->_preserveSessionIni();
-        $this->markTestIncomplete('Known bug: clear() sets $_SESSION to null before renew(), so the stored data is kept and read back.');
         // The files handler, as a handler of an earlier test may not store the data
         Configure::write('Session', ['defaults' => 'cake', 'timeout' => 120]);
         $createdPath = !is_dir(TMP . 'sessions') && mkdir(TMP . 'sessions');
