@@ -367,6 +367,8 @@ class DataSource extends CakeObject
     /**
      * Replaces `{$__cakeID__$}` and `{$__cakeForeignKey__$}` placeholders in query data.
      *
+     * The replacement fails when the value is missing or empty; 0 and '0' are valid values.
+     *
      * @param string $query Query string needing replacements done.
      * @param array $data Array of data with values that will be inserted in placeholders.
      * @param string $association Name of association model being replaced.
@@ -435,7 +437,7 @@ class DataSource extends CakeObject
                 $dataType = $InsertModel->getColumnType($InsertModel->primaryKey);
             }
 
-            if (empty($val) && $val !== '0') {
+            if (empty($val) && $val !== '0' && $val !== 0) {
                 return false;
             }
 

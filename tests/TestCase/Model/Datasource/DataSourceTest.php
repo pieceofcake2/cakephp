@@ -594,8 +594,6 @@ class DataSourceTest extends CakeTestCase
      */
     public function testInsertQueryDataIntegerZeroId(): void
     {
-        $this->markTestIncomplete("Known bug: insertQueryData() rejects an int 0 id with empty(), but accepts '0'");
-
         $query = 'SELECT * FROM comments WHERE post_id = {$__cakeID__$}';
         $result = $this->Source->insertQueryData($query, [$this->Model->alias => ['id' => 0]], 'Comment', $this->Model, []);
         $this->assertSame('SELECT * FROM comments WHERE post_id = 0', $result);
