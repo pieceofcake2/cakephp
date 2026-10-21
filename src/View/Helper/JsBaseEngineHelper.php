@@ -267,8 +267,16 @@ abstract class JsBaseEngineHelper extends AppHelper
                     }
                     $charbits = $string[$i] . $string[$i + 1] . $string[$i + 2] . $string[$i + 3];
                     $char = Multibyte::utf8($charbits);
-                    $return .= sprintf('\u%04s', dechex($char[0]));
                     $i += 3;
+                    if ($char[0] < 0x10000 || $char[0] > 0x10FFFF) {
+                        // An overlong sequence or one past U+10FFFF is not valid UTF-8.
+                        $return .= '?';
+                        break;
+                    }
+                    // JSON has only 4-digit \u escapes: write a character outside the
+                    // Basic Multilingual Plane as its UTF-16 surrogate pair.
+                    $offset = $char[0] - 0x10000;
+                    $return .= sprintf('\u%04x\u%04x', 0xD800 | ($offset >> 10), 0xDC00 | ($offset & 0x3FF));
                     break;
                 case ($ord & 0xFC) == 0xF8:
                     if ($i + 4 >= $length) {

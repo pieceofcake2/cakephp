@@ -350,6 +350,33 @@ class MultibyteTest extends CakeTestCase
     }
 
     /**
+     * Test that utf8() decodes 4-byte sequences to code points outside the Basic
+     * Multilingual Plane, and that ascii() encodes them back.
+     *
+     * @return void
+     */
+    public function testUtf8AndAsciiOutsideBasicMultilingualPlane(): void
+    {
+        // U+1F600 GRINNING FACE, U+10000, U+10FFFF
+        $string = "a\xF0\x9F\x98\x80\xF0\x90\x80\x80\xF4\x8F\xBF\xBFb";
+        $expected = [97, 0x1F600, 0x10000, 0x10FFFF, 98];
+        $this->assertSame($expected, Multibyte::utf8($string));
+        $this->assertSame($string, Multibyte::ascii($expected));
+    }
+
+    /**
+     * Test that strtolower() and strtoupper() keep a character outside the Basic
+     * Multilingual Plane.
+     *
+     * @return void
+     */
+    public function testCaseConversionKeepsCharactersOutsideBasicMultilingualPlane(): void
+    {
+        $this->assertSame("\xC3\xA9 \xF0\x9F\x98\x80 a", Multibyte::strtolower("\xC3\x89 \xF0\x9F\x98\x80 A"));
+        $this->assertSame("\xC3\x89 \xF0\x9F\x98\x80 A", Multibyte::strtoupper("\xC3\xA9 \xF0\x9F\x98\x80 a"));
+    }
+
+    /**
      * testAscii method
      *
      * @return void

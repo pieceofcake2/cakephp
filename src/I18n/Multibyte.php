@@ -53,6 +53,9 @@ class Multibyte
      * Converts a multibyte character string
      * to the decimal value of the character
      *
+     * Decodes 1- to 4-byte UTF-8 sequences, so characters outside the
+     * Basic Multilingual Plane give their full code point.
+     *
      * @param string $string String to convert.
      * @return array
      */
@@ -71,12 +74,20 @@ class Multibyte
                 $map[] = $value;
             } else {
                 if (empty($values)) {
-                    $find = $value < 224 ? 2 : 3;
+                    if ($value < 224) {
+                        $find = 2;
+                    } elseif ($value < 240) {
+                        $find = 3;
+                    } else {
+                        $find = 4;
+                    }
                 }
                 $values[] = $value;
 
                 if (count($values) === $find) {
-                    if ($find == 3) {
+                    if ($find == 4) {
+                        $map[] = (($values[0] % 8) * 262144) + (($values[1] % 64) * 4096) + (($values[2] % 64) * 64) + ($values[3] % 64);
+                    } elseif ($find == 3) {
                         $map[] = (($values[0] % 16) * 4096) + (($values[1] % 64) * 64) + ($values[2] % 64);
                     } else {
                         $map[] = (($values[0] % 32) * 64) + ($values[1] % 64);
@@ -94,6 +105,8 @@ class Multibyte
      * Converts the decimal value of a multibyte character string
      * to a string
      *
+     * Encodes code points up to U+10FFFF as 1- to 4-byte UTF-8 sequences.
+     *
      * @param array $array Values array.
      * @return string
      */
@@ -107,8 +120,13 @@ class Multibyte
             } elseif ($utf8 < 2048) {
                 $ascii .= chr(192 + (($utf8 - ($utf8 % 64)) / 64));
                 $ascii .= chr(128 + ($utf8 % 64));
-            } else {
+            } elseif ($utf8 < 65536) {
                 $ascii .= chr(224 + (($utf8 - ($utf8 % 4096)) / 4096));
+                $ascii .= chr(128 + ((($utf8 % 4096) - ($utf8 % 64)) / 64));
+                $ascii .= chr(128 + ($utf8 % 64));
+            } else {
+                $ascii .= chr(240 + (($utf8 - ($utf8 % 262144)) / 262144));
+                $ascii .= chr(128 + ((($utf8 % 262144) - ($utf8 % 4096)) / 4096));
                 $ascii .= chr(128 + ((($utf8 % 4096) - ($utf8 % 64)) / 64));
                 $ascii .= chr(128 + ($utf8 % 64));
             }

@@ -296,10 +296,23 @@ class JsBaseEngineHelperTest extends CakeTestCase
      */
     public function testEscapeCharacterOutsideBasicMultilingualPlane(): void
     {
-        $this->markTestIncomplete('Known bug: escape() of a 4-byte UTF-8 character such as an emoji writes a wrong \u escape');
-
         // U+1F600 GRINNING FACE
         $this->assertSame('smile \ud83d\ude00', $this->JsEngine->escape("smile \xF0\x9F\x98\x80"));
+        // U+10000 and U+10FFFF, the first and the last code point outside the BMP
+        $this->assertSame('\ud800\udc00\udbff\udfff', $this->JsEngine->escape("\xF0\x90\x80\x80\xF4\x8F\xBF\xBF"));
+        $this->assertSame(json_encode("a\xF0\x9F\x98\x80b"), '"' . $this->JsEngine->escape("a\xF0\x9F\x98\x80b") . '"');
+    }
+
+    /**
+     * Test that escape() replaces a 4-byte sequence that is not valid UTF-8, because it
+     * is overlong or past U+10FFFF, by a question mark.
+     *
+     * @return void
+     */
+    public function testEscapeInvalidFourByteSequence(): void
+    {
+        $this->assertSame('a?b', $this->JsEngine->escape("a\xF0\x80\x80\x80b"));
+        $this->assertSame('a?b', $this->JsEngine->escape("a\xF4\x90\x80\x80b"));
     }
 
     /**
