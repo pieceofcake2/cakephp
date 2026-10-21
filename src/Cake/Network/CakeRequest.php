@@ -1090,6 +1090,9 @@ class CakeRequest implements ArrayAccess
         $input = $this->_readInput();
         $args = func_get_args();
         if (!empty($args)) {
+            if ($input === null) {
+                return null;
+            }
             $callback = array_shift($args);
             array_unshift($args, $input);
 

@@ -409,9 +409,6 @@ class RequestHandlerComponentTest extends CakeTestCase
         $_SERVER['REQUEST_METHOD'] = 'PUT';
         $_SERVER['CONTENT_TYPE'] = 'application/xml';
         $this->Controller->request = $this->getMock('CakeRequest', ['_readInput']);
-        $this->Controller->request->expects($this->any())
-            ->method('_readInput')
-            ->will($this->returnValue(''));
         $this->RequestHandler->startup($this->Controller);
         $this->assertTrue(is_array($this->Controller->data));
         $this->assertFalse(is_object($this->Controller->data));
@@ -427,9 +424,6 @@ class RequestHandlerComponentTest extends CakeTestCase
         $_SERVER['REQUEST_METHOD'] = 'PUT';
         $_SERVER['CONTENT_TYPE'] = 'application/json';
         $this->Controller->request = $this->getMock('CakeRequest', ['_readInput']);
-        $this->Controller->request->expects($this->any())
-            ->method('_readInput')
-            ->will($this->returnValue(''));
         $this->RequestHandler->startup($this->Controller);
         $this->assertTrue(is_array($this->Controller->data));
         $this->assertFalse(is_object($this->Controller->data));
@@ -445,9 +439,6 @@ class RequestHandlerComponentTest extends CakeTestCase
         $_SERVER['REQUEST_METHOD'] = 'PUT';
         $_SERVER['CONTENT_TYPE'] = 'application/xml; charset=UTF-8';
         $this->Controller->request = $this->getMock('CakeRequest', ['_readInput']);
-        $this->Controller->request->expects($this->any())
-            ->method('_readInput')
-            ->will($this->returnValue(''));
         $this->RequestHandler->startup($this->Controller);
         $this->assertTrue(is_array($this->Controller->data));
         $this->assertFalse(is_object($this->Controller->data));
