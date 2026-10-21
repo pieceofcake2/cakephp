@@ -313,7 +313,7 @@ class ClassRegistry
             $return = $_this->_objects[$key];
         } else {
             $key = $_this->_getMap($key);
-            if (!empty($key) && isset($_this->_objects[$key])) {
+            if ($key !== null && isset($_this->_objects[$key])) {
                 $return = $_this->_objects[$key];
             }
         }

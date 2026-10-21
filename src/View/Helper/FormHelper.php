@@ -236,7 +236,7 @@ class FormHelper extends AppHelper
         if ($key === 'fields') {
             if (!isset($this->fieldset[$model]['fields'])) {
                 $this->fieldset[$model]['fields'] = $object->schema();
-                if (!empty($object->alias)) {
+                if ($object->alias !== null) {
                     foreach ($object->hasAndBelongsToMany as $alias => $assocData) {
                         $this->fieldset[$object->alias]['fields'][$alias] = ['type' => 'multiple'];
                     }

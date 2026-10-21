@@ -296,6 +296,18 @@ class ConfigureTest extends CakeTestCase
     }
 
     /**
+     * Test that consume() reads and removes the key '0', which is a name like any other.
+     *
+     * @return void
+     */
+    public function testConsumeZeroKey(): void
+    {
+        Configure::write('0', 'zero');
+        $this->assertSame('zero', Configure::consume('0'));
+        $this->assertNull(Configure::consume('0'));
+    }
+
+    /**
      * test setting display_errors with debug.
      *
      * @return void

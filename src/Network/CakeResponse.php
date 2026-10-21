@@ -783,7 +783,7 @@ class CakeResponse
      */
     public function getMimeType($alias)
     {
-        if (empty($alias)) {
+        if ($alias === null) {
             return false;
         }
 
