@@ -68,7 +68,9 @@ class CakeFixtureManagerTest extends CakeTestCase
     public function testLoadLegacyPluginFixture(): void
     {
         $loaded = new ReflectionProperty($this->fixtureManager, '_loaded');
-        $loaded->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $loaded->setAccessible(true);
+        }
         $fixtures = $loaded->getValue($this->fixtureManager);
 
         $this->assertInstanceOf('LegacyCommentFixture', $fixtures['plugin.test_legacy_plugin.legacy_comment']);
