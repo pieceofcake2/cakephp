@@ -182,10 +182,10 @@ class CakeRequest implements ArrayAccess
             $this->data = $_POST;
         } elseif (
             ($this->is('put') || $this->is('delete')) &&
-            str_starts_with($this->contentType(), 'application/x-www-form-urlencoded')
+            str_starts_with((string)$this->contentType(), 'application/x-www-form-urlencoded')
         ) {
                 $data = $this->_readInput();
-                parse_str($data, $this->data);
+                parse_str((string)$data, $this->data);
         }
 
         $override = null;
@@ -1091,13 +1091,16 @@ class CakeRequest implements ArrayAccess
      * @param string $callback A decoding callback that will convert the string data to another
      *     representation. Leave empty to access the raw input data. You can also
      *     supply additional parameters for the decoding callback using var args, see above.
-     * @return mixed The decoded/processed request data.
+     * @return mixed The decoded/processed request data, or null with a callback when there is no input.
      */
     public function input($callback = null)
     {
         $input = $this->_readInput();
         $args = func_get_args();
         if (!empty($args)) {
+            if ($input === null || $input === '') {
+                return null;
+            }
             $callback = array_shift($args);
             array_unshift($args, $input);
 

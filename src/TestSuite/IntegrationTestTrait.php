@@ -881,7 +881,9 @@ trait IntegrationTestTrait
         if (is_string($input)) {
             // CakeRequest::_readInput() returns the cached input instead of reading php://input.
             $property = new ReflectionProperty(CakeRequest::class, '_input');
-            $property->setAccessible(true);
+            if (PHP_VERSION_ID < 80100) {
+                $property->setAccessible(true);
+            }
             $property->setValue($request, $input);
         }
         if (is_array($data) && (!in_array($method, ['GET', 'HEAD', 'OPTIONS'], true) || $data !== [])) {

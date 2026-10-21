@@ -96,7 +96,7 @@ class CakeSchema extends CakeObject
             $this->plugin = $options['plugin'];
         }
 
-        if (strtolower($this->name) === 'cake') {
+        if (strtolower((string)$this->name) === 'cake') {
             $this->name = 'App';
         }
 

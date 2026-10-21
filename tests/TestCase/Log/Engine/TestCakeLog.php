@@ -29,6 +29,6 @@ class TestCakeLog extends CakeLog
 {
     public static function replace($key, &$engine): void
     {
-        static::$_Collection->{$key} = $engine;
+        static::$_Collection->set($key, $engine);
     }
 }

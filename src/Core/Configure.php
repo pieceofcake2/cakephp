@@ -220,6 +220,9 @@ class Configure
      */
     public static function consume($var)
     {
+        if (empty($var)) {
+            return null;
+        }
         $simple = !str_contains($var, '.');
         if ($simple && !isset(static::$_values[$var])) {
             return null;

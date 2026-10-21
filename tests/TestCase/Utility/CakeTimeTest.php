@@ -611,7 +611,7 @@ class CakeTimeTest extends CakeTestCase
         $expected = $date->format('Y-m-d H:i:s');
         $this->assertEquals($expected, $result);
 
-        $date = new DateTime(null, new DateTimeZone('America/New_York'));
+        $date = new DateTime('now', new DateTimeZone('America/New_York'));
         $result = $this->Time->toServer($date, 'Pacific/Tahiti');
         $date->setTimezone(new DateTimeZone(date_default_timezone_get()));
         $expected = $date->format('Y-m-d H:i:s');

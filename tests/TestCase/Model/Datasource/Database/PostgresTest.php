@@ -1312,7 +1312,9 @@ class PostgresTest extends CakeTestCase
 
         $reflection = new ReflectionClass($db);
         $connectionProperty = $reflection->getProperty('_connection');
-        $connectionProperty->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $connectionProperty->setAccessible(true);
+        }
         $connectionProperty->setValue($db, $mockConnection);
 
         $version = $db->getVersion();
@@ -1328,7 +1330,9 @@ class PostgresTest extends CakeTestCase
 
         $reflection = new ReflectionClass($db);
         $connectionProperty = $reflection->getProperty('_connection');
-        $connectionProperty->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $connectionProperty->setAccessible(true);
+        }
         $connectionProperty->setValue($db, $mockConnection);
 
         $version = $db->getVersion();
@@ -1344,7 +1348,9 @@ class PostgresTest extends CakeTestCase
 
         $reflection = new ReflectionClass($db);
         $connectionProperty = $reflection->getProperty('_connection');
-        $connectionProperty->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $connectionProperty->setAccessible(true);
+        }
         $connectionProperty->setValue($db, $mockConnection);
 
         $version = $db->getVersion();
@@ -1360,7 +1366,9 @@ class PostgresTest extends CakeTestCase
 
         $reflection = new ReflectionClass($db);
         $connectionProperty = $reflection->getProperty('_connection');
-        $connectionProperty->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $connectionProperty->setAccessible(true);
+        }
         $connectionProperty->setValue($db, $mockConnection);
 
         $version1 = $db->getVersion();
@@ -1378,7 +1386,9 @@ class PostgresTest extends CakeTestCase
 
         $reflection = new ReflectionClass($db);
         $connectionProperty = $reflection->getProperty('_connection');
-        $connectionProperty->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $connectionProperty->setAccessible(true);
+        }
         $connectionProperty->setValue($db, $mockConnection);
 
         $version = $db->getVersion();
@@ -1394,7 +1404,9 @@ class PostgresTest extends CakeTestCase
 
         $reflection = new ReflectionClass($db);
         $connectionProperty = $reflection->getProperty('_connection');
-        $connectionProperty->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $connectionProperty->setAccessible(true);
+        }
         $connectionProperty->setValue($db, $mockConnection);
 
         $version = $db->getVersion();

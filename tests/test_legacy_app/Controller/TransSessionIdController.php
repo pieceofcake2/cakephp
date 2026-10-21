@@ -18,7 +18,7 @@
 App::uses('AppController', 'Controller');
 
 /**
- * TransSessionIdController class for testing session.use_trans_sid=1.
+ * TransSessionIdController class for testing the session ID in the URL.
  *
  * @package       Cake.Test.TestApp.Controller
  */
@@ -42,13 +42,11 @@ class TransSessionIdController extends AppController
         parent::__construct($request, $response);
         $ini = Configure::read('Session.ini');
         $ini['session.use_cookies'] = 0;
-        $ini['session.use_only_cookies'] = 0;
-        $ini['session.use_trans_sid'] = 1;
         Configure::write('Session.ini', $ini);
     }
 
     /**
-     * For testing redirect URL with session.use_trans_sid=1.
+     * For testing redirect URL with the session ID.
      *
      * @return CakeResponse|null
      */

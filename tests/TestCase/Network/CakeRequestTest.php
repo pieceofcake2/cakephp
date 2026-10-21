@@ -1187,10 +1187,10 @@ class CakeRequestTest extends CakeTestCase
         $request->params['action'] = 'add';
         $this->assertFalse($request->isIndex());
 
-        $request->return = true;
+        $request->params['return'] = true;
         $this->assertTrue($request->isCallMe());
 
-        $request->return = false;
+        $request->params['return'] = false;
         $this->assertFalse($request->isCallMe());
 
         $request->addDetector('extension', ['param' => 'ext', 'options' => ['pdf', 'png', 'txt']]);
@@ -2608,6 +2608,34 @@ class CakeRequestTest extends CakeTestCase
 
         $result = $request->input('json_decode');
         $this->assertEquals(['name' => 'value'], (array)$result);
+    }
+
+    /**
+     * Test that input() returns null without calling the callback when there is no input.
+     *
+     * @return void
+     */
+    public function testInputDecodeEmpty(): void
+    {
+        foreach (['', null] as $input) {
+            $request = $this->getMock('CakeRequest', ['_readInput']);
+            $request->expects($this->once())->method('_readInput')
+                ->will($this->returnValue($input));
+
+            $called = false;
+            $result = $request->input(function () use (&$called) {
+                $called = true;
+
+                return [];
+            });
+            $this->assertNull($result);
+            $this->assertFalse($called);
+        }
+
+        $request = $this->getMock('CakeRequest', ['_readInput']);
+        $request->expects($this->once())->method('_readInput')
+            ->will($this->returnValue('0'));
+        $this->assertSame(0, $request->input('json_decode'));
     }
 
     /**

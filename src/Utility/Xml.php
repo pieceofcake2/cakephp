@@ -86,8 +86,6 @@ class Xml
      * ### Options
      *
      * - `return` Can be 'simplexml' to return object of SimpleXMLElement or 'domdocument' to return DOMDocument.
-     * - `loadEntities` Defaults to false. Set to true to enable loading of `<!ENTITY` definitions. This
-     *   is disabled by default for security reasons.
      * - `readFile` Set to false to disable file reading. This is important to disable when
      *   putting user data into Xml::build(). If enabled local & remote files will be read if they exist.
      *   Defaults to true for backwards compatibility reasons.
@@ -107,7 +105,6 @@ class Xml
         }
         $defaults = [
             'return' => 'simplexml',
-            'loadEntities' => false,
             'readFile' => true,
             'parseHuge' => true,
         ];
@@ -115,11 +112,11 @@ class Xml
 
         if (is_array($input) || is_object($input)) {
             return static::fromArray((array)$input, $options);
-        } elseif (str_contains($input, '<')) {
+        } elseif (str_contains((string)$input, '<')) {
             return static::_loadXml($input, $options);
-        } elseif ($options['readFile'] && file_exists($input)) {
+        } elseif ($options['readFile'] && file_exists((string)$input)) {
             return static::_loadXml(file_get_contents($input), $options);
-        } elseif ($options['readFile'] && (str_starts_with($input, 'http://') || str_starts_with($input, 'https://'))) {
+        } elseif ($options['readFile'] && (str_starts_with((string)$input, 'http://') || str_starts_with((string)$input, 'https://'))) {
             try {
                 $socket = new HttpSocket(['request' => ['redirect' => 10]]);
                 $response = $socket->get($input);
@@ -147,11 +144,7 @@ class Xml
      */
     protected static function _loadXml($input, $options)
     {
-        $hasDisable = function_exists('libxml_disable_entity_loader');
         $internalErrors = libxml_use_internal_errors(true);
-        if ($hasDisable && !$options['loadEntities']) {
-            libxml_disable_entity_loader(true);
-        }
         $flags = LIBXML_NOCDATA;
         if (!empty($options['parseHuge'])) {
             $flags |= LIBXML_PARSEHUGE;
@@ -165,9 +158,6 @@ class Xml
             }
         } catch (Exception) {
             $xml = null;
-        }
-        if ($hasDisable && !$options['loadEntities']) {
-            libxml_disable_entity_loader(false);
         }
         libxml_use_internal_errors($internalErrors);
         if ($xml === null) {
@@ -237,7 +227,7 @@ class Xml
         ];
         $options += $defaults;
 
-        $dom = new DOMDocument($options['version'], $options['encoding']);
+        $dom = new DOMDocument($options['version'], (string)$options['encoding']);
         if ($options['pretty']) {
             $dom->formatOutput = true;
         }

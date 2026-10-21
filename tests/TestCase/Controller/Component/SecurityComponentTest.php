@@ -2212,7 +2212,9 @@ class SecurityComponentTest extends CakeTestCase
         // Use reflection to access protected method
         $reflection = new ReflectionClass($this->Security);
         $method = $reflection->getMethod('_validateHmacToken');
-        $method->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $method->setAccessible(true);
+        }
 
         // Test with invalid base64 string (contains invalid characters)
         $invalidBase64 = 'not-valid-base64!!!@#$%^&*()';
@@ -2230,7 +2232,9 @@ class SecurityComponentTest extends CakeTestCase
         // Use reflection to access protected method
         $reflection = new ReflectionClass($this->Security);
         $method = $reflection->getMethod('_validateHmacToken');
-        $method->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $method->setAccessible(true);
+        }
 
         // Test with too short token (10 bytes instead of 36)
         $shortToken = base64_encode(str_repeat('a', 10));
@@ -2253,7 +2257,9 @@ class SecurityComponentTest extends CakeTestCase
         // Use reflection to access protected method
         $reflection = new ReflectionClass($this->Security);
         $method = $reflection->getMethod('_validateHmacToken');
-        $method->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $method->setAccessible(true);
+        }
 
         // Create a valid HMAC token
         $value = Security::randomBytes(SecurityComponent::TOKEN_VALUE_LENGTH);
@@ -2275,7 +2281,9 @@ class SecurityComponentTest extends CakeTestCase
         // Use reflection to access protected method
         $reflection = new ReflectionClass($this->Security);
         $method = $reflection->getMethod('_validateHmacToken');
-        $method->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $method->setAccessible(true);
+        }
 
         // Create a token with modified HMAC
         $value = Security::randomBytes(SecurityComponent::TOKEN_VALUE_LENGTH);

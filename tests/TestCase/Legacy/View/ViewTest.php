@@ -259,6 +259,34 @@ class ViewTest extends CakeTestCase
     }
 
     /**
+     * Test that .php files in the View/ directories of the CakePHP 2 layout, where the view and helper
+     * classes are, are not rendered as templates.
+     *
+     * @return void
+     */
+    public function testPhpFilesInViewDirectoriesAreNotTemplates(): void
+    {
+        $this->expectException(MissingViewException::class);
+
+        $View = new TestView($this->PostsController);
+        $View->getViewFileName('class_like');
+    }
+
+    /**
+     * Test that a view with the .php extension finds .php templates in View/ directories as before.
+     *
+     * @return void
+     */
+    public function testPhpExtensionInViewDirectories(): void
+    {
+        $View = new TestView($this->PostsController);
+        $View->ext = '.php';
+
+        $expected = CORE_TESTS . DS . 'test_legacy_app' . DS . 'View' . DS . 'Posts' . DS . 'class_like.php';
+        $this->assertSame($expected, $View->getViewFileName('class_like'));
+    }
+
+    /**
      * Test getViewFileName method
      *
      * @return void

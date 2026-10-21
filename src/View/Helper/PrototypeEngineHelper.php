@@ -231,7 +231,7 @@ class PrototypeEngineHelper extends JsBaseEngineHelper
             case 'fadeIn':
             case 'fadeOut':
                 $name = $name === 'fadeIn' ? 'appear' : 'fade';
-                $effect = $this->selection . '.' . $name . '(' . substr($optionString, 2) . ');';
+                $effect = $this->selection . '.' . $name . '(' . substr((string)$optionString, 2) . ');';
                 break;
         }
 

@@ -12,7 +12,8 @@
         "composer/ca-bundle": "^1.5",
         "php81_bc/strftime": "^0.7.5",
         "symfony/polyfill-intl-icu": "^1.29",
-        "symfony/polyfill-mbstring": "^1.29"
+        "symfony/polyfill-mbstring": "^1.29",
+        "symfony/polyfill-php84": "^1.31"
     },
     "require-dev": {
         "phpstan/phpstan": "^2.1",

@@ -289,7 +289,7 @@ abstract class ControllerTestCase extends CakeTestCase
         if ($controllerClass === null) {
             throw new MissingControllerException([
                 'class' => str_contains($controller, '\\') && str_ends_with($controller, 'Controller') ? ltrim($controller, '\\') : ltrim($controller, '\\') . 'Controller',
-                'plugin' => substr($plugin, 0, -1),
+                'plugin' => substr((string)$plugin, 0, -1),
             ]);
         }
         ClassRegistry::flush();

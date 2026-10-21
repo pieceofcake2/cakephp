@@ -773,10 +773,14 @@ SQL;
             ->method('exec')
             ->will($this->throwException(new PDOException('failed')));
         $property = new ReflectionProperty(Sqlserver::class, '_connection');
-        $property->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $property->setAccessible(true);
+        }
         $property->setValue($db, $connection);
         $execute = new ReflectionMethod(Sqlserver::class, '_execute');
-        $execute->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $execute->setAccessible(true);
+        }
 
         $exception = null;
         $deprecations = [];

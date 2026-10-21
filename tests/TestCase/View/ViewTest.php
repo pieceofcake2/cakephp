@@ -815,6 +815,77 @@ class ViewTest extends CakeTestCase
     }
 
     /**
+     * Builds a TestView with the templates/ directory of the test app.
+     *
+     * @param string|null $theme The theme
+     * @return TestView
+     */
+    protected function _templatesView(?string $theme = null): TestView
+    {
+        App::build([
+            'View' => [CORE_TESTS . DS . 'test_app' . DS . 'templates' . DS],
+        ], App::RESET);
+        $View = new TestView($this->PostsController);
+        $View->theme = $theme;
+
+        return $View;
+    }
+
+    /**
+     * Test that templates with the .php extension are found in templates/, before .ctp templates.
+     *
+     * @return void
+     */
+    public function testPhpTemplates(): void
+    {
+        $View = $this->_templatesView();
+        $templates = CORE_TESTS . DS . 'test_app' . DS . 'templates' . DS;
+
+        $this->assertSame($templates . 'Posts' . DS . 'php_template.php', $View->getViewFileName('php_template'));
+        $this->assertSame($templates . 'Posts' . DS . 'both.php', $View->getViewFileName('both'));
+        $this->assertSame('php template in templates/', $View->render('php_template', false));
+
+        // The .ctp templates are still found
+        $this->assertSame($templates . 'Posts' . DS . 'index.ctp', $View->getViewFileName('index'));
+    }
+
+    /**
+     * Test that a theme still overrides a template of the application when they have different extensions.
+     *
+     * @return void
+     */
+    public function testPhpTemplatesKeepThemePriority(): void
+    {
+        $View = $this->_templatesView('TestTheme');
+
+        $expected = CORE_TESTS . DS . 'test_app' . DS . 'templates' . DS . 'Themed' . DS . 'TestTheme' . DS . 'Posts' . DS . 'themed.ctp';
+        $this->assertSame($expected, $View->getViewFileName('themed'));
+    }
+
+    /**
+     * Test the directories of CakePHP 5 in templates/: element/, layout/, email/ and Error/.
+     *
+     * @return void
+     */
+    public function testCakePhp5TemplateDirectories(): void
+    {
+        $View = $this->_templatesView();
+        $templates = CORE_TESTS . DS . 'test_app' . DS . 'templates' . DS;
+
+        $this->assertSame('php element in templates/element/', $View->element('php_element'));
+        $this->assertSame('ctp element in templates/Elements/', $View->element('legacy_dir_element'));
+
+        $this->assertSame($templates . 'layout' . DS . 'php_layout.php', $View->getLayoutFileName('php_layout'));
+        $this->assertSame($templates . 'Error' . DS . 'php_error.php', $View->getViewFileName('/Errors/php_error'));
+
+        // The paths that CakeEmail uses
+        $View->viewPath = $View->layoutPath = 'Emails' . DS . 'html';
+        $this->assertSame($templates . 'email' . DS . 'html' . DS . 'php_email.php', $View->getViewFileName('php_email'));
+        $expected = $templates . 'layout' . DS . 'email' . DS . 'html' . DS . 'php_email.php';
+        $this->assertSame($expected, $View->getLayoutFileName('php_email'));
+    }
+
+    /**
      * Test element method
      *
      * @return void

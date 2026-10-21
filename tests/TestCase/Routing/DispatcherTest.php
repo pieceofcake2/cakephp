@@ -611,8 +611,6 @@ class DispatcherTest extends CakeTestCase
             ['plugin' => 'test_dispatch_plugin', 'controller' => 'pages', 'action' => 'display'],
         );
 
-        $Dispatcher->base = false;
-
         $url = new CakeRequest('test_dispatch_plugin/other_pages/index/param:value/param2:value2');
         $response = $this->getMock(CakeResponse::class);
         $Dispatcher->dispatch($url, $response, ['return' => 1]);
@@ -644,7 +642,6 @@ class DispatcherTest extends CakeTestCase
 
         Router::reload();
         $Dispatcher = new TestDispatcher();
-        $Dispatcher->base = false;
 
         $url = new CakeRequest('test_dispatch_plugin/test_dispatch_plugin/add/param:value/param2:value2');
         $response = $this->getMock(CakeResponse::class);
@@ -659,7 +656,6 @@ class DispatcherTest extends CakeTestCase
         Router::reload();
         require CORE_ROOT . DS . 'config' . DS . 'routes.php';
         $Dispatcher = new TestDispatcher();
-        $Dispatcher->base = false;
 
         // Simulates the Route for a real plugin, installed in APP/plugins
         Router::connect('/test_dispatch_plugin/:controller/:action/*', ['plugin' => 'test_dispatch_plugin']);
@@ -738,7 +734,6 @@ class DispatcherTest extends CakeTestCase
         Router::reload();
 
         $Dispatcher = new TestDispatcher();
-        $Dispatcher->base = false;
 
         $url = new CakeRequest('test_dispatch_plugin/');
         $response = $this->getMock(CakeResponse::class);
@@ -768,7 +763,6 @@ class DispatcherTest extends CakeTestCase
         CakePlugin::load(['TestPlugin', 'TestTwoPlugin']);
 
         $Dispatcher = new TestDispatcher();
-        $Dispatcher->base = false;
 
         $url = new CakeRequest('test_plugin/');
         $response = $this->getMock(CakeResponse::class);
