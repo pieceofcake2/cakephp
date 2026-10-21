@@ -1,0 +1,1 @@
+<?= 'php template of the application' ?>

@@ -25,6 +25,14 @@ A plugin may use the CakePHP 5 layout: namespaced classes in `src/`, views in `t
 - A plugin that already has one of these directories for another purpose gets more search paths, searched first: a file of the same name in `templates/` or `resources/locales/` is used instead of the one in `View/` or `Locale/`. `src/` is searched only for classes (`src/Controller/`, `src/View/Helper/`, ...), never for templates, so the view classes in `src/View/` are not read as templates. For example, `App::objects('MyPlugin.Controller')` also lists the files in `src/Controller/`, and `App::import('Vendor', 'MyPlugin.foo')` also looks in the Composer `vendor/` directory of a plugin checked out for development.
 - A plugin with both `Config/` and `config/` (only possible on a case-sensitive file system) uses `config/`. On a case-insensitive file system, the paths of a plugin with `Config/` are shown as `config/`; they are the same directory.
 
+### Templates in the CakePHP 5 Style ([PR #94](https://github.com/pieceofcake2/cakephp/pull/94))
+
+Templates in `templates/` may use the `.php` extension and the directory names of CakePHP 5 (`layout/`, `element/`, `email/`, `Error/`). Nothing changes for `.ctp` templates and for the `View/` directories of the CakePHP 2 layout.
+
+- In a `templates/` directory, a `foo.php` template is used instead of a `foo.ctp` template next to it, and `layout/default.php` or `layout/default.ctp` instead of `Layouts/default.ctp`. Check that no `.php` files other than templates are left in `templates/`.
+- `View/` directories are not searched for `.php` files, as they also hold view and helper classes. A view that sets `$ext = '.php'` still finds its templates there, as before.
+- To move templates, rename `.ctp` to `.php`, and `Layouts/`, `Elements/`, `Emails/` and `Errors/` to `layout/`, `element/`, `email/` and `Error/`; email layouts move from `Layouts/Emails/html/` to `layout/email/html/`.
+
 ## v2.12.11
 
 ### Request URLs with Extra Leading Slashes ([GHSA-wh43-gc93-wh4c](https://github.com/pieceofcake2/cakephp/security/advisories/GHSA-wh43-gc93-wh4c), [PR #90](https://github.com/pieceofcake2/cakephp/pull/90))

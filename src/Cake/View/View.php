@@ -1073,10 +1073,12 @@ class View extends CakeObject
         $exts = $this->_getExtensions();
         foreach ($exts as $ext) {
             foreach ($paths as $path) {
-                if (file_exists($path . $name . $ext)) {
-                    $file = $this->_checkFilePath($path . $name . $ext, $plugin);
-                    if ($file !== false) {
-                        return $file;
+                foreach ($this->_getTemplateFiles($path, $name, $ext) as $template) {
+                    if (file_exists($template)) {
+                        $file = $this->_checkFilePath($template, $plugin);
+                        if ($file !== false) {
+                            return $file;
+                        }
                     }
                 }
             }
@@ -1132,10 +1134,12 @@ class View extends CakeObject
         $exts = $this->_getExtensions();
         foreach ($exts as $ext) {
             foreach ($paths as $path) {
-                if (file_exists($path . $file . $ext)) {
-                    $layoutFile = $this->_checkFilePath($path . $file . $ext, $plugin);
-                    if ($layoutFile !== false) {
-                        return $layoutFile;
+                foreach ($this->_getTemplateFiles($path, $file, $ext) as $template) {
+                    if (file_exists($template)) {
+                        $layoutFile = $this->_checkFilePath($template, $plugin);
+                        if ($layoutFile !== false) {
+                            return $layoutFile;
+                        }
                     }
                 }
             }
@@ -1159,6 +1163,55 @@ class View extends CakeObject
     }
 
     /**
+     * Returns the files to look for a template in a view path, in order.
+     *
+     * In a `templates/` directory, the files of the CakePHP 5 layout come first:
+     *
+     * - The directories `layout/`, `element/`, `email/` and `Error/` before `Layouts/`, `Elements/`, `Emails/`
+     *   and `Errors/`, e.g. `layout/email/html/default` before `Layouts/Emails/html/default`.
+     * - The extension `.php` before `.ctp`, in the same directory, so that themes and plugins still override
+     *   the templates of the application.
+     *
+     * `.php` is only used in `templates/` directories: the `View/` directories of the CakePHP 2 layout also
+     * hold the view and helper classes, which must not be rendered as templates.
+     *
+     * @param string $path A view path, ending with a directory separator
+     * @param string $file The template name relative to the view path, without extension
+     * @param string $ext The extension, from View::_getExtensions()
+     * @return array<string> The file names
+     */
+    protected function _getTemplateFiles($path, $file, $ext)
+    {
+        $isTemplates = (bool)preg_match(
+            '#[\\\\/]templates[\\\\/](?:(?:Themed|Plugin)[\\\\/][^\\\\/]+[\\\\/])*$#',
+            $path,
+        );
+        if (!$isTemplates) {
+            return [$path . $file . $ext];
+        }
+
+        $directories = ['Layouts' => 'layout', 'Elements' => 'element', 'Emails' => 'email', 'Errors' => 'Error'];
+        $parts = explode(DS, $file);
+        if (isset($directories[$parts[0]])) {
+            if ($parts[0] === 'Layouts' && isset($parts[1]) && $parts[1] === 'Emails') {
+                $parts[1] = 'email';
+            }
+            $parts[0] = $directories[$parts[0]];
+        }
+        $names = array_unique([implode(DS, $parts), $file]);
+
+        $exts = $ext === '.ctp' ? ['.php', '.ctp'] : [$ext];
+        $files = [];
+        foreach ($exts as $extension) {
+            foreach ($names as $name) {
+                $files[] = $path . $name . $extension;
+            }
+        }
+
+        return $files;
+    }
+
+    /**
      * Finds an element filename, returns false on failure.
      *
      * @param string $name The name of the element to find.
@@ -1172,10 +1225,12 @@ class View extends CakeObject
         $exts = $this->_getExtensions();
         foreach ($exts as $ext) {
             foreach ($paths as $path) {
-                if (file_exists($path . 'Elements' . DS . $name . $ext)) {
-                    $file = $this->_checkFilePath($path . 'Elements' . DS . $name . $ext, $plugin);
-                    if ($file !== false) {
-                        return $file;
+                foreach ($this->_getTemplateFiles($path, 'Elements' . DS . $name, $ext) as $template) {
+                    if (file_exists($template)) {
+                        $file = $this->_checkFilePath($template, $plugin);
+                        if ($file !== false) {
+                            return $file;
+                        }
                     }
                 }
             }

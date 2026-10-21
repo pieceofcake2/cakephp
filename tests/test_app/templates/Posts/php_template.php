@@ -1,0 +1,1 @@
+<?= 'php template in templates/' ?>
