@@ -22,9 +22,8 @@ use Cake\Console\Command\ApiShell;
 use Cake\Console\ConsoleInput;
 use Cake\Console\ConsoleOptionParser;
 use Cake\Console\ConsoleOutput;
-use Cake\Core\App;
 use Cake\TestSuite\CakeTestCase;
-use Closure;
+use ReflectionMethod;
 use RuntimeException;
 
 /**
@@ -59,7 +58,6 @@ class ApiShellTest extends CakeTestCase
             ['in', 'out', 'err', 'createFile', 'hr', '_stop'],
             [$out, $out, $in],
         );
-        $this->_clearClassList();
     }
 
     /**
@@ -69,23 +67,9 @@ class ApiShellTest extends CakeTestCase
      */
     public function tearDown(): void
     {
-        $this->_clearClassList();
         unset($this->Shell);
 
         parent::tearDown();
-    }
-
-    /**
-     * App::objects('class', $path) keeps one list for every path, so each test starts
-     * without the list of the previous lookup.
-     *
-     * @return void
-     */
-    protected function _clearClassList(): void
-    {
-        Closure::bind(function () {
-            unset(static::$_objects['app']['class']);
-        }, null, App::class)();
     }
 
     /**
@@ -192,11 +176,14 @@ class ApiShellTest extends CakeTestCase
     {
         return [
             'behavior' => [['behavior', 'TranslateBehavior'], 'TranslateBehavior', 'bindTranslation('],
+            'behavior without suffix' => [['behavior', 'Translate'], 'TranslateBehavior', 'bindTranslation('],
             'cache' => [['cache', 'Cache'], 'Cache', 'config('],
             'cache engine' => [['cache', 'CacheEngine'], 'CacheEngine', 'init('],
             'controller' => [['controller', 'Controller'], 'Controller', 'render('],
             'component' => [['component', 'AuthComponent'], 'AuthComponent', 'isAuthorized('],
+            'component without suffix' => [['component', 'auth'], 'AuthComponent', 'isAuthorized('],
             'helper' => [['helper', 'HtmlHelper'], 'HtmlHelper', 'link('],
+            'helper without suffix' => [['helper', 'Html'], 'HtmlHelper', 'link('],
             'underscored helper' => [['helper', 'html_helper'], 'HtmlHelper', 'link('],
             'model' => [['model', 'Model'], 'Model', 'save('],
             'view' => [['view', 'View'], 'View', 'render('],
@@ -232,23 +219,44 @@ class ApiShellTest extends CakeTestCase
 
     /**
      * Test that a class name for a behavior, component or helper type gets the type suffix
-     * when the type path has a class of that name without the suffix
      *
      * @return void
      */
     public function testClassLookupAddsTypeSuffix(): void
     {
         $this->Shell->initialize();
-        // Cache.php is in the cache path, and CacheHelper is the class that gets looked up.
-        $this->Shell->paths['helper'] = CAKE . 'Cache' . DS;
         $this->Shell->expects($this->once())->method('in')->will($this->returnValue('q'));
+        $this->Shell->expects($this->never())->method('err');
         $this->_captureOut();
 
-        $this->Shell->args = ['helper', 'Cache'];
+        $this->Shell->args = ['helper', 'Html'];
         $this->Shell->main();
 
-        $this->assertSame('CacheHelper', $this->outCalls[0]);
-        $this->assertNotEmpty(preg_grep('/^\d+\. afterRenderFile\(\$viewFile, \$output\)$/', $this->outCalls[1]));
+        $this->assertSame('HtmlHelper', $this->outCalls[0]);
+        $this->assertNotEmpty(preg_grep('/^\d+\. link\(/', $this->outCalls[1]));
+    }
+
+    /**
+     * Test that the classes of each path are listed again for every lookup
+     *
+     * @return void
+     */
+    public function testClassLookupOfTwoTypes(): void
+    {
+        $this->Shell->initialize();
+        $this->Shell->expects($this->exactly(2))->method('in')->will($this->returnValue('q'));
+        $this->Shell->expects($this->never())->method('err');
+        $this->_captureOut();
+
+        $this->Shell->args = ['model', 'Model'];
+        $this->Shell->main();
+        $this->Shell->args = ['helper', 'HtmlHelper'];
+        $this->Shell->main();
+
+        $this->assertSame('Model', $this->outCalls[0]);
+        $this->assertNotEmpty(preg_grep('/^\d+\. save\(/', $this->outCalls[1]));
+        $this->assertSame('HtmlHelper', $this->outCalls[3]);
+        $this->assertNotEmpty(preg_grep('/^\d+\. link\(/', $this->outCalls[4]));
     }
 
     /**
@@ -261,7 +269,7 @@ class ApiShellTest extends CakeTestCase
         $this->Shell->initialize();
         $this->Shell->expects($this->once())
             ->method('err')
-            ->with('<error>Error:</error> NotAClass not found');
+            ->with('<error>Error:</error> NotAClassHelper not found');
         $this->Shell->expects($this->once())
             ->method('_stop')
             ->will($this->throwException(new RuntimeException('stopped')));
@@ -292,6 +300,38 @@ class ApiShellTest extends CakeTestCase
 
         $this->assertSame('HtmlHelper', $this->outCalls[0]);
         $this->assertNotEmpty(preg_grep('/^\d+\. link\(/', $this->outCalls[1]));
+    }
+
+    /**
+     * Test that a class file that cannot be included is reported, and gives no methods
+     *
+     * @return void
+     */
+    public function testParseClassFileNotIncluded(): void
+    {
+        $path = TMP . 'api_shell_missing' . DS . 'ApiShellMissingClass.php';
+        $this->Shell->expects($this->once())
+            ->method('err')
+            ->with($path . ' could not be found');
+
+        $method = new ReflectionMethod($this->Shell, '_parseClass');
+        if (PHP_VERSION_ID < 80100) {
+            $method->setAccessible(true);
+        }
+        $warnings = [];
+        set_error_handler(function ($errno, $errstr) use (&$warnings) {
+            $warnings[] = $errstr;
+
+            return true;
+        }, E_WARNING);
+        try {
+            $result = $method->invoke($this->Shell, $path, 'ApiShellMissingClass');
+        } finally {
+            restore_error_handler();
+        }
+
+        $this->assertSame([], $result);
+        $this->assertNotEmpty($warnings);
     }
 
     /**
@@ -360,6 +400,30 @@ class ApiShellTest extends CakeTestCase
     }
 
     /**
+     * Test that 'l' lists the methods again, and other input that is not a number is ignored
+     *
+     * @return void
+     */
+    public function testInteractiveListAgain(): void
+    {
+        $this->Shell->initialize();
+        $this->Shell->expects($this->exactly(3))
+            ->method('in')
+            ->will($this->onConsecutiveCalls('l', 'x', 'q'));
+        $this->Shell->expects($this->once())->method('hr');
+        $this->_captureOut();
+
+        $this->Shell->args = ['view', 'View'];
+        $this->Shell->main();
+
+        $this->assertCount(4, $this->outCalls);
+        $this->assertSame('View', $this->outCalls[0]);
+        $this->assertIsArray($this->outCalls[1]);
+        $this->assertSame($this->outCalls[1], $this->outCalls[2]);
+        $this->assertSame('Done', $this->outCalls[3]);
+    }
+
+    /**
      * Test that main() without arguments shows the help of the option parser
      *
      * @return void
@@ -417,20 +481,39 @@ class ApiShellTest extends CakeTestCase
     }
 
     /**
+     * Data provider for testHelpOneParameter
+     *
+     * @return array
+     */
+    public static function helpOneParameterProvider(): array
+    {
+        return [
+            'path' => ['Path', "\t<type>\n", "\t\tview\tLook for class in CakePHP view path\n\n\n"],
+            'type' => ['type', "\t<type>\n", "\t\tview\tLook for class in CakePHP view path\n\n\n"],
+            'className' => ['className', "\t<className>\n", "(e.g: Component, HtmlHelper).\n\n\n"],
+            'classname' => ['classname', "\t<className>\n", "(e.g: Component, HtmlHelper).\n\n\n"],
+        ];
+    }
+
+    /**
      * Test the help of one parameter
      *
+     * @dataProvider helpOneParameterProvider
+     * @param string $parameter The parameter name given to help.
+     * @param string $start The expected start of the help.
+     * @param string $end The expected end of the help.
      * @return void
      */
-    public function testHelpOneParameter(): void
+    public function testHelpOneParameter(string $parameter, string $start, string $end): void
     {
         $this->_captureOut();
 
-        $this->Shell->args = ['help', 'Path'];
+        $this->Shell->args = ['help', $parameter];
         $this->Shell->help();
 
         $this->assertCount(2, $this->outCalls);
-        $this->assertStringStartsWith("\t<type>\n", $this->outCalls[1]);
-        $this->assertStringEndsWith("\t\tview\tLook for class in CakePHP view path\n\n\n", $this->outCalls[1]);
+        $this->assertStringStartsWith($start, $this->outCalls[1]);
+        $this->assertStringEndsWith($end, $this->outCalls[1]);
     }
 
     /**

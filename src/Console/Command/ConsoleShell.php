@@ -277,9 +277,9 @@ class ConsoleShell extends AppShell
     {
         preg_match($this->_methodPatterns[__FUNCTION__], $command, $tmp);
 
-        foreach ($tmp as $data) {
+        foreach ($tmp as $key => $data) {
             $data = strip_tags($data);
-            $data = str_replace($this->badCommandChars, '', $data);
+            $tmp[$key] = str_replace($this->badCommandChars, '', $data);
         }
 
         $modelA = $tmp[1];
@@ -310,9 +310,9 @@ class ConsoleShell extends AppShell
     {
         preg_match($this->_methodPatterns[__FUNCTION__], $command, $tmp);
 
-        foreach ($tmp as $data) {
+        foreach ($tmp as $key => $data) {
             $data = strip_tags($data);
-            $data = str_replace($this->badCommandChars, '', $data);
+            $tmp[$key] = str_replace($this->badCommandChars, '', $data);
         }
 
         $modelA = $tmp[1];
@@ -320,12 +320,15 @@ class ConsoleShell extends AppShell
         $modelB = $tmp[3];
 
         // Verify that there is actually an association to unbind
-        $currentAssociations = $this->{$modelA}->getAssociated();
         $validCurrentAssociation = false;
 
-        foreach ($currentAssociations as $model => $currentAssociation) {
-            if ($model === $modelB && $association === $currentAssociation) {
-                $validCurrentAssociation = true;
+        if ($this->_isValidModel($modelA)) {
+            $currentAssociations = $this->{$modelA}->getAssociated();
+
+            foreach ($currentAssociations as $model => $currentAssociation) {
+                if ($model === $modelB && $association === $currentAssociation) {
+                    $validCurrentAssociation = true;
+                }
             }
         }
 

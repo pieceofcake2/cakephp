@@ -18,6 +18,7 @@
 namespace Cake\Console;
 
 use Cake\Core\App;
+use Cake\Core\CakePlugin;
 use Cake\Core\Configure;
 use Cake\Error\CakeException;
 use Cake\Error\ConfigureException;
@@ -283,7 +284,7 @@ class ShellDispatcher
 
         $class = App::className($plugin . $shell, 'Console/Command', 'Shell');
 
-        if ($class === null) {
+        if ($class === null && CakePlugin::loaded($shell)) {
             $plugin = $shell . '.';
             $class = App::className($plugin . $shell, 'Console/Command', 'Shell');
         }

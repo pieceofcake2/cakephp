@@ -391,7 +391,7 @@ class TestShell extends Shell
                 if (!empty($testCase)) {
                     return $testCase;
                 }
-                throw new Exception(__d('cake_dev', 'Test case %s cannot be run via this shell', $testFile));
+                throw new Exception(__d('cake_dev', 'Test case %s cannot be run via this shell', $file));
             }
         }
 
@@ -421,7 +421,7 @@ class TestShell extends Shell
             }
         } else {
             $testFile = preg_replace(
-                "@((?:plugins|Plugin)[\\/]{$category})[\\/](.*)$@",
+                "@((?:plugins|Plugin)[\\/]{$category})[\\/](?:src[\\/])?(.*)$@",
                 '$1/tests/TestCase/$2Test.php',
                 $file,
             );

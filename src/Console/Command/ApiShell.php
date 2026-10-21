@@ -86,14 +86,13 @@ class ApiShell extends AppShell
             $file = $type;
             $class = Inflector::camelize($type);
         }
-        $objects = App::objects('class', $path);
-        if (in_array($class, $objects)) {
-            if (in_array($type, ['behavior', 'component', 'helper']) && $type !== $file) {
-                if (!preg_match('/' . Inflector::camelize($type) . '$/', $class)) {
-                    $class .= Inflector::camelize($type);
-                }
+        $objects = App::objects('class', $path, false);
+        if (in_array($type, ['behavior', 'component', 'helper']) && $type !== $file) {
+            if (!preg_match('/' . Inflector::camelize($type) . '$/', $class)) {
+                $class .= Inflector::camelize($type);
             }
-        } else {
+        }
+        if (!in_array($class, $objects)) {
             $this->error(__d('cake_console', '%s not found', $class));
         }
 
@@ -135,7 +134,7 @@ class ApiShell extends AppShell
                         $this->out($list);
                     }
 
-                    if (isset($methods[--$number])) {
+                    if (ctype_digit($number) && isset($methods[--$number])) {
                         $method = $parsed[$methods[$number]];
                         $this->hr();
                         $this->out($class . '::' . $method['method'] . $method['parameters']);
@@ -194,17 +193,25 @@ class ApiShell extends AppShell
                 "\t\thelper\tLook for class in CakePHP helper path\n" .
                 "\t\tmodel\tLook for class in CakePHP model path\n" .
                 "\t\tview\tLook for class in CakePHP view path\n",
-            'className' => "\t<className>\n" .
+            'classname' => "\t<className>\n" .
                 "\t\tA CakePHP core class name (e.g: Component, HtmlHelper).\n",
         ];
 
+        $command = null;
+        if (isset($this->args[1])) {
+            $command = strtolower($this->args[1]);
+            if ($command === 'type') {
+                $command = 'path';
+            }
+        }
+
         $this->out($head);
-        if (!isset($this->args[1])) {
+        if ($command === null) {
             foreach ($commands as $cmd) {
                 $this->out("{$cmd}\n\n");
             }
-        } elseif (isset($commands[strtolower($this->args[1])])) {
-            $this->out($commands[strtolower($this->args[1])] . "\n\n");
+        } elseif (isset($commands[$command])) {
+            $this->out($commands[$command] . "\n\n");
         } else {
             $this->out(__d('cake_console', 'Command %s not found', $this->args[1]));
         }
@@ -224,6 +231,8 @@ class ApiShell extends AppShell
 
         if (!class_exists($class) && !include_once $path) {
             $this->err(__d('cake_console', '%s could not be found', $path));
+
+            return $parsed;
         }
 
         $reflection = new ReflectionClass($class);

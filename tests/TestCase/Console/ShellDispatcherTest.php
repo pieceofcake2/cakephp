@@ -1179,11 +1179,6 @@ class ShellDispatcherTest extends CakeTestCase
      */
     public function testGetShellUnknownName(): void
     {
-        $this->markTestSkipped(
-            'ShellDispatcher::_getShell() looks the name up as a plugin, and App::className() throws ' .
-            'MissingPluginException ("Plugin NotThere could not be found.") before MissingShellException.',
-        );
-
         $dispatcher = new TestShellDispatcher();
 
         $this->expectException(MissingShellException::class);

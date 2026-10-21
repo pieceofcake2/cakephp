@@ -90,7 +90,7 @@ class File
             $this->name = basename($path);
         }
         $this->pwd();
-        $create && !$this->exists() && $this->safe($path) && $this->create();
+        $create && $this->path !== null && !$this->exists() && $this->safe($path) && $this->create();
     }
 
     /**
@@ -110,7 +110,7 @@ class File
     public function create()
     {
         $dir = $this->Folder->pwd();
-        if (is_dir($dir) && is_writable($dir) && !$this->exists()) {
+        if ($dir !== null && is_dir($dir) && is_writable($dir) && !$this->exists()) {
             if (touch($this->path)) {
                 return true;
             }

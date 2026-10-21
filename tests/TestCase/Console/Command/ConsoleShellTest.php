@@ -27,6 +27,7 @@ use Cake\Routing\Router;
 use Cake\TestSuite\CakeTestCase;
 use Cake\Utility\ClassRegistry;
 use PHPUnit\Framework\MockObject\MockObject;
+use ReflectionProperty;
 use TestTwoPlugin\Model\NamespacedPluginItem;
 use TestTwoPlugin\Model\NamespacedPluginPost;
 use TestTwoPlugin\Model\TestTwoPluginAppModel;
@@ -327,6 +328,7 @@ class ConsoleShellTest extends CakeTestCase
             'Article unbind hasMany Comment',
             'Article unbind belongsTo Missing',
             'Article unbind notAnAssociation User',
+            'Missing unbind hasMany Comment',
         ]);
         $this->Shell->main();
 
@@ -336,10 +338,45 @@ class ConsoleShellTest extends CakeTestCase
             $invalid,
             $invalid,
             $invalid,
+            $invalid,
         ];
         $this->assertSame($expected, $this->outputs);
         $this->assertArrayNotHasKey('Comment', $this->Shell->Article->getAssociated());
         $this->assertArrayHasKey('User', $this->Shell->Article->getAssociated());
+    }
+
+    /**
+     * Test that bind and unbind strip the characters that are not allowed from the names
+     *
+     * The default patterns only match word characters, so this uses patterns
+     * that let the other characters through.
+     *
+     * @return void
+     */
+    public function testBindAndUnbindStripBadChars(): void
+    {
+        $this->_loadModels();
+        $patterns = new ReflectionProperty(ConsoleShell::class, '_methodPatterns');
+        if (PHP_VERSION_ID < 80100) {
+            $patterns->setAccessible(true);
+        }
+        $value = $patterns->getValue($this->Shell);
+        $value['_bind'] = '/^(\S+) bind (\S+) (\S+)/';
+        $value['_unbind'] = '/^(\S+) unbind (\S+) (\S+)/';
+        $patterns->setValue($this->Shell, $value);
+
+        $this->_input([
+            '$User bind hasMany <b>Comment</b>;',
+            'User; unbind $hasMany Comment;',
+        ]);
+        $this->Shell->main();
+
+        $expected = [
+            'Created hasMany association between User and Comment',
+            'Removed hasMany association between User and Comment',
+        ];
+        $this->assertSame($expected, $this->outputs);
+        $this->assertArrayNotHasKey('Comment', $this->Shell->User->getAssociated());
     }
 
     /**

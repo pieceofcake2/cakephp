@@ -23,6 +23,7 @@ use Cake\Controller\ComponentCollection;
 use Cake\Controller\Controller;
 use Cake\Core\App;
 use Cake\Core\Configure;
+use Cake\Error\CakeException;
 use Cake\Utility\Hash;
 
 /**
@@ -464,7 +465,7 @@ class AclShell extends AppShell
                 'arguments' => [
                     'aro' => ['help' => __d('cake_console', 'ARO to check.'), 'required' => true],
                     'aco' => ['help' => __d('cake_console', 'ACO to check.'), 'required' => true],
-                    'action' => ['help' => __d('cake_console', 'Action to check'), 'default' => 'all'],
+                    'action' => ['help' => __d('cake_console', 'Action to check')],
                 ],
             ],
         ])->addSubcommand('grant', [
@@ -476,7 +477,7 @@ class AclShell extends AppShell
                 'arguments' => [
                     'aro' => ['help' => __d('cake_console', 'ARO to grant permission to.'), 'required' => true],
                     'aco' => ['help' => __d('cake_console', 'ACO to grant access to.'), 'required' => true],
-                    'action' => ['help' => __d('cake_console', 'Action to grant'), 'default' => 'all'],
+                    'action' => ['help' => __d('cake_console', 'Action to grant')],
                 ],
             ],
         ])->addSubcommand('deny', [
@@ -488,7 +489,7 @@ class AclShell extends AppShell
                 'arguments' => [
                     'aro' => ['help' => __d('cake_console', 'ARO to deny.'), 'required' => true],
                     'aco' => ['help' => __d('cake_console', 'ACO to deny.'), 'required' => true],
-                    'action' => ['help' => __d('cake_console', 'Action to deny'), 'default' => 'all'],
+                    'action' => ['help' => __d('cake_console', 'Action to deny')],
                 ],
             ],
         ])->addSubcommand('inherit', [
@@ -500,7 +501,7 @@ class AclShell extends AppShell
                 'arguments' => [
                     'aro' => ['help' => __d('cake_console', 'ARO to have permissions inherit.'), 'required' => true],
                     'aco' => ['help' => __d('cake_console', 'ACO to inherit permissions on.'), 'required' => true],
-                    'action' => ['help' => __d('cake_console', 'Action to inherit'), 'default' => 'all'],
+                    'action' => ['help' => __d('cake_console', 'Action to inherit')],
                 ],
             ],
         ])->addSubcommand('view', [
@@ -584,7 +585,12 @@ class AclShell extends AppShell
      */
     protected function _getNodeId($class, $identifier)
     {
-        $node = $this->Acl->{$class}->node($identifier);
+        try {
+            $node = $this->Acl->{$class}->node($identifier);
+        } catch (CakeException $e) {
+            // AclNode::node() throws for a Model.foreign_key reference that is not found
+            $node = false;
+        }
         if (empty($node)) {
             if (is_array($identifier)) {
                 $identifier = var_export($identifier, true);
@@ -636,7 +642,7 @@ class AclShell extends AppShell
         }
         $vars = [];
         $class = ucwords($type);
-        $vars['secondary_id'] = strtolower($class) === 'aro' ? 'foreign_key' : 'object_id';
+        $vars['secondary_id'] = 'foreign_key';
         $vars['data_name'] = $type;
         $vars['table_name'] = $type . 's';
         $vars['class'] = $class;

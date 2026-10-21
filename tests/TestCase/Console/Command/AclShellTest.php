@@ -599,11 +599,6 @@ class AclShellTest extends CakeTestCase
      */
     public function testMain(): void
     {
-        $this->markTestSkipped(
-            'AclShell::getOptionParser() gives its action arguments a "default" key, which '
-            . 'ConsoleInputArgument does not support. It sets the dynamic property $_default, '
-            . 'which is deprecated on PHP 8.2 and later.',
-        );
         $outCalls = &$this->_captureOut($this->Task);
         $this->Task->OptionParser = $this->Task->getOptionParser();
 
@@ -622,11 +617,6 @@ class AclShellTest extends CakeTestCase
      */
     public function testGetOptionParser(): void
     {
-        $this->markTestSkipped(
-            'AclShell::getOptionParser() gives its action arguments a "default" key, which '
-            . 'ConsoleInputArgument does not support. It sets the dynamic property $_default, '
-            . 'which is deprecated on PHP 8.2 and later.',
-        );
         $parser = $this->Task->getOptionParser();
 
         $this->assertSame(
@@ -661,11 +651,6 @@ class AclShellTest extends CakeTestCase
      */
     public function testGetOptionParserInvalidType(): void
     {
-        $this->markTestSkipped(
-            'AclShell::getOptionParser() gives its action arguments a "default" key, which '
-            . 'ConsoleInputArgument does not support. It sets the dynamic property $_default, '
-            . 'which is deprecated on PHP 8.2 and later.',
-        );
         $this->expectException(ConsoleException::class);
         $this->expectExceptionMessage('"foo" is not a valid value for type. Please use one of "aro, aco"');
         $this->Task->getOptionParser()->parse(['foo', 'root', 'Posts'], 'create');
@@ -756,16 +741,15 @@ class AclShellTest extends CakeTestCase
     /**
      * Test create with a Model.foreign_key parent that does not exist.
      *
-     * AclNode::node() throws for a Model.foreign_key reference that is not found,
-     * so the exception reaches the caller before AclShell can report it.
-     *
      * @return void
      */
     public function testCreateWithMissingModelParent(): void
     {
-        $this->Task->expects($this->never())->method('error');
-        $this->expectException(CakeException::class);
-        $this->expectExceptionMessage("Couldn't find Aro node identified by");
+        $this->_errorThrows();
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage(
+            'Could not find node using reference "' . var_export(['model' => 'User', 'foreign_key' => '99'], true) . '"',
+        );
 
         $this->Task->args = ['aro', 'User.99', 'child'];
         $this->Task->create();
@@ -1127,6 +1111,16 @@ class AclShellTest extends CakeTestCase
         $result = $this->Task->nodeExists();
         $this->assertCount(1, $result);
         $this->assertEquals(2, $result[0]['Aco']['id']);
+
+        $this->Task->Acl->Aco->create(['parent_id' => 1, 'model' => 'Post', 'foreign_key' => 42, 'alias' => null]);
+        $this->Task->Acl->Aco->save();
+        $id = $this->Task->Acl->Aco->id;
+
+        $this->Task->args = ['aco', '42'];
+        $result = $this->Task->nodeExists();
+        $this->assertCount(1, $result);
+        $this->assertEquals($id, $result[0]['Aco']['id']);
+        $this->assertSame('Post', $result[0]['Aco']['model']);
     }
 
     /**
