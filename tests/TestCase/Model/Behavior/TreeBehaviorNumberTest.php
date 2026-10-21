@@ -1733,8 +1733,6 @@ class TreeBehaviorNumberTest extends CakeTestCase
      */
     public function testReorderInvalidTree(): void
     {
-        $this->markTestIncomplete('Known bug: reorder() treats the error list returned by verify() as success');
-
         $this->Tree = new NumberTree();
         $this->Tree->initialize(2, 2);
         $node = $this->Tree->findByName('1.1');
