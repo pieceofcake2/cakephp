@@ -18,6 +18,8 @@
 
 namespace Cake\Test\TestCase\Model\Datasource;
 
+use ArrayObject;
+use Cake\Cache\Cache;
 use Cake\Model\ConnectionManager;
 use Cake\Model\Datasource\DataSource;
 use Cake\Model\Model;
@@ -93,6 +95,96 @@ class TestSource extends DataSource
     {
         return $func;
     }
+
+    /**
+     * Quotes a value, integers without quotes
+     *
+     * @param mixed $data The value
+     * @param string|null $column The column type
+     * @return string
+     */
+    public function value($data, $column = null): mixed
+    {
+        if ($column === 'integer') {
+            return (string)(int)$data;
+        }
+
+        return "'" . $data . "'";
+    }
+}
+
+/**
+ * A datasource that keeps the listSources(), describe() and transaction
+ * behaviour of DataSource
+ *
+ * @package       Cake.Test.Case.Model.Datasource
+ */
+class BaseTestSource extends DataSource
+{
+    /**
+     * Base configuration
+     *
+     * @var array
+     */
+    protected $_baseConfig = ['host' => 'localhost', 'database' => 'default'];
+
+    /**
+     * Records the rollback() and close() calls
+     *
+     * @var ArrayObject|null
+     */
+    public $calls = null;
+
+    /**
+     * Sets whether a transaction is started
+     *
+     * @param bool $started Whether a transaction is started
+     * @return void
+     */
+    public function setTransactionStarted($started): void
+    {
+        $this->_transactionStarted = $started;
+    }
+
+    /**
+     * Caches a description as DboSource::describe() does
+     *
+     * @param string $table The table name
+     * @param array $description The description
+     * @return mixed
+     */
+    public function cacheDescription($table, $description): mixed
+    {
+        return $this->_cacheDescription($table, $description);
+    }
+
+    /**
+     * Records the call and rolls back
+     *
+     * @return bool
+     */
+    public function rollback(): mixed
+    {
+        if ($this->calls !== null) {
+            $this->calls[] = 'rollback';
+        }
+
+        return parent::rollback();
+    }
+
+    /**
+     * Records the call and closes
+     *
+     * @return bool|null
+     */
+    public function close(): mixed
+    {
+        if ($this->calls !== null) {
+            $this->calls[] = 'close';
+        }
+
+        return parent::close();
+    }
 }
 
 /**
@@ -144,6 +236,11 @@ class DataSourceTest extends CakeTestCase
     {
         unset($this->Model, $this->Source);
         ConnectionManager::drop($this->sourceName);
+        ConnectionManager::drop('datasource_test_base');
+        Cache::delete('datasource_test_base_my_db_1_list', '_cake_model_');
+        Cache::delete('datasource_test_base_prefix_posts', '_cake_model_');
+        Cache::delete('datasource_test_base_unknown', '_cake_model_');
+        Cache::delete('datasource_test_base_comments', '_cake_model_');
 
         parent::tearDown();
     }
@@ -258,5 +355,208 @@ class DataSourceTest extends CakeTestCase
                 $this->equalTo([$this->Model->alias . '.id' => 1]),
             );
         $this->Model->delete(1);
+    }
+
+    /**
+     * Creates a BaseTestSource registered in the ConnectionManager.
+     *
+     * @param array $config The configuration
+     * @return BaseTestSource
+     */
+    protected function _baseSource($config = []): BaseTestSource
+    {
+        $this->skipIf(!in_array('_cake_model_', Cache::configured()), 'The _cake_model_ cache is not configured.');
+        ConnectionManager::drop('datasource_test_base');
+
+        return ConnectionManager::create('datasource_test_base', ['datasource' => BaseTestSource::class] + $config);
+    }
+
+    /**
+     * Test that listSources() stores the given sources in the model cache
+     * under a key made of the connection and the database names, and that a
+     * new datasource for the same connection reads them from the cache.
+     *
+     * @return void
+     */
+    public function testListSourcesCachesTheSources(): void
+    {
+        $source = $this->_baseSource(['database' => 'my db/1']);
+        $this->assertSame(['posts', 'comments'], $source->listSources(['posts', 'comments']));
+        $this->assertSame(['posts', 'comments'], Cache::read('datasource_test_base_my_db_1_list', '_cake_model_'));
+        $this->assertSame(['posts', 'comments'], $source->listSources(['other']));
+
+        $source = $this->_baseSource(['database' => 'my db/1']);
+        $this->assertSame(['posts', 'comments'], $source->listSources());
+
+        $source->cacheSources = false;
+        $this->assertNull($source->listSources(['posts']));
+    }
+
+    /**
+     * Test that describe() returns the cached description of a table, by
+     * name or by the prefixed table of a model, and keeps it in memory, and
+     * that _cacheDescription() stores a description for the next datasource.
+     *
+     * @return void
+     */
+    public function testDescribeReadsTheCachedDescription(): void
+    {
+        $source = $this->_baseSource();
+        $schema = ['id' => ['type' => 'integer', 'key' => 'primary']];
+        Cache::write('datasource_test_base_prefix_posts', $schema, '_cake_model_');
+
+        $Model = new Model(['table' => false, 'name' => 'Post']);
+        $Model->table = 'posts';
+        $Model->tablePrefix = 'prefix_';
+        $this->assertSame($schema, $source->describe($Model));
+
+        Cache::delete('datasource_test_base_prefix_posts', '_cake_model_');
+        $this->assertSame($schema, $source->describe('prefix_posts'));
+
+        $this->assertNull($source->describe('unknown'));
+
+        $comments = ['id' => ['type' => 'string', 'key' => 'primary']];
+        $this->assertSame($comments, $source->cacheDescription('comments', $comments));
+        $this->assertSame($comments, Cache::read('datasource_test_base_comments', '_cake_model_'));
+        $this->assertSame($comments, $source->describe('comments'));
+        $this->assertSame($comments, $this->_baseSource()->describe('comments'));
+
+        $source->cacheSources = false;
+        $this->assertNull($source->describe('prefix_posts'));
+        $this->assertNull($source->cacheDescription('comments', $comments));
+    }
+
+    /**
+     * Test that setConfig() merges the base configuration, the current
+     * configuration and the given one, in that order.
+     *
+     * @return void
+     */
+    public function testSetConfig(): void
+    {
+        $source = new BaseTestSource(['database' => 'app']);
+        $this->assertSame(['host' => 'localhost', 'database' => 'app'], $source->config);
+
+        $source->setConfig(['login' => 'user', 'host' => 'db.local']);
+        $this->assertSame(['host' => 'db.local', 'database' => 'app', 'login' => 'user'], $source->config);
+    }
+
+    /**
+     * Test the transaction state, and that the destructor rolls back a
+     * started transaction and closes an open connection.
+     *
+     * @return void
+     */
+    public function testTransactionsAndDestructor(): void
+    {
+        $source = new BaseTestSource();
+        $this->assertTrue($source->begin());
+        $this->assertFalse($source->commit());
+        $this->assertFalse($source->rollback());
+
+        $source->setTransactionStarted(true);
+        $this->assertFalse($source->begin());
+        $this->assertTrue($source->commit());
+
+        $calls = new ArrayObject();
+        $source->calls = $calls;
+        $source->connected = true;
+        unset($source);
+        $this->assertSame(['rollback', 'close'], $calls->getArrayCopy());
+
+        $calls = new ArrayObject();
+        $source = new BaseTestSource();
+        $source->calls = $calls;
+        unset($source);
+        $this->assertSame([], $calls->getArrayCopy());
+    }
+
+    /**
+     * Test the results of the operations that the subclasses have to implement.
+     *
+     * @return void
+     */
+    public function testBaseOperations(): void
+    {
+        $source = new BaseTestSource();
+        $this->assertFalse($source->create($this->Model));
+        $this->assertFalse($source->read($this->Model));
+        $this->assertFalse($source->update($this->Model));
+        $this->assertFalse($source->delete($this->Model));
+        $this->assertFalse($source->column('varchar(255)'));
+        $this->assertFalse($source->lastInsertId());
+        $this->assertFalse($source->lastNumRows());
+        $this->assertFalse($source->lastAffected());
+        $this->assertTrue($source->enabled());
+        $this->assertNull($source->getSchemaName());
+        $this->assertSame($this->Model->alias . '__id', $source->resolveKey($this->Model, '__id'));
+
+        $source->connected = true;
+        $source->close();
+        $this->assertFalse($source->connected);
+    }
+
+    /**
+     * Test that insertQueryData() replaces the id placeholder with the
+     * primary key of the model, quoted for the type of the primary key.
+     *
+     * @return void
+     */
+    public function testInsertQueryDataId(): void
+    {
+        $alias = $this->Model->alias;
+        $query = 'SELECT * FROM comments WHERE post_id = {$__cakeID__$}';
+
+        $result = $this->Source->insertQueryData($query, [$alias => ['id' => '5']], 'Comment', $this->Model, []);
+        $this->assertSame('SELECT * FROM comments WHERE post_id = 5', $result);
+
+        $result = $this->Source->insertQueryData($query, [$alias => ['id' => '0']], 'Comment', $this->Model, []);
+        $this->assertSame('SELECT * FROM comments WHERE post_id = 0', $result);
+
+        $result = $this->Source->insertQueryData($query, ['Comment' => ['id' => 6]], 'Comment', $this->Model, []);
+        $this->assertSame('SELECT * FROM comments WHERE post_id = 6', $result);
+
+        $data = ['Tag' => ['id' => 3], 'Category' => ['id' => 4]];
+        $result = $this->Source->insertQueryData($query, $data, 'Comment', $this->Model, ['Tag', 'Category']);
+        $this->assertSame('SELECT * FROM comments WHERE post_id = 4', $result);
+        $result = $this->Source->insertQueryData($query, $data, 'Comment', $this->Model, ['Category', 'Tag', 99]);
+        $this->assertSame('SELECT * FROM comments WHERE post_id = 3', $result);
+
+        $this->assertFalse($this->Source->insertQueryData($query, $data, 'Comment', $this->Model, ['Other']));
+        $this->assertFalse($this->Source->insertQueryData($query, [$alias => ['id' => '']], 'Comment', $this->Model, []));
+
+        $query = 'SELECT * FROM comments';
+        $this->assertSame($query, $this->Source->insertQueryData($query, [], 'Comment', $this->Model, []));
+    }
+
+    /**
+     * Test that insertQueryData() replaces the foreign key placeholder with
+     * the foreign key of the association, and fails for an association
+     * without a foreign key.
+     *
+     * @return void
+     */
+    public function testInsertQueryDataForeignKey(): void
+    {
+        $alias = $this->Model->alias;
+        $this->Model->hasMany = [
+            'Comment' => ['className' => 'Comment', 'foreignKey' => 'post_id'],
+            'Note' => ['className' => 'Note'],
+        ];
+        $this->Model->Comment = $this->Model;
+        $this->Model->Note = $this->Model;
+        $query = 'SELECT * FROM comments WHERE id = {$__cakeForeignKey__$} AND post_id = {$__cakeID__$}';
+
+        $data = [$alias => ['id' => 1, 'post_id' => 2], 'Comment' => ['post_id' => 7]];
+        $result = $this->Source->insertQueryData($query, $data, 'Comment', $this->Model, []);
+        $this->assertSame('SELECT * FROM comments WHERE id = 2 AND post_id = 1', $result);
+
+        $data = [$alias => ['id' => 1], 'Comment' => ['post_id' => 7]];
+        $result = $this->Source->insertQueryData($query, $data, 'Comment', $this->Model, []);
+        $this->assertSame('SELECT * FROM comments WHERE id = 7 AND post_id = 1', $result);
+
+        $data = [$alias => ['id' => 1, 'post_id' => 2]];
+        $this->assertFalse($this->Source->insertQueryData($query, $data, 'Note', $this->Model, []));
+        $this->assertFalse($this->Source->insertQueryData($query, $data, 'Unknown', $this->Model, []));
     }
 }
