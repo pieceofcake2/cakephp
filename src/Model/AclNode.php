@@ -62,7 +62,8 @@ class AclNode extends Model
     /**
      * Retrieves the Aro/Aco node for this model
      *
-     * @param Model|array|string $ref Array with 'model' and 'foreign_key', model object, or string value
+     * @param Model|array|string|int $ref Array with 'model' and 'foreign_key', model object, or string value.
+     *   Other values, such as a number, find nothing.
      * @return array|false|null Node found in database
      * @throws CakeException when binding to a model that doesn't exist.
      */
@@ -136,7 +137,7 @@ class AclNode extends Model
             }
         } elseif (is_object($ref) && $ref instanceof Model) {
             $ref = ['model' => $ref->name, 'foreign_key' => $ref->id];
-        } elseif (!(isset($ref['model']) && isset($ref['foreign_key']))) {
+        } elseif (is_array($ref) && !(isset($ref['model']) && isset($ref['foreign_key']))) {
             $name = key($ref);
             [, $alias] = pluginSplit($name);
 

@@ -123,6 +123,18 @@ class AclNodeTest extends CakeTestCase
     }
 
     /**
+     * Test that node() finds nothing for a reference that is neither a path, an array
+     * nor a model, e.g. the number that AclShell passes for a numeric argument.
+     *
+     * @return void
+     */
+    public function testNodeWithANumber(): void
+    {
+        $Aro = new DbAroTest();
+        $this->assertNull($Aro->node(5));
+    }
+
+    /**
      * test that node() doesn't dig deeper than it should.
      *
      * @return void
