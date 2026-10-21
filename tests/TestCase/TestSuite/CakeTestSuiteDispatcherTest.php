@@ -306,7 +306,6 @@ class CakeTestSuiteDispatcherTest extends CakeTestCase
      */
     public function testDispatchListsPluginTestCasesWithThePlugin(): void
     {
-        $this->markTestIncomplete('Known bug: CakeTextReporter::testCaseList() leaves the plugin parameter out of the URLs');
         $_GET = ['plugin' => 'ListedPlugin', 'output' => 'text'];
 
         $output = $this->_run();
@@ -325,7 +324,6 @@ class CakeTestSuiteDispatcherTest extends CakeTestCase
      */
     public function testDispatchListsMissingPluginAsEmpty(): void
     {
-        $this->markTestIncomplete('Known bug: CakeTextReporter::testCaseList() prints an empty list twice');
         $_GET = ['plugin' => 'NoSuchListedPlugin', 'output' => 'text'];
 
         $output = $this->_run();

@@ -303,8 +303,6 @@ class CakeTextReporterTest extends CakeTestCase
      */
     public function testTestCaseListOfAPlugin(): void
     {
-        $this->markTestIncomplete('Known bug: testCaseList() leaves the plugin and core parameters out of the URLs.');
-
         $reporter = new CakeTextReporter(null, ['app' => false, 'core' => false, 'plugin' => 'ReporterPlugin']);
         $output = $this->capture(function () use ($reporter): void {
             $reporter->testCaseList();
@@ -329,8 +327,6 @@ class CakeTextReporterTest extends CakeTestCase
      */
     public function testTestCaseListOfTheCore(): void
     {
-        $this->markTestIncomplete('Known bug: testCaseList() leaves the plugin and core parameters out of the URLs.');
-
         $reporter = new CakeTextReporter(null, ['app' => false, 'core' => true, 'plugin' => false]);
         $output = $this->capture(function () use ($reporter): void {
             $reporter->testCaseList();
@@ -348,8 +344,6 @@ class CakeTextReporterTest extends CakeTestCase
      */
     public function testEmptyTestCaseList(): void
     {
-        $this->markTestIncomplete('Known bug: testCaseList() echoes an empty list twice.');
-
         $reporter = new CakeTextReporter(null, ['app' => false, 'core' => false, 'plugin' => 'EmptyReporterPlugin']);
         $output = $this->capture(function () use ($reporter): void {
             $reporter->testCaseList();

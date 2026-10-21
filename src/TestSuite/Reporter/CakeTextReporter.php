@@ -189,7 +189,8 @@ class CakeTextReporter extends CakeBaseReporter
     /**
      * Generate a test case list in plain text.
      * Creates as series of URLs for tests that can be run.
-     * One case per line.
+     * One case per line, with the core or plugin parameter of the list.
+     * An empty list is marked with `EMPTY`.
      *
      * @return void
      */
@@ -197,6 +198,7 @@ class CakeTextReporter extends CakeBaseReporter
     {
         $testCases = parent::testCaseList();
         $app = $this->params['app'];
+        $core = $this->params['core'];
         $plugin = $this->params['plugin'];
 
         $buffer = "Core Test Cases:\n";
@@ -206,13 +208,19 @@ class CakeTextReporter extends CakeBaseReporter
             $buffer = Inflector::humanize($plugin) . " Test Cases:\n";
         }
 
+        $urlExtra = '';
+        if ($core) {
+            $urlExtra = '&core=true';
+        } elseif ($plugin) {
+            $urlExtra = '&plugin=' . urlencode($plugin);
+        }
+
         if (count($testCases) < 1) {
             $buffer .= 'EMPTY';
-            echo $buffer;
         }
 
         foreach ($testCases as $testCase) {
-            $buffer .= $_SERVER['SERVER_NAME'] . $this->baseUrl() . '?case=' . $testCase . "&output=text\n";
+            $buffer .= $_SERVER['SERVER_NAME'] . $this->baseUrl() . '?case=' . urlencode($testCase) . $urlExtra . "&output=text\n";
         }
 
         $buffer .= "\n";
