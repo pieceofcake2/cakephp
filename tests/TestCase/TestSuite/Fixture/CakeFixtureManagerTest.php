@@ -32,6 +32,7 @@ use Cake\TestSuite\Fixture\CakeFixtureManager;
 use ReflectionClass;
 use ReflectionMethod;
 use ReflectionProperty;
+use TestApp\Test\Fixture\FixtureManagerPostFixture;
 use TestApp\Test\Fixture\NamespacedArticleFixture;
 use TestTwoPlugin\Test\Fixture\NamespacedCommentFixture;
 use UnexpectedValueException;
@@ -288,6 +289,62 @@ class CakeFixtureManagerTest extends CakeTestCase
 
         $this->fixtureManager->shutDown();
         $this->assertNotContains($db->config['prefix'] . 'namespaced_articles', $db->listSources());
+    }
+
+    /**
+     * Test that the fixtures of a test case can be given by their class names, with or
+     * without the Fixture suffix, and that load() creates their tables.
+     *
+     * @return void
+     */
+    public function testFixturizeAndLoadFixturesByClassName(): void
+    {
+        $test = $this->_testCaseWith([FixtureManagerPostFixture::class, 'TestApp\Test\Fixture\NamespacedArticle']);
+
+        $this->fixtureManager->fixturize($test);
+        $this->fixtureManager->load($test);
+
+        $this->assertSame([1 => 'First Post', 2 => 'Second Post'], $this->_postTitles());
+        $db = ConnectionManager::getDataSource('test');
+        $this->assertContains($db->config['prefix'] . 'namespaced_articles', $db->listSources());
+
+        $this->fixtureManager->shutDown();
+        $this->assertFalse($this->_postsTableExists());
+    }
+
+    /**
+     * Test that loadSingle() takes the class name of a fixture as well as its name.
+     *
+     * @return void
+     */
+    public function testLoadSingleByClassName(): void
+    {
+        $test = $this->_testCaseWith([FixtureManagerPostFixture::class, NamespacedArticleFixture::class], true, false);
+        $this->fixtureManager->fixturize($test);
+        $this->assertFalse($this->_postsTableExists());
+
+        $this->fixtureManager->loadSingle(FixtureManagerPostFixture::class);
+        $this->assertSame([1 => 'First Post', 2 => 'Second Post'], $this->_postTitles());
+
+        $this->fixtureManager->loadSingle('NamespacedArticle');
+        $db = ConnectionManager::getDataSource('test');
+        $this->assertContains($db->config['prefix'] . 'namespaced_articles', $db->listSources());
+
+        $this->fixtureManager->shutDown();
+    }
+
+    /**
+     * Test that a class name of a fixture that does not exist is reported with the class name.
+     *
+     * @return void
+     */
+    public function testFixturizeWithMissingClassName(): void
+    {
+        $test = $this->_testCaseWith(['TestApp\Test\Fixture\Missing']);
+
+        $this->expectException(UnexpectedValueException::class);
+        $this->expectExceptionMessage('Referenced fixture class TestApp\Test\Fixture\MissingFixture not found');
+        $this->fixtureManager->fixturize($test);
     }
 
     /**

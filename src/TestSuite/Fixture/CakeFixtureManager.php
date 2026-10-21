@@ -135,7 +135,10 @@ class CakeFixtureManager
     /**
      * Looks for fixture files and instantiates the classes accordingly
      *
-     * @param array $fixtures the fixture names to load using the notation {type}.{name}
+     * A name with a backslash is a fully qualified class name, e.g. ArticleFixture::class;
+     * the Fixture suffix is added only when the name does not end with it.
+     *
+     * @param array $fixtures the fixture names to load using the notation {type}.{name}, or class names
      * @return void
      * @throws UnexpectedValueException when a referenced fixture does not exist.
      */
@@ -145,6 +148,17 @@ class CakeFixtureManager
             $fixtureFile = null;
             $fixtureIndex = $fixture;
             if (isset($this->_loaded[$fixture])) {
+                continue;
+            }
+
+            if (str_contains($fixture, '\\')) {
+                $fixtureClass = $this->_fixtureClassName($fixture);
+                if (!class_exists($fixtureClass)) {
+                    throw new UnexpectedValueException(__d('cake_dev', 'Referenced fixture class %s not found', $fixtureClass));
+                }
+                $this->_loaded[$fixtureIndex] = new $fixtureClass();
+                $this->_fixtureMap[substr($fixtureClass, strrpos($fixtureClass, '\\') + 1)] = $this->_loaded[$fixtureIndex];
+
                 continue;
             }
 
@@ -207,6 +221,23 @@ class CakeFixtureManager
                 throw new UnexpectedValueException(__d('cake_dev', 'Referenced fixture class %s (%s) not found', $className, $firstPath));
             }
         }
+    }
+
+    /**
+     * Returns the class name of a fixture given by its fully qualified class name,
+     * with the Fixture suffix added when the name does not end with it.
+     *
+     * @param string $name The class name, e.g. ArticleFixture::class or 'App\Test\Fixture\Article'
+     * @return string
+     */
+    protected function _fixtureClassName($name)
+    {
+        $name = ltrim($name, '\\');
+        if (!str_ends_with($name, 'Fixture')) {
+            $name .= 'Fixture';
+        }
+
+        return $name;
     }
 
     /**
@@ -323,6 +354,9 @@ class CakeFixtureManager
     /**
      * Creates a single fixture table and loads data into it.
      *
+     * The fixture is given by its name without the Fixture suffix, e.g. Article, or by
+     * its fully qualified class name, e.g. ArticleFixture::class.
+     *
      * @param string $name of the fixture
      * @param DataSource $db DataSource instance or leave null to get DataSource from the fixture
      * @param bool $dropTables Whether or not tables should be dropped and re-created.
@@ -331,7 +365,12 @@ class CakeFixtureManager
      */
     public function loadSingle($name, $db = null, $dropTables = true)
     {
-        $name .= 'Fixture';
+        if (str_contains($name, '\\')) {
+            $name = $this->_fixtureClassName($name);
+            $name = substr($name, strrpos($name, '\\') + 1);
+        } else {
+            $name .= 'Fixture';
+        }
         if (isset($this->_fixtureMap[$name])) {
             $fixture = $this->_fixtureMap[$name];
             if (!$db) {
