@@ -1840,6 +1840,23 @@ class I18nTest extends CakeTestCase
     }
 
     /**
+     * Test that translations are read from the resources/locales directory of a plugin.
+     *
+     * @return void
+     */
+    public function testPluginTranslationInResourcesLocales(): void
+    {
+        App::build([
+            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
+        ]);
+        CakePlugin::load('TestPluginModern');
+
+        Configure::write('Config.language', 'po');
+        $result = __d('test_plugin_modern', 'Plural Rule 1');
+        $this->assertSame('Plural Rule 1 (from resources/locales)', $result);
+    }
+
+    /**
      * testPoMultipleLineTranslation method
      *
      * @return void

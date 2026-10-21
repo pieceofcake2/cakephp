@@ -1,5 +1,12 @@
 ## CHANGELOG
 
+## Unreleased
+
+### Enhancements: Plugins in the CakePHP 5 Layout ([PR #88](https://github.com/pieceofcake2/cakephp/pull/88))
+
+- **Plugin directories**: Plugins may use the directories of the CakePHP 5 layout, as the application already does: `src/` for the namespaced classes (`src/Controller/`, `src/Model/`, ..., loaded by Composer), `templates/` for the views, `resources/locales/` for the translations, `vendor/` for the vendor files and `config/` for `bootstrap.php`, `routes.php`, configuration files and schemas. `App::path()` and `I18n` search them, when they exist, before the directories of the CakePHP 2 layout (`Controller/`, `View/`, `Locale/`, `Vendor/`), which are still searched. `App::uses()` and `App::load()` keep loading global classes from the CakePHP 2 directories
+- **CakePlugin::configPath()**: A new method returns the `config/` directory of a plugin, or `Config/` when the plugin has no `config/`; `CakePlugin::bootstrap()`, `CakePlugin::routes()`, `PhpReader`, `IniReader` and `CakeSchema` use it
+
 ## v2.12.11 (2026-10-19)
 
 ### Security Fixes

@@ -630,7 +630,8 @@ class SchemaShellTest extends CakeTestCase
         ];
         $this->Shell->startup();
         $expected = CORE_TESTS . DS . 'test_app' . DS . 'Plugin' . DS . 'TestPlugin' . DS . 'Config' . DS . 'Schema';
-        $this->assertEquals($expected, $this->Shell->Schema->path);
+        // Config/ is also found as config/ on case-insensitive file systems
+        $this->assertEqualsIgnoringCase($expected, $this->Shell->Schema->path);
         CakePlugin::unload();
     }
 
