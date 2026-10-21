@@ -25,6 +25,7 @@ use Cake\Console\ConsoleInput;
 use Cake\Console\ConsoleOptionParser;
 use Cake\Console\ConsoleOutput;
 use Cake\Console\Helper\ProgressShellHelper;
+use Cake\Console\Helper\TableShellHelper;
 use Cake\Console\Shell;
 use Cake\Core\App;
 use Cake\Core\CakePlugin;
@@ -34,6 +35,7 @@ use Cake\Log\CakeLog;
 use Cake\Log\Engine\ConsoleLog;
 use Cake\Test\TestCase\Log\Engine\TestCakeLog;
 use Cake\TestSuite\CakeTestCase;
+use Cake\TestSuite\Stub\ConsoleOutputStub;
 use Cake\Utility\ClassRegistry;
 use Cake\Utility\Folder;
 use Cake\Utility\Hash;
@@ -119,6 +121,11 @@ class ShellTestShell extends Shell
     {
         $this->_useLogger($enable);
     }
+
+    public function callProtected(string $method, ...$args): mixed
+    {
+        return $this->{$method}(...$args);
+    }
 }
 
 /**
@@ -186,6 +193,22 @@ class ShellTest extends CakeTestCase
             $Folder = new Folder(TMP . 'shell_test');
             $Folder->delete();
         }
+    }
+
+    /**
+     * tearDown method
+     *
+     * @return void
+     */
+    public function tearDown(): void
+    {
+        if (is_dir(TMP . 'shell_test')) {
+            $Folder = new Folder(TMP . 'shell_test');
+            $Folder->delete();
+        }
+        CakePlugin::unload();
+
+        parent::tearDown();
     }
 
     /**
@@ -1237,5 +1260,294 @@ TEXT;
         $this->assertInstanceOf(NamespacedShellHelper::class, $helper);
 
         $this->assertInstanceOf(ProgressShellHelper::class, $this->Shell->helper('progress'));
+    }
+
+    /**
+     * Test that loadModel() loads the model class of the shell by default.
+     *
+     * @return void
+     */
+    public function testLoadModelDefault(): void
+    {
+        $this->Shell->modelClass = 'Comment';
+        $this->assertTrue($this->Shell->loadModel());
+        $this->assertInstanceOf(Comment::class, $this->Shell->Comment);
+        $this->assertSame(['Comment'], $this->Shell->uses);
+    }
+
+    /**
+     * Test dispatching another shell as one string and as separate arguments.
+     *
+     * @return void
+     */
+    public function testDispatchShell(): void
+    {
+        App::build([
+            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
+        ], App::RESET);
+        CakePlugin::load('TestDispatchPlugin');
+
+        $result = $this->Shell->dispatchShell('TestDispatchPlugin.dispatched hello big world');
+        $this->assertSame('hello: big world', $result);
+
+        $result = $this->Shell->dispatchShell('TestDispatchPlugin.dispatched', 'one two');
+        $this->assertSame('main: one two', $result);
+    }
+
+    /**
+     * Test that runCommand() loads the plugin given by the plugin param.
+     *
+     * @return void
+     */
+    public function testRunCommandLoadsPlugin(): void
+    {
+        App::build([
+            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
+        ], App::RESET);
+        $parser = $this->getMock(ConsoleOptionParser::class, ['parse'], [], '', false);
+        $parser->expects($this->once())->method('parse')
+            ->with(['--plugin', 'TestDispatchPlugin'], '')
+            ->will($this->returnValue([['plugin' => 'TestDispatchPlugin'], []]));
+
+        $shell = $this->getMock(Shell::class, ['getOptionParser', 'startup', 'main'], [], '', false);
+        $shell->expects($this->once())->method('getOptionParser')
+            ->will($this->returnValue($parser));
+        $shell->expects($this->once())->method('startup');
+        $shell->expects($this->once())->method('main')
+            ->will($this->returnValue(true));
+
+        $this->assertFalse(CakePlugin::loaded('TestDispatchPlugin'));
+        $this->assertTrue($shell->runCommand('', ['--plugin', 'TestDispatchPlugin']));
+        $this->assertTrue(CakePlugin::loaded('TestDispatchPlugin'));
+        $this->assertSame('', $shell->command);
+    }
+
+    /**
+     * Test that the help is shown as raw XML without the welcome message.
+     *
+     * @return void
+     */
+    public function testRunCommandHelpXml(): void
+    {
+        $parser = $this->getMock(ConsoleOptionParser::class, [], [], '', false);
+        $parser->expects($this->once())->method('parse')
+            ->with(['--help', 'xml'])
+            ->will($this->returnValue([['help' => true], ['xml']]));
+        $parser->expects($this->once())->method('help')
+            ->with('', 'xml')
+            ->will($this->returnValue('<shell/>'));
+
+        $shell = $this->getMock(Shell::class, ['getOptionParser', 'out', 'startup', '_welcome'], [], '', false);
+        $shell->stdout = $this->getMock(ConsoleOutput::class, [], [], '', false);
+        $shell->stdout->expects($this->once())->method('outputAs')
+            ->with(ConsoleOutput::RAW);
+        $shell->expects($this->once())->method('getOptionParser')
+            ->will($this->returnValue($parser));
+        $shell->expects($this->never())->method('_welcome');
+        $shell->expects($this->never())->method('startup');
+        $shell->expects($this->once())->method('out')
+            ->with('<shell/>');
+
+        $shell->runCommand('', ['--help', 'xml']);
+    }
+
+    /**
+     * Test that in() asks again until the answer is one of the options.
+     *
+     * @return void
+     */
+    public function testInAsksAgain(): void
+    {
+        $this->Shell->stdin
+            ->expects($this->exactly(3))
+            ->method('read')
+            ->willReturnOnConsecutiveCalls('maybe', '', "n\n");
+
+        $result = $this->Shell->in('Just a test?', ['y', 'n']);
+        $this->assertSame('n', $result);
+    }
+
+    /**
+     * Test the prompt of in() with and without a default.
+     *
+     * @return void
+     */
+    public function testInPrompt(): void
+    {
+        $writes = [];
+        $this->Shell->stdout
+            ->expects($this->exactly(2))
+            ->method('write')
+            ->willReturnCallback(function ($message, $newlines) use (&$writes) {
+                $writes[] = [$message, $newlines];
+
+                return 0;
+            });
+        $this->Shell->stdin
+            ->expects($this->exactly(2))
+            ->method('read')
+            ->willReturnOnConsecutiveCalls('answer', '');
+
+        $this->assertSame('answer', $this->Shell->in('Name?'));
+        $this->assertSame('n', $this->Shell->in('Continue?', ['y', 'n'], 'n'));
+
+        $expected = [
+            ["<question>Name?</question>  \n> ", 0],
+            ["<question>Continue?</question> (y/n) \n[n] > ", 0],
+        ];
+        $this->assertSame($expected, $writes);
+    }
+
+    /**
+     * Test that in() stops the shell when the input cannot be read.
+     *
+     * @return void
+     */
+    public function testInReadFails(): void
+    {
+        $this->Shell->stdin
+            ->expects($this->once())
+            ->method('read')
+            ->will($this->returnValue(false));
+
+        $result = $this->Shell->in('Just a test?', null, 'n');
+        $this->assertSame(Shell::CODE_ERROR, $result);
+        $this->assertSame(Shell::CODE_ERROR, $this->Shell->stopped);
+    }
+
+    /**
+     * Test that clear() does nothing with the noclear param.
+     *
+     * @return void
+     */
+    public function testClearNoClear(): void
+    {
+        $this->Shell->params['noclear'] = true;
+        $this->Shell->stdout->expects($this->never())->method('write');
+
+        $this->assertNull($this->Shell->clear());
+    }
+
+    /**
+     * Test that answering q to the overwrite prompt stops the shell.
+     *
+     * @return void
+     */
+    public function testCreateFileQuit(): void
+    {
+        $path = TMP . 'shell_test';
+        $file = $path . DS . 'file1.php';
+        new Folder($path, true);
+        file_put_contents($file, 'original');
+
+        $this->Shell->interactive = true;
+        $this->Shell->stdin
+            ->expects($this->once())
+            ->method('read')
+            ->will($this->returnValue('q'));
+        $this->Shell->stdout
+            ->method('write')
+            ->willReturn(0);
+
+        $this->assertTrue($this->Shell->createFile($file, 'new contents'));
+        $this->assertSame(0, $this->Shell->stopped);
+        $this->assertSame('original', file_get_contents($file));
+    }
+
+    /**
+     * Test that a helper is loaded once and writes to the output of the shell.
+     *
+     * @return void
+     */
+    public function testHelperIsReused(): void
+    {
+        $output = new ConsoleOutputStub();
+        $shell = new ShellTestShell($output, $this->Shell->stderr, $this->Shell->stdin);
+
+        $helper = $shell->helper('table');
+        $this->assertInstanceOf(TableShellHelper::class, $helper);
+        $this->assertSame($helper, $shell->helper('table'));
+        $this->assertNotSame($helper, $shell->helper('Table'));
+
+        $helper->output([['Name'], ['Value']]);
+        $expected = [
+            '+-------+',
+            '| <info>Name</info>  |',
+            '+-------+',
+            '| Value |',
+            '+-------+',
+        ];
+        $this->assertSame($expected, $output->messages());
+    }
+
+    /**
+     * Test that _checkUnitTest() passes when PHPUnit is installed.
+     *
+     * @return void
+     */
+    public function testCheckUnitTest(): void
+    {
+        $this->Shell->stdin->expects($this->never())->method('read');
+
+        $this->assertTrue($this->Shell->callProtected('_checkUnitTest'));
+    }
+
+    /**
+     * Test the naming helpers used by the bake tasks.
+     *
+     * @return void
+     */
+    public function testNamingHelpers(): void
+    {
+        $this->assertSame('blog_posts', $this->Shell->callProtected('_controllerPath', 'BlogPosts'));
+        $this->assertSame('BlogPosts', $this->Shell->callProtected('_controllerName', 'blog_post'));
+        $this->assertSame('BlogPost', $this->Shell->callProtected('_modelName', 'blog_posts'));
+        $this->assertSame('blog_post_id', $this->Shell->callProtected('_modelKey', 'BlogPost'));
+        $this->assertSame('BlogPost', $this->Shell->callProtected('_modelNameFromKey', 'blog_post_id'));
+        $this->assertSame('blogPost', $this->Shell->callProtected('_singularName', 'BlogPosts'));
+        $this->assertSame('blogPosts', $this->Shell->callProtected('_pluralName', 'BlogPost'));
+        $this->assertSame('Blog Post', $this->Shell->callProtected('_singularHumanName', 'BlogPosts'));
+        $this->assertSame('Blog Posts', $this->Shell->callProtected('_pluralHumanName', 'BlogPosts'));
+    }
+
+    /**
+     * Test the path of loaded and not loaded plugins.
+     *
+     * @return void
+     */
+    public function testPluginPath(): void
+    {
+        App::build([
+            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
+        ], App::RESET);
+        CakePlugin::load('TestPlugin');
+
+        $this->assertSame(CakePlugin::path('TestPlugin'), $this->Shell->callProtected('_pluginPath', 'TestPlugin'));
+        $this->assertSame(
+            CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS . 'NotThere' . DS,
+            $this->Shell->callProtected('_pluginPath', 'NotThere'),
+        );
+    }
+
+    /**
+     * Test that startup() writes the welcome message.
+     *
+     * @return void
+     */
+    public function testStartupWelcome(): void
+    {
+        $output = new ConsoleOutputStub();
+        $shell = new ShellTestShell($output, $this->Shell->stderr, $this->Shell->stdin);
+        $shell->startup();
+
+        $hr = str_repeat('-', 63);
+        $expected = [
+            '<info>Welcome to CakePHP v' . Configure::version() . ' Console</info>',
+            $hr,
+            'App : ' . APP_DIR,
+            'Path: ' . APP,
+            $hr,
+        ];
+        $this->assertSame($expected, $output->messages());
     }
 }
