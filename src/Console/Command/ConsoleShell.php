@@ -277,9 +277,9 @@ class ConsoleShell extends AppShell
     {
         preg_match($this->_methodPatterns[__FUNCTION__], $command, $tmp);
 
-        foreach ($tmp as $data) {
+        foreach ($tmp as $key => $data) {
             $data = strip_tags($data);
-            $data = str_replace($this->badCommandChars, '', $data);
+            $tmp[$key] = str_replace($this->badCommandChars, '', $data);
         }
 
         $modelA = $tmp[1];
@@ -310,9 +310,9 @@ class ConsoleShell extends AppShell
     {
         preg_match($this->_methodPatterns[__FUNCTION__], $command, $tmp);
 
-        foreach ($tmp as $data) {
+        foreach ($tmp as $key => $data) {
             $data = strip_tags($data);
-            $data = str_replace($this->badCommandChars, '', $data);
+            $tmp[$key] = str_replace($this->badCommandChars, '', $data);
         }
 
         $modelA = $tmp[1];
