@@ -19,10 +19,7 @@
 namespace Cake\View\Helper;
 
 use AppHelper;
-use Cake\Core\App;
 use Cake\Model\Datasource\CakeSession;
-
-App::uses('AppHelper', 'View/Helper');
 
 /**
  * Session Helper.

@@ -15,10 +15,6 @@
 
 namespace Cake\TestSuite\Constraint\Email;
 
-use Cake\Core\App;
-
-App::uses('MailConstraintBase', 'TestSuite/Constraint/Email');
-
 /**
  * Asserts the number of sent emails.
  *

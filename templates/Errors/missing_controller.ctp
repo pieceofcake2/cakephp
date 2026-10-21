@@ -38,13 +38,9 @@ $this->start('subheading');
 	<?php echo __d('cake_dev', 'Create the class %s below in file: %s', '<em>' . h($class) . '</em>', $path); ?>
 </p>
 <?php
-// Applications with the modern layout (src/) autoload their classes and the core classes
-// with the Composer classmap, so the suggested code only needs App::uses() in the legacy layout or in a plugin.
-$classmapApp = basename(rtrim(APP, DS)) === 'src';
-$uses = !empty($plugin) || !$classmapApp ? "App::uses('{$appController}', '{$appControllerPackage}');\n" : '';
 $code = <<<PHP
 <?php
-{$uses}
+
 class {$class} extends {$appController}
 {
 }

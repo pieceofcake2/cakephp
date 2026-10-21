@@ -15,11 +15,8 @@
 
 namespace Cake\TestSuite\Constraint\Email;
 
-use Cake\Core\App;
 use Cake\Network\Email\CakeEmail;
 use InvalidArgumentException;
-
-App::uses('MailConstraintBase', 'TestSuite/Constraint/Email');
 
 /**
  * Asserts that a string is in the subject of an email.

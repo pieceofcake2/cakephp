@@ -17,12 +17,9 @@
 namespace Cake\Model;
 
 use AppModel;
-use Cake\Core\App;
 use Cake\Core\Configure;
 use Cake\Error\AclException;
 use Cake\Utility\Hash;
-
-App::uses('AppModel', 'Model');
 
 /**
  * Permissions linking AROs with ACOs

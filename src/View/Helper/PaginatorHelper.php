@@ -26,8 +26,6 @@ use Cake\Error\CakeException;
 use Cake\Utility\Inflector;
 use Cake\View\View;
 
-App::uses('AppHelper', 'View/Helper');
-
 /**
  * Pagination Helper class for easy generation of pagination links.
  *

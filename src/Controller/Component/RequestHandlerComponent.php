@@ -705,7 +705,6 @@ class RequestHandlerComponent extends Component
         $helper = ucfirst($type);
 
         if (!in_array($helper, $controller->helpers) && empty($controller->helpers[$helper])) {
-            App::uses('AppHelper', 'View/Helper');
             if (App::className($helper, 'View/Helper', 'Helper') !== null) {
                 $controller->helpers[] = $helper;
             }

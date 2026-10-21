@@ -24,10 +24,7 @@
 
 namespace Cake\View\Helper;
 
-use Cake\Core\App;
 use Cake\Core\Configure;
-
-App::uses('AppHelper', 'View/Helper');
 
 /**
  * jQuery Engine Helper for JsHelper

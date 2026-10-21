@@ -41,6 +41,11 @@
 - **Overriding core classes**: A global class registered with `App::uses()` no longer replaces a core class, as the core uses the namespaced names. Override a core class with a copy in `src/Cake/` (e.g. `src/Cake/Routing/Dispatcher.php`) loaded by the classmap of the application, and exclude the core file with `exclude-from-classmap`
 - **phpcs**: `SlevomatCodingStandard.Namespaces.UnusedUses` counts the class names in annotations, as the core imports the classes that its docblocks name
 
+### Deprecations: `App::uses()` ([PR #98](https://github.com/pieceofcake2/cakephp/pull/98))
+
+- **App::uses()**: Deprecated. Composer loads the classes of the core, of `pieceofcake2/app` and of the plugins installed with it, and the core finds the classes named in the configuration without it. The first call in a process logs a warning with the file and line of the call, and triggers `E_USER_DEPRECATED` when `debug` is above 0. The call still works
+- **Core**: The core no longer calls `App::uses()`. `AppController`, `AppModel`, `AppHelper` and `AppShell` of the application are found in their packages without it, and the classes that the core loads from an application or a plugin are found with `App::className()`. The code that `CacheHelper` writes into cached views and the code that the error pages suggest no longer contain it
+
 ### Bug Fixes: PHP Deprecations ([PR #96](https://github.com/pieceofcake2/cakephp/pull/96))
 
 - **Null passed to built-in functions**: Many methods passed a value that can be `null` (e.g. `env()` of a missing variable, an unset option, the plugin of `pluginSplit()`) to a string function of PHP, which is deprecated since PHP 8.1. They cast it to a string (or an int for the decimals of `CakeNumber`), so the result is the same as before. This covers among others `CakeSession`, `CakeRequest`, `CakeResponse`, `CakeEmail`, `HttpSocket`, `Security`, `Configure::consume()`, `Xml::build()`, `FormHelper` date and radio inputs, `CakeText::cleanInsert()`, `Hash` / `Set` matching, `File`, `pluginSplit()`, `env()`, `clearCache()` and the missing class exceptions of the object collections

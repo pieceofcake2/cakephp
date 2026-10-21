@@ -66,6 +66,17 @@ The classes of the framework moved into the `Cake` namespace, e.g. `Cake\Control
 - **Static analysis**: PHPStan resolves the aliases. Update pieceofcake2/phpstan-cakephp2 to `^1.1` (`composer require --dev pieceofcake2/phpstan-cakephp2:^1.1`): version 1.0 types the components, models, tasks and behaviors of the namespaced core as their base classes, and PHPStan reports errors such as `Call to an undefined method Cake\Controller\Component::paginate()`.
 - New code can import the namespaced classes: `use Cake\Controller\Component;`.
 
+### `App::uses()` Is Deprecated ([PR #98](https://github.com/pieceofcake2/cakephp/pull/98))
+
+An application or a plugin does not need `App::uses()` when Composer loads its classes. `pieceofcake2/app` loads `src/` with a classmap.
+
+- The first call of `App::uses()` in a process logs a warning with the file and line of the call. With `debug` above 0, it also triggers `E_USER_DEPRECATED`. The call still works.
+- To remove the calls, let Composer load your classes, then delete the `App::uses()` lines:
+  - an application: `"autoload": {"classmap": ["src/"]}` in its `composer.json`, then `composer dump-autoload`;
+  - a plugin: a classmap or PSR-4 in the `composer.json` of the plugin.
+- The classes named in the configuration (`$components`, `$helpers`, `$uses`, associations, engines and the other settings) are found without `App::uses()`, as before.
+- The core no longer calls `App::uses()`. `AppController`, `AppModel`, `AppHelper` and `AppShell` of the application are found in their packages without it.
+
 ## v2.12.11
 
 ### Request URLs with Extra Leading Slashes ([GHSA-wh43-gc93-wh4c](https://github.com/pieceofcake2/cakephp/security/advisories/GHSA-wh43-gc93-wh4c), [PR #90](https://github.com/pieceofcake2/cakephp/pull/90))

@@ -282,7 +282,7 @@ abstract class ControllerTestCase extends CakeTestCase
     {
         [$plugin, $controller] = pluginSplit($controller);
         if ($plugin) {
-            App::uses($plugin . 'AppController', $plugin . '.Controller');
+            App::className($plugin . '.' . $plugin . 'AppController', 'Controller');
             $plugin .= '.';
         }
         $controllerClass = App::className($plugin . $controller, 'Controller', 'Controller');

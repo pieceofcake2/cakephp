@@ -17,9 +17,6 @@
 namespace Cake\Model;
 
 use AppModel;
-use Cake\Core\App;
-
-App::uses('AppModel', 'Model');
 
 /**
  * Action for Access Control Object

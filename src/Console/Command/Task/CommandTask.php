@@ -24,8 +24,6 @@ use Cake\Utility\Inflector;
 use ReflectionClass;
 use ReflectionMethod;
 
-App::uses('AppShell', 'Console/Command');
-
 /**
  * Base class for Shell Command reflection.
  *

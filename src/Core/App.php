@@ -20,9 +20,11 @@ namespace Cake\Core;
 
 use Cake\Cache\Cache;
 use Cake\Error\ErrorHandler;
+use Cake\Log\CakeLog;
 use Cake\Utility\Inflector;
 use DirectoryIterator;
 use RegexIterator;
+use Throwable;
 
 /**
  * App is responsible for path management, class location and class loading.
@@ -148,9 +150,23 @@ class App
     /**
      * Holds the location of each class
      *
+     * The base classes of the application are found in their packages without being declared.
+     *
      * @var array
      */
-    protected static $_classMap = [];
+    protected static $_classMap = [
+        'AppController' => 'Controller',
+        'AppModel' => 'Model',
+        'AppHelper' => 'View/Helper',
+        'AppShell' => 'Console/Command',
+    ];
+
+    /**
+     * Whether the deprecation of App::uses() was already reported in this process.
+     *
+     * @var bool
+     */
+    protected static $_usesDeprecationReported = false;
 
     /**
      * Holds the possible paths for each package name
@@ -554,9 +570,29 @@ class App
      * @param string $location the package name
      * @return void
      * @link https://book.cakephp.org/2.0/en/core-utility-libraries/app.html#App::uses
+     * @deprecated 2.13.0 Let Composer load the classes of the application and of its plugins, with a classmap or
+     *   PSR-4 in composer.json. The classes named in the configuration are found without it.
      */
     public static function uses($className, $location)
     {
+        if (!static::$_usesDeprecationReported) {
+            static::$_usesDeprecationReported = true;
+            $caller = debug_backtrace(DEBUG_BACKTRACE_IGNORE_ARGS, 1)[0];
+            $message = sprintf(
+                'App::uses() is deprecated (called in %s on line %d). Let Composer load the classes of the'
+                . ' application and of its plugins, with a classmap or PSR-4 in composer.json.',
+                $caller['file'] ?? '?',
+                $caller['line'] ?? 0,
+            );
+            try {
+                CakeLog::write(LOG_WARNING, $message);
+            } catch (Throwable $e) {
+                // Logging must never break the loading of classes.
+            }
+            if (Configure::read('debug') > 0) {
+                trigger_error($message, E_USER_DEPRECATED);
+            }
+        }
         static::$_classMap[$className] = $location;
     }
 
@@ -568,7 +604,7 @@ class App
      *   `Acme\Cache\MemoryEngine` with the suffix `Engine`.
      * - Other names may have a plugin prefix (`'MyPlugin.Name'`). The class is looked up in the namespace of
      *   the plugin, or of the application set in `App.namespace`, as `<Namespace>\<Type>\<Name><Suffix>`,
-     *   then as the global class `<Name><Suffix>` declared with `App::uses()` in the `<Type>` package.
+     *   then as the global class `<Name><Suffix>` in the `<Type>` package.
      *
      * Usage:
      *
@@ -604,7 +640,7 @@ class App
         }
 
         $className = $name . $suffix;
-        static::uses($className, $plugin ? $plugin . '.' . $type : $type);
+        static::$_classMap[$className] = $plugin ? $plugin . '.' . $type : $type;
 
         return class_exists($className) ? $className : null;
     }
@@ -810,16 +846,16 @@ class App
                 $extends = array_pop($parts);
                 $extendType = implode('/', $parts);
             }
-            App::uses($extends, $extendType);
+            static::$_classMap[$extends] = $extendType;
             if ($plugin && in_array($originalType, ['controller', 'model'])) {
-                App::uses($plugin . $extends, $plugin . '.' . $type);
+                static::$_classMap[$plugin . $extends] = $plugin . '.' . $type;
             }
         }
         if ($plugin) {
             $plugin .= '.';
         }
         $name = Inflector::camelize($name);
-        App::uses($name, $plugin . $type);
+        static::$_classMap[$name] = $plugin . $type;
         if (class_exists($name)) {
             return true;
         }

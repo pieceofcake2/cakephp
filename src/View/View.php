@@ -45,8 +45,6 @@ use Cake\View\Helper\TextHelper;
 use Cake\View\Helper\TimeHelper;
 use LogicException;
 
-App::uses('AppHelper', 'View/Helper');
-
 /**
  * View, the V in the MVC triad. View interacts with Helpers and view variables passed
  * in from the controller to render the results of the controller action. Often this is HTML,

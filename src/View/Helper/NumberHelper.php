@@ -27,8 +27,6 @@ use Cake\Utility\CakeNumber;
 use Cake\Utility\Hash;
 use Cake\View\View;
 
-App::uses('AppHelper', 'View/Helper');
-
 /**
  * Number helper library.
  *
