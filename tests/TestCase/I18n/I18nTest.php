@@ -1938,6 +1938,18 @@ class I18nTest extends CakeTestCase
     }
 
     /**
+     * Test that a translation of "0" is used, and not taken for a missing one.
+     *
+     * @return void
+     */
+    public function testPoTranslationOfZero(): void
+    {
+        Configure::write('Config.language', 'po');
+        $this->assertSame('0', __('Number of retries'));
+        $this->assertSame('No Translation needed', __('No Translation needed'));
+    }
+
+    /**
      * testPoQuotedString method
      *
      * @return void
