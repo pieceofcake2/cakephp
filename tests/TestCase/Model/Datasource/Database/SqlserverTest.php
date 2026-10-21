@@ -780,6 +780,29 @@ SQL;
     }
 
     /**
+     * Test that lastAffected() returns the count of rows that exec() reports for a
+     * statement other than SELECT.
+     *
+     * @return void
+     */
+    public function testLastAffectedAfterExec(): void
+    {
+        $db = new Sqlserver($this->Dbo->config, false);
+        $connection = $this->getMock(PDO::class, ['exec'], [], '', false);
+        $connection->expects($this->once())
+            ->method('exec')
+            ->willReturn(3);
+        $property = new ReflectionProperty(Sqlserver::class, '_connection');
+        if (PHP_VERSION_ID < 80100) {
+            $property->setAccessible(true);
+        }
+        $property->setValue($db, $connection);
+
+        $this->assertTrue($db->execute('DELETE FROM sqlserver_test_models WHERE id > 1', ['log' => false]));
+        $this->assertSame(3, $db->lastAffected());
+    }
+
+    /**
      * Test that a failing statement throws an exception carrying the query string
      * without creating a dynamic property on PDOException (deprecated as of PHP 8.2).
      *

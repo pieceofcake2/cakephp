@@ -908,12 +908,12 @@ class Sqlserver extends DboSource
      */
     public function lastAffected($source = null)
     {
-        $affected = parent::lastAffected();
-        if ($affected === null && $this->_lastAffected !== false) {
+        // A statement other than SELECT runs with exec(), which gives no result set.
+        if (!$this->hasResult() && $this->_lastAffected !== false) {
             return $this->_lastAffected;
         }
 
-        return $affected;
+        return parent::lastAffected();
     }
 
     /**
