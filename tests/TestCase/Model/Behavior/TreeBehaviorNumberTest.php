@@ -22,6 +22,7 @@ namespace Cake\Test\TestCase\Model\Behavior;
 
 use Cake\Core\App;
 use Cake\TestSuite\CakeTestCase;
+use Cake\Utility\Hash;
 use TestApp\Model\NumberTree;
 use TestApp\Model\Person;
 
@@ -1679,5 +1680,214 @@ class TreeBehaviorNumberTest extends CakeTestCase
 
         $result = $this->Tree->findByName('1.2.2');
         $this->assertEquals(3, $result[$modelClass][$level]);
+    }
+
+    /**
+     * Test that recover() with missingParentAction 'return' stops, reports the
+     * nodes with a missing parent and leaves the tree as it was.
+     *
+     * @return void
+     */
+    public function testRecoverReturnsMissingParents(): void
+    {
+        $this->Tree = new NumberTree();
+        $this->Tree->initialize(2, 2);
+        $node = $this->Tree->findByName('1.1');
+        $id = $node['NumberTree']['id'];
+        $this->Tree->updateAll(['parent_id' => 999999], ['NumberTree.id' => $id]);
+        $before = $this->Tree->find('all', ['order' => ['NumberTree.id' => 'ASC']]);
+
+        $this->Tree->Behaviors->Tree->errors = [];
+        $this->assertFalse($this->Tree->recover(['missingParentAction' => 'return']));
+
+        $this->assertSame(['cannot find the parent for NumberTree with id ' . $id . '(1.1)'], $this->Tree->Behaviors->Tree->errors);
+        $this->assertSame($before, $this->Tree->find('all', ['order' => ['NumberTree.id' => 'ASC']]));
+    }
+
+    /**
+     * Test that recover() handles more children of one parent than fit in one
+     * page of its internal query.
+     *
+     * @return void
+     */
+    public function testRecoverWithManyChildren(): void
+    {
+        $this->Tree = new NumberTree();
+        $this->Tree->initialize(1, 101);
+        $this->Tree->updateAll(['lft' => 0, 'rght' => 0]);
+        $this->assertNotSame(true, $this->Tree->verify());
+
+        $this->assertTrue($this->Tree->recover());
+
+        $this->assertTrue($this->Tree->verify());
+        $root = $this->Tree->findByName('1. Root');
+        $this->assertSame(1, (int)$root['NumberTree']['lft']);
+        $this->assertSame(204, (int)$root['NumberTree']['rght']);
+        $this->assertSame(101, $this->Tree->childCount($root['NumberTree']['id']));
+    }
+
+    /**
+     * Test that reorder() refuses to work on a corrupt tree.
+     *
+     * @return void
+     */
+    public function testReorderInvalidTree(): void
+    {
+        $this->markTestIncomplete('Known bug: reorder() treats the error list returned by verify() as success');
+
+        $this->Tree = new NumberTree();
+        $this->Tree->initialize(2, 2);
+        $node = $this->Tree->findByName('1.1');
+        $this->Tree->updateAll(['lft' => 0], ['NumberTree.id' => $node['NumberTree']['id']]);
+        $before = $this->Tree->find('all', ['order' => ['NumberTree.id' => 'ASC']]);
+
+        $this->assertFalse($this->Tree->reorder(['order' => 'DESC']));
+        $this->assertSame($before, $this->Tree->find('all', ['order' => ['NumberTree.id' => 'ASC']]));
+    }
+
+    /**
+     * Test that verify() accepts an empty tree.
+     *
+     * @return void
+     */
+    public function testVerifyEmptyTree(): void
+    {
+        $this->Tree = new NumberTree();
+        $this->Tree->initialize(1, 1);
+        $this->Tree->deleteAll(['NumberTree.id >' => 0], false);
+        $this->assertSame(0, $this->Tree->find('count'));
+
+        $this->assertTrue($this->Tree->verify());
+    }
+
+    /**
+     * Test the edge cases of the move methods: a zero number, the id given in an
+     * array or taken from the model, and the first root node that cannot move up.
+     *
+     * @return void
+     */
+    public function testMoveUpAndDownEdgeCases(): void
+    {
+        $this->Tree = new NumberTree();
+        $this->Tree->initialize(1, 3);
+        $node = $this->Tree->findByName('1.2');
+        $id = $node['NumberTree']['id'];
+        $before = $this->Tree->find('all', ['order' => ['NumberTree.id' => 'ASC']]);
+
+        $this->assertFalse($this->Tree->moveUp($id, 0));
+        $this->assertFalse($this->Tree->moveDown($id, 0));
+        $this->assertSame($before, $this->Tree->find('all', ['order' => ['NumberTree.id' => 'ASC']]));
+
+        $root = $this->Tree->findByName('1. Root');
+        $this->assertFalse($this->Tree->moveUp($root['NumberTree']['id']));
+
+        $this->assertTrue($this->Tree->moveDown(['id' => $id]));
+        $this->Tree->id = $root['NumberTree']['id'];
+        $this->assertSame(['1.1', '1.3', '1.2'], Hash::extract($this->Tree->children(null, true, ['name']), '{n}.NumberTree.name'));
+
+        $this->Tree->id = $id;
+        $this->assertTrue($this->Tree->moveUp(['id' => $id, 'number' => 2]));
+        $this->Tree->id = $root['NumberTree']['id'];
+        $this->assertSame(['1.2', '1.1', '1.3'], Hash::extract($this->Tree->children(null, true, ['name']), '{n}.NumberTree.name'));
+
+        $this->Tree->id = $id;
+        $this->assertTrue($this->Tree->moveDown());
+        $this->Tree->id = $root['NumberTree']['id'];
+        $this->assertSame(['1.1', '1.2', '1.3'], Hash::extract($this->Tree->children(null, true, ['name']), '{n}.NumberTree.name'));
+        $this->assertTrue($this->Tree->verify());
+    }
+
+    /**
+     * Test that removeFromTree() accepts the id in an array.
+     *
+     * @return void
+     */
+    public function testRemoveFromTreeWithArrayId(): void
+    {
+        $this->Tree = new NumberTree();
+        $this->Tree->initialize(2, 2);
+        $node = $this->Tree->findByName('1.1');
+
+        $this->assertTrue($this->Tree->removeFromTree(['id' => $node['NumberTree']['id'], 'delete' => true]));
+
+        $this->assertSame([], $this->Tree->findByName('1.1'));
+        $this->assertSame(6, $this->Tree->find('count'));
+        $this->assertTrue($this->Tree->verify());
+    }
+
+    /**
+     * Test children() and childCount() with no id, with a missing id, and with
+     * the node already loaded in the model data.
+     *
+     * @return void
+     */
+    public function testChildrenAndChildCountEdgeCases(): void
+    {
+        $this->Tree = new NumberTree();
+        $this->Tree->initialize(2, 2);
+
+        $this->Tree->id = null;
+        $result = $this->Tree->children(null, false, ['name']);
+        $this->assertSame(
+            ['1. Root', '1.1', '1.1.1', '1.1.2', '1.2', '1.2.1', '1.2.2'],
+            Hash::extract($result, '{n}.NumberTree.name'),
+        );
+
+        $this->assertSame(0, $this->Tree->childCount(999999));
+
+        $node = $this->Tree->findByName('1.2');
+        $this->Tree->read(null, $node['NumberTree']['id']);
+        $this->assertSame(2, $this->Tree->childCount($node['NumberTree']['id']));
+    }
+
+    /**
+     * Test getParentNode(), getPath() and getLevel() for a root node, a missing
+     * node, options given in an array and the current model id. A root node has no parent, so its parent is
+     * empty, and a missing node gives false.
+     *
+     * @return void
+     */
+    public function testParentPathAndLevelEdgeCases(): void
+    {
+        $this->Tree = new NumberTree();
+        $this->Tree->initialize(2, 2);
+        $root = $this->Tree->findByName('1. Root');
+        $node = $this->Tree->findByName('1.2.1');
+
+        $this->assertSame([], $this->Tree->getParentNode($root['NumberTree']['id']));
+        $this->assertFalse($this->Tree->getParentNode(999999));
+        $this->assertSame([], $this->Tree->getPath(999999));
+
+        $result = $this->Tree->getPath(['id' => $node['NumberTree']['id'], 'fields' => ['name'], 'recursive' => -1]);
+        $expected = [
+            ['NumberTree' => ['name' => '1. Root']],
+            ['NumberTree' => ['name' => '1.2']],
+            ['NumberTree' => ['name' => '1.2.1']],
+        ];
+        $this->assertSame($expected, $result);
+
+        $result = $this->Tree->getParentNode($node['NumberTree']['id'], ['name'], -1);
+        $this->assertSame(['NumberTree' => ['name' => '1.2']], $result);
+
+        $this->Tree->id = $node['NumberTree']['id'];
+        $this->assertSame(2, $this->Tree->getLevel());
+    }
+
+    /**
+     * Test that formatTreeList() returns an empty list for no results and
+     * prefixes a value path given as a string.
+     *
+     * @return void
+     */
+    public function testFormatTreeListEmptyAndStringValuePath(): void
+    {
+        $this->Tree = new NumberTree();
+        $this->Tree->initialize(1, 2);
+
+        $this->assertSame([], $this->Tree->formatTreeList([]));
+
+        $records = $this->Tree->find('all', ['order' => ['lft' => 'asc']]);
+        $result = $this->Tree->formatTreeList($records, ['valuePath' => '{n}.NumberTree.name', 'spacer' => '-']);
+        $this->assertSame(['1. Root', '-1.1', '-1.2'], array_values($result));
     }
 }
