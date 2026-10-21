@@ -26,8 +26,10 @@ use Cake\Core\Configure;
 use Cake\Routing\Router;
 use Cake\TestSuite\CakeTestCase;
 use Cake\Utility\ClassRegistry;
-use Cake\Utility\Folder;
 use PHPUnit\Framework\MockObject\MockObject;
+use TestTwoPlugin\Model\NamespacedPluginItem;
+use TestTwoPlugin\Model\NamespacedPluginPost;
+use TestTwoPlugin\Model\TestTwoPluginAppModel;
 
 /**
  * ConsoleShellTest
@@ -65,11 +67,11 @@ class ConsoleShellTest extends CakeTestCase
     public $errors = [];
 
     /**
-     * A temporary model directory used by the startup test
+     * Whether a test changed the model path
      *
-     * @var string|null
+     * @var bool
      */
-    protected $_modelDir = null;
+    protected $_modelsChanged = false;
 
     /**
      * setUp method
@@ -115,17 +117,16 @@ class ConsoleShellTest extends CakeTestCase
      */
     public function tearDown(): void
     {
-        if ($this->_modelDir !== null) {
-            $Folder = new Folder($this->_modelDir);
-            $Folder->delete();
-            $this->_modelDir = null;
-            // Rebuild the in-memory model list from the real paths
-            App::objects('Model', null, false);
-        }
         unset($this->Shell);
         Router::reload();
 
         parent::tearDown();
+
+        if ($this->_modelsChanged) {
+            // Rebuild the in-memory model list from the restored paths
+            App::objects('Model', null, false);
+            $this->_modelsChanged = false;
+        }
     }
 
     /**
@@ -172,28 +173,36 @@ class ConsoleShellTest extends CakeTestCase
     }
 
     /**
-     * Test that startup() loads the models and the routes
+     * Test that startup() loads the models of the model path
      *
      * @return void
      */
     public function testStartup(): void
     {
-        $this->_modelDir = TMP . 'tests' . DS . 'console_shell_models' . DS;
-        mkdir($this->_modelDir, 0777, true);
-        // Only the file names are used, the classes come from TestApp\Model
-        touch($this->_modelDir . 'Article.php');
-        touch($this->_modelDir . 'User.php');
-        App::objects('Model', [$this->_modelDir], false);
+        // A small model directory whose classes are all concrete
+        $this->_modelsChanged = true;
+        Configure::write('App.namespace', 'TestTwoPlugin');
+        App::build([
+            'Model' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS . 'TestTwoPlugin' . DS . 'src' . DS . 'Model' . DS],
+        ], App::RESET);
+        $models = App::objects('Model', null, false);
+        $this->assertSame(['NamespacedPluginItem', 'NamespacedPluginPost', 'TestTwoPluginAppModel'], $models);
 
         $this->Shell->expects($this->once())->method('hr');
         $this->Shell->startup();
 
-        $this->assertSame(['Article', 'User'], $this->Shell->models);
-        $this->assertInstanceOf('TestApp\Model\Article', $this->Shell->Article);
-        $this->assertInstanceOf('TestApp\Model\User', $this->Shell->User);
-        $this->assertSame(['Model classes:', ' - Article', ' - User'], $this->outputs);
+        $this->assertSame($models, $this->Shell->models);
+        $this->assertInstanceOf(NamespacedPluginItem::class, $this->Shell->NamespacedPluginItem);
+        $this->assertInstanceOf(NamespacedPluginPost::class, $this->Shell->NamespacedPluginPost);
+        $this->assertInstanceOf(TestTwoPluginAppModel::class, $this->Shell->TestTwoPluginAppModel);
+        $expected = [
+            'Model classes:',
+            ' - NamespacedPluginItem',
+            ' - NamespacedPluginPost',
+            ' - TestTwoPluginAppModel',
+        ];
+        $this->assertSame($expected, $this->outputs);
         $this->assertSame([], $this->errors);
-        $this->assertNotEmpty(Router::$routes);
     }
 
     /**
@@ -454,22 +463,39 @@ class ConsoleShellTest extends CakeTestCase
     }
 
     /**
-     * Test the routes reload and routes show commands
+     * Test the routes reload command
      *
      * @return void
      */
-    public function testRoutesReloadAndShow(): void
+    public function testRoutesReload(): void
     {
-        $this->_input(['routes reload', 'Routes Show']);
+        $this->_input(['routes reload']);
         $this->Shell->main();
 
-        $this->assertCount(2, $this->outputs);
+        $this->assertNotEmpty(Router::$routes);
         $this->assertSame(
-            sprintf('Routes configuration reloaded, %d routes connected', count(Router::$routes)),
-            $this->outputs[0],
+            [sprintf('Routes configuration reloaded, %d routes connected', count(Router::$routes))],
+            $this->outputs,
         );
-        $this->assertStringContainsString('[/pages/*] => Array', $this->outputs[1]);
-        $this->assertStringContainsString('[controller] => pages', $this->outputs[1]);
+        $this->assertSame([], $this->errors);
+    }
+
+    /**
+     * Test the routes show command
+     *
+     * @return void
+     */
+    public function testRoutesShow(): void
+    {
+        Router::reload();
+        Router::connect('/console_articles/*', ['controller' => 'articles', 'action' => 'index']);
+        $this->_input(['Routes Show']);
+        $this->Shell->main();
+
+        $this->assertCount(1, $this->outputs);
+        $this->assertStringContainsString('[/console_articles/*] => Array', $this->outputs[0]);
+        $this->assertStringContainsString('[controller] => articles', $this->outputs[0]);
+        $this->assertStringContainsString('[action] => index', $this->outputs[0]);
         $this->assertSame([], $this->errors);
     }
 
@@ -480,13 +506,15 @@ class ConsoleShellTest extends CakeTestCase
      */
     public function testRouteToArray(): void
     {
-        $this->_input(['routes reload', 'route /posts/view/1']);
+        Router::reload();
+        Router::connect('/console_articles/:action/*', ['controller' => 'articles']);
+        $this->_input(['route /console_articles/view/1']);
         $this->Shell->main();
 
-        $this->assertCount(2, $this->outputs);
-        $this->assertStringContainsString("'controller' => 'posts'", $this->outputs[1]);
-        $this->assertStringContainsString("'action' => 'view'", $this->outputs[1]);
-        $this->assertStringContainsString("0 => '1'", $this->outputs[1]);
+        $this->assertCount(1, $this->outputs);
+        $this->assertStringContainsString("'controller' => 'articles'", $this->outputs[0]);
+        $this->assertStringContainsString("'action' => 'view'", $this->outputs[0]);
+        $this->assertStringContainsString("0 => '1'", $this->outputs[0]);
     }
 
     /**
@@ -496,14 +524,14 @@ class ConsoleShellTest extends CakeTestCase
      */
     public function testRouteToString(): void
     {
+        Router::reload();
+        Router::connect('/console_articles/:action/*', ['controller' => 'articles']);
         $this->_input([
-            'routes reload',
-            "route ('controller' => 'posts', 'action' => 'view', 1)",
+            "route ('controller' => 'articles', 'action' => 'view', 1)",
             'route ()',
         ]);
         $this->Shell->main();
 
-        $this->assertCount(2, $this->outputs);
-        $this->assertSame('/posts/view/1', $this->outputs[1]);
+        $this->assertSame(['/console_articles/view/1'], $this->outputs);
     }
 }
