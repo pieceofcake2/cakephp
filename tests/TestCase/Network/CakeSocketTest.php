@@ -803,6 +803,30 @@ class CakeSocketTest extends CakeTestCase
     }
 
     /**
+     * Test that a failed connect() reports only its own warnings, not also the
+     * warnings of an earlier connect() of the same socket.
+     *
+     * @return void
+     */
+    public function testConnectReportsOnlyTheWarningsOfThisAttempt(): void
+    {
+        $this->skipIf(!extension_loaded('openssl'), 'OpenSSL is not enabled cannot test SSL.');
+        $port = $this->_listen();
+        $socket = new CakeSocket(['host' => 'ssl://127.0.0.1', 'port' => $port, 'timeout' => 1]);
+        $messages = [];
+        for ($i = 0; $i < 2; $i++) {
+            try {
+                $socket->connect();
+                $this->fail('No exception was thrown.');
+            } catch (SocketException $e) {
+                $messages[] = $e->getMessage();
+            }
+            $this->_accept();
+        }
+        $this->assertSame($messages[0], $messages[1]);
+    }
+
+    /**
      * Test that read() returns false and sets the last error when the peer
      * sends nothing within the timeout.
      *

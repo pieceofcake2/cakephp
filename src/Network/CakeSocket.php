@@ -194,6 +194,7 @@ class CakeSocket
         if ($this->connection) {
             $this->disconnect();
         }
+        $this->_connectionErrors = [];
 
         $hasProtocol = str_contains($this->config['host'], '://');
         if ($hasProtocol) {
