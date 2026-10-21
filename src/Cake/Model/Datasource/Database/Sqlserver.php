@@ -418,7 +418,7 @@ class Sqlserver extends DboSource
         }
         $primaryKey = $this->_getPrimaryKey($model);
 
-        if (array_key_exists($primaryKey, $fields)) {
+        if (!empty($primaryKey) && array_key_exists($primaryKey, $fields)) {
             if (empty($fields[$primaryKey])) {
                 unset($fields[$primaryKey]);
             } else {
@@ -426,7 +426,7 @@ class Sqlserver extends DboSource
             }
         }
         $result = parent::create($model, array_keys($fields), array_values($fields));
-        if (array_key_exists($primaryKey, $fields) && !empty($fields[$primaryKey])) {
+        if (!empty($primaryKey) && array_key_exists($primaryKey, $fields) && !empty($fields[$primaryKey])) {
             $this->_execute('SET IDENTITY_INSERT ' . $this->fullTableName($model) . ' OFF');
         }
 
