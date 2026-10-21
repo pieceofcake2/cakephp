@@ -195,11 +195,6 @@ class ProgressShellHelperTest extends CakeTestCase
      */
     public function testIncrementFloatPad(): void
     {
-        $this->skipIf(
-            PHP_VERSION_ID >= 80100,
-            'ProgressShellHelper::draw() passes a float bar length to str_repeat(), which is deprecated as of PHP 8.1.',
-        );
-
         $this->helper->init([
             'total' => 50,
         ]);
