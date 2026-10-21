@@ -26,7 +26,6 @@ use Cake\Model\Datasource\Database\Sqlserver;
 use Cake\Model\Datasource\DboSource;
 use Cake\Model\Datasource\PDOExceptionWithQueryString;
 use Cake\TestSuite\CakeTestCase;
-use Cake\TestSuite\Fixture\CakeTestModel;
 use Cake\Utility\ClassRegistry;
 use PDO;
 use PDOException;
@@ -37,34 +36,6 @@ use TestApp\Model\Datasource\Database\SqlserverTestDb;
 use TestApp\Model\SqlserverTestModel;
 
 App::uses('AppModel', 'Model');
-
-/**
- * SqlserverClientTestModel class
- *
- * @package       Cake.Test.Case.Model.Datasource.Database
- */
-class SqlserverClientTestModel extends CakeTestModel
-{
-    /**
-     * useTable property
-     *
-     * @var string|bool|null
-     */
-    public $useTable = false;
-
-    /**
-     * _schema property
-     *
-     * @var array
-     */
-    protected $_schema = [
-        'id' => ['type' => 'integer', 'null' => '', 'default' => '', 'length' => '8', 'key' => 'primary'],
-        'name' => ['type' => 'string', 'null' => '', 'default' => '', 'length' => '255'],
-        'email' => ['type' => 'string', 'null' => '1', 'default' => '', 'length' => '155'],
-        'created' => ['type' => 'datetime', 'null' => '1', 'default' => '', 'length' => ''],
-        'updated' => ['type' => 'datetime', 'null' => '1', 'default' => '', 'length' => null],
-    ];
-}
 
 /**
  * SqlserverTestResultIterator class
