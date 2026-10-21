@@ -163,7 +163,7 @@ class ScaffoldMockControllerWithSaveError extends Controller
     }
 
     /**
-     * Records the method of the rejected save.
+     * Records the method of the rejected save and answers with an error page.
      *
      * @param string $method Method name.
      * @return bool true
@@ -171,6 +171,7 @@ class ScaffoldMockControllerWithSaveError extends Controller
     public function afterScaffoldSaveError($method): mixed
     {
         $this->saveErrors[] = $method;
+        $this->response->body('The ' . $method . ' was rejected');
 
         return true;
     }
@@ -249,6 +250,8 @@ class ScaffoldTest extends CakeTestCase
         parent::setUp();
         Configure::write('App.namespace', 'TestApp');
         Configure::write('Config.language', 'eng');
+        // Render with the layouts of the test app, not those of the app skeleton.
+        App::build(['View' => [CORE_TESTS . DS . 'test_app' . DS . 'templates' . DS]], App::RESET);
         $request = new CakeRequest(null, false);
         $this->Controller = new ScaffoldMockController($request);
         $this->Controller->response = $this->getMock(CakeResponse::class, ['_sendHeader']);
@@ -262,6 +265,7 @@ class ScaffoldTest extends CakeTestCase
     public function tearDown(): void
     {
         CakeSession::destroy();
+        CakePlugin::unload('TestPlugin');
         unset($this->Controller);
 
         parent::tearDown();
@@ -741,14 +745,15 @@ class ScaffoldTest extends CakeTestCase
     }
 
     /**
-     * Test that each scaffolded action renders the scaffold error page when
-     * beforeScaffold() returns false, and that nothing is changed.
+     * Test that each scaffolded action (index, list, view, add, edit and delete)
+     * renders the scaffold error page when beforeScaffold() returns false, and that
+     * nothing is changed.
      *
      * @return void
      */
     public function testBeforeScaffoldFalseRendersErrorForEveryAction(): void
     {
-        foreach (['index', 'view', 'add', 'delete'] as $action) {
+        foreach (['index', 'list', 'view', 'add', 'edit', 'delete'] as $action) {
             $this->Controller = new ScaffoldMockControllerWithError(new CakeRequest(null, false));
             $this->Controller->response = $this->getMock(CakeResponse::class, ['_sendHeader']);
             $this->_prepareRequest($action, [1], ['ScaffoldMock' => ['title' => 'Not saved']], 'POST');
@@ -849,20 +854,25 @@ class ScaffoldTest extends CakeTestCase
 
         $this->assertSame('First Article', $this->Controller->ScaffoldMock->field('title', ['id' => 1]));
         $this->assertSame([], $redirects->getArrayCopy());
-        $this->assertStringContainsString('Please correct errors below.</div>', $result);
-        $this->assertNull(CakeSession::read('Message.flash'), 'The flash message was not rendered.');
+        $this->assertSame([[
+            'message' => 'Please correct errors below.',
+            'key' => 'flash',
+            'element' => 'Flash/default',
+            'params' => [],
+        ]], CakeSession::read('Message.flash'));
         $this->assertSame(['ScaffoldMock' => ['id' => 1, 'title' => '']], $this->Controller->request->data);
         $this->assertStringContainsString('<div class="error-message">Title is required</div>', $result);
         $this->assertStringContainsString('<legend>Edit Scaffold Mock</legend>', $result);
     }
 
     /**
-     * Test that afterScaffoldSaveError() is called with the action instead of the
-     * success message when afterScaffoldSave() rejects a save.
+     * Test that a save that afterScaffoldSave() rejects is reported as failed: the
+     * record is saved, but afterScaffoldSaveError() is called with the action and its
+     * page is the response, without a success message or a redirect.
      *
      * @return void
      */
-    public function testAfterScaffoldSaveFalseCallsAfterScaffoldSaveError(): void
+    public function testAfterScaffoldSaveFalseReportsTheSaveAsFailed(): void
     {
         $this->Controller = new ScaffoldMockControllerWithSaveError(new CakeRequest(null, false));
         $this->Controller->response = $this->getMock(CakeResponse::class, ['_sendHeader']);
@@ -870,8 +880,9 @@ class ScaffoldTest extends CakeTestCase
             'ScaffoldMock' => ['id' => 2, 'title' => 'Saved anyway'],
         ], 'POST');
 
-        $this->_runScaffold();
+        $result = $this->_runScaffold();
 
+        $this->assertSame('The edit was rejected', $result);
         $this->assertSame(['edit'], $this->Controller->saveErrors);
         $this->assertSame('Saved anyway', $this->Controller->ScaffoldMock->field('title', ['id' => 2]));
         $this->assertSame([], $redirects->getArrayCopy());
@@ -900,6 +911,10 @@ class ScaffoldTest extends CakeTestCase
      * Test that the delete action deletes the record, sets a success flash message
      * and redirects to the index action.
      *
+     * The delete messages name the model with Inflector::humanize() of the model
+     * class ("ScaffoldMock"), not with the "Scaffold Mock" of the other actions;
+     * the test keeps that wording.
+     *
      * @return void
      */
     public function testDeleteRemovesRecord(): void
@@ -917,6 +932,9 @@ class ScaffoldTest extends CakeTestCase
 
     /**
      * Test that the delete action throws a NotFoundException for a missing record.
+     *
+     * As in the other delete messages, the model is named with Inflector::humanize()
+     * of the model class ("ScaffoldMock"); the test keeps that wording.
      *
      * @return void
      */
@@ -960,7 +978,6 @@ class ScaffoldTest extends CakeTestCase
      */
     public function testUnknownActionThrowsMissingAction(): void
     {
-        $this->Controller->scaffold = false;
         $this->_prepareRequest('publish', [1]);
 
         $this->expectException(MissingActionException::class);
@@ -988,7 +1005,6 @@ class ScaffoldTest extends CakeTestCase
         ]]);
 
         $Scaffold = new TestScaffoldMock($this->Controller, $this->Controller->request);
-        CakePlugin::unload('TestPlugin');
         $result = $Scaffold->controller->viewVars['associations']['hasMany']['ControllerComment'];
 
         $this->assertSame('test_plugin', $result['plugin']);

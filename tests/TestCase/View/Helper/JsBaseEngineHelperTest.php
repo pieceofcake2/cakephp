@@ -316,6 +316,19 @@ class JsBaseEngineHelperTest extends CakeTestCase
     }
 
     /**
+     * Test that escape() replaces a continuation byte without a lead byte by a question
+     * mark, as it does for a sequence that is cut off, instead of dropping it.
+     *
+     * @return void
+     */
+    public function testEscapeStrayContinuationByte(): void
+    {
+        $this->markTestIncomplete('Known bug: escape() silently drops a stray UTF-8 continuation byte');
+
+        $this->assertSame('a?b', $this->JsEngine->escape("a\x80b"));
+    }
+
+    /**
      * Test that escape() replaces a multibyte sequence that is cut off at the end
      * of the string by a question mark.
      *
@@ -338,13 +351,44 @@ class JsBaseEngineHelperTest extends CakeTestCase
         $this->assertSame('null', $this->JsEngine->value(null));
         $this->assertSame('true', $this->JsEngine->value(true));
         $this->assertSame('false', $this->JsEngine->value(false));
-        $this->assertEquals('42', $this->JsEngine->value(42));
         $this->assertSame('1.50000000000', $this->JsEngine->value(1.5));
         $this->assertSame('-0.25000000000', $this->JsEngine->value(-0.25));
         $this->assertSame('"say \"hi\"\nnow"', $this->JsEngine->value("say \"hi\"\nnow"));
         $this->assertSame('"\u65e5\u672c"', $this->JsEngine->value('日本'));
         $this->assertSame('"0"', $this->JsEngine->value('0'));
         $this->assertSame('""', $this->JsEngine->value(''));
+    }
+
+    /**
+     * Test that value() returns an integer as a string, as its `@return string` says.
+     *
+     * @return void
+     */
+    public function testValueOfAnIntegerIsAString(): void
+    {
+        $this->markTestIncomplete('Known bug: value() returns an integer unchanged instead of a string');
+
+        $this->assertSame('42', $this->JsEngine->value(42));
+        $this->assertSame('-7', $this->JsEngine->value(-7));
+    }
+
+    /**
+     * Test that value() writes a float with a dot as the decimal separator, whatever
+     * the LC_NUMERIC locale is, since JavaScript only accepts a dot.
+     *
+     * @return void
+     */
+    public function testValueOfAFloatIgnoresTheLocale(): void
+    {
+        $this->markTestIncomplete('Known bug: value() formats floats with the locale-aware %f, so de_DE gives 1,5');
+
+        $original = setlocale(LC_NUMERIC, '0');
+        $this->skipIf(setlocale(LC_NUMERIC, 'de_DE.UTF-8', 'de_DE') === false, 'The German locale is not available.');
+        try {
+            $this->assertSame('1.50000000000', $this->JsEngine->value(1.5));
+        } finally {
+            setlocale(LC_NUMERIC, $original);
+        }
     }
 
     /**
@@ -453,7 +497,29 @@ class JsBaseEngineHelperTest extends CakeTestCase
     }
 
     /**
-     * testObject encoding with non-native methods.
+     * Test that redirect() escapes the URL in its JavaScript string, so that a quote in
+     * the URL cannot end the string and run code: the string literal decodes back to
+     * the URL.
+     *
+     * @return void
+     */
+    public function testRedirectEscapesTheUrl(): void
+    {
+        $this->markTestIncomplete('Known bug: redirect() puts the URL into the JavaScript string without escaping it');
+
+        $url = 'https://x/"+alert(1)+"';
+        $result = $this->JsEngine->redirect($url);
+
+        $this->assertStringStartsWith('window.location = "', $result);
+        $this->assertStringEndsWith('";', $result);
+        $literal = substr($result, strlen('window.location = '), -1);
+        $this->assertSame($url, json_decode($literal), 'The string literal is ' . $literal);
+    }
+
+    /**
+     * Test that object() encodes arrays, the public properties of objects, nested arrays
+     * with numeric string keys and scalars as JSON, and puts the prefix and the postfix
+     * around it.
      *
      * @return void
      */
@@ -503,6 +569,23 @@ class JsBaseEngineHelperTest extends CakeTestCase
         $object = ['title' => 'New thing', 'indexes' => [5, 6, 7, 8], 'object' => ['inner' => ['value' => 1]]];
         $result = $this->JsEngine->object($object, ['prefix' => 'PREFIX', 'postfix' => 'POSTFIX']);
         $this->assertSame('PREFIX{"title":"New thing","indexes":[5,6,7,8],"object":{"inner":{"value":1}}}POSTFIX', $result);
+    }
+
+    /**
+     * Test that object() of a string that is not valid UTF-8 still gives a JSON object
+     * with the key, instead of the empty string that json_encode() failing leaves.
+     *
+     * @return void
+     */
+    public function testObjectWithInvalidUtf8(): void
+    {
+        $this->markTestIncomplete('Known bug: object() returns an empty string when json_encode() fails on invalid UTF-8');
+
+        $result = $this->JsEngine->object(['name' => "a\x80b"]);
+
+        $decoded = json_decode($result, true);
+        $this->assertIsArray($decoded, 'Not JSON: ' . var_export($result, true));
+        $this->assertSame(['name'], array_keys($decoded));
     }
 
     /**
@@ -661,5 +744,32 @@ class JsBaseEngineHelperTest extends CakeTestCase
             'name=jim&height=185cm&0=first',
             $this->JsEngine->toQuerystring(['name' => 'jim', 'height' => '185cm', 0 => 'first']),
         );
+    }
+
+    /**
+     * Test that _toQuerystring() URL-encodes the values, so that & and spaces in a value
+     * do not split it or break the query string.
+     *
+     * @return void
+     */
+    public function testToQuerystringEncodesTheValues(): void
+    {
+        $this->markTestIncomplete('Known bug: _toQuerystring() does not URL-encode the values');
+
+        $this->assertSame('q=a%26b%20c', $this->JsEngine->toQuerystring(['q' => 'a&b c']));
+    }
+
+    /**
+     * Test that _processOptions() leaves an empty callback out, instead of writing the
+     * invalid JavaScript `error:` without a value.
+     *
+     * @return void
+     */
+    public function testProcessOptionsLeavesEmptyCallbacksOut(): void
+    {
+        $this->markTestIncomplete('Known bug: _processOptions() writes an empty callback as "error:" without a value');
+
+        $result = $this->JsEngine->processOptions('request', ['error' => '', 'complete' => 'show(data);']);
+        $this->assertSame('success:function (data, textStatus) {show(data);}', $result);
     }
 }

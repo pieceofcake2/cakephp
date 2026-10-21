@@ -45,29 +45,6 @@ class OptionEngineHelper extends JsBaseEngineHelper
         ],
     ];
 
-    /**
-     * test method for testing option mapping
-     *
-     * @param array $options
-     * @return array
-     */
-    public function testMap($options = []): mixed
-    {
-        return $this->_mapOptions('request', $options);
-    }
-
-    /**
-     * test method for option parsing
-     *
-     * @param array $options
-     * @param array $safe
-     * @return string
-     */
-    public function testParseOptions($options, $safe = []): mixed
-    {
-        return $this->_parseOptions($options, $safe);
-    }
-
     public function get($selector): mixed
     {
         return null;
