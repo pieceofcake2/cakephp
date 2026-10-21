@@ -391,7 +391,7 @@ class TestShell extends Shell
                 if (!empty($testCase)) {
                     return $testCase;
                 }
-                throw new Exception(__d('cake_dev', 'Test case %s cannot be run via this shell', $testFile));
+                throw new Exception(__d('cake_dev', 'Test case %s cannot be run via this shell', $file));
             }
         }
 

@@ -710,7 +710,7 @@ class TestShellTest extends CakeTestCase
     public function testMapFileToCaseWithoutName(): void
     {
         $this->expectException(Exception::class);
-        $this->expectExceptionMessage('cannot be run via this shell');
+        $this->expectExceptionMessage('Test case tests/TestCase/Test.php cannot be run via this shell');
 
         $this->Shell->mapFileToCase('tests/TestCase/Test.php', 'app');
     }
