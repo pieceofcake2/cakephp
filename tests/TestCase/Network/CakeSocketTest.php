@@ -969,11 +969,38 @@ class CakeSocketTest extends CakeTestCase
         $this->assertTrue($socket->reset());
         $this->assertSame('Remote DataSource Network Socket Interface', $socket->description);
         $this->assertFalse($socket->encrypted);
-        // Pending decision: reset() without a state leaves the config empty instead of
-        // the default config. The assertion keeps the current behaviour.
+        // reset() without a state restores the state before __construct(), so the config
+        // is cleared to an empty array, not set to the base config.
         $this->assertSame([], $socket->config);
         $this->assertSame([], $socket->lastError);
         $this->assertNull($socket->lastError());
+    }
+
+    /**
+     * Test that reset() closes an open connection instead of dropping it, and that
+     * a state that does not replace the connection keeps it open.
+     *
+     * @return void
+     */
+    public function testResetClosesTheConnection(): void
+    {
+        $port = $this->_listen();
+        $socket = new CakeSocket(['host' => '127.0.0.1', 'port' => $port, 'timeout' => 1]);
+        $this->assertTrue($socket->connect());
+        $peer = $this->_accept();
+        $connection = $socket->connection;
+
+        $this->assertTrue($socket->reset(['description' => 'changed']));
+        $this->assertTrue($socket->connected);
+        $this->assertSame($connection, $socket->connection);
+        $this->assertTrue(is_resource($connection));
+
+        $this->assertTrue($socket->reset());
+        $this->assertFalse($socket->connected);
+        $this->assertNull($socket->connection);
+        $this->assertFalse(is_resource($connection), 'The connection is closed.');
+        $this->assertSame('', fread($peer, 1024));
+        $this->assertTrue(feof($peer), 'The peer sees the connection closed.');
     }
 
     /**

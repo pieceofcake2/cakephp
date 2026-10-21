@@ -526,6 +526,12 @@ class CakeSocket
     /**
      * Resets the state of this Socket instance to it's initial state (before CakeObject::__construct got executed)
      *
+     * Without a state, all the properties get their default values. This also clears
+     * the config, which is then an empty array, not the base config.
+     *
+     * An open connection is closed with disconnect() before a state that replaces
+     * the connection is set, so that it is not left open.
+     *
      * @param array $state Array with key and values to reset
      * @return bool True on success
      */
@@ -539,6 +545,9 @@ class CakeSocket
             $state = $initalState;
         }
 
+        if (array_key_exists('connection', $state)) {
+            $this->disconnect();
+        }
         foreach ($state as $property => $value) {
             $this->{$property} = $value;
         }
