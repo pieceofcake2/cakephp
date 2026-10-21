@@ -396,9 +396,11 @@ class I18n
             foreach ($plugins as $plugin) {
                 $pluginDomain = Inflector::underscore($plugin);
                 if ($pluginDomain === $domain) {
-                    $searchPaths[] = CakePlugin::path($plugin) . 'Locale' . DS;
-                    if (!Configure::read('I18n.preferApp')) {
-                        $searchPaths = array_reverse($searchPaths);
+                    $pluginPaths = App::path('Locale', $plugin);
+                    if (Configure::read('I18n.preferApp')) {
+                        $searchPaths = array_merge($searchPaths, $pluginPaths);
+                    } else {
+                        $searchPaths = array_merge($pluginPaths, array_reverse($searchPaths));
                     }
                     break;
                 }

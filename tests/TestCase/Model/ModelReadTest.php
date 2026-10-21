@@ -7738,7 +7738,7 @@ class ModelReadTest extends BaseModelTest
             ]];
         $this->assertEquals($expected, $result);
 
-        $result = $TestModel->bindModel(['hasMany' => ['Article']]);
+        $result = $TestModel->bindModel(['hasMany' => ['Article' => ['order' => 'Article.id']]]);
         $this->assertTrue($result);
 
         $TestModel->id = 1;
