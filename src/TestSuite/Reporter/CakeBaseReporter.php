@@ -24,6 +24,7 @@ use PHPUnit\Framework\Test;
 use PHPUnit\Framework\TestResult;
 use PHPUnit\Framework\TestSuite;
 use PHPUnit\Framework\Warning;
+use PHPUnit\Runner\BaseTestRunner;
 use PHPUnit\TextUI\ResultPrinter;
 use Throwable;
 
@@ -258,6 +259,10 @@ abstract class CakeBaseReporter implements ResultPrinter
     /**
      * A test ended.
      *
+     * Paints the test as a pass unless it failed, errored, was skipped or is
+     * incomplete. Those are painted by addFailure(), addError(),
+     * addSkippedTest() and addIncompleteTest().
+     *
      * @param \PHPUnit\Framework\TestCase $test The test that ended
      * @param float $time The current time.
      * @return void
@@ -266,6 +271,10 @@ abstract class CakeBaseReporter implements ResultPrinter
     {
         $this->numAssertions += $test->getNumAssertions();
         if ($test->hasFailed()) {
+            return;
+        }
+        $status = $test->getStatus();
+        if ($status === BaseTestRunner::STATUS_SKIPPED || $status === BaseTestRunner::STATUS_INCOMPLETE) {
             return;
         }
         $this->paintPass($test, $time);
