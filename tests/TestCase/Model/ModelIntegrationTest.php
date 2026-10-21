@@ -28,6 +28,7 @@ use Cake\Model\Datasource\Database\Sqlite;
 use Cake\Model\Datasource\Database\Sqlserver;
 use Cake\Model\Datasource\DboSource;
 use Cake\Model\Model;
+use Cake\TestSuite\Fixture\CakeTestModel;
 use Cake\Utility\ClassRegistry;
 use Cake\Utility\Hash;
 use TestApp\Model\Ad;
@@ -1050,6 +1051,16 @@ class ModelIntegrationTest extends BaseModelTest
             [
                 ['hour' => '12', 'min' => '0', 'meridian' => 'am'],
                 '00:00:00',
+            ],
+            // afternoon: 3pm becomes 15 o'clock
+            [
+                ['hour' => '3', 'min' => '4', 'meridian' => 'pm'],
+                '15:04:00',
+            ],
+            // noon stays 12 o'clock
+            [
+                ['hour' => '12', 'min' => '30', 'meridian' => 'pm'],
+                '12:30:00',
             ],
             [
                 ['hour' => '00', 'min' => '00'],
@@ -2802,4 +2813,76 @@ class ModelIntegrationTest extends BaseModelTest
             }
         };
     }
+
+    /**
+     * Test that joinModel() warns and returns null when the association is
+     * neither a string nor an array.
+     *
+     * @return void
+     */
+    public function testJoinModelWithInvalidType(): void
+    {
+        $Article = new Article();
+
+        $errors = [];
+        set_error_handler(function ($errno, $errstr) use (&$errors) {
+            $errors[] = [$errno, $errstr];
+
+            return true;
+        });
+        try {
+            $result = $Article->joinModel(5);
+        } finally {
+            restore_error_handler();
+        }
+
+        $this->assertNull($result);
+        $expected = [[
+            E_USER_WARNING,
+            'Invalid join model settings in Article. The association parameter has the wrong type, expecting a string or array, but was passed type: integer',
+        ]];
+        $this->assertSame($expected, $errors);
+    }
+
+    /**
+     * Test that getColumnTypes() warns once and returns an empty list for a model
+     * without a table or schema.
+     *
+     * @return void
+     */
+    public function testGetColumnTypesWithoutSchema(): void
+    {
+        $this->markTestIncomplete('Known bug: getColumnTypes() runs foreach on a null schema and raises a PHP warning');
+
+        $Model = new NoSchemaModel();
+
+        $errors = [];
+        set_error_handler(function ($errno, $errstr) use (&$errors) {
+            $errors[] = [$errno, $errstr];
+
+            return true;
+        });
+        try {
+            $result = $Model->getColumnTypes();
+        } finally {
+            restore_error_handler();
+        }
+
+        $this->assertSame([], $result);
+        $expected = [[
+            E_USER_WARNING,
+            '(Model::getColumnTypes) Unable to build model field data. If you are using a model without a database table, try implementing schema()',
+        ]];
+        $this->assertSame($expected, $errors);
+    }
+}
+
+/**
+ * Model without a table and without a schema.
+ */
+class NoSchemaModel extends CakeTestModel
+{
+    public $name = 'NoSchemaModel';
+
+    public $useTable = false;
 }

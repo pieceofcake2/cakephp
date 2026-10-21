@@ -462,6 +462,23 @@ class ModelDeleteTest extends BaseModelTest
     }
 
     /**
+     * Test that deleteAll() refuses empty conditions and deletes nothing.
+     *
+     * @return void
+     */
+    public function testDeleteAllWithEmptyConditions(): void
+    {
+        $this->loadFixtures('Article', 'Comment', 'User', 'Tag', 'ArticlesTag', 'Attachment');
+        $TestModel = new Article();
+
+        $this->assertFalse($TestModel->deleteAll([]));
+        $this->assertFalse($TestModel->deleteAll(null));
+        $this->assertFalse($TestModel->deleteAll(''));
+        $this->assertSame(3, $TestModel->find('count', ['recursive' => -1]));
+        $this->assertSame(6, $TestModel->Comment->find('count', ['recursive' => -1]));
+    }
+
+    /**
      * testDeleteAllUnknownColumn method
      *
      * @return void

@@ -1584,29 +1584,44 @@ class ModelWriteTest extends BaseModelTest
     }
 
     /**
-     * testSaveFromXml method
+     * Test that save() accepts SimpleXMLElement and DOMDocument data. Attributes and
+     * child elements become fields of the model named after the root element.
      *
      * @return void
      */
     public function testSaveFromXml(): void
     {
-        $this->markTestSkipped('This feature needs to be fixed or dropped');
         $this->loadFixtures('Article');
         $Article = new Article();
+
+        $Article->create();
         $result = $Article->save(Xml::build('<article title="test xml" user_id="5" />'));
-        $this->assertFalse(empty($result));
-        $results = $Article->find('first', ['conditions' => ['Article.title' => 'test xml']]);
-        $this->assertFalse(empty($results));
+        $this->assertSame('test xml', $result['Article']['title']);
+        $this->assertEquals(4, $Article->id);
 
-        $result = $Article->save(Xml::build('<article><title>testing</title><user_id>6</user_id></article>'));
-        $this->assertFalse(empty($result));
-        $results = $Article->find('first', ['conditions' => ['Article.title' => 'testing']]);
-        $this->assertFalse(empty($results));
+        $Article->create();
+        $Article->save(Xml::build('<article><title>testing</title><user_id>6</user_id></article>'));
+        $this->assertEquals(5, $Article->id);
 
-        $result = $Article->save(Xml::build('<article><title>testing with DOMDocument</title><user_id>7</user_id></article>', ['return' => 'domdocument']));
-        $this->assertFalse(empty($result));
-        $results = $Article->find('first', ['conditions' => ['Article.title' => 'testing with DOMDocument']]);
-        $this->assertFalse(empty($results));
+        $Article->create();
+        $Article->save(Xml::build(
+            '<article><title>testing with DOMDocument</title><user_id>7</user_id></article>',
+            ['return' => 'domdocument'],
+        ));
+        $this->assertEquals(6, $Article->id);
+
+        $result = $Article->find('all', [
+            'fields' => ['id', 'user_id', 'title'],
+            'conditions' => ['Article.id >' => 3],
+            'order' => ['Article.id' => 'ASC'],
+            'recursive' => -1,
+        ]);
+        $expected = [
+            ['Article' => ['id' => 4, 'user_id' => 5, 'title' => 'test xml']],
+            ['Article' => ['id' => 5, 'user_id' => 6, 'title' => 'testing']],
+            ['Article' => ['id' => 6, 'user_id' => 7, 'title' => 'testing with DOMDocument']],
+        ];
+        $this->assertEquals($expected, $result);
     }
 
     /**
@@ -6997,6 +7012,13 @@ class ModelWriteTest extends BaseModelTest
         $model = new ProductUpdateAll();
         $result = $model->saveMany([]);
         $this->assertFalse($result);
+
+        $model = new Article();
+        $this->assertSame([true], $model->saveMany([], ['atomic' => false]));
+        $this->assertSame(5, $model->find('count', ['recursive' => -1]));
+
+        $model = new ProductUpdateAll();
+        $this->assertSame([false], $model->saveMany([], ['atomic' => false]));
     }
 
     /**
@@ -7016,6 +7038,13 @@ class ModelWriteTest extends BaseModelTest
         $model = new ProductUpdateAll();
         $result = $model->saveAssociated([]);
         $this->assertFalse($result);
+
+        $model = new Article();
+        $this->assertSame([true], $model->saveAssociated([], ['atomic' => false]));
+        $this->assertSame(5, $model->find('count', ['recursive' => -1]));
+
+        $model = new ProductUpdateAll();
+        $this->assertSame([false], $model->saveAssociated([], ['atomic' => false]));
     }
 
     /**
@@ -8467,6 +8496,220 @@ class ModelWriteTest extends BaseModelTest
             $this->fail('No exception thrown');
         } catch (Exception) {
         }
+    }
+
+    /**
+     * Test that saveField() with an options array validates only when asked to,
+     * and saves without validation by default.
+     *
+     * @return void
+     */
+    public function testSaveFieldWithOptionsArray(): void
+    {
+        $this->loadFixtures('Article');
+        $Article = new Article();
+
+        $Article->id = 1;
+        $this->assertFalse($Article->saveField('title', '', ['validate' => true]));
+        $this->assertSame(['title' => ['This field cannot be left blank']], $Article->validationErrors);
+        $this->assertSame('First Article', $Article->field('title'));
+
+        $Article->id = 1;
+        $result = $Article->saveField('title', '', ['callbacks' => false]);
+        $this->assertSame('', $result['Article']['title']);
+        $this->assertSame('', $Article->field('title'));
+    }
+
+    /**
+     * Test that the fieldList option set to null saves every field, ignoring the
+     * whitelist of the model, and that the whitelist is restored afterwards.
+     *
+     * @return void
+     */
+    public function testSaveWithNullFieldListIgnoresWhitelist(): void
+    {
+        $this->loadFixtures('Article');
+        $Article = new Article();
+        $Article->whitelist = ['title'];
+
+        $Article->create(false);
+        $Article->save(['id' => 2, 'title' => 'New title', 'body' => 'New body'], ['fieldList' => null]);
+
+        $this->assertSame(['title'], $Article->whitelist);
+        $result = $Article->find('first', [
+            'fields' => ['title', 'body', 'published'],
+            'conditions' => ['Article.id' => 2],
+            'recursive' => -1,
+        ]);
+        $expected = ['Article' => ['title' => 'New title', 'body' => 'New body', 'published' => 'Y']];
+        $this->assertEquals($expected, $result);
+    }
+
+    /**
+     * Test that a timestamp field given as an empty string is neither written nor
+     * set automatically, so the stored value stays as it was.
+     *
+     * @return void
+     */
+    public function testSaveKeepsTimestampGivenAsEmptyString(): void
+    {
+        $this->loadFixtures('Article');
+        $Article = new Article();
+
+        $Article->create(false);
+        $this->assertNotEmpty($Article->save(['id' => 3, 'title' => 'Changed', 'updated' => '']));
+
+        $result = $Article->find('first', [
+            'fields' => ['title', 'created', 'updated'],
+            'conditions' => ['Article.id' => 3],
+            'recursive' => -1,
+        ]);
+        $expected = ['Article' => [
+            'title' => 'Changed',
+            'created' => '2007-03-18 10:43:23',
+            'updated' => '2007-03-18 10:45:31',
+        ]];
+        $this->assertEquals($expected, $result);
+    }
+
+    /**
+     * Test that save() generates a UUID when the UUID primary key is given as an
+     * empty string.
+     *
+     * @return void
+     */
+    public function testSaveGeneratesUuidForEmptyPrimaryKey(): void
+    {
+        $this->loadFixtures('Uuid');
+        $Uuid = new Uuid();
+
+        $Uuid->create();
+        $result = $Uuid->save(['Uuid' => ['id' => '', 'title' => 'Empty key']]);
+
+        $this->assertMatchesRegularExpression('/^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/', $Uuid->id);
+        $this->assertSame($Uuid->id, $result['Uuid']['id']);
+        $this->assertSame('Empty key', $Uuid->field('title', ['Uuid.id' => $Uuid->id]));
+        $this->assertSame(5, $Uuid->find('count'));
+    }
+
+    /**
+     * Test that saveAssociated() sets the foreign key of hasOne data that is
+     * nested under the association name again.
+     *
+     * @return void
+     */
+    public function testSaveAssociatedHasOneNestedUnderAlias(): void
+    {
+        $this->loadFixtures('Comment', 'Attachment', 'Article', 'User');
+        $Comment = new Comment();
+
+        $result = $Comment->saveAssociated([
+            'Comment' => ['article_id' => 2, 'user_id' => 1, 'comment' => 'With attachment'],
+            'Attachment' => ['Attachment' => ['attachment' => 'nested.zip']],
+        ]);
+        $this->assertTrue($result);
+
+        $attachment = $Comment->Attachment->find('first', [
+            'fields' => ['comment_id', 'attachment'],
+            'conditions' => ['Attachment.attachment' => 'nested.zip'],
+            'recursive' => -1,
+        ]);
+        $this->assertEquals(['Attachment' => ['comment_id' => $Comment->id, 'attachment' => 'nested.zip']], $attachment);
+    }
+
+    /**
+     * Test that saveAssociated() with a flat fieldList still writes the foreign key
+     * of hasMany records, so they are linked to the new parent record.
+     *
+     * @return void
+     */
+    public function testSaveAssociatedFlatFieldListAddsForeignKey(): void
+    {
+        $this->loadFixtures('Article', 'Comment', 'User');
+        $Article = new Article();
+
+        $result = $Article->saveAssociated([
+            'Article' => ['title' => 'Flat list', 'body' => 'Body', 'user_id' => 1, 'published' => 'Y'],
+            'Comment' => [
+                ['comment' => 'Flat comment', 'user_id' => 2, 'published' => 'Y'],
+            ],
+        ], ['fieldList' => ['title', 'body', 'user_id', 'comment']]);
+        $this->assertTrue($result);
+
+        $article = $Article->find('first', [
+            'fields' => ['title', 'published'],
+            'conditions' => ['Article.id' => $Article->id],
+            'recursive' => -1,
+        ]);
+        $this->assertEquals(['Article' => ['title' => 'Flat list', 'published' => 'N']], $article);
+
+        $comments = $Article->Comment->find('all', [
+            'fields' => ['article_id', 'user_id', 'comment', 'published'],
+            'conditions' => ['Comment.comment' => 'Flat comment'],
+            'recursive' => -1,
+        ]);
+        $expected = [
+            ['Comment' => ['article_id' => $Article->id, 'user_id' => 2, 'comment' => 'Flat comment', 'published' => 'N']],
+        ];
+        $this->assertEquals($expected, $comments);
+    }
+
+    /**
+     * Test that a counterCache field that does not exist in the parent table is
+     * skipped instead of breaking the save.
+     *
+     * @return void
+     */
+    public function testCounterCacheSkipsMissingColumn(): void
+    {
+        $this->loadFixtures('Article', 'Comment', 'User', 'Attachment');
+        $Comment = new Comment();
+        $Comment->bindModel(['belongsTo' => ['Article' => ['counterCache' => 'comment_count']]], false);
+
+        $Comment->create();
+        $result = $Comment->save(['article_id' => 2, 'user_id' => 1, 'comment' => 'Counted']);
+        $this->assertSame('Counted', $result['Comment']['comment']);
+
+        $article = $Comment->Article->find('first', [
+            'conditions' => ['Article.id' => 2],
+            'recursive' => -1,
+        ]);
+        $this->assertSame('2007-03-18 10:43:31', $article['Article']['updated']);
+        $this->assertSame(3, $Comment->find('count', ['conditions' => ['Comment.article_id' => 2]]));
+    }
+
+    /**
+     * Test that saving a record clears the cached views of the model and of its
+     * associated models when Cache.check is enabled, and keeps the others.
+     *
+     * @return void
+     */
+    public function testCacheClearOnSaveIncludesAssociatedModels(): void
+    {
+        Configure::write('Cache.check', true);
+        Configure::write('Cache.disable', false);
+        $this->loadFixtures('Article', 'Comment', 'User', 'Attachment');
+
+        $dir = CACHE . 'views' . DS;
+        $files = ['comments_index', 'articles_view_1', 'users_index', 'attachments_index', 'tags_index'];
+        foreach ($files as $file) {
+            touch($dir . $file . '.php');
+        }
+
+        $existing = [];
+        try {
+            $Comment = new Comment();
+            $Comment->create();
+            $Comment->save(['article_id' => 1, 'user_id' => 1, 'comment' => 'Clear the cache']);
+        } finally {
+            foreach ($files as $file) {
+                if (file_exists($dir . $file . '.php')) {
+                    $existing[] = $file;
+                    unlink($dir . $file . '.php');
+                }
+            }
+        }
+        $this->assertSame(['tags_index'], $existing);
     }
 
     /**
