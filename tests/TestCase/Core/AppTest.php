@@ -36,6 +36,7 @@ use Cake\Model\Behavior\ContainableBehavior;
 use Cake\Model\Datasource\DboSource;
 use Cake\Model\Model;
 use Cake\TestSuite\CakeTestCase;
+use Cake\Utility\Folder;
 use Cake\View\Helper\FormHelper;
 use Closure;
 use Composer\Autoload\ClassLoader;
@@ -82,6 +83,31 @@ class AppTest extends CakeTestCase
     }
 
     /**
+     * Returns the file and object maps of App and whether they changed.
+     *
+     * @return array
+     */
+    protected function _appMaps(): array
+    {
+        return Closure::bind(function () {
+            return [static::$_map, static::$_objects, static::$_cacheChange, static::$_objectCacheChange];
+        }, null, App::class)();
+    }
+
+    /**
+     * Sets the file and object maps of App and whether they changed.
+     *
+     * @param array $maps The maps, as _appMaps() returns them.
+     * @return void
+     */
+    protected function _setAppMaps(array $maps): void
+    {
+        Closure::bind(function () use ($maps) {
+            [static::$_map, static::$_objects, static::$_cacheChange, static::$_objectCacheChange] = $maps;
+        }, null, App::class)();
+    }
+
+    /**
      * tearDown method
      *
      * @return void
@@ -92,7 +118,17 @@ class AppTest extends CakeTestCase
         CakeLog::drop('app_test_capture');
         CakeLog::drop('app_test_throwing');
         AppTestCaptureLog::$messages = [];
+        AppTestThrowingLog::$calls = 0;
         $this->_setUsesReported(true);
+        // The import tests map their own names to files; drop those names again. The other
+        // names stay mapped, so that a vendor file that declares a class is not included twice.
+        $maps = $this->_appMaps();
+        foreach (array_keys($maps[0]) as $name) {
+            if (str_contains($name, 'AppTestMapped') || str_contains($name, 'AppTestShutdown')) {
+                unset($maps[0][$name]);
+            }
+        }
+        $this->_setAppMaps($maps);
 
         parent::tearDown();
     }
@@ -1287,12 +1323,14 @@ class AppTest extends CakeTestCase
     {
         Configure::write('debug', 2);
         $this->_setUsesReported(false);
+        AppTestThrowingLog::$calls = 0;
         CakeLog::config('app_test_throwing', ['engine' => AppTestThrowingLog::class]);
 
         $errors = $this->_collectDeprecations(function () {
             App::uses('AppTestUsesThrowingLogger', 'MyPackage/Logged');
         });
 
+        $this->assertSame(1, AppTestThrowingLog::$calls, 'The deprecation is logged once.');
         $this->assertSame('MyPackage/Logged', App::location('AppTestUsesThrowingLogger'));
         $this->assertCount(1, $errors);
         $this->assertStringStartsWith('App::uses() is deprecated (called in ' . __FILE__ . ' on line ', $errors[0]);
@@ -1441,40 +1479,59 @@ class AppTest extends CakeTestCase
 
     /**
      * shutdown() saves the file map and the object map in the core cache, so that the next
-     * request finds the mapped files without searching the paths again.
+     * request finds the mapped files and the objects without searching the paths again.
+     *
+     * The next request is simulated by emptying the maps of App and calling App::init(),
+     * after the listed file is deleted, so that only the cache can give the old results.
      *
      * @return void
      */
     public function testShutdownWritesMapsToCache(): void
     {
-        $cacheDir = TMP . 'app_test_shutdown_cache' . DS;
-        mkdir($cacheDir);
+        $base = TMP . 'app_test_shutdown_' . getmypid() . DS;
+        $cacheDir = $base . 'cache' . DS;
+        $libDir = $base . 'Lib' . DS;
+        if (!is_dir($cacheDir)) {
+            mkdir($cacheDir, 0777, true);
+        }
+        if (!is_dir($libDir)) {
+            mkdir($libDir, 0777, true);
+        }
+        file_put_contents($libDir . 'Listed.php', '<?php' . PHP_EOL);
+        $configFile = $base . 'config.php';
+        file_put_contents($configFile, "<?php\nreturn ['AppTest' => 'shutdown'];\n");
+
+        $maps = $this->_appMaps();
         $old = Cache::settings('_cake_core_');
         Cache::drop('_cake_core_');
         Cache::config('_cake_core_', ['engine' => 'File', 'path' => $cacheDir, 'prefix' => 'app_test_', 'serialize' => true]);
         Configure::write('Error.extraFatalErrorMemory', false);
         try {
-            $config = CORE_ROOT . DS . 'config' . DS . 'config.php';
-            $this->assertTrue(App::import('File', 'AppTestShutdownConfig', false, [], $config));
-            $libDir = CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'Lib' . DS;
-            $this->assertSame(['Library'], App::objects('file', $libDir));
+            $this->assertSame(['AppTest' => 'shutdown'], App::import('File', 'AppTestShutdownConfig', false, [], $configFile, true));
+            $this->assertSame(['Listed'], App::objects('file', $libDir));
 
             error_clear_last();
             App::shutdown();
 
-            $fileMap = Cache::read('file_map', '_cake_core_');
-            $objectMap = Cache::read('object_map', '_cake_core_');
+            unlink($libDir . 'Listed.php');
+            $this->_setAppMaps([[], [], false, false]);
+            App::init();
+
+            $this->assertSame(['Listed'], App::objects('file', $libDir), 'The object list comes from the cache.');
+            $this->assertSame(
+                ['AppTest' => 'shutdown'],
+                App::import('File', 'AppTestShutdownConfig', false, [], $base . 'no_such_file.php', true),
+                'The mapped file comes from the cache.',
+            );
         } finally {
+            $this->_setAppMaps($maps);
             Cache::clear(false, '_cake_core_');
             Cache::drop('_cake_core_');
-            rmdir($cacheDir);
+            (new Folder($base))->delete();
             if ($old) {
                 Cache::config('_cake_core_', $old);
             }
         }
-
-        $this->assertSame($config, $fileMap['AppTestShutdownConfig']);
-        $this->assertSame(['Library'], $objectMap['app']['file' . str_replace(DS, '', $libDir)]);
     }
 }
 
@@ -1486,6 +1543,13 @@ class AppTest extends CakeTestCase
 class AppTestThrowingLog extends BaseLog
 {
     /**
+     * The number of calls to write().
+     *
+     * @var int
+     */
+    public static int $calls = 0;
+
+    /**
      * Throws.
      *
      * @param string $type The type of log.
@@ -1495,6 +1559,8 @@ class AppTestThrowingLog extends BaseLog
      */
     public function write($type, $message): void
     {
+        static::$calls++;
+
         throw new RuntimeException('The log is not available');
     }
 }

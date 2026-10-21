@@ -1224,6 +1224,8 @@ EXPECTED;
      */
     public function testConfig(): void
     {
+        // config() includes files relative to CONFIG, which is the config folder of the
+        // app skeleton here, so the test reaches its file under TMP with a relative path.
         $file = 'basics_test_config_' . getmypid();
         file_put_contents(TMP . $file . '.php', '<?php \Cake\Core\Configure::write(\'BasicsTest.config\', \'loaded\');');
 
@@ -1301,6 +1303,17 @@ EXPECTED;
         $server = $_SERVER;
         $env = $_ENV;
         $name = 'CAKE_BASICS_TEST_' . getmypid();
+        // env() falls back to getenv(), so the variables of the process are cleared too.
+        $variables = [
+            'CGI_MODE', 'DOCUMENT_ROOT', 'HTTPS', 'HTTP_BASE', 'HTTP_HOST', 'HTTP_PC_REMOTE_ADDR',
+            'PHP_SELF', 'REMOTE_ADDR', 'SCRIPT_FILENAME', 'SCRIPT_NAME', 'SCRIPT_URI', 'SCRIPT_URL',
+            'SERVER_ADDR',
+        ];
+        $saved = [];
+        foreach ($variables as $variable) {
+            $saved[$variable] = getenv($variable);
+            putenv($variable);
+        }
 
         try {
             $_SERVER = $_ENV = [];
@@ -1343,14 +1356,18 @@ EXPECTED;
             $this->assertSame('', env('DOCUMENT_ROOT'));
         } finally {
             putenv($name);
+            foreach ($saved as $variable => $value) {
+                putenv($value === false ? $variable : $variable . '=' . $value);
+            }
             $_SERVER = $server;
             $_ENV = $env;
         }
     }
 
     /**
-     * Test cache() with the tmp target, with an expired file that it deletes,
-     * and with an unknown target that it does not write.
+     * Test cache() with the tmp target, with a file younger than the expiry that it
+     * reads, with an expired file that it deletes, and with an unknown target that it
+     * does not write.
      *
      * @return void
      */
@@ -1364,9 +1381,15 @@ EXPECTED;
             $this->assertSame('tmp data', file_get_contents(TMP . $file));
             $this->assertSame('tmp data', cache($file, null, '+1 hour', 'tmp'));
 
+            // The expiry is relative: a file written half an hour ago is still fresh...
+            touch(TMP . $file, time() - 1800);
+            clearstatcache();
+            $this->assertSame('tmp data', cache($file, null, '+1 hour', 'tmp'));
+
+            // ...and a file written two hours ago is expired and deleted.
             touch(TMP . $file, time() - 7200);
             clearstatcache();
-            $this->assertNull(cache($file, null, 3600, 'tmp'));
+            $this->assertNull(cache($file, null, '+1 hour', 'tmp'));
             $this->assertFileDoesNotExist(TMP . $file);
 
             $this->assertSame('data', cache($file, 'data', '+1 hour', 'unknown'));
@@ -1377,6 +1400,18 @@ EXPECTED;
                 unlink(TMP . $file);
             }
         }
+    }
+
+    /**
+     * Test that __() translates the string '0' like any other string.
+     *
+     * @return void
+     */
+    public function testTranslateZeroString(): void
+    {
+        $this->markTestIncomplete("Known bug: __() returns null for '0', because it checks the string with !\$singular");
+
+        $this->assertSame('0', __('0'));
     }
 
     /**
