@@ -11,6 +11,12 @@
 - **HtmlHelper `html5` setting**: `HtmlHelper` outputs the tags of HTML5 by default: `script()`, `css()` and the `<style>` of `css()` with `rel` `import` have no `type` attribute, and `scriptBlock()` and `scriptStart()` neither add `type="text/javascript"` nor wrap the script in CDATA. Set `'html5' => false` in the settings of the helper for the former output: `public $helpers = ['Html' => ['html5' => false]];`. The `safe` option of `scriptBlock()`, `scriptStart()` and the methods of `JsHelper` still adds the CDATA when it is `true`; its default follows the setting
 - **Test pages**: The test runner and the code coverage report of the web test runner use the tags of HTML5
 
+### Tests: Namespaced Tests and `AllLegacyTests` ([PR #95](https://github.com/pieceofcake2/cakephp/pull/95))
+
+- **Namespaced tests**: `tests/` holds the namespaced tests of `feature/phpstan-level5` (`Cake\Test\TestCase\...`), with a test application in the CakePHP 5 layout (`tests/test_app/`, `TestApp\`). The classes of the application are real classes of the test application, not aliases, and the tests that need it set `App.namespace` in `setUp()`
+- **`AllLegacyTests`**: A second test suite, run with `vendor/bin/phpunit --testsuite AllLegacyTests`, checks that an application in the CakePHP 2 layout (`tests/test_legacy_app/`) and plugins in the legacy layout keep working with the 2.x notation and without `App.namespace`, and that a namespaced plugin works in it and a legacy plugin in a namespaced application
+- **Test plugins**: The test plugins are named `Test<Name>Plugin`, and `Test<Name>LegacyPlugin` in the legacy layout
+
 ### Enhancements: The Framework in the `Cake` Namespace ([PR #92](https://github.com/pieceofcake2/cakephp/pull/92))
 
 - **Namespaced classes**: The classes of the framework are in the `Cake` namespace, following their directories: `Cake\Controller\Controller`, `Cake\Network\CakeRequest`, `Cake\Utility\Hash`, ... Applications and plugins can `use` them, e.g. `use Cake\Controller\Component;`
