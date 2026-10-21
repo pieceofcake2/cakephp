@@ -1127,8 +1127,6 @@ class CakeSocketTest extends CakeTestCase
      */
     public function testConnectThroughProxySendsTheTargetAsHost(): void
     {
-        $this->markTestIncomplete('Known bug: the CONNECT request sends the proxy as Host instead of the target authority');
-
         $port = $this->_startTlsServer('proxy');
         $this->_proxySocket($port)->connect();
 
@@ -1147,8 +1145,6 @@ class CakeSocketTest extends CakeTestCase
      */
     public function testConnectThroughProxyRejectsAnErrorStatus(): void
     {
-        $this->markTestIncomplete('Known bug: connect() ignores the status of the proxy and starts TLS after a refused CONNECT');
-
         $port = $this->_startTlsServer('refuse');
         $socket = $this->_proxySocket($port);
         $warnings = [];
@@ -1163,6 +1159,34 @@ class CakeSocketTest extends CakeTestCase
 
         $this->assertNotNull($exception, 'No SocketException was thrown.');
         $this->assertStringContainsString('407', $exception->getMessage());
+        $this->assertSame(407, $exception->getCode());
+        $this->assertSame($exception->getMessage(), $socket->lastError['str']);
         $this->assertFalse($socket->encrypted);
+        $this->assertFalse($socket->connected);
+        $this->assertNull($socket->connection);
+    }
+
+    /**
+     * Test that a proxy that does not answer the CONNECT request is reported as
+     * an error, instead of a TLS handshake with the proxy.
+     *
+     * @return void
+     */
+    public function testConnectThroughProxyWithoutAnswer(): void
+    {
+        $port = $this->_listen();
+        $socket = $this->_proxySocket($port);
+        $socket->config['timeout'] = 1;
+        try {
+            $socket->connect();
+            $this->fail('No exception was thrown.');
+        } catch (SocketException $e) {
+            $message = __d('cake_dev', 'The proxy did not establish the tunnel to %s', 'localhost:443');
+            $this->assertSame($message, $e->getMessage());
+            $this->assertSame(0, $e->getCode());
+            $this->assertSame($message, $socket->lastError['str']);
+        }
+        $this->assertFalse($socket->encrypted);
+        $this->assertFalse($socket->connected);
     }
 }

@@ -182,6 +182,10 @@ class CakeSocket
     /**
      * Connects the socket to the given host and port.
      *
+     * For a https request through a proxy, the tunnel is opened with a CONNECT request
+     * and TLS is enabled on it. A proxy answer other than 2xx is a SocketException,
+     * with the status as the code, and the connection is closed.
+     *
      * @return bool Success
      * @throws SocketException
      */
@@ -258,10 +262,11 @@ class CakeSocket
                 $this->config['request']['uri']['scheme'] === 'https' &&
                 !empty($this->config['proxy'])
             ) {
+                // The Host header of a CONNECT request is the target authority (RFC 9110, 9.3.6).
+                $authority = $this->config['request']['uri']['host'] . ':' . $this->config['request']['uri']['port'];
                 $req = [];
-                $req[] = 'CONNECT ' . $this->config['request']['uri']['host'] . ':' .
-                    $this->config['request']['uri']['port'] . ' HTTP/1.1';
-                $req[] = 'Host: ' . $this->config['host'];
+                $req[] = 'CONNECT ' . $authority . ' HTTP/1.1';
+                $req[] = 'Host: ' . $authority;
                 $req[] = 'User-Agent: php proxy';
                 if (!empty($this->config['proxyauth'])) {
                     $req[] = 'Proxy-Authorization: ' . $this->config['proxyauth'];
@@ -269,6 +274,20 @@ class CakeSocket
 
                 fwrite($this->connection, implode("\r\n", $req) . "\r\n\r\n");
 
+                $statusLine = fgets($this->connection, 4096);
+                $status = null;
+                if ($statusLine !== false && preg_match('#^HTTP/\d(?:\.\d)? (\d{3})\b#', $statusLine, $match)) {
+                    $status = (int)$match[1];
+                }
+                if ($status === null || $status < 200 || $status > 299) {
+                    $message = __d('cake_dev', 'The proxy did not establish the tunnel to %s', $authority);
+                    if ($statusLine !== false && trim($statusLine) !== '') {
+                        $message .= ': ' . trim($statusLine);
+                    }
+                    $this->disconnect();
+                    $this->setLastError($status, $message);
+                    throw new SocketException($message, $status ?? 0);
+                }
                 while (!feof($this->connection)) {
                     $s = rtrim(fgets($this->connection, 4096));
                     if (preg_match('/^$/', $s)) {
