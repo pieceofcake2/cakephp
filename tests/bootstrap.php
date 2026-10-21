@@ -7,7 +7,6 @@ use Cake\Cache\Cache;
 use Cake\Console\ShellDispatcher;
 use Cake\Core\App;
 use Composer\InstalledVersions;
-use PHPUnit\Util\ErrorHandler;
 
 if (!defined('DS')) {
     define('DS', DIRECTORY_SEPARATOR);
@@ -49,7 +48,8 @@ Closure::bind(function () {
 
 // The bootstrap of CakePHP and the application leave out E_DEPRECATED, which the tests report
 error_reporting(E_ALL);
-set_error_handler(new ErrorHandler(true, true, true, true));
+// Let PHPUnit install its own error handler, configured by phpunit.xml
+set_error_handler(null);
 
 // Security::cipher() reports its deprecation and an out-of-range Security.cipherSeed once
 // per process. Many core tests use 'cipher' on purpose, so mark both as reported here;
