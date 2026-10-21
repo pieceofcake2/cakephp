@@ -1669,8 +1669,6 @@ class FolderTest extends CakeTestCase
      */
     public function testRealpathOfRelativePathWithParent(): void
     {
-        $this->markTestIncomplete('Known bug: realpath() ignores the working directory for a relative path with ".."');
-
         $folder = new Folder(TMP);
         $this->assertSame(
             dirname(TMP) . DS . 'b' . DS,
