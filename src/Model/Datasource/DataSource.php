@@ -20,6 +20,7 @@ namespace Cake\Model\Datasource;
 
 use Cake\Cache\Cache;
 use Cake\Core\CakeObject;
+use Cake\Error\NotImplementedException;
 use Cake\Model\CakeSchema;
 use Cake\Model\ConnectionManager;
 use Cake\Model\Model;
@@ -368,6 +369,8 @@ class DataSource extends CakeObject
      * Replaces `{$__cakeID__$}` and `{$__cakeForeignKey__$}` placeholders in query data.
      *
      * The replacement fails when the value is missing or empty; 0 and '0' are valid values.
+     * The values are quoted with value(), which a datasource has to implement to use
+     * this method, as DboSource does.
      *
      * @param string $query Query string needing replacements done.
      * @param array $data Array of data with values that will be inserted in placeholders.
@@ -375,6 +378,7 @@ class DataSource extends CakeObject
      * @param Model $Model Model instance.
      * @param array $stack The context stack.
      * @return mixed String of query data with placeholders replaced, or false on failure.
+     * @throws NotImplementedException When a placeholder is replaced and the datasource has no value() method.
      */
     public function insertQueryData($query, $data, $association, Model $Model, $stack)
     {
@@ -441,6 +445,9 @@ class DataSource extends CakeObject
                 return false;
             }
 
+            if (!method_exists($this, 'value')) {
+                throw new NotImplementedException([static::class . '::value()']);
+            }
             $query = str_replace($key, $this->value($val, $dataType), $query);
         }
 
