@@ -111,6 +111,10 @@
 - **Translations of "0"**: `__()` and the other translation functions translate the message `'0'` instead of returning `null`, and a translation whose `msgstr` is `"0"` is used. Po files load the messages `"0"` and other numbers, which were dropped or stored under another number
 - **Multibyte**: `utf8()` and `ascii()` decode and encode the characters outside the Basic Multilingual Plane (4 bytes in UTF-8), so `strtolower()`, `strtoupper()` and the other methods keep them instead of breaking them
 
+### Bug Fixes: `AclNode::node()` of a Number ([PR #110](https://github.com/pieceofcake2/cakephp/pull/110))
+
+- **AclNode::node()**: A reference that is not an array, a path or a model, such as the number that `AclShell` passes for a numeric argument (`cake acl check 5 3`), finds nothing again, as before v2.12.6, instead of failing with a `TypeError`
+
 ### Tests: Coverage ([PR #106](https://github.com/pieceofcake2/cakephp/pull/106))
 
 - **More tests**: Tests for the test suite (reporters, runner, fixture manager), the Js helpers, the scaffold, the network and session classes, the datasources, the models and behaviors, `CakeSchema` and the utilities. The bugs that they found are fixed in PR #107
