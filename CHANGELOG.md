@@ -12,7 +12,7 @@
 - **`.php` templates**: In `templates/` directories (of the application, of plugins, of themes), templates, layouts and elements may use the `.php` extension of CakePHP 5. In each directory a `.php` template comes before the `.ctp` template of the same name, and the order of the directories is unchanged, so themes and plugins still override the templates of the application. The `View/` directories of the CakePHP 2 layout, which also hold the view and helper classes, are not searched for `.php` templates
 - **CakePHP 5 directory names**: In `templates/` directories, `layout/`, `element/`, `email/` and `Error/` are searched before `Layouts/`, `Elements/`, `Emails/` and `Errors/`. Email templates may be in `templates/email/html/` and `templates/email/text/`, and their layouts in `templates/layout/email/html/` and `templates/layout/email/text/`
 
-### Bug Fixes: PHP Deprecations
+### Bug Fixes: PHP Deprecations ([PR #96](https://github.com/pieceofcake2/cakephp/pull/96))
 
 - **Null passed to built-in functions**: Many methods passed a value that can be `null` (e.g. `env()` of a missing variable, an unset option, the plugin of `pluginSplit()`) to a string function of PHP, which is deprecated since PHP 8.1. They cast it to a string (or an int for the decimals of `CakeNumber`), so the result is the same as before. This covers among others `CakeSession`, `CakeRequest`, `CakeResponse`, `CakeEmail`, `HttpSocket`, `Security`, `Configure::consume()`, `Xml::build()`, `FormHelper` date and radio inputs, `CakeText::cleanInsert()`, `Hash` / `Set` matching, `File`, `pluginSplit()`, `env()`, `clearCache()` and the missing class exceptions of the object collections
 - **False converted to an array**: `I18n` (on a cache miss of a domain) and `CakeRoute` (with named parameters before `Router::connectNamed()`) no longer add keys to `false`, deprecated since PHP 8.1
@@ -29,7 +29,7 @@
 - **Security**: `Security::encrypt()` encrypts `null` as the empty string, instead of passing it to `strlen()` (deprecated since PHP 8.1)
 - **Sqlserver**: `Sqlserver::limit()` checks that the offset is a string before `ctype_digit()`, `renderStatement()` checks that a limit is given before it looks for `TOP` or `FETCH`, and `create()` checks that the table has an identity column before it looks for its value, instead of passing `null` or other types to them (deprecated since PHP 8.1)
 
-### Tests
+### Tests ([PR #96](https://github.com/pieceofcake2/cakephp/pull/96))
 
 - **Deprecations reported**: The tests report deprecations and fail on them. `ConfigureTest::testBootstrap()` restores the error level after `Configure::bootstrap()`, which had hidden deprecations from the following tests, and the tests no longer create dynamic properties, or use `utf8_decode()`, `new DateTime(null)`, `str_getcsv()` without the escape character or `session.referer_check`. The `DATABASE_CONFIG` of the tests allows dynamic properties, which `ConnectionManager::create()` adds. The test helpers call `setAccessible()` of reflection only before PHP 8.1. `ApplicationControllerTest` tests the redirect without cookies on every version, and the session ID in the URL, which needs `session.use_trans_sid` deprecated since PHP 8.4, only before PHP 8.4. The tests that use mcrypt check that it reports the deprecation of its functions, and `MemcacheEngineTest` replaces `Memcache::set()` with a small subclass, as a mock would copy the implicitly nullable parameters of the extension (deprecated since PHP 8.4)
 
