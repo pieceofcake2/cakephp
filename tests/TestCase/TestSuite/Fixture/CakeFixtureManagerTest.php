@@ -151,10 +151,14 @@ class CakeFixtureManagerTest extends CakeTestCase
         CakePlugin::load('TestPluginTwo');
 
         $loadFixtures = new ReflectionMethod($this->fixtureManager, '_loadFixtures');
-        $loadFixtures->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $loadFixtures->setAccessible(true);
+        }
         $loadFixtures->invoke($this->fixtureManager, ['app.namespaced_article', 'namespaced_article', 'plugin.test_plugin_two.namespaced_comment']);
         $loaded = new ReflectionProperty($this->fixtureManager, '_loaded');
-        $loaded->setAccessible(true);
+        if (PHP_VERSION_ID < 80100) {
+            $loaded->setAccessible(true);
+        }
         $fixtures = $loaded->getValue($this->fixtureManager);
 
         $this->assertInstanceOf(NamespacedArticleFixture::class, $fixtures['app.namespaced_article']);
