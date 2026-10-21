@@ -176,11 +176,14 @@ class ApiShellTest extends CakeTestCase
     {
         return [
             'behavior' => [['behavior', 'TranslateBehavior'], 'TranslateBehavior', 'bindTranslation('],
+            'behavior without suffix' => [['behavior', 'Translate'], 'TranslateBehavior', 'bindTranslation('],
             'cache' => [['cache', 'Cache'], 'Cache', 'config('],
             'cache engine' => [['cache', 'CacheEngine'], 'CacheEngine', 'init('],
             'controller' => [['controller', 'Controller'], 'Controller', 'render('],
             'component' => [['component', 'AuthComponent'], 'AuthComponent', 'isAuthorized('],
+            'component without suffix' => [['component', 'auth'], 'AuthComponent', 'isAuthorized('],
             'helper' => [['helper', 'HtmlHelper'], 'HtmlHelper', 'link('],
+            'helper without suffix' => [['helper', 'Html'], 'HtmlHelper', 'link('],
             'underscored helper' => [['helper', 'html_helper'], 'HtmlHelper', 'link('],
             'model' => [['model', 'Model'], 'Model', 'save('],
             'view' => [['view', 'View'], 'View', 'render('],
@@ -216,23 +219,21 @@ class ApiShellTest extends CakeTestCase
 
     /**
      * Test that a class name for a behavior, component or helper type gets the type suffix
-     * when the type path has a class of that name without the suffix
      *
      * @return void
      */
     public function testClassLookupAddsTypeSuffix(): void
     {
         $this->Shell->initialize();
-        // Cache.php is in the cache path, and CacheHelper is the class that gets looked up.
-        $this->Shell->paths['helper'] = CAKE . 'Cache' . DS;
         $this->Shell->expects($this->once())->method('in')->will($this->returnValue('q'));
+        $this->Shell->expects($this->never())->method('err');
         $this->_captureOut();
 
-        $this->Shell->args = ['helper', 'Cache'];
+        $this->Shell->args = ['helper', 'Html'];
         $this->Shell->main();
 
-        $this->assertSame('CacheHelper', $this->outCalls[0]);
-        $this->assertNotEmpty(preg_grep('/^\d+\. afterRenderFile\(\$viewFile, \$output\)$/', $this->outCalls[1]));
+        $this->assertSame('HtmlHelper', $this->outCalls[0]);
+        $this->assertNotEmpty(preg_grep('/^\d+\. link\(/', $this->outCalls[1]));
     }
 
     /**
@@ -268,7 +269,7 @@ class ApiShellTest extends CakeTestCase
         $this->Shell->initialize();
         $this->Shell->expects($this->once())
             ->method('err')
-            ->with('<error>Error:</error> NotAClass not found');
+            ->with('<error>Error:</error> NotAClassHelper not found');
         $this->Shell->expects($this->once())
             ->method('_stop')
             ->will($this->throwException(new RuntimeException('stopped')));

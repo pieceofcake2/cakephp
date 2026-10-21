@@ -87,13 +87,12 @@ class ApiShell extends AppShell
             $class = Inflector::camelize($type);
         }
         $objects = App::objects('class', $path, false);
-        if (in_array($class, $objects)) {
-            if (in_array($type, ['behavior', 'component', 'helper']) && $type !== $file) {
-                if (!preg_match('/' . Inflector::camelize($type) . '$/', $class)) {
-                    $class .= Inflector::camelize($type);
-                }
+        if (in_array($type, ['behavior', 'component', 'helper']) && $type !== $file) {
+            if (!preg_match('/' . Inflector::camelize($type) . '$/', $class)) {
+                $class .= Inflector::camelize($type);
             }
-        } else {
+        }
+        if (!in_array($class, $objects)) {
             $this->error(__d('cake_console', '%s not found', $class));
         }
 
