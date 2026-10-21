@@ -190,6 +190,24 @@ class CakeBaseReporterTest extends CakeTestCase
     }
 
     /**
+     * Returns what the callback echoes, and closes the output buffer even when it throws.
+     *
+     * @param callable $callback The callback.
+     * @return string
+     */
+    protected function capture(callable $callback): string
+    {
+        ob_start();
+        try {
+            $callback();
+        } finally {
+            $output = (string)ob_get_clean();
+        }
+
+        return $output;
+    }
+
+    /**
      * Runs a sample suite with the reporter as listener and returns what it echoed.
      *
      * @param RecordingReporter $reporter The reporter.
@@ -200,10 +218,10 @@ class CakeBaseReporterTest extends CakeTestCase
     {
         $result = new TestResult();
         $result->addListener($reporter);
-        ob_start();
-        ReporterSampleCase::buildSuite(...$methods)->run($result);
 
-        return (string)ob_get_clean();
+        return $this->capture(function () use ($methods, $result): void {
+            ReporterSampleCase::buildSuite(...$methods)->run($result);
+        });
     }
 
     /**
@@ -283,10 +301,11 @@ class CakeBaseReporterTest extends CakeTestCase
     public function testWriteEchoesTheBuffer(): void
     {
         $reporter = new RecordingReporter();
-        ob_start();
-        $reporter->write("PHPUnit <output>\n");
+        $output = $this->capture(function () use ($reporter): void {
+            $reporter->write("PHPUnit <output>\n");
+        });
 
-        $this->assertSame("PHPUnit <output>\n", ob_get_clean());
+        $this->assertSame("PHPUnit <output>\n", $output);
     }
 
     /**

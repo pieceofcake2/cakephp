@@ -29,6 +29,13 @@ use RuntimeException;
 class ReporterSampleCase extends TestCase
 {
     /**
+     * The line of the failing statement of each test method, recorded when it runs.
+     *
+     * @var array<string, int>
+     */
+    public static array $lines = [];
+
+    /**
      * Builds a suite named `Reporter sample` from the given test methods, in that order.
      *
      * @param string ...$methods The test methods.
@@ -63,6 +70,7 @@ class ReporterSampleCase extends TestCase
      */
     public function testFails(): void
     {
+        self::$lines[__FUNCTION__] = __LINE__ + 1;
         $this->assertSame('expected <b>bold</b>', 'actual <b>bold</b>', 'Values differ & <mismatch>');
     }
 
@@ -73,6 +81,7 @@ class ReporterSampleCase extends TestCase
      */
     public function testThrowsException(): void
     {
+        self::$lines[__FUNCTION__] = __LINE__ + 1;
         throw new RuntimeException('Broken <i>thing</i>');
     }
 

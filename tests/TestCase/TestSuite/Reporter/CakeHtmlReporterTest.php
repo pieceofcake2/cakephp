@@ -21,10 +21,11 @@ use Cake\Core\Configure;
 use Cake\TestSuite\CakeTestCase;
 use Cake\TestSuite\Reporter\CakeHtmlReporter;
 use Cake\Utility\Folder;
+use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\TestResult;
 use PHPUnit\Framework\TestSuite;
 use PHPUnit\Runner\Version;
-use ReflectionMethod;
+use ReflectionClass;
 use TestApp\TestSuite\ReporterSampleCase;
 
 /**
@@ -112,6 +113,24 @@ class CakeHtmlReporterTest extends CakeTestCase
     }
 
     /**
+     * Returns what the callback echoes, and closes the output buffer even when it throws.
+     *
+     * @param callable $callback The callback.
+     * @return string
+     */
+    protected function capture(callable $callback): string
+    {
+        ob_start();
+        try {
+            $callback();
+        } finally {
+            $output = (string)ob_get_clean();
+        }
+
+        return $output;
+    }
+
+    /**
      * Runs a suite with the reporter as listener and returns the page painted
      * by the footer, which holds everything the run painted.
      *
@@ -128,11 +147,14 @@ class CakeHtmlReporterTest extends CakeTestCase
         $level = ob_get_level();
         ob_start();
         ob_start();
-        $suite->run($result);
-        $reporter->paintFooter($result);
         $output = '';
-        while (ob_get_level() > $level) {
-            $output = ob_get_clean() . $output;
+        try {
+            $suite->run($result);
+            $reporter->paintFooter($result);
+        } finally {
+            while (ob_get_level() > $level) {
+                $output = ob_get_clean() . $output;
+            }
         }
 
         return $output;
@@ -156,6 +178,8 @@ class CakeHtmlReporterTest extends CakeTestCase
         );
         $output = $this->runAndPaint($this->reporter(), $suite);
 
+        // Pending decision: the summary counts the incomplete test as complete
+        // ("4/5 test methods complete"). The assertion keeps the current output.
         $parts = [
             'background-image: url(/base/img/test-pass-icon.png);',
             '<link rel="stylesheet" href="/base/css/cake.generic.css" />',
@@ -233,7 +257,7 @@ class CakeHtmlReporterTest extends CakeTestCase
             "<div class='msg'>Stack trace:<br />",
             $output,
         );
-        $line = (new ReflectionMethod(ReporterSampleCase::class, 'testFails'))->getStartLine() + 2;
+        $line = ReporterSampleCase::$lines['testFails'];
         $file = CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'TestSuite' . DS . 'ReporterSampleCase.php';
         $this->assertStringContainsString("<br />$file : $line<br />", $output);
     }
@@ -255,8 +279,10 @@ class CakeHtmlReporterTest extends CakeTestCase
     }
 
     /**
-     * Test that an exception is painted with the class and the stack trace of
-     * the exception the test threw.
+     * Test that an exception is painted with the class of the exception the
+     * test threw, and a stack trace that starts at the throw site (its file and
+     * line) and goes on with the trace of that exception, which starts at the
+     * PHPUnit frame that called the test method.
      *
      * @return void
      */
@@ -266,10 +292,11 @@ class CakeHtmlReporterTest extends CakeTestCase
 
         $output = $this->runAndPaint($this->reporter(), ReporterSampleCase::buildSuite('testThrowsException'));
 
-        $line = (new ReflectionMethod(ReporterSampleCase::class, 'testThrowsException'))->getStartLine() + 2;
+        $line = ReporterSampleCase::$lines['testThrowsException'];
         $file = CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'TestSuite' . DS . 'ReporterSampleCase.php';
+        $caller = (new ReflectionClass(TestCase::class))->getFileName();
         $this->assertStringContainsString("<li class='fail'>\n<span>RuntimeException</span>", $output);
-        $this->assertStringContainsString("Stack trace:<br />$file : $line<br />", $output);
+        $this->assertStringContainsString("Stack trace:<br />$file : $line<br />$caller : ", $output);
     }
 
     /**
@@ -365,9 +392,9 @@ class CakeHtmlReporterTest extends CakeTestCase
     {
         mkdir($this->pluginsPath . 'Zeta');
         mkdir($this->pluginsPath . 'Alpha');
-        ob_start();
-        $this->reporter()->paintTestMenu();
-        $output = (string)ob_get_clean();
+        $output = $this->capture(function (): void {
+            $this->reporter()->paintTestMenu();
+        });
 
         $this->assertMatchesRegularExpression(
             "#<span style=\"font-size: 18px\">App</span>\s*<ul>\s*<li><a href='\?'>Tests</a></li>.*" .
@@ -387,8 +414,9 @@ class CakeHtmlReporterTest extends CakeTestCase
      */
     public function testTestCaseListOfAPlugin(): void
     {
-        ob_start();
-        $this->reporter(['plugin' => 'ReporterPlugin'])->testCaseList();
+        $output = $this->capture(function (): void {
+            $this->reporter(['plugin' => 'ReporterPlugin'])->testCaseList();
+        });
 
         $this->assertSame(
             "<h3>ReporterPlugin Test Cases:</h3>\n<ul>" .
@@ -397,7 +425,7 @@ class CakeHtmlReporterTest extends CakeTestCase
             "<li><a href='/test.php?case=" . urlencode('Model' . DS . 'Article') .
             "&plugin=ReporterPlugin'>Model / Article</a></li>\n" .
             "</ul>\n",
-            ob_get_clean(),
+            $output,
         );
     }
 
@@ -408,9 +436,9 @@ class CakeHtmlReporterTest extends CakeTestCase
      */
     public function testTestCaseListOfTheCore(): void
     {
-        ob_start();
-        $this->reporter(['core' => true, 'plugin' => false])->testCaseList();
-        $output = (string)ob_get_clean();
+        $output = $this->capture(function (): void {
+            $this->reporter(['core' => true, 'plugin' => false])->testCaseList();
+        });
 
         $case = 'TestSuite' . DS . 'Reporter' . DS . 'CakeHtmlReporter';
         $this->assertStringStartsWith("<h3>Core Test Cases:</h3>\n<ul><li>", $output);
@@ -427,10 +455,11 @@ class CakeHtmlReporterTest extends CakeTestCase
      */
     public function testEmptyTestCaseList(): void
     {
-        ob_start();
-        $this->reporter(['plugin' => 'EmptyReporterPlugin'])->testCaseList();
+        $output = $this->capture(function (): void {
+            $this->reporter(['plugin' => 'EmptyReporterPlugin'])->testCaseList();
+        });
 
-        $this->assertSame("<h3>EmptyReporterPlugin Test Cases:</h3>\n<ul><strong>EMPTY</strong></ul>\n", ob_get_clean());
+        $this->assertSame("<h3>EmptyReporterPlugin Test Cases:</h3>\n<ul><strong>EMPTY</strong></ul>\n", $output);
     }
 
     /**
@@ -440,9 +469,10 @@ class CakeHtmlReporterTest extends CakeTestCase
      */
     public function testPaintFormattedMessage(): void
     {
-        ob_start();
-        $this->reporter()->paintFormattedMessage("array(\n\t'a' => '<b>'\n)");
+        $output = $this->capture(function (): void {
+            $this->reporter()->paintFormattedMessage("array(\n\t'a' => '<b>'\n)");
+        });
 
-        $this->assertSame("<pre>array(\n\t'a' =&gt; '&lt;b&gt;'\n)</pre>", ob_get_clean());
+        $this->assertSame("<pre>array(\n\t'a' =&gt; '&lt;b&gt;'\n)</pre>", $output);
     }
 }

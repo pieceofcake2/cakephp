@@ -21,7 +21,6 @@ use Cake\TestSuite\CakeTestCase;
 use Cake\TestSuite\Reporter\CakeTextReporter;
 use Cake\Utility\Folder;
 use PHPUnit\Framework\TestResult;
-use ReflectionMethod;
 use TestApp\TestSuite\ReporterSampleCase;
 
 /**
@@ -89,6 +88,24 @@ class CakeTextReporterTest extends CakeTestCase
     }
 
     /**
+     * Returns what the callback echoes, and closes the output buffer even when it throws.
+     *
+     * @param callable $callback The callback.
+     * @return string
+     */
+    protected function capture(callable $callback): string
+    {
+        ob_start();
+        try {
+            $callback();
+        } finally {
+            $output = (string)ob_get_clean();
+        }
+
+        return $output;
+    }
+
+    /**
      * Runs a sample suite with the reporter as listener.
      *
      * @param CakeTextReporter $reporter The reporter.
@@ -99,10 +116,11 @@ class CakeTextReporterTest extends CakeTestCase
     {
         $result = new TestResult();
         $result->addListener($reporter);
-        ob_start();
-        ReporterSampleCase::buildSuite(...$methods)->run($result);
+        $output = $this->capture(function () use ($methods, $result): void {
+            ReporterSampleCase::buildSuite(...$methods)->run($result);
+        });
 
-        return [(string)ob_get_clean(), $result];
+        return [$output, $result];
     }
 
     /**
@@ -114,10 +132,9 @@ class CakeTextReporterTest extends CakeTestCase
      */
     protected function footer(CakeTextReporter $reporter, TestResult $result): string
     {
-        ob_start();
-        $reporter->paintFooter($result);
-
-        return (string)ob_get_clean();
+        return $this->capture(function () use ($reporter, $result): void {
+            $reporter->paintFooter($result);
+        });
     }
 
     /**
@@ -140,8 +157,9 @@ class CakeTextReporterTest extends CakeTestCase
 
     /**
      * Test the summary of a run with a pass, a failure, an exception, a skipped
-     * and an incomplete test: skipped tests do not count as run, and the passes
-     * count the assertions.
+     * and an incomplete test. The summary is `Test cases run: <all tests>/<all
+     * tests minus the skipped ones>`, then `Passes: <assertions>`, `Failures:
+     * <failures>` and `Exceptions: <errors>`.
      *
      * @return void
      */
@@ -157,6 +175,9 @@ class CakeTextReporterTest extends CakeTestCase
             'testIncomplete',
         );
 
+        // Pending decision: "Test cases run: 5/4" is the reverse of the "4/5"
+        // of the HTML summary, and "Passes" counts the assertions, not the
+        // passing tests. The assertion keeps the current output.
         $this->assertMatchesRegularExpression(
             '/^FAILURES!!!\nTest cases run: 5\/4, Passes: 3, Failures: 1, Exceptions: 1\n' .
             'Time: [0-9.E-]+ seconds\nPeak memory: [0-9,]+ bytes\n$/',
@@ -186,7 +207,7 @@ class CakeTextReporterTest extends CakeTestCase
     {
         [$output] = $this->runSample(new CakeTextReporter(), 'testThrowsException');
 
-        $line = (new ReflectionMethod(ReporterSampleCase::class, 'testThrowsException'))->getStartLine() + 2;
+        $line = ReporterSampleCase::$lines['testThrowsException'];
         $file = CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'TestSuite' . DS . 'ReporterSampleCase.php';
         $this->assertStringContainsString(
             '] with message [Broken <i>thing</i>] in [' . $file . ' line ' . $line . "]\n\n",
@@ -239,7 +260,7 @@ class CakeTextReporterTest extends CakeTestCase
 
         [$output] = $this->runSample(new CakeTextReporter(), 'testFails');
 
-        $line = (new ReflectionMethod(ReporterSampleCase::class, 'testFails'))->getStartLine() + 2;
+        $line = ReporterSampleCase::$lines['testFails'];
         $file = CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'TestSuite' . DS . 'ReporterSampleCase.php';
         $this->assertSame(
             "Running  Reporter sample\nFAIL on line $line\nValues differ & <mismatch>\n" .
@@ -255,14 +276,16 @@ class CakeTextReporterTest extends CakeTestCase
      */
     public function testPaintFormattedMessage(): void
     {
-        ob_start();
-        (new CakeTextReporter())->paintFormattedMessage("array(\n\t'a' => '<b>'\n)");
+        $output = $this->capture(function (): void {
+            (new CakeTextReporter())->paintFormattedMessage("array(\n\t'a' => '<b>'\n)");
+        });
 
-        $this->assertSame("array(\n\t'a' => '<b>'\n)\n", ob_get_clean());
+        $this->assertSame("array(\n\t'a' => '<b>'\n)\n", $output);
     }
 
     /**
-     * Test that the test case list of a plugin is a list of URLs that run each case.
+     * Test that the test case list of a plugin is a list of URLs that run each
+     * case of the plugin, with the case name URL-encoded as in the HTML list.
      *
      * @return void
      */
@@ -271,16 +294,39 @@ class CakeTextReporterTest extends CakeTestCase
         $this->markTestIncomplete('Known bug: testCaseList() leaves the plugin and core parameters out of the URLs.');
 
         $reporter = new CakeTextReporter(null, ['app' => false, 'core' => false, 'plugin' => 'ReporterPlugin']);
-        ob_start();
-        $reporter->testCaseList();
+        $output = $this->capture(function () use ($reporter): void {
+            $reporter->testCaseList();
+        });
 
         $this->assertSame(
             "ReporterPlugin Test Cases:\n" .
-            'localhost/test.php?case=Controller' . DS . "PostsController&plugin=ReporterPlugin&output=text\n" .
-            'localhost/test.php?case=Model' . DS . "Article&plugin=ReporterPlugin&output=text\n" .
+            'localhost/test.php?case=' . urlencode('Controller' . DS . 'PostsController') .
+            "&plugin=ReporterPlugin&output=text\n" .
+            'localhost/test.php?case=' . urlencode('Model' . DS . 'Article') .
+            "&plugin=ReporterPlugin&output=text\n" .
             "\n",
-            ob_get_clean(),
+            $output,
         );
+    }
+
+    /**
+     * Test that the test case list of the core is a list of URLs that run each
+     * core case, with the case name URL-encoded and the core parameter.
+     *
+     * @return void
+     */
+    public function testTestCaseListOfTheCore(): void
+    {
+        $this->markTestIncomplete('Known bug: testCaseList() leaves the plugin and core parameters out of the URLs.');
+
+        $reporter = new CakeTextReporter(null, ['app' => false, 'core' => true, 'plugin' => false]);
+        $output = $this->capture(function () use ($reporter): void {
+            $reporter->testCaseList();
+        });
+
+        $case = urlencode('TestSuite' . DS . 'Reporter' . DS . 'CakeTextReporter');
+        $this->assertStringStartsWith("Core Test Cases:\nlocalhost/test.php?case=", $output);
+        $this->assertStringContainsString("\nlocalhost/test.php?case=$case&core=true&output=text\n", $output);
     }
 
     /**
@@ -293,9 +339,10 @@ class CakeTextReporterTest extends CakeTestCase
         $this->markTestIncomplete('Known bug: testCaseList() echoes an empty list twice.');
 
         $reporter = new CakeTextReporter(null, ['app' => false, 'core' => false, 'plugin' => 'EmptyReporterPlugin']);
-        ob_start();
-        $reporter->testCaseList();
+        $output = $this->capture(function () use ($reporter): void {
+            $reporter->testCaseList();
+        });
 
-        $this->assertSame("EmptyReporterPlugin Test Cases:\nEMPTY\n", ob_get_clean());
+        $this->assertSame("EmptyReporterPlugin Test Cases:\nEMPTY\n", $output);
     }
 }
