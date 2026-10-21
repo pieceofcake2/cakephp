@@ -17,6 +17,17 @@ Before migrating to this fork, ensure:
 
 ## Unreleased
 
+### `App::uses()` Is Deprecated ([PR #98](https://github.com/pieceofcake2/cakephp/pull/98))
+
+An application or a plugin does not need `App::uses()` when Composer loads its classes. `pieceofcake2/app` loads `src/` with a classmap.
+
+- The first call of `App::uses()` in a process logs a warning with the file and line of the call. With `debug` above 0, it also triggers `E_USER_DEPRECATED`. The call still works.
+- To remove the calls, let Composer load your classes, then delete the `App::uses()` lines:
+  - an application: `"autoload": {"classmap": ["src/"]}` in its `composer.json`, then `composer dump-autoload`;
+  - a plugin: a classmap or PSR-4 in the `composer.json` of the plugin.
+- The classes named in the configuration (`$components`, `$helpers`, `$uses`, associations, engines and the other settings) are found without `App::uses()`, as before.
+- The core no longer calls `App::uses()`. `AppController`, `AppModel`, `AppHelper` and `AppShell` of the application are found in their packages without it.
+
 ### The Framework in the `Cake` Namespace ([PR #92](https://github.com/pieceofcake2/cakephp/pull/92))
 
 The classes of the framework moved into the `Cake` namespace, e.g. `Cake\Controller\Controller`. The global names of CakePHP 2 are aliases of the same classes, so code that extends, type-hints, catches or loads `Controller`, `CakeRequest` or `NotFoundException` keeps working without changes.
