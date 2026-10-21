@@ -20,9 +20,13 @@ namespace Cake\Test\TestCase\Console;
 
 use Cake\Console\ConsoleErrorHandler;
 use Cake\Console\ConsoleOutput;
+use Cake\Core\Configure;
 use Cake\Error\InternalErrorException;
 use Cake\Error\MissingActionException;
 use Cake\Error\NotFoundException;
+use Cake\Log\CakeLog;
+use Cake\Log\Engine\ConsoleLog;
+use Cake\Test\TestCase\Log\Engine\TestCakeLog;
 use Cake\TestSuite\CakeTestCase;
 use Exception;
 use InvalidArgumentException;
@@ -204,5 +208,72 @@ class ConsoleErrorHandlerTest extends CakeTestCase
             ->with(1);
 
         $this->Error->handleException($exception);
+    }
+
+    /**
+     * Test that the stderr output is created when none is set.
+     *
+     * @return void
+     */
+    public function testGetStderr(): void
+    {
+        ConsoleErrorHandler::$stderr = null;
+
+        $stderr = ConsoleErrorHandler::getStderr();
+        $this->assertInstanceOf(ConsoleOutput::class, $stderr);
+        $this->assertSame($stderr, ConsoleErrorHandler::getStderr());
+    }
+
+    /**
+     * Test that errors left out of error_reporting are ignored.
+     *
+     * @return void
+     */
+    public function testHandleErrorNotReported(): void
+    {
+        ConsoleErrorHandler::$stderr
+            ->expects($this->never())
+            ->method('write');
+        $this->Error->expects($this->never())
+            ->method('_stop');
+
+        $level = error_reporting(E_ALL & ~E_USER_NOTICE);
+        try {
+            $this->Error->handleError(E_USER_NOTICE, 'This is not reported', '/some/file', 275);
+        } finally {
+            error_reporting($level);
+        }
+    }
+
+    /**
+     * Test that errors are logged when debug is off.
+     *
+     * @return void
+     */
+    public function testHandleErrorLogsWithoutDebug(): void
+    {
+        Configure::write('debug', 0);
+        ConsoleErrorHandler::$stderr
+            ->expects($this->once())
+            ->method('write');
+
+        $streams = CakeLog::configured();
+        foreach ($streams as $stream) {
+            CakeLog::disable($stream);
+        }
+        $log = $this->getMock(ConsoleLog::class, ['write'], [['types' => ['notice']]]);
+        $log->expects($this->once())
+            ->method('write')
+            ->with('notice', 'This is a notice error in [/some/file, line 275]');
+        TestCakeLog::config('console_error_handler_test', ['engine' => 'Console']);
+        TestCakeLog::replace('console_error_handler_test', $log);
+        try {
+            $this->Error->handleError(E_NOTICE, 'This is a notice error', '/some/file', 275);
+        } finally {
+            CakeLog::drop('console_error_handler_test');
+            foreach ($streams as $stream) {
+                CakeLog::enable($stream);
+            }
+        }
     }
 }
