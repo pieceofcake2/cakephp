@@ -19,7 +19,7 @@ namespace Cake\TestSuite\Reporter;
 
 use Cake\TestSuite\Coverage\TextCoverageReport;
 use Cake\Utility\Inflector;
-use Exception;
+use PHPUnit\Framework\ExceptionWrapper;
 use PHPUnit\Framework\TestResult;
 use Throwable;
 
@@ -120,12 +120,19 @@ class CakeTextReporter extends CakeBaseReporter
     /**
      * Paints a PHP exception.
      *
-     * @param Exception $exception Exception to describe.
+     * PHPUnit passes the exception a test threw wrapped in an ExceptionWrapper.
+     * The class of the thrown exception is painted, not that of the wrapper.
+     *
+     * @param Throwable $exception Exception to describe.
      * @return void
      */
     public function paintException($exception)
     {
-        $message = 'Unexpected exception of type [' . $exception::class .
+        $className = $exception::class;
+        if ($exception instanceof ExceptionWrapper) {
+            $className = $exception->getClassName();
+        }
+        $message = 'Unexpected exception of type [' . $className .
             '] with message [' . $exception->getMessage() .
             '] in [' . $exception->getFile() .
             ' line ' . $exception->getLine() . ']';

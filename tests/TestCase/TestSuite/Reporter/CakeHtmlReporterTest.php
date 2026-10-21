@@ -289,8 +289,6 @@ class CakeHtmlReporterTest extends CakeTestCase
      */
     public function testPaintsClassAndTraceOfTheThrownException(): void
     {
-        $this->markTestIncomplete('Known bug: paintException() shows PHPUnit\'s ExceptionWrapper class and trace.');
-
         $output = $this->runAndPaint($this->reporter(), ReporterSampleCase::buildSuite('testThrowsException'));
 
         $line = ReporterSampleCase::$lines['testThrowsException'];

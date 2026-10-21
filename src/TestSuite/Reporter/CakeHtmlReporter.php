@@ -7,6 +7,7 @@ use Cake\Core\Configure;
 use Cake\TestSuite\Coverage\HtmlCoverageReport;
 use Cake\Utility\Inflector;
 use Exception;
+use PHPUnit\Framework\ExceptionWrapper;
 use PHPUnit\Framework\Test;
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\TestResult;
@@ -330,18 +331,29 @@ class CakeHtmlReporter extends CakeBaseReporter
     /**
      * Paints a PHP exception.
      *
-     * @param Exception $message Exception to display.
+     * PHPUnit passes the exception a test threw wrapped in an ExceptionWrapper.
+     * The class, the location and the stack trace of the thrown exception are
+     * painted, not those of the wrapper.
+     *
+     * @param Throwable $message Exception to display.
      * @param mixed $test The test that failed.
      * @return void
      */
     public function paintException($message, $test)
     {
         ob_start();
-        $trace = $this->_getStackTrace($message);
+        $className = $message::class;
+        $frames = $message->getTrace();
+        if ($message instanceof ExceptionWrapper) {
+            $className = $message->getClassName();
+            $original = $message->getOriginalException();
+            $frames = $original !== null ? $original->getTrace() : $message->getSerializableTrace();
+        }
+        $trace = $this->_escape($message->getFile()) . ' : ' . $message->getLine() . '<br />' . $this->_formatTrace($frames);
         $testName = $test::class . '(' . $test->getName() . ')';
 
         echo "<li class='fail'>\n";
-        echo '<span>' . $this->_escape($message::class) . '</span>';
+        echo '<span>' . $this->_escape($className) . '</span>';
 
         echo "<div class='msg'>" . $this->_htmlEntities($message->getMessage()) . "</div>\n";
         echo "<div class='msg'>" . __d('cake_dev', 'Test case: %s', $this->_escape($testName)) . "</div>\n";
@@ -408,7 +420,17 @@ class CakeHtmlReporter extends CakeBaseReporter
      */
     protected function _getStackTrace(Exception $e)
     {
-        $trace = $e->getTrace();
+        return $this->_formatTrace($e->getTrace());
+    }
+
+    /**
+     * Formats the frames of a stack trace.
+     *
+     * @param array $trace The frames, as Exception::getTrace() returns them.
+     * @return string Generated stack trace.
+     */
+    protected function _formatTrace(array $trace)
+    {
         $out = [];
         foreach ($trace as $frame) {
             if (isset($frame['file']) && isset($frame['line'])) {

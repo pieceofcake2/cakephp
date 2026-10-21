@@ -222,8 +222,6 @@ class CakeTextReporterTest extends CakeTestCase
      */
     public function testPaintsExceptionClassOfTheThrownException(): void
     {
-        $this->markTestIncomplete('Known bug: paintException() names PHPUnit\'s ExceptionWrapper instead of the thrown class.');
-
         [$output] = $this->runSample(new CakeTextReporter(), 'testThrowsException');
 
         $this->assertStringContainsString(
