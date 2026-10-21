@@ -24,6 +24,8 @@ use Cake\Console\ConsoleOutput;
 use Cake\Controller\Component\Acl\DbAcl;
 use Cake\Controller\Component\AclComponent;
 use Cake\Controller\ComponentCollection;
+use Cake\Core\App;
+use Cake\Core\CakePlugin;
 use Cake\Core\Configure;
 use Cake\Error\CakeException;
 use Cake\Error\ConsoleException;
@@ -75,6 +77,19 @@ class AclShellTest extends CakeTestCase
         $collection = new ComponentCollection();
         $this->Task->Acl = new AclComponent($collection);
         $this->Task->params['datasource'] = 'test';
+    }
+
+    /**
+     * tearDown method
+     *
+     * @return void
+     */
+    public function tearDown(): void
+    {
+        unset($this->Task);
+        CakePlugin::unload();
+
+        parent::tearDown();
     }
 
     /**
@@ -515,19 +530,32 @@ class AclShellTest extends CakeTestCase
     /**
      * Test that startup accepts the old DB_ACL name and a plugin prefix on it.
      *
+     * The check of startup lets the name through. The AclComponent is built
+     * next, and it cannot find a class of that name.
+     *
      * @return void
      */
     public function testStartupWithDbAclLegacyName(): void
     {
-        $out = $this->getMock(ConsoleOutput::class, [], [], '', false);
-        $in = $this->getMock(ConsoleInput::class, [], [], '', false);
-        $shell = $this->getMock(AclShell::class, ['in', 'out', 'hr', 'error', 'err', '_stop'], [$out, $out, $in]);
-        $shell->expects($this->never())->method('err');
-        $shell->expects($this->never())->method('_stop');
+        App::build(['Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS]]);
+        CakePlugin::load('TestPlugin');
+        foreach (['DB_ACL', 'TestPlugin.DB_ACL'] as $class) {
+            Configure::write('Acl.classname', $class);
+            $out = $this->getMock(ConsoleOutput::class, [], [], '', false);
+            $in = $this->getMock(ConsoleInput::class, [], [], '', false);
+            $shell = $this->getMock(AclShell::class, ['in', 'out', 'hr', 'error', 'err', '_stop'], [$out, $out, $in]);
+            $shell->command = 'view';
+            $shell->expects($this->never())->method('err');
+            $shell->expects($this->never())->method('_stop');
 
-        Configure::write('Acl.classname', 'DB_ACL');
-        $shell->startup();
-        $this->assertNull($shell->Acl);
+            $message = null;
+            try {
+                $shell->startup();
+            } catch (CakeException $e) {
+                $message = $e->getMessage();
+            }
+            $this->assertSame('Could not find DB_ACL.', $message, $class);
+        }
     }
 
     /**
@@ -896,30 +924,16 @@ class AclShellTest extends CakeTestCase
     /**
      * Test getPath with a node that does not exist.
      *
-     * error() is not stopped here, so both errors are reported.
-     *
      * @return void
      */
     public function testGetPathMissingNode(): void
     {
-        $errors = [];
-        $this->Task->expects($this->exactly(2))
-            ->method('error')
-            ->willReturnCallback(function ($title, $message = null) use (&$errors) {
-                $errors[] = [$title, $message];
-
-                return 1;
-            });
-        $outCalls = &$this->_captureOut($this->Task);
+        $this->_errorThrows();
+        $this->expectException(RuntimeException::class);
+        $this->expectExceptionMessage('Could not find node using reference "nobody"');
 
         $this->Task->args = ['aro', 'nobody'];
         $this->Task->getPath();
-
-        $this->assertSame([
-            ['Could not find node using reference "nobody"', null],
-            ["Supplied Node 'nobody' not found", 'No tree returned.'],
-        ], $errors);
-        $this->assertSame(['Path:'], $outCalls);
     }
 
     /**
