@@ -74,13 +74,14 @@ abstract class JsBaseEngineHelper extends AppHelper
     /**
      * Redirects to a URL. Creates a window.location modification snippet
      * that can be used to trigger 'redirects' from JavaScript.
+     * The URL is escaped like any other JavaScript string, see escape().
      *
      * @param array|string $url URL
      * @return string completed redirect in javascript
      */
     public function redirect($url = null)
     {
-        return 'window.location = "' . Router::url($url) . '";';
+        return 'window.location = "' . $this->escape(Router::url($url)) . '";';
     }
 
     /**

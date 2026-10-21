@@ -495,11 +495,11 @@ class JsBaseEngineHelperTest extends CakeTestCase
     public function testRedirect(): void
     {
         $result = $this->JsEngine->redirect(['controller' => 'posts', 'action' => 'view', 1]);
-        $expected = 'window.location = "/posts/view/1";';
+        $expected = 'window.location = "\/posts\/view\/1";';
         $this->assertEquals($expected, $result);
 
         $result = $this->JsEngine->redirect('https://example.com/path?a=1');
-        $this->assertSame('window.location = "https://example.com/path?a=1";', $result);
+        $this->assertSame('window.location = "https:\/\/example.com\/path?a=1";', $result);
     }
 
     /**
@@ -511,8 +511,6 @@ class JsBaseEngineHelperTest extends CakeTestCase
      */
     public function testRedirectEscapesTheUrl(): void
     {
-        $this->markTestIncomplete('Known bug: redirect() puts the URL into the JavaScript string without escaping it');
-
         $url = 'https://x/"+alert(1)+"';
         $result = $this->JsEngine->redirect($url);
 
