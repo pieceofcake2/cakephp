@@ -281,17 +281,17 @@ class ApiShellTest extends CakeTestCase
     public function testUnknownTypeUsesCorePath(): void
     {
         $this->Shell->initialize();
-        $this->Shell->expects($this->once())
-            ->method('err')
-            ->with('<error>Error:</error> HtmlHelper not found');
-        $this->Shell->expects($this->once())
-            ->method('_stop')
-            ->will($this->throwException(new RuntimeException('stopped')));
-
-        $this->expectException(RuntimeException::class);
+        // No class is directly in CAKE, so the core path points at the helpers.
+        $this->Shell->paths['core'] = CAKE . 'View' . DS . 'Helper' . DS;
+        $this->Shell->expects($this->once())->method('in')->will($this->returnValue('q'));
+        $this->Shell->expects($this->never())->method('err');
+        $this->_captureOut();
 
         $this->Shell->args = ['unknown', 'HtmlHelper'];
         $this->Shell->main();
+
+        $this->assertSame('HtmlHelper', $this->outCalls[0]);
+        $this->assertNotEmpty(preg_grep('/^\d+\. link\(/', $this->outCalls[1]));
     }
 
     /**
@@ -350,11 +350,11 @@ class ApiShellTest extends CakeTestCase
         $this->Shell->main();
 
         $list = $this->outCalls[1];
-        $this->assertStringStartsWith('1. ', $list[0]);
-        $first = substr($list[0], 3);
+        $this->assertSame('1. addScript($name, $content = NULL)', $list[0]);
 
-        $this->assertSame('View::' . $first, $this->outCalls[2]);
-        $this->assertIsString($this->outCalls[3]);
+        $this->assertSame('View::addScript($name, $content = NULL)', $this->outCalls[2]);
+        $this->assertStringContainsString('Adds a script block or other element to be inserted', $this->outCalls[3]);
+        $this->assertStringContainsString('@see View::start()', $this->outCalls[3]);
         $this->assertSame('Done', $this->outCalls[4]);
         $this->assertCount(5, $this->outCalls);
     }

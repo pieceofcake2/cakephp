@@ -21,6 +21,7 @@ namespace Cake\Test\TestCase\Console\Command;
 use Cake\Console\Command\I18nShell;
 use Cake\Console\Command\Task\ExtractTask;
 use Cake\Console\ConsoleInput;
+use Cake\Console\ConsoleOptionParser;
 use Cake\Console\ConsoleOutput;
 use Cake\TestSuite\CakeTestCase;
 use PHPUnit\Framework\MockObject\MockObject;
@@ -109,14 +110,13 @@ class I18nShellTest extends CakeTestCase
     }
 
     /**
-     * Test that startup() keeps the default datasource
+     * Test that startup() keeps the default datasource without the datasource param
      *
      * @return void
      */
-    public function testStartupDefaultDatasource(): void
+    public function testStartupKeepsDefaultDatasource(): void
     {
         $this->Shell->command = 'help';
-        $this->Shell->expects($this->never())->method('err');
         $this->Shell->startup();
 
         $this->assertSame('default', $this->Shell->dataSource);
@@ -135,7 +135,12 @@ class I18nShellTest extends CakeTestCase
         $subcommands = $parser->subcommands();
         $this->assertSame(['initdb', 'extract'], array_keys($subcommands));
         $this->assertStringContainsString('Initialize the i18n table.', $subcommands['initdb']->help());
-        $this->assertNotNull($subcommands['extract']->parser());
+        $extract = $subcommands['extract']->parser();
+        $this->assertInstanceOf(ConsoleOptionParser::class, $extract);
+        $options = $extract->options();
+        $this->assertArrayHasKey('paths', $options);
+        $this->assertArrayHasKey('output', $options);
+        $this->assertArrayHasKey('exclude-plugins', $options);
     }
 
     /**

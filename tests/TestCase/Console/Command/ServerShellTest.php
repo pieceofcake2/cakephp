@@ -169,9 +169,10 @@ class ServerShellTest extends CakeTestCase
         $this->Shell->params = ['document_root' => 'C:\\\\www\\app'];
         $this->Shell->startup();
 
+        $root = 'C:\\www\\app';
         $this->Shell->expects($this->once())
             ->method('_runCommand')
-            ->with($this->stringStartsWith('php -S localhost:8765 -t ' . escapeshellarg('C:\\www\\app') . ' '));
+            ->with('php -S localhost:8765 -t ' . escapeshellarg($root) . ' ' . escapeshellarg($root . '/index.php'));
 
         $this->Shell->main();
     }

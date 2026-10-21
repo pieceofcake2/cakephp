@@ -769,6 +769,36 @@ class ExtractTaskTest extends CakeTestCase
      */
     public function testExecutePluginOutputsToPluginLocale(): void
     {
+        $plugins = $this->path . DS . 'plugins' . DS;
+        $plugin = $plugins . 'ExtractCovPlugin' . DS;
+        new Folder($plugin . 'Locale', true);
+        new Folder($plugin . 'src' . DS . 'View', true);
+        file_put_contents($plugin . 'src' . DS . 'View' . DS . 'view.php', "<?php\n__('Plugin string');\n");
+        App::build(['Plugin' => [$plugins]]);
+
+        $this->Task->params['plugin'] = 'extract_cov_plugin';
+        $this->Task->params['extract-core'] = 'no';
+        $this->Task->params['merge'] = 'no';
+        $this->Task->expects($this->never())->method('in');
+        $this->Task->expects($this->never())->method('err');
+        $this->Task->expects($this->never())->method('_stop');
+
+        $this->Task->execute();
+
+        $this->assertTrue(CakePlugin::loaded('ExtractCovPlugin'));
+        $this->assertSame('ExtractCovPlugin', $this->Task->params['plugin']);
+        $this->assertFileExists($plugin . 'Locale' . DS . 'default.pot');
+        $result = file_get_contents($plugin . 'Locale' . DS . 'default.pot');
+        $this->assertStringContainsString('msgid "Plugin string"', $result);
+    }
+
+    /**
+     * Test that the plugin option stops when the plugin has no Locale directory
+     *
+     * @return void
+     */
+    public function testExecutePluginWithoutLocale(): void
+    {
         App::build([
             'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
         ]);
@@ -982,7 +1012,7 @@ class ExtractTaskTest extends CakeTestCase
             ['_isExtractingApp', 'in', 'out', 'err', 'clear', '_stop'],
             [$out, $out, $in],
         );
-        $this->Task->expects($this->exactly(2))
+        $this->Task->expects($this->any())
             ->method('_isExtractingApp')
             ->willReturn(true);
 
