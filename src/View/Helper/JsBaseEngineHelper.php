@@ -192,6 +192,7 @@ abstract class JsBaseEngineHelper extends AppHelper
      * - "\r" => '\n'
      * - "\n" => '\n'
      * - '"' => '\"'
+     * - other C0 control characters => '\u00XX'
      *
      * @param string $string String that needs to get escaped.
      * @return string Escaped string.
@@ -234,7 +235,11 @@ abstract class JsBaseEngineHelper extends AppHelper
                 case $ord == 0x5C:
                     $return .= '\\' . $string[$i];
                     break;
-                case ($ord >= 0x20) && ($ord <= 0x7F):
+                case $ord < 0x20:
+                    // JSON does not allow raw control characters in a string.
+                    $return .= sprintf('\u%04x', $ord);
+                    break;
+                case $ord <= 0x7F:
                     $return .= $string[$i];
                     break;
                 case ($ord & 0xE0) == 0xC0:

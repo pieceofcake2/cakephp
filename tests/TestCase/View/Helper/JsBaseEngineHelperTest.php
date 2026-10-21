@@ -323,8 +323,6 @@ class JsBaseEngineHelperTest extends CakeTestCase
      */
     public function testEscapeOtherControlCharacters(): void
     {
-        $this->markTestIncomplete('Known bug: escape() drops C0 control characters other than \b \t \n \f \r');
-
         $this->assertSame('a\u0001b\u001fc', $this->JsEngine->escape("a\x01b\x1Fc"));
     }
 
