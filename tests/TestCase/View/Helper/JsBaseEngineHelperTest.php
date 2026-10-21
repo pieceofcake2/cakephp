@@ -316,6 +316,19 @@ class JsBaseEngineHelperTest extends CakeTestCase
     }
 
     /**
+     * Test that escape() replaces the lead bytes 0xF8 to 0xFF, which RFC 3629 does not
+     * allow, by a question mark. The continuation bytes after them are stray bytes.
+     *
+     * @return void
+     */
+    public function testEscapeInvalidLeadBytes(): void
+    {
+        $this->assertSame('a?????b', $this->JsEngine->escape("a\xF8\x88\x80\x80\x80b"));
+        $this->assertSame('a??????b', $this->JsEngine->escape("a\xFC\x84\x80\x80\x80\x80b"));
+        $this->assertSame('a?b?c', $this->JsEngine->escape("a\xFEb\xFFc"));
+    }
+
+    /**
      * Test that escape() keeps other C0 control characters as \u00XX escapes
      * instead of dropping them.
      *

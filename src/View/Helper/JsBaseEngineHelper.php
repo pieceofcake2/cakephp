@@ -290,27 +290,9 @@ abstract class JsBaseEngineHelper extends AppHelper
                     $offset = $char[0] - 0x10000;
                     $return .= sprintf('\u%04x\u%04x', 0xD800 | ($offset >> 10), 0xDC00 | ($offset & 0x3FF));
                     break;
-                case ($ord & 0xFC) == 0xF8:
-                    if ($i + 4 >= $length) {
-                        $i += 4;
-                        $return .= '?';
-                        break;
-                    }
-                    $charbits = $string[$i] . $string[$i + 1] . $string[$i + 2] . $string[$i + 3] . $string[$i + 4];
-                    $char = Multibyte::utf8($charbits);
-                    $return .= sprintf('\u%04s', dechex($char[0]));
-                    $i += 4;
-                    break;
-                case ($ord & 0xFE) == 0xFC:
-                    if ($i + 5 >= $length) {
-                        $i += 5;
-                        $return .= '?';
-                        break;
-                    }
-                    $charbits = $string[$i] . $string[$i + 1] . $string[$i + 2] . $string[$i + 3] . $string[$i + 4] . $string[$i + 5];
-                    $char = Multibyte::utf8($charbits);
-                    $return .= sprintf('\u%04s', dechex($char[0]));
-                    $i += 5;
+                default:
+                    // The lead bytes 0xF8 to 0xFF are not valid UTF-8 (RFC 3629).
+                    $return .= '?';
                     break;
             }
         }
