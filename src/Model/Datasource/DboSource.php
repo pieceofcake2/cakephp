@@ -1193,10 +1193,10 @@ class DboSource extends DataSource
      * Creates new records in the database.
      *
      * @param Model $Model Model object that the record is for.
-     * @param array $fields An array of field names to insert. If null, $Model->data will be
-     *   used to generate field names.
-     * @param array $values An array of values with keys matching the fields. If null, $Model->data will
-     *   be used to generate values.
+     * @param array $fields An array of field names to insert. If null, the fields of
+     *   $Model->data[$Model->alias] will be used.
+     * @param array $values An array of values with keys matching the fields. If null, the values of
+     *   $Model->data[$Model->alias] will be used.
      * @return bool Success
      */
     public function create(Model $Model, $fields = null, $values = null)
@@ -1206,8 +1206,12 @@ class DboSource extends DataSource
 
         if (!$fields) {
             unset($fields, $values);
-            $fields = array_keys($Model->data);
-            $values = array_values($Model->data);
+            $data = [];
+            if (isset($Model->data[$Model->alias])) {
+                $data = $Model->data[$Model->alias];
+            }
+            $fields = array_keys($data);
+            $values = array_values($data);
         }
         $count = count($fields);
 

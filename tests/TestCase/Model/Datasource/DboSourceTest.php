@@ -2781,8 +2781,6 @@ class DboSourceTest extends CakeTestCase
      */
     public function testCreateWithoutFieldsUsesModelData(): void
     {
-        $this->markTestIncomplete('Known bug: create() without fields takes the model alias as the only field name');
-
         $this->loadFixtures('Article');
         $Article = new Article();
         $Article->data = ['Article' => ['user_id' => 2, 'title' => 'From data', 'body' => 'Body']];
