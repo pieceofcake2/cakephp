@@ -636,7 +636,7 @@ class AclShell extends AppShell
         }
         $vars = [];
         $class = ucwords($type);
-        $vars['secondary_id'] = strtolower($class) === 'aro' ? 'foreign_key' : 'object_id';
+        $vars['secondary_id'] = 'foreign_key';
         $vars['data_name'] = $type;
         $vars['table_name'] = $type . 's';
         $vars['class'] = $class;

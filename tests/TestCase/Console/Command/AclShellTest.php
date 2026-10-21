@@ -1112,6 +1112,16 @@ class AclShellTest extends CakeTestCase
         $result = $this->Task->nodeExists();
         $this->assertCount(1, $result);
         $this->assertEquals(2, $result[0]['Aco']['id']);
+
+        $this->Task->Acl->Aco->create(['parent_id' => 1, 'model' => 'Post', 'foreign_key' => 42, 'alias' => null]);
+        $this->Task->Acl->Aco->save();
+        $id = $this->Task->Acl->Aco->id;
+
+        $this->Task->args = ['aco', '42'];
+        $result = $this->Task->nodeExists();
+        $this->assertCount(1, $result);
+        $this->assertEquals($id, $result[0]['Aco']['id']);
+        $this->assertSame('Post', $result[0]['Aco']['model']);
     }
 
     /**
