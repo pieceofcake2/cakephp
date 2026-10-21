@@ -45,6 +45,10 @@
 - **Overriding core classes**: A global class registered with `App::uses()` no longer replaces a core class, as the core uses the namespaced names. Override a core class with a copy in `src/Cake/` (e.g. `src/Cake/Routing/Dispatcher.php`) loaded by the classmap of the application, and exclude the core file with `exclude-from-classmap`
 - **phpcs**: `SlevomatCodingStandard.Namespaces.UnusedUses` counts the class names in annotations, as the core imports the classes that its docblocks name
 
+### Enhancements: Fixture Class Names ([PR #108](https://github.com/pieceofcake2/cakephp/pull/108))
+
+- **Fixtures by class name**: `$fixtures`, `loadFixtures()` and `CakeFixtureManager::loadSingle()` accept the fully qualified class name of a fixture, e.g. `public $fixtures = [ArticleFixture::class]` and `$this->loadFixtures(ArticleFixture::class)`, as the other classes in the configuration do. The `Fixture` suffix is added only when the name does not end with it. The names `core.article`, `app.article` and `Article` work as before
+
 ### Deprecations: `App::uses()` ([PR #98](https://github.com/pieceofcake2/cakephp/pull/98))
 
 - **App::uses()**: Deprecated. Composer loads the classes of the core, of `pieceofcake2/app` and of the plugins installed with it, and the core finds the classes named in the configuration without it. The first call in a process logs a warning with the file and line of the call, and triggers `E_USER_DEPRECATED` when `debug` is above 0. The call still works
