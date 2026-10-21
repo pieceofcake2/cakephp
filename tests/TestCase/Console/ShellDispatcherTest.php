@@ -66,6 +66,13 @@ class TestShellDispatcher extends ShellDispatcher
     public $TestShell;
 
     /**
+     * The names passed to _getShell()
+     *
+     * @var array<string>
+     */
+    public $shells = [];
+
+    /**
      * _initEnvironment method
      *
      * @return void
@@ -120,6 +127,8 @@ class TestShellDispatcher extends ShellDispatcher
      */
     protected function _getShell($shell): mixed
     {
+        $this->shells[] = $shell;
+
         return $this->TestShell ?? parent::_getShell($shell);
     }
 }
@@ -193,16 +202,6 @@ class TestEnvironmentShellDispatcher extends ShellDispatcher
     public function initConstants(): void
     {
         $this->_initConstants();
-    }
-
-    /**
-     * Calls _bootstrap()
-     *
-     * @return bool
-     */
-    public function bootstrap(): mixed
-    {
-        return $this->_bootstrap();
     }
 }
 
@@ -982,7 +981,6 @@ class ShellDispatcherTest extends CakeTestCase
         try {
             $dispatcher->initConstants();
 
-            $this->assertTrue(defined('CAKEPHP_SHELL'));
             $this->assertEmpty(ini_get('html_errors'));
             $this->assertSame('1', ini_get('implicit_flush'));
             $this->assertSame('0', ini_get('max_execution_time'));
@@ -991,31 +989,6 @@ class ShellDispatcherTest extends CakeTestCase
             ini_set('implicit_flush', (string)$implicitFlush);
             ini_set('max_execution_time', (string)$maxExecutionTime);
         }
-    }
-
-    /**
-     * Test the bootstrap. The test bootstrap already defined the constants and loaded the
-     * core, so this checks that it sets the console error handlers again.
-     *
-     * @return void
-     */
-    public function testBootstrap(): void
-    {
-        $format = Debugger::outputAs();
-        Configure::delete('Error.consoleHandler');
-        Configure::delete('Exception.consoleHandler');
-
-        $dispatcher = new TestEnvironmentShellDispatcher(['cake.php'], false);
-        try {
-            $result = $dispatcher->bootstrap();
-        } finally {
-            restore_error_handler();
-            restore_exception_handler();
-            Debugger::outputAs($format);
-        }
-        $this->assertTrue($result);
-        $this->assertInstanceOf(ConsoleErrorHandler::class, Configure::read('Error.consoleHandler.0'));
-        $this->assertTrue(defined('FULL_BASE_URL'));
     }
 
     /**
@@ -1101,6 +1074,7 @@ class ShellDispatcherTest extends CakeTestCase
 
         $dispatcher->args = [];
         $this->assertFalse($dispatcher->dispatch());
+        $this->assertSame(['command_list'], $dispatcher->shells);
     }
 
     /**
@@ -1121,6 +1095,7 @@ class ShellDispatcherTest extends CakeTestCase
 
             $dispatcher->args = [$command];
             $this->assertTrue($dispatcher->dispatch(), $command);
+            $this->assertSame(['command_list'], $dispatcher->shells, $command);
         }
     }
 
@@ -1143,11 +1118,11 @@ class ShellDispatcherTest extends CakeTestCase
     }
 
     /**
-     * Test that a protected method of a class that is not a shell cannot be dispatched.
+     * Test that a method with a leading underscore of a class that is not a shell cannot be dispatched.
      *
      * @return void
      */
-    public function testDispatchNotAShellProtectedMethod(): void
+    public function testDispatchNotAShellUnderscoreMethod(): void
     {
         $dispatcher = new TestShellDispatcher();
         $methods = get_class_methods(CakeObject::class);

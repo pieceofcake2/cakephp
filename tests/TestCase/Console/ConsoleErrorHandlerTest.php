@@ -59,6 +59,7 @@ class ConsoleErrorHandlerTest extends CakeTestCase
     public function tearDown(): void
     {
         unset($this->Error);
+        ConsoleErrorHandler::$stderr = null;
 
         parent::tearDown();
     }
@@ -255,7 +256,8 @@ class ConsoleErrorHandlerTest extends CakeTestCase
         Configure::write('debug', 0);
         ConsoleErrorHandler::$stderr
             ->expects($this->once())
-            ->method('write');
+            ->method('write')
+            ->with("<error>Notice Error:</error> This is a notice error in [/some/file, line 275]\n");
 
         $streams = CakeLog::configured();
         foreach ($streams as $stream) {

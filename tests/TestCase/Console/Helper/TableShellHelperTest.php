@@ -232,12 +232,14 @@ class TableShellHelperTest extends CakeTestCase
         $expected['rowSeparator'] = true;
         $this->assertSame($expected, $helper->config());
 
-        $helper->output([['Name'], ['Value']]);
+        $helper->output([['Name'], ['Value'], ['Other']]);
         $expected = [
             '+-------+',
             '| <comment>Name</comment>  |',
             '+-------+',
             '| Value |',
+            '+-------+',
+            '| Other |',
             '+-------+',
         ];
         $this->assertSame($expected, $this->consoleOutput->messages());

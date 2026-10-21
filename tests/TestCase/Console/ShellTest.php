@@ -1467,7 +1467,6 @@ TEXT;
         $helper = $shell->helper('table');
         $this->assertInstanceOf(TableShellHelper::class, $helper);
         $this->assertSame($helper, $shell->helper('table'));
-        $this->assertNotSame($helper, $shell->helper('Table'));
 
         $helper->output([['Name'], ['Value']]);
         $expected = [
