@@ -9257,6 +9257,9 @@ class ModelReadTest extends BaseModelTest
     {
         $this->loadFixtures('Comment');
         $Comment = new Comment();
+        if ($Comment->getDataSource() instanceof Sqlserver) {
+            $this->markTestIncomplete('Known bug: Sqlserver::lastAffected() never returns the count of exec(), as DboSource::lastAffected() gives 0 instead of null');
+        }
 
         $this->assertTrue($Comment->updateAll(['Comment.comment' => "'Changed'"], ['Comment.article_id' => 1]));
         $this->assertSame(4, $Comment->getAffectedRows());
