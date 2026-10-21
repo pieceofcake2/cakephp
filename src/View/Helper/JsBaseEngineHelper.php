@@ -172,7 +172,7 @@ abstract class JsBaseEngineHelper extends AppHelper
                 $val = $val;
                 break;
             case is_float($val):
-                $val = sprintf('%.11f', $val);
+                $val = sprintf('%.11F', $val);
                 break;
             default:
                 $val = $this->escape($val);

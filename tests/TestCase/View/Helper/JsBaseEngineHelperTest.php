@@ -388,8 +388,6 @@ class JsBaseEngineHelperTest extends CakeTestCase
      */
     public function testValueOfAFloatIgnoresTheLocale(): void
     {
-        $this->markTestIncomplete('Known bug: value() formats floats with the locale-aware %f, so de_DE gives 1,5');
-
         $original = setlocale(LC_NUMERIC, '0');
         $this->skipIf(setlocale(LC_NUMERIC, 'de_DE.UTF-8', 'de_DE') === false, 'The German locale is not available.');
         try {
