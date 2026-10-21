@@ -22,6 +22,7 @@ use Cake\Error\SocketException;
 use Cake\Network\CakeSocket;
 use Cake\TestSuite\CakeTestCase;
 use Composer\CaBundle\CaBundle;
+use ErrorException;
 use InvalidArgumentException;
 
 /**
@@ -1098,6 +1099,38 @@ class CakeSocketTest extends CakeTestCase
         $this->assertSame($message, $socket->lastError['str']);
         $this->assertNotEmpty($warnings);
         $this->assertStringStartsWith('stream_socket_enable_crypto(): ', $warnings[0]);
+        $this->assertFalse($socket->encrypted);
+    }
+
+    /**
+     * Test that a TLS handshake error is a SocketException with the message of the
+     * warning, also when the error handler turns the warning into an exception, as
+     * the error handlers of PHPUnit and of some applications do.
+     *
+     * @return void
+     */
+    public function testEnableCryptoErrorFromThePeerWithThrowingWarnings(): void
+    {
+        $this->skipIf(!extension_loaded('openssl'), 'OpenSSL is not enabled cannot test SSL.');
+        $port = $this->_listen();
+        $socket = new CakeSocket(['host' => '127.0.0.1', 'port' => $port, 'timeout' => 1]);
+        $socket->connect();
+        $peer = $this->_accept();
+        fwrite($peer, "220 not a TLS server\r\n");
+        fclose($peer);
+        set_error_handler(function ($code, $message, $file, $line): bool {
+            throw new ErrorException($message, 0, $code, $file, $line);
+        }, E_WARNING);
+        try {
+            $socket->enableCrypto('tls', 'client');
+            $this->fail('No exception was thrown.');
+        } catch (SocketException $e) {
+            $this->assertStringStartsWith('stream_socket_enable_crypto(): ', $e->getMessage());
+            $this->assertSame($e->getMessage(), $socket->lastError['str']);
+            $this->assertNull($socket->lastError['num']);
+        } finally {
+            restore_error_handler();
+        }
         $this->assertFalse($socket->encrypted);
     }
 
