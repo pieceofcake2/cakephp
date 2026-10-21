@@ -192,7 +192,7 @@ abstract class JsBaseEngineHelper extends AppHelper
      *
      * List of escaped elements:
      *
-     * - "\r" => '\n'
+     * - "\r" => '\r'
      * - "\n" => '\n'
      * - '"' => '\"'
      * - other C0 control characters => '\u00XX'
