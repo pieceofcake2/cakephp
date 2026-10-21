@@ -23,10 +23,12 @@ use Cake\Cache\Cache;
 use Cake\Core\App;
 use Cake\Core\CakePlugin;
 use Cake\Core\Configure;
+use Cake\Error\CakeSessionException;
 use Cake\Model\Datasource\CakeSession;
 use Cake\Model\Datasource\Session\CacheSession;
 use Cake\Model\Datasource\Session\DatabaseSession;
 use Cake\TestSuite\CakeTestCase;
+use stdClass;
 use TestApp\Model\Datasource\Session\NamespacedSession;
 use TestApp\Model\Datasource\Session\TestAppLibSession;
 use TestApp\Model\Datasource\Session\TestCakeSession;
@@ -926,5 +928,196 @@ class CakeSessionTest extends CakeTestCase
             TestCakeSession::destroy();
             $this->assertFalse(TestCakeSession::started());
         }
+    }
+
+    /**
+     * Test that error() is false for a valid session and describes the
+     * failure after a session with another user agent is checked.
+     *
+     * @return void
+     */
+    public function testErrorAfterInvalidSession(): void
+    {
+        Configure::write('Session.checkAgent', true);
+        TestCakeSession::start();
+        $this->assertTrue(TestCakeSession::valid());
+        $this->assertFalse(TestCakeSession::error());
+
+        TestCakeSession::userAgent('another agent');
+        $this->assertFalse(TestCakeSession::valid());
+        $this->assertSame('Session Highjacking Attempted !!!', TestCakeSession::error());
+    }
+
+    /**
+     * Test that userAgent() computes the agent hash from the HTTP_USER_AGENT
+     * and the salt when none is set.
+     *
+     * @return void
+     */
+    public function testUserAgentFromRequest(): void
+    {
+        $previous = TestCakeSession::userAgent();
+        $_SERVER['HTTP_USER_AGENT'] = 'CakeSessionTest Agent';
+        try {
+            TestCakeSession::setUserAgent(null);
+            $this->assertSame(md5('CakeSessionTest Agent' . Configure::read('Security.salt')), TestCakeSession::userAgent());
+        } finally {
+            TestCakeSession::setUserAgent($previous);
+        }
+    }
+
+    /**
+     * Test that autoRegenerate counts the requests down and renews the
+     * session id, keeping the data, when the countdown is over.
+     *
+     * @return void
+     */
+    public function testAutoRegenerateRenewsTheSessionId(): void
+    {
+        // The files handler, as a handler of an earlier test may not store the data
+        Configure::write('Session', ['defaults' => 'cake', 'timeout' => 120, 'autoRegenerate' => true]);
+        $createdPath = !is_dir(TMP . 'sessions') && mkdir(TMP . 'sessions');
+        TestCakeSession::destroy();
+        try {
+            TestCakeSession::write('Foo', 'Bar');
+            $this->assertSame(TestCakeSession::$requestCountdown, $_SESSION['Config']['countdown']);
+            $id = session_id();
+
+            session_write_close();
+            $_SESSION = null;
+            TestCakeSession::start();
+            $this->assertSame(TestCakeSession::$requestCountdown - 1, $_SESSION['Config']['countdown']);
+            $this->assertSame($id, session_id());
+
+            TestCakeSession::write('Config.countdown', 1);
+            session_write_close();
+            $_SESSION = null;
+            TestCakeSession::start();
+            $this->assertSame(TestCakeSession::$requestCountdown, $_SESSION['Config']['countdown']);
+            $this->assertNotSame($id, session_id());
+            $this->assertSame('Bar', TestCakeSession::read('Foo'));
+        } finally {
+            TestCakeSession::destroy();
+            if ($createdPath) {
+                rmdir(TMP . 'sessions');
+            }
+        }
+    }
+
+    /**
+     * Test that clear() with renew empties the stored session and continues
+     * it with a new id.
+     *
+     * @return void
+     */
+    public function testClearRenewsTheSession(): void
+    {
+        $this->markTestIncomplete('Known bug: clear() sets $_SESSION to null before renew(), so the stored data is kept and read back.');
+        // The files handler, as a handler of an earlier test may not store the data
+        Configure::write('Session', ['defaults' => 'cake', 'timeout' => 120]);
+        $createdPath = !is_dir(TMP . 'sessions') && mkdir(TMP . 'sessions');
+        TestCakeSession::destroy();
+        try {
+            TestCakeSession::write('Delete.me', 'Clearing out');
+            $id = TestCakeSession::id();
+            session_write_close();
+            $_SESSION = null;
+            $this->assertSame('Clearing out', TestCakeSession::read('Delete.me'));
+
+            TestCakeSession::clear();
+            $this->assertTrue(TestCakeSession::started());
+            $this->assertNotSame($id, session_id());
+            $this->assertFalse(TestCakeSession::check('Delete.me'));
+
+            session_write_close();
+            $_SESSION = null;
+            $this->assertFalse(TestCakeSession::check('Delete.me'));
+        } finally {
+            TestCakeSession::destroy();
+            if ($createdPath) {
+                rmdir(TMP . 'sessions');
+            }
+        }
+    }
+
+    /**
+     * Test that the session cookie is secure on a HTTPS request.
+     *
+     * @return void
+     */
+    public function testCookieSecureOnHttps(): void
+    {
+        $previous = ini_get('session.cookie_secure');
+        TestCakeSession::destroy();
+        $_SERVER['HTTPS'] = 'on';
+        try {
+            TestCakeSession::start();
+            $this->assertSame('1', ini_get('session.cookie_secure'));
+        } finally {
+            session_write_close();
+            ini_set('session.cookie_secure', $previous);
+        }
+    }
+
+    /**
+     * Test that the session folder given in the ini settings is created in debug mode.
+     *
+     * @return void
+     */
+    public function testSavePathIsCreatedInDebugMode(): void
+    {
+        $this->markTestIncomplete('Known bug: _configureSession() checks Session.session.save_path instead of Session.ini.session.save_path.');
+        $path = TMP . 'cake_session_test_' . getmypid();
+        Configure::write('debug', 2);
+        Configure::write('Session.ini.session.save_path', $path);
+        $previous = ini_get('session.save_path');
+        TestCakeSession::destroy();
+        try {
+            TestCakeSession::start();
+            $this->assertDirectoryExists($path);
+        } finally {
+            session_write_close();
+            ini_set('session.save_path', $previous);
+            if (is_dir($path)) {
+                array_map('unlink', glob($path . DS . '*'));
+                rmdir($path);
+            }
+        }
+    }
+
+    /**
+     * Test that a session handler that cannot be found is reported with its
+     * name without the plugin.
+     *
+     * @return void
+     */
+    public function testMissingHandler(): void
+    {
+        TestCakeSession::destroy();
+        Configure::write('Session', [
+            'defaults' => 'cake',
+            'handler' => ['engine' => 'TestPlugin.NoSuchSession'],
+        ]);
+        $this->expectException(CakeSessionException::class);
+        $this->expectExceptionMessage('Could not load NoSuchSession to handle the session.');
+        TestCakeSession::start();
+    }
+
+    /**
+     * Test that a session handler that does not implement
+     * CakeSessionHandlerInterface is rejected.
+     *
+     * @return void
+     */
+    public function testHandlerWithoutInterface(): void
+    {
+        TestCakeSession::destroy();
+        Configure::write('Session', [
+            'defaults' => 'cake',
+            'handler' => ['engine' => stdClass::class],
+        ]);
+        $this->expectException(CakeSessionException::class);
+        $this->expectExceptionMessage('Chosen SessionHandler does not implement CakeSessionHandlerInterface it cannot be used with an engine key.');
+        TestCakeSession::start();
     }
 }
