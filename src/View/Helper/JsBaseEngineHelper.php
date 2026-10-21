@@ -561,7 +561,7 @@ abstract class JsBaseEngineHelper extends AppHelper
 
     /**
      * Prepare callbacks and wrap them with function ([args]) { } as defined in
-     * _callbackArgs array.
+     * _callbackArgs array. Empty callbacks are left out.
      *
      * @param string $method Name of the method you are preparing callbacks for.
      * @param array $options Array of options being parsed
@@ -575,14 +575,21 @@ abstract class JsBaseEngineHelper extends AppHelper
             $wrapCallbacks = $options['wrapCallbacks'];
         }
         unset($options['wrapCallbacks']);
-        if (!$wrapCallbacks) {
-            return $options;
-        }
         $callbackOptions = [];
         if (isset($this->_callbackArguments[$method])) {
             $callbackOptions = $this->_callbackArguments[$method];
         }
         $callbacks = array_unique(array_merge(array_keys($callbackOptions), (array)$callbacks));
+
+        foreach ($callbacks as $callback) {
+            if (array_key_exists($callback, $options) && empty($options[$callback])) {
+                // An empty callback has no code; written as `name:` it is invalid JavaScript.
+                unset($options[$callback]);
+            }
+        }
+        if (!$wrapCallbacks) {
+            return $options;
+        }
 
         foreach ($callbacks as $callback) {
             if (empty($options[$callback])) {

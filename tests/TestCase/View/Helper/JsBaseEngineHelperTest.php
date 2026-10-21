@@ -670,7 +670,8 @@ class JsBaseEngineHelperTest extends CakeTestCase
 
     /**
      * Test that _prepareCallbacks() wraps each non-empty callback in a function with
-     * the arguments of the method, plus any extra callback keys without arguments.
+     * the arguments of the method, plus any extra callback keys without arguments,
+     * and leaves empty callbacks out.
      *
      * @return void
      */
@@ -687,7 +688,6 @@ class JsBaseEngineHelperTest extends CakeTestCase
         $expected = [
             'beforeSend' => 'function (XMLHttpRequest) {start();}',
             'success' => 'function (data, textStatus) {show(data);}',
-            'error' => '',
             'onDone' => 'function () {done();}',
             'url' => '/posts',
         ];
@@ -785,9 +785,10 @@ class JsBaseEngineHelperTest extends CakeTestCase
      */
     public function testProcessOptionsLeavesEmptyCallbacksOut(): void
     {
-        $this->markTestIncomplete('Known bug: _processOptions() writes an empty callback as "error:" without a value');
-
         $result = $this->JsEngine->processOptions('request', ['error' => '', 'complete' => 'show(data);']);
         $this->assertSame('success:function (data, textStatus) {show(data);}', $result);
+
+        $result = $this->JsEngine->processOptions('request', ['error' => null, 'complete' => 'show', 'wrapCallbacks' => false]);
+        $this->assertSame('success:show', $result);
     }
 }
