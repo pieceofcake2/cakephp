@@ -439,12 +439,11 @@ class Scaffold
         if (isset($db)) {
             if (empty($this->scaffoldActions)) {
                 $this->scaffoldActions = [
-                    'index', 'list', 'view', 'add', 'create', 'edit', 'update', 'delete',
+                    'index', 'view', 'add', 'create', 'edit', 'update', 'delete',
                 ];
             } elseif (!empty($prefixes) && in_array($scaffoldPrefix, $prefixes)) {
                 $this->scaffoldActions = [
                     $scaffoldPrefix . '_index',
-                    $scaffoldPrefix . '_list',
                     $scaffoldPrefix . '_view',
                     $scaffoldPrefix . '_add',
                     $scaffoldPrefix . '_create',
@@ -460,7 +459,6 @@ class Scaffold
                 }
                 switch ($request->params['action']) {
                     case 'index':
-                    case 'list':
                         $this->_scaffoldIndex($request);
                         break;
                     case 'view':

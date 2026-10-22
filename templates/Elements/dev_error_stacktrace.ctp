@@ -40,12 +40,12 @@ $isVendorFile = function ($file) use ($vendorPaths) {
 	return strpos($file, DS . 'vendor' . DS) !== false;
 };
 
-// Debugger::excerpt() takes a zero based line number and returns up to 5 lines
-// before and 3 lines after the highlighted line.
+// Debugger::excerpt() returns up to 4 lines before and 4 lines after the
+// highlighted line.
 $excerpt = function ($file, $line) {
 	return array(
-		max(1, $line - 5),
-		Debugger::excerpt($file, $line - 1, 4),
+		max(1, $line - 4),
+		Debugger::excerpt($file, $line, 4),
 	);
 };
 

@@ -22,6 +22,7 @@ use Cake\Error\SocketException;
 use Cake\Network\CakeSocket;
 use Cake\TestSuite\CakeTestCase;
 use Composer\CaBundle\CaBundle;
+use ErrorException;
 use InvalidArgumentException;
 
 /**
@@ -803,6 +804,30 @@ class CakeSocketTest extends CakeTestCase
     }
 
     /**
+     * Test that a failed connect() reports only its own warnings, not also the
+     * warnings of an earlier connect() of the same socket.
+     *
+     * @return void
+     */
+    public function testConnectReportsOnlyTheWarningsOfThisAttempt(): void
+    {
+        $this->skipIf(!extension_loaded('openssl'), 'OpenSSL is not enabled cannot test SSL.');
+        $port = $this->_listen();
+        $socket = new CakeSocket(['host' => 'ssl://127.0.0.1', 'port' => $port, 'timeout' => 1]);
+        $messages = [];
+        for ($i = 0; $i < 2; $i++) {
+            try {
+                $socket->connect();
+                $this->fail('No exception was thrown.');
+            } catch (SocketException $e) {
+                $messages[] = $e->getMessage();
+            }
+            $this->_accept();
+        }
+        $this->assertSame($messages[0], $messages[1]);
+    }
+
+    /**
      * Test that read() returns false and sets the last error when the peer
      * sends nothing within the timeout.
      *
@@ -827,7 +852,6 @@ class CakeSocketTest extends CakeTestCase
      */
     public function testConnectWithFractionalTimeout(): void
     {
-        $this->markTestIncomplete('Known bug: connect() passes a float timeout to stream_set_timeout(), which takes whole seconds.');
         $port = $this->_listen();
         $socket = new CakeSocket(['host' => '127.0.0.1', 'port' => $port, 'timeout' => 0.5]);
         $this->assertTrue($socket->connect());
@@ -882,15 +906,13 @@ class CakeSocketTest extends CakeTestCase
     }
 
     /**
-     * Test that an explicit false in the SSL context wins over the flat ssl_*
-     * setting of the same option.
+     * Test that a flat ssl_* setting fills in an SSL context option that is empty,
+     * also when the context gives it as false.
      *
      * @return void
      */
-    public function testContextOptionsExplicitFalseWinsOverFlatSetting(): void
+    public function testContextOptionsFlatSettingFillsAnEmptyOption(): void
     {
-        $this->markTestIncomplete('Known bug: _setSslContext() checks the explicit context option with empty(), so false is overwritten');
-
         $port = $this->_listen();
         $socket = new CakeSocket([
             'host' => '127.0.0.1',
@@ -902,7 +924,7 @@ class CakeSocketTest extends CakeTestCase
         $socket->connect();
         $this->_accept();
 
-        $this->assertFalse($socket->context()['ssl']['allow_self_signed']);
+        $this->assertTrue($socket->context()['ssl']['allow_self_signed']);
     }
 
     /**
@@ -972,11 +994,38 @@ class CakeSocketTest extends CakeTestCase
         $this->assertTrue($socket->reset());
         $this->assertSame('Remote DataSource Network Socket Interface', $socket->description);
         $this->assertFalse($socket->encrypted);
-        // Pending decision: reset() without a state leaves the config empty instead of
-        // the default config. The assertion keeps the current behaviour.
+        // reset() without a state restores the state before __construct(), so the config
+        // is cleared to an empty array, not set to the base config.
         $this->assertSame([], $socket->config);
         $this->assertSame([], $socket->lastError);
         $this->assertNull($socket->lastError());
+    }
+
+    /**
+     * Test that reset() closes an open connection instead of dropping it, and that
+     * a state that does not replace the connection keeps it open.
+     *
+     * @return void
+     */
+    public function testResetClosesTheConnection(): void
+    {
+        $port = $this->_listen();
+        $socket = new CakeSocket(['host' => '127.0.0.1', 'port' => $port, 'timeout' => 1]);
+        $this->assertTrue($socket->connect());
+        $peer = $this->_accept();
+        $connection = $socket->connection;
+
+        $this->assertTrue($socket->reset(['description' => 'changed']));
+        $this->assertTrue($socket->connected);
+        $this->assertSame($connection, $socket->connection);
+        $this->assertTrue(is_resource($connection));
+
+        $this->assertTrue($socket->reset());
+        $this->assertFalse($socket->connected);
+        $this->assertNull($socket->connection);
+        $this->assertFalse(is_resource($connection), 'The connection is closed.');
+        $this->assertSame('', fread($peer, 1024));
+        $this->assertTrue(feof($peer), 'The peer sees the connection closed.');
     }
 
     /**
@@ -1050,6 +1099,38 @@ class CakeSocketTest extends CakeTestCase
         $this->assertSame($message, $socket->lastError['str']);
         $this->assertNotEmpty($warnings);
         $this->assertStringStartsWith('stream_socket_enable_crypto(): ', $warnings[0]);
+        $this->assertFalse($socket->encrypted);
+    }
+
+    /**
+     * Test that a TLS handshake error is a SocketException with the message of the
+     * warning, also when the error handler turns the warning into an exception, as
+     * the error handlers of PHPUnit and of some applications do.
+     *
+     * @return void
+     */
+    public function testEnableCryptoErrorFromThePeerWithThrowingWarnings(): void
+    {
+        $this->skipIf(!extension_loaded('openssl'), 'OpenSSL is not enabled cannot test SSL.');
+        $port = $this->_listen();
+        $socket = new CakeSocket(['host' => '127.0.0.1', 'port' => $port, 'timeout' => 1]);
+        $socket->connect();
+        $peer = $this->_accept();
+        fwrite($peer, "220 not a TLS server\r\n");
+        fclose($peer);
+        set_error_handler(function ($code, $message, $file, $line): bool {
+            throw new ErrorException($message, 0, $code, $file, $line);
+        }, E_WARNING);
+        try {
+            $socket->enableCrypto('tls', 'client');
+            $this->fail('No exception was thrown.');
+        } catch (SocketException $e) {
+            $this->assertStringStartsWith('stream_socket_enable_crypto(): ', $e->getMessage());
+            $this->assertSame($e->getMessage(), $socket->lastError['str']);
+            $this->assertNull($socket->lastError['num']);
+        } finally {
+            restore_error_handler();
+        }
         $this->assertFalse($socket->encrypted);
     }
 
@@ -1130,8 +1211,6 @@ class CakeSocketTest extends CakeTestCase
      */
     public function testConnectThroughProxySendsTheTargetAsHost(): void
     {
-        $this->markTestIncomplete('Known bug: the CONNECT request sends the proxy as Host instead of the target authority');
-
         $port = $this->_startTlsServer('proxy');
         $this->_proxySocket($port)->connect();
 
@@ -1150,8 +1229,6 @@ class CakeSocketTest extends CakeTestCase
      */
     public function testConnectThroughProxyRejectsAnErrorStatus(): void
     {
-        $this->markTestIncomplete('Known bug: connect() ignores the status of the proxy and starts TLS after a refused CONNECT');
-
         $port = $this->_startTlsServer('refuse');
         $socket = $this->_proxySocket($port);
         $warnings = [];
@@ -1166,6 +1243,34 @@ class CakeSocketTest extends CakeTestCase
 
         $this->assertNotNull($exception, 'No SocketException was thrown.');
         $this->assertStringContainsString('407', $exception->getMessage());
+        $this->assertSame(407, $exception->getCode());
+        $this->assertSame($exception->getMessage(), $socket->lastError['str']);
         $this->assertFalse($socket->encrypted);
+        $this->assertFalse($socket->connected);
+        $this->assertNull($socket->connection);
+    }
+
+    /**
+     * Test that a proxy that does not answer the CONNECT request is reported as
+     * an error, instead of a TLS handshake with the proxy.
+     *
+     * @return void
+     */
+    public function testConnectThroughProxyWithoutAnswer(): void
+    {
+        $port = $this->_listen();
+        $socket = $this->_proxySocket($port);
+        $socket->config['timeout'] = 1;
+        try {
+            $socket->connect();
+            $this->fail('No exception was thrown.');
+        } catch (SocketException $e) {
+            $message = __d('cake_dev', 'The proxy did not establish the tunnel to %s', 'localhost:443');
+            $this->assertSame($message, $e->getMessage());
+            $this->assertSame(0, $e->getCode());
+            $this->assertSame($message, $socket->lastError['str']);
+        }
+        $this->assertFalse($socket->encrypted);
+        $this->assertFalse($socket->connected);
     }
 }

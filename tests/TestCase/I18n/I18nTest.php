@@ -1938,6 +1938,30 @@ class I18nTest extends CakeTestCase
     }
 
     /**
+     * Test that a translation of "0" is used, and not taken for a missing one.
+     *
+     * @return void
+     */
+    public function testPoTranslationOfZero(): void
+    {
+        Configure::write('Config.language', 'po');
+        $this->assertSame('0', __('Number of retries'));
+        $this->assertSame('No Translation needed', __('No Translation needed'));
+    }
+
+    /**
+     * Test that the translations of the numeric msgids "0" and "404" are used.
+     *
+     * @return void
+     */
+    public function testPoNumericMsgid(): void
+    {
+        Configure::write('Config.language', 'po');
+        $this->assertSame('zero', __('0'));
+        $this->assertSame('not found', __('404'));
+    }
+
+    /**
      * testPoQuotedString method
      *
      * @return void

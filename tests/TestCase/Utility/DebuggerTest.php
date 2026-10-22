@@ -117,14 +117,13 @@ class DebuggerTest extends CakeTestCase
     public function testExcerptWithoutAddedOpenTag(): void
     {
         $line = __LINE__;
-        // Debugger::excerpt() takes a zero based line number, so this highlights the line above.
-        $result = Debugger::excerpt(__FILE__, $line - 1, 1);
+        $result = Debugger::excerpt(__FILE__, $line, 1);
         $this->assertCount(3, $result);
         foreach ($result as $code) {
             $this->assertStringNotContainsString('&lt;?php', $code);
         }
-        $this->assertStringContainsString('<span class="code-highlight">', $result[2]);
-        $this->assertStringContainsString('__LINE__', strip_tags($result[2]));
+        $this->assertStringContainsString('<span class="code-highlight">', $result[1]);
+        $this->assertStringContainsString('__LINE__', strip_tags($result[1]));
     }
 
     /**
@@ -1041,6 +1040,45 @@ TEXT;
     }
 
     /**
+     * outputError() shows the line before, the line of and the line after the call
+     * in the first frame of the trace, with the line of the call highlighted.
+     *
+     * @return void
+     */
+    public function testOutputErrorHighlightsTheErrorLine(): void
+    {
+        // addFormat() cannot remove a format, so the templates are restored by reflection.
+        $templates = new ReflectionProperty(Debugger::class, '_templates');
+        if (PHP_VERSION_ID < 80100) {
+            $templates->setAccessible(true);
+        }
+        $saved = $templates->getValue(Debugger::getInstance());
+        $previous = null;
+        try {
+            Debugger::addFormat('debugger_test_code', ['error' => '{:info}', 'code' => '{:code}', 'trace' => '']);
+            $previous = $this->_useOutputFormat('debugger_test_code');
+            ob_start();
+            $line = __LINE__ + 1;
+            Debugger::getInstance()->outputError(['error' => 'Warning', 'description' => 'code', 'start' => 1]);
+            $output = ob_get_clean();
+        } finally {
+            if ($previous !== null) {
+                Debugger::outputAs($previous);
+            }
+            $templates->setValue(Debugger::getInstance(), $saved);
+        }
+
+        $lines = $this->_excerptText(explode("\n", $output));
+        $source = file(__FILE__, FILE_IGNORE_NEW_LINES);
+        $expected = [
+            [trim($source[$line - 2]), false],
+            [trim($source[$line - 1]), true],
+            [trim($source[$line]), false],
+        ];
+        $this->assertSame($expected, $lines);
+    }
+
+    /**
      * Calls Debugger::trace() with the arguments shown.
      *
      * @param string $name A string argument.
@@ -1140,13 +1178,17 @@ TEXT;
      */
     public function testExcerptHighlightsTheGivenLine(): void
     {
-        $this->markTestIncomplete('Known bug: excerpt() uses the 1-based line as a 0-based index, so it highlights the next line');
-
         $file = TMP . 'debugger_excerpt_highlight_test_' . getmypid() . '.php';
         try {
             file_put_contents($file, "line1\nline2\nline3\nline4\nline5\nline6\nline7\n");
             $expected = [['line2', false], ['line3', false], ['line4', true], ['line5', false], ['line6', false]];
             $this->assertSame($expected, $this->_excerptText(Debugger::excerpt($file, 4, 2)));
+
+            $expected = [['line1', true], ['line2', false]];
+            $this->assertSame($expected, $this->_excerptText(Debugger::excerpt($file, 1, 1)));
+
+            file_put_contents($file, 'only line');
+            $this->assertSame([['only line', true]], $this->_excerptText(Debugger::excerpt($file, 1, 2)));
         } finally {
             if (file_exists($file)) {
                 unlink($file);

@@ -251,8 +251,6 @@ class CakeBaseReporterTest extends CakeTestCase
      */
     public function testSkippedAndIncompleteTestsAreNotPaintedAsPasses(): void
     {
-        $this->markTestIncomplete('Known bug: endTest() paints skipped and incomplete tests as passes too.');
-
         $reporter = new RecordingReporter();
         $this->runSample($reporter, 'testSkipped', 'testIncomplete');
 

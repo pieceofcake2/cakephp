@@ -697,19 +697,18 @@ class ScaffoldTest extends CakeTestCase
     }
 
     /**
-     * Test that the list action is an alias of the index action.
+     * Test that list is not a scaffolded action. It was the former name of index,
+     * which had no view since CakePHP 1.2.
      *
      * @return void
      */
-    public function testListActionRendersIndex(): void
+    public function testListActionIsNotScaffolded(): void
     {
-        $this->markTestIncomplete('Known bug: the scaffolded list action renders the missing view Scaffolds/list.ctp instead of the index view');
-
         $this->_prepareRequest('list');
-        $result = $this->_runScaffold();
 
-        $this->assertCount(3, $this->Controller->viewVars['scaffoldMock']);
-        $this->assertStringContainsString('<td>Second Article</td>', $result);
+        $this->expectException(MissingActionException::class);
+        $this->expectExceptionMessage('Action ' . ScaffoldMockController::class . '::list() could not be found.');
+        $this->_runScaffold();
     }
 
     /**
@@ -763,7 +762,7 @@ class ScaffoldTest extends CakeTestCase
     }
 
     /**
-     * Test that each scaffolded action (index, list, view, add, edit and delete)
+     * Test that each scaffolded action (index, view, add, edit and delete)
      * renders the scaffold error page when beforeScaffold() returns false, and that
      * nothing is changed.
      *
@@ -771,7 +770,7 @@ class ScaffoldTest extends CakeTestCase
      */
     public function testBeforeScaffoldFalseRendersErrorForEveryAction(): void
     {
-        foreach (['index', 'list', 'view', 'add', 'edit', 'delete'] as $action) {
+        foreach (['index', 'view', 'add', 'edit', 'delete'] as $action) {
             $this->Controller = new ScaffoldMockControllerWithError(new CakeRequest(null, false));
             $this->Controller->response = $this->getMock(CakeResponse::class, ['_sendHeader']);
             $this->_prepareRequest($action, [1], ['ScaffoldMock' => ['title' => 'Not saved']], 'POST');

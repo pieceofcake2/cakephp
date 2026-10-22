@@ -493,13 +493,14 @@ class Debugger
      *
      * `Debugger::excerpt('/path/to/file', 100, 4);`
      *
-     * The above would return an array of 8 items. The 4th item would be the provided line,
-     * and would be wrapped in `<span class="code-highlight"></span>`. All of the lines
+     * The above would return an array of 9 items: lines 96 to 104. The 5th item would be
+     * line 100, and would be wrapped in `<span class="code-highlight"></span>`. Lines
+     * before the start or after the end of the file are left out. All of the lines
      * are processed with highlight_string() as well, so they have basic PHP syntax highlighting
      * applied.
      *
      * @param string $file Absolute path to a PHP file
-     * @param int $line Line number to highlight
+     * @param int $line Line number to highlight (1-based)
      * @param int $context Number of lines of context to extract above and below $line
      * @return array Set of lines highlighted
      * @see http://php.net/highlight_string
@@ -515,18 +516,17 @@ class Debugger
         if (empty($data)) {
             return $lines;
         }
-        if (str_contains($data, "\n")) {
-            $data = explode("\n", $data);
-        }
-        if (!isset($data[$line])) {
+        $data = explode("\n", $data);
+        $index = $line - 1;
+        if (!isset($data[$index])) {
             return $lines;
         }
-        for ($i = $line - ($context + 1); $i < $line + $context; $i++) {
+        for ($i = $index - $context; $i <= $index + $context; $i++) {
             if (!isset($data[$i])) {
                 continue;
             }
             $string = str_replace(["\r\n", "\n"], '', static::_highlight($data[$i]));
-            if ($i == $line) {
+            if ($i === $index) {
                 $lines[] = '<span class="code-highlight">' . $string . '</span>';
             } else {
                 $lines[] = $string;
@@ -881,7 +881,7 @@ class Debugger
             $file = $files[1];
         }
         if ($file) {
-            $code = static::excerpt($file['file'], $file['line'] - 1, 1);
+            $code = static::excerpt($file['file'], $file['line'], 1);
         }
         $trace = static::trace(['start' => $data['start'], 'depth' => '20']);
         $insertOpts = ['before' => '{:', 'after' => '}'];

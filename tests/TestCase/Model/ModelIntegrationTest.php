@@ -2852,8 +2852,6 @@ class ModelIntegrationTest extends BaseModelTest
      */
     public function testGetColumnTypesWithoutSchema(): void
     {
-        $this->markTestIncomplete('Known bug: getColumnTypes() runs foreach on a null schema and raises a PHP warning');
-
         $Model = new NoSchemaModel();
 
         $errors = [];

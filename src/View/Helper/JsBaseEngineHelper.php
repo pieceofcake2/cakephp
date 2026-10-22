@@ -17,7 +17,7 @@
 namespace Cake\View\Helper;
 
 use AppHelper;
-use Cake\I18n\Multibyte;
+use Cake\Error\CakeException;
 use Cake\Routing\Router;
 
 /**
@@ -74,13 +74,14 @@ abstract class JsBaseEngineHelper extends AppHelper
     /**
      * Redirects to a URL. Creates a window.location modification snippet
      * that can be used to trigger 'redirects' from JavaScript.
+     * The URL is escaped like any other JavaScript string, see escape().
      *
      * @param array|string $url URL
      * @return string completed redirect in javascript
      */
     public function redirect($url = null)
     {
-        return 'window.location = "' . Router::url($url) . '";';
+        return 'window.location = "' . $this->escape(Router::url($url)) . '";';
     }
 
     /**
@@ -130,9 +131,12 @@ abstract class JsBaseEngineHelper extends AppHelper
      * - `prefix` - String prepended to the returned data.
      * - `postfix` - String appended to the returned data.
      *
+     * Bytes in strings that are not valid UTF-8 are replaced by U+FFFD.
+     *
      * @param array $data Data to be converted.
      * @param array $options Set of options, see above.
      * @return string A JSON code block
+     * @throws CakeException When the data cannot be encoded, for example INF or NAN.
      */
     public function object($data = [], $options = [])
     {
@@ -141,7 +145,12 @@ abstract class JsBaseEngineHelper extends AppHelper
         ];
         $options += $defaultOptions;
 
-        return $options['prefix'] . json_encode($data) . $options['postfix'];
+        $json = json_encode($data, JSON_INVALID_UTF8_SUBSTITUTE);
+        if ($json === false) {
+            throw new CakeException(json_last_error_msg());
+        }
+
+        return $options['prefix'] . $json . $options['postfix'];
     }
 
     /**
@@ -151,7 +160,8 @@ abstract class JsBaseEngineHelper extends AppHelper
      * @param bool $quoteString If false, leaves string values unquoted
      * @param string $key Key name.
      * @phpstan-param mixed $quoteString
-     * @return string a JavaScript-safe/JSON representation of $val
+     * @return string|int a JavaScript-safe/JSON representation of $val; an int is returned as it is
+     * @throws CakeException When $val is INF or NAN, or an array or object that cannot be encoded.
      */
     public function value($val = [], $quoteString = null, $key = 'value')
     {
@@ -172,7 +182,10 @@ abstract class JsBaseEngineHelper extends AppHelper
                 $val = $val;
                 break;
             case is_float($val):
-                $val = sprintf('%.11f', $val);
+                if (!is_finite($val)) {
+                    throw new CakeException('Inf and NaN cannot be JSON encoded');
+                }
+                $val = sprintf('%.11F', $val);
                 break;
             default:
                 $val = $this->escape($val);
@@ -189,9 +202,17 @@ abstract class JsBaseEngineHelper extends AppHelper
      *
      * List of escaped elements:
      *
-     * - "\r" => '\n'
+     * - "\r" => '\r'
      * - "\n" => '\n'
      * - '"' => '\"'
+     * - other C0 control characters => '\u00XX'
+     *
+     * A byte sequence that is not valid UTF-8 is replaced by '?': a lead byte that
+     * is not followed by all its continuation bytes is replaced together with the
+     * continuation bytes it has by one '?', and the following byte is escaped on its
+     * own. A complete sequence that is overlong, a surrogate (U+D800 to U+DFFF) or
+     * past U+10FFFF is replaced by one '?', and so is each stray continuation byte
+     * and each of the lead bytes 0xF8 to 0xFF.
      *
      * @param string $string String that needs to get escaped.
      * @return string Escaped string.
@@ -234,63 +255,53 @@ abstract class JsBaseEngineHelper extends AppHelper
                 case $ord == 0x5C:
                     $return .= '\\' . $string[$i];
                     break;
-                case ($ord >= 0x20) && ($ord <= 0x7F):
+                case $ord < 0x20:
+                    // JSON does not allow raw control characters in a string.
+                    $return .= sprintf('\u%04x', $ord);
+                    break;
+                case $ord <= 0x7F:
                     $return .= $string[$i];
                     break;
+                case ($ord & 0xC0) == 0x80:
+                    // A continuation byte without a lead byte is not valid UTF-8.
+                    $return .= '?';
+                    break;
                 case ($ord & 0xE0) == 0xC0:
-                    if ($i + 1 >= $length) {
-                        $i += 1;
-                        $return .= '?';
-                        break;
-                    }
-                    $charbits = $string[$i] . $string[$i + 1];
-                    $char = Multibyte::utf8($charbits);
-                    $return .= sprintf('\u%04s', dechex($char[0]));
-                    $i += 1;
-                    break;
                 case ($ord & 0xF0) == 0xE0:
-                    if ($i + 2 >= $length) {
-                        $i += 2;
-                        $return .= '?';
-                        break;
-                    }
-                    $charbits = $string[$i] . $string[$i + 1] . $string[$i + 2];
-                    $char = Multibyte::utf8($charbits);
-                    $return .= sprintf('\u%04s', dechex($char[0]));
-                    $i += 2;
-                    break;
                 case ($ord & 0xF8) == 0xF0:
-                    if ($i + 3 >= $length) {
-                        $i += 3;
+                    $bytes = $ord >= 0xF0 ? 4 : ($ord >= 0xE0 ? 3 : 2);
+                    $char = $ord & (0xFF >> $bytes + 1);
+                    for ($n = 1; $n < $bytes; ++$n) {
+                        if ($i + $n >= $length || (ord($string[$i + $n]) & 0xC0) != 0x80) {
+                            break;
+                        }
+                        $char = ($char << 6) | (ord($string[$i + $n]) & 0x3F);
+                    }
+                    $i += $n - 1;
+                    if ($n < $bytes) {
+                        // A sequence cut off by the end of the string or by a byte that is
+                        // not a continuation byte: one question mark for the lead byte and
+                        // the continuation bytes before it.
                         $return .= '?';
                         break;
                     }
-                    $charbits = $string[$i] . $string[$i + 1] . $string[$i + 2] . $string[$i + 3];
-                    $char = Multibyte::utf8($charbits);
-                    $return .= sprintf('\u%04s', dechex($char[0]));
-                    $i += 3;
+                    if ($char < [2 => 0x80, 3 => 0x800, 4 => 0x10000][$bytes] || $char > 0x10FFFF || ($char >= 0xD800 && $char <= 0xDFFF)) {
+                        // An overlong sequence, a surrogate or one past U+10FFFF is not valid UTF-8.
+                        $return .= '?';
+                        break;
+                    }
+                    if ($char < 0x10000) {
+                        $return .= sprintf('\u%04x', $char);
+                        break;
+                    }
+                    // JSON has only 4-digit \u escapes: write a character outside the
+                    // Basic Multilingual Plane as its UTF-16 surrogate pair.
+                    $offset = $char - 0x10000;
+                    $return .= sprintf('\u%04x\u%04x', 0xD800 | ($offset >> 10), 0xDC00 | ($offset & 0x3FF));
                     break;
-                case ($ord & 0xFC) == 0xF8:
-                    if ($i + 4 >= $length) {
-                        $i += 4;
-                        $return .= '?';
-                        break;
-                    }
-                    $charbits = $string[$i] . $string[$i + 1] . $string[$i + 2] . $string[$i + 3] . $string[$i + 4];
-                    $char = Multibyte::utf8($charbits);
-                    $return .= sprintf('\u%04s', dechex($char[0]));
-                    $i += 4;
-                    break;
-                case ($ord & 0xFE) == 0xFC:
-                    if ($i + 5 >= $length) {
-                        $i += 5;
-                        $return .= '?';
-                        break;
-                    }
-                    $charbits = $string[$i] . $string[$i + 1] . $string[$i + 2] . $string[$i + 3] . $string[$i + 4] . $string[$i + 5];
-                    $char = Multibyte::utf8($charbits);
-                    $return .= sprintf('\u%04s', dechex($char[0]));
-                    $i += 5;
+                default:
+                    // The lead bytes 0xF8 to 0xFF are not valid UTF-8 (RFC 3629).
+                    $return .= '?';
                     break;
             }
         }
@@ -541,7 +552,7 @@ abstract class JsBaseEngineHelper extends AppHelper
 
     /**
      * Prepare callbacks and wrap them with function ([args]) { } as defined in
-     * _callbackArgs array.
+     * _callbackArgs array. Empty callbacks are left out.
      *
      * @param string $method Name of the method you are preparing callbacks for.
      * @param array $options Array of options being parsed
@@ -555,14 +566,21 @@ abstract class JsBaseEngineHelper extends AppHelper
             $wrapCallbacks = $options['wrapCallbacks'];
         }
         unset($options['wrapCallbacks']);
-        if (!$wrapCallbacks) {
-            return $options;
-        }
         $callbackOptions = [];
         if (isset($this->_callbackArguments[$method])) {
             $callbackOptions = $this->_callbackArguments[$method];
         }
         $callbacks = array_unique(array_merge(array_keys($callbackOptions), (array)$callbacks));
+
+        foreach ($callbacks as $callback) {
+            if (array_key_exists($callback, $options) && empty($options[$callback])) {
+                // An empty callback has no code; written as `name:` it is invalid JavaScript.
+                unset($options[$callback]);
+            }
+        }
+        if (!$wrapCallbacks) {
+            return $options;
+        }
 
         foreach ($callbacks as $callback) {
             if (empty($options[$callback])) {
@@ -598,22 +616,18 @@ abstract class JsBaseEngineHelper extends AppHelper
     /**
      * Convert an array of data into a query string
      *
+     * The keys and the values are joined as they are given, without URL-encoding them.
+     * A nested array becomes `key[sub]=value`, a null value is left out, and true and
+     * false become 1 and 0, as in the query strings of Router::url().
+     *
      * @param array $parameters Array of parameters to convert to a query string
      * @return string Querystring fragment
      */
     protected function _toQuerystring($parameters)
     {
-        $out = '';
-        $keys = array_keys($parameters);
-        $count = count($parameters);
-        for ($i = 0; $i < $count; $i++) {
-            $out .= $keys[$i] . '=' . $parameters[$keys[$i]];
-            if ($i < $count - 1) {
-                $out .= '&';
-            }
-        }
-
-        return $out;
+        // http_build_query() builds the nested keys; decoding its result gives back the
+        // keys and the values as they are given.
+        return rawurldecode(http_build_query($parameters, '', '&', PHP_QUERY_RFC3986));
     }
 }
 

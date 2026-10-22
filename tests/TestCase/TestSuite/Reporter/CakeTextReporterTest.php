@@ -20,7 +20,10 @@ use Cake\Core\CakePlugin;
 use Cake\TestSuite\CakeTestCase;
 use Cake\TestSuite\Reporter\CakeTextReporter;
 use Cake\Utility\Folder;
+use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\TestResult;
+use PHPUnit\Framework\Warning;
+use ReflectionClass;
 use TestApp\TestSuite\ReporterSampleCase;
 
 /**
@@ -149,7 +152,7 @@ class CakeTextReporterTest extends CakeTestCase
 
         $this->assertSame("Running  Reporter sample\n.", $output);
         $this->assertMatchesRegularExpression(
-            '/^\nOK\nTest cases run: 1\/1, Passes: 2, Failures: 0, Exceptions: 0\n' .
+            '/^\nOK\nTest cases run: 1\/1, Passes: 1, Failures: 0, Exceptions: 0, Skipped: 0, Incomplete: 0\n' .
             'Time: [0-9.E-]+ seconds\nPeak memory: [0-9,]+ bytes\n$/',
             $this->footer($reporter, $result),
         );
@@ -157,9 +160,11 @@ class CakeTextReporterTest extends CakeTestCase
 
     /**
      * Test the summary of a run with a pass, a failure, an exception, a skipped
-     * and an incomplete test. The summary is `Test cases run: <all tests>/<all
-     * tests minus the skipped ones>`, then `Passes: <assertions>`, `Failures:
-     * <failures>` and `Exceptions: <errors>`.
+     * and an incomplete test. The summary is `Test cases run: <complete
+     * tests>/<all tests>`, where the complete tests are neither skipped nor
+     * incomplete, then `Passes: <passing tests>`, `Failures: <failures>`,
+     * `Exceptions: <errors>`, `Skipped: <skipped>` and `Incomplete:
+     * <incomplete>`.
      *
      * @return void
      */
@@ -175,11 +180,8 @@ class CakeTextReporterTest extends CakeTestCase
             'testIncomplete',
         );
 
-        // Pending decision: "Test cases run: 5/4" is the reverse of the "4/5"
-        // of the HTML summary, and "Passes" counts the assertions, not the
-        // passing tests. The assertion keeps the current output.
         $this->assertMatchesRegularExpression(
-            '/^FAILURES!!!\nTest cases run: 5\/4, Passes: 3, Failures: 1, Exceptions: 1\n' .
+            '/^FAILURES!!!\nTest cases run: 3\/5, Passes: 1, Failures: 1, Exceptions: 1, Skipped: 1, Incomplete: 1\n' .
             'Time: [0-9.E-]+ seconds\nPeak memory: [0-9,]+ bytes\n$/',
             $this->footer($reporter, $result),
         );
@@ -222,8 +224,6 @@ class CakeTextReporterTest extends CakeTestCase
      */
     public function testPaintsExceptionClassOfTheThrownException(): void
     {
-        $this->markTestIncomplete('Known bug: paintException() names PHPUnit\'s ExceptionWrapper instead of the thrown class.');
-
         [$output] = $this->runSample(new CakeTextReporter(), 'testThrowsException');
 
         $this->assertStringContainsString(
@@ -254,8 +254,6 @@ class CakeTextReporterTest extends CakeTestCase
      */
     public function testPaintsFailureLocationInTheTest(): void
     {
-        $this->markTestIncomplete('Known bug: paintFail() reports a frame inside PHPUnit\'s Assert class, not the test.');
-
         [$output] = $this->runSample(new CakeTextReporter(), 'testFails');
 
         $line = ReporterSampleCase::$lines['testFails'];
@@ -263,6 +261,72 @@ class CakeTextReporterTest extends CakeTestCase
         $this->assertSame(
             "Running  Reporter sample\nFAIL on line $line\nValues differ & <mismatch>\n" .
             "Failed asserting that two strings are identical. in\n$file testFails()\n\n",
+            $output,
+        );
+    }
+
+    /**
+     * Test that a test with a warning is painted as a failure only, not also as a pass.
+     *
+     * @return void
+     */
+    public function testWarningIsNotPaintedAsAPass(): void
+    {
+        [$output] = $this->runSample(new CakeTextReporter(), 'testWarns');
+
+        $this->assertStringStartsWith("Running  Reporter sample\nFAIL on line ", $output);
+        $this->assertStringContainsString("\nDeprecated <feature> in\n", $output);
+        $this->assertStringEndsWith("()\n\n", $output, 'No pass is painted after the failure.');
+    }
+
+    /**
+     * Test that a failure raised by the test method itself is painted with the
+     * line where it was raised and the test method.
+     *
+     * @return void
+     */
+    public function testPaintsLocationOfAFailureRaisedInTheTestMethod(): void
+    {
+        $line = __LINE__ + 1;
+        $warning = new Warning('Deprecated feature');
+        $output = $this->capture(function () use ($warning): void {
+            (new CakeTextReporter())->paintFail($warning);
+        });
+
+        $this->assertSame("FAIL on line $line\nDeprecated feature in\n" . __FILE__ . ' ' . __FUNCTION__ . "()\n\n", $output);
+    }
+
+    /**
+     * Test that a failure thrown by the test method of a test run by another test is painted
+     * with the location in that test method, not in the test that runs it.
+     *
+     * @return void
+     */
+    public function testPaintsLocationOfAFailureThrownInANestedTest(): void
+    {
+        [$output] = $this->runSample(new CakeTextReporter(), 'testThrowsFailure');
+
+        $line = ReporterSampleCase::$lines['testThrowsFailure'];
+        $file = CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'TestSuite' . DS . 'ReporterSampleCase.php';
+        $this->assertSame(
+            "Running  Reporter sample\nFAIL on line $line\nThrown <directly> in\n$file testThrowsFailure()\n\n",
+            $output,
+        );
+    }
+
+    /**
+     * Test that a warning of a test run by another test, which PHPUnit raises after the test
+     * method, is painted with the location where it was raised, not in the test that runs it.
+     *
+     * @return void
+     */
+    public function testPaintsLocationOfAWarningOfANestedTest(): void
+    {
+        [$output] = $this->runSample(new CakeTextReporter(), 'testWarns');
+
+        $file = (new ReflectionClass(TestCase::class))->getFileName();
+        $this->assertMatchesRegularExpression(
+            '/^Running  Reporter sample\nFAIL on line \d+\nDeprecated <feature> in\n' . preg_quote($file, '/') . ' \(\)\n\n$/',
             $output,
         );
     }
@@ -289,8 +353,6 @@ class CakeTextReporterTest extends CakeTestCase
      */
     public function testTestCaseListOfAPlugin(): void
     {
-        $this->markTestIncomplete('Known bug: testCaseList() leaves the plugin and core parameters out of the URLs.');
-
         $reporter = new CakeTextReporter(null, ['app' => false, 'core' => false, 'plugin' => 'ReporterPlugin']);
         $output = $this->capture(function () use ($reporter): void {
             $reporter->testCaseList();
@@ -315,8 +377,6 @@ class CakeTextReporterTest extends CakeTestCase
      */
     public function testTestCaseListOfTheCore(): void
     {
-        $this->markTestIncomplete('Known bug: testCaseList() leaves the plugin and core parameters out of the URLs.');
-
         $reporter = new CakeTextReporter(null, ['app' => false, 'core' => true, 'plugin' => false]);
         $output = $this->capture(function () use ($reporter): void {
             $reporter->testCaseList();
@@ -334,8 +394,6 @@ class CakeTextReporterTest extends CakeTestCase
      */
     public function testEmptyTestCaseList(): void
     {
-        $this->markTestIncomplete('Known bug: testCaseList() echoes an empty list twice.');
-
         $reporter = new CakeTextReporter(null, ['app' => false, 'core' => false, 'plugin' => 'EmptyReporterPlugin']);
         $output = $this->capture(function () use ($reporter): void {
             $reporter->testCaseList();

@@ -916,8 +916,11 @@ class Folder
     /**
      * Get the real path (taking ".." and such into account)
      *
+     * A relative path is resolved from the current working directory (pwd()),
+     * so ".." can go above it. A path with ".." is returned slash-terminated.
+     *
      * @param string $path Path to resolve
-     * @return string|false The resolved path
+     * @return string|false The resolved path, or false when ".." goes above the root
      * @link https://book.cakephp.org/2.0/en/core-utility-libraries/file-folder.html#Folder::realpath
      */
     public function realpath($path)
@@ -929,7 +932,11 @@ class Folder
 
             return $path;
         }
-        $path = str_replace('/', DS, trim($path));
+        $path = trim($path);
+        if (!Folder::isAbsolute($path)) {
+            $path = Folder::addPathElement($this->path, $path);
+        }
+        $path = str_replace('/', DS, $path);
         $parts = explode(DS, $path);
         $newparts = [];
         $newpath = '';

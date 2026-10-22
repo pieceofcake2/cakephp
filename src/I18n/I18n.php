@@ -276,7 +276,7 @@ class I18n
             // The translations without a context are kept under the empty context
             $context = '';
         }
-        if (!empty($_this->_domains[$domain][$_this->_lang][$_this->category][$singular][$context])) {
+        if (isset($_this->_domains[$domain][$_this->_lang][$_this->category][$singular][$context])) {
             $trans = $_this->_domains[$domain][$_this->_lang][$_this->category][$singular][$context];
             if (is_array($trans)) {
                 if (isset($trans[$plurals])) {
@@ -619,32 +619,32 @@ class I18n
             } elseif (preg_match('/^"(.*)"$/i', $line, $regs) && ($type == 1 || $type == 2 || $type == 3)) {
                 $type = 3;
                 $translationKey .= stripcslashes($regs[1]);
-            } elseif (preg_match('/msgstr[[:space:]]+"(.+)"$/i', $line, $regs) && ($type == 1 || $type == 3) && $translationKey) {
+            } elseif (preg_match('/msgstr[[:space:]]+"(.+)"$/i', $line, $regs) && ($type == 1 || $type == 3) && $translationKey !== '') {
                 $translations[$translationKey][$translationContext] = stripcslashes($regs[1]);
                 $type = 4;
-            } elseif (preg_match('/msgstr[[:space:]]+""$/i', $line, $regs) && ($type == 1 || $type == 3) && $translationKey) {
+            } elseif (preg_match('/msgstr[[:space:]]+""$/i', $line, $regs) && ($type == 1 || $type == 3) && $translationKey !== '') {
                 $type = 4;
                 $translations[$translationKey][$translationContext] = '';
-            } elseif (preg_match('/^"(.*)"$/i', $line, $regs) && $type == 4 && $translationKey) {
+            } elseif (preg_match('/^"(.*)"$/i', $line, $regs) && $type == 4 && $translationKey !== '') {
                 $translations[$translationKey][$translationContext] .= stripcslashes($regs[1]);
             } elseif (preg_match('/msgid_plural[[:space:]]+".*"$/i', $line, $regs)) {
                 $type = 6;
-            } elseif (preg_match('/^"(.*)"$/i', $line, $regs) && $type == 6 && $translationKey) {
+            } elseif (preg_match('/^"(.*)"$/i', $line, $regs) && $type == 6 && $translationKey !== '') {
                 $type = 6;
-            } elseif (preg_match("/msgstr\[(\d+)\][[:space:]]+\"(.+)\"$/i", $line, $regs) && ($type == 6 || $type == 7) && $translationKey) {
+            } elseif (preg_match("/msgstr\[(\d+)\][[:space:]]+\"(.+)\"$/i", $line, $regs) && ($type == 6 || $type == 7) && $translationKey !== '') {
                 $plural = $regs[1];
                 $translations[$translationKey][$translationContext][$plural] = stripcslashes($regs[2]);
                 $type = 7;
-            } elseif (preg_match("/msgstr\[(\d+)\][[:space:]]+\"\"$/i", $line, $regs) && ($type == 6 || $type == 7) && $translationKey) {
+            } elseif (preg_match("/msgstr\[(\d+)\][[:space:]]+\"\"$/i", $line, $regs) && ($type == 6 || $type == 7) && $translationKey !== '') {
                 $plural = $regs[1];
                 $translations[$translationKey][$translationContext][$plural] = '';
                 $type = 7;
-            } elseif (preg_match('/^"(.*)"$/i', $line, $regs) && $type == 7 && $translationKey) {
+            } elseif (preg_match('/^"(.*)"$/i', $line, $regs) && $type == 7 && $translationKey !== '') {
                 $translations[$translationKey][$translationContext][$plural] .= stripcslashes($regs[1]);
-            } elseif (preg_match('/msgstr[[:space:]]+"(.+)"$/i', $line, $regs) && $type == 2 && !$translationKey) {
+            } elseif (preg_match('/msgstr[[:space:]]+"(.+)"$/i', $line, $regs) && $type == 2 && $translationKey === '') {
                 $header .= stripcslashes($regs[1]);
                 $type = 5;
-            } elseif (preg_match('/msgstr[[:space:]]+""$/i', $line, $regs) && !$translationKey) {
+            } elseif (preg_match('/msgstr[[:space:]]+""$/i', $line, $regs) && $translationKey === '') {
                 $header = '';
                 $type = 5;
             } elseif (preg_match('/^"(.*)"$/i', $line, $regs) && $type == 5) {
@@ -659,9 +659,8 @@ class I18n
         } while (!feof($file));
         fclose($file);
 
-        $merge[''] = $header;
-
-        return array_merge($merge, $translations);
+        // Not array_merge(), which renumbers the keys of numeric msgids.
+        return ['' => $header] + $translations;
     }
 
     /**

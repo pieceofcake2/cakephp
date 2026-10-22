@@ -19,7 +19,8 @@ namespace Cake\TestSuite\Reporter;
 
 use Cake\TestSuite\Coverage\TextCoverageReport;
 use Cake\Utility\Inflector;
-use Exception;
+use PHPUnit\Framework\ExceptionWrapper;
+use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\TestResult;
 use Throwable;
 
@@ -55,28 +56,66 @@ class CakeTextReporter extends CakeBaseReporter
     /**
      * Paints a failing test.
      *
+     * The location is the line in the test method that failed: the frame of
+     * the call made by the test method, which PHPUnit's TestCase::runTest()
+     * called, or the place where the test method raised the failure itself.
+     * Only the innermost test is looked at, so that a test that runs other
+     * tests does not report its own location. When the failure was not raised
+     * by the test method, the location where it was raised is painted.
+     *
      * @param \PHPUnit\Framework\AssertionFailedError|\PHPUnit\Framework\Warning $message Failure object displayed in
      *   the context of the other tests.
      * @return void
      */
     public function paintFail($message)
     {
-        $context = $message->getTrace();
-        $realContext = $context[3];
-        $context = $context[2];
+        $file = $message->getFile();
+        $line = $message->getLine();
+        $function = '';
+        $trace = $message->getTrace();
+        foreach ($trace as $i => $frame) {
+            if (
+                !isset($frame['class']) ||
+                !is_a($frame['class'], TestCase::class, true) ||
+                ($frame['function'] !== 'runTest' && $frame['function'] !== 'runBare')
+            ) {
+                continue;
+            }
+            // The frame before runTest() is the call of the test method, unless runTest() raised the failure.
+            $method = $trace[$i - 1] ?? [];
+            if (
+                $frame['function'] === 'runTest' &&
+                isset($method['class']) &&
+                is_a($method['class'], TestCase::class, true)
+            ) {
+                if ($i === 1) {
+                    $function = $method['function'];
+                } elseif (isset($trace[$i - 2]['file']) && isset($trace[$i - 2]['line'])) {
+                    $file = $trace[$i - 2]['file'];
+                    $line = $trace[$i - 2]['line'];
+                    $function = $method['function'];
+                }
+            }
+            break;
+        }
 
         printf(
             "FAIL on line %s\n%s in\n%s %s()\n\n",
-            $context['line'],
+            $line,
             $message->toString(),
-            $context['file'],
-            $realContext['function'],
+            $file,
+            $function,
         );
     }
 
     /**
      * Paints the end of the test with a summary of
      * the passes and failures.
+     *
+     * The summary is `Test cases run: <complete>/<total>`, where the complete
+     * tests are those that were neither skipped nor incomplete, then the
+     * number of passing tests, failures, exceptions, skipped and incomplete
+     * tests.
      *
      * @param TestResult $result Result object
      * @return void
@@ -89,11 +128,13 @@ class CakeTextReporter extends CakeBaseReporter
             echo "\nOK\n";
         }
 
-        echo 'Test cases run: ' . $result->count() .
-            '/' . ($result->count() - $result->skippedCount()) .
-            ', Passes: ' . $this->numAssertions .
+        echo 'Test cases run: ' . ($result->count() - $result->skippedCount() - $result->notImplementedCount()) .
+            '/' . $result->count() .
+            ', Passes: ' . count($result->passed()) .
             ', Failures: ' . $result->failureCount() .
-            ', Exceptions: ' . $result->errorCount() . "\n";
+            ', Exceptions: ' . $result->errorCount() .
+            ', Skipped: ' . $result->skippedCount() .
+            ', Incomplete: ' . $result->notImplementedCount() . "\n";
 
         echo 'Time: ' . $result->time() . " seconds\n";
         echo 'Peak memory: ' . number_format(memory_get_peak_usage()) . " bytes\n";
@@ -120,12 +161,19 @@ class CakeTextReporter extends CakeBaseReporter
     /**
      * Paints a PHP exception.
      *
-     * @param Exception $exception Exception to describe.
+     * PHPUnit passes the exception a test threw wrapped in an ExceptionWrapper.
+     * The class of the thrown exception is painted, not that of the wrapper.
+     *
+     * @param Throwable $exception Exception to describe.
      * @return void
      */
     public function paintException($exception)
     {
-        $message = 'Unexpected exception of type [' . $exception::class .
+        $className = $exception::class;
+        if ($exception instanceof ExceptionWrapper) {
+            $className = $exception->getClassName();
+        }
+        $message = 'Unexpected exception of type [' . $className .
             '] with message [' . $exception->getMessage() .
             '] in [' . $exception->getFile() .
             ' line ' . $exception->getLine() . ']';
@@ -158,7 +206,8 @@ class CakeTextReporter extends CakeBaseReporter
     /**
      * Generate a test case list in plain text.
      * Creates as series of URLs for tests that can be run.
-     * One case per line.
+     * One case per line, with the core or plugin parameter of the list.
+     * An empty list is marked with `EMPTY`.
      *
      * @return void
      */
@@ -166,6 +215,7 @@ class CakeTextReporter extends CakeBaseReporter
     {
         $testCases = parent::testCaseList();
         $app = $this->params['app'];
+        $core = $this->params['core'];
         $plugin = $this->params['plugin'];
 
         $buffer = "Core Test Cases:\n";
@@ -175,13 +225,19 @@ class CakeTextReporter extends CakeBaseReporter
             $buffer = Inflector::humanize($plugin) . " Test Cases:\n";
         }
 
+        $urlExtra = '';
+        if ($core) {
+            $urlExtra = '&core=true';
+        } elseif ($plugin) {
+            $urlExtra = '&plugin=' . urlencode($plugin);
+        }
+
         if (count($testCases) < 1) {
             $buffer .= 'EMPTY';
-            echo $buffer;
         }
 
         foreach ($testCases as $testCase) {
-            $buffer .= $_SERVER['SERVER_NAME'] . $this->baseUrl() . '?case=' . $testCase . "&output=text\n";
+            $buffer .= $_SERVER['SERVER_NAME'] . $this->baseUrl() . '?case=' . urlencode($testCase) . $urlExtra . "&output=text\n";
         }
 
         $buffer .= "\n";

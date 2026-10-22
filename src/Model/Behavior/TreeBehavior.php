@@ -972,7 +972,7 @@ class TreeBehavior extends ModelBehavior
      *
      * @param Model $Model Model using this behavior
      * @param array $options array of options to use in reordering.
-     * @return bool true on success, false on failure
+     * @return bool true on success, false on failure or when the tree is not valid
      * @link https://book.cakephp.org/2.0/en/core-libraries/behaviors/tree.html#TreeBehavior::reorder
      */
     public function reorder(Model $Model, $options = [])
@@ -982,7 +982,7 @@ class TreeBehavior extends ModelBehavior
         $field = $options['field'];
         $order = $options['order'];
         $verify = $options['verify'];
-        if ($verify && !$this->verify($Model)) {
+        if ($verify && $this->verify($Model) !== true) {
             return false;
         }
         $verify = false;

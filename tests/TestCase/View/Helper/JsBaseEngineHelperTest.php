@@ -18,6 +18,7 @@
 
 namespace Cake\Test\TestCase\View\Helper;
 
+use Cake\Error\CakeException;
 use Cake\Routing\Router;
 use Cake\TestSuite\CakeTestCase;
 use Cake\View\Helper\JsBaseEngineHelper;
@@ -296,10 +297,69 @@ class JsBaseEngineHelperTest extends CakeTestCase
      */
     public function testEscapeCharacterOutsideBasicMultilingualPlane(): void
     {
-        $this->markTestIncomplete('Known bug: escape() of a 4-byte UTF-8 character such as an emoji writes a wrong \u escape');
-
         // U+1F600 GRINNING FACE
         $this->assertSame('smile \ud83d\ude00', $this->JsEngine->escape("smile \xF0\x9F\x98\x80"));
+        // U+10000 and U+10FFFF, the first and the last code point outside the BMP
+        $this->assertSame('\ud800\udc00\udbff\udfff', $this->JsEngine->escape("\xF0\x90\x80\x80\xF4\x8F\xBF\xBF"));
+        $this->assertSame(json_encode("a\xF0\x9F\x98\x80b"), '"' . $this->JsEngine->escape("a\xF0\x9F\x98\x80b") . '"');
+    }
+
+    /**
+     * Test that escape() replaces a 4-byte sequence that is not valid UTF-8, because it
+     * is overlong or past U+10FFFF, by a question mark.
+     *
+     * @return void
+     */
+    public function testEscapeInvalidFourByteSequence(): void
+    {
+        $this->assertSame('a?b', $this->JsEngine->escape("a\xF0\x80\x80\x80b"));
+        $this->assertSame('a?b', $this->JsEngine->escape("a\xF4\x90\x80\x80b"));
+    }
+
+    /**
+     * Test that escape() replaces a 2- or 3-byte sequence that is not valid UTF-8,
+     * because it is overlong or a surrogate, by one question mark.
+     *
+     * @return void
+     */
+    public function testEscapeInvalidTwoAndThreeByteSequences(): void
+    {
+        // Overlong encodings of "/" and of U+07FF
+        $this->assertSame('a?b', $this->JsEngine->escape("a\xC0\xAFb"));
+        $this->assertSame('a?b', $this->JsEngine->escape("a\xE0\x9F\xBFb"));
+        // The surrogates U+D800 and U+DFFF
+        $this->assertSame('?', $this->JsEngine->escape("\xED\xA0\x80"));
+        $this->assertSame('a?b', $this->JsEngine->escape("a\xED\xBF\xBFb"));
+    }
+
+    /**
+     * Test that escape() replaces a lead byte followed by a byte that is not a
+     * continuation byte, together with the continuation bytes before it, by one
+     * question mark, and escapes the following byte on its own.
+     *
+     * @return void
+     */
+    public function testEscapeSequenceCutOffByOtherByte(): void
+    {
+        $this->assertSame('?a', $this->JsEngine->escape("\xC3\x61"));
+        $this->assertSame('?a', $this->JsEngine->escape("\xE2\x82\x61"));
+        $this->assertSame('?\u00e9', $this->JsEngine->escape("\xE2\x82\xC3\xA9"));
+        $this->assertSame('?a', $this->JsEngine->escape("\xE2a"));
+        $this->assertSame('?\u00e9', $this->JsEngine->escape("\xF0\x9F\x98\xC3\xA9"));
+        $this->assertSame('?\\"', $this->JsEngine->escape("\xF0\x9F\x22"));
+    }
+
+    /**
+     * Test that escape() replaces the lead bytes 0xF8 to 0xFF, which RFC 3629 does not
+     * allow, by a question mark. The continuation bytes after them are stray bytes.
+     *
+     * @return void
+     */
+    public function testEscapeInvalidLeadBytes(): void
+    {
+        $this->assertSame('a?????b', $this->JsEngine->escape("a\xF8\x88\x80\x80\x80b"));
+        $this->assertSame('a??????b', $this->JsEngine->escape("a\xFC\x84\x80\x80\x80\x80b"));
+        $this->assertSame('a?b?c', $this->JsEngine->escape("a\xFEb\xFFc"));
     }
 
     /**
@@ -310,8 +370,6 @@ class JsBaseEngineHelperTest extends CakeTestCase
      */
     public function testEscapeOtherControlCharacters(): void
     {
-        $this->markTestIncomplete('Known bug: escape() drops C0 control characters other than \b \t \n \f \r');
-
         $this->assertSame('a\u0001b\u001fc', $this->JsEngine->escape("a\x01b\x1Fc"));
     }
 
@@ -323,9 +381,8 @@ class JsBaseEngineHelperTest extends CakeTestCase
      */
     public function testEscapeStrayContinuationByte(): void
     {
-        $this->markTestIncomplete('Known bug: escape() silently drops a stray UTF-8 continuation byte');
-
         $this->assertSame('a?b', $this->JsEngine->escape("a\x80b"));
+        $this->assertSame('\u00e9??', $this->JsEngine->escape("\xC3\xA9\xA9\xBF"));
     }
 
     /**
@@ -360,16 +417,14 @@ class JsBaseEngineHelperTest extends CakeTestCase
     }
 
     /**
-     * Test that value() returns an integer as a string, as its `@return string` says.
+     * Test that value() returns an integer as it is, which is also its JavaScript literal.
      *
      * @return void
      */
-    public function testValueOfAnIntegerIsAString(): void
+    public function testValueOfAnInteger(): void
     {
-        $this->markTestIncomplete('Known bug: value() returns an integer unchanged instead of a string');
-
-        $this->assertSame('42', $this->JsEngine->value(42));
-        $this->assertSame('-7', $this->JsEngine->value(-7));
+        $this->assertSame(42, $this->JsEngine->value(42));
+        $this->assertSame(-7, $this->JsEngine->value(-7));
     }
 
     /**
@@ -380,14 +435,30 @@ class JsBaseEngineHelperTest extends CakeTestCase
      */
     public function testValueOfAFloatIgnoresTheLocale(): void
     {
-        $this->markTestIncomplete('Known bug: value() formats floats with the locale-aware %f, so de_DE gives 1,5');
-
         $original = setlocale(LC_NUMERIC, '0');
         $this->skipIf(setlocale(LC_NUMERIC, 'de_DE.UTF-8', 'de_DE') === false, 'The German locale is not available.');
         try {
             $this->assertSame('1.50000000000', $this->JsEngine->value(1.5));
         } finally {
             setlocale(LC_NUMERIC, $original);
+        }
+    }
+
+    /**
+     * Test that value() throws for INF and NAN, which neither JSON nor a JavaScript
+     * number literal can hold, instead of writing INF or NaN into the script.
+     *
+     * @return void
+     */
+    public function testValueOfANonFiniteFloatThrows(): void
+    {
+        foreach ([INF, -INF, NAN] as $float) {
+            try {
+                $this->JsEngine->value($float);
+                $this->fail('No exception for ' . var_export($float, true));
+            } catch (CakeException $e) {
+                $this->assertSame('Inf and NaN cannot be JSON encoded', $e->getMessage());
+            }
         }
     }
 
@@ -489,11 +560,11 @@ class JsBaseEngineHelperTest extends CakeTestCase
     public function testRedirect(): void
     {
         $result = $this->JsEngine->redirect(['controller' => 'posts', 'action' => 'view', 1]);
-        $expected = 'window.location = "/posts/view/1";';
+        $expected = 'window.location = "\/posts\/view\/1";';
         $this->assertEquals($expected, $result);
 
         $result = $this->JsEngine->redirect('https://example.com/path?a=1');
-        $this->assertSame('window.location = "https://example.com/path?a=1";', $result);
+        $this->assertSame('window.location = "https:\/\/example.com\/path?a=1";', $result);
     }
 
     /**
@@ -505,8 +576,6 @@ class JsBaseEngineHelperTest extends CakeTestCase
      */
     public function testRedirectEscapesTheUrl(): void
     {
-        $this->markTestIncomplete('Known bug: redirect() puts the URL into the JavaScript string without escaping it');
-
         $url = 'https://x/"+alert(1)+"';
         $result = $this->JsEngine->redirect($url);
 
@@ -573,19 +642,32 @@ class JsBaseEngineHelperTest extends CakeTestCase
 
     /**
      * Test that object() of a string that is not valid UTF-8 still gives a JSON object
-     * with the key, instead of the empty string that json_encode() failing leaves.
+     * with the key, instead of the empty string that json_encode() failing leaves:
+     * each invalid byte is replaced by U+FFFD REPLACEMENT CHARACTER.
      *
      * @return void
      */
     public function testObjectWithInvalidUtf8(): void
     {
-        $this->markTestIncomplete('Known bug: object() returns an empty string when json_encode() fails on invalid UTF-8');
-
-        $result = $this->JsEngine->object(['name' => "a\x80b"]);
+        $result = $this->JsEngine->object(['name' => "a\x80b", 'ok' => "caf\xC3\xA9"]);
+        $this->assertSame('{"name":"a\ufffdb","ok":"caf\u00e9"}', $result);
 
         $decoded = json_decode($result, true);
         $this->assertIsArray($decoded, 'Not JSON: ' . var_export($result, true));
-        $this->assertSame(['name'], array_keys($decoded));
+        $this->assertSame(['name' => "a\u{FFFD}b", 'ok' => "caf\u{E9}"], $decoded);
+    }
+
+    /**
+     * Test that object() throws when json_encode() fails, as JsonView does, instead of
+     * returning only the prefix and the postfix.
+     *
+     * @return void
+     */
+    public function testObjectThatCannotBeEncodedThrows(): void
+    {
+        $this->expectException(CakeException::class);
+        $this->expectExceptionMessage('Inf and NaN cannot be JSON encoded');
+        $this->JsEngine->object(['ratio' => INF], ['prefix' => 'var data = ', 'postfix' => ';']);
     }
 
     /**
@@ -666,7 +748,8 @@ class JsBaseEngineHelperTest extends CakeTestCase
 
     /**
      * Test that _prepareCallbacks() wraps each non-empty callback in a function with
-     * the arguments of the method, plus any extra callback keys without arguments.
+     * the arguments of the method, plus any extra callback keys without arguments,
+     * and leaves empty callbacks out.
      *
      * @return void
      */
@@ -683,7 +766,6 @@ class JsBaseEngineHelperTest extends CakeTestCase
         $expected = [
             'beforeSend' => 'function (XMLHttpRequest) {start();}',
             'success' => 'function (data, textStatus) {show(data);}',
-            'error' => '',
             'onDone' => 'function () {done();}',
             'url' => '/posts',
         ];
@@ -747,16 +829,30 @@ class JsBaseEngineHelperTest extends CakeTestCase
     }
 
     /**
-     * Test that _toQuerystring() URL-encodes the values, so that & and spaces in a value
-     * do not split it or break the query string.
+     * Test that _toQuerystring() joins the keys and the values as they are given, so
+     * that values encoded by the caller are not encoded a second time.
      *
      * @return void
      */
-    public function testToQuerystringEncodesTheValues(): void
+    public function testToQuerystringDoesNotEncodeTheValues(): void
     {
-        $this->markTestIncomplete('Known bug: _toQuerystring() does not URL-encode the values');
+        $this->assertSame("q=a b&n=caf\xC3\xA9", $this->JsEngine->toQuerystring(['q' => 'a b', 'n' => "caf\xC3\xA9"]));
+        $this->assertSame('q=a%26b%20c', $this->JsEngine->toQuerystring(['q' => rawurlencode('a&b c')]));
+    }
 
-        $this->assertSame('q=a%26b%20c', $this->JsEngine->toQuerystring(['q' => 'a&b c']));
+    /**
+     * Test that _toQuerystring() writes a nested array with brackets, leaves a null value
+     * out, and writes true and false as 1 and 0, as Router::url() does.
+     *
+     * @return void
+     */
+    public function testToQuerystringNestedArraysAndOtherTypes(): void
+    {
+        $this->assertSame(
+            'filter[status]=open&filter[tags][0]=a b&page=2',
+            $this->JsEngine->toQuerystring(['filter' => ['status' => 'open', 'tags' => ['a b']], 'page' => 2]),
+        );
+        $this->assertSame('yes=1&no=0', $this->JsEngine->toQuerystring(['yes' => true, 'no' => false, 'none' => null]));
     }
 
     /**
@@ -767,9 +863,10 @@ class JsBaseEngineHelperTest extends CakeTestCase
      */
     public function testProcessOptionsLeavesEmptyCallbacksOut(): void
     {
-        $this->markTestIncomplete('Known bug: _processOptions() writes an empty callback as "error:" without a value');
-
         $result = $this->JsEngine->processOptions('request', ['error' => '', 'complete' => 'show(data);']);
         $this->assertSame('success:function (data, textStatus) {show(data);}', $result);
+
+        $result = $this->JsEngine->processOptions('request', ['error' => null, 'complete' => 'show', 'wrapCallbacks' => false]);
+        $this->assertSame('success:show', $result);
     }
 }

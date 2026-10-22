@@ -1196,16 +1196,13 @@ class CakeSchemaTest extends CakeTestCase
     }
 
     /**
-     * Test that write() with a schema object applies the given options over the
-     * properties of the object: the file option names the file, which holds the
-     * class named after the object and its table.
+     * Test that write() takes the schema either from the object or from the options:
+     * with an object the options are not used, and without one the options are.
      *
      * @return void
      */
-    public function testWriteObjectWithOptions(): void
+    public function testWriteObjectOrOptions(): void
     {
-        $this->markTestIncomplete('Known bug: write() replaces the $options argument with the properties of the schema object');
-
         $path = TMP . 'tests';
         $this->_schemaFiles[] = $path . DS . 'schema.php';
         $this->_schemaFiles[] = $path . DS . 'cov_object_options.php';
@@ -1218,31 +1215,53 @@ class CakeSchemaTest extends CakeTestCase
         $Writer = new CakeSchema();
         $Writer->write($Schema, ['file' => 'cov_object_options.php']);
 
-        $this->assertFileExists($path . DS . 'cov_object_options.php');
-        $content = (string)file_get_contents($path . DS . 'cov_object_options.php');
+        $this->assertFileDoesNotExist($path . DS . 'cov_object_options.php');
+        $content = (string)file_get_contents($path . DS . 'schema.php');
         $this->assertStringContainsString('class CovObjectOptionsSchema extends CakeSchema {', $content);
         $this->assertStringContainsString("\tpublic \$widgets = array(\n", $content);
+
+        $Writer = new CakeSchema();
+        $Writer->write(null, [
+            'name' => 'CovOptions',
+            'path' => $path,
+            'file' => 'cov_object_options.php',
+            'tables' => ['gadgets' => ['id' => ['type' => 'integer', 'key' => 'primary']]],
+        ]);
+
+        $content = (string)file_get_contents($path . DS . 'cov_object_options.php');
+        $this->assertStringContainsString('class CovOptionsSchema extends CakeSchema {', $content);
+        $this->assertStringContainsString("\tpublic \$gadgets = array(\n", $content);
     }
 
     /**
      * Test that write() without tables writes the tables that it reads from the
-     * connection of the schema.
+     * connection of the schema: the tables of the models that use the connection,
+     * but not the tables that read() lists as missing.
      *
      * @return void
      */
     public function testWriteWithoutTablesWritesTheTablesItReads(): void
     {
-        $this->markTestIncomplete('Known bug: write() without tables calls read() and discards its result');
+        App::build([
+            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
+        ]);
+        CakePlugin::load('TestPlugin');
 
         $path = TMP . 'tests';
         $this->_schemaFiles[] = $path . DS . 'cov_read_tables.php';
         $Schema = new CakeSchema(['name' => 'CovReadTables', 'path' => $path, 'connection' => 'test']);
+        $Schema->plugin = 'TestPlugin';
 
-        $content = $Schema->write(['name' => 'CovReadTables', 'path' => $path, 'file' => 'cov_read_tables.php', 'connection' => 'test']);
+        try {
+            $content = $Schema->write(['name' => 'CovReadTables', 'path' => $path, 'file' => 'cov_read_tables.php', 'connection' => 'test']);
+        } finally {
+            App::build();
+        }
 
         $this->assertIsString($content);
         $this->assertStringContainsString("\tpublic \$posts = array(\n", $content);
-        $this->assertStringContainsString("\tpublic \$tags = array(\n", $content);
+        $this->assertStringContainsString("\tpublic \$test_plugin_comments = array(\n", $content);
+        $this->assertStringNotContainsString("\tpublic \$datatypes = array(\n", $content);
     }
 
     /**
@@ -1297,21 +1316,18 @@ class CakeSchemaTest extends CakeTestCase
     }
 
     /**
-     * Test that read() skips a model whose table does not exist.
+     * Test that read() reports a model whose table does not exist, so that the
+     * missing table is not left out of the schema without notice.
      *
      * @return void
      */
-    public function testSchemaReadSkipsModelWithMissingTable(): void
+    public function testSchemaReadReportsModelWithMissingTable(): void
     {
-        $this->markTestIncomplete('Known bug: read() calls getDataSource() outside the try block, so MissingTableException escapes');
-
-        $read = $this->Schema->read([
+        $this->expectException(MissingTableException::class);
+        $this->Schema->read([
             'connection' => 'test',
             'name' => 'TestApp',
             'models' => [SchemaMissingTableModel::class, 'SchemaTag'],
         ]);
-
-        $this->assertArrayHasKey('tags', $read['tables']);
-        $this->assertArrayNotHasKey('schema_missing_tables', $read['tables']);
     }
 }

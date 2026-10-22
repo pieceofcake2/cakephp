@@ -129,6 +129,7 @@ class CakeTestSuiteCommand extends Command
      *
      * @param array|null $params The path parameters.
      * @return string|null The base path.
+     * @throws MissingPluginException When the plugin of a plugin case does not exist.
      */
     protected static function _basePath(?array $params): ?string
     {
@@ -137,16 +138,13 @@ class CakeTestSuiteCommand extends Command
             $result = CORE_TESTS . DS . 'TestCase';
         } elseif (!empty($params['plugin'])) {
             if (!CakePlugin::loaded($params['plugin'])) {
-                try {
-                    CakePlugin::load($params['plugin']);
-                    $pluginPath = CakePlugin::path($params['plugin']);
+                CakePlugin::load($params['plugin']);
+                $pluginPath = CakePlugin::path($params['plugin']);
 
-                    if (is_dir($pluginPath . 'tests' . DS . 'TestCase')) {
-                        $result = $pluginPath . 'tests' . DS . 'TestCase';
-                    } else {
-                        $result = $pluginPath . 'Test' . DS . 'Case';
-                    }
-                } catch (MissingPluginException) {
+                if (is_dir($pluginPath . 'tests' . DS . 'TestCase')) {
+                    $result = $pluginPath . 'tests' . DS . 'TestCase';
+                } else {
+                    $result = $pluginPath . 'Test' . DS . 'Case';
                 }
             } else {
                 $pluginPath = CakePlugin::path($params['plugin']);

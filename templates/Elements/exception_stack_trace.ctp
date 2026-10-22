@@ -31,7 +31,7 @@
 			$stack['line']
 		);
 		$excerpt = sprintf('<div id="file-excerpt-%s" class="cake-code-dump" style="display:none;"><pre>', $i);
-		$excerpt .= implode("\n", Debugger::excerpt($stack['file'], $stack['line'] - 1, 2));
+		$excerpt .= implode("\n", Debugger::excerpt($stack['file'], $stack['line'], 2));
 		$excerpt .= '</pre></div> ';
 	else:
 		echo '<a href="#">[internal function]</a>';

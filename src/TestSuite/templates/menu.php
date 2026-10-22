@@ -31,9 +31,9 @@
     <?php foreach ($plugins as $plugin) : ?>
             <ul>
                 <li style="padding-top: 10px">
-                    <span  style="font-size: 18px"><?php echo $plugin; ?></span>
+                    <span  style="font-size: 18px"><?php echo $this->_escape($plugin); ?></span>
                     <ul>
-                        <li><?php printf('<a href="%s&amp;plugin=%s">Tests</a>', $cases, $plugin); ?></li>
+                        <li><?php printf('<a href="%s&amp;plugin=%s">Tests</a>', $cases, urlencode($plugin)); ?></li>
                     </ul>
                 </li>
             </ul>

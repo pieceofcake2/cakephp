@@ -178,8 +178,6 @@ class CakeHtmlReporterTest extends CakeTestCase
         );
         $output = $this->runAndPaint($this->reporter(), $suite);
 
-        // Pending decision: the summary counts the incomplete test as complete
-        // ("4/5 test methods complete"). The assertion keeps the current output.
         $parts = [
             'background-image: url(/base/img/test-pass-icon.png);',
             '<link rel="stylesheet" href="/base/css/cake.generic.css" />',
@@ -190,8 +188,8 @@ class CakeHtmlReporterTest extends CakeTestCase
             "<li class='fail'>\n<span>Failed</span>",
             "<li class='skipped'>\n<span>Skipped</span> testSkipped",
             "</ul>\n<div style=\"padding: 8px; margin: 1em 0; background-color: red; color: white;\">" .
-                "4/5 test methods complete:\n<strong>1</strong> passes, <strong>1</strong> fails, " .
-                '<strong>3</strong> assertions and <strong>1</strong> exceptions.</div>',
+                "3/5 test methods complete:\n<strong>1</strong> passes, <strong>1</strong> fails, " .
+                '<strong>1</strong> skipped, <strong>1</strong> incomplete, <strong>3</strong> assertions and <strong>1</strong> exceptions.</div>',
             '<img src="/base/img/cake.power.gif"',
         ];
         $offset = 0;
@@ -211,11 +209,9 @@ class CakeHtmlReporterTest extends CakeTestCase
      */
     public function testPageStartsWithDoctypeAndTitle(): void
     {
-        $this->markTestIncomplete('Known bug: header.php lost its doctype, <html>, <head> and <title> opening.');
-
         $output = $this->runAndPaint($this->reporter(), ReporterSampleCase::buildSuite('testPasses'));
 
-        $this->assertStringStartsWith('<!DOCTYPE html>', $output);
+        $this->assertStringStartsWith("<!DOCTYPE html>\n<html>\n    <head>\n        <meta charset=\"utf-8\">\n", $output);
         $this->assertStringContainsString('<title>CakePHP Test Suite ' . Configure::version() . '</title>', $output);
     }
 
@@ -231,7 +227,7 @@ class CakeHtmlReporterTest extends CakeTestCase
         $this->assertStringContainsString(
             '<div style="padding: 8px; margin: 1em 0; background-color: green; color: white;">' .
             "1/1 test methods complete:\n<strong>1</strong> passes, <strong>0</strong> fails, " .
-            '<strong>2</strong> assertions and <strong>0</strong> exceptions.</div>',
+            '<strong>0</strong> skipped, <strong>0</strong> incomplete, <strong>2</strong> assertions and <strong>0</strong> exceptions.</div>',
             $output,
         );
     }
@@ -255,7 +251,7 @@ class CakeHtmlReporterTest extends CakeTestCase
         $this->assertStringContainsString(
             "-'expected &lt;b&gt;bold&lt;/b&gt;'\n+'actual &lt;b&gt;bold&lt;/b&gt;'\n</pre></div>\n" .
             "<div class='msg'>Test case: $test</div>\n" .
-            "<div class='msg'><a href='/test.php?plugin=Blog&amp;case=Model/Post&amp;filter=testFails'>" .
+            "<div class='msg'><a href='/test.php?plugin=Blog&amp;case=Model%2FPost&amp;filter=testFails'>" .
             "Rerun only this test: $test</a></div>\n" .
             "<div class='msg'>Stack trace:<br />",
             $output,
@@ -291,8 +287,6 @@ class CakeHtmlReporterTest extends CakeTestCase
      */
     public function testPaintsClassAndTraceOfTheThrownException(): void
     {
-        $this->markTestIncomplete('Known bug: paintException() shows PHPUnit\'s ExceptionWrapper class and trace.');
-
         $output = $this->runAndPaint($this->reporter(), ReporterSampleCase::buildSuite('testThrowsException'));
 
         $line = ReporterSampleCase::$lines['testThrowsException'];
@@ -387,6 +381,91 @@ class CakeHtmlReporterTest extends CakeTestCase
     }
 
     /**
+     * Test that the links below the summary URL-encode the run parameters and
+     * escape the script URL and the base directory, so that a request cannot inject HTML.
+     *
+     * @return void
+     */
+    public function testLinksEscapeTheRunParameters(): void
+    {
+        $_SERVER['PHP_SELF'] = "/test.php/'><script>alert(1)</script>";
+        $reporter = $this->reporter([
+            'baseDir' => "/test.php/'><script>alert(5)</script>/",
+            'case' => "Model/Post'><script>alert(2)</script>",
+            'plugin' => '"><script>alert(3)</script>',
+            'filter' => "testFoo'><script>alert(4)</script>",
+        ]);
+        $output = $this->runAndPaint($reporter, ReporterSampleCase::buildSuite('testPasses', 'testFails'));
+
+        $this->assertStringNotContainsString('<script>', $output);
+        $base = '/test.php/&#039;&gt;&lt;script&gt;alert(1)&lt;/script&gt;';
+        $query = $base . '?plugin=' . urlencode('"><script>alert(3)</script>') .
+            '&amp;case=' . urlencode("Model/Post'><script>alert(2)</script>") .
+            '&amp;filter=' . urlencode("testFoo'><script>alert(4)</script>");
+        $this->assertStringContainsString(
+            "<p><a href='$base?show=cases&amp;plugin=" . urlencode('"><script>alert(3)</script>') . "'>Run more tests</a> | " .
+            "<a href='$query&amp;show_passes=1'>Show Passes</a> | \n",
+            $output,
+        );
+        $this->assertStringContainsString("<a href='$query&amp;filter=testFails'>", $output);
+        $baseDir = '/test.php/&#039;&gt;&lt;script&gt;alert(5)&lt;/script&gt;/';
+        $this->assertStringContainsString('<link rel="stylesheet" href="' . $baseDir . 'css/cake.generic.css" />', $output);
+        $this->assertStringContainsString('<img src="' . $baseDir . 'img/cake.power.gif"', $output);
+        $this->assertStringContainsString(
+            'background-image: url(/test.php/%27%3E%3Cscript%3Ealert%285%29%3C/script%3E/img/test-pass-icon.png);',
+            $output,
+        );
+    }
+
+    /**
+     * Test that the names of failed and skipped tests are escaped, in the text
+     * and in the link that reruns the test.
+     *
+     * @return void
+     */
+    public function testTestNamesAreEscaped(): void
+    {
+        $output = $this->runAndPaint(
+            $this->reporter(),
+            ReporterSampleCase::buildSuite('testFailsWithData', 'testSkippedWithData'),
+        );
+
+        $this->assertStringNotContainsString('<b>', $output);
+        $name = 'testFailsWithData with data set "<b>pass</b>"';
+        $test = ReporterSampleCase::class . '::' . htmlspecialchars($name, ENT_QUOTES) . '()';
+        $this->assertStringContainsString("<div class='msg'>Test case: $test</div>\n", $output);
+        $this->assertStringContainsString(
+            "<a href='/test.php?plugin=Blog&amp;case=Model%2FPost&amp;filter=" . urlencode($name) . "'>" .
+            "Rerun only this test: $test</a>",
+            $output,
+        );
+        $this->assertStringContainsString(
+            '<span>Skipped</span> testSkippedWithData with data set &quot;&lt;b&gt;pass&lt;/b&gt;&quot;: Skipped</li>',
+            $output,
+        );
+    }
+
+    /**
+     * Test that the test case list escapes the script URL and URL-encodes the plugin.
+     *
+     * @return void
+     */
+    public function testTestCaseListEscapesTheUrl(): void
+    {
+        $_SERVER['PHP_SELF'] = "/test.php/'><script>alert(1)</script>";
+        $output = $this->capture(function (): void {
+            $this->reporter(['plugin' => 'ReporterPlugin'])->testCaseList();
+        });
+
+        $this->assertStringNotContainsString('<script>', $output);
+        $this->assertStringContainsString(
+            "<li><a href='/test.php/&#039;&gt;&lt;script&gt;alert(1)&lt;/script&gt;?case=" .
+            urlencode('Model' . DS . 'Article') . "&amp;plugin=ReporterPlugin'>Model / Article</a></li>\n",
+            $output,
+        );
+    }
+
+    /**
      * Test that the menu links the app, every plugin in name order, and the core tests.
      *
      * @return void
@@ -424,9 +503,9 @@ class CakeHtmlReporterTest extends CakeTestCase
         $this->assertSame(
             "<h3>ReporterPlugin Test Cases:</h3>\n<ul>" .
             "<li><a href='/test.php?case=" . urlencode('Controller' . DS . 'PostsController') .
-            "&plugin=ReporterPlugin'>Controller / PostsController</a></li>\n" .
+            "&amp;plugin=ReporterPlugin'>Controller / PostsController</a></li>\n" .
             "<li><a href='/test.php?case=" . urlencode('Model' . DS . 'Article') .
-            "&plugin=ReporterPlugin'>Model / Article</a></li>\n" .
+            "&amp;plugin=ReporterPlugin'>Model / Article</a></li>\n" .
             "</ul>\n",
             $output,
         );
@@ -446,7 +525,7 @@ class CakeHtmlReporterTest extends CakeTestCase
         $case = 'TestSuite' . DS . 'Reporter' . DS . 'CakeHtmlReporter';
         $this->assertStringStartsWith("<h3>Core Test Cases:</h3>\n<ul><li>", $output);
         $this->assertStringContainsString(
-            "<li><a href='/test.php?case=" . urlencode($case) . "&core=true'>TestSuite / Reporter / CakeHtmlReporter</a></li>\n",
+            "<li><a href='/test.php?case=" . urlencode($case) . "&amp;core=true'>TestSuite / Reporter / CakeHtmlReporter</a></li>\n",
             $output,
         );
     }
@@ -477,5 +556,29 @@ class CakeHtmlReporterTest extends CakeTestCase
         });
 
         $this->assertSame("<pre>array(\n\t'a' =&gt; '&lt;b&gt;'\n)</pre>", $output);
+    }
+
+    /**
+     * Test that invalid UTF-8 is replaced by the replacement character instead of emptying
+     * the escaped value, in text and in attributes.
+     *
+     * @return void
+     */
+    public function testEscapingKeepsValuesWithInvalidUtf8(): void
+    {
+        $output = $this->capture(function (): void {
+            $this->reporter()->paintFormattedMessage("bad \xFF <b>");
+        });
+        $this->assertSame("<pre>bad \u{FFFD} &lt;b&gt;</pre>", $output);
+
+        $_SERVER['PHP_SELF'] = "/test\xFF.php";
+        $output = $this->capture(function (): void {
+            $this->reporter(['plugin' => 'ReporterPlugin'])->testCaseList();
+        });
+        $this->assertStringContainsString(
+            "<li><a href='/test\u{FFFD}.php?case=" . urlencode('Model' . DS . 'Article') .
+            "&amp;plugin=ReporterPlugin'>Model / Article</a></li>\n",
+            $output,
+        );
     }
 }

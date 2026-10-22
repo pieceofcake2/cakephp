@@ -2476,7 +2476,8 @@ class FormHelperTest extends CakeTestCase
     }
 
     /**
-     * Test that inputs with 0 can be created.
+     * Test that inputs with 0 can be created, and get the label 0 like any other
+     * field name.
      *
      * @return void
      */
@@ -2486,7 +2487,7 @@ class FormHelperTest extends CakeTestCase
         $result = $this->Form->input('0');
         $expected = [
             'div' => ['class' => 'input text'],
-            'label' => ['for' => 'User0'], '/label',
+            'label' => ['for' => 'User0'], '0', '/label',
             'input' => ['type' => 'text', 'name' => 'data[User][0]', 'id' => 'User0'],
             '/div',
         ];

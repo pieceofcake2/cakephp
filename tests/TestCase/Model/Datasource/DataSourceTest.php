@@ -20,6 +20,7 @@ namespace Cake\Test\TestCase\Model\Datasource;
 
 use ArrayObject;
 use Cake\Cache\Cache;
+use Cake\Error\NotImplementedException;
 use Cake\Model\ConnectionManager;
 use Cake\Model\Datasource\DataSource;
 use Cake\Model\Model;
@@ -594,11 +595,27 @@ class DataSourceTest extends CakeTestCase
      */
     public function testInsertQueryDataIntegerZeroId(): void
     {
-        $this->markTestIncomplete("Known bug: insertQueryData() rejects an int 0 id with empty(), but accepts '0'");
-
         $query = 'SELECT * FROM comments WHERE post_id = {$__cakeID__$}';
         $result = $this->Source->insertQueryData($query, [$this->Model->alias => ['id' => 0]], 'Comment', $this->Model, []);
         $this->assertSame('SELECT * FROM comments WHERE post_id = 0', $result);
+    }
+
+    /**
+     * Test that insertQueryData() of a datasource without value() leaves a query
+     * without placeholders as it is, and reports a placeholder that it cannot quote.
+     *
+     * @return void
+     */
+    public function testInsertQueryDataWithoutValueMethod(): void
+    {
+        $source = new BaseTestSource();
+        $query = 'SELECT * FROM comments';
+        $this->assertSame($query, $source->insertQueryData($query, [], 'Comment', $this->Model, []));
+
+        $this->expectException(NotImplementedException::class);
+        $this->expectExceptionMessage(BaseTestSource::class . '::value() is not implemented.');
+        $query = 'SELECT * FROM comments WHERE post_id = {$__cakeID__$}';
+        $source->insertQueryData($query, [$this->Model->alias => ['id' => 5]], 'Comment', $this->Model, []);
     }
 
     /**

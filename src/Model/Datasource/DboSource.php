@@ -1193,10 +1193,10 @@ class DboSource extends DataSource
      * Creates new records in the database.
      *
      * @param Model $Model Model object that the record is for.
-     * @param array $fields An array of field names to insert. If null, $Model->data will be
-     *   used to generate field names.
-     * @param array $values An array of values with keys matching the fields. If null, $Model->data will
-     *   be used to generate values.
+     * @param array $fields An array of field names to insert. If null, the fields of
+     *   $Model->data[$Model->alias] will be used.
+     * @param array $values An array of values with keys matching the fields. If null, the values of
+     *   $Model->data[$Model->alias] will be used.
      * @return bool Success
      */
     public function create(Model $Model, $fields = null, $values = null)
@@ -1206,8 +1206,12 @@ class DboSource extends DataSource
 
         if (!$fields) {
             unset($fields, $values);
-            $fields = array_keys($Model->data);
-            $values = array_values($Model->data);
+            $data = [];
+            if (isset($Model->data[$Model->alias])) {
+                $data = $Model->data[$Model->alias];
+            }
+            $fields = array_keys($data);
+            $values = array_values($data);
         }
         $count = count($fields);
 
@@ -2759,7 +2763,8 @@ class DboSource extends DataSource
     }
 
     /**
-     * Returns a key formatted like a string Model.fieldname(i.e. Post.title, or Country.name)
+     * Returns the key as it is given. It is not prefixed with the model name: pass a key
+     * formatted like Model.fieldname (i.e. Post.title, or Country.name).
      *
      * @param Model $Model The model to get a key for.
      * @param string $key The key field.
@@ -3612,7 +3617,7 @@ class DboSource extends DataSource
      *
      * @param Model $Model Model to search
      * @param string $sql SQL WHERE clause (condition only, not the "WHERE" part)
-     * @return bool True if the table has a matching record, else false
+     * @return int|false The number of matching records, or false when the query fails
      */
     public function hasAny(Model $Model, $sql)
     {

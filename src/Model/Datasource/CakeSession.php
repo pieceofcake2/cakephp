@@ -537,7 +537,8 @@ class CakeSession
     /**
      * Clears the session.
      *
-     * Optionally also clears the session id and renews the session.
+     * Empties the session data. Optionally also clears the session id and renews
+     * the session, which keeps the empty data under a new id.
      *
      * @param bool $renew If the session should also be renewed. Defaults to true.
      * @return void
@@ -550,7 +551,7 @@ class CakeSession
             return;
         }
 
-        $_SESSION = null;
+        $_SESSION = [];
         static::$id = null;
         static::renew();
     }
@@ -598,9 +599,18 @@ class CakeSession
             // In PHP7.2.0+ session.save_handler can't be set to 'user' by the user.
             // https://github.com/php/php-src/commit/a93a51c3bf4ea1638ce0adc4a899cb93531b9f0d
             unset($sessionConfig['ini']['session.save_handler']);
-        } elseif (!empty($sessionConfig['session.save_path']) && Configure::read('debug')) {
-            if (!is_dir($sessionConfig['session.save_path'])) {
-                mkdir($sessionConfig['session.save_path'], 0775, true);
+        } elseif (!empty($sessionConfig['ini']['session.save_path']) && Configure::read('debug')) {
+            $saveHandler = $sessionConfig['ini']['session.save_handler'] ?? ini_get('session.save_handler');
+            if ($saveHandler === 'files') {
+                // The files handler takes "path", "N;path" or "N;MODE;path".
+                $savePath = (string)$sessionConfig['ini']['session.save_path'];
+                $pos = strrpos($savePath, ';');
+                if ($pos !== false) {
+                    $savePath = substr($savePath, $pos + 1);
+                }
+                if ($savePath !== '' && !is_dir($savePath)) {
+                    mkdir($savePath, 0775, true);
+                }
             }
         }
 

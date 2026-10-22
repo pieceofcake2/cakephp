@@ -1403,15 +1403,33 @@ EXPECTED;
     }
 
     /**
-     * Test that __() translates the string '0' like any other string.
+     * Test that every translation function translates the string '0' like any other
+     * string, as the singular and as the plural.
      *
      * @return void
      */
     public function testTranslateZeroString(): void
     {
-        $this->markTestIncomplete("Known bug: __() returns null for '0', because it checks the string with !\$singular");
-
         $this->assertSame('0', __('0'));
+        $this->assertSame('0', __n('0', 'plural', 1));
+        $this->assertSame('0', __n('singular', '0', 2));
+        $this->assertSame('0', __d('default', '0'));
+        $this->assertSame('0', __dn('default', '0', 'plural', 1));
+        $this->assertSame('0', __dn('default', 'singular', '0', 2));
+        $this->assertSame('0', __dc('default', '0', 6));
+        $this->assertSame('0', __dcn('default', '0', 'plural', 1, 6));
+        $this->assertSame('0', __dcn('default', 'singular', '0', 2, 6));
+        $this->assertSame('0', __c('0', 6));
+        $this->assertSame('0', __x('context', '0'));
+        $this->assertSame('0', __xn('context', '0', 'plural', 1));
+        $this->assertSame('0', __xn('context', 'singular', '0', 2));
+        $this->assertSame('0', __dx('default', 'context', '0'));
+        $this->assertSame('0', __dxn('default', 'context', '0', 'plural', 1));
+        $this->assertSame('0', __dxn('default', 'context', 'singular', '0', 2));
+        $this->assertSame('0', __dxc('default', 'context', '0', 6));
+        $this->assertSame('0', __dxcn('default', 'context', '0', 'plural', 1, 6));
+        $this->assertSame('0', __dxcn('default', 'context', 'singular', '0', 2, 6));
+        $this->assertSame('0', __xc('context', '0', 6));
     }
 
     /**
@@ -1449,7 +1467,8 @@ EXPECTED;
     }
 
     /**
-     * Test that the translation functions return null for an empty message.
+     * Test that the translation functions return null for an empty message, and
+     * for a null message where the function accepts null.
      *
      * @return void
      */
@@ -1469,5 +1488,11 @@ EXPECTED;
         $this->assertNull(__dxc('default', 'context', '', 6));
         $this->assertNull(__dxcn('default', 'context', '', 'plural', 2, 6));
         $this->assertNull(__xc('context', '', 6));
+
+        // The functions that accept null for the message return null for it too.
+        $this->assertNull(__n(null, 'plural', 2));
+        $this->assertNull(__dxc('default', 'context', null, 6));
+        $this->assertNull(__dxcn('default', 'context', null, 'plural', 2, 6));
+        $this->assertNull(__xc('context', null, 6));
     }
 }

@@ -28,6 +28,7 @@ use Cake\Model\Datasource\CakeSession;
 use Cake\Model\Datasource\Session\CacheSession;
 use Cake\Model\Datasource\Session\DatabaseSession;
 use Cake\TestSuite\CakeTestCase;
+use Cake\Utility\Folder;
 use stdClass;
 use TestApp\Model\Datasource\Session\NamespacedSession;
 use TestApp\Model\Datasource\Session\TestAppLibSession;
@@ -1067,7 +1068,6 @@ class CakeSessionTest extends CakeTestCase
     public function testClearRenewsTheSession(): void
     {
         $this->_preserveSessionIni();
-        $this->markTestIncomplete('Known bug: clear() sets $_SESSION to null before renew(), so the stored data is kept and read back.');
         // The files handler, as a handler of an earlier test may not store the data
         Configure::write('Session', ['defaults' => 'cake', 'timeout' => 120]);
         $createdPath = !is_dir(TMP . 'sessions') && mkdir(TMP . 'sessions');
@@ -1130,7 +1130,6 @@ class CakeSessionTest extends CakeTestCase
      */
     public function testSavePathIsCreatedInDebugMode(): void
     {
-        $this->markTestIncomplete('Known bug: _configureSession() checks Session.session.save_path instead of Session.ini.session.save_path.');
         $path = TMP . 'cake_session_test_' . getmypid();
         $this->_preserveSessionIni();
         Configure::write('debug', 2);
@@ -1145,6 +1144,65 @@ class CakeSessionTest extends CakeTestCase
             if (is_dir($path)) {
                 array_map('unlink', glob($path . DS . '*'));
                 rmdir($path);
+            }
+        }
+    }
+
+    /**
+     * Test that no folder is created in debug mode for the save path of a save
+     * handler other than files, such as the address of a redis server.
+     *
+     * The session is filled so that the ini settings are not applied, as the
+     * redis handler may not be available.
+     *
+     * @return void
+     */
+    public function testSavePathOfOtherHandlerIsNotCreatedInDebugMode(): void
+    {
+        $folder = getcwd() . DS . 'tcp:';
+        Configure::write('debug', 2);
+        Configure::write('Session.ini', [
+            'session.save_handler' => 'redis',
+            'session.save_path' => 'tcp://127.0.0.1:6379',
+        ]);
+        $_SESSION = ['Test' => 'value'];
+        try {
+            TestCakeSession::configureSession();
+            $this->assertDirectoryDoesNotExist($folder);
+        } finally {
+            if (is_dir($folder)) {
+                (new Folder($folder))->delete();
+            }
+        }
+    }
+
+    /**
+     * Test that the folder of a files handler save path given as "N;path" is
+     * created in debug mode.
+     *
+     * The session is filled so that the ini settings are not applied, as the
+     * files handler does not create the subfolders of the N levels.
+     *
+     * @return void
+     */
+    public function testSavePathWithLevelsIsCreatedInDebugMode(): void
+    {
+        $path = TMP . 'cake_session_test_' . getmypid();
+        Configure::write('debug', 2);
+        Configure::write('Session.ini', [
+            'session.save_handler' => 'files',
+            'session.save_path' => '2;' . $path,
+        ]);
+        $_SESSION = ['Test' => 'value'];
+        try {
+            TestCakeSession::configureSession();
+            $this->assertDirectoryExists($path);
+        } finally {
+            if (is_dir($path)) {
+                rmdir($path);
+            }
+            if (is_dir(getcwd() . DS . '2;')) {
+                (new Folder(getcwd() . DS . '2;'))->delete();
             }
         }
     }

@@ -1174,6 +1174,31 @@ class ExceptionRendererTest extends CakeTestCase
     }
 
     /**
+     * The dev_error page shows 4 lines above and 4 lines below the line of the
+     * exception, numbered from their line in the file, with the line of the exception
+     * highlighted.
+     *
+     * @return void
+     */
+    public function testDevErrorHighlightsTheExceptionLine(): void
+    {
+        $this->_useCoreTemplates();
+        $line = __LINE__ + 1;
+        $result = $this->_render(new RuntimeException('excerpt problem'));
+
+        $source = file(__FILE__, FILE_IGNORE_NEW_LINES);
+        $pattern = '#<td class="excerpt-number" data-number="(\d+)"></td>\s*'
+            . '<td class="excerpt-line"><span class="code-highlight">(.*?)</span></td>#s';
+        $this->assertMatchesRegularExpression($pattern, $result);
+        preg_match($pattern, $result, $match);
+        $this->assertSame((string)$line, $match[1]);
+        preg_match_all('#data-number="(\d+)"#', $result, $numbers);
+        $this->assertSame(range($line - 4, $line + 4), array_map('intval', array_slice($numbers[1], 0, 9)));
+        $text = html_entity_decode(strip_tags($match[2]), ENT_QUOTES, 'UTF-8');
+        $this->assertSame(trim($source[$line - 1]), trim(str_replace("\u{00A0}", ' ', $text)));
+    }
+
+    /**
      * Test the core error400 and error500 templates in debug mode.
      *
      * @return void
@@ -1233,6 +1258,34 @@ class ExceptionRendererTest extends CakeTestCase
         $this->assertStringContainsString('CakePHP: the rapid development php framework', $result);
         $this->assertStringContainsString('class="cake-stack-trace"', $result);
         $this->assertStringNotContainsString('header-title', $result);
+    }
+
+    /**
+     * The exception_stack_trace element shows 2 lines above and 2 lines below the line
+     * of each frame, with the line of the frame highlighted.
+     *
+     * @return void
+     */
+    public function testStackTraceElementHighlightsTheFrameLine(): void
+    {
+        $exception = new NotFoundException('Custom message');
+        $frame = $exception->getTrace()[0];
+        $result = $this->_render($exception);
+
+        $this->assertMatchesRegularExpression('#<div id="file-excerpt-0"[^>]*><pre>(.*?)</pre></div>#s', $result);
+        preg_match('#<div id="file-excerpt-0"[^>]*><pre>(.*?)</pre></div>#s', $result, $match);
+        $lines = explode("\n", $match[1]);
+        $source = file($frame['file'], FILE_IGNORE_NEW_LINES);
+        $texts = [];
+        foreach ($lines as $code) {
+            $text = html_entity_decode(strip_tags($code), ENT_QUOTES, 'UTF-8');
+            $texts[] = [trim(str_replace("\u{00A0}", ' ', $text)), str_starts_with($code, '<span class="code-highlight">')];
+        }
+        $expected = [];
+        for ($i = $frame['line'] - 2; $i <= $frame['line'] + 2; $i++) {
+            $expected[] = [trim($source[$i - 1]), $i === $frame['line']];
+        }
+        $this->assertSame($expected, $texts);
     }
 
     /**

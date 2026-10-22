@@ -2604,6 +2604,17 @@ class DboSourceTest extends CakeTestCase
     }
 
     /**
+     * Test that resolveKey() returns the key as it is given, with or without a model name.
+     *
+     * @return void
+     */
+    public function testResolveKey(): void
+    {
+        $this->assertSame('title', $this->testDb->resolveKey($this->Model, 'title'));
+        $this->assertSame('Post.title', $this->testDb->resolveKey($this->Model, 'Post.title'));
+    }
+
+    /**
      * Test that conditions() does not add a second clause keyword to a string
      * that already has one, and skips empty numeric entries.
      *
@@ -2617,21 +2628,19 @@ class DboSourceTest extends CakeTestCase
     }
 
     /**
-     * Test that DboSource::hasAny() returns whether a record matches the conditions,
-     * as a boolean as its `@return bool` says.
+     * Test that DboSource::hasAny() returns the number of records that match the
+     * conditions.
      *
      * @return void
      */
     public function testHasAny(): void
     {
-        $this->markTestIncomplete('Known bug: hasAny() returns the count of the matching records, not a boolean');
-
         $this->loadFixtures('Article');
         $Article = new Article();
 
-        $this->assertTrue($this->db->hasAny($Article, ['Article.user_id' => 1]));
-        $this->assertFalse($this->db->hasAny($Article, ['Article.user_id' => 99]));
-        $this->assertTrue($this->db->hasAny($Article, []));
+        $this->assertEquals(2, $this->db->hasAny($Article, ['Article.user_id' => 1]));
+        $this->assertEquals(0, $this->db->hasAny($Article, ['Article.user_id' => 99]));
+        $this->assertEquals(3, $this->db->hasAny($Article, []));
     }
 
     /**
@@ -2781,8 +2790,6 @@ class DboSourceTest extends CakeTestCase
      */
     public function testCreateWithoutFieldsUsesModelData(): void
     {
-        $this->markTestIncomplete('Known bug: create() without fields takes the model alias as the only field name');
-
         $this->loadFixtures('Article');
         $Article = new Article();
         $Article->data = ['Article' => ['user_id' => 2, 'title' => 'From data', 'body' => 'Body']];

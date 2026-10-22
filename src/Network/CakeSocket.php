@@ -182,6 +182,10 @@ class CakeSocket
     /**
      * Connects the socket to the given host and port.
      *
+     * For a https request through a proxy, the tunnel is opened with a CONNECT request
+     * and TLS is enabled on it. A proxy answer other than 2xx is a SocketException,
+     * with the status as the code, and the connection is closed.
+     *
      * @return bool Success
      * @throws SocketException
      */
@@ -190,6 +194,7 @@ class CakeSocket
         if ($this->connection) {
             $this->disconnect();
         }
+        $this->_connectionErrors = [];
 
         $hasProtocol = str_contains($this->config['host'], '://');
         if ($hasProtocol) {
@@ -243,17 +248,26 @@ class CakeSocket
 
         $this->connected = is_resource($this->connection);
         if ($this->connected) {
-            stream_set_timeout($this->connection, $this->config['timeout']);
+            // stream_set_timeout() takes the seconds and the microseconds apart, so a
+            // fractional timeout like 0.5 is split instead of truncated to whole seconds.
+            $seconds = (int)floor($this->config['timeout']);
+            $microseconds = (int)round(($this->config['timeout'] - $seconds) * 1000000);
+            if ($microseconds === 1000000) {
+                $seconds++;
+                $microseconds = 0;
+            }
+            stream_set_timeout($this->connection, $seconds, $microseconds);
 
             if (
                 !empty($this->config['request']) &&
                 $this->config['request']['uri']['scheme'] === 'https' &&
                 !empty($this->config['proxy'])
             ) {
+                // The Host header of a CONNECT request is the target authority (RFC 9110, 9.3.6).
+                $authority = $this->config['request']['uri']['host'] . ':' . $this->config['request']['uri']['port'];
                 $req = [];
-                $req[] = 'CONNECT ' . $this->config['request']['uri']['host'] . ':' .
-                    $this->config['request']['uri']['port'] . ' HTTP/1.1';
-                $req[] = 'Host: ' . $this->config['host'];
+                $req[] = 'CONNECT ' . $authority . ' HTTP/1.1';
+                $req[] = 'Host: ' . $authority;
                 $req[] = 'User-Agent: php proxy';
                 if (!empty($this->config['proxyauth'])) {
                     $req[] = 'Proxy-Authorization: ' . $this->config['proxyauth'];
@@ -261,6 +275,20 @@ class CakeSocket
 
                 fwrite($this->connection, implode("\r\n", $req) . "\r\n\r\n");
 
+                $statusLine = fgets($this->connection, 4096);
+                $status = null;
+                if ($statusLine !== false && preg_match('#^HTTP/\d(?:\.\d)? (\d{3})\b#', $statusLine, $match)) {
+                    $status = (int)$match[1];
+                }
+                if ($status === null || $status < 200 || $status > 299) {
+                    $message = __d('cake_dev', 'The proxy did not establish the tunnel to %s', $authority);
+                    if ($statusLine !== false && trim($statusLine) !== '') {
+                        $message .= ': ' . trim($statusLine);
+                    }
+                    $this->disconnect();
+                    $this->setLastError($status, $message);
+                    throw new SocketException($message, $status ?? 0);
+                }
                 while (!feof($this->connection)) {
                     $s = rtrim(fgets($this->connection, 4096));
                     if (preg_match('/^$/', $s)) {
@@ -277,6 +305,9 @@ class CakeSocket
 
     /**
      * Configure the SSL context options.
+     *
+     * The flat `ssl_*` settings are moved into the `ssl` context. They fill in an option
+     * that the context leaves empty, including one given as false.
      *
      * @param string $host The host name being connected to.
      * @return void
@@ -496,6 +527,15 @@ class CakeSocket
     /**
      * Resets the state of this Socket instance to it's initial state (before CakeObject::__construct got executed)
      *
+     * Without a state, all the properties get their default values. This also clears
+     * the config, which is then an empty array, not the base config.
+     *
+     * When the state has the key 'connection' (as the state without a value does),
+     * an open connection is first closed with disconnect(), so that it is not left
+     * open, and then the given value is set. This is also done when the state gives
+     * the current connection: reset(['connection' => $socket->connection]) closes
+     * the connection and then sets the given (now closed) value.
+     *
      * @param array $state Array with key and values to reset
      * @return bool True on success
      */
@@ -509,6 +549,9 @@ class CakeSocket
             $state = $initalState;
         }
 
+        if (array_key_exists('connection', $state)) {
+            $this->disconnect();
+        }
         foreach ($state as $property => $value) {
             $this->{$property} = $value;
         }

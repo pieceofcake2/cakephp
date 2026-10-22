@@ -14,6 +14,7 @@
 
 namespace TestApp\TestSuite;
 
+use PHPUnit\Framework\ExpectationFailedException;
 use PHPUnit\Framework\TestBuilder;
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\TestSuite;
@@ -86,6 +87,17 @@ class ReporterSampleCase extends TestCase
     }
 
     /**
+     * Throws a failure itself, without an assertion.
+     *
+     * @return void
+     */
+    public function testThrowsFailure(): void
+    {
+        self::$lines[__FUNCTION__] = __LINE__ + 1;
+        throw new ExpectationFailedException('Thrown <directly>');
+    }
+
+    /**
      * Is skipped with HTML in its message.
      *
      * @return void
@@ -106,6 +118,17 @@ class ReporterSampleCase extends TestCase
     }
 
     /**
+     * Passes an assertion but adds a warning.
+     *
+     * @return void
+     */
+    public function testWarns(): void
+    {
+        $this->assertTrue(true);
+        $this->addWarning('Deprecated <feature>');
+    }
+
+    /**
      * Passes for a data set whose name contains HTML.
      *
      * @param int $value A value.
@@ -115,6 +138,30 @@ class ReporterSampleCase extends TestCase
     public function testWithData(int $value): void
     {
         $this->assertSame(1, $value);
+    }
+
+    /**
+     * Fails for a data set whose name contains HTML.
+     *
+     * @param int $value A value.
+     * @return void
+     * @dataProvider htmlNamedProvider
+     */
+    public function testFailsWithData(int $value): void
+    {
+        $this->assertSame(2, $value);
+    }
+
+    /**
+     * Is skipped for a data set whose name contains HTML.
+     *
+     * @param int $value A value.
+     * @return void
+     * @dataProvider htmlNamedProvider
+     */
+    public function testSkippedWithData(int $value): void
+    {
+        $this->markTestSkipped('Skipped');
     }
 
     /**

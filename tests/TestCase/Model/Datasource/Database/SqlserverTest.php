@@ -523,6 +523,26 @@ class SqlserverTest extends CakeTestCase
     }
 
     /**
+     * Test that create() without fields inserts the data of the model, and turns on
+     * IDENTITY_INSERT around it when the data has a primary key, as with fields.
+     *
+     * @return void
+     */
+    public function testCreateWithoutFieldsInsertsTheModelData(): void
+    {
+        $this->db->describe = $this->model->schema();
+        $this->model->data = ['SqlserverTestModel' => ['id' => 5, 'name' => 'Jim']];
+
+        $this->db->create($this->model);
+
+        $this->assertCount(3, $this->db->simulated);
+        $this->assertMatchesRegularExpression('/^SET IDENTITY_INSERT (\[[^\]]+\]\.)?\[sqlserver_test_models\] ON$/', $this->db->simulated[0]);
+        $this->assertMatchesRegularExpression('/^INSERT INTO (\[[^\]]+\]\.)?\[sqlserver_test_models\] \(\[id\], \[name\]\) VALUES /', $this->db->simulated[1]);
+        $this->assertStringContainsString("'Jim'", $this->db->simulated[1]);
+        $this->assertMatchesRegularExpression('/^SET IDENTITY_INSERT (\[[^\]]+\]\.)?\[sqlserver_test_models\] OFF$/', $this->db->simulated[2]);
+    }
+
+    /**
      * testGetPrimaryKey method
      *
      * @return void
@@ -757,6 +777,29 @@ SQL;
             ->will($this->returnValue(false));
 
         $this->assertSame([], $db->listSources());
+    }
+
+    /**
+     * Test that lastAffected() returns the count of rows that exec() reports for a
+     * statement other than SELECT.
+     *
+     * @return void
+     */
+    public function testLastAffectedAfterExec(): void
+    {
+        $db = new Sqlserver($this->Dbo->config, false);
+        $connection = $this->getMock(PDO::class, ['exec'], [], '', false);
+        $connection->expects($this->once())
+            ->method('exec')
+            ->willReturn(3);
+        $property = new ReflectionProperty(Sqlserver::class, '_connection');
+        if (PHP_VERSION_ID < 80100) {
+            $property->setAccessible(true);
+        }
+        $property->setValue($db, $connection);
+
+        $this->assertTrue($db->execute('DELETE FROM sqlserver_test_models WHERE id > 1', ['log' => false]));
+        $this->assertSame(3, $db->lastAffected());
     }
 
     /**

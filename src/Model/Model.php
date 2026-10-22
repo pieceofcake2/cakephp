@@ -1460,6 +1460,8 @@ class Model extends CakeObject implements CakeEventListener
     /**
      * Returns an associative array of field names and column types.
      *
+     * Triggers an E_USER_WARNING and returns an empty array when the model has no schema.
+     *
      * @return array Field types indexed by field name
      */
     public function getColumnTypes()
@@ -1467,6 +1469,8 @@ class Model extends CakeObject implements CakeEventListener
         $columns = $this->schema();
         if (empty($columns)) {
             trigger_error(__d('cake_dev', '(Model::getColumnTypes) Unable to build model field data. If you are using a model without a database table, try implementing schema()'), E_USER_WARNING);
+
+            return [];
         }
 
         $cols = [];
