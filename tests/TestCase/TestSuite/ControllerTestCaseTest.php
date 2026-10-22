@@ -401,8 +401,6 @@ class ControllerTestCaseTest extends CakeTestCase
      */
     public function testSkipRoutesResetsRoutes(): void
     {
-        $this->markTestIncomplete('Known bug: the Dispatcher no longer calls ControllerTestDispatcher::_loadRoutes(), so loadRoutes = false does not reset the routes.');
-
         include CORE_TESTS . DS . 'test_app' . DS . 'config' . DS . 'routes.php';
         $this->Case->loadRoutes = false;
 
