@@ -316,5 +316,9 @@ spl_autoload_register(static function ($class): void {
     $name = strtolower($class);
     if (isset($classes[$name])) {
         class_exists($classes[$name]);
+        // The AppShell of the framework is the default, when the application has no AppShell
+        if ($name === 'appshell' && !class_exists($class, false)) {
+            class_alias($classes[$name], $class);
+        }
     }
 });

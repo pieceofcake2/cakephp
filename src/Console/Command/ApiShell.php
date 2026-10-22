@@ -19,6 +19,7 @@
 
 namespace Cake\Console\Command;
 
+use AppShell;
 use Cake\Console\ConsoleOptionParser;
 use Cake\Core\App;
 use Cake\Utility\Inflector;

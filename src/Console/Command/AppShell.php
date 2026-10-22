@@ -25,10 +25,12 @@ use Cake\Console\Shell;
  * Add your application-wide methods in the class below, your shells
  * will inherit them.
  *
+ * This is the AppShell for an application that has none. It declares no global name itself:
+ * src/aliases.php declares AppShell for it only when the application has no AppShell, which
+ * may be loaded after this class.
+ *
  * @package       app.Console.Command
  */
 class AppShell extends Shell
 {
 }
-
-class_alias(AppShell::class, 'AppShell');

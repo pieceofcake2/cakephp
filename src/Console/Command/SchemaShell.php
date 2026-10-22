@@ -15,6 +15,7 @@
 
 namespace Cake\Console\Command;
 
+use AppShell;
 use Cake\Cache\Cache;
 use Cake\Console\ConsoleOptionParser;
 use Cake\Core\Configure;

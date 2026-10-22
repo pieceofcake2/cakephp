@@ -15,7 +15,7 @@
 
 namespace Cake\Console\Command\Task;
 
-use Cake\Console\Command\AppShell;
+use AppShell;
 use Cake\Console\ConsoleOptionParser;
 use Cake\Console\TaskCollection;
 use Cake\Core\App;

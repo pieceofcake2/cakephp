@@ -125,6 +125,7 @@
 - **ControllerTestCase::$loadRoutes**: `false` resets the routes again before `testAction()` parses the URL, so the routes that the test connected are not used. The Dispatcher has not called `ControllerTestDispatcher::_loadRoutes()` since the routes are loaded lazily (CakePHP 2.3); `ControllerTestDispatcher::parseParams()` now calls it
 - **Cache::drop()**: The dropped configuration is removed from its groups, so `Cache::groupConfigs()` no longer lists it, and a group that no configuration uses any more is removed
 - **Cache::config()**: An engine whose `init()` fails is not kept, so configuring it again with the same settings throws the `CacheException` again instead of using the engine that failed
+- **AppShell**: The shells and tasks of the framework extend the global `AppShell` again, which is the `AppShell` of the application when it has one, as before PR #92. `Cake\Console\Command\AppShell` no longer declares the global name itself; `src/aliases.php` declares it only for an application without an `AppShell`. Loading a shell of the framework after the `AppShell` of the application no longer fails with "Cannot redeclare class AppShell", and loading `Cake\Console\Command\AppShell` first no longer hides the `AppShell` of the application
 
 ### Tests: Coverage ([PR #106](https://github.com/pieceofcake2/cakephp/pull/106))
 
