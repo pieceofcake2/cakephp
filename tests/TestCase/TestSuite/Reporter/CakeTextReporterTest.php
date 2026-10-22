@@ -20,8 +20,10 @@ use Cake\Core\CakePlugin;
 use Cake\TestSuite\CakeTestCase;
 use Cake\TestSuite\Reporter\CakeTextReporter;
 use Cake\Utility\Folder;
+use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\TestResult;
 use PHPUnit\Framework\Warning;
+use ReflectionClass;
 use TestApp\TestSuite\ReporterSampleCase;
 
 /**
@@ -278,12 +280,12 @@ class CakeTextReporterTest extends CakeTestCase
     }
 
     /**
-     * Test that a failure raised outside a test method is painted with the
-     * location where it was raised.
+     * Test that a failure raised by the test method itself is painted with the
+     * line where it was raised and the test method.
      *
      * @return void
      */
-    public function testPaintsFailureLocationOutsideATest(): void
+    public function testPaintsLocationOfAFailureRaisedInTheTestMethod(): void
     {
         $line = __LINE__ + 1;
         $warning = new Warning('Deprecated feature');
@@ -291,7 +293,42 @@ class CakeTextReporterTest extends CakeTestCase
             (new CakeTextReporter())->paintFail($warning);
         });
 
-        $this->assertSame("FAIL on line $line\nDeprecated feature in\n" . __FILE__ . " ()\n\n", $output);
+        $this->assertSame("FAIL on line $line\nDeprecated feature in\n" . __FILE__ . ' ' . __FUNCTION__ . "()\n\n", $output);
+    }
+
+    /**
+     * Test that a failure thrown by the test method of a test run by another test is painted
+     * with the location in that test method, not in the test that runs it.
+     *
+     * @return void
+     */
+    public function testPaintsLocationOfAFailureThrownInANestedTest(): void
+    {
+        [$output] = $this->runSample(new CakeTextReporter(), 'testThrowsFailure');
+
+        $line = ReporterSampleCase::$lines['testThrowsFailure'];
+        $file = CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'TestSuite' . DS . 'ReporterSampleCase.php';
+        $this->assertSame(
+            "Running  Reporter sample\nFAIL on line $line\nThrown <directly> in\n$file testThrowsFailure()\n\n",
+            $output,
+        );
+    }
+
+    /**
+     * Test that a warning of a test run by another test, which PHPUnit raises after the test
+     * method, is painted with the location where it was raised, not in the test that runs it.
+     *
+     * @return void
+     */
+    public function testPaintsLocationOfAWarningOfANestedTest(): void
+    {
+        [$output] = $this->runSample(new CakeTextReporter(), 'testWarns');
+
+        $file = (new ReflectionClass(TestCase::class))->getFileName();
+        $this->assertMatchesRegularExpression(
+            '/^Running  Reporter sample\nFAIL on line \d+\nDeprecated <feature> in\n' . preg_quote($file, '/') . ' \(\)\n\n$/',
+            $output,
+        );
     }
 
     /**

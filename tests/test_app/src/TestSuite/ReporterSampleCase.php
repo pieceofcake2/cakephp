@@ -14,6 +14,7 @@
 
 namespace TestApp\TestSuite;
 
+use PHPUnit\Framework\ExpectationFailedException;
 use PHPUnit\Framework\TestBuilder;
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\TestSuite;
@@ -83,6 +84,17 @@ class ReporterSampleCase extends TestCase
     {
         self::$lines[__FUNCTION__] = __LINE__ + 1;
         throw new RuntimeException('Broken <i>thing</i>');
+    }
+
+    /**
+     * Throws a failure itself, without an assertion.
+     *
+     * @return void
+     */
+    public function testThrowsFailure(): void
+    {
+        self::$lines[__FUNCTION__] = __LINE__ + 1;
+        throw new ExpectationFailedException('Thrown <directly>');
     }
 
     /**

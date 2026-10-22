@@ -58,8 +58,10 @@ class CakeTextReporter extends CakeBaseReporter
      *
      * The location is the line in the test method that failed: the frame of
      * the call made by the test method, which PHPUnit's TestCase::runTest()
-     * called. When the trace has no such frame, the location where the failure
-     * was raised is painted.
+     * called, or the place where the test method raised the failure itself.
+     * Only the innermost test is looked at, so that a test that runs other
+     * tests does not report its own location. When the failure was not raised
+     * by the test method, the location where it was raised is painted.
      *
      * @param \PHPUnit\Framework\AssertionFailedError|\PHPUnit\Framework\Warning $message Failure object displayed in
      *   the context of the other tests.
@@ -73,18 +75,26 @@ class CakeTextReporter extends CakeBaseReporter
         $trace = $message->getTrace();
         foreach ($trace as $i => $frame) {
             if (
-                $i < 2 ||
-                $frame['function'] !== 'runTest' ||
                 !isset($frame['class']) ||
-                !is_a($frame['class'], TestCase::class, true)
+                !is_a($frame['class'], TestCase::class, true) ||
+                ($frame['function'] !== 'runTest' && $frame['function'] !== 'runBare')
             ) {
                 continue;
             }
-            $call = $trace[$i - 2];
-            if (isset($call['file']) && isset($call['line'])) {
-                $file = $call['file'];
-                $line = $call['line'];
-                $function = $trace[$i - 1]['function'];
+            // The frame before runTest() is the call of the test method, unless runTest() raised the failure.
+            $method = $trace[$i - 1] ?? [];
+            if (
+                $frame['function'] === 'runTest' &&
+                isset($method['class']) &&
+                is_a($method['class'], TestCase::class, true)
+            ) {
+                if ($i === 1) {
+                    $function = $method['function'];
+                } elseif (isset($trace[$i - 2]['file']) && isset($trace[$i - 2]['line'])) {
+                    $file = $trace[$i - 2]['file'];
+                    $line = $trace[$i - 2]['line'];
+                    $function = $method['function'];
+                }
             }
             break;
         }
