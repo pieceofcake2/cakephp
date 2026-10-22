@@ -119,6 +119,10 @@
 
 - **The key `'0'`**: `Configure::consume()`, `CakeResponse::getMimeType()`, `ClassRegistry::getObject()` and the subcommands of `ConsoleOptionParser` take `'0'` as a key again. The checks for a missing key of PR #96 used `empty()`, which also rejected `'0'`; they now check for `null` only
 
+### Bug Fixes: Found by the Tests of the Namespace Pull Requests ([PR #112](https://github.com/pieceofcake2/cakephp/pull/112))
+
+- **PhpAcl**: `check()` of an ACO without nodes, such as `'/'`, returns the policy instead of raising "Undefined array key 0"; `PhpAco::path()` returns an empty path for it
+
 ### Tests: Coverage ([PR #106](https://github.com/pieceofcake2/cakephp/pull/106))
 
 - **More tests**: Tests for the test suite (reporters, runner, fixture manager), the Js helpers, the scaffold, the network and session classes, the datasources, the models and behaviors, `CakeSchema` and the utilities. The bugs that they found are fixed in PR #107

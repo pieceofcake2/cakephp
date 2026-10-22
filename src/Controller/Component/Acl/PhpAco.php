@@ -59,11 +59,14 @@ class PhpAco
      * return path to the requested ACO with allow and deny rules attached on each level
      *
      * @param string $aco ACO string
-     * @return array
+     * @return array The path, empty for an ACO without nodes
      */
     public function path($aco)
     {
         $aco = $this->resolve($aco);
+        if (empty($aco)) {
+            return [];
+        }
         $path = [];
         $level = 0;
         $root = $this->_tree;

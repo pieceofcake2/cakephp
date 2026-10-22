@@ -423,10 +423,13 @@ class PhpAclTest extends CakeTestCase
      */
     public function testCheckAcoWithoutNodes(): void
     {
-        $this->markTestIncomplete('Known bug: PhpAco::path() reads the first node of an ACO without nodes, so check() with \'/\' raises "Undefined array key 0".');
+        $this->assertSame([], $this->Acl->Aco->path('/'));
+        $this->assertSame([], $this->Acl->Aco->path(''));
 
         $this->assertFalse($this->Acl->check('peter', '/'));
         $this->assertFalse($this->Acl->check('peter', ''));
+        // '/*' allows the nodes below the root, not an ACO without nodes
+        $this->assertFalse($this->Acl->check('jan', '/'));
 
         $this->Acl->settings['adapter']['policy'] = PhpAcl::ALLOW;
         $this->Acl->adapter($this->PhpAcl);
