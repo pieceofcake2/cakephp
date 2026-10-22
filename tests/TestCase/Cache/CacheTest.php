@@ -386,8 +386,6 @@ class CacheTest extends CakeTestCase
      */
     public function testInvalidConfigFailsAgain(): void
     {
-        $this->markTestIncomplete('Known bug: Cache::config() keeps the engine that failed to initialize, so the same configuration does not fail again.');
-
         $debug = Configure::read('debug');
         Configure::write('debug', 0);
         set_error_handler(fn() => true, E_USER_WARNING);
@@ -398,6 +396,7 @@ class CacheTest extends CakeTestCase
                 $this->fail('The first configuration did not fail.');
             } catch (CacheException) {
             }
+            $this->assertFalse(Cache::isInitialized('invalid'));
 
             $this->expectException(CacheException::class);
             Cache::config('invalid', $settings);

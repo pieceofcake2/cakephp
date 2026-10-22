@@ -181,6 +181,8 @@ class Cache
         }
         static::$_engines[$name] = new $cacheClass();
         if (!static::$_engines[$name]->init($config)) {
+            // Configuring it again tries again, instead of using the engine that failed
+            unset(static::$_engines[$name]);
             $msg = __d(
                 'cake_dev',
                 'Cache engine "%s" is not properly configured. Ensure required extensions are installed, and credentials/permissions are correct',
