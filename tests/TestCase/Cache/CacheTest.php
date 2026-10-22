@@ -27,6 +27,7 @@ use Cake\Core\CakePlugin;
 use Cake\Core\Configure;
 use Cake\Error\CacheException;
 use Cake\TestSuite\CakeTestCase;
+use Closure;
 use Memcached;
 use stdClass;
 use TestApp\Cache\Engine\NamespacedEngine;
@@ -190,6 +191,7 @@ class CacheTest extends CakeTestCase
             Cache::read('Test', 'invalid');
         } finally {
             restore_error_handler();
+            Cache::drop('invalid');
 
             Configure::write('debug', $debug);
         }
@@ -310,6 +312,24 @@ class CacheTest extends CakeTestCase
      * @return void
      */
     public function testGroupConfigs(): void
+    {
+        // Cache::drop() does not remove the configurations from their groups
+        $groups = Closure::bind(fn() => static::$_groups, null, Cache::class)();
+        try {
+            $this->_testGroupConfigs();
+        } finally {
+            Closure::bind(function () use ($groups): void {
+                static::$_groups = $groups;
+            }, null, Cache::class)();
+        }
+    }
+
+    /**
+     * Configures the caches and checks their groups for testGroupConfigs().
+     *
+     * @return void
+     */
+    protected function _testGroupConfigs(): void
     {
         Cache::config('latest', [
             'duration' => 300,

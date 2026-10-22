@@ -46,6 +46,13 @@ class CakeTimeTest extends CakeTestCase
     protected ?string $_locale = null;
 
     /**
+     * The default format of CakeTime::nice(), restored in tearDown()
+     *
+     * @var string|null
+     */
+    protected ?string $_niceFormat = null;
+
+    /**
      * setUp method
      *
      * @return void
@@ -59,6 +66,7 @@ class CakeTimeTest extends CakeTestCase
         Configure::write('Config.language', 'eng');
         $this->_locale = Locale::getDefault();
         Locale::setDefault('en_Us');
+        $this->_niceFormat = CakeTime::$niceFormat;
     }
 
     /**
@@ -71,6 +79,7 @@ class CakeTimeTest extends CakeTestCase
         $this->Time = null;
         $this->_restoreSystemTimezone();
         Locale::setDefault($this->_locale);
+        CakeTime::$niceFormat = $this->_niceFormat;
 
         parent::tearDown();
     }

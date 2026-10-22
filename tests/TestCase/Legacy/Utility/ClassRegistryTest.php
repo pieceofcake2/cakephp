@@ -232,11 +232,14 @@ class ClassRegistryTest extends CakeTestCase
 
         $testConfig = ConnectionManager::getDataSource('test')->config;
         ConnectionManager::create('test_doesnotexist', $testConfig);
-
-        $Model = ClassRegistry::init('RegisterArticle');
-        $this->assertEquals('test', $Model->useDbConfig);
-        $Model = ClassRegistry::init('RegisterPrefixedDs');
-        $this->assertEquals('test_doesnotexist', $Model->useDbConfig);
+        try {
+            $Model = ClassRegistry::init('RegisterArticle');
+            $this->assertEquals('test', $Model->useDbConfig);
+            $Model = ClassRegistry::init('RegisterPrefixedDs');
+            $this->assertEquals('test_doesnotexist', $Model->useDbConfig);
+        } finally {
+            ConnectionManager::drop('test_doesnotexist');
+        }
     }
 
     /**

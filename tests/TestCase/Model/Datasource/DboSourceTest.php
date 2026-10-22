@@ -1386,10 +1386,14 @@ class DboSourceTest extends CakeTestCase
         $noschema = ConnectionManager::create('noschema', [
             'datasource' => DboTestSource::class,
             ]);
-        $Article->setDataSource('noschema');
-        $Article->schemaName = null;
-        $result = $noschema->fullTableName($Article, false, true);
-        $this->assertEquals('articles', $result);
+        try {
+            $Article->setDataSource('noschema');
+            $Article->schemaName = null;
+            $result = $noschema->fullTableName($Article, false, true);
+            $this->assertEquals('articles', $result);
+        } finally {
+            ConnectionManager::drop('noschema');
+        }
 
         $this->testDb->config['prefix'] = 't_';
         $result = $this->testDb->fullTableName('post_tag', false, false);

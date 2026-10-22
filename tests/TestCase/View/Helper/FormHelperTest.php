@@ -57,6 +57,7 @@ class FormHelperTest extends CakeTestCase
      */
     public $fixtures = [
         'core.post',
+        'core.comment',
     ];
 
     /**
@@ -9200,6 +9201,7 @@ class FormHelperTest extends CakeTestCase
      */
     public function testCreateUrlImpliedController(): void
     {
+        $this->loadFixtures('Comment');
         $restore = error_reporting(E_ALL ^ E_USER_DEPRECATED);
         $this->Form->request['controller'] = 'posts';
         $result = $this->Form->create('Comment', [

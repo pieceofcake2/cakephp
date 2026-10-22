@@ -144,6 +144,11 @@ class L10nTest extends CakeTestCase
     /**
      * testGet method with deprecated constant DEFAULT_LANGUAGE
      *
+     * It runs in its own process, as a constant cannot be undefined and DEFAULT_LANGUAGE changes the
+     * default language of the other tests.
+     *
+     * @runInSeparateProcess
+     * @preserveGlobalState disabled
      * @return void
      */
     public function testGetWithDeprecatedConstant(): void
