@@ -73,12 +73,20 @@ class FileEngineTest extends CakeTestCase
      */
     public function testCacheDirChange(): void
     {
-        $result = Cache::config('sessions', ['engine' => 'File', 'path' => TMP . 'sessions']);
-        $this->assertEquals(Cache::settings('sessions'), $result['settings']);
+        $sessions = Cache::config('sessions');
+        try {
+            $result = Cache::config('sessions', ['engine' => 'File', 'path' => TMP . 'sessions']);
+            $this->assertEquals(Cache::settings('sessions'), $result['settings']);
 
-        $result = Cache::config('sessions', ['engine' => 'File', 'path' => TMP . 'tests']);
-        $this->assertEquals(Cache::settings('sessions'), $result['settings']);
-        $this->assertNotEquals(Cache::settings('default'), $result['settings']);
+            $result = Cache::config('sessions', ['engine' => 'File', 'path' => TMP . 'tests']);
+            $this->assertEquals(Cache::settings('sessions'), $result['settings']);
+            $this->assertNotEquals(Cache::settings('default'), $result['settings']);
+        } finally {
+            Cache::drop('sessions');
+            if ($sessions) {
+                Cache::config('sessions', $sessions['settings']);
+            }
+        }
     }
 
     /**
