@@ -106,6 +106,17 @@ class ReporterSampleCase extends TestCase
     }
 
     /**
+     * Passes an assertion but adds a warning.
+     *
+     * @return void
+     */
+    public function testWarns(): void
+    {
+        $this->assertTrue(true);
+        $this->addWarning('Deprecated <feature>');
+    }
+
+    /**
      * Passes for a data set whose name contains HTML.
      *
      * @param int $value A value.

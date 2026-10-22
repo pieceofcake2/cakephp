@@ -264,6 +264,20 @@ class CakeTextReporterTest extends CakeTestCase
     }
 
     /**
+     * Test that a test with a warning is painted as a failure only, not also as a pass.
+     *
+     * @return void
+     */
+    public function testWarningIsNotPaintedAsAPass(): void
+    {
+        [$output] = $this->runSample(new CakeTextReporter(), 'testWarns');
+
+        $this->assertStringStartsWith("Running  Reporter sample\nFAIL on line ", $output);
+        $this->assertStringContainsString("\nDeprecated <feature> in\n", $output);
+        $this->assertStringEndsWith("()\n\n", $output, 'No pass is painted after the failure.');
+    }
+
+    /**
      * Test that a failure raised outside a test method is painted with the
      * location where it was raised.
      *

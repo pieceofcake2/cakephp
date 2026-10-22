@@ -259,9 +259,9 @@ abstract class CakeBaseReporter implements ResultPrinter
     /**
      * A test ended.
      *
-     * Paints the test as a pass unless it failed, errored, was skipped or is
-     * incomplete. Those are painted by addFailure(), addError(),
-     * addSkippedTest() and addIncompleteTest().
+     * Paints the test as a pass unless it failed, errored, has a warning, was
+     * skipped or is incomplete. Those are painted by addFailure(), addError(),
+     * addWarning(), addSkippedTest() and addIncompleteTest().
      *
      * @param \PHPUnit\Framework\TestCase $test The test that ended
      * @param float $time The current time.
@@ -274,7 +274,11 @@ abstract class CakeBaseReporter implements ResultPrinter
             return;
         }
         $status = $test->getStatus();
-        if ($status === BaseTestRunner::STATUS_SKIPPED || $status === BaseTestRunner::STATUS_INCOMPLETE) {
+        if (
+            $status === BaseTestRunner::STATUS_WARNING ||
+            $status === BaseTestRunner::STATUS_SKIPPED ||
+            $status === BaseTestRunner::STATUS_INCOMPLETE
+        ) {
             return;
         }
         $this->paintPass($test, $time);
