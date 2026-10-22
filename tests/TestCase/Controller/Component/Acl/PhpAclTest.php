@@ -319,6 +319,121 @@ class PhpAclTest extends CakeTestCase
     }
 
     /**
+     * Test that inherit() is not supported: it reports failure and changes no permission.
+     *
+     * @return void
+     */
+    public function testInherit(): void
+    {
+        $this->assertFalse($this->Acl->check('peter', 'foo/bar'));
+        $this->assertFalse($this->Acl->inherit('peter', 'foo/bar'));
+        $this->assertFalse($this->Acl->check('peter', 'foo/bar'));
+
+        $this->assertTrue($this->Acl->check('jan', 'foo/bar'));
+        $this->assertFalse($this->Acl->inherit('jan', 'foo/bar'));
+        $this->assertTrue($this->Acl->check('jan', 'foo/bar'));
+    }
+
+    /**
+     * Test that an ACO given as an array of nodes resolves to the lowercased nodes.
+     *
+     * @return void
+     */
+    public function testAcoResolveArray(): void
+    {
+        $this->assertSame(['controllers', 'invoices', 'edit'], $this->Acl->Aco->resolve(['Controllers', 'INVOICES', 'edit']));
+        $this->assertSame([], $this->Acl->Aco->resolve([]));
+    }
+
+    /**
+     * Test that the "map" section of the configuration replaces the default mapping of the AROs.
+     *
+     * @return void
+     */
+    public function testBuildWithMap(): void
+    {
+        $this->PhpAcl->build([
+            'map' => [
+                'User' => 'Member/login',
+                'Role' => 'Member/group',
+            ],
+            'roles' => [
+                'Role/editors' => null,
+                'User/mariano' => 'Role/editors',
+            ],
+            'rules' => [
+                'allow' => ['/articles/*' => 'Role/editors'],
+            ],
+        ]);
+
+        $this->assertSame(['User' => 'Member/login', 'Role' => 'Member/group'], $this->PhpAcl->Aro->map);
+        $this->assertSame('User/mariano', $this->PhpAcl->Aro->resolve(['Member' => ['login' => 'mariano']]));
+        $this->assertSame('Role/editors', $this->PhpAcl->Aro->resolve(['Member' => ['group' => 'editors']]));
+        $this->assertSame('User/mariano', $this->PhpAcl->Aro->resolve('Member/mariano'));
+        // the default mapping of User/username is gone
+        $this->assertSame(PhpAro::DEFAULT_ROLE, $this->PhpAcl->Aro->resolve(['User' => ['username' => 'mariano']]));
+
+        $this->assertTrue($this->PhpAcl->check(['Member' => ['login' => 'mariano']], '/articles/edit'));
+        $this->assertFalse($this->PhpAcl->check(['Member' => ['login' => 'jose']], '/articles/edit'));
+    }
+
+    /**
+     * Test resolving an ARO given as an array of model and foreign key, as AclNode does,
+     * or as the fields of a record without the model.
+     *
+     * @return void
+     */
+    public function testAroResolveModelAndForeignKey(): void
+    {
+        $this->Acl->Aro->addRole(['User/7' => 'Role/accounting']);
+
+        $this->assertSame('User/7', $this->Acl->Aro->resolve(['model' => 'User', 'foreign_key' => 7]));
+        $this->assertSame('Role/sales', $this->Acl->Aro->resolve(['model' => 'Role', 'foreign_key' => 'sales']));
+        $this->assertSame(PhpAro::DEFAULT_ROLE, $this->Acl->Aro->resolve(['model' => 'User', 'foreign_key' => 8]));
+        $this->assertTrue($this->Acl->check(['model' => 'User', 'foreign_key' => 7], '/controllers/invoices/send'));
+
+        $this->assertSame('User/jeff', $this->Acl->Aro->resolve(['username' => 'jeff']));
+        $this->assertSame('Role/accounting', $this->Acl->Aro->resolve(['role' => 'accounting']));
+        $this->assertTrue($this->Acl->check(['username' => 'jeff'], '/controllers/invoices/send'));
+    }
+
+    /**
+     * Test that a role can inherit from a role that is not declared: the parent is added to the tree.
+     *
+     * @return void
+     */
+    public function testAddRoleInheritingUndeclaredRole(): void
+    {
+        $this->assertSame(PhpAro::DEFAULT_ROLE, $this->Acl->Aro->resolve('Role/support'));
+
+        $this->Acl->Aro->addRole(['User/linda' => 'Role/support']);
+
+        $this->assertSame('Role/support', $this->Acl->Aro->resolve('Role/support'));
+        $this->assertSame([['Role/support'], ['User/linda']], $this->Acl->Aro->roles('linda'));
+
+        $this->Acl->allow('Role/support', '/controllers/tickets/*');
+        $this->assertTrue($this->Acl->check('linda', '/controllers/tickets/view'));
+        $this->assertFalse($this->Acl->check('peter', '/controllers/tickets/view'));
+    }
+
+    /**
+     * Test checking an ACO without nodes, such as '/': no rule matches, so the policy decides.
+     *
+     * @return void
+     */
+    public function testCheckAcoWithoutNodes(): void
+    {
+        $this->markTestIncomplete('Known bug: PhpAco::path() reads the first node of an ACO without nodes, so check() with \'/\' raises "Undefined array key 0".');
+
+        $this->assertFalse($this->Acl->check('peter', '/'));
+        $this->assertFalse($this->Acl->check('peter', ''));
+
+        $this->Acl->settings['adapter']['policy'] = PhpAcl::ALLOW;
+        $this->Acl->adapter($this->PhpAcl);
+        $this->assertTrue($this->Acl->check('peter', '/'));
+    }
+
+    /**
      * test resolving of ACOs
      *
      * @return void

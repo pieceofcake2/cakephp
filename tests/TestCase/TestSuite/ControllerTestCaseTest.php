@@ -37,6 +37,7 @@ use Cake\Utility\ClassRegistry;
 use PHPUnit\Framework\MockObject\MockObject;
 use TestApp\Controller\Component\NamespacedComponent;
 use TestApp\Controller\NamespacedController;
+use TestApp\Controller\TestsAppsController;
 use TestApp\Model\NamespacedPost;
 use TestApp\Model\Post;
 use TestPlugin\Controller\Component\PluginsComponent;
@@ -375,6 +376,38 @@ class ControllerTestCaseTest extends CakeTestCase
 
         $this->Case->loadRoutes = false;
         $this->Case->testAction('/tests_apps/missing_action.json', ['return' => 'view']);
+    }
+
+    /**
+     * Test that testAction() creates the real controller when autoMock is off and none was generated.
+     *
+     * @return void
+     */
+    public function testTestActionWithoutAutoMock(): void
+    {
+        $this->Case->autoMock = false;
+        $this->assertNull($this->Case->controller);
+
+        $result = $this->Case->testAction('/tests_apps/some_method');
+        $this->assertEquals(5, $result);
+        $this->assertInstanceOf(TestsAppsController::class, $this->Case->controller);
+        $this->assertNotInstanceOf(MockObject::class, $this->Case->controller);
+    }
+
+    /**
+     * Tests that testAction() does not use the routes of the application when loadRoutes is false.
+     *
+     * @return void
+     */
+    public function testSkipRoutesResetsRoutes(): void
+    {
+        $this->markTestIncomplete('Known bug: the Dispatcher no longer calls ControllerTestDispatcher::_loadRoutes(), so loadRoutes = false does not reset the routes.');
+
+        include CORE_TESTS . DS . 'test_app' . DS . 'config' . DS . 'routes.php';
+        $this->Case->loadRoutes = false;
+
+        $this->expectException(MissingControllerException::class);
+        $this->Case->testAction('/some_alias');
     }
 
     /**
