@@ -618,22 +618,18 @@ abstract class JsBaseEngineHelper extends AppHelper
     /**
      * Convert an array of data into a query string
      *
+     * The keys and the values are joined as they are given, without URL-encoding them.
+     * A nested array becomes `key[sub]=value`, a null value is left out, and true and
+     * false become 1 and 0, as in the query strings of Router::url().
+     *
      * @param array $parameters Array of parameters to convert to a query string
      * @return string Querystring fragment
      */
     protected function _toQuerystring($parameters)
     {
-        $out = '';
-        $keys = array_keys($parameters);
-        $count = count($parameters);
-        for ($i = 0; $i < $count; $i++) {
-            $out .= $keys[$i] . '=' . $parameters[$keys[$i]];
-            if ($i < $count - 1) {
-                $out .= '&';
-            }
-        }
-
-        return $out;
+        // http_build_query() builds the nested keys; decoding its result gives back the
+        // keys and the values as they are given.
+        return rawurldecode(http_build_query($parameters, '', '&', PHP_QUERY_RFC3986));
     }
 }
 

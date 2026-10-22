@@ -751,16 +751,30 @@ class JsBaseEngineHelperTest extends CakeTestCase
     }
 
     /**
-     * Test that _toQuerystring() URL-encodes the values, so that & and spaces in a value
-     * do not split it or break the query string.
+     * Test that _toQuerystring() joins the keys and the values as they are given, so
+     * that values encoded by the caller are not encoded a second time.
      *
      * @return void
      */
-    public function testToQuerystringEncodesTheValues(): void
+    public function testToQuerystringDoesNotEncodeTheValues(): void
     {
-        $this->markTestIncomplete('Known bug: _toQuerystring() does not URL-encode the values');
+        $this->assertSame("q=a b&n=caf\xC3\xA9", $this->JsEngine->toQuerystring(['q' => 'a b', 'n' => "caf\xC3\xA9"]));
+        $this->assertSame('q=a%26b%20c', $this->JsEngine->toQuerystring(['q' => rawurlencode('a&b c')]));
+    }
 
-        $this->assertSame('q=a%26b%20c', $this->JsEngine->toQuerystring(['q' => 'a&b c']));
+    /**
+     * Test that _toQuerystring() writes a nested array with brackets, leaves a null value
+     * out, and writes true and false as 1 and 0, as Router::url() does.
+     *
+     * @return void
+     */
+    public function testToQuerystringNestedArraysAndOtherTypes(): void
+    {
+        $this->assertSame(
+            'filter[status]=open&filter[tags][0]=a b&page=2',
+            $this->JsEngine->toQuerystring(['filter' => ['status' => 'open', 'tags' => ['a b']], 'page' => 2]),
+        );
+        $this->assertSame('yes=1&no=0', $this->JsEngine->toQuerystring(['yes' => true, 'no' => false, 'none' => null]));
     }
 
     /**
