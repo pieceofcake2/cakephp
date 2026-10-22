@@ -21,6 +21,7 @@ namespace Cake\Test\TestCase\Core;
 
 use AppController;
 use AppModel;
+use Cake\Cache\Cache;
 use Cake\Configure\PhpReader;
 use Cake\Console\Shell;
 use Cake\Controller\Component\AuthComponent;
@@ -30,16 +31,19 @@ use Cake\Core\App;
 use Cake\Core\CakePlugin;
 use Cake\Core\Configure;
 use Cake\Log\CakeLog;
+use Cake\Log\Engine\BaseLog;
 use Cake\Model\Behavior\ContainableBehavior;
 use Cake\Model\Datasource\DboSource;
 use Cake\Model\Model;
 use Cake\TestSuite\CakeTestCase;
+use Cake\Utility\Folder;
 use Cake\View\Helper\FormHelper;
 use Closure;
 use Composer\Autoload\ClassLoader;
 use ConfigureTestVendorSample;
 use ExampleExample;
 use ReflectionClass;
+use RuntimeException;
 use SamplePluginClassTestName;
 use TestApp\Controller\Component\NamespacedComponent;
 use TestApp\Controller\PagesController;
@@ -79,6 +83,31 @@ class AppTest extends CakeTestCase
     }
 
     /**
+     * Returns the file and object maps of App and whether they changed.
+     *
+     * @return array
+     */
+    protected function _appMaps(): array
+    {
+        return Closure::bind(function () {
+            return [static::$_map, static::$_objects, static::$_cacheChange, static::$_objectCacheChange];
+        }, null, App::class)();
+    }
+
+    /**
+     * Sets the file and object maps of App and whether they changed.
+     *
+     * @param array $maps The maps, as _appMaps() returns them.
+     * @return void
+     */
+    protected function _setAppMaps(array $maps): void
+    {
+        Closure::bind(function () use ($maps) {
+            [static::$_map, static::$_objects, static::$_cacheChange, static::$_objectCacheChange] = $maps;
+        }, null, App::class)();
+    }
+
+    /**
      * tearDown method
      *
      * @return void
@@ -87,8 +116,19 @@ class AppTest extends CakeTestCase
     {
         CakePlugin::unload();
         CakeLog::drop('app_test_capture');
+        CakeLog::drop('app_test_throwing');
         AppTestCaptureLog::$messages = [];
+        AppTestThrowingLog::$calls = 0;
         $this->_setUsesReported(true);
+        // The import tests map their own names to files; drop those names again. The other
+        // names stay mapped, so that a vendor file that declares a class is not included twice.
+        $maps = $this->_appMaps();
+        foreach (array_keys($maps[0]) as $name) {
+            if (str_contains($name, 'AppTestMapped') || str_contains($name, 'AppTestShutdown')) {
+                unset($maps[0][$name]);
+            }
+        }
+        $this->_setAppMaps($maps);
 
         parent::tearDown();
     }
@@ -1271,5 +1311,262 @@ class AppTest extends CakeTestCase
 
         $this->assertTrue(App::import('Vendor', 'TestModernPlugin.sample/modern_vendor'));
         $this->assertTrue(defined('TEST_PLUGIN_MODERN_VENDOR_LOADED'));
+    }
+
+    /**
+     * App::uses() still registers the package of the class when the logger of its deprecation throws,
+     * and still triggers the deprecation in debug.
+     *
+     * @return void
+     */
+    public function testUsesWhenDeprecationLoggerThrows(): void
+    {
+        Configure::write('debug', 2);
+        $this->_setUsesReported(false);
+        AppTestThrowingLog::$calls = 0;
+        CakeLog::config('app_test_throwing', ['engine' => AppTestThrowingLog::class]);
+
+        $errors = $this->_collectDeprecations(function () {
+            App::uses('AppTestUsesThrowingLogger', 'MyPackage/Logged');
+        });
+
+        $this->assertSame(1, AppTestThrowingLog::$calls, 'The deprecation is logged once.');
+        $this->assertSame('MyPackage/Logged', App::location('AppTestUsesThrowingLogger'));
+        $this->assertCount(1, $errors);
+        $this->assertStringStartsWith('App::uses() is deprecated (called in ' . __FILE__ . ' on line ', $errors[0]);
+    }
+
+    /**
+     * App::location() returns null for a class whose package was never declared.
+     *
+     * @return void
+     */
+    public function testClassLocationUndeclared(): void
+    {
+        $this->assertNull(App::location('AppTestNeverDeclaredClass'));
+    }
+
+    /**
+     * App::pluginPath() returns the same path as CakePlugin::path().
+     *
+     * @return void
+     */
+    public function testPluginPath(): void
+    {
+        App::build([
+            'Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS],
+        ], App::RESET);
+        CakePlugin::load('TestPlugin');
+
+        $expected = CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS . 'TestPlugin' . DS;
+        $this->assertSame($expected, App::pluginPath('TestPlugin'));
+        $this->assertSame(CakePlugin::path('TestPlugin'), App::pluginPath('TestPlugin'));
+        App::build();
+    }
+
+    /**
+     * App::themePath() returns the theme directory under the first View path
+     * when no View path contains the theme.
+     *
+     * @return void
+     */
+    public function testThemePathOfMissingTheme(): void
+    {
+        $first = CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'View' . DS;
+        App::build([
+            'View' => [$first, CORE_TESTS . DS . 'test_app' . DS . 'templates' . DS],
+        ], App::RESET);
+
+        $this->assertSame(
+            $first . 'Themed' . DS . 'NoSuchTheme' . DS,
+            App::themePath('no_such_theme'),
+        );
+        App::build();
+    }
+
+    /**
+     * App::load() returns true for a class that already exists, and false for a class
+     * that is not declared in the class map.
+     *
+     * @return void
+     */
+    public function testLoadExistingAndUnknownClass(): void
+    {
+        $this->assertTrue(App::load(App::class));
+        $this->assertFalse(App::load('AppTestNeverDeclaredClass'));
+    }
+
+    /**
+     * App::load() refuses a class name with "..", so that a class name cannot include
+     * a file outside of the package paths.
+     *
+     * @return void
+     */
+    public function testLoadRefusesPathTraversal(): void
+    {
+        App::build([
+            'Lib' => [CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'Lib' . DS],
+        ], App::RESET);
+        // test_app/src/Lib/../../vendor/welcome.php exists and prints a text when it is included.
+        $className = '..' . DS . '..' . DS . 'vendor' . DS . 'welcome';
+        $this->assertFileExists(CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'Lib' . DS . $className . '.php');
+        $this->_setUsesReported(true);
+        App::uses($className, 'Lib');
+
+        ob_start();
+        $result = App::load($className);
+        $output = ob_get_clean();
+
+        $this->assertFalse($result);
+        $this->assertSame('', $output);
+        App::build();
+    }
+
+    /**
+     * App::import('File') needs a file name: a name alone does not load anything.
+     *
+     * @return void
+     */
+    public function testImportFileWithoutFileName(): void
+    {
+        $this->assertFalse(App::import('File', 'AppTestFileWithoutName'));
+    }
+
+    /**
+     * App::import('File') loads the file that was mapped to a name the first time,
+     * even when the same name is imported later with another file.
+     *
+     * @return void
+     */
+    public function testImportFileUsesTheMappedFile(): void
+    {
+        $config = CORE_ROOT . DS . 'config' . DS . 'config.php';
+        $first = App::import('File', 'AppTestMappedConfig', false, [], $config, true);
+        $this->assertArrayHasKey('Cake.version', $first);
+
+        $second = App::import('File', 'AppTestMappedConfig', false, [], TMP . 'app_test_no_such_file.php', true);
+        $this->assertSame($first, $second);
+    }
+
+    /**
+     * App::import('Vendor') includes a mapped vendor file only once, and returns false
+     * for a vendor file that does not exist.
+     *
+     * @return void
+     */
+    public function testImportVendorMappedAndMissing(): void
+    {
+        App::build([
+            'vendors' => [CORE_TESTS . DS . 'test_app' . DS . 'vendor' . DS],
+        ], App::RESET);
+
+        ob_start();
+        $first = App::import('Vendor', 'AppTestMappedHello', ['file' => 'Test' . DS . 'hello.php']);
+        $firstOutput = ob_get_clean();
+        $this->assertTrue($first);
+        $this->assertSame('This is the hello.php file in Test directory', $firstOutput);
+
+        ob_start();
+        $second = App::import('Vendor', 'AppTestMappedHello', ['file' => 'Test' . DS . 'hello.php']);
+        $secondOutput = ob_get_clean();
+        $this->assertTrue($second);
+        $this->assertSame('', $secondOutput, 'The mapped file is not run again');
+
+        $this->assertFalse(App::import('Vendor', 'AppTestNoSuchVendor'));
+        $this->assertFalse(App::import('Vendor', 'AppTestNoSuchVendorFile', ['file' => 'no' . DS . 'such.php']));
+        App::build();
+    }
+
+    /**
+     * shutdown() saves the file map and the object map in the core cache, so that the next
+     * request finds the mapped files and the objects without searching the paths again.
+     *
+     * The next request is simulated after the listed file is deleted, so that only the cache
+     * can give the old results: the file map is set from the cache, as App::init() does, and
+     * the object map is emptied, so that App::objects() reads it from the cache. App::init()
+     * itself is not called, because it registers one more shutdown function on each call.
+     *
+     * @return void
+     */
+    public function testShutdownWritesMapsToCache(): void
+    {
+        $base = TMP . 'app_test_shutdown_' . getmypid() . DS;
+        $cacheDir = $base . 'cache' . DS;
+        $libDir = $base . 'Lib' . DS;
+        if (!is_dir($cacheDir)) {
+            mkdir($cacheDir, 0777, true);
+        }
+        if (!is_dir($libDir)) {
+            mkdir($libDir, 0777, true);
+        }
+        file_put_contents($libDir . 'Listed.php', '<?php' . PHP_EOL);
+        $configFile = $base . 'config.php';
+        file_put_contents($configFile, "<?php\nreturn ['AppTest' => 'shutdown'];\n");
+
+        $maps = $this->_appMaps();
+        $old = Cache::settings('_cake_core_');
+        Cache::drop('_cake_core_');
+        Cache::config('_cake_core_', ['engine' => 'File', 'path' => $cacheDir, 'prefix' => 'app_test_', 'serialize' => true]);
+        Configure::write('Error.extraFatalErrorMemory', false);
+        try {
+            $this->assertSame(['AppTest' => 'shutdown'], App::import('File', 'AppTestShutdownConfig', false, [], $configFile, true));
+            $this->assertSame(['Listed'], App::objects('file', $libDir));
+
+            error_clear_last();
+            App::shutdown();
+
+            $fileMap = Cache::read('file_map', '_cake_core_');
+            $this->assertSame($configFile, $fileMap['AppTestShutdownConfig'] ?? null);
+            $objectMap = Cache::read('object_map', '_cake_core_');
+            $this->assertSame(['Listed'], $objectMap['app']['file' . str_replace(DS, '', $libDir)] ?? null);
+
+            unlink($libDir . 'Listed.php');
+            $this->_setAppMaps([$fileMap, [], false, false]);
+
+            $this->assertSame(['Listed'], App::objects('file', $libDir), 'The object list comes from the cache.');
+            $this->assertSame(
+                ['AppTest' => 'shutdown'],
+                App::import('File', 'AppTestShutdownConfig', false, [], $base . 'no_such_file.php', true),
+                'The mapped file comes from the cache.',
+            );
+        } finally {
+            $this->_setAppMaps($maps);
+            Cache::clear(false, '_cake_core_');
+            Cache::drop('_cake_core_');
+            (new Folder($base))->delete();
+            if ($old) {
+                Cache::config('_cake_core_', $old);
+            }
+        }
+    }
+}
+
+/**
+ * A log engine that always fails.
+ *
+ * @package       Cake.Test.Case.Core
+ */
+class AppTestThrowingLog extends BaseLog
+{
+    /**
+     * The number of calls to write().
+     *
+     * @var int
+     */
+    public static int $calls = 0;
+
+    /**
+     * Throws.
+     *
+     * @param string $type The type of log.
+     * @param string $message The message.
+     * @return void
+     * @throws \RuntimeException
+     */
+    public function write($type, $message): void
+    {
+        static::$calls++;
+
+        throw new RuntimeException('The log is not available');
     }
 }

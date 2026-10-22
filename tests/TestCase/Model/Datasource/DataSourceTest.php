@@ -18,10 +18,13 @@
 
 namespace Cake\Test\TestCase\Model\Datasource;
 
+use ArrayObject;
+use Cake\Cache\Cache;
 use Cake\Model\ConnectionManager;
 use Cake\Model\Datasource\DataSource;
 use Cake\Model\Model;
 use Cake\TestSuite\CakeTestCase;
+use Cake\Utility\Folder;
 
 /**
  * TestSource
@@ -93,6 +96,126 @@ class TestSource extends DataSource
     {
         return $func;
     }
+
+    /**
+     * Quotes a value, integers without quotes
+     *
+     * DataSource has no value() method, but insertQueryData() calls it; this stub
+     * stands in for the value() of DboSource.
+     *
+     * @param mixed $data The value
+     * @param string|null $column The column type
+     * @return string
+     */
+    public function value($data, $column = null): mixed
+    {
+        if ($column === 'integer') {
+            return (string)(int)$data;
+        }
+
+        return "'" . $data . "'";
+    }
+}
+
+/**
+ * A model without a table whose primary key is a string, for the associations
+ * of the insertQueryData() tests
+ *
+ * @package       Cake.Test.Case.Model.Datasource
+ */
+class DataSourceTestAuthor extends Model
+{
+    /**
+     * @var string|false
+     */
+    public $useTable = false;
+
+    /**
+     * @var string
+     */
+    public $name = 'Author';
+
+    /**
+     * @var array|null
+     */
+    protected $_schema = [
+        'id' => ['type' => 'string', 'null' => false, 'key' => 'primary', 'length' => 36],
+        'name' => ['type' => 'string', 'null' => true, 'length' => 255],
+    ];
+}
+
+/**
+ * A datasource that keeps the listSources(), describe() and transaction
+ * behaviour of DataSource
+ *
+ * @package       Cake.Test.Case.Model.Datasource
+ */
+class BaseTestSource extends DataSource
+{
+    /**
+     * Base configuration
+     *
+     * @var array
+     */
+    protected $_baseConfig = ['host' => 'localhost', 'database' => 'default'];
+
+    /**
+     * Records the rollback() and close() calls
+     *
+     * @var ArrayObject|null
+     */
+    public $calls = null;
+
+    /**
+     * Sets whether a transaction is started
+     *
+     * @param bool $started Whether a transaction is started
+     * @return void
+     */
+    public function setTransactionStarted($started): void
+    {
+        $this->_transactionStarted = $started;
+    }
+
+    /**
+     * Caches a description as DboSource::describe() does
+     *
+     * @param string $table The table name
+     * @param array $description The description
+     * @return mixed
+     */
+    public function cacheDescription($table, $description): mixed
+    {
+        return $this->_cacheDescription($table, $description);
+    }
+
+    /**
+     * Records the call and rolls back
+     *
+     * @return bool
+     */
+    public function rollback(): mixed
+    {
+        if ($this->calls !== null) {
+            $this->calls[] = 'rollback';
+        }
+
+        return parent::rollback();
+    }
+
+    /**
+     * Records the call and closes
+     *
+     * @return bool|null
+     */
+    public function close(): mixed
+    {
+        if ($this->calls !== null) {
+            $this->calls[] = 'close';
+        }
+
+        return parent::close();
+    }
 }
 
 /**
@@ -110,6 +233,23 @@ class DataSourceTest extends CakeTestCase
     public $sourceName = 'myapitest';
 
     /**
+     * The _cake_model_ cache configuration before the test, restored in tearDown().
+     *
+     * @var array|null
+     */
+    protected ?array $_modelCache = null;
+
+    /**
+     * Returns the folder of the model cache of the tests.
+     *
+     * @return string
+     */
+    protected function _cachePath(): string
+    {
+        return TMP . 'tests' . DS . 'datasource_test_cache_' . getmypid() . DS;
+    }
+
+    /**
      * setUp method
      *
      * @return void
@@ -117,6 +257,19 @@ class DataSourceTest extends CakeTestCase
     public function setUp(): void
     {
         parent::setUp();
+        // DataSource caches in the _cake_model_ configuration. Use one of its own, under TMP,
+        // so that the tests do not depend on the cache configuration of the application.
+        $this->_modelCache = null;
+        if (in_array('_cake_model_', Cache::configured(), true)) {
+            $this->_modelCache = Cache::config('_cake_model_');
+            Cache::drop('_cake_model_');
+        }
+        Cache::config('_cake_model_', [
+            'engine' => 'File',
+            'path' => $this->_cachePath(),
+            'prefix' => 'datasource_test_',
+            'duration' => '+1 hour',
+        ]);
         $this->Source = $this->getMock(
             TestSource::class,
             ['create', 'read', 'update', 'delete'],
@@ -144,6 +297,14 @@ class DataSourceTest extends CakeTestCase
     {
         unset($this->Model, $this->Source);
         ConnectionManager::drop($this->sourceName);
+        ConnectionManager::drop('datasource_test_base');
+        Cache::clear(false, '_cake_model_');
+        Cache::drop('_cake_model_');
+        $Folder = new Folder($this->_cachePath());
+        $Folder->delete();
+        if ($this->_modelCache !== null) {
+            Cache::config('_cake_model_', ['engine' => $this->_modelCache['engine']] + $this->_modelCache['settings']);
+        }
 
         parent::tearDown();
     }
@@ -188,7 +349,7 @@ class DataSourceTest extends CakeTestCase
             'joins' => [],
             'limit' => 10,
             'offset' => null,
-            'order' => [['status']],
+            'order' => ['status'],
             'page' => 1,
             'group' => null,
             'callbacks' => true,
@@ -258,5 +419,217 @@ class DataSourceTest extends CakeTestCase
                 $this->equalTo([$this->Model->alias . '.id' => 1]),
             );
         $this->Model->delete(1);
+    }
+
+    /**
+     * Creates a BaseTestSource registered in the ConnectionManager.
+     *
+     * @param array $config The configuration
+     * @return BaseTestSource
+     */
+    protected function _baseSource($config = []): BaseTestSource
+    {
+        ConnectionManager::drop('datasource_test_base');
+
+        return ConnectionManager::create('datasource_test_base', ['datasource' => BaseTestSource::class] + $config);
+    }
+
+    /**
+     * Test that listSources() stores the given sources in the model cache
+     * under a key made of the connection and the database names, and that a
+     * new datasource for the same connection reads them from the cache.
+     *
+     * @return void
+     */
+    public function testListSourcesCachesTheSources(): void
+    {
+        $source = $this->_baseSource(['database' => 'my db/1']);
+        $this->assertSame(['posts', 'comments'], $source->listSources(['posts', 'comments']));
+        $this->assertSame(['posts', 'comments'], Cache::read('datasource_test_base_my_db_1_list', '_cake_model_'));
+        $this->assertSame(['posts', 'comments'], $source->listSources(['other']));
+
+        $source = $this->_baseSource(['database' => 'my db/1']);
+        $this->assertSame(['posts', 'comments'], $source->listSources());
+
+        $source->cacheSources = false;
+        $this->assertNull($source->listSources(['posts']));
+    }
+
+    /**
+     * Test that describe() returns the cached description of a table, by
+     * name or by the prefixed table of a model, and keeps it in memory, and
+     * that _cacheDescription() stores a description for the next datasource.
+     *
+     * @return void
+     */
+    public function testDescribeReadsTheCachedDescription(): void
+    {
+        $source = $this->_baseSource();
+        $schema = ['id' => ['type' => 'integer', 'key' => 'primary']];
+        Cache::write('datasource_test_base_prefix_posts', $schema, '_cake_model_');
+
+        $Model = new Model(['table' => false, 'name' => 'Post']);
+        $Model->table = 'posts';
+        $Model->tablePrefix = 'prefix_';
+        $this->assertSame($schema, $source->describe($Model));
+
+        Cache::delete('datasource_test_base_prefix_posts', '_cake_model_');
+        $this->assertSame($schema, $source->describe('prefix_posts'));
+
+        $this->assertNull($source->describe('unknown'));
+
+        $comments = ['id' => ['type' => 'string', 'key' => 'primary']];
+        $this->assertSame($comments, $source->cacheDescription('comments', $comments));
+        $this->assertSame($comments, Cache::read('datasource_test_base_comments', '_cake_model_'));
+        $this->assertSame($comments, $source->describe('comments'));
+        $this->assertSame($comments, $this->_baseSource()->describe('comments'));
+
+        $source->cacheSources = false;
+        $this->assertNull($source->describe('prefix_posts'));
+        $this->assertNull($source->cacheDescription('comments', $comments));
+    }
+
+    /**
+     * Test that setConfig() merges the base configuration, the current
+     * configuration and the given one, in that order.
+     *
+     * @return void
+     */
+    public function testSetConfig(): void
+    {
+        $source = new BaseTestSource(['database' => 'app']);
+        $this->assertSame(['host' => 'localhost', 'database' => 'app'], $source->config);
+
+        $source->setConfig(['login' => 'user', 'host' => 'db.local']);
+        $this->assertSame(['host' => 'db.local', 'database' => 'app', 'login' => 'user'], $source->config);
+    }
+
+    /**
+     * Test the transaction state, and that the destructor rolls back a
+     * started transaction and closes an open connection.
+     *
+     * @return void
+     */
+    public function testTransactionsAndDestructor(): void
+    {
+        $source = new BaseTestSource();
+        $this->assertTrue($source->begin());
+        $this->assertFalse($source->commit());
+        $this->assertFalse($source->rollback());
+
+        $source->setTransactionStarted(true);
+        $this->assertFalse($source->begin());
+        $this->assertTrue($source->commit());
+
+        $calls = new ArrayObject();
+        $source->calls = $calls;
+        $source->connected = true;
+        unset($source);
+        $this->assertSame(['rollback', 'close'], $calls->getArrayCopy());
+
+        $calls = new ArrayObject();
+        $source = new BaseTestSource();
+        $source->calls = $calls;
+        unset($source);
+        $this->assertSame([], $calls->getArrayCopy());
+    }
+
+    /**
+     * Test that resolveKey() prefixes the key with the model alias, that the base
+     * datasource is enabled, and that close() disconnects it.
+     *
+     * @return void
+     */
+    public function testResolveKeyEnabledAndClose(): void
+    {
+        $source = new BaseTestSource();
+        $this->assertSame($this->Model->alias . '__id', $source->resolveKey($this->Model, '__id'));
+        $this->assertTrue($source->enabled());
+
+        $source->connected = true;
+        $source->close();
+        $this->assertFalse($source->connected);
+    }
+
+    /**
+     * Test that insertQueryData() replaces the id placeholder with the
+     * primary key of the model, quoted for the type of the primary key.
+     *
+     * The quoting is done by the value() stub of TestSource, which stands in for
+     * the value() method that DataSource lacks and DboSource has.
+     *
+     * @return void
+     */
+    public function testInsertQueryDataId(): void
+    {
+        $alias = $this->Model->alias;
+        $query = 'SELECT * FROM comments WHERE post_id = {$__cakeID__$}';
+
+        $result = $this->Source->insertQueryData($query, [$alias => ['id' => '5']], 'Comment', $this->Model, []);
+        $this->assertSame('SELECT * FROM comments WHERE post_id = 5', $result);
+
+        $result = $this->Source->insertQueryData($query, [$alias => ['id' => '0']], 'Comment', $this->Model, []);
+        $this->assertSame('SELECT * FROM comments WHERE post_id = 0', $result);
+
+        $result = $this->Source->insertQueryData($query, ['Comment' => ['id' => 6]], 'Comment', $this->Model, []);
+        $this->assertSame('SELECT * FROM comments WHERE post_id = 6', $result);
+
+        $data = ['Tag' => ['id' => 3], 'Category' => ['id' => 4]];
+        $result = $this->Source->insertQueryData($query, $data, 'Comment', $this->Model, ['Tag', 'Category']);
+        $this->assertSame('SELECT * FROM comments WHERE post_id = 4', $result);
+        $result = $this->Source->insertQueryData($query, $data, 'Comment', $this->Model, ['Category', 'Tag', 99]);
+        $this->assertSame('SELECT * FROM comments WHERE post_id = 3', $result);
+
+        $this->assertFalse($this->Source->insertQueryData($query, $data, 'Comment', $this->Model, ['Other']));
+        $this->assertFalse($this->Source->insertQueryData($query, [$alias => ['id' => '']], 'Comment', $this->Model, []));
+
+        $query = 'SELECT * FROM comments';
+        $this->assertSame($query, $this->Source->insertQueryData($query, [], 'Comment', $this->Model, []));
+    }
+
+    /**
+     * Test that insertQueryData() accepts an integer 0 id as it accepts the string '0'.
+     *
+     * @return void
+     */
+    public function testInsertQueryDataIntegerZeroId(): void
+    {
+        $this->markTestIncomplete("Known bug: insertQueryData() rejects an int 0 id with empty(), but accepts '0'");
+
+        $query = 'SELECT * FROM comments WHERE post_id = {$__cakeID__$}';
+        $result = $this->Source->insertQueryData($query, [$this->Model->alias => ['id' => 0]], 'Comment', $this->Model, []);
+        $this->assertSame('SELECT * FROM comments WHERE post_id = 0', $result);
+    }
+
+    /**
+     * Test that insertQueryData() replaces the foreign key placeholder with the
+     * foreign key of the association, quoted for the type of the primary key of
+     * the associated model, while the id placeholder keeps the type of the model;
+     * and that it fails for an association without a foreign key.
+     *
+     * @return void
+     */
+    public function testInsertQueryDataForeignKey(): void
+    {
+        $alias = $this->Model->alias;
+        $this->Model->belongsTo = [
+            'Author' => ['className' => DataSourceTestAuthor::class, 'foreignKey' => 'author_id'],
+            'Note' => ['className' => 'Note'],
+        ];
+        $this->Model->Author = new DataSourceTestAuthor();
+        $this->Model->Note = $this->Model;
+        $query = 'SELECT * FROM authors WHERE id = {$__cakeForeignKey__$} AND post_id = {$__cakeID__$}';
+
+        $data = [$alias => ['id' => 1, 'author_id' => 'abc'], 'Author' => ['author_id' => 'other']];
+        $result = $this->Source->insertQueryData($query, $data, 'Author', $this->Model, []);
+        $this->assertSame("SELECT * FROM authors WHERE id = 'abc' AND post_id = 1", $result);
+
+        $data = [$alias => ['id' => 1], 'Author' => ['author_id' => 'xyz']];
+        $result = $this->Source->insertQueryData($query, $data, 'Author', $this->Model, []);
+        $this->assertSame("SELECT * FROM authors WHERE id = 'xyz' AND post_id = 1", $result);
+
+        $data = [$alias => ['id' => 1, 'author_id' => 'abc']];
+        $this->assertFalse($this->Source->insertQueryData($query, $data, 'Note', $this->Model, []));
+        $this->assertFalse($this->Source->insertQueryData($query, $data, 'Unknown', $this->Model, []));
     }
 }

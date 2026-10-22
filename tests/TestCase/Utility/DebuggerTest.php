@@ -23,6 +23,8 @@ use Cake\TestSuite\CakeTestCase;
 use Cake\Utility\Debugger;
 use Cake\View\View;
 use InvalidArgumentException;
+use ReflectionProperty;
+use TestApp\Log\Engine\AppTestCaptureLog;
 use TestApp\Utility\DebuggerTestCaseDebugger;
 
 /**
@@ -863,4 +865,358 @@ TEXT;
         Configure::delete('Security.cipherSeed');
         $this->assertSame([], $this->_checkSecurityKeysNotices());
     }
+
+    /**
+     * Sets the output format for a test and returns the format to restore.
+     *
+     * @param string|false $format The output format.
+     * @return string|false The previous format.
+     */
+    protected function _useOutputFormat($format): mixed
+    {
+        $previous = Debugger::outputAs();
+        Debugger::outputAs($format);
+
+        return $previous;
+    }
+
+    /**
+     * showError() maps each error level to its name and log level, fills in an unknown
+     * file and line, and handles an error only once.
+     *
+     * @return void
+     */
+    public function testShowErrorLevels(): void
+    {
+        $previous = $this->_useOutputFormat(false);
+        // showError() remembers the errors it handled, so restore them for a repeated run.
+        $errors = Debugger::getInstance()->errors;
+        try {
+            $this->assertTrue(Debugger::showError(E_USER_NOTICE, 'DebuggerTest notice', __FILE__, 10));
+            $this->assertTrue(Debugger::showError(E_USER_DEPRECATED, 'DebuggerTest deprecated', __FILE__, 11));
+            $this->assertTrue(Debugger::showError(E_DEPRECATED, 'DebuggerTest core deprecated', __FILE__, 12));
+            $this->assertTrue(Debugger::showError(E_USER_WARNING, 'DebuggerTest warning', null, null));
+            $this->assertNull(Debugger::showError(E_USER_WARNING, 'DebuggerTest warning', null, null), 'The same error is handled once');
+            $this->assertNull(Debugger::showError(0, 'DebuggerTest unknown level', __FILE__, 13));
+            $data = Debugger::output(true);
+        } finally {
+            Debugger::outputAs($previous);
+            Debugger::getInstance()->errors = $errors;
+            // Drop the stored errors, also when an assertion above failed.
+            $stored = new ReflectionProperty(Debugger::class, '_data');
+            if (PHP_VERSION_ID < 80100) {
+                $stored->setAccessible(true);
+            }
+            $stored->setValue(Debugger::getInstance(), []);
+        }
+
+        $this->assertCount(4, $data);
+        $this->assertSame(['Notice', LOG_NOTICE, 'DebuggerTest notice', __FILE__, 10], [
+            $data[0]['error'], $data[0]['level'], $data[0]['description'], $data[0]['file'], $data[0]['line'],
+        ]);
+        $this->assertSame(['Deprecated', LOG_NOTICE], [$data[1]['error'], $data[1]['level']]);
+        $this->assertSame(['Deprecated', LOG_NOTICE], [$data[2]['error'], $data[2]['level']]);
+        $this->assertSame(['Warning', LOG_WARNING, '[internal]', '??'], [
+            $data[3]['error'], $data[3]['level'], $data[3]['file'], $data[3]['line'],
+        ]);
+    }
+
+    /**
+     * output() without a format returns the current output format.
+     *
+     * @return void
+     */
+    public function testOutputReturnsCurrentFormat(): void
+    {
+        $previous = $this->_useOutputFormat('txt');
+        try {
+            $this->assertSame('txt', Debugger::output());
+        } finally {
+            Debugger::outputAs($previous);
+        }
+    }
+
+    /**
+     * With the 'log' output format, outputError() writes the error, its context and its trace
+     * to the log instead of printing it, always at the 'debug' level, whatever the error is.
+     *
+     * @return void
+     */
+    public function testOutputErrorAsLog(): void
+    {
+        $disabled = [];
+        foreach (CakeLog::configured() as $stream) {
+            if (CakeLog::enabled($stream)) {
+                CakeLog::disable($stream);
+                $disabled[] = $stream;
+            }
+        }
+        AppTestCaptureLog::$messages = [];
+        CakeLog::config('debugger_test_capture', ['engine' => AppTestCaptureLog::class]);
+        $previous = $this->_useOutputFormat('log');
+        try {
+            ob_start();
+            $result = Debugger::getInstance()->outputError([
+                'error' => 'Notice',
+                'code' => E_USER_NOTICE,
+                'description' => 'Logged by DebuggerTest',
+                'file' => __FILE__,
+                'line' => 42,
+                'context' => ['answer' => 'forty-two'],
+            ]);
+            $output = ob_get_clean();
+            $messages = AppTestCaptureLog::$messages;
+        } finally {
+            Debugger::outputAs($previous);
+            CakeLog::drop('debugger_test_capture');
+            AppTestCaptureLog::$messages = [];
+            foreach ($disabled as $stream) {
+                CakeLog::enable($stream);
+            }
+        }
+
+        $this->assertNull($result);
+        $this->assertSame('', $output);
+        $this->assertCount(1, $messages);
+        $this->assertSame('debug', $messages[0][0]);
+        $this->assertStringContainsString("'description' => 'Logged by DebuggerTest'", $messages[0][1]);
+        $this->assertStringContainsString("'line' => (int) 42", $messages[0][1]);
+        $this->assertStringContainsString("'\$answer = 'forty-two''", $messages[0][1]);
+        $this->assertStringContainsString("'trace' => '", $messages[0][1]);
+    }
+
+    /**
+     * addFormat() merges the links of a format that already exists, and outputError()
+     * renders every link of the format.
+     *
+     * @return void
+     */
+    public function testAddFormatMergesLinks(): void
+    {
+        // addFormat() cannot remove a format, so the templates are restored by reflection.
+        $templates = new ReflectionProperty(Debugger::class, '_templates');
+        if (PHP_VERSION_ID < 80100) {
+            $templates->setAccessible(true);
+        }
+        $saved = $templates->getValue(Debugger::getInstance());
+        try {
+            $this->_assertAddFormatMergesLinks();
+        } finally {
+            $templates->setValue(Debugger::getInstance(), $saved);
+        }
+    }
+
+    /**
+     * The assertions of testAddFormatMergesLinks(), run while the templates are saved.
+     *
+     * @return void
+     */
+    protected function _assertAddFormatMergesLinks(): void
+    {
+        Debugger::addFormat('debugger_test_links', [
+            'error' => '[{:links}] {:error}: {:description}',
+            'links' => ['first' => '<first {:line}>'],
+        ]);
+        $result = Debugger::addFormat('debugger_test_links', [
+            'links' => ['second' => '<second {:code}>'],
+        ]);
+        $this->assertSame(['first' => '<first {:line}>', 'second' => '<second {:code}>'], $result['links']);
+        $this->assertSame('[{:links}] {:error}: {:description}', $result['error']);
+
+        $previous = $this->_useOutputFormat('debugger_test_links');
+        try {
+            ob_start();
+            Debugger::getInstance()->outputError([
+                'error' => 'Warning',
+                'code' => 2,
+                'description' => 'two links',
+                'file' => __FILE__,
+                'line' => 7,
+            ]);
+            $output = ob_get_clean();
+        } finally {
+            Debugger::outputAs($previous);
+        }
+        $this->assertSame('[<first 7> <second 2>] Warning: two links', $output);
+    }
+
+    /**
+     * Calls Debugger::trace() with the arguments shown.
+     *
+     * @param string $name A string argument.
+     * @param int $number An integer argument.
+     * @return array{0: string, 1: int} The trace and the line of the call to trace().
+     */
+    public function traceWithArguments($name, $number): array
+    {
+        return [Debugger::trace(['args' => true, 'format' => 'txt', 'depth' => 1]), __LINE__];
+    }
+
+    /**
+     * trace() with the `args` option shows the exported arguments of each method call.
+     *
+     * @return void
+     */
+    public function testTraceWithArgs(): void
+    {
+        [$result, $line] = $this->traceWithArguments('debugger', 3);
+
+        $this->assertSame(
+            static::class . "::traceWithArguments('debugger', (int) 3) - " . Debugger::trimPath(__FILE__) . ', line ' . $line,
+            $result,
+        );
+    }
+
+    /**
+     * trace() in the 'array' format returns the frames as arrays, and leaves out the frames
+     * whose caller is excluded.
+     *
+     * @return void
+     */
+    public function testTraceArrayFormatAndExclude(): void
+    {
+        $line = __LINE__ + 1;
+        $result = Debugger::trace(['format' => 'array', 'depth' => 1]);
+        $this->assertCount(1, $result);
+        $this->assertSame([__FILE__, $line, 'trace', Debugger::class], [
+            $result[0]['file'], $result[0]['line'], $result[0]['function'], $result[0]['class'],
+        ]);
+
+        $result = Debugger::trace([
+            'format' => 'array',
+            'depth' => 1,
+            'exclude' => [static::class . '::testTraceArrayFormatAndExclude'],
+        ]);
+        $this->assertSame([], $result);
+    }
+
+    /**
+     * Returns the text of excerpt lines without the highlighting markup, and whether
+     * each line is the highlighted one.
+     *
+     * @param array<string> $lines The excerpt lines.
+     * @return array<array{0: string, 1: bool}>
+     */
+    protected function _excerptText(array $lines): array
+    {
+        $result = [];
+        foreach ($lines as $line) {
+            $text = str_replace("\u{00A0}", ' ', html_entity_decode(strip_tags($line), ENT_QUOTES, 'UTF-8'));
+            $result[] = [trim($text), str_starts_with($line, '<span class="code-highlight">')];
+        }
+
+        return $result;
+    }
+
+    /**
+     * excerpt() returns no lines for an empty file or for a line after the end of the
+     * file, and the lines around the given line otherwise.
+     *
+     * @return void
+     */
+    public function testExcerptOfEmptyFileAndMissingLine(): void
+    {
+        $file = TMP . 'debugger_excerpt_test_' . getmypid() . '.php';
+        try {
+            file_put_contents($file, '');
+            $this->assertSame([], Debugger::excerpt($file, 1));
+
+            file_put_contents($file, "<?php\n\$a = 1;\n");
+            $this->assertSame([], Debugger::excerpt($file, 10));
+            $texts = array_column($this->_excerptText(Debugger::excerpt($file, 1, 1)), 0);
+            $this->assertSame(['<?php', '$a = 1;'], $texts);
+        } finally {
+            if (file_exists($file)) {
+                unlink($file);
+            }
+        }
+    }
+
+    /**
+     * excerpt() returns the lines from line - context to line + context, and
+     * highlights the given (1-based) line.
+     *
+     * @return void
+     */
+    public function testExcerptHighlightsTheGivenLine(): void
+    {
+        $this->markTestIncomplete('Known bug: excerpt() uses the 1-based line as a 0-based index, so it highlights the next line');
+
+        $file = TMP . 'debugger_excerpt_highlight_test_' . getmypid() . '.php';
+        try {
+            file_put_contents($file, "line1\nline2\nline3\nline4\nline5\nline6\nline7\n");
+            $expected = [['line2', false], ['line3', false], ['line4', true], ['line5', false], ['line6', false]];
+            $this->assertSame($expected, $this->_excerptText(Debugger::excerpt($file, 4, 2)));
+        } finally {
+            if (file_exists($file)) {
+                unlink($file);
+            }
+        }
+    }
+
+    /**
+     * exportVar() exports an open resource as 'resource' and a closed one as 'unknown'.
+     *
+     * @return void
+     */
+    public function testExportVarResource(): void
+    {
+        $handle = fopen('php://memory', 'r');
+        $this->assertSame('resource', Debugger::getType($handle));
+        $this->assertSame('resource', Debugger::exportVar($handle));
+        $this->assertSame("array(\n\t'handle' => resource\n)", Debugger::exportVar(['handle' => $handle]));
+
+        fclose($handle);
+        $this->assertSame('unknown', Debugger::getType($handle));
+        $this->assertSame('unknown', Debugger::exportVar($handle));
+    }
+
+    /**
+     * exportVar() leaves out typed properties that are not initialized.
+     *
+     * @return void
+     */
+    public function testExportVarUninitializedProperty(): void
+    {
+        $result = Debugger::exportVar(new DebuggerTestTypedProperties());
+        $expected = 'object(' . DebuggerTestTypedProperties::class . ") {\n"
+            . "\tpublic => 'set'\n"
+            . "\t[protected] count => (int) 3\n"
+            . '}';
+        $this->assertSame($expected, $result);
+    }
+
+    /**
+     * checkSecurityKeys() asks to change the default Security.salt.
+     *
+     * @return void
+     */
+    public function testCheckSecurityKeysDefaultSalt(): void
+    {
+        Configure::write('Security.salt', 'DYhG93b0qyJfIxfs2guVoUubWwvniR2G0FgaC9mi');
+        Configure::write('Security.cipherSeed', '1234567890');
+
+        $this->assertSame(
+            ['Please change the value of \'Security.salt\' in ' . CONFIG . 'core.php to a salt value specific to your application.'],
+            $this->_checkSecurityKeysNotices(),
+        );
+    }
+}
+
+/**
+ * Has typed properties, some of them not initialized.
+ *
+ * @package       Cake.Test.Case.Utility
+ */
+class DebuggerTestTypedProperties
+{
+    public string $public = 'set';
+
+    public string $publicUnset;
+
+    protected int $count = 3;
+
+    protected int $countUnset;
+
+    private ?string $nameUnset;
 }

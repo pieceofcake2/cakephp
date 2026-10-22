@@ -1403,4 +1403,84 @@ class CakeTimeTest extends CakeTestCase
         $this->assertEquals($expected, $actual);
         $this->_restoreSystemTimezone();
     }
+
+    /**
+     * convertSpecifiers() leaves the locale dependent specifiers to strftime() when the
+     * language has no LC_TIME definition.
+     *
+     * @return void
+     */
+    public function testConvertSpecifiersWithoutTimeDefinition(): void
+    {
+        App::build([
+            'Locale' => [CORE_TESTS . DS . 'test_app' . DS . 'resources' . DS . 'locales' . DS],
+        ], App::RESET);
+        // rule_1_po has a default.po, but no LC_TIME file.
+        Configure::write('Config.language', 'rule_1_po');
+        // Thu, 14 Jan 2010 11:43:39 UTC
+        $time = 1263469419;
+
+        $result = CakeTime::convertSpecifiers('%a %A %b %B %c %p %r %x %X', $time);
+        $this->assertSame('%a %A %b %B %c %p %r %x %X', $result);
+        $this->assertSame('%a 20 %m/%d/%y', CakeTime::convertSpecifiers('%a %C %D', $time));
+        App::build();
+    }
+
+    /**
+     * serverOffset() returns the offset of the default time zone from UTC in seconds.
+     *
+     * @return void
+     */
+    public function testServerOffset(): void
+    {
+        // Neither time zone has daylight saving time, so the offset does not depend on the date.
+        date_default_timezone_set('UTC');
+        $this->assertSame('0', CakeTime::serverOffset());
+
+        date_default_timezone_set('Asia/Tokyo');
+        $this->assertSame('32400', CakeTime::serverOffset());
+    }
+
+    /**
+     * toServer() returns false for a time zone that is neither a string nor a DateTimeZone.
+     *
+     * @return void
+     */
+    public function testToServerWithInvalidTimezone(): void
+    {
+        $this->assertFalse(CakeTime::toServer('2010-01-01 10:00:00', 9));
+        $this->assertFalse(CakeTime::toServer('2010-01-01 10:00:00', ['Asia/Tokyo']));
+    }
+
+    /**
+     * timeAgoInWords() formats an absolute date in the time zone given by the `timezone`
+     * option, or by the deprecated `userOffset` option.
+     *
+     * @return void
+     */
+    public function testTimeAgoInWordsAbsoluteDateInTimezone(): void
+    {
+        date_default_timezone_set('UTC');
+        $date = '2001-01-01 20:00:00';
+
+        $result = CakeTime::timeAgoInWords($date, ['timezone' => 'Asia/Tokyo', 'format' => 'Y-m-d H:i']);
+        $this->assertSame('on 2001-01-02 05:00', $result);
+
+        $result = CakeTime::timeAgoInWords($date, ['userOffset' => 9, 'format' => 'Y-m-d H:i']);
+        $this->assertSame('on 2001-01-02 05:00', $result);
+
+        $result = CakeTime::timeAgoInWords($date, ['format' => 'Y-m-d H:i']);
+        $this->assertSame('on 2001-01-01 20:00', $result);
+    }
+
+    /**
+     * Reading an unknown property returns null, and niceFormat returns the format of nice().
+     *
+     * @return void
+     */
+    public function testMagicGet(): void
+    {
+        $this->assertNull($this->Time->unknownProperty);
+        $this->assertSame(CakeTime::$niceFormat, $this->Time->niceFormat);
+    }
 }

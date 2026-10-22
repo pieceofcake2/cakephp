@@ -1457,6 +1457,239 @@ class FolderTest extends CakeTestCase
 
         $Folder->delete();
     }
+
+    /**
+     * Returns a path under TMP that is unique to this process.
+     *
+     * @param string $name The name of the path.
+     * @return string
+     */
+    protected function _tmpPath(string $name): string
+    {
+        return TMP . $name . '_' . getmypid();
+    }
+
+    /**
+     * Deletes a folder that a test created, if it is still there.
+     *
+     * @param string $path The folder.
+     * @return void
+     */
+    protected function _cleanUp(string $path): void
+    {
+        if (is_dir($path)) {
+            chmod($path, 0755);
+            (new Folder($path))->delete();
+        }
+    }
+
+    /**
+     * A Folder on a path that does not exist has no working directory: read(), findRecursive(),
+     * copy() and delete() do nothing and report it.
+     *
+     * @return void
+     */
+    public function testOperationsWithoutWorkingDirectory(): void
+    {
+        $missing = $this->_tmpPath('folder_test_missing');
+        $copy = $this->_tmpPath('folder_test_missing_copy');
+        try {
+            $folder = new Folder($missing);
+            $this->assertNull($folder->pwd());
+
+            $this->assertSame([[], []], $folder->read());
+            $this->assertSame([], $folder->findRecursive());
+            $this->assertFalse($folder->copy($copy));
+            $this->assertFalse($folder->delete());
+            $this->assertFileDoesNotExist($missing);
+            $this->assertFileDoesNotExist($copy);
+        } finally {
+            $this->_cleanUp($missing);
+            $this->_cleanUp($copy);
+        }
+    }
+
+    /**
+     * read() with $fullPath returns the full paths of the directories and the files.
+     *
+     * @return void
+     */
+    public function testReadWithFullPath(): void
+    {
+        $path = $this->_tmpPath('folder_test_read_full');
+        try {
+            $folder = new Folder($path, true);
+            mkdir($path . DS . 'sub');
+            file_put_contents($path . DS . 'file.txt', 'x');
+
+            $result = $folder->read(true, false, true);
+            $this->assertSame([[$path . DS . 'sub'], [$path . DS . 'file.txt']], $result);
+        } finally {
+            $this->_cleanUp($path);
+        }
+    }
+
+    /**
+     * tree() of a path that does not exist returns empty lists of the requested type.
+     *
+     * @return void
+     */
+    public function testTreeOfMissingPath(): void
+    {
+        $folder = new Folder(TMP);
+        $missing = $this->_tmpPath('folder_test_missing_tree');
+
+        $this->assertSame([[], []], $folder->tree($missing));
+        $this->assertSame([], $folder->tree($missing, false, 'dir'));
+        $this->assertSame([], $folder->tree($missing, false, 'file'));
+    }
+
+    /**
+     * chmod() without a mode uses the mode of the Folder, and fails on a path that is
+     * not a directory without changing the mode of the file.
+     *
+     * @return void
+     */
+    public function testChmodWithDefaultModeAndOnFile(): void
+    {
+        $path = $this->_tmpPath('folder_test_chmod_default');
+        try {
+            $folder = new Folder($path, true, 0700);
+            chmod($path, 0755);
+            file_put_contents($path . DS . 'file.txt', 'x');
+            chmod($path . DS . 'file.txt', 0644);
+            $folder->messages();
+
+            $this->assertTrue($folder->chmod($path, false, false));
+            $this->assertSame('0700', substr(sprintf('%o', fileperms($path)), -4));
+            $this->assertSame([$path . ' changed to 448'], $folder->messages());
+
+            $this->assertFalse($folder->chmod($path . DS . 'file.txt', 0600));
+            $this->assertSame([], $folder->errors());
+            clearstatcache();
+            $this->assertSame('0644', substr(sprintf('%o', fileperms($path . DS . 'file.txt')), -4));
+        } finally {
+            $this->_cleanUp($path);
+        }
+    }
+
+    /**
+     * dirsize() adds up the sizes of the files in the subdirectories too.
+     *
+     * @return void
+     */
+    public function testDirSizeWithSubdirectories(): void
+    {
+        $path = $this->_tmpPath('folder_test_dirsize');
+        try {
+            $folder = new Folder($path, true);
+            mkdir($path . DS . 'sub' . DS . 'deeper', 0777, true);
+            file_put_contents($path . DS . 'a.txt', 'abc');
+            file_put_contents($path . DS . 'sub' . DS . 'b.txt', 'defgh');
+            file_put_contents($path . DS . 'sub' . DS . 'deeper' . DS . 'c.txt', 'ij');
+
+            $this->assertSame(10, $folder->dirsize());
+        } finally {
+            $this->_cleanUp($path);
+        }
+    }
+
+    /**
+     * copy() fails when the source directory does not exist, and when the destination
+     * cannot be created, and says why.
+     *
+     * @return void
+     */
+    public function testCopyErrors(): void
+    {
+        $path = $this->_tmpPath('folder_test_copy_errors');
+        try {
+            $folder = new Folder($path, true);
+            file_put_contents($path . DS . 'file.txt', 'x');
+
+            $missing = $path . DS . 'missing';
+            $this->assertFalse($folder->copy(['from' => $missing, 'to' => $path . DS . 'to']));
+            $this->assertSame([$missing . ' not found'], $folder->errors());
+            $this->assertFileDoesNotExist($path . DS . 'to');
+
+            $folder = new Folder($path);
+            $target = $path . DS . 'file.txt' . DS . 'target';
+            $this->assertFalse($folder->copy($target));
+            $this->assertSame([
+                $path . DS . 'file.txt is a file',
+                $target . ' not writable',
+            ], $folder->errors());
+        } finally {
+            $this->_cleanUp($path);
+        }
+    }
+
+    /**
+     * move() keeps the source when the copy fails.
+     *
+     * @return void
+     */
+    public function testMoveKeepsSourceWhenCopyFails(): void
+    {
+        $path = $this->_tmpPath('folder_test_move_fails');
+        try {
+            new Folder($path . DS . 'from', true);
+            file_put_contents($path . DS . 'from' . DS . 'keep.txt', 'keep');
+            file_put_contents($path . DS . 'file.txt', 'x');
+
+            $folder = new Folder($path . DS . 'from');
+            $this->assertFalse($folder->move($path . DS . 'file.txt' . DS . 'target'));
+            $this->assertSame('keep', file_get_contents($path . DS . 'from' . DS . 'keep.txt'));
+        } finally {
+            $this->_cleanUp($path);
+        }
+    }
+
+    /**
+     * realpath() resolves ".." in an absolute path, returns false for an absolute path
+     * that goes above the root, and cd() does not change to such a path.
+     *
+     * @return void
+     */
+    public function testRealpathAboveRoot(): void
+    {
+        $folder = new Folder(TMP);
+
+        $this->assertFalse($folder->realpath(DS . '..' . DS . 'etc'));
+        $this->assertSame(DS . 'a' . DS . 'c' . DS, $folder->realpath(DS . 'a' . DS . 'b' . DS . '..' . DS . 'c'));
+        $this->assertFalse($folder->cd(DS . '..' . DS . 'etc'));
+        $this->assertSame(TMP, Folder::slashTerm($folder->pwd()));
+    }
+
+    /**
+     * realpath() resolves a relative path with ".." from the working directory, so it
+     * can go above the working directory, and cd() changes to a sibling directory.
+     *
+     * @return void
+     */
+    public function testRealpathOfRelativePathWithParent(): void
+    {
+        $this->markTestIncomplete('Known bug: realpath() ignores the working directory for a relative path with ".."');
+
+        $folder = new Folder(TMP);
+        $this->assertSame(
+            dirname(TMP) . DS . 'b' . DS,
+            $folder->realpath('a' . DS . '..' . DS . '..' . DS . 'b'),
+        );
+        $this->assertSame(TMP . 'y' . DS, $folder->realpath('x' . DS . '..' . DS . 'y'));
+
+        $path = $this->_tmpPath('folder_test_realpath');
+        try {
+            mkdir($path . DS . 'child', 0777, true);
+            mkdir($path . DS . 'sibling');
+            $folder = new Folder($path . DS . 'child');
+
+            $this->assertSame($path . DS . 'sibling' . DS, $folder->cd('..' . DS . 'sibling'));
+            $this->assertSame($path . DS . 'sibling' . DS, $folder->pwd());
+        } finally {
+            $this->_cleanUp($path);
+        }
+    }
 }
 
 /**

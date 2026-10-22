@@ -52,6 +52,7 @@ use TestApp\Model\Post;
 use TestApp\Model\Product;
 use TestApp\Model\Project;
 use TestApp\Model\Something;
+use TestApp\Model\StringAssociationComment;
 use TestApp\Model\Thread;
 use TestApp\Model\TranslatedArticle;
 use TestApp\Model\User;
@@ -9145,5 +9146,192 @@ class ModelReadTest extends BaseModelTest
 
         $model->cacheQueries = false;
         $this->assertSame('Sylvester', $getUserNameFromDb());
+    }
+
+    /**
+     * Test that hasAny() tells whether a record matches the conditions.
+     *
+     * @return void
+     */
+    public function testHasAny(): void
+    {
+        $this->loadFixtures('Comment', 'Article', 'User', 'Attachment');
+        $Comment = new Comment();
+
+        $this->assertTrue($Comment->hasAny(['Comment.article_id' => 2]));
+        $this->assertFalse($Comment->hasAny(['Comment.article_id' => 99]));
+        $this->assertTrue($Comment->hasAny());
+        $Comment->deleteAll(['Comment.id >' => 0], false);
+        $this->assertFalse($Comment->hasAny());
+    }
+
+    /**
+     * Test that find('count') applies the conditions of a custom find type given
+     * in the type option, and that it counts the given fields correctly.
+     *
+     * @return void
+     */
+    public function testFindCountWithTypeAndFields(): void
+    {
+        $this->loadFixtures('Article', 'User');
+        $Article = new CustomArticle();
+        $Article->create(['user_id' => 3, 'title' => 'Fourth Article', 'body' => 'Body', 'published' => 'N']);
+        $Article->save(null, false);
+
+        $this->assertSame(1, $Article->find('count', ['type' => 'unPublished']));
+        $this->assertSame(3, $Article->find('count', ['type' => 'published']));
+
+        // A plain field is replaced with COUNT(*).
+        $this->assertSame(4, $Article->find('count', ['fields' => ['CustomArticle.title']]));
+        // A field expression is wrapped in COUNT().
+        $this->assertSame(2, $Article->find('count', ['fields' => 'DISTINCT CustomArticle.user_id']));
+        // With group, the number of groups is returned.
+        $this->assertSame(2, $Article->find('count', ['group' => 'CustomArticle.user_id']));
+    }
+
+    /**
+     * Test that isForeignKey() is true only for the foreign keys of belongsTo
+     * associations.
+     *
+     * @return void
+     */
+    public function testIsForeignKey(): void
+    {
+        $this->loadFixtures('Comment');
+        $Comment = new Comment();
+        $this->assertTrue($Comment->isForeignKey('article_id'));
+        $this->assertTrue($Comment->isForeignKey('user_id'));
+        $this->assertFalse($Comment->isForeignKey('comment'));
+        $this->assertFalse($Comment->isForeignKey('id'));
+
+        $Comment->unbindModel(['belongsTo' => ['Article', 'User']], false);
+        $this->assertFalse($Comment->isForeignKey('article_id'));
+    }
+
+    /**
+     * Test that escapeField() leaves a field that is already escaped with the
+     * model alias as it is.
+     *
+     * @return void
+     */
+    public function testEscapeFieldAlreadyEscaped(): void
+    {
+        $this->loadFixtures('Comment');
+        $Comment = new Comment();
+        $db = $Comment->getDataSource();
+
+        $escaped = $db->name('Comment.comment');
+        $this->assertSame($escaped, $Comment->escapeField('comment'));
+        $this->assertSame($escaped, $Comment->escapeField($escaped));
+        $this->assertSame($db->name('Comment.id'), $Comment->escapeField());
+    }
+
+    /**
+     * Test getID() and read() with an array of ids.
+     *
+     * @return void
+     */
+    public function testGetIdAndReadWithIdList(): void
+    {
+        $this->loadFixtures('Comment');
+        $Comment = new Comment();
+
+        $Comment->id = ['first' => 3, 'second' => 0];
+        $this->assertSame(3, $Comment->getID('first'));
+        $this->assertFalse($Comment->getID('second'));
+        $this->assertSame(3, $Comment->getID('missing'));
+
+        $Comment->id = [2, 3];
+        $Comment->recursive = -1;
+        $result = $Comment->read(['id', 'comment']);
+        $this->assertEquals(['Comment' => ['id' => 2, 'comment' => 'Second Comment for First Article']], $result);
+    }
+
+    /**
+     * Test that getAffectedRows() and getNumRows() report the rows changed by the
+     * last query.
+     *
+     * @return void
+     */
+    public function testGetAffectedRowsAfterUpdateAll(): void
+    {
+        $this->loadFixtures('Comment');
+        $Comment = new Comment();
+        if ($Comment->getDataSource() instanceof Sqlserver) {
+            $this->markTestIncomplete('Known bug: Sqlserver::lastAffected() never returns the count of exec(), as DboSource::lastAffected() gives 0 instead of null');
+        }
+
+        $this->assertTrue($Comment->updateAll(['Comment.comment' => "'Changed'"], ['Comment.article_id' => 1]));
+        $this->assertSame(4, $Comment->getAffectedRows());
+        $this->assertSame(4, $Comment->getNumRows());
+
+        $this->assertTrue($Comment->updateAll(['Comment.comment' => "'Changed'"], ['Comment.article_id' => 99]));
+        $this->assertSame(0, $Comment->getAffectedRows());
+    }
+
+    /**
+     * Test that find('neighbors') prefixes a field given without the model alias.
+     *
+     * @return void
+     */
+    public function testFindNeighborsWithUnqualifiedField(): void
+    {
+        $this->loadFixtures('Comment');
+        $Comment = new Comment();
+
+        $result = $Comment->find('neighbors', [
+            'field' => 'id',
+            'value' => 3,
+            'fields' => ['id'],
+            'recursive' => -1,
+        ]);
+        $expected = [
+            'prev' => ['Comment' => ['id' => 2]],
+            'next' => ['Comment' => ['id' => 4]],
+        ];
+        $this->assertEquals($expected, $result);
+    }
+
+    /**
+     * Test that associations given as a comma separated string are linked.
+     *
+     * @return void
+     */
+    public function testAssociationsAsString(): void
+    {
+        $this->loadFixtures('Comment', 'Article', 'User');
+        $Comment = new StringAssociationComment();
+
+        $this->assertSame(['Article', 'User'], $Comment->getAssociated('belongsTo'));
+        $result = $Comment->find('first', [
+            'conditions' => ['StringAssociationComment.id' => 5],
+            'fields' => ['StringAssociationComment.id', 'Article.title', 'User.user'],
+        ]);
+        $expected = [
+            'StringAssociationComment' => ['id' => 5],
+            'Article' => ['title' => 'Second Article'],
+            'User' => ['user' => 'mariano'],
+        ];
+        $this->assertEquals($expected, $result);
+    }
+
+    /**
+     * Test that hasField() finds virtual fields only when asked to, and that
+     * getVirtualField() returns false for a field that is not virtual.
+     *
+     * @return void
+     */
+    public function testHasFieldAndGetVirtualField(): void
+    {
+        $this->loadFixtures('Article');
+        $Article = new Article();
+        $Article->virtualFields = ['two' => '1 + 1'];
+
+        $this->assertFalse($Article->hasField('two'));
+        $this->assertTrue($Article->hasField('two', true));
+        $this->assertSame('two', $Article->hasField(['nothing', 'two'], true));
+        $this->assertSame('1 + 1', $Article->getVirtualField('two'));
+        $this->assertSame('1 + 1', $Article->getVirtualField('Article.two'));
+        $this->assertFalse($Article->getVirtualField('title'));
     }
 }

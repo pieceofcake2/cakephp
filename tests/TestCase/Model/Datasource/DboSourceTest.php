@@ -21,6 +21,7 @@ namespace Cake\Test\TestCase\Model\Datasource;
 use Cake\Cache\Cache;
 use Cake\Core\App;
 use Cake\Core\Configure;
+use Cake\Model\CakeSchema;
 use Cake\Model\ConnectionManager;
 use Cake\Model\Datasource\Database\Mysql;
 use Cake\Model\Datasource\Database\Postgres;
@@ -401,6 +402,20 @@ class DboSourceTest extends CakeTestCase
     {
         $result = $this->_orderCollectingDeprecations($args, $errors);
         $this->assertSame($expected, $result);
+        $this->assertSame([], $errors);
+    }
+
+    /**
+     * An escaped quote and a comma inside a string literal do not split the
+     * FIELD() expression. Only the FIELD() part is checked, not how the
+     * fields after it are quoted.
+     *
+     * @return void
+     */
+    public function testOrderFieldWithQuotedComma(): void
+    {
+        $result = $this->_orderCollectingDeprecations(["FIELD(Post.title, 'it\\'s, odd') ASC, Post.id DESC"], $errors);
+        $this->assertStringStartsWith(" ORDER BY FIELD(`Post`.`title`, 'it\\'s, odd') ASC, ", $result);
         $this->assertSame([], $errors);
     }
 
@@ -2519,5 +2534,291 @@ class DboSourceTest extends CakeTestCase
         $this->assertNull($this->testDb->renderStatement('unknown', ['table' => 'articles']));
         $this->assertNull($this->testDb->renderStatement('alter', ['table' => 'articles']));
         $this->assertNull($this->testDb->calculate($this->Model, 'unknown', ['id']));
+    }
+
+    /**
+     * Test that value() turns an identifier object into a quoted name and an
+     * expression object into its raw SQL.
+     *
+     * @return void
+     */
+    public function testValueWithIdentifierAndExpression(): void
+    {
+        $this->assertSame($this->db->name('Article.id'), $this->db->value($this->db->identifier('Article.id')));
+        $this->assertSame('NOW()', $this->db->value($this->db->expression('NOW()')));
+    }
+
+    /**
+     * Test that Model::query() runs a raw query with bound parameters.
+     *
+     * @return void
+     */
+    public function testQueryWithBoundParameters(): void
+    {
+        $this->loadFixtures('Article');
+        $Article = new Article();
+
+        $sql = 'SELECT title FROM ' . $this->db->fullTableName('articles') . ' WHERE id = ?';
+        $result = $Article->query($sql, [2]);
+        // The key of the row data depends on the driver, so only the values are compared.
+        $this->assertCount(1, $result);
+        $this->assertSame(['title' => 'Second Article'], current($result[0]));
+
+        $this->assertSame([], $Article->query($sql, [99]));
+    }
+
+    /**
+     * Test that commit() and rollback() fail when no transaction was started.
+     *
+     * @return void
+     */
+    public function testCommitAndRollbackWithoutTransaction(): void
+    {
+        $this->assertFalse($this->db->commit());
+        $this->assertFalse($this->db->rollback());
+
+        $this->assertTrue($this->db->begin());
+        try {
+            $this->assertTrue($this->db->rollback());
+            $this->assertFalse($this->db->rollback());
+        } finally {
+            // Roll back if an assertion failed before the transaction was ended.
+            $this->db->rollback();
+        }
+    }
+
+    /**
+     * Test that a virtual field defined as an expression object is selected as it
+     * is.
+     *
+     * @return void
+     */
+    public function testVirtualFieldAsExpressionObject(): void
+    {
+        $this->loadFixtures('Article');
+        $Article = new Article();
+        $Article->virtualFields = ['loud' => $this->db->expression('UPPER(' . $this->db->name('Article.title') . ')')];
+
+        $result = $Article->find('list', ['fields' => ['id', 'loud'], 'recursive' => -1]);
+        $this->assertSame([1 => 'FIRST ARTICLE', 2 => 'SECOND ARTICLE', 3 => 'THIRD ARTICLE'], $result);
+    }
+
+    /**
+     * Test that conditions() does not add a second clause keyword to a string
+     * that already has one, and skips empty numeric entries.
+     *
+     * @return void
+     */
+    public function testConditionsWithClauseKeywordAndEmptyEntries(): void
+    {
+        $this->assertSame('WHERE `Article`.`id` = 1', $this->testDb->conditions('WHERE Article.id = 1'));
+        $this->assertSame('GROUP BY `Article`.`id`', $this->testDb->conditions('GROUP BY Article.id'));
+        $this->assertSame(' WHERE `Article`.`id` = 1', $this->testDb->conditions(['', null, 'Article.id = 1']));
+    }
+
+    /**
+     * Test that DboSource::hasAny() returns whether a record matches the conditions,
+     * as a boolean as its `@return bool` says.
+     *
+     * @return void
+     */
+    public function testHasAny(): void
+    {
+        $this->markTestIncomplete('Known bug: hasAny() returns the count of the matching records, not a boolean');
+
+        $this->loadFixtures('Article');
+        $Article = new Article();
+
+        $this->assertTrue($this->db->hasAny($Article, ['Article.user_id' => 1]));
+        $this->assertFalse($this->db->hasAny($Article, ['Article.user_id' => 99]));
+        $this->assertTrue($this->db->hasAny($Article, []));
+    }
+
+    /**
+     * Test that string conditions of a hasMany association are added to the
+     * association query.
+     *
+     * @return void
+     */
+    public function testHasManyWithStringConditions(): void
+    {
+        $this->loadFixtures('Article', 'Comment', 'User', 'Tag', 'ArticlesTag', 'Attachment');
+        $Article = new Article();
+        $Article->unbindModel(['belongsTo' => ['User'], 'hasAndBelongsToMany' => ['Tag']], false);
+        $Article->bindModel(['hasMany' => ['Comment' => [
+            'conditions' => 'Comment.published = \'N\'',
+            'fields' => ['id', 'article_id', 'comment'],
+        ]]], false);
+
+        $result = $Article->find('first', ['conditions' => ['Article.id' => 1]]);
+        $expected = [
+            ['id' => 4, 'article_id' => 1, 'comment' => 'Fourth Comment for First Article'],
+        ];
+        $this->assertEquals($expected, $result['Comment']);
+    }
+
+    /**
+     * Test the generic schema statements: createSchema() with a column without
+     * type, dropSchema() for one table, and an invalid schema object.
+     *
+     * @return void
+     */
+    public function testCreateAndDropSchemaStatements(): void
+    {
+        $this->testDb->columns = [
+            'primary_key' => ['name' => 'NOT NULL AUTO_INCREMENT'],
+            'integer' => ['name' => 'int', 'limit' => 11],
+            'string' => ['name' => 'varchar', 'limit' => 255],
+        ];
+        $schema = new CakeSchema([
+            'name' => 'Statements',
+            'widgets' => [
+                'id' => ['type' => 'integer', 'null' => false, 'key' => 'primary'],
+                'name' => ['null' => false],
+                'indexes' => ['PRIMARY' => ['column' => 'id', 'unique' => 1]],
+            ],
+        ]);
+
+        $expected = "CREATE TABLE `widgets` (\n\t`id` int(11) NOT NULL AUTO_INCREMENT,\n\t`name` varchar(255) NOT NULL,\tPRIMARY KEY  (`id`)) \t;\n\n";
+        $this->assertSame($expected, $this->testDb->createSchema($schema));
+        $this->assertSame("DROP TABLE `widgets`;\n", $this->testDb->dropSchema($schema, 'widgets'));
+        $this->assertSame('', $this->testDb->dropSchema($schema, 'missing'));
+
+        $errors = [];
+        set_error_handler(function ($errno, $errstr) use (&$errors) {
+            $errors[] = [$errno, $errstr];
+
+            return true;
+        });
+        try {
+            $result = $this->testDb->createSchema('widgets');
+        } finally {
+            restore_error_handler();
+        }
+        $this->assertNull($result);
+        $this->assertSame([[E_USER_WARNING, 'Invalid schema object']], $errors);
+    }
+
+    /**
+     * Test buildColumn() for enum types, limits and lengths, nullable timestamps
+     * and empty integer defaults, and the warnings for invalid columns.
+     *
+     * @return void
+     */
+    public function testBuildColumnGeneric(): void
+    {
+        $this->testDb->columns = [
+            'integer' => ['name' => 'int', 'limit' => 11],
+            'string' => ['name' => 'varchar', 'limit' => 255],
+            'decimal' => ['name' => 'decimal', 'length' => '10,2'],
+            'timestamp' => ['name' => 'timestamp'],
+            'text' => ['name' => 'text'],
+        ];
+
+        $this->assertSame("`state` enum('a','b') NOT NULL", $this->testDb->buildColumn(['name' => 'state', 'type' => "enum('a','b')", 'null' => false]));
+        $this->assertSame('`code` varchar(20)', $this->testDb->buildColumn(['name' => 'code', 'type' => 'string', 'limit' => 20]));
+        $this->assertSame('`price` decimal(10,2)', $this->testDb->buildColumn(['name' => 'price', 'type' => 'decimal']));
+        $this->assertSame('`stamp` timestamp NULL', $this->testDb->buildColumn(['name' => 'stamp', 'type' => 'timestamp', 'null' => true]));
+        $this->assertSame('`count` int(11)', $this->testDb->buildColumn(['name' => 'count', 'type' => 'integer', 'default' => '']));
+        $this->assertSame('`body` text', $this->testDb->buildColumn(['name' => 'body', 'type' => 'text']));
+
+        $errors = [];
+        set_error_handler(function ($errno, $errstr) use (&$errors) {
+            $errors[] = [$errno, $errstr];
+
+            return true;
+        });
+        try {
+            $missing = $this->testDb->buildColumn(['name' => 'nothing']);
+            $unknown = $this->testDb->buildColumn(['name' => 'shape', 'type' => 'polygon']);
+        } finally {
+            restore_error_handler();
+        }
+        $this->assertNull($missing);
+        $this->assertNull($unknown);
+        $expected = [
+            [E_USER_WARNING, 'Column name or type not defined in schema'],
+            [E_USER_WARNING, 'Column type polygon does not exist'],
+        ];
+        $this->assertSame($expected, $errors);
+    }
+
+    /**
+     * Test the generic buildIndex() for primary, unique and multi-column keys.
+     *
+     * @return void
+     */
+    public function testBuildIndexGeneric(): void
+    {
+        $result = $this->testDb->buildIndex([
+            'PRIMARY' => ['column' => 'id', 'unique' => 1],
+            'name_idx' => ['column' => ['first', 'last'], 'unique' => 1],
+            'plain' => ['column' => 'created'],
+        ]);
+        $expected = [
+            'PRIMARY KEY  (`id`)',
+            'UNIQUE KEY `name_idx` (`first`, `last`)',
+            'KEY `plain` (`created`)',
+        ];
+        $this->assertSame($expected, $result);
+    }
+
+    /**
+     * Test that introspectType() treats strings longer than 255 characters as text.
+     *
+     * @return void
+     */
+    public function testIntrospectTypeLongString(): void
+    {
+        $this->assertSame('string', $this->testDb->introspectType(str_repeat('a', 255)));
+        $this->assertSame('text', $this->testDb->introspectType(str_repeat('a', 256)));
+    }
+
+    /**
+     * Test that create() without fields inserts the current data of the model.
+     *
+     * @return void
+     */
+    public function testCreateWithoutFieldsUsesModelData(): void
+    {
+        $this->markTestIncomplete('Known bug: create() without fields takes the model alias as the only field name');
+
+        $this->loadFixtures('Article');
+        $Article = new Article();
+        $Article->data = ['Article' => ['user_id' => 2, 'title' => 'From data', 'body' => 'Body']];
+
+        $this->assertTrue($this->db->create($Article));
+
+        $result = $Article->find('first', [
+            'fields' => ['user_id', 'title', 'body'],
+            'conditions' => ['Article.id' => $Article->id],
+            'recursive' => -1,
+        ]);
+        $this->assertEquals(['Article' => ['user_id' => 2, 'title' => 'From data', 'body' => 'Body']], $result);
+    }
+
+    /**
+     * Test that fetchAssociated() replaces the id placeholder, and uses IN for
+     * several ids.
+     *
+     * @return void
+     */
+    public function testFetchAssociatedReplacesIdPlaceholder(): void
+    {
+        $this->loadFixtures('Comment');
+        $Comment = new Comment();
+        $sql = 'SELECT ' . $this->db->name('Comment.id') . ' FROM ' . $this->db->fullTableName($Comment) . ' AS '
+            . $this->db->name('Comment') . ' WHERE ' . $this->db->name('Comment.article_id') . ' = ({$__cakeID__$})'
+            . ' ORDER BY ' . $this->db->name('Comment.id');
+
+        // The key of the row data depends on the driver, so only the ids are compared.
+        $ids = function ($rows) {
+            return array_map(function ($row) {
+                return (int)current($row)['id'];
+            }, $rows);
+        };
+
+        $this->assertSame([5, 6], $ids($this->db->fetchAssociated($Comment, $sql, [2])));
+        $this->assertSame([1, 2, 3, 4, 5, 6], $ids($this->db->fetchAssociated($Comment, $sql, [1, 2, 2])));
     }
 }

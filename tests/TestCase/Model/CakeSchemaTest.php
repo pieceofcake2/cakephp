@@ -27,6 +27,7 @@ use Cake\Model\ConnectionManager;
 use Cake\Model\Datasource\Database\Sqlite;
 use Cake\TestSuite\CakeTestCase;
 use Cake\TestSuite\Fixture\CakeTestFixture;
+use Cake\TestSuite\Fixture\CakeTestModel;
 use Cake\Utility\ClassRegistry;
 use Exception;
 use MyOtherAppSchema;
@@ -298,6 +299,27 @@ class NonConventionalPrimaryKeyFixture extends CakeTestFixture
 }
 
 /**
+ * A model whose table does not exist.
+ *
+ * It is defined here and not in the test app, so that a read() of all the models
+ * of the test app is not broken by it.
+ *
+ * @package       Cake.Test.Case.Model
+ */
+class SchemaMissingTableModel extends CakeTestModel
+{
+    /**
+     * @var string
+     */
+    public $name = 'SchemaMissingTable';
+
+    /**
+     * @var string|false|null
+     */
+    public $useTable = 'schema_missing_tables';
+}
+
+/**
  * CakeSchemaTest
  *
  * @package       Cake.Test.Case.Model
@@ -326,6 +348,13 @@ class CakeSchemaTest extends CakeTestCase
     ];
 
     /**
+     * Schema files written by a test, removed in tearDown().
+     *
+     * @var array<string>
+     */
+    protected $_schemaFiles = [];
+
+    /**
      * setUp method
      *
      * @return void
@@ -348,6 +377,12 @@ class CakeSchemaTest extends CakeTestCase
         if (file_exists(TMP . 'tests' . DS . 'schema.php')) {
             unlink(TMP . 'tests' . DS . 'schema.php');
         }
+        foreach ($this->_schemaFiles as $file) {
+            if (file_exists($file)) {
+                unlink($file);
+            }
+        }
+        $this->_schemaFiles = [];
         unset($this->Schema);
         CakePlugin::unload();
 
@@ -1112,5 +1147,171 @@ class CakeSchemaTest extends CakeTestCase
         $col['name'] = 'int_not_null';
         $column = $this->db->buildColumn($col);
         $this->assertMatchesRegularExpression('/' . preg_quote($column, '/') . '/', $sql);
+    }
+
+    /**
+     * Test that write() stores the path, file and short column types, and that
+     * load() with a path string reads the written schema back.
+     *
+     * @return void
+     */
+    public function testWriteAndLoadFromPathString(): void
+    {
+        $path = TMP . 'tests';
+        $file = 'cov_load_from_path.php';
+        $this->_schemaFiles[] = $path . DS . $file;
+
+        $Writer = new CakeSchema();
+        $content = $Writer->write([
+            'name' => 'CovLoadFromPath',
+            'path' => $path,
+            'file' => $file,
+            'connection' => 'test',
+            'tables' => [
+                'widgets' => [
+                    'id' => 'integer',
+                    'name' => ['type' => 'string', 'null' => false],
+                ],
+            ],
+        ]);
+        $this->assertSame($content, file_get_contents($path . DS . $file));
+        $this->assertStringContainsString("\tpublic \$path = '{$path}';\n", $content);
+        $this->assertStringContainsString("\tpublic \$file = '{$file}';\n", $content);
+        $this->assertStringContainsString("\tpublic \$connection = 'test';\n", $content);
+        $this->assertStringContainsString("\t\t'id' => array('type' => 'integer', ),\n", $content);
+
+        $Loader = new CakeSchema(['name' => 'CovLoadFromPath', 'file' => $file]);
+        $Loaded = $Loader->load($path);
+
+        $this->assertSame('CovLoadFromPath', $Loaded->name);
+        $this->assertSame($file, $Loaded->file);
+        $this->assertSame('test', $Loaded->connection);
+        $expected = [
+            'widgets' => [
+                'id' => ['type' => 'integer'],
+                'name' => ['type' => 'string', 'null' => false],
+            ],
+        ];
+        $this->assertSame($expected, $Loaded->tables);
+    }
+
+    /**
+     * Test that write() with a schema object applies the given options over the
+     * properties of the object: the file option names the file, which holds the
+     * class named after the object and its table.
+     *
+     * @return void
+     */
+    public function testWriteObjectWithOptions(): void
+    {
+        $this->markTestIncomplete('Known bug: write() replaces the $options argument with the properties of the schema object');
+
+        $path = TMP . 'tests';
+        $this->_schemaFiles[] = $path . DS . 'schema.php';
+        $this->_schemaFiles[] = $path . DS . 'cov_object_options.php';
+
+        $Schema = new CakeSchema([
+            'name' => 'CovObjectOptions',
+            'path' => $path,
+            'widgets' => ['id' => ['type' => 'integer', 'key' => 'primary']],
+        ]);
+        $Writer = new CakeSchema();
+        $Writer->write($Schema, ['file' => 'cov_object_options.php']);
+
+        $this->assertFileExists($path . DS . 'cov_object_options.php');
+        $content = (string)file_get_contents($path . DS . 'cov_object_options.php');
+        $this->assertStringContainsString('class CovObjectOptionsSchema extends CakeSchema {', $content);
+        $this->assertStringContainsString("\tpublic \$widgets = array(\n", $content);
+    }
+
+    /**
+     * Test that write() without tables writes the tables that it reads from the
+     * connection of the schema.
+     *
+     * @return void
+     */
+    public function testWriteWithoutTablesWritesTheTablesItReads(): void
+    {
+        $this->markTestIncomplete('Known bug: write() without tables calls read() and discards its result');
+
+        $path = TMP . 'tests';
+        $this->_schemaFiles[] = $path . DS . 'cov_read_tables.php';
+        $Schema = new CakeSchema(['name' => 'CovReadTables', 'path' => $path, 'connection' => 'test']);
+
+        $content = $Schema->write(['name' => 'CovReadTables', 'path' => $path, 'file' => 'cov_read_tables.php', 'connection' => 'test']);
+
+        $this->assertIsString($content);
+        $this->assertStringContainsString("\tpublic \$posts = array(\n", $content);
+        $this->assertStringContainsString("\tpublic \$tags = array(\n", $content);
+    }
+
+    /**
+     * Test that compare() drops and adds again an index whose columns change from
+     * one column to several columns.
+     *
+     * @return void
+     */
+    public function testCompareIndexColumnChangedToList(): void
+    {
+        $old = ['posts' => [
+            'id' => ['type' => 'integer', 'key' => 'primary'],
+            'title' => ['type' => 'string'],
+            'indexes' => [
+                'PRIMARY' => ['column' => 'id', 'unique' => 1],
+                'title_idx' => ['column' => 'title', 'unique' => 0],
+            ],
+        ]];
+        $new = $old;
+        $new['posts']['indexes']['title_idx'] = ['column' => ['title', 'id'], 'unique' => 0];
+
+        $expected = ['posts' => [
+            'drop' => ['indexes' => ['title_idx' => null]],
+            'add' => ['indexes' => ['title_idx' => ['column' => ['title', 'id'], 'unique' => 0]]],
+        ]];
+        $this->assertSame($expected, $this->Schema->compare($old, $new));
+
+        $this->assertSame([], $this->Schema->compare($old, $old));
+    }
+
+    /**
+     * Test that read() goes on past the models it cannot use, such as an unknown
+     * model, and reads the table of a usable model together with its join table.
+     *
+     * @return void
+     */
+    public function testSchemaReadSkipsUnusableModels(): void
+    {
+        $read = $this->Schema->read([
+            'connection' => 'test',
+            'name' => 'TestApp',
+            'models' => ['AppModel', 'NoSuchModel', 'TestMail', 'SchemaTag'],
+        ]);
+
+        // The join table of SchemaTag is read too, and the table of the posts fixture
+        // that no given model uses is listed as missing.
+        $this->assertArrayHasKey('tags', $read['tables']);
+        $this->assertArrayHasKey('posts_tags', $read['tables']);
+        $this->assertArrayHasKey('posts', $read['tables']['missing']);
+        $this->assertArrayNotHasKey('posts', $read['tables']);
+        $this->assertSame(['id', 'tag', 'created', 'updated'], array_slice(array_keys($read['tables']['tags']), 0, 4));
+    }
+
+    /**
+     * Test that read() skips a model whose table does not exist.
+     *
+     * @return void
+     */
+    public function testSchemaReadSkipsModelWithMissingTable(): void
+    {
+        $this->markTestIncomplete('Known bug: read() calls getDataSource() outside the try block, so MissingTableException escapes');
+
+        $read = $this->Schema->read([
+            'connection' => 'test',
+            'name' => 'TestApp',
+            'models' => [SchemaMissingTableModel::class, 'SchemaTag'],
+        ]);
+
+        $this->assertArrayHasKey('tags', $read['tables']);
+        $this->assertArrayNotHasKey('schema_missing_tables', $read['tables']);
     }
 }

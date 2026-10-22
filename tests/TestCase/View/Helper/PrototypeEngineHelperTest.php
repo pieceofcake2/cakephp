@@ -159,6 +159,10 @@ class PrototypeEngineHelperTest extends CakeTestCase
         $expected = '$("foo").appear({duration:2});';
         $this->assertEquals($expected, $result);
 
+        $result = $this->Proto->effect('fadeIn', ['speed' => 'normal']);
+        $expected = '$("foo").appear({duration:1});';
+        $this->assertEquals($expected, $result);
+
         $result = $this->Proto->effect('fadeOut');
         $expected = '$("foo").fade();';
         $this->assertEquals($expected, $result);
