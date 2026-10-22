@@ -600,8 +600,17 @@ class CakeSession
             // https://github.com/php/php-src/commit/a93a51c3bf4ea1638ce0adc4a899cb93531b9f0d
             unset($sessionConfig['ini']['session.save_handler']);
         } elseif (!empty($sessionConfig['ini']['session.save_path']) && Configure::read('debug')) {
-            if (!is_dir($sessionConfig['ini']['session.save_path'])) {
-                mkdir($sessionConfig['ini']['session.save_path'], 0775, true);
+            $saveHandler = $sessionConfig['ini']['session.save_handler'] ?? ini_get('session.save_handler');
+            if ($saveHandler === 'files') {
+                // The files handler takes "path", "N;path" or "N;MODE;path".
+                $savePath = (string)$sessionConfig['ini']['session.save_path'];
+                $pos = strrpos($savePath, ';');
+                if ($pos !== false) {
+                    $savePath = substr($savePath, $pos + 1);
+                }
+                if ($savePath !== '' && !is_dir($savePath)) {
+                    mkdir($savePath, 0775, true);
+                }
             }
         }
 

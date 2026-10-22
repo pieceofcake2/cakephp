@@ -32,4 +32,9 @@ class TestCakeSession extends CakeSession
     {
         static::_setHost($host);
     }
+
+    public static function configureSession(): void
+    {
+        static::_configureSession();
+    }
 }
