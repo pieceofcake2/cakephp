@@ -166,6 +166,20 @@ class CakeResponseTest extends CakeTestCase
     }
 
     /**
+     * Test that getMimeType() returns the type mapped to the alias '0', which is an alias like any other.
+     *
+     * @return void
+     */
+    public function testGetMimeTypeZeroAlias(): void
+    {
+        $response = new CakeResponse();
+        $this->assertFalse($response->getMimeType('0'));
+
+        $response->type(['0' => 'text/x-zero']);
+        $this->assertSame('text/x-zero', $response->getMimeType('0'));
+    }
+
+    /**
      * Tests the header method
      *
      * @return void

@@ -689,6 +689,29 @@ TEXT;
     }
 
     /**
+     * Test that parse() and help() use the parser of the subcommand '0', which is a name like any other.
+     *
+     * @return void
+     */
+    public function testSubParserOfZeroSubcommand(): void
+    {
+        $subParser = new ConsoleOptionParser('0', false);
+        $subParser->addOption('secondary', ['boolean' => true, 'help' => 'A secondary option.']);
+
+        $parser = new ConsoleOptionParser('test', false);
+        $parser->addOption('primary')
+            ->addSubcommand('0', ['parser' => $subParser]);
+
+        $result = $parser->parse(['--secondary'], '0');
+        $expected = [['secondary' => true, 'help' => false], []];
+        $this->assertEquals($expected, $result, 'Sub parser did not parse request.');
+
+        $result = $parser->help('0');
+        $this->assertStringContainsString('--secondary', $result);
+        $this->assertStringNotContainsString('--primary', $result);
+    }
+
+    /**
      * Test that parsing does not create dynamic properties (deprecated as of PHP 8.2).
      *
      * @return void
