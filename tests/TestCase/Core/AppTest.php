@@ -804,6 +804,10 @@ class AppTest extends CakeTestCase
     /**
      * test that building helper paths actually works.
      *
+     * It runs in its own process, as PHP cannot unload the classes and files it loaded, e.g. with --repeat.
+     *
+     * @runInSeparateProcess
+     * @preserveGlobalState disabled
      * @return void
      */
     public function testImportingHelpersFromAlternatePaths(): void
@@ -933,6 +937,10 @@ class AppTest extends CakeTestCase
     /**
      * testMultipleLoading method
      *
+     * It runs in its own process, as PHP cannot unload the classes and files it loaded, e.g. with --repeat.
+     *
+     * @runInSeparateProcess
+     * @preserveGlobalState disabled
      * @return void
      */
     public function testMultipleLoading(): void
@@ -956,6 +964,15 @@ class AppTest extends CakeTestCase
         $this->assertFalse($load);
     }
 
+    /**
+     * Test loading vendor files with App::import()
+     *
+     * It runs in its own process, as PHP cannot unload the classes and files it loaded, e.g. with --repeat.
+     *
+     * @runInSeparateProcess
+     * @preserveGlobalState disabled
+     * @return void
+     */
     public function testLoadingVendor(): void
     {
         App::build([
@@ -1013,6 +1030,10 @@ class AppTest extends CakeTestCase
      * Tests that the automatic class loader will also find in "libs" folder for both
      * app and plugins if it does not find the class in other configured paths
      *
+     * It runs in its own process, as PHP cannot unload the classes and files it loaded, e.g. with --repeat.
+     *
+     * @runInSeparateProcess
+     * @preserveGlobalState disabled
      * @return void
      */
     public function testLoadClassInLibs(): void
@@ -1058,6 +1079,10 @@ class AppTest extends CakeTestCase
      * Proves that it is possible to load plugin libraries in top
      * level Lib dir for plugins
      *
+     * It runs in its own process, as PHP cannot unload the classes and files it loaded, e.g. with --repeat.
+     *
+     * @runInSeparateProcess
+     * @preserveGlobalState disabled
      * @return void
      */
     public function testPluginLibClasses(): void
