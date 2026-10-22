@@ -557,4 +557,28 @@ class CakeHtmlReporterTest extends CakeTestCase
 
         $this->assertSame("<pre>array(\n\t'a' =&gt; '&lt;b&gt;'\n)</pre>", $output);
     }
+
+    /**
+     * Test that invalid UTF-8 is replaced by the replacement character instead of emptying
+     * the escaped value, in text and in attributes.
+     *
+     * @return void
+     */
+    public function testEscapingKeepsValuesWithInvalidUtf8(): void
+    {
+        $output = $this->capture(function (): void {
+            $this->reporter()->paintFormattedMessage("bad \xFF <b>");
+        });
+        $this->assertSame("<pre>bad \u{FFFD} &lt;b&gt;</pre>", $output);
+
+        $_SERVER['PHP_SELF'] = "/test\xFF.php";
+        $output = $this->capture(function (): void {
+            $this->reporter(['plugin' => 'ReporterPlugin'])->testCaseList();
+        });
+        $this->assertStringContainsString(
+            "<li><a href='/test\u{FFFD}.php?case=" . urlencode('Model' . DS . 'Article') .
+            "&amp;plugin=ReporterPlugin'>Model / Article</a></li>\n",
+            $output,
+        );
+    }
 }

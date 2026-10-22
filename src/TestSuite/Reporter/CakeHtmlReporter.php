@@ -403,7 +403,7 @@ class CakeHtmlReporter extends CakeBaseReporter
      */
     protected function _htmlEntities($message)
     {
-        return htmlentities($message, ENT_COMPAT, $this->_characterSet);
+        return htmlentities($message, ENT_COMPAT | ENT_SUBSTITUTE, $this->_characterSet);
     }
 
     /**
@@ -414,7 +414,7 @@ class CakeHtmlReporter extends CakeBaseReporter
      */
     protected function _escape($text)
     {
-        return htmlspecialchars($text, ENT_QUOTES, $this->_characterSet);
+        return htmlspecialchars($text, ENT_QUOTES | ENT_SUBSTITUTE, $this->_characterSet);
     }
 
     /**
