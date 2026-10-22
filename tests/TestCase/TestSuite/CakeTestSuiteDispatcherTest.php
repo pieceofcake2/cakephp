@@ -17,6 +17,8 @@ namespace Cake\Test\TestCase\TestSuite;
 
 use Cake\Core\App;
 use Cake\Core\CakePlugin;
+use Cake\Core\Configure;
+use Cake\Error\MissingConnectionException;
 use Cake\TestSuite\CakeTestCase;
 use Cake\TestSuite\CakeTestSuiteDispatcher;
 use Cake\Utility\Folder;
@@ -329,5 +331,62 @@ class CakeTestSuiteDispatcherTest extends CakeTestCase
         $output = $this->_run();
 
         $this->assertSame("NoSuchListedPlugin Test Cases:\nEMPTY\n", $output);
+    }
+
+    /**
+     * Test that the HTML page escapes the base directory taken from the script path, which
+     * can carry a hostile path info, in the attributes and in the CSS urls.
+     *
+     * @return void
+     */
+    public function testDispatchEscapesTheBaseDirInTheHtmlPage(): void
+    {
+        // The footer renders the sql_dump element, which prints the query log only with debug 2.
+        Configure::write('debug', 0);
+        $_SERVER['PHP_SELF'] = '/test.php/"><script>alert(1)</script>/x';
+        $_GET = ['plugin' => 'ListedPlugin'];
+
+        // The HTML reporter flushes one more buffer at the end of the page.
+        ob_start();
+        try {
+            $page = $this->_run();
+        } finally {
+            $flushed = (string)ob_get_clean();
+        }
+        $output = $flushed . $page;
+
+        $this->assertStringNotContainsString('<script>', $output);
+        $this->assertStringNotContainsString('alert(1)</script>', $output);
+        $escaped = '/test.php/&quot;&gt;&lt;script&gt;alert(1)&lt;/script&gt;/';
+        $this->assertStringContainsString('<link rel="stylesheet" href="' . $escaped . 'css/cake.generic.css" />', $output);
+        $this->assertStringContainsString('<img src="' . $escaped . 'img/cake.power.gif"', $output);
+        $encoded = '/test.php/%22%3E%3Cscript%3Ealert%281%29%3C/script%3E/';
+        $this->assertStringContainsString('background-image: url(' . $encoded . 'img/test-pass-icon.png);', $output);
+        $this->assertStringContainsString('url(' . $encoded . 'img/test-fail-icon.png) 5px 5px no-repeat;', $output);
+    }
+
+    /**
+     * Test that the page of a missing test database connection escapes the message and the
+     * trace of the exception, and the base directory.
+     *
+     * @return void
+     */
+    public function testMissingConnectionPageIsEscaped(): void
+    {
+        Configure::write('debug', 0);
+        $baseDir = '/test.php/"><script>alert(1)</script>/';
+        $exception = new MissingConnectionException(['class' => '<script>alert(2)</script>']);
+
+        ob_start();
+        try {
+            include CAKE . 'TestSuite' . DS . 'templates' . DS . 'missing_connection.php';
+        } finally {
+            $output = (string)ob_get_clean();
+        }
+
+        $this->assertStringNotContainsString('<script>', $output);
+        $this->assertStringContainsString('<h3>' . h($exception->getMessage()) . '</h3>', $output);
+        $this->assertStringContainsString('&lt;script&gt;alert(2)&lt;/script&gt;', $output);
+        $this->assertStringContainsString('<pre>' . h($exception->getTraceAsString()) . '</pre>', $output);
     }
 }

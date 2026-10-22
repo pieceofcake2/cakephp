@@ -87,8 +87,10 @@
 
     <!-- Allow unused variables in test files for testing purposes -->
     <rule ref="SlevomatCodingStandard.Variables.UnusedVariable.UnusedVariable">
+        <exclude-pattern>src/TestSuite/CakeTestSuiteDispatcher.php</exclude-pattern>
         <exclude-pattern>src/TestSuite/Reporter/CakeHtmlReporter.php</exclude-pattern>
         <exclude-pattern>tests/TestCase/Error/ErrorHandlerTest.php</exclude-pattern>
+        <exclude-pattern>tests/TestCase/TestSuite/CakeTestSuiteDispatcherTest.php</exclude-pattern>
         <exclude-pattern>tests/TestCase/Utility/DebuggerTest.php</exclude-pattern>
         <exclude-pattern>tests/test_app/Config/htmlhelper_tags.php</exclude-pattern>
         <exclude-pattern>tests/test_legacy_app/Config/htmlhelper_tags.php</exclude-pattern>

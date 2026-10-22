@@ -382,7 +382,7 @@ class CakeHtmlReporterTest extends CakeTestCase
 
     /**
      * Test that the links below the summary URL-encode the run parameters and
-     * escape the script URL, so that a request cannot inject HTML.
+     * escape the script URL and the base directory, so that a request cannot inject HTML.
      *
      * @return void
      */
@@ -390,6 +390,7 @@ class CakeHtmlReporterTest extends CakeTestCase
     {
         $_SERVER['PHP_SELF'] = "/test.php/'><script>alert(1)</script>";
         $reporter = $this->reporter([
+            'baseDir' => "/test.php/'><script>alert(5)</script>/",
             'case' => "Model/Post'><script>alert(2)</script>",
             'plugin' => '"><script>alert(3)</script>',
             'filter' => "testFoo'><script>alert(4)</script>",
@@ -407,6 +408,13 @@ class CakeHtmlReporterTest extends CakeTestCase
             $output,
         );
         $this->assertStringContainsString("<a href='$query&amp;filter=testFails'>", $output);
+        $baseDir = '/test.php/&#039;&gt;&lt;script&gt;alert(5)&lt;/script&gt;/';
+        $this->assertStringContainsString('<link rel="stylesheet" href="' . $baseDir . 'css/cake.generic.css" />', $output);
+        $this->assertStringContainsString('<img src="' . $baseDir . 'img/cake.power.gif"', $output);
+        $this->assertStringContainsString(
+            'background-image: url(/test.php/%27%3E%3Cscript%3Ealert%285%29%3C/script%3E/img/test-pass-icon.png);',
+            $output,
+        );
     }
 
     /**
