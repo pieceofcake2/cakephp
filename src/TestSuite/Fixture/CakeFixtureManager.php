@@ -63,6 +63,13 @@ class CakeFixtureManager
     protected $_fixtureMap = [];
 
     /**
+     * Holds the fixture classes that were instantiated, indexed by fully qualified class name
+     *
+     * @var array<string, CakeTestFixture>
+     */
+    protected $_fixtureClasses = [];
+
+    /**
      * Test case classes whose fixtures have already been processed, indexed by class name
      *
      * @var array<string, bool>
@@ -135,10 +142,14 @@ class CakeFixtureManager
     /**
      * Looks for fixture files and instantiates the classes accordingly
      *
-     * A name with a backslash is a fully qualified class name, e.g. ArticleFixture::class;
-     * the Fixture suffix is added only when the name does not end with it.
+     * A fixture is preferably given by its fully qualified class name, e.g. ArticleFixture::class,
+     * and is then the exact class; a leading backslash is ignored, and the Fixture suffix is added
+     * only when the name does not end with it. The former notation {type}.{name}, e.g. core.article,
+     * app.article, plugin.foo.bar or Article, still works.
      *
-     * @param array $fixtures the fixture names to load using the notation {type}.{name}, or class names
+     * A class given more than once, in the same or in another notation, has one instance.
+     *
+     * @param array $fixtures the class names of the fixtures to load, or their names in the notation {type}.{name}
      * @return void
      * @throws UnexpectedValueException when a referenced fixture does not exist.
      */
@@ -156,7 +167,7 @@ class CakeFixtureManager
                 if (!class_exists($fixtureClass)) {
                     throw new UnexpectedValueException(__d('cake_dev', 'Referenced fixture class %s not found', $fixtureClass));
                 }
-                $this->_loaded[$fixtureIndex] = new $fixtureClass();
+                $this->_loaded[$fixtureIndex] = $this->_fixtureInstance($fixtureClass);
                 $this->_fixtureMap[substr($fixtureClass, strrpos($fixtureClass, '\\') + 1)] = $this->_loaded[$fixtureIndex];
 
                 continue;
@@ -195,7 +206,7 @@ class CakeFixtureManager
             foreach ($this->_fixtureNamespaces($fixtureIndex) as $namespace) {
                 $fixtureClass = $namespace . '\\Test\\Fixture\\' . $className . 'Fixture';
                 if (class_exists($fixtureClass)) {
-                    $this->_loaded[$fixtureIndex] = new $fixtureClass();
+                    $this->_loaded[$fixtureIndex] = $this->_fixtureInstance($fixtureClass);
                     $this->_fixtureMap[$className . 'Fixture'] = $this->_loaded[$fixtureIndex];
 
                     continue 2;
@@ -209,7 +220,7 @@ class CakeFixtureManager
                     $fixtureFile = $path . DS . $className . 'Fixture.php';
                     require_once $fixtureFile;
                     $fixtureClass = $className . 'Fixture';
-                    $this->_loaded[$fixtureIndex] = new $fixtureClass();
+                    $this->_loaded[$fixtureIndex] = $this->_fixtureInstance($fixtureClass);
                     $this->_fixtureMap[$fixtureClass] = $this->_loaded[$fixtureIndex];
                     $loaded = true;
                     break;
@@ -221,6 +232,21 @@ class CakeFixtureManager
                 throw new UnexpectedValueException(__d('cake_dev', 'Referenced fixture class %s (%s) not found', $className, $firstPath));
             }
         }
+    }
+
+    /**
+     * Returns the instance of a fixture class, created at the first call for the class.
+     *
+     * @param string $fixtureClass The fully qualified class name of the fixture
+     * @return CakeTestFixture
+     */
+    protected function _fixtureInstance($fixtureClass)
+    {
+        if (!isset($this->_fixtureClasses[$fixtureClass])) {
+            $this->_fixtureClasses[$fixtureClass] = new $fixtureClass();
+        }
+
+        return $this->_fixtureClasses[$fixtureClass];
     }
 
     /**
@@ -317,9 +343,11 @@ class CakeFixtureManager
             return;
         }
 
+        $done = [];
         foreach ($fixtures as $f) {
-            if (!empty($this->_loaded[$f])) {
+            if (!empty($this->_loaded[$f]) && !in_array($this->_loaded[$f], $done, true)) {
                 $fixture = $this->_loaded[$f];
+                $done[] = $fixture;
                 $db = ConnectionManager::getDataSource($fixture->useDbConfig);
                 $this->_setupTable($fixture, $db, $test->dropTables);
                 $db->begin();
@@ -338,9 +366,11 @@ class CakeFixtureManager
     public function unload(CakeTestCase $test)
     {
         $fixtures = !empty($test->fixtures) ? $test->fixtures : [];
+        $done = [];
         foreach (array_reverse($fixtures) as $f) {
-            if (isset($this->_loaded[$f])) {
+            if (isset($this->_loaded[$f]) && !in_array($this->_loaded[$f], $done, true)) {
                 $fixture = $this->_loaded[$f];
+                $done[] = $fixture;
                 if (!empty($fixture->created)) {
                     foreach ($fixture->created as $ds) {
                         $db = ConnectionManager::getDataSource($ds);
@@ -354,10 +384,12 @@ class CakeFixtureManager
     /**
      * Creates a single fixture table and loads data into it.
      *
-     * The fixture is given by its name without the Fixture suffix, e.g. Article, or by
-     * its fully qualified class name, e.g. ArticleFixture::class.
+     * The fixture is preferably given by its fully qualified class name, e.g. ArticleFixture::class,
+     * which names exactly that class among the fixtures of the test case; a leading backslash is
+     * ignored, and the Fixture suffix is added only when the name does not end with it. The former
+     * notation, the name without the Fixture suffix, e.g. Article, still works.
      *
-     * @param string $name of the fixture
+     * @param string $name the class name of the fixture, or its name
      * @param DataSource $db DataSource instance or leave null to get DataSource from the fixture
      * @param bool $dropTables Whether or not tables should be dropped and re-created.
      * @return void
@@ -367,12 +399,12 @@ class CakeFixtureManager
     {
         if (str_contains($name, '\\')) {
             $name = $this->_fixtureClassName($name);
-            $name = substr($name, strrpos($name, '\\') + 1);
+            $fixture = $this->_fixtureClasses[$name] ?? null;
         } else {
             $name .= 'Fixture';
+            $fixture = $this->_fixtureMap[$name] ?? null;
         }
-        if (isset($this->_fixtureMap[$name])) {
-            $fixture = $this->_fixtureMap[$name];
+        if ($fixture) {
             if (!$db) {
                 $db = ConnectionManager::getDataSource($fixture->useDbConfig);
             }

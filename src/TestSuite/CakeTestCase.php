@@ -203,10 +203,11 @@ abstract class CakeTestCase extends TestCase
     /**
      * Chooses which fixtures to load for a given test
      *
-     * Each parameter is a model name that corresponds to a fixture, i.e. 'Post', 'Author', etc.,
-     * or the class name of a fixture, i.e. PostFixture::class.
+     * Each parameter is preferably the fully qualified class name of a fixture of the test case,
+     * i.e. PostFixture::class, which names exactly that class. The former notation, a model name
+     * that corresponds to a fixture, i.e. 'Post', 'Author', etc., still works.
      *
-     * @param string ...$args The names of the fixtures
+     * @param string ...$args The class names of the fixtures, or their names
      * @return void
      * @see CakeTestCase::$autoFixtures
      * @throws Exception when no fixture manager is available.
