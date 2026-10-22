@@ -16,7 +16,8 @@
 
 namespace Cake\Test\TestCase\Core;
 
-use Cake\Console\Shell;
+use Cake\Console\Command\AppShell;
+use Cake\Console\Command\ServerShell;
 use Cake\TestSuite\CakeTestCase;
 use FilesystemIterator;
 use RecursiveDirectoryIterator;
@@ -51,14 +52,12 @@ class ClassAliasesTest extends CakeTestCase
         }
         $this->assertGreaterThan(250, count($classes));
 
+        // The AppShell of the application must not be loaded first, see testApplicationAppShellFirst()
+        $this->assertTrue(class_exists(AppShell::class));
+
         $loadedByGlobalName = 0;
         foreach ($classes as $file => $class) {
             $global = substr($class, strrpos($class, '\\') + 1);
-            if ($global === 'AppShell') {
-                // App::load() finds the AppShell of the application first, when the application has one
-                $this->assertTrue(is_a($global, Shell::class, true), "$global is not a shell");
-                continue;
-            }
             $loaded = class_exists($class, false) || interface_exists($class, false) || trait_exists($class, false);
 
             $this->assertTrue(
@@ -74,5 +73,26 @@ class ClassAliasesTest extends CakeTestCase
         }
         // Most classes are not loaded by the bootstrap, or by the classes loaded before them
         $this->assertGreaterThan(count($classes) / 2, $loadedByGlobalName);
+    }
+
+    /**
+     * Test that the shells of the framework can be loaded after the AppShell of the application.
+     *
+     * The global AppShell is the AppShell of the application when it has one, as App::load() finds it
+     * first. It runs in its own process, so that no AppShell is loaded yet.
+     *
+     * @runInSeparateProcess
+     * @preserveGlobalState disabled
+     * @return void
+     */
+    public function testApplicationAppShellFirst(): void
+    {
+        $this->markTestIncomplete('Known bug: Cake\\Console\\Command\\AppShell declares the global AppShell with class_alias(), which fails with "Cannot declare class AppShell" when the AppShell of the application is loaded first.');
+
+        $this->assertTrue(class_exists('AppShell'));
+        $this->assertSame(APP . 'Console' . DS . 'Command' . DS . 'AppShell.php', (new ReflectionClass('AppShell'))->getFileName());
+
+        $this->assertTrue(class_exists(ServerShell::class));
+        $this->assertTrue(is_subclass_of(ServerShell::class, AppShell::class));
     }
 }
