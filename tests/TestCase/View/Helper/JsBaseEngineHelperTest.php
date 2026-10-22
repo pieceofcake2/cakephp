@@ -370,16 +370,14 @@ class JsBaseEngineHelperTest extends CakeTestCase
     }
 
     /**
-     * Test that value() returns an integer as a string, as its `@return string` says.
+     * Test that value() returns an integer as it is, which is also its JavaScript literal.
      *
      * @return void
      */
-    public function testValueOfAnIntegerIsAString(): void
+    public function testValueOfAnInteger(): void
     {
-        $this->markTestIncomplete('Known bug: value() returns an integer unchanged instead of a string');
-
-        $this->assertSame('42', $this->JsEngine->value(42));
-        $this->assertSame('-7', $this->JsEngine->value(-7));
+        $this->assertSame(42, $this->JsEngine->value(42));
+        $this->assertSame(-7, $this->JsEngine->value(-7));
     }
 
     /**

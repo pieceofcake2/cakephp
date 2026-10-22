@@ -151,7 +151,7 @@ abstract class JsBaseEngineHelper extends AppHelper
      * @param bool $quoteString If false, leaves string values unquoted
      * @param string $key Key name.
      * @phpstan-param mixed $quoteString
-     * @return string a JavaScript-safe/JSON representation of $val
+     * @return string|int a JavaScript-safe/JSON representation of $val; an int is returned as it is
      */
     public function value($val = [], $quoteString = null, $key = 'value')
     {
