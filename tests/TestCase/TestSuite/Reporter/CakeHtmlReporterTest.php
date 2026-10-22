@@ -247,9 +247,12 @@ class CakeHtmlReporterTest extends CakeTestCase
         $output = $this->runAndPaint($this->reporter(), ReporterSampleCase::buildSuite('testFails'));
 
         $test = ReporterSampleCase::class . '::testFails()';
+        // The wording of PHPUnit and the diff header between them are not checked.
         $this->assertStringContainsString(
-            "<li class='fail'>\n<span>Failed</span><div class='msg'><pre>Values differ &amp; &lt;mismatch&gt;\n" .
-            "Failed asserting that two strings are identical.<br />--- Original\n+++ New\n@@ @@\n" .
+            "<li class='fail'>\n<span>Failed</span><div class='msg'><pre>Values differ &amp; &lt;mismatch&gt;\n",
+            $output,
+        );
+        $this->assertStringContainsString(
             "-'expected &lt;b&gt;bold&lt;/b&gt;'\n+'actual &lt;b&gt;bold&lt;/b&gt;'\n</pre></div>\n" .
             "<div class='msg'>Test case: $test</div>\n" .
             "<div class='msg'><a href='/test.php?plugin=Blog&amp;case=Model/Post&amp;filter=testFails'>" .

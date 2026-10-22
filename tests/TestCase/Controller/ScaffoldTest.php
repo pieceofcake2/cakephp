@@ -678,13 +678,18 @@ class ScaffoldTest extends CakeTestCase
         $this->_prepareRequest('index');
         $result = $this->_runScaffold();
 
-        $records = $this->Controller->viewVars['scaffoldMock'];
+        // The index has no ORDER BY, so index the records by id.
+        $records = [];
+        foreach ($this->Controller->viewVars['scaffoldMock'] as $record) {
+            $records[(int)$record['ScaffoldMock']['id']] = $record;
+        }
+        ksort($records);
         $this->assertSame(
-            ['First Article', 'Second Article', 'Third Article'],
-            array_column(array_column($records, 'ScaffoldMock'), 'title'),
+            [1 => 'First Article', 2 => 'Second Article', 3 => 'Third Article'],
+            array_map(fn($record) => $record['ScaffoldMock']['title'], $records),
         );
-        $this->assertEquals(3, $records[1]['User']['id']);
-        $this->assertArrayNotHasKey('Comment', $records[0]);
+        $this->assertEquals(3, $records[2]['User']['id']);
+        $this->assertArrayNotHasKey('Comment', $records[1]);
         $this->assertStringContainsString(
             '<tr><td>2</td><td><a href="/scaffold_users/view/3">3</a></td><td>Second Article</td>',
             $result,

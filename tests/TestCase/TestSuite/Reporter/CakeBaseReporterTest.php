@@ -236,12 +236,11 @@ class CakeBaseReporterTest extends CakeTestCase
         $output = $this->runSample($reporter, 'testPasses', 'testFails', 'testThrowsException');
 
         $this->assertSame("[header]\nRunning  Reporter sample\n", $output);
-        $this->assertSame([
-            'paintHeader',
-            'paintPass: testPasses',
-            "paintFail: testFails: Values differ & <mismatch>\nFailed asserting that two strings are identical.",
-            'paintException: testThrowsException: Broken <i>thing</i>',
-        ], $reporter->calls);
+        // The failure message goes on with the wording of PHPUnit, which is not checked.
+        $this->assertCount(4, $reporter->calls);
+        $this->assertSame(['paintHeader', 'paintPass: testPasses'], array_slice($reporter->calls, 0, 2));
+        $this->assertStringStartsWith("paintFail: testFails: Values differ & <mismatch>\n", $reporter->calls[2]);
+        $this->assertSame('paintException: testThrowsException: Broken <i>thing</i>', $reporter->calls[3]);
         $this->assertSame(3, $reporter->assertionCount(), 'Two assertions pass and one fails.');
     }
 

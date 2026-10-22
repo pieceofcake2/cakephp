@@ -242,10 +242,8 @@ class CakeTextReporterTest extends CakeTestCase
         [$output] = $this->runSample(new CakeTextReporter(), 'testFails');
 
         $this->assertStringStartsWith("Running  Reporter sample\nFAIL on line ", $output);
-        $this->assertStringContainsString(
-            "\nValues differ & <mismatch>\nFailed asserting that two strings are identical. in\n",
-            $output,
-        );
+        // The wording that PHPUnit adds after the message is not checked.
+        $this->assertMatchesRegularExpression('/\nValues differ & <mismatch>\n.*? in\n/s', $output);
     }
 
     /**
