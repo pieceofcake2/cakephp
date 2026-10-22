@@ -1297,21 +1297,18 @@ class CakeSchemaTest extends CakeTestCase
     }
 
     /**
-     * Test that read() skips a model whose table does not exist.
+     * Test that read() reports a model whose table does not exist, so that the
+     * missing table is not left out of the schema without notice.
      *
      * @return void
      */
-    public function testSchemaReadSkipsModelWithMissingTable(): void
+    public function testSchemaReadReportsModelWithMissingTable(): void
     {
-        $this->markTestIncomplete('Known bug: read() calls getDataSource() outside the try block, so MissingTableException escapes');
-
-        $read = $this->Schema->read([
+        $this->expectException(MissingTableException::class);
+        $this->Schema->read([
             'connection' => 'test',
             'name' => 'TestApp',
             'models' => [SchemaMissingTableModel::class, 'SchemaTag'],
         ]);
-
-        $this->assertArrayHasKey('tags', $read['tables']);
-        $this->assertArrayNotHasKey('schema_missing_tables', $read['tables']);
     }
 }
