@@ -991,6 +991,40 @@ class ExceptionRendererTest extends CakeTestCase
     }
 
     /**
+     * Test that MissingConnectionException adds the error of the database server to its message
+     * and to the error page.
+     *
+     * @return void
+     */
+    public function testMissingConnectionWithMessage(): void
+    {
+        $exception = new MissingConnectionException([
+            'class' => 'Mysql',
+            'message' => 'SQLSTATE[HY000] [2002] Connection refused',
+        ]);
+        $this->assertSame(
+            'Database connection "Mysql" is missing, or could not be created. SQLSTATE[HY000] [2002] Connection refused',
+            $exception->getMessage(),
+        );
+        $this->assertTrue($exception->getAttributes()['enabled']);
+
+        $ExceptionRenderer = new ExceptionRenderer($exception);
+        $ExceptionRenderer->controller->response = $this->getMock(CakeResponse::class, ['statusCode', '_sendHeader']);
+        $ExceptionRenderer->controller->response->expects($this->once())->method('statusCode')->with(500);
+
+        ob_start();
+        $ExceptionRenderer->render();
+        $result = ob_get_clean();
+
+        $this->assertMatchesRegularExpression('/<h1 class="header-title">\s*<span>Missing Database Connection<\/span>/', $result);
+        $this->assertStringContainsString('The database server returned this error: SQLSTATE[HY000] [2002] Connection refused', $result);
+        $this->assertStringNotContainsString('driver is NOT enabled', $result);
+
+        $exception = new MissingConnectionException(['class' => 'Mysql']);
+        $this->assertSame('Database connection "Mysql" is missing, or could not be created.', $exception->getMessage());
+    }
+
+    /**
      * Test that rendering exceptions triggers shutdown events.
      *
      * @return void

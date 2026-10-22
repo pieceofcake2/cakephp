@@ -292,10 +292,13 @@ class ConnectionManagerTest extends CakeTestCase
 
         $config = $source->config;
         $connection = ConnectionManager::create($name, $config);
-
-        $this->assertTrue(is_object($connection));
-        $this->assertEquals($name, $connection->configKeyName);
-        $this->assertEquals($name, ConnectionManager::getSourceName($connection));
+        try {
+            $this->assertTrue(is_object($connection));
+            $this->assertEquals($name, $connection->configKeyName);
+            $this->assertEquals($name, ConnectionManager::getSourceName($connection));
+        } finally {
+            ConnectionManager::drop($name);
+        }
 
         $source = ConnectionManager::create(null, []);
         $this->assertEquals(null, $source);

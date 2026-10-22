@@ -3,6 +3,7 @@
 namespace Cake\TestSuite;
 
 use Cake\Controller\Controller;
+use Cake\Event\CakeEvent;
 use Cake\Network\CakeRequest;
 use Cake\Network\CakeResponse;
 use Cake\Routing\Dispatcher;
@@ -79,6 +80,18 @@ class ControllerTestDispatcher extends Dispatcher
         }
 
         return $this->testController;
+    }
+
+    /**
+     * Resets the routes when the test case does not use them, then parses the request.
+     *
+     * @param CakeEvent $event containing the request, response and additional params
+     * @return void
+     */
+    public function parseParams($event)
+    {
+        $this->_loadRoutes();
+        parent::parseParams($event);
     }
 
     /**

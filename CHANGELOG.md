@@ -119,9 +119,23 @@
 
 - **The key `'0'`**: `Configure::consume()`, `CakeResponse::getMimeType()`, `ClassRegistry::getObject()` and the subcommands of `ConsoleOptionParser` take `'0'` as a key again. The checks for a missing key of PR #96 used `empty()`, which also rejected `'0'`; they now check for `null` only
 
+### Bug Fixes: Found by the Tests of the Namespace Pull Requests ([PR #112](https://github.com/pieceofcake2/cakephp/pull/112))
+
+- **PhpAcl**: `check()` of an ACO without nodes, such as `'/'`, returns the policy instead of raising "Undefined array key 0"; `PhpAco::path()` returns an empty path for it
+- **ControllerTestCase::$loadRoutes**: `false` resets the routes again before `testAction()` parses the URL, so the routes that the test connected are not used. The Dispatcher has not called `ControllerTestDispatcher::_loadRoutes()` since the routes are loaded lazily (CakePHP 2.3); `ControllerTestDispatcher::parseParams()` now calls it
+- **Cache::drop()**: The dropped configuration is removed from its groups, so `Cache::groupConfigs()` no longer lists it, and a group that no configuration uses any more is removed
+- **Cache::config()**: An engine whose `init()` fails is not kept, so configuring it again with the same settings throws the `CacheException` again instead of using the engine that failed
+- **AppShell**: The shells and tasks of the framework extend the global `AppShell` again, which is the `AppShell` of the application when it has one, as before PR #92. `Cake\Console\Command\AppShell` no longer declares the global name itself; `src/aliases.php` declares it only for an application without an `AppShell`. Loading a shell of the framework after the `AppShell` of the application no longer fails with "Cannot redeclare class AppShell", and loading `Cake\Console\Command\AppShell` first no longer hides the `AppShell` of the application
+
 ### Tests: Coverage ([PR #106](https://github.com/pieceofcake2/cakephp/pull/106))
 
 - **More tests**: Tests for the test suite (reporters, runner, fixture manager), the Js helpers, the scaffold, the network and session classes, the datasources, the models and behaviors, `CakeSchema` and the utilities. The bugs that they found are fixed in PR #107
+
+### Tests: Patch Coverage and Repeated Runs ([PR #112](https://github.com/pieceofcake2/cakephp/pull/112))
+
+- **Coverage of PR #92 and PR #98**: Tests for the global class names in a new process, the former paths in `src/Cake/`, `CakeFixtureInjector`, `PhpAcl`, `MissingConnectionException`, `ControllerTestCase` without `autoMock` and the cached views of global and plugin controllers. The bugs that they found are fixed above
+- **Repeated runs**: The tests restore the state that they change, so they also pass with `--repeat 2` or alone; the tests that need classes that are not loaded yet, or define a constant, run in their own process
+- **Folder sort by time**: The tests of `Folder::SORT_TIME` wait until the files have later change times, instead of `sleep(1)`
 
 ### Tests ([PR #96](https://github.com/pieceofcake2/cakephp/pull/96))
 

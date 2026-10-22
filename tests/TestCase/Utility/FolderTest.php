@@ -1385,13 +1385,8 @@ class FolderTest extends CakeTestCase
     {
         $folder = new Folder(TMP . 'test_sort_by_time', true);
 
-        $file2 = new File($folder->pwd() . DS . 'file_2.tmp');
-        $file2->create();
-
-        sleep(1);
-
-        $file1 = new File($folder->pwd() . DS . 'file_1.tmp');
-        $file1->create();
+        $time = $this->_createFileChangedAfter($folder->pwd() . DS . 'file_2.tmp', 0);
+        $this->_createFileChangedAfter($folder->pwd() . DS . 'file_1.tmp', $time);
 
         $expected = ['file_2.tmp', 'file_1.tmp'];
         $result = $folder->find('.*', Folder::SORT_TIME);
@@ -1411,18 +1406,9 @@ class FolderTest extends CakeTestCase
     {
         $folder = new Folder(TMP . 'test_sort_by_time2', true);
 
-        $fileC = new File($folder->pwd() . DS . 'c.txt');
-        $fileC->create();
-
-        sleep(1);
-
-        $fileA = new File($folder->pwd() . DS . 'a.txt');
-        $fileA->create();
-
-        sleep(1);
-
-        $fileB = new File($folder->pwd() . DS . 'b.txt');
-        $fileB->create();
+        $time = $this->_createFileChangedAfter($folder->pwd() . DS . 'c.txt', 0);
+        $time = $this->_createFileChangedAfter($folder->pwd() . DS . 'a.txt', $time);
+        $this->_createFileChangedAfter($folder->pwd() . DS . 'b.txt', $time);
 
         $expected = ['c.txt', 'a.txt', 'b.txt'];
         $result = $folder->find('.*', Folder::SORT_TIME);
@@ -1456,6 +1442,33 @@ class FolderTest extends CakeTestCase
         $this->assertSame($expected, $result);
 
         $Folder->delete();
+    }
+
+    /**
+     * Creates a file whose change time is later than the given one.
+     *
+     * Folder::SORT_TIME sorts by the change time, in seconds, which touch() cannot set. Files
+     * created in the same second would sort by name, so this waits until the file system gives
+     * the file a later change time; touching the file sets it to the current time.
+     *
+     * @param string $path The path of the file.
+     * @param int $after The change time that the file must be later than.
+     * @return int The change time of the file.
+     */
+    protected function _createFileChangedAfter(string $path, int $after): int
+    {
+        $this->assertTrue((new File($path))->create(), "Could not create $path.");
+
+        $deadline = microtime(true) + 5;
+        clearstatcache(true, $path);
+        while (filectime($path) <= $after) {
+            $this->assertLessThan($deadline, microtime(true), "The change time of $path is not later than $after.");
+            usleep(50000);
+            touch($path);
+            clearstatcache(true, $path);
+        }
+
+        return filectime($path);
     }
 
     /**

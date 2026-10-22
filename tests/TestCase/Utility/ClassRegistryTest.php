@@ -19,7 +19,6 @@
 
 namespace Cake\Test\TestCase\Utility;
 
-use AppModel;
 use Cake\Core\App;
 use Cake\Core\CakePlugin;
 use Cake\Core\Configure;
@@ -29,6 +28,7 @@ use Cake\Model\Behavior\ContainableBehavior;
 use Cake\Model\ConnectionManager;
 use Cake\TestSuite\CakeTestCase;
 use Cake\Utility\ClassRegistry;
+use TestApp\Model\AppModel;
 use TestApp\Model\NamespacedComment;
 use TestApp\Model\NamespacedPost;
 use TestApp\Model\RegisterArticle;
@@ -91,6 +91,7 @@ class ClassRegistryTest extends CakeTestCase
 
         $this->assertTrue($tagCopy->name === 'SomeOtherName');
 
+        // A model without a class is an AppModel of App.namespace
         $user = ClassRegistry::init(['class' => 'RegisterUser', 'alias' => 'User', 'table' => false]);
         $this->assertInstanceOf(AppModel::class, $user);
 
@@ -254,11 +255,14 @@ class ClassRegistryTest extends CakeTestCase
 
         $testConfig = ConnectionManager::getDataSource('test')->config;
         ConnectionManager::create('test_doesnotexist', $testConfig);
-
-        $Model = ClassRegistry::init('RegisterArticle');
-        $this->assertEquals('test', $Model->useDbConfig);
-        $Model = ClassRegistry::init('RegisterPrefixedDs');
-        $this->assertEquals('test_doesnotexist', $Model->useDbConfig);
+        try {
+            $Model = ClassRegistry::init('RegisterArticle');
+            $this->assertEquals('test', $Model->useDbConfig);
+            $Model = ClassRegistry::init('RegisterPrefixedDs');
+            $this->assertEquals('test_doesnotexist', $Model->useDbConfig);
+        } finally {
+            ConnectionManager::drop('test_doesnotexist');
+        }
     }
 
     /**

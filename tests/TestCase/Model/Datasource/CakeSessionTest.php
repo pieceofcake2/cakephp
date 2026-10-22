@@ -267,12 +267,23 @@ class CakeSessionTest extends CakeTestCase
      */
     public function testValidBogusUserAgent(): void
     {
+        $userAgent = TestCakeSession::userAgent();
+        $error = TestCakeSession::$error;
+        $lastError = TestCakeSession::$lastError;
+        $valid = TestCakeSession::$valid;
         Configure::write('Session.checkAgent', true);
-        TestCakeSession::start();
-        $this->assertTrue(TestCakeSession::valid(), 'Newly started session should be valid');
+        try {
+            TestCakeSession::start();
+            $this->assertTrue(TestCakeSession::valid(), 'Newly started session should be valid');
 
-        TestCakeSession::userAgent('bogus!');
-        $this->assertFalse(TestCakeSession::valid(), 'user agent mismatch should fail.');
+            TestCakeSession::userAgent('bogus!');
+            $this->assertFalse(TestCakeSession::valid(), 'user agent mismatch should fail.');
+        } finally {
+            TestCakeSession::setUserAgent($userAgent);
+            TestCakeSession::$error = $error;
+            TestCakeSession::$lastError = $lastError;
+            TestCakeSession::$valid = $valid;
+        }
     }
 
     /**
@@ -944,10 +955,21 @@ class CakeSessionTest extends CakeTestCase
         session_write_close();
         $_SESSION = null;
 
-        TestCakeSession::userAgent('bogus!');
-        TestCakeSession::start();
-        $this->assertNotEquals($data, $_SESSION);
-        $this->assertEquals('bogus!', $_SESSION['Config']['userAgent']);
+        $userAgent = TestCakeSession::userAgent();
+        $error = TestCakeSession::$error;
+        $lastError = TestCakeSession::$lastError;
+        $valid = TestCakeSession::$valid;
+        try {
+            TestCakeSession::userAgent('bogus!');
+            TestCakeSession::start();
+            $this->assertNotEquals($data, $_SESSION);
+            $this->assertEquals('bogus!', $_SESSION['Config']['userAgent']);
+        } finally {
+            TestCakeSession::setUserAgent($userAgent);
+            TestCakeSession::$error = $error;
+            TestCakeSession::$lastError = $lastError;
+            TestCakeSession::$valid = $valid;
+        }
     }
 
     /**

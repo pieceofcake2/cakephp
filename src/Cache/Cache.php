@@ -181,6 +181,8 @@ class Cache
         }
         static::$_engines[$name] = new $cacheClass();
         if (!static::$_engines[$name]->init($config)) {
+            // Configuring it again tries again, instead of using the engine that failed
+            unset(static::$_engines[$name]);
             $msg = __d(
                 'cake_dev',
                 'Cache engine "%s" is not properly configured. Ensure required extensions are installed, and credentials/permissions are correct',
@@ -208,7 +210,7 @@ class Cache
     /**
      * Drops a cache engine. Deletes the cache configuration information
      * If the deleted configuration is the last configuration using a certain engine,
-     * the Engine instance is also unset.
+     * the Engine instance is also unset. The configuration is removed from its groups.
      *
      * @param string $name A currently configured cache config you wish to remove.
      * @return bool success of the removal, returns false when the config does not exist.
@@ -219,6 +221,17 @@ class Cache
             return false;
         }
         unset(static::$_config[$name], static::$_engines[$name]);
+        foreach (static::$_groups as $group => $configs) {
+            if (!in_array($name, $configs, true)) {
+                continue;
+            }
+            $configs = array_values(array_diff($configs, [$name]));
+            if ($configs) {
+                static::$_groups[$group] = $configs;
+            } else {
+                unset(static::$_groups[$group]);
+            }
+        }
 
         return true;
     }

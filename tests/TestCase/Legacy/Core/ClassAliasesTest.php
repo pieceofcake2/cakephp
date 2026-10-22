@@ -16,6 +16,7 @@
 
 namespace Cake\Test\TestCase\Legacy\Core;
 
+use Cake\Console\Shell;
 use Cake\Core\App;
 use Cake\TestSuite\CakeTestCase;
 use Composer\Autoload\ClassLoader;
@@ -63,6 +64,11 @@ class ClassAliasesTest extends CakeTestCase
 
         foreach ($classes as $class) {
             $global = substr($class, strrpos($class, '\\') + 1);
+            if ($global === 'AppShell') {
+                // The AppShell of the application, when it has one
+                $this->assertTrue(is_subclass_of($global, Shell::class), "$global is not a shell");
+                continue;
+            }
             $this->assertTrue(
                 class_exists($global) || interface_exists($global) || trait_exists($global),
                 "$global is not declared",

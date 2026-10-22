@@ -18,7 +18,7 @@
 
 namespace Cake\Console;
 
-use Cake\Console\Command\AppShell;
+use AppShell;
 use Cake\Core\App;
 use Cake\Error\MissingTaskException;
 use Cake\Utility\ObjectCollection;

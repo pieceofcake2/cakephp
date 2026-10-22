@@ -17,6 +17,7 @@
 
 namespace Cake\Console\Command;
 
+use AppShell;
 use Cake\Console\ConsoleOptionParser;
 
 /**

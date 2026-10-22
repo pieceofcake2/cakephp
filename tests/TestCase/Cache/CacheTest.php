@@ -190,6 +190,7 @@ class CacheTest extends CakeTestCase
             Cache::read('Test', 'invalid');
         } finally {
             restore_error_handler();
+            Cache::drop('invalid');
 
             Configure::write('debug', $debug);
         }
@@ -358,6 +359,52 @@ class CacheTest extends CakeTestCase
 
         $result = Cache::groupConfigs('archive');
         $this->assertEquals(['archive' => ['archive', 'page']], $result);
+    }
+
+    /**
+     * Test that a dropped configuration is no longer listed in its groups.
+     *
+     * @return void
+     */
+    public function testDropRemovesTheGroups(): void
+    {
+        Cache::config('latest', ['engine' => 'File', 'groups' => ['posts']]);
+        Cache::config('page', ['engine' => 'File', 'groups' => ['posts', 'archive']]);
+        Cache::drop('page');
+
+        $this->assertSame(['posts' => ['latest']], Cache::groupConfigs('posts'));
+        $this->assertArrayNotHasKey('archive', Cache::groupConfigs());
+
+        Cache::drop('latest');
+        $this->assertArrayNotHasKey('posts', Cache::groupConfigs());
+    }
+
+    /**
+     * Test that configuring an engine that cannot be initialized fails every time, not only the first time.
+     *
+     * @return void
+     */
+    public function testInvalidConfigFailsAgain(): void
+    {
+        $debug = Configure::read('debug');
+        Configure::write('debug', 0);
+        set_error_handler(fn() => true, E_USER_WARNING);
+        try {
+            $settings = ['engine' => 'File', 'path' => 'data/'];
+            try {
+                Cache::config('invalid', $settings);
+                $this->fail('The first configuration did not fail.');
+            } catch (CacheException) {
+            }
+            $this->assertFalse(Cache::isInitialized('invalid'));
+
+            $this->expectException(CacheException::class);
+            Cache::config('invalid', $settings);
+        } finally {
+            restore_error_handler();
+            Cache::drop('invalid');
+            Configure::write('debug', $debug);
+        }
     }
 
     /**

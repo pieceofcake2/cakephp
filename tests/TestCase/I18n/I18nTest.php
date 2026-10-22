@@ -1844,11 +1844,17 @@ class I18nTest extends CakeTestCase
         ]);
 
         Configure::write('Config.language', 'po');
-        $singular = $this->_domainSingular();
-        $this->assertEquals('Plural Rule 1', $singular);
+        try {
+            $singular = $this->_domainSingular();
+            $this->assertEquals('Plural Rule 1', $singular);
 
-        $plurals = $this->_domainPlural();
-        $this->assertTrue(in_array('0 = 0 or > 1', $plurals));
+            $plurals = $this->_domainPlural();
+            $this->assertTrue(in_array('0 = 0 or > 1', $plurals));
+        } finally {
+            // The translations of the application are cached for the domain of the plugin
+            I18n::clear();
+            Cache::clear(false, '_cake_core_');
+        }
     }
 
     /**

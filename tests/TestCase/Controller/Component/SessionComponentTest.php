@@ -24,6 +24,7 @@ use Cake\Core\CakeObject;
 use Cake\Core\Configure;
 use Cake\Model\Datasource\CakeSession;
 use Cake\TestSuite\CakeTestCase;
+use TestApp\Model\Datasource\Session\TestCakeSession;
 
 /**
  * SessionComponentTest class
@@ -122,13 +123,24 @@ class SessionComponentTest extends CakeTestCase
 
         $this->assertTrue($Session->valid());
 
+        $userAgent = $Session->userAgent();
+        $error = CakeSession::$error;
+        $lastError = CakeSession::$lastError;
+        $valid = CakeSession::$valid;
         Configure::write('Session.checkAgent', true);
-        $Session->userAgent('rweerw');
-        $this->assertFalse($Session->valid());
+        try {
+            $Session->userAgent('rweerw');
+            $this->assertFalse($Session->valid());
 
-        $Session = new SessionComponent($this->ComponentCollection);
-        $Session->time = $Session->read('Config.time') + 1;
-        $this->assertFalse($Session->valid());
+            $Session = new SessionComponent($this->ComponentCollection);
+            $Session->time = $Session->read('Config.time') + 1;
+            $this->assertFalse($Session->valid());
+        } finally {
+            TestCakeSession::setUserAgent($userAgent);
+            CakeSession::$error = $error;
+            CakeSession::$lastError = $lastError;
+            CakeSession::$valid = $valid;
+        }
     }
 
     /**
