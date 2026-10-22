@@ -16,6 +16,7 @@
 
 namespace Cake\Test\TestCase\Core;
 
+use Cake\Console\Shell;
 use Cake\TestSuite\CakeTestCase;
 use FilesystemIterator;
 use RecursiveDirectoryIterator;
@@ -53,6 +54,11 @@ class ClassAliasesTest extends CakeTestCase
         $loadedByGlobalName = 0;
         foreach ($classes as $file => $class) {
             $global = substr($class, strrpos($class, '\\') + 1);
+            if ($global === 'AppShell') {
+                // App::load() finds the AppShell of the application first, when the application has one
+                $this->assertTrue(is_a($global, Shell::class, true), "$global is not a shell");
+                continue;
+            }
             $loaded = class_exists($class, false) || interface_exists($class, false) || trait_exists($class, false);
 
             $this->assertTrue(
