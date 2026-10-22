@@ -145,10 +145,14 @@ Some of the fixed bugs gave results that code may rely on:
 - **`Debugger::excerpt($file, $line, $context)`**: `$line` is the line number (1-based), and the excerpt shows `$context` lines above and below it. Before, the core passed `$line - 1` to highlight the right line, and the excerpt was shifted upwards. If you call `excerpt()` with `$line - 1`, pass `$line`.
 - **`JsBaseEngineHelper::value()` and `object()`**: They throw `CakeException` for `INF`, `NAN` and other data that `json_encode()` cannot encode, instead of writing `INF` or returning only the prefix and postfix.
 - **`__('0')`**: The translation functions translate the message `'0'` instead of returning `null`. `FormHelper::input('0')` gets the label `0`.
-- **CakeSocket through a proxy**: A status other than 2xx in reply to `CONNECT` throws `SocketException` with the status as its code and closes the connection. Before, the answer was not read, and TLS was started with the proxy, which failed with an unrelated crypto error.
+- **CakeSocket through a proxy**: A status other than 2xx in reply to `CONNECT` throws `SocketException` with the status as its code and closes the connection. Before, the status was not checked, and TLS was started with the proxy, which failed with an unrelated crypto error.
 - **`DataSource::insertQueryData()`**: Throws `NotImplementedException` when the datasource has no `value()` method, instead of an `Error` for the undefined method.
 - **The query string of `JqueryEngineHelper::request()`**: For array `data`, a nested array becomes `key[sub]=value` instead of `Array`, a `null` value is left out instead of giving `key=`, and `false` gives `key=0` instead of `key=`. The values are still not URL-encoded.
-- **`CakeSocket::reset()`**: Closes an open connection when the state that it sets replaces the connection, instead of dropping it open.
+- **`CakeSocket::reset()`**: Closes an open connection with `disconnect()` before it sets a state with a connection, also when the state gives the same connection, instead of dropping it open.
+- **`Model::getAffectedRows()` on SQL Server**: Returns the rows changed by an `UPDATE` or a `DELETE`. Before, it was always 0.
+- **`TreeBehavior::reorder()`**: Returns `false` and changes nothing when `verify()` finds the tree not valid. Before, it reordered the broken tree and returned `true`.
+- **`Multibyte`**: `utf8()` returns one code point for a 4-byte character and `ascii()` encodes it in 4 bytes, so `Multibyte::strtolower()`, `strtoupper()` and the methods built on them keep such characters (e.g. emoji) instead of breaking them.
+- **Session save path**: In debug mode, the folder of `Session.ini` `session.save_path` is created for the `files` handler only.
 - **`CakeSession::clear()`**: Removes the session data. Before, the data stayed in the store and came back under the new session id.
 - **`Folder::realpath()` and `Folder::cd()`**: A relative path with `..` is resolved from the current directory, as one without `..` already was, so `cd('../sibling')` works. Before, it lost the current directory, or gave `false` when it went above it.
 - **`CakeSchema::write()` without tables**: Writes the tables that `read()` finds on the connection of the schema. Before, it wrote a schema without tables.
