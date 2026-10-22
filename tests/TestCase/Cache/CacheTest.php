@@ -381,6 +381,51 @@ class CacheTest extends CakeTestCase
     }
 
     /**
+     * Test that a dropped configuration is no longer listed in its groups.
+     *
+     * @return void
+     */
+    public function testDropRemovesTheGroups(): void
+    {
+        $this->markTestIncomplete('Known bug: Cache::drop() leaves the dropped configuration in Cache::groupConfigs().');
+
+        Cache::config('latest', ['engine' => 'File', 'groups' => ['posts']]);
+        Cache::config('page', ['engine' => 'File', 'groups' => ['posts']]);
+        Cache::drop('page');
+
+        $this->assertSame(['posts' => ['latest']], Cache::groupConfigs('posts'));
+    }
+
+    /**
+     * Test that configuring an engine that cannot be initialized fails every time, not only the first time.
+     *
+     * @return void
+     */
+    public function testInvalidConfigFailsAgain(): void
+    {
+        $this->markTestIncomplete('Known bug: Cache::config() keeps the engine that failed to initialize, so the same configuration does not fail again.');
+
+        $debug = Configure::read('debug');
+        Configure::write('debug', 0);
+        set_error_handler(fn() => true, E_USER_WARNING);
+        try {
+            $settings = ['engine' => 'File', 'path' => 'data/'];
+            try {
+                Cache::config('invalid', $settings);
+                $this->fail('The first configuration did not fail.');
+            } catch (CacheException) {
+            }
+
+            $this->expectException(CacheException::class);
+            Cache::config('invalid', $settings);
+        } finally {
+            restore_error_handler();
+            Cache::drop('invalid');
+            Configure::write('debug', $debug);
+        }
+    }
+
+    /**
      * testGroupConfigsThrowsException method
      *
      * @return void
