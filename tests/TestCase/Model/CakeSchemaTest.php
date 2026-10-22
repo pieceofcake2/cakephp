@@ -1196,16 +1196,13 @@ class CakeSchemaTest extends CakeTestCase
     }
 
     /**
-     * Test that write() with a schema object applies the given options over the
-     * properties of the object: the file option names the file, which holds the
-     * class named after the object and its table.
+     * Test that write() takes the schema either from the object or from the options:
+     * with an object the options are not used, and without one the options are.
      *
      * @return void
      */
-    public function testWriteObjectWithOptions(): void
+    public function testWriteObjectOrOptions(): void
     {
-        $this->markTestIncomplete('Known bug: write() replaces the $options argument with the properties of the schema object');
-
         $path = TMP . 'tests';
         $this->_schemaFiles[] = $path . DS . 'schema.php';
         $this->_schemaFiles[] = $path . DS . 'cov_object_options.php';
@@ -1218,10 +1215,22 @@ class CakeSchemaTest extends CakeTestCase
         $Writer = new CakeSchema();
         $Writer->write($Schema, ['file' => 'cov_object_options.php']);
 
-        $this->assertFileExists($path . DS . 'cov_object_options.php');
-        $content = (string)file_get_contents($path . DS . 'cov_object_options.php');
+        $this->assertFileDoesNotExist($path . DS . 'cov_object_options.php');
+        $content = (string)file_get_contents($path . DS . 'schema.php');
         $this->assertStringContainsString('class CovObjectOptionsSchema extends CakeSchema {', $content);
         $this->assertStringContainsString("\tpublic \$widgets = array(\n", $content);
+
+        $Writer = new CakeSchema();
+        $Writer->write(null, [
+            'name' => 'CovOptions',
+            'path' => $path,
+            'file' => 'cov_object_options.php',
+            'tables' => ['gadgets' => ['id' => ['type' => 'integer', 'key' => 'primary']]],
+        ]);
+
+        $content = (string)file_get_contents($path . DS . 'cov_object_options.php');
+        $this->assertStringContainsString('class CovOptionsSchema extends CakeSchema {', $content);
+        $this->assertStringContainsString("\tpublic \$gadgets = array(\n", $content);
     }
 
     /**
