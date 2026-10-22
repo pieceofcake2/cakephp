@@ -32,7 +32,9 @@ use Cake\TestSuite\Fixture\CakeFixtureManager;
 use ReflectionClass;
 use ReflectionMethod;
 use ReflectionProperty;
+use TestApp\Test\Fixture\FixtureManagerPostFixture;
 use TestApp\Test\Fixture\NamespacedArticleFixture;
+use TestTwoPlugin\Test\Fixture\NamespacedArticleFixture as PluginNamespacedArticleFixture;
 use TestTwoPlugin\Test\Fixture\NamespacedCommentFixture;
 use UnexpectedValueException;
 
@@ -67,6 +69,7 @@ class CakeFixtureManagerTest extends CakeTestCase
         // The tests create these tables; drop them so that a failing test leaves nothing behind.
         $db->execute('DROP TABLE IF EXISTS ' . $db->fullTableName('fixture_manager_posts'));
         $db->execute('DROP TABLE IF EXISTS ' . $db->fullTableName('namespaced_articles'));
+        $db->execute('DROP TABLE IF EXISTS ' . $db->fullTableName('plugin_namespaced_articles'));
         unset($this->fixtureManager);
         CakePlugin::unload('TestTwoPlugin');
 
@@ -288,6 +291,161 @@ class CakeFixtureManagerTest extends CakeTestCase
 
         $this->fixtureManager->shutDown();
         $this->assertNotContains($db->config['prefix'] . 'namespaced_articles', $db->listSources());
+    }
+
+    /**
+     * Test that the fixtures of a test case can be given by their class names, with or
+     * without the Fixture suffix, and that load() creates their tables.
+     *
+     * @return void
+     */
+    public function testFixturizeAndLoadFixturesByClassName(): void
+    {
+        $test = $this->_testCaseWith([FixtureManagerPostFixture::class, 'TestApp\Test\Fixture\NamespacedArticle']);
+
+        $this->fixtureManager->fixturize($test);
+        $this->fixtureManager->load($test);
+
+        $this->assertSame([1 => 'First Post', 2 => 'Second Post'], $this->_postTitles());
+        $db = ConnectionManager::getDataSource('test');
+        $this->assertContains($db->config['prefix'] . 'namespaced_articles', $db->listSources());
+
+        $this->fixtureManager->shutDown();
+        $this->assertFalse($this->_postsTableExists());
+    }
+
+    /**
+     * Test that loadSingle() takes the class name of a fixture as well as its name.
+     *
+     * @return void
+     */
+    public function testLoadSingleByClassName(): void
+    {
+        $test = $this->_testCaseWith([FixtureManagerPostFixture::class, NamespacedArticleFixture::class], true, false);
+        $this->fixtureManager->fixturize($test);
+        $this->assertFalse($this->_postsTableExists());
+
+        $this->fixtureManager->loadSingle(FixtureManagerPostFixture::class);
+        $this->assertSame([1 => 'First Post', 2 => 'Second Post'], $this->_postTitles());
+
+        $this->fixtureManager->loadSingle('NamespacedArticle');
+        $db = ConnectionManager::getDataSource('test');
+        $this->assertContains($db->config['prefix'] . 'namespaced_articles', $db->listSources());
+
+        $this->fixtureManager->shutDown();
+    }
+
+    /**
+     * Test that a class name of a fixture that does not exist is reported with the class name.
+     *
+     * @return void
+     */
+    public function testFixturizeWithMissingClassName(): void
+    {
+        $test = $this->_testCaseWith(['TestApp\Test\Fixture\Missing']);
+
+        $this->expectException(UnexpectedValueException::class);
+        $this->expectExceptionMessage('Referenced fixture class TestApp\Test\Fixture\MissingFixture not found');
+        $this->fixtureManager->fixturize($test);
+    }
+
+    /**
+     * Test that loadSingle() with a class name loads exactly that class, also when a fixture
+     * of another namespace has the same name, and ignores a leading backslash.
+     *
+     * @return void
+     */
+    public function testLoadSingleByClassNameWithTheSameNameInAnotherNamespace(): void
+    {
+        $test = $this->_testCaseWith([NamespacedArticleFixture::class, PluginNamespacedArticleFixture::class], true, false);
+        $this->fixtureManager->fixturize($test);
+        $db = ConnectionManager::getDataSource('test');
+
+        $this->fixtureManager->loadSingle('\\' . NamespacedArticleFixture::class);
+
+        $this->assertContains($db->config['prefix'] . 'namespaced_articles', $db->listSources());
+        $this->assertNotContains($db->config['prefix'] . 'plugin_namespaced_articles', $db->listSources());
+
+        $this->fixtureManager->loadSingle(PluginNamespacedArticleFixture::class);
+
+        $this->assertContains($db->config['prefix'] . 'plugin_namespaced_articles', $db->listSources());
+
+        $this->fixtureManager->shutDown();
+        $this->assertNotContains($db->config['prefix'] . 'namespaced_articles', $db->listSources());
+        $this->assertNotContains($db->config['prefix'] . 'plugin_namespaced_articles', $db->listSources());
+    }
+
+    /**
+     * Test that loadSingle() rejects a class that is not among the fixtures of the test case,
+     * although a fixture of another namespace has the same name.
+     *
+     * @return void
+     */
+    public function testLoadSingleByClassNameNotAmongTheFixtures(): void
+    {
+        $test = $this->_testCaseWith([NamespacedArticleFixture::class], true, false);
+        $this->fixtureManager->fixturize($test);
+
+        $this->expectException(UnexpectedValueException::class);
+        $this->expectExceptionMessage('Referenced fixture class ' . PluginNamespacedArticleFixture::class . ' not found');
+        $this->fixtureManager->loadSingle(PluginNamespacedArticleFixture::class);
+    }
+
+    /**
+     * Test that a fixture given in several notations has one instance, whose table load()
+     * fills once and shutDown() drops.
+     *
+     * @return void
+     */
+    public function testFixtureInSeveralNotationsHasOneInstance(): void
+    {
+        Configure::write('App.namespace', 'TestApp');
+        $names = ['app.fixture_manager_post', FixtureManagerPostFixture::class, '\\TestApp\\Test\\Fixture\\FixtureManagerPost'];
+        $test = $this->_testCaseWith($names);
+        $loaded = new ReflectionProperty($this->fixtureManager, '_loaded');
+        if (PHP_VERSION_ID < 80100) {
+            $loaded->setAccessible(true);
+        }
+
+        $this->fixtureManager->fixturize($test);
+
+        $fixtures = $loaded->getValue($this->fixtureManager);
+        $this->assertSame($names, array_keys($fixtures));
+        $this->assertSame($fixtures[$names[0]], $fixtures[$names[1]]);
+        $this->assertSame($fixtures[$names[0]], $fixtures[$names[2]]);
+
+        $this->fixtureManager->load($test);
+
+        $this->assertSame([1 => 'First Post', 2 => 'Second Post'], $this->_postTitles());
+        $this->assertSame(['test'], $fixtures[$names[0]]->created);
+
+        $this->fixtureManager->shutDown();
+
+        $this->assertFalse($this->_postsTableExists());
+        $this->assertSame([], $fixtures[$names[0]]->created);
+    }
+
+    /**
+     * Test that CakeTestCase::loadFixtures() with a class name loads exactly that class.
+     *
+     * @return void
+     */
+    public function testLoadFixturesOfTestCaseByClassName(): void
+    {
+        // Mocking only setUp() keeps the original loadFixtures().
+        $test = $this->getMock(CakeTestCase::class, ['setUp']);
+        $test->fixtures = [NamespacedArticleFixture::class, PluginNamespacedArticleFixture::class];
+        $test->autoFixtures = false;
+        $test->fixtureManager = $this->fixtureManager;
+        $this->fixtureManager->fixturize($test);
+        $db = ConnectionManager::getDataSource('test');
+
+        $test->loadFixtures(NamespacedArticleFixture::class);
+
+        $this->assertContains($db->config['prefix'] . 'namespaced_articles', $db->listSources());
+        $this->assertNotContains($db->config['prefix'] . 'plugin_namespaced_articles', $db->listSources());
+
+        $this->fixtureManager->shutDown();
     }
 
     /**
