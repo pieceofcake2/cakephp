@@ -3616,7 +3616,7 @@ class DboSource extends DataSource
      *
      * @param Model $Model Model to search
      * @param string $sql SQL WHERE clause (condition only, not the "WHERE" part)
-     * @return bool True if the table has a matching record, else false
+     * @return int|false The number of matching records, or false when the query fails
      */
     public function hasAny(Model $Model, $sql)
     {

@@ -2617,21 +2617,19 @@ class DboSourceTest extends CakeTestCase
     }
 
     /**
-     * Test that DboSource::hasAny() returns whether a record matches the conditions,
-     * as a boolean as its `@return bool` says.
+     * Test that DboSource::hasAny() returns the number of records that match the
+     * conditions.
      *
      * @return void
      */
     public function testHasAny(): void
     {
-        $this->markTestIncomplete('Known bug: hasAny() returns the count of the matching records, not a boolean');
-
         $this->loadFixtures('Article');
         $Article = new Article();
 
-        $this->assertTrue($this->db->hasAny($Article, ['Article.user_id' => 1]));
-        $this->assertFalse($this->db->hasAny($Article, ['Article.user_id' => 99]));
-        $this->assertTrue($this->db->hasAny($Article, []));
+        $this->assertEquals(2, $this->db->hasAny($Article, ['Article.user_id' => 1]));
+        $this->assertEquals(0, $this->db->hasAny($Article, ['Article.user_id' => 99]));
+        $this->assertEquals(3, $this->db->hasAny($Article, []));
     }
 
     /**
