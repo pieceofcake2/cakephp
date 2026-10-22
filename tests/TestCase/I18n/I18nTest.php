@@ -1950,6 +1950,18 @@ class I18nTest extends CakeTestCase
     }
 
     /**
+     * Test that the translations of the numeric msgids "0" and "404" are used.
+     *
+     * @return void
+     */
+    public function testPoNumericMsgid(): void
+    {
+        Configure::write('Config.language', 'po');
+        $this->assertSame('zero', __('0'));
+        $this->assertSame('not found', __('404'));
+    }
+
+    /**
      * testPoQuotedString method
      *
      * @return void

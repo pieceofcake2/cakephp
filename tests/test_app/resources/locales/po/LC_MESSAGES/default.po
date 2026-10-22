@@ -77,3 +77,9 @@ msgstr "this is a \"quoted string\" (translated)"
 
 msgid "Number of retries"
 msgstr "0"
+
+msgid "0"
+msgstr "zero"
+
+msgid "404"
+msgstr "not found"
