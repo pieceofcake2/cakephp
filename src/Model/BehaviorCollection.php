@@ -232,7 +232,8 @@ class BehaviorCollection extends ObjectCollection implements CakeEventListener
      * @param string $method The method called.
      * @param array $params Parameters for the called method.
      * @param bool $strict If methods are not found, trigger an error.
-     * @return mixed The return value of the behavior method
+     * @return mixed The return value of the behavior method, `array('unhandled')` when no
+     *   attached behavior has the method, or null in strict mode (after an E_USER_WARNING)
      */
     public function dispatchMethod($model, $method, $params = [], $strict = false)
     {

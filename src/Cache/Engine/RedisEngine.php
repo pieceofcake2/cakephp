@@ -159,7 +159,8 @@ class RedisEngine extends CacheEngine
      *
      * @param string $key Identifier for the data
      * @param int $offset How much to increment
-     * @return int New incremented value, or 0 when Redis fails
+     * @return int New incremented value cast to int, so 0 when phpredis returns false
+     *   (phpredis may also throw a RedisException)
      */
     public function increment($key, $offset = 1)
     {
@@ -171,7 +172,8 @@ class RedisEngine extends CacheEngine
      *
      * @param string $key Identifier for the data
      * @param int $offset How much to subtract
-     * @return int New decremented value, or 0 when Redis fails
+     * @return int New decremented value cast to int, so 0 when phpredis returns false
+     *   (phpredis may also throw a RedisException)
      */
     public function decrement($key, $offset = 1)
     {
