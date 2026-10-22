@@ -115,6 +115,10 @@
 
 - **AclNode::node()**: A reference that is not an array, a path or a model, such as the number that `AclShell` passes for a numeric argument (`cake acl check 5 3`), finds nothing again, as before v2.12.6, instead of failing with a `TypeError`
 
+### Bug Fixes: The Key `'0'` ([PR #111](https://github.com/pieceofcake2/cakephp/pull/111))
+
+- **The key `'0'`**: `Configure::consume()`, `CakeResponse::getMimeType()`, `ClassRegistry::getObject()` and the subcommands of `ConsoleOptionParser` take `'0'` as a key again. The checks for a missing key of PR #96 used `empty()`, which also rejected `'0'`; they now check for `null` only
+
 ### Tests: Coverage ([PR #106](https://github.com/pieceofcake2/cakephp/pull/106))
 
 - **More tests**: Tests for the test suite (reporters, runner, fixture manager), the Js helpers, the scaffold, the network and session classes, the datasources, the models and behaviors, `CakeSchema` and the utilities. The bugs that they found are fixed in PR #107
