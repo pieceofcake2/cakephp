@@ -27,7 +27,6 @@ use Cake\Core\CakePlugin;
 use Cake\Core\Configure;
 use Cake\Error\CacheException;
 use Cake\TestSuite\CakeTestCase;
-use Closure;
 use Memcached;
 use stdClass;
 use TestApp\Cache\Engine\NamespacedEngine;
@@ -313,24 +312,6 @@ class CacheTest extends CakeTestCase
      */
     public function testGroupConfigs(): void
     {
-        // Cache::drop() does not remove the configurations from their groups
-        $groups = Closure::bind(fn() => static::$_groups, null, Cache::class)();
-        try {
-            $this->_testGroupConfigs();
-        } finally {
-            Closure::bind(function () use ($groups): void {
-                static::$_groups = $groups;
-            }, null, Cache::class)();
-        }
-    }
-
-    /**
-     * Configures the caches and checks their groups for testGroupConfigs().
-     *
-     * @return void
-     */
-    protected function _testGroupConfigs(): void
-    {
         Cache::config('latest', [
             'duration' => 300,
             'engine' => 'File',
@@ -387,13 +368,15 @@ class CacheTest extends CakeTestCase
      */
     public function testDropRemovesTheGroups(): void
     {
-        $this->markTestIncomplete('Known bug: Cache::drop() leaves the dropped configuration in Cache::groupConfigs().');
-
         Cache::config('latest', ['engine' => 'File', 'groups' => ['posts']]);
-        Cache::config('page', ['engine' => 'File', 'groups' => ['posts']]);
+        Cache::config('page', ['engine' => 'File', 'groups' => ['posts', 'archive']]);
         Cache::drop('page');
 
         $this->assertSame(['posts' => ['latest']], Cache::groupConfigs('posts'));
+        $this->assertArrayNotHasKey('archive', Cache::groupConfigs());
+
+        Cache::drop('latest');
+        $this->assertArrayNotHasKey('posts', Cache::groupConfigs());
     }
 
     /**

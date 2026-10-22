@@ -123,6 +123,7 @@
 
 - **PhpAcl**: `check()` of an ACO without nodes, such as `'/'`, returns the policy instead of raising "Undefined array key 0"; `PhpAco::path()` returns an empty path for it
 - **ControllerTestCase::$loadRoutes**: `false` resets the routes again before `testAction()` parses the URL, so the routes that the test connected are not used. The Dispatcher has not called `ControllerTestDispatcher::_loadRoutes()` since the routes are loaded lazily (CakePHP 2.3); `ControllerTestDispatcher::parseParams()` now calls it
+- **Cache::drop()**: The dropped configuration is removed from its groups, so `Cache::groupConfigs()` no longer lists it, and a group that no configuration uses any more is removed
 
 ### Tests: Coverage ([PR #106](https://github.com/pieceofcake2/cakephp/pull/106))
 
