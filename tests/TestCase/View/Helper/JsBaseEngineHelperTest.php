@@ -317,6 +317,39 @@ class JsBaseEngineHelperTest extends CakeTestCase
     }
 
     /**
+     * Test that escape() replaces a 2- or 3-byte sequence that is not valid UTF-8,
+     * because it is overlong or a surrogate, by one question mark.
+     *
+     * @return void
+     */
+    public function testEscapeInvalidTwoAndThreeByteSequences(): void
+    {
+        // Overlong encodings of "/" and of U+07FF
+        $this->assertSame('a?b', $this->JsEngine->escape("a\xC0\xAFb"));
+        $this->assertSame('a?b', $this->JsEngine->escape("a\xE0\x9F\xBFb"));
+        // The surrogates U+D800 and U+DFFF
+        $this->assertSame('?', $this->JsEngine->escape("\xED\xA0\x80"));
+        $this->assertSame('a?b', $this->JsEngine->escape("a\xED\xBF\xBFb"));
+    }
+
+    /**
+     * Test that escape() replaces a lead byte followed by a byte that is not a
+     * continuation byte, together with the continuation bytes before it, by one
+     * question mark, and escapes the following byte on its own.
+     *
+     * @return void
+     */
+    public function testEscapeSequenceCutOffByOtherByte(): void
+    {
+        $this->assertSame('?a', $this->JsEngine->escape("\xC3\x61"));
+        $this->assertSame('?a', $this->JsEngine->escape("\xE2\x82\x61"));
+        $this->assertSame('?\u00e9', $this->JsEngine->escape("\xE2\x82\xC3\xA9"));
+        $this->assertSame('?a', $this->JsEngine->escape("\xE2a"));
+        $this->assertSame('?\u00e9', $this->JsEngine->escape("\xF0\x9F\x98\xC3\xA9"));
+        $this->assertSame('?\\"', $this->JsEngine->escape("\xF0\x9F\x22"));
+    }
+
+    /**
      * Test that escape() replaces the lead bytes 0xF8 to 0xFF, which RFC 3629 does not
      * allow, by a question mark. The continuation bytes after them are stray bytes.
      *

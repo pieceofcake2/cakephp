@@ -18,7 +18,6 @@ namespace Cake\View\Helper;
 
 use AppHelper;
 use Cake\Error\CakeException;
-use Cake\I18n\Multibyte;
 use Cake\Routing\Router;
 
 /**
@@ -208,6 +207,13 @@ abstract class JsBaseEngineHelper extends AppHelper
      * - '"' => '\"'
      * - other C0 control characters => '\u00XX'
      *
+     * A byte sequence that is not valid UTF-8 is replaced by '?': a lead byte that
+     * is not followed by all its continuation bytes is replaced together with the
+     * continuation bytes it has by one '?', and the following byte is escaped on its
+     * own. A complete sequence that is overlong, a surrogate (U+D800 to U+DFFF) or
+     * past U+10FFFF is replaced by one '?', and so is each stray continuation byte
+     * and each of the lead bytes 0xF8 to 0xFF.
+     *
      * @param string $string String that needs to get escaped.
      * @return string Escaped string.
      */
@@ -261,44 +267,36 @@ abstract class JsBaseEngineHelper extends AppHelper
                     $return .= '?';
                     break;
                 case ($ord & 0xE0) == 0xC0:
-                    if ($i + 1 >= $length) {
-                        $i += 1;
-                        $return .= '?';
-                        break;
-                    }
-                    $charbits = $string[$i] . $string[$i + 1];
-                    $char = Multibyte::utf8($charbits);
-                    $return .= sprintf('\u%04s', dechex($char[0]));
-                    $i += 1;
-                    break;
                 case ($ord & 0xF0) == 0xE0:
-                    if ($i + 2 >= $length) {
-                        $i += 2;
-                        $return .= '?';
-                        break;
-                    }
-                    $charbits = $string[$i] . $string[$i + 1] . $string[$i + 2];
-                    $char = Multibyte::utf8($charbits);
-                    $return .= sprintf('\u%04s', dechex($char[0]));
-                    $i += 2;
-                    break;
                 case ($ord & 0xF8) == 0xF0:
-                    if ($i + 3 >= $length) {
-                        $i += 3;
+                    $bytes = $ord >= 0xF0 ? 4 : ($ord >= 0xE0 ? 3 : 2);
+                    $char = $ord & (0xFF >> $bytes + 1);
+                    for ($n = 1; $n < $bytes; ++$n) {
+                        if ($i + $n >= $length || (ord($string[$i + $n]) & 0xC0) != 0x80) {
+                            break;
+                        }
+                        $char = ($char << 6) | (ord($string[$i + $n]) & 0x3F);
+                    }
+                    $i += $n - 1;
+                    if ($n < $bytes) {
+                        // A sequence cut off by the end of the string or by a byte that is
+                        // not a continuation byte: one question mark for the lead byte and
+                        // the continuation bytes before it.
                         $return .= '?';
                         break;
                     }
-                    $charbits = $string[$i] . $string[$i + 1] . $string[$i + 2] . $string[$i + 3];
-                    $char = Multibyte::utf8($charbits);
-                    $i += 3;
-                    if ($char[0] < 0x10000 || $char[0] > 0x10FFFF) {
-                        // An overlong sequence or one past U+10FFFF is not valid UTF-8.
+                    if ($char < [2 => 0x80, 3 => 0x800, 4 => 0x10000][$bytes] || $char > 0x10FFFF || ($char >= 0xD800 && $char <= 0xDFFF)) {
+                        // An overlong sequence, a surrogate or one past U+10FFFF is not valid UTF-8.
                         $return .= '?';
+                        break;
+                    }
+                    if ($char < 0x10000) {
+                        $return .= sprintf('\u%04x', $char);
                         break;
                     }
                     // JSON has only 4-digit \u escapes: write a character outside the
                     // Basic Multilingual Plane as its UTF-16 surrogate pair.
-                    $offset = $char[0] - 0x10000;
+                    $offset = $char - 0x10000;
                     $return .= sprintf('\u%04x\u%04x', 0xD800 | ($offset >> 10), 0xDC00 | ($offset & 0x3FF));
                     break;
                 default:
