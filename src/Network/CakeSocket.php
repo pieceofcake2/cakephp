@@ -530,8 +530,11 @@ class CakeSocket
      * Without a state, all the properties get their default values. This also clears
      * the config, which is then an empty array, not the base config.
      *
-     * An open connection is closed with disconnect() before a state that replaces
-     * the connection is set, so that it is not left open.
+     * When the state has the key 'connection' (as the state without a value does),
+     * an open connection is first closed with disconnect(), so that it is not left
+     * open, and then the given value is set. This is also done when the state gives
+     * the current connection: reset(['connection' => $socket->connection]) closes
+     * the connection and then sets the given (now closed) value.
      *
      * @param array $state Array with key and values to reset
      * @return bool True on success
