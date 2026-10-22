@@ -334,7 +334,7 @@ class Postgres extends DboSource
      *
      * @param string $source Name of the database table
      * @param string $field Name of the ID database field. Defaults to "id"
-     * @return string|int|false
+     * @return string|false
      */
     public function lastInsertId($source = null, $field = 'id')
     {
@@ -387,9 +387,8 @@ class Postgres extends DboSource
      * Deletes all the records in a table and drops all associated auto-increment sequences
      *
      * @param Model|string $table A string or model class representing the table to be truncated
-     * @param bool $reset true for resetting the sequence, false to leave it as is.
-     *    and if 1, sequences are not modified
-     * @return bool SQL TRUNCATE TABLE statement, false if not applicable.
+     * @param bool $reset false (the default) to restart the sequences, true to leave them as they are.
+     * @return bool True on success, false on failure.
      */
     public function truncate($table, $reset = false)
     {
@@ -808,7 +807,7 @@ class Postgres extends DboSource
      * Gets the length of a database-native column description, or null if no length
      *
      * @param string $real Real database-layer column type (i.e. "varchar(255)")
-     * @return int An integer representing the length of the column
+     * @return string|int|null An integer or string representing the length of the column, or null for unknown length.
      */
     public function length($real)
     {

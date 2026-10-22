@@ -62,7 +62,7 @@ class LogEngineCollection extends ObjectCollection
      * Checks that the logger class implements a write method as well.
      *
      * @param string $loggerName the plugin.className of the logger class you want to build.
-     * @return mixed boolean false on any failures, string of classname to use if search was successful.
+     * @return string Name of the logger class to use.
      * @throws CakeLogException
      */
     protected static function _getLogger($loggerName)

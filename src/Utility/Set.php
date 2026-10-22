@@ -65,7 +65,7 @@ class Set
      * Filters empty elements out of a route array, excluding '0'.
      *
      * @param array $var Either an array to filter, or value when in callback
-     * @return mixed Either filtered array, or true/false when in callback
+     * @return array Filtered array
      * @link https://book.cakephp.org/2.0/en/core-utility-libraries/set.html#Set::filter
      */
     public static function filter(array $var)
@@ -220,7 +220,7 @@ class Set
      *
      * @param string $select Key in $list to return
      * @param array|string $list can be an array or a comma-separated list.
-     * @return string the value of the array key or null if no match
+     * @return mixed The value of the key, or null if no match
      * @link https://book.cakephp.org/2.0/en/core-utility-libraries/set.html#Set::enum
      */
     public static function enum($select, $list = null)

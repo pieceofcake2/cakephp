@@ -198,7 +198,7 @@ class TreeBehavior extends ModelBehavior
      * Will delete the current node and all children using the deleteAll method and sync the table
      *
      * @param Model $Model Model using this behavior
-     * @return bool true to continue, false to abort the delete
+     * @return bool Always true
      */
     public function afterDelete(Model $Model)
     {

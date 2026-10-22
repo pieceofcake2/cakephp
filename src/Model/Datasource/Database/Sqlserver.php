@@ -901,7 +901,7 @@ class Sqlserver extends DboSource
 
     /**
      * Returns number of affected rows in previous database operation. If no previous operation exists,
-     * this returns false.
+     * this returns 0.
      *
      * @param mixed $source Unused
      * @return int Number of affected rows

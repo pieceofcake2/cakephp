@@ -57,7 +57,7 @@ class SessionHandlerAdapter implements SessionHandlerInterface, SessionIdInterfa
      * Garbage collection
      *
      * @param int $max_lifetime Session max lifetime in seconds
-     * @return int|bool Number of deleted sessions or success status
+     * @return bool Success
      */
     #[ReturnTypeWillChange]
     public function gc(int $max_lifetime)

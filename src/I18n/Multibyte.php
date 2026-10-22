@@ -158,7 +158,7 @@ class Multibyte
      *    If set to true, it returns all of $haystack from the beginning to the first occurrence of $needle.
      *    If set to false, it returns all of $haystack from the first occurrence of $needle to the end,
      *    Default value is false.
-     * @return int|bool The portion of $haystack, or false if $needle is not found.
+     * @return string|bool The portion of $haystack, or false if $needle is not found.
      */
     public static function stristr($haystack, $needle, $part = false)
     {
