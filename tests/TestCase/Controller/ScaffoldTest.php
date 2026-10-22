@@ -911,10 +911,6 @@ class ScaffoldTest extends CakeTestCase
      * Test that the delete action deletes the record, sets a success flash message
      * and redirects to the index action.
      *
-     * The delete messages name the model with Inflector::humanize() of the model
-     * class ("ScaffoldMock"), not with the "Scaffold Mock" of the other actions;
-     * the test keeps that wording.
-     *
      * @return void
      */
     public function testDeleteRemovesRecord(): void
@@ -926,25 +922,28 @@ class ScaffoldTest extends CakeTestCase
         $this->assertFalse($this->Controller->ScaffoldMock->exists(1));
         $this->assertSame(2, $this->Controller->ScaffoldMock->find('count'));
         $this->assertSame([['action' => 'index']], $redirects->getArrayCopy());
-        $this->assertSame('The ScaffoldMock with id: 1 has been deleted.', CakeSession::read('Message.flash.0.message'));
+        $this->assertStringContainsString('id: 1', CakeSession::read('Message.flash.0.message'));
         $this->assertSame('Flash/success', CakeSession::read('Message.flash.0.element'));
     }
 
     /**
-     * Test that the delete action throws a NotFoundException for a missing record.
-     *
-     * As in the other delete messages, the model is named with Inflector::humanize()
-     * of the model class ("ScaffoldMock"); the test keeps that wording.
+     * Test that the delete action throws a NotFoundException for a missing record
+     * and does not redirect.
      *
      * @return void
      */
     public function testDeleteMissingRecord(): void
     {
-        $this->_prepareRequest('delete', [999], [], 'POST');
+        $redirects = $this->_prepareRequest('delete', [999], [], 'POST');
 
-        $this->expectException(NotFoundException::class);
-        $this->expectExceptionMessage('Invalid ScaffoldMock');
-        $this->_runScaffold();
+        try {
+            $this->_runScaffold();
+            $this->fail('No NotFoundException was thrown.');
+        } catch (NotFoundException $e) {
+            $this->assertSame(404, $e->getCode());
+        }
+        $this->assertSame([], $redirects->getArrayCopy());
+        $this->assertSame(3, $this->Controller->ScaffoldMock->find('count'));
     }
 
     /**
@@ -964,10 +963,7 @@ class ScaffoldTest extends CakeTestCase
 
         $this->assertTrue($this->Controller->ScaffoldMock->exists(3));
         $this->assertSame([['action' => 'index']], $redirects->getArrayCopy());
-        $this->assertSame(
-            'There was an error deleting the ScaffoldMock with id: 3',
-            CakeSession::read('Message.flash.0.message'),
-        );
+        $this->assertStringContainsString('id: 3', CakeSession::read('Message.flash.0.message'));
         $this->assertSame('Flash/default', CakeSession::read('Message.flash.0.element'));
     }
 

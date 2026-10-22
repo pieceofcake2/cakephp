@@ -346,9 +346,6 @@ class DboSourceTest extends CakeTestCase
             [['(SELECT MAX(Comment.id) FROM comments AS Comment WHERE Comment.post_id = Post.id ORDER BY Comment.id DESC LIMIT 1) DESC'], ' ORDER BY (SELECT MAX(`Comment`.`id`) FROM comments AS Comment WHERE `Comment`.`post_id` = `Post`.`id` ORDER BY `Comment`.`id` DESC LIMIT 1) DESC'],
             [[['CASE WHEN Post.published = 1 THEN 0 ELSE 1 END' => 'asc nulls last']], ' ORDER BY CASE WHEN `Post`.`published` = 1 THEN 0 ELSE 1 END asc nulls last'],
             [['Dealer.id = 7 desc, Dealer.id = 3 desc, Dealer.title asc'], ' ORDER BY `Dealer`.`id` = 7 desc, `Dealer`.`id` = 3 desc, `Dealer`.`title` asc'],
-            // This row checks only that the escaped quote and the comma inside the string
-            // do not split the FIELD() expression; the rest of the output is as it is now.
-            [["FIELD(Post.title, 'it\\'s, odd') ASC, Post.id DESC"], " ORDER BY FIELD(`Post`.`title`, 'it\\'s, odd') ASC, Post.id DESC"],
         ];
     }
 
@@ -405,6 +402,20 @@ class DboSourceTest extends CakeTestCase
     {
         $result = $this->_orderCollectingDeprecations($args, $errors);
         $this->assertSame($expected, $result);
+        $this->assertSame([], $errors);
+    }
+
+    /**
+     * An escaped quote and a comma inside a string literal do not split the
+     * FIELD() expression. Only the FIELD() part is checked, not how the
+     * fields after it are quoted.
+     *
+     * @return void
+     */
+    public function testOrderFieldWithQuotedComma(): void
+    {
+        $result = $this->_orderCollectingDeprecations(["FIELD(Post.title, 'it\\'s, odd') ASC, Post.id DESC"], $errors);
+        $this->assertStringStartsWith(" ORDER BY FIELD(`Post`.`title`, 'it\\'s, odd') ASC, ", $result);
         $this->assertSame([], $errors);
     }
 
