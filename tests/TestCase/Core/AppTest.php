@@ -1481,8 +1481,10 @@ class AppTest extends CakeTestCase
      * shutdown() saves the file map and the object map in the core cache, so that the next
      * request finds the mapped files and the objects without searching the paths again.
      *
-     * The next request is simulated by emptying the maps of App and calling App::init(),
-     * after the listed file is deleted, so that only the cache can give the old results.
+     * The next request is simulated after the listed file is deleted, so that only the cache
+     * can give the old results: the file map is set from the cache, as App::init() does, and
+     * the object map is emptied, so that App::objects() reads it from the cache. App::init()
+     * itself is not called, because it registers one more shutdown function on each call.
      *
      * @return void
      */
@@ -1513,9 +1515,13 @@ class AppTest extends CakeTestCase
             error_clear_last();
             App::shutdown();
 
+            $fileMap = Cache::read('file_map', '_cake_core_');
+            $this->assertSame($configFile, $fileMap['AppTestShutdownConfig'] ?? null);
+            $objectMap = Cache::read('object_map', '_cake_core_');
+            $this->assertSame(['Listed'], $objectMap['app']['file' . str_replace(DS, '', $libDir)] ?? null);
+
             unlink($libDir . 'Listed.php');
-            $this->_setAppMaps([[], [], false, false]);
-            App::init();
+            $this->_setAppMaps([$fileMap, [], false, false]);
 
             $this->assertSame(['Listed'], App::objects('file', $libDir), 'The object list comes from the cache.');
             $this->assertSame(

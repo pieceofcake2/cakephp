@@ -902,6 +902,12 @@ TEXT;
         } finally {
             Debugger::outputAs($previous);
             Debugger::getInstance()->errors = $errors;
+            // Drop the stored errors, also when an assertion above failed.
+            $stored = new ReflectionProperty(Debugger::class, '_data');
+            if (PHP_VERSION_ID < 80100) {
+                $stored->setAccessible(true);
+            }
+            $stored->setValue(Debugger::getInstance(), []);
         }
 
         $this->assertCount(4, $data);

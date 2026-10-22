@@ -228,6 +228,13 @@ class ScaffoldTest extends CakeTestCase
     public $Controller = null;
 
     /**
+     * The request method before the test, restored in tearDown().
+     *
+     * @var string|null
+     */
+    protected $_requestMethod = null;
+
+    /**
      * fixtures property
      *
      * @var array<string>
@@ -248,6 +255,7 @@ class ScaffoldTest extends CakeTestCase
     public function setUp(): void
     {
         parent::setUp();
+        $this->_requestMethod = $_SERVER['REQUEST_METHOD'] ?? null;
         Configure::write('App.namespace', 'TestApp');
         Configure::write('Config.language', 'eng');
         // Render with the layouts of the test app, not those of the app skeleton.
@@ -267,6 +275,11 @@ class ScaffoldTest extends CakeTestCase
         CakeSession::destroy();
         CakePlugin::unload('TestPlugin');
         unset($this->Controller);
+        if ($this->_requestMethod === null) {
+            unset($_SERVER['REQUEST_METHOD']);
+        } else {
+            $_SERVER['REQUEST_METHOD'] = $this->_requestMethod;
+        }
 
         parent::tearDown();
     }
