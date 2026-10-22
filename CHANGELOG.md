@@ -131,6 +131,12 @@
 
 - **More tests**: Tests for the test suite (reporters, runner, fixture manager), the Js helpers, the scaffold, the network and session classes, the datasources, the models and behaviors, `CakeSchema` and the utilities. The bugs that they found are fixed in PR #107
 
+### Tests: Patch Coverage and Repeated Runs ([PR #112](https://github.com/pieceofcake2/cakephp/pull/112))
+
+- **Coverage of PR #92 and PR #98**: Tests for the global class names in a new process, the former paths in `src/Cake/`, `CakeFixtureInjector`, `PhpAcl`, `MissingConnectionException`, `ControllerTestCase` without `autoMock` and the cached views of global and plugin controllers. The bugs that they found are fixed above
+- **Repeated runs**: The tests restore the state that they change, so they also pass with `--repeat 2` or alone; the tests that need classes that are not loaded yet, or define a constant, run in their own process
+- **Folder sort by time**: The tests of `Folder::SORT_TIME` wait until the files have later change times, instead of `sleep(1)`
+
 ### Tests ([PR #96](https://github.com/pieceofcake2/cakephp/pull/96))
 
 - **Deprecations reported**: The tests report deprecations and fail on them. `ConfigureTest::testBootstrap()` restores the error level after `Configure::bootstrap()`, which had hidden deprecations from the following tests, and the tests no longer create dynamic properties, or use `utf8_decode()`, `new DateTime(null)`, `str_getcsv()` without the escape character or `session.referer_check`. The `DATABASE_CONFIG` of the tests allows dynamic properties, which `ConnectionManager::create()` adds. The test helpers call `setAccessible()` of reflection only before PHP 8.1. `ApplicationControllerTest` tests the redirect without cookies on every version, and the session ID in the URL, which needs `session.use_trans_sid` deprecated since PHP 8.4, only before PHP 8.4. The tests that use mcrypt check that it reports the deprecation of its functions, and `MemcacheEngineTest` replaces `Memcache::set()` with a small subclass, as a mock would copy the implicitly nullable parameters of the extension (deprecated since PHP 8.4)
