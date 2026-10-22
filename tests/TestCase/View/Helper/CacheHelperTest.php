@@ -21,6 +21,7 @@ namespace Cake\Test\TestCase\View\Helper;
 
 use Cake\Controller\Controller;
 use Cake\Core\App;
+use Cake\Core\CakePlugin;
 use Cake\Core\Configure;
 use Cake\Network\CakeRequest;
 use Cake\Routing\Router;
@@ -748,5 +749,53 @@ class CacheHelperTest extends CakeTestCase
         unlink($filename);
         $this->assertStringNotContainsString('App::className(', $contents);
         $this->assertStringContainsString('$controller = new \\TestApp\\Controller\\NamespacedController($request, $response);', $contents);
+    }
+
+    /**
+     * Test that the cached view of a global controller finds the controller with App::className(),
+     * and in a plugin the AppController of the plugin first.
+     *
+     * @return void
+     */
+    public function testCacheGlobalController(): void
+    {
+        $this->Controller->cache_parsing();
+        $this->Controller->request->addParams([
+            'controller' => 'cache_test',
+            'action' => 'cache_parsing',
+            'pass' => [],
+            'named' => [],
+        ]);
+        $this->Controller->cacheAction = 21600;
+        $this->Controller->request->here = '/cacheTest/cache_parsing';
+        $this->Controller->controllerClass = 'CacheTestController';
+        $filename = CACHE . 'views' . DS . 'cachetest_cache_parsing.php';
+
+        $View = new View($this->Controller);
+        $View->render('index');
+        $contents = file_get_contents($filename);
+        unlink($filename);
+        $this->assertStringContainsString("App::className('CacheTest', 'Controller', 'Controller');", $contents);
+        $this->assertStringNotContainsString('AppController', $contents);
+        $this->assertStringContainsString('$controller = new CacheTestController($request, $response);', $contents);
+
+        App::build(['Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS]]);
+        CakePlugin::load('TestPlugin');
+        try {
+            $this->Controller->plugin = 'TestPlugin';
+            $View = new View($this->Controller);
+            $View->render('index');
+        } finally {
+            CakePlugin::unload('TestPlugin');
+        }
+        $contents = file_get_contents($filename);
+        unlink($filename);
+        $this->assertStringContainsString("App::className('TestPlugin.TestPluginAppController', 'Controller');", $contents);
+        $this->assertStringContainsString("App::className('TestPlugin.CacheTest', 'Controller', 'Controller');", $contents);
+        $this->assertLessThan(
+            strpos($contents, "App::className('TestPlugin.CacheTest'"),
+            strpos($contents, "App::className('TestPlugin.TestPluginAppController'"),
+        );
+        $this->assertStringContainsString('$controller = new CacheTestController($request, $response);', $contents);
     }
 }
