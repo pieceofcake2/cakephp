@@ -286,6 +286,9 @@ class CakeSocket
     /**
      * Configure the SSL context options.
      *
+     * The flat `ssl_*` settings are moved into the `ssl` context. They fill in an option
+     * that the context leaves empty, including one given as false.
+     *
      * @param string $host The host name being connected to.
      * @return void
      */

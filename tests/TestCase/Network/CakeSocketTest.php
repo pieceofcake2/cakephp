@@ -881,15 +881,13 @@ class CakeSocketTest extends CakeTestCase
     }
 
     /**
-     * Test that an explicit false in the SSL context wins over the flat ssl_*
-     * setting of the same option.
+     * Test that a flat ssl_* setting fills in an SSL context option that is empty,
+     * also when the context gives it as false.
      *
      * @return void
      */
-    public function testContextOptionsExplicitFalseWinsOverFlatSetting(): void
+    public function testContextOptionsFlatSettingFillsAnEmptyOption(): void
     {
-        $this->markTestIncomplete('Known bug: _setSslContext() checks the explicit context option with empty(), so false is overwritten');
-
         $port = $this->_listen();
         $socket = new CakeSocket([
             'host' => '127.0.0.1',
@@ -901,7 +899,7 @@ class CakeSocketTest extends CakeTestCase
         $socket->connect();
         $this->_accept();
 
-        $this->assertFalse($socket->context()['ssl']['allow_self_signed']);
+        $this->assertTrue($socket->context()['ssl']['allow_self_signed']);
     }
 
     /**
