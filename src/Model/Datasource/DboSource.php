@@ -2763,7 +2763,8 @@ class DboSource extends DataSource
     }
 
     /**
-     * Returns a key formatted like a string Model.fieldname(i.e. Post.title, or Country.name)
+     * Returns the key as it is given. It is not prefixed with the model name: pass a key
+     * formatted like Model.fieldname (i.e. Post.title, or Country.name).
      *
      * @param Model $Model The model to get a key for.
      * @param string $key The key field.

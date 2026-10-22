@@ -2604,6 +2604,17 @@ class DboSourceTest extends CakeTestCase
     }
 
     /**
+     * Test that resolveKey() returns the key as it is given, with or without a model name.
+     *
+     * @return void
+     */
+    public function testResolveKey(): void
+    {
+        $this->assertSame('title', $this->testDb->resolveKey($this->Model, 'title'));
+        $this->assertSame('Post.title', $this->testDb->resolveKey($this->Model, 'Post.title'));
+    }
+
+    /**
      * Test that conditions() does not add a second clause keyword to a string
      * that already has one, and skips empty numeric entries.
      *
