@@ -22,7 +22,7 @@ use Cake\Network\Http\HttpSocket;
 class NamespacedAuthentication
 {
     /**
-     * @param \HttpSocket $http The socket
+     * @param HttpSocket $http The socket
      * @param array $authInfo The authentication settings
      * @return void
      */
@@ -32,7 +32,7 @@ class NamespacedAuthentication
     }
 
     /**
-     * @param \HttpSocket $http The socket
+     * @param HttpSocket $http The socket
      * @param array $proxyInfo The proxy settings
      * @return void
      */
