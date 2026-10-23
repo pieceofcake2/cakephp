@@ -53,6 +53,7 @@ use Cake\Routing\Router;
 use Cake\TestSuite\CakeTestCase;
 use Cake\Utility\Debugger;
 use Cake\Utility\Folder;
+use Cake\View\View;
 use Error;
 use Exception;
 use InvalidArgumentException;
@@ -1203,6 +1204,39 @@ class ExceptionRendererTest extends CakeTestCase
         $this->assertStringContainsString('<li>' . h($templates . 'layout' . DS . 'nope.php') . '</li>', $result);
         $this->assertStringNotContainsString('nope.ctp</li>', $result);
         $this->assertStringContainsString('Error' . DS . 'missing_layout.php', $result);
+    }
+
+    /**
+     * Test the missing template pages with the file that the View reports, which has the extension and the
+     * directory name that the View looks for first in templates/.
+     *
+     * @return void
+     */
+    public function testDevErrorPagesForMissingFilesOfTheView(): void
+    {
+        $templates = CORE_TESTS . DS . 'test_app' . DS . 'templates' . DS;
+        $View = new View(new Controller(new CakeRequest(null, false)));
+        try {
+            $View->render('/Pages/nope', 'nope');
+        } catch (MissingViewException $e) {
+            $missingView = $e;
+        }
+        $this->assertSame('Pages' . DS . 'nope.php', $missingView->getAttributes()['file']);
+        try {
+            $View->render('/Pages/home', 'nope');
+        } catch (MissingLayoutException $e) {
+            $missingLayout = $e;
+        }
+        $this->assertSame('layout' . DS . 'nope.php', $missingLayout->getAttributes()['file']);
+
+        $result = $this->_render($missingView);
+        $this->assertStringContainsString('Confirm you have created the file: "Pages' . DS . 'nope.php"', $result);
+        $this->assertStringContainsString('<li>' . h($templates . 'Pages' . DS . 'nope.php') . '</li>', $result);
+
+        $result = $this->_render($missingLayout);
+        $this->assertStringContainsString('Confirm you have created the file: layout' . DS . 'nope.php', $result);
+        $this->assertStringContainsString('<li>' . h($templates . 'layout' . DS . 'nope.php') . '</li>', $result);
+        $this->assertStringNotContainsString('.php.php', $result);
     }
 
     /**

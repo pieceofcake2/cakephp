@@ -1051,7 +1051,7 @@ class ViewTest extends CakeTestCase
         }
 
         $this->assertTrue($noticeTriggered, 'Expected notice was not triggered');
-        $this->assertSame('Element Not Found: Elements/non_existent_element.ctp', $noticeMessage);
+        $this->assertSame('Element Not Found: element/non_existent_element.php', $noticeMessage);
     }
 
     /**
@@ -1077,7 +1077,7 @@ class ViewTest extends CakeTestCase
         }
 
         $this->assertTrue($noticeTriggered, 'Expected notice was not triggered');
-        $this->assertSame('Element Not Found: TestPlugin.Elements/TestPlugin.plugin_element.ctp', $noticeMessage);
+        $this->assertSame('Element Not Found: TestPlugin.element/TestPlugin.plugin_element.php', $noticeMessage);
     }
 
     /**
@@ -1103,7 +1103,7 @@ class ViewTest extends CakeTestCase
         }
 
         $this->assertTrue($noticeTriggered, 'Expected notice was not triggered');
-        $this->assertSame('Element Not Found: test_plugin.Elements/plugin_element.ctp', $noticeMessage);
+        $this->assertSame('Element Not Found: test_plugin.element/plugin_element.php', $noticeMessage);
     }
 
     /**

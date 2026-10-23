@@ -90,7 +90,7 @@ class ScaffoldView extends View
             return CORE_ROOT . DS . 'templates' . DS . 'Error' . DS . 'scaffold_error.php';
         }
 
-        throw new MissingViewException($paths[0] . $name . $this->ext);
+        throw new MissingViewException(implode('', $this->_getMissingTemplateFile($paths, $name)));
     }
 }
 

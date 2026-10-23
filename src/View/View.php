@@ -455,9 +455,10 @@ class View extends CakeObject
         }
 
         if (empty($options['ignoreMissing'])) {
+            $paths = $this->_paths($this->pluginSplit($name)[0]);
             [$plugin, $name] = pluginSplit($name, true);
             $name = str_replace('/', DS, $name);
-            $file = $plugin . 'Elements' . DS . $name . $this->ext;
+            $file = $plugin . $this->_getMissingTemplateFile($paths, 'Elements' . DS . $name)[1];
             trigger_error(__d('cake_dev', 'Element Not Found: %s', $file), E_USER_NOTICE);
         }
 
@@ -1116,7 +1117,7 @@ class View extends CakeObject
                 }
             }
         }
-        throw new MissingViewException(['file' => $name . $this->ext]);
+        throw new MissingViewException(['file' => $this->_getMissingTemplateFile($paths, $name)[1]]);
     }
 
     /**
@@ -1177,7 +1178,7 @@ class View extends CakeObject
                 }
             }
         }
-        throw new MissingLayoutException(['file' => $file . $this->ext]);
+        throw new MissingLayoutException(['file' => $this->_getMissingTemplateFile($paths, $file)[1]]);
     }
 
     /**
@@ -1242,6 +1243,38 @@ class View extends CakeObject
         }
 
         return $files;
+    }
+
+    /**
+     * Returns the file that the View looks for first for a missing template, layout or element, for the
+     * error messages: the first file of View::_getTemplateFiles() in the first `templates/` directory of the
+     * view paths that exists, or else in the first view path, leaving out the paths of the core. E.g.
+     * `Pages/home.php` or `layout/default.php` in `templates/`, and `Pages/home.ctp` in `View/`.
+     *
+     * @param array<string> $paths The view paths, from View::_paths()
+     * @param string $name The name relative to the view paths, without extension
+     * @return array{0: string, 1: string} The view path and the file name relative to it
+     */
+    protected function _getMissingTemplateFile($paths, $name)
+    {
+        $appPaths = [];
+        $templatePaths = [];
+        foreach ($paths as $path) {
+            if (str_starts_with($path, CORE_ROOT . DS . 'templates' . DS) || str_starts_with($path, CORE_PATH)) {
+                continue;
+            }
+            $appPaths[] = $path;
+            if (is_dir($path) && $this->_isTemplatesPath($path)) {
+                $templatePaths[] = $path;
+            }
+        }
+        $path = $templatePaths[0] ?? $appPaths[0] ?? reset($paths);
+        if ($path === false) {
+            return ['', $name . $this->ext];
+        }
+        $files = $this->_getTemplateFiles($path, $name, $this->_getExtensions()[0]);
+
+        return [$path, substr($files[0], strlen($path))];
     }
 
     /**
