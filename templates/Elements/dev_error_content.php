@@ -3,8 +3,9 @@
  * Prints the blocks assigned by an error template (`title`, `subheading`, `file`, `templateName`)
  * as regular content.
  *
- * Error templates use this element when they are not rendered in the dev_error layout,
- * e.g. for AJAX requests, so the error is still shown inside the current layout.
+ * Error templates can use this element when they are not rendered in the dev_error layout,
+ * so the error is still shown inside the current layout. The core error templates always use
+ * the dev_error layout in debug mode, also for AJAX requests, as in CakePHP 5.
  *
  * CakePHP(tm) : Rapid Development Framework (https://cakephp.org)
  * Copyright (c) Cake Software Foundation, Inc. (https://cakefoundation.org)

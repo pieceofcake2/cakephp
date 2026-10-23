@@ -19,6 +19,7 @@ if (defined('ROOT') && strpos($configFile, ROOT . DS) === 0) {
 	$configFile = substr($configFile, strlen(ROOT . DS));
 }
 
+$this->layout = 'dev_error';
 $this->assign('title', __d('cake_dev', 'Missing Database Connection'));
 $this->assign('templateName', 'missing_database.ctp');
 
@@ -34,9 +35,3 @@ $this->start('subheading');
 	<?php echo __d('cake_dev', 'Confirm you have created the file: %s', h($configFile)); ?>
 </p>
 <?php $this->end(); ?>
-<?php
-if (Configure::read('debug') > 0 && !$this->request->is('ajax')) :
-	$this->layout = 'dev_error';
-else :
-	echo $this->element('dev_error_content');
-endif;

@@ -5,7 +5,9 @@
  * @since         CakePHP(tm) v 0.10.0.1076
  */
 
-if (Configure::read('debug') > 0 && !$this->request->is('ajax')) :
+$this->layout = 'error';
+
+if (Configure::read('debug')) :
 	$this->layout = 'dev_error';
 
 	$this->assign('title', $message);
@@ -30,7 +32,3 @@ endif;
 	<strong><?php echo __d('cake', 'Error'); ?>: </strong>
 	<?php echo __d('cake', 'An Internal Error Has Occurred.'); ?>
 </p>
-<?php
-if (Configure::read('debug') > 0):
-	echo $this->element('exception_stack_trace');
-endif;

@@ -17,6 +17,7 @@
 $pluginDot = empty($plugin) ? null : $plugin . '.';
 $path = $this->element('dev_error_file_path', array('package' => 'Controller/Component', 'plugin' => $plugin ?? null, 'file' => $class . '.php'));
 
+$this->layout = 'dev_error';
 $this->assign('title', __d('cake_dev', 'Missing Component'));
 $this->assign('templateName', 'missing_component.ctp');
 
@@ -34,9 +35,3 @@ $this->start('subheading');
 </p>
 <?php echo $this->element('dev_error_class_code', array('class' => $class, 'package' => 'Controller/Component', 'plugin' => $plugin ?? null, 'parent' => 'Cake\\Controller\\Component')); ?>
 <?php $this->end(); ?>
-<?php
-if (Configure::read('debug') > 0 && !$this->request->is('ajax')) :
-	$this->layout = 'dev_error';
-else :
-	echo $this->element('dev_error_content');
-endif;

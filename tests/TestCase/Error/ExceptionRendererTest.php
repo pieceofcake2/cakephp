@@ -1491,27 +1491,58 @@ class ExceptionRendererTest extends CakeTestCase
     }
 
     /**
-     * Test that AJAX requests keep their layout and get the error inline.
+     * Test that AJAX requests also get the dev_error layout in debug mode, as in CakePHP 5, while the
+     * error templates of the application keep their layout.
      *
      * @return void
      */
-    public function testDevErrorNotUsedForAjax(): void
+    public function testDevErrorLayoutForAjax(): void
     {
         $_SERVER['HTTP_X_REQUESTED_WITH'] = 'XMLHttpRequest';
         try {
+            $appError400 = $this->_render(new NotFoundException('Custom message'));
             $result = $this->_render(new MissingControllerException(['class' => 'PostsController']));
             $this->_useCoreTemplates();
             $error400 = $this->_render(new NotFoundException('Nothing to see'));
         } finally {
             unset($_SERVER['HTTP_X_REQUESTED_WITH']);
         }
-        $this->assertStringContainsString('<h2>Missing Controller</h2>', $result);
-        $this->assertStringContainsString('<em>PostsController</em> could not be found.', $result);
-        $this->assertStringContainsString('class="cake-stack-trace"', $result);
-        $this->assertStringNotContainsString('header-title', $result);
+        $this->assertStringContainsString('<h2>Custom message</h2>', $appError400);
+        $this->assertStringNotContainsString('header-title', $appError400);
 
+        $this->assertStringContainsString('<title>Error: Missing Controller</title>', $result);
+        $this->assertStringContainsString('class="stack-frames"', $result);
+
+        $this->assertStringContainsString('<title>Error: Nothing to see</title>', $error400);
+        $this->assertStringContainsString('class="stack-frames"', $error400);
+    }
+
+    /**
+     * Test that the core error400 and error500 templates use the error layout in production mode.
+     *
+     * @return void
+     */
+    public function testCoreErrorTemplatesUseErrorLayoutInProduction(): void
+    {
+        Configure::write('debug', 0);
+        $path = TMP . 'error_layout' . DS;
+        new Folder($path . 'Layouts', true);
+        file_put_contents($path . 'Layouts' . DS . 'default.ctp', "app default layout\n<?php echo \$this->fetch('content'); ?>");
+        file_put_contents($path . 'Layouts' . DS . 'error.ctp', "app error layout\n<?php echo \$this->fetch('content'); ?>");
+        App::build(['View' => [$path]], App::RESET);
+
+        try {
+            $error400 = $this->_render(new NotFoundException('Nothing to see'));
+            $error500 = $this->_render(new RuntimeException('Secret details'));
+        } finally {
+            (new Folder($path))->delete();
+        }
+        $this->assertStringStartsWith('app error layout', $error400);
         $this->assertStringContainsString('<h2>Nothing to see</h2>', $error400);
-        $this->assertStringNotContainsString('header-title', $error400);
+        $this->assertStringStartsWith('app error layout', $error500);
+        $this->assertStringContainsString('An Internal Error Has Occurred.', $error500);
+        $this->assertStringNotContainsString('Secret details', $error500);
+        $this->assertStringNotContainsString('cake-stack-trace', $error400 . $error500);
     }
 
     /**

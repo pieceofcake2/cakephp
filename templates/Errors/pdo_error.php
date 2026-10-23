@@ -14,6 +14,7 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+$this->layout = 'dev_error';
 $this->assign('title', __d('cake_dev', 'Database Error'));
 $this->assign('templateName', 'pdo_error.ctp');
 
@@ -37,9 +38,3 @@ $this->start('subheading');
 	<pre><?php echo h(Debugger::exportVar($error->params)); ?></pre>
 <?php endif; ?>
 <?php $this->end(); ?>
-<?php
-if (Configure::read('debug') > 0 && !$this->request->is('ajax')) :
-	$this->layout = 'dev_error';
-else :
-	echo $this->element('dev_error_content');
-endif;

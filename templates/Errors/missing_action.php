@@ -17,6 +17,7 @@
 $plugin = empty($this->request->params['plugin']) ? null : Inflector::camelize($this->request->params['plugin']);
 $path = $this->element('dev_error_file_path', array('package' => 'Controller', 'plugin' => $plugin, 'file' => $controller . '.php'));
 
+$this->layout = 'dev_error';
 $this->assign('title', __d('cake_dev', 'Missing Method in %s', h($controller)));
 $this->assign('templateName', 'missing_action.ctp');
 
@@ -39,9 +40,3 @@ $this->start('subheading');
 	'body' => "    public function {$action}()\n    {\n    }\n",
 )); ?>
 <?php $this->end(); ?>
-<?php
-if (Configure::read('debug') > 0 && !$this->request->is('ajax')) :
-	$this->layout = 'dev_error';
-else :
-	echo $this->element('dev_error_content');
-endif;

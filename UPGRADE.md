@@ -46,6 +46,26 @@ The file is now `dev_error.php`, so in debug mode these templates show errors in
   $devErrorLayout = is_file($layouts . 'dev_error.php') || is_file($layouts . 'dev_error.ctp');
   ```
 
+### Layouts of the Core Error Templates ([PR #117](https://github.com/pieceofcake2/cakephp/pull/117))
+
+The core error templates switch layouts as the error templates of CakePHP 5 do:
+
+```php
+$this->layout = 'error';
+
+if (Configure::read('debug')) :
+    $this->layout = 'dev_error';
+    // ...
+endif;
+```
+
+This changes the pages of applications that have no error template of their own for the error:
+
+- In debug mode, AJAX requests also get the development error page (`dev_error` layout) instead of the error inside the layout of the request.
+- In production mode, the core `error400` and `error500` templates are rendered in the `error` layout instead of the default layout. Without a `Layouts/error.ctp` (`templates/layout/error.php`) in the application, this is the `error` layout of the core. To keep the previous page, add an `error` layout to the application (e.g. a copy of its default layout), or your own `Errors/error400.ctp` and `Errors/error500.ctp`.
+
+Error templates of the application are not changed. To use the same switching in them, set `$this->layout = 'error';` first and use the `dev_error` layout when `Configure::read('debug')` is set, without the check for AJAX requests.
+
 ## v2.13.0
 
 ### Variadic Arguments ([PR #89](https://github.com/pieceofcake2/cakephp/pull/89))

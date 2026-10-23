@@ -14,6 +14,7 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+$this->layout = 'dev_error';
 $this->assign('title', __d('cake_dev', 'Fatal Error'));
 $this->assign('templateName', 'fatal_error.ctp');
 
@@ -45,8 +46,3 @@ if (extension_loaded('xdebug')) :
 	endif;
 endif;
 $this->end();
-if (Configure::read('debug') > 0 && !$this->request->is('ajax')) :
-	$this->layout = 'dev_error';
-else :
-	echo $this->element('dev_error_content');
-endif;

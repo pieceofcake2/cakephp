@@ -14,6 +14,7 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+$this->layout = 'dev_error';
 $this->assign('title', __d('cake_dev', 'Missing Database Connection'));
 $this->assign('templateName', 'missing_connection.ctp');
 
@@ -35,9 +36,3 @@ $this->start('subheading');
 </p>
 <?php endif; ?>
 <?php $this->end(); ?>
-<?php
-if (Configure::read('debug') > 0 && !$this->request->is('ajax')) :
-	$this->layout = 'dev_error';
-else :
-	echo $this->element('dev_error_content');
-endif;

@@ -17,6 +17,7 @@
 $pluginDot = empty($plugin) ? null : $plugin . '.';
 $path = $this->element('dev_error_file_path', array('package' => 'Model/Datasource', 'plugin' => $plugin ?? null, 'file' => $class . '.php'));
 
+$this->layout = 'dev_error';
 $this->assign('title', __d('cake_dev', 'Missing Datasource'));
 $this->assign('templateName', 'missing_datasource.ctp');
 
@@ -35,9 +36,3 @@ $this->start('subheading');
 	<?php echo __d('cake_dev', 'Check the %s setting of the datasource configuration, or create the class in file: %s', '<em>datasource</em>', '<em>' . $path . '</em>'); ?>
 </p>
 <?php $this->end(); ?>
-<?php
-if (Configure::read('debug') > 0 && !$this->request->is('ajax')) :
-	$this->layout = 'dev_error';
-else :
-	echo $this->element('dev_error_content');
-endif;

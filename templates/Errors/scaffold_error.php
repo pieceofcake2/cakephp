@@ -14,6 +14,7 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+$this->layout = 'dev_error';
 $this->assign('title', __d('cake_dev', 'Scaffold Error'));
 $this->assign('templateName', 'scaffold_error.ctp');
 
@@ -34,9 +35,3 @@ PHP;
 ?>
 <div class="code-dump"><?php highlight_string($code); ?></div>
 <?php $this->end(); ?>
-<?php
-if (Configure::read('debug') > 0 && !$this->request->is('ajax')) :
-	$this->layout = 'dev_error';
-else :
-	echo $this->element('dev_error_content');
-endif;

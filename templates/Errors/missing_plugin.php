@@ -20,6 +20,7 @@ if (defined('ROOT') && strpos($bootstrapFile, ROOT . DS) === 0) {
 	$bootstrapFile = substr($bootstrapFile, strlen(ROOT . DS));
 }
 
+$this->layout = 'dev_error';
 $this->assign('title', __d('cake_dev', 'Missing Plugin'));
 $this->assign('templateName', 'missing_plugin.ctp');
 
@@ -49,9 +50,3 @@ PHP;
 ?>
 <div class="code-dump"><?php highlight_string($code); ?></div>
 <?php $this->end(); ?>
-<?php
-if (Configure::read('debug') > 0 && !$this->request->is('ajax')) :
-	$this->layout = 'dev_error';
-else :
-	echo $this->element('dev_error_content');
-endif;

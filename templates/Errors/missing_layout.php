@@ -14,6 +14,7 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+$this->layout = 'dev_error';
 $this->assign('title', __d('cake_dev', 'Missing Layout'));
 $this->assign('templateName', 'missing_layout.ctp');
 
@@ -26,9 +27,3 @@ $this->start('subheading');
 <?php $this->start('file'); ?>
 <?php echo $this->element('dev_error_template_paths', array('file' => $file)); ?>
 <?php $this->end(); ?>
-<?php
-if (Configure::read('debug') > 0 && !$this->request->is('ajax')) :
-	$this->layout = 'dev_error';
-else :
-	echo $this->element('dev_error_content');
-endif;

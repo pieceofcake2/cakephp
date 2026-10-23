@@ -14,6 +14,7 @@
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
 
+$this->layout = 'dev_error';
 $this->assign('title', __d('cake_dev', 'Private Method in %s', h($controller)));
 $this->assign('templateName', 'private_action.ctp');
 
@@ -28,9 +29,3 @@ $this->start('subheading');
 	<?php echo __d('cake_dev', 'Only public methods of %s whose names do not start with an underscore or a routing prefix can be requested as actions. Methods inherited from %s cannot be requested either.', '<em>' . h($controller) . '</em>', '<em>Controller</em>'); ?>
 </p>
 <?php $this->end(); ?>
-<?php
-if (Configure::read('debug') > 0 && !$this->request->is('ajax')) :
-	$this->layout = 'dev_error';
-else :
-	echo $this->element('dev_error_content');
-endif;

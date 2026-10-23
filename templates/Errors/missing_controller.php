@@ -19,6 +19,7 @@ $appController = (empty($plugin) ? '' : $plugin) . 'AppController';
 $appControllerPackage = (empty($plugin) ? '' : $plugin . '.') . 'Controller';
 $path = $this->element('dev_error_file_path', array('package' => 'Controller', 'plugin' => $plugin ?? null, 'file' => $class . '.php'));
 
+$this->layout = 'dev_error';
 $this->assign('title', __d('cake_dev', 'Missing Controller'));
 $this->assign('templateName', 'missing_controller.ctp');
 
@@ -39,9 +40,3 @@ $this->start('subheading');
 </p>
 <?php echo $this->element('dev_error_class_code', array('class' => $class, 'package' => 'Controller', 'plugin' => $plugin ?? null, 'parent' => '{namespace}\\Controller\\' . $appController)); ?>
 <?php $this->end(); ?>
-<?php
-if (Configure::read('debug') > 0 && !$this->request->is('ajax')) :
-	$this->layout = 'dev_error';
-else :
-	echo $this->element('dev_error_content');
-endif;

@@ -16,6 +16,7 @@
 
 $modelFile = $this->element('dev_error_file_path', array('package' => 'Model', 'plugin' => null, 'file' => $class . '.php'));
 
+$this->layout = 'dev_error';
 $this->assign('title', __d('cake_dev', 'Missing Database Table'));
 $this->assign('templateName', 'missing_table.ctp');
 
@@ -30,9 +31,3 @@ $this->start('subheading');
 	<?php echo __d('cake_dev', 'Create the table, or set %1$s / %2$s in the model if it uses another table or datasource: %3$s', '<code>$useTable</code>', '<code>$useDbConfig</code>', $modelFile); ?>
 </p>
 <?php $this->end(); ?>
-<?php
-if (Configure::read('debug') > 0 && !$this->request->is('ajax')) :
-	$this->layout = 'dev_error';
-else :
-	echo $this->element('dev_error_content');
-endif;
