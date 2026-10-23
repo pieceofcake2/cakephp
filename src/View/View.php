@@ -1104,18 +1104,9 @@ class View extends CakeObject
             }
         }
         $paths = $this->_paths($plugin);
-        $exts = $this->_getExtensions();
-        foreach ($paths as $path) {
-            foreach ($exts as $ext) {
-                foreach ($this->_getTemplateFiles($path, $name, $ext) as $template) {
-                    if (file_exists($template)) {
-                        $file = $this->_checkFilePath($template, $plugin);
-                        if ($file !== false) {
-                            return $file;
-                        }
-                    }
-                }
-            }
+        $file = $this->_findTemplateFile($paths, $name, $plugin);
+        if ($file !== false) {
+            return $file;
         }
         throw new MissingViewException(['file' => $this->_getMissingTemplateFile($paths, $name)[1]]);
     }
@@ -1165,18 +1156,9 @@ class View extends CakeObject
         $paths = $this->_paths($plugin);
         $file = 'Layouts' . DS . $subDir . $name;
 
-        $exts = $this->_getExtensions();
-        foreach ($paths as $path) {
-            foreach ($exts as $ext) {
-                foreach ($this->_getTemplateFiles($path, $file, $ext) as $template) {
-                    if (file_exists($template)) {
-                        $layoutFile = $this->_checkFilePath($template, $plugin);
-                        if ($layoutFile !== false) {
-                            return $layoutFile;
-                        }
-                    }
-                }
-            }
+        $layoutFile = $this->_findTemplateFile($paths, $file, $plugin);
+        if ($layoutFile !== false) {
+            return $layoutFile;
         }
         throw new MissingLayoutException(['file' => $this->_getMissingTemplateFile($paths, $file)[1]]);
     }
@@ -1303,16 +1285,27 @@ class View extends CakeObject
     {
         [$plugin, $name] = $this->pluginSplit($name);
 
-        $paths = $this->_paths($plugin);
+        return $this->_findTemplateFile($this->_paths($plugin), 'Elements' . DS . $name, $plugin);
+    }
+
+    /**
+     * Finds the file of a template, layout or element: in each view path in order, the files of
+     * View::_getTemplateFiles() with each extension of View::_getExtensions().
+     *
+     * @param array<string> $paths The view paths, from View::_paths()
+     * @param string $name The name relative to the view paths, without extension
+     * @param string|null $plugin The plugin name, for View::_checkFilePath()
+     * @return string|false The file name, or false when no file exists
+     */
+    protected function _findTemplateFile($paths, $name, $plugin)
+    {
         $exts = $this->_getExtensions();
         foreach ($paths as $path) {
             foreach ($exts as $ext) {
-                foreach ($this->_getTemplateFiles($path, 'Elements' . DS . $name, $ext) as $template) {
-                    if (file_exists($template)) {
-                        $file = $this->_checkFilePath($template, $plugin);
-                        if ($file !== false) {
-                            return $file;
-                        }
+                foreach ($this->_getTemplateFiles($path, $name, $ext) as $template) {
+                    $file = file_exists($template) ? $this->_checkFilePath($template, $plugin) : false;
+                    if ($file !== false) {
+                        return $file;
                     }
                 }
             }
