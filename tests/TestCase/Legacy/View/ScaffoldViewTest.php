@@ -23,6 +23,7 @@ use Cake\Controller\Scaffold;
 use Cake\Core\App;
 use Cake\Core\CakePlugin;
 use Cake\Core\Configure;
+use Cake\Error\MissingViewException;
 use Cake\Network\CakeRequest;
 use Cake\Routing\Router;
 use Cake\TestSuite\CakeTestCase;
@@ -199,6 +200,25 @@ class ScaffoldViewTest extends CakeTestCase
         $this->assertEquals($expected, $result);
 
         Configure::write('Routing.prefixes', $_admin);
+    }
+
+    /**
+     * Test that the error for a missing scaffold template names the file that is looked for first.
+     *
+     * @return void
+     */
+    public function testGetViewFilenameMissing(): void
+    {
+        App::build(['View' => [CORE_TESTS . DS . 'test_legacy_app' . DS . 'View' . DS]], App::RESET);
+        $this->Controller->request->params['action'] = 'index';
+        $ScaffoldView = new TestScaffoldView($this->Controller);
+        try {
+            $ScaffoldView->testGetFilename('delete');
+            $this->fail('Expected MissingViewException');
+        } catch (MissingViewException $e) {
+            $expected = CORE_TESTS . DS . 'test_legacy_app' . DS . 'View' . DS . 'Scaffolds' . DS . 'delete.ctp';
+            $this->assertStringContainsString($expected, $e->getMessage());
+        }
     }
 
     /**

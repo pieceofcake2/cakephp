@@ -1250,10 +1250,8 @@ class View extends CakeObject
                 $templatePaths[] = $path;
             }
         }
-        $path = $templatePaths[0] ?? $appPaths[0] ?? reset($paths);
-        if ($path === false) {
-            return ['', $name . $this->ext];
-        }
+        // View::_paths() always ends with the core path
+        $path = $templatePaths[0] ?? $appPaths[0] ?? $paths[0];
         $files = $this->_getTemplateFiles($path, $name, $this->_getExtensions()[0]);
 
         return [$path, substr($files[0], strlen($path))];

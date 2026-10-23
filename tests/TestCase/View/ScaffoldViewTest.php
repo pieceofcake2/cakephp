@@ -23,6 +23,7 @@ use Cake\Controller\Scaffold;
 use Cake\Core\App;
 use Cake\Core\CakePlugin;
 use Cake\Core\Configure;
+use Cake\Error\MissingViewException;
 use Cake\Network\CakeRequest;
 use Cake\Network\CakeResponse;
 use Cake\Routing\Router;
@@ -213,6 +214,24 @@ class ScaffoldViewTest extends CakeTestCase
             $this->assertSame(CORE_ROOT . DS . 'templates' . DS . 'Scaffolds' . DS . 'view.php', $ScaffoldView->testGetFilename('view'));
         } finally {
             (new Folder($path))->delete();
+        }
+    }
+
+    /**
+     * Test that the error for a missing scaffold template names the file that is looked for first.
+     *
+     * @return void
+     */
+    public function testGetViewFilenameMissing(): void
+    {
+        $this->Controller->request->params['action'] = 'index';
+        $ScaffoldView = new TestScaffoldView($this->Controller);
+        try {
+            $ScaffoldView->testGetFilename('delete');
+            $this->fail('Expected MissingViewException');
+        } catch (MissingViewException $e) {
+            $expected = CORE_TESTS . DS . 'test_app' . DS . 'templates' . DS . 'Scaffolds' . DS . 'delete.php';
+            $this->assertStringContainsString($expected, $e->getMessage());
         }
     }
 
