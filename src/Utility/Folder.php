@@ -438,7 +438,7 @@ class Folder
      * @param string $path The absolute path to check that the current `pwd()` resides within.
      * @param bool $reverse Reverse the search, check if the given `$path` resides within the current `pwd()`.
      * @return bool
-     * @throws \InvalidArgumentException When the given `$path` argument is not an absolute path.
+     * @throws InvalidArgumentException When the given `$path` argument is not an absolute path.
      * @link https://book.cakephp.org/2.0/en/core-utility-libraries/file-folder.html#Folder::inPath
      */
     public function inPath($path = '', $reverse = false)

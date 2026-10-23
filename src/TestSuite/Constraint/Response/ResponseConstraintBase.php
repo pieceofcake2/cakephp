@@ -45,7 +45,7 @@ abstract class ResponseConstraintBase extends Constraint
      * Constructor
      *
      * @param CakeResponse|null $response The response to inspect.
-     * @throws \PHPUnit\Framework\AssertionFailedError When there is no response (no request was made).
+     * @throws AssertionFailedError When there is no response (no request was made).
      */
     public function __construct(?CakeResponse $response)
     {

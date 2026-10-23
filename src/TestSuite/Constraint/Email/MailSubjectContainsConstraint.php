@@ -35,7 +35,7 @@ class MailSubjectContainsConstraint extends MailConstraintBase
      *
      * @param mixed $other Constraint check
      * @return bool
-     * @throws \InvalidArgumentException When the expected value is not a string.
+     * @throws InvalidArgumentException When the expected value is not a string.
      */
     public function matches($other): bool
     {

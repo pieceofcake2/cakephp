@@ -57,7 +57,7 @@ trait CookieCryptTrait
      *   `false` to only encode arrays without encrypting.
      * @param string|null $key The encryption key. Defaults to `_getCookieEncryptionKey()`.
      * @return string The encoded value.
-     * @throws \InvalidArgumentException When the encryption mode is not supported.
+     * @throws InvalidArgumentException When the encryption mode is not supported.
      */
     protected function _encrypt(array|string $value, string|false $encrypt, ?string $key = null): string
     {
@@ -86,7 +86,7 @@ trait CookieCryptTrait
      *   when the value is not encrypted.
      * @param string|null $key The encryption key. Defaults to `_getCookieEncryptionKey()`.
      * @return array|string The decrypted value. JSON encoded arrays are decoded.
-     * @throws \InvalidArgumentException When the encryption mode is not supported.
+     * @throws InvalidArgumentException When the encryption mode is not supported.
      */
     protected function _decrypt(array|string $values, string|false $mode, ?string $key = null): array|string
     {
@@ -109,7 +109,7 @@ trait CookieCryptTrait
      * @param string|false $encrypt The encryption mode, or `false`.
      * @param string|null $key The encryption key. Defaults to `_getCookieEncryptionKey()`.
      * @return array|string Decoded value.
-     * @throws \InvalidArgumentException When the encryption mode is not supported.
+     * @throws InvalidArgumentException When the encryption mode is not supported.
      */
     protected function _decode(string $value, string|false $encrypt, ?string $key): array|string
     {
@@ -134,7 +134,7 @@ trait CookieCryptTrait
      *
      * @param string $encrypt The encryption mode.
      * @return void
-     * @throws \InvalidArgumentException When the encryption mode is not supported.
+     * @throws InvalidArgumentException When the encryption mode is not supported.
      */
     protected function _checkCipher(string $encrypt): void
     {

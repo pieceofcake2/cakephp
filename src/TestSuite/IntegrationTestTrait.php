@@ -644,7 +644,7 @@ trait IntegrationTestTrait
      * @param string $method The HTTP method
      * @param array|string $data The request data.
      * @return void
-     * @throws \PHPUnit\Exception|\Throwable
+     * @throws PHPUnitException|Throwable
      */
     protected function _sendRequest(array|string $url, string $method, array|string $data = []): void
     {

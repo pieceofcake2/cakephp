@@ -21,6 +21,7 @@ use Cake\TestSuite\CakeTestLoader;
 use Exception;
 use PHPUnit\Framework\AssertionFailedError;
 use PHPUnit\Framework\Test;
+use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\TestResult;
 use PHPUnit\Framework\TestSuite;
 use PHPUnit\Framework\Warning;
@@ -173,7 +174,7 @@ abstract class CakeBaseReporter implements ResultPrinter
     /**
      * An error occurred.
      *
-     * @param \PHPUnit\Framework\Test $test The test to add an error for.
+     * @param Test $test The test to add an error for.
      * @param Exception|Throwable $e The exception object to add.
      * @param float $time The current time.
      * @return void
@@ -186,7 +187,7 @@ abstract class CakeBaseReporter implements ResultPrinter
     /**
      * A failure occurred.
      *
-     * @param \PHPUnit\Framework\Test $test The test that failed
+     * @param Test $test The test that failed
      * @param AssertionFailedError $e The assertion that failed.
      * @param float $time The current time.
      * @return void
@@ -199,7 +200,7 @@ abstract class CakeBaseReporter implements ResultPrinter
     /**
      * Incomplete test.
      *
-     * @param \PHPUnit\Framework\Test $test The test that was incomplete.
+     * @param Test $test The test that was incomplete.
      * @param Exception|Throwable $e The incomplete exception
      * @param float $time The current time.
      * @return void
@@ -212,7 +213,7 @@ abstract class CakeBaseReporter implements ResultPrinter
     /**
      * Skipped test.
      *
-     * @param \PHPUnit\Framework\Test $test The test that failed.
+     * @param Test $test The test that failed.
      * @param Exception|Throwable $e The skip object.
      * @param float $time The current time.
      * @return void
@@ -249,7 +250,7 @@ abstract class CakeBaseReporter implements ResultPrinter
     /**
      * A test started.
      *
-     * @param \PHPUnit\Framework\Test $test The test that started.
+     * @param Test $test The test that started.
      * @return void
      */
     public function startTest(Test $test): void
@@ -263,7 +264,7 @@ abstract class CakeBaseReporter implements ResultPrinter
      * skipped or is incomplete. Those are painted by addFailure(), addError(),
      * addWarning(), addSkippedTest() and addIncompleteTest().
      *
-     * @param \PHPUnit\Framework\TestCase $test The test that ended
+     * @param TestCase $test The test that ended
      * @param float $time The current time.
      * @return void
      */
