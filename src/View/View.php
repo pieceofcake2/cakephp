@@ -1104,8 +1104,8 @@ class View extends CakeObject
         }
         $paths = $this->_paths($plugin);
         $exts = $this->_getExtensions();
-        foreach ($exts as $ext) {
-            foreach ($paths as $path) {
+        foreach ($paths as $path) {
+            foreach ($exts as $ext) {
                 foreach ($this->_getTemplateFiles($path, $name, $ext) as $template) {
                     if (file_exists($template)) {
                         $file = $this->_checkFilePath($template, $plugin);
@@ -1165,8 +1165,8 @@ class View extends CakeObject
         $file = 'Layouts' . DS . $subDir . $name;
 
         $exts = $this->_getExtensions();
-        foreach ($exts as $ext) {
-            foreach ($paths as $path) {
+        foreach ($paths as $path) {
+            foreach ($exts as $ext) {
                 foreach ($this->_getTemplateFiles($path, $file, $ext) as $template) {
                     if (file_exists($template)) {
                         $layoutFile = $this->_checkFilePath($template, $plugin);
@@ -1182,6 +1182,10 @@ class View extends CakeObject
 
     /**
      * Get the extensions that view files can use.
+     *
+     * The templates, layouts and elements are looked up path by path, and in each view path with these
+     * extensions in order, so that the templates of the application, of a theme or of a plugin come before
+     * those of the core whatever their extension.
      *
      * @return array Array of extensions view files use.
      */
@@ -1268,8 +1272,8 @@ class View extends CakeObject
 
         $paths = $this->_paths($plugin);
         $exts = $this->_getExtensions();
-        foreach ($exts as $ext) {
-            foreach ($paths as $path) {
+        foreach ($paths as $path) {
+            foreach ($exts as $ext) {
                 foreach ($this->_getTemplateFiles($path, 'Elements' . DS . $name, $ext) as $template) {
                     if (file_exists($template)) {
                         $file = $this->_checkFilePath($template, $plugin);

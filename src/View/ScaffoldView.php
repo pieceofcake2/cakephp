@@ -73,8 +73,8 @@ class ScaffoldView extends View
 
         $paths = $this->_paths($this->plugin);
         $templates = [];
-        foreach ($this->_getExtensions() as $ext) {
-            foreach ($paths as $path) {
+        foreach ($paths as $path) {
+            foreach ($this->_getExtensions() as $ext) {
                 foreach ($names as $name) {
                     array_push($templates, ...$this->_getTemplateFiles($path, $name, $ext));
                 }
