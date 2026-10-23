@@ -10,8 +10,13 @@ exclude_patterns = [
     "logs/**",
 ]
 
+# Qlty does not compute the smells (complexity, duplication) of test files. templates/ is listed
+# for that alone: the templates keep the complexity and duplication of the CakePHP 2 templates
+# (the error pages, layouts and scaffolds repeat their markup). The plugins, the security plugins
+# among them, do not use this list and still check templates/
 test_patterns = [
     "tests/**",
+    "templates/**",
 ]
 
 [[source]]
@@ -74,10 +79,18 @@ match.rules = ["radarlint-php:php:S4833"]
 match.file_patterns = ["tests/bootstrap.php", "config/**"]
 set.ignored = true
 
-# Templates are HTML with PHP tags: they repeat markup, end with "?>", keep the output as is and
-# are indented with tabs, as in CakePHP 2
+# Templates are HTML with PHP tags, kept as in CakePHP 2: they repeat markup, end with "?>", keep
+# the output as is, are indented with tabs and use the alternative syntax without braces
 [[triage]]
 match.plugins = ["radarlint-php"]
-match.rules = ["radarlint-php:php:S105", "radarlint-php:php:S1192", "radarlint-php:php:S113", "radarlint-php:php:S1780"]
+match.rules = [
+    "radarlint-php:php:S105",
+    "radarlint-php:php:S113",
+    "radarlint-php:php:S127",
+    "radarlint-php:php:S1192",
+    "radarlint-php:php:S1780",
+    "radarlint-php:php:S3973",
+    "radarlint-php:php:S6353",
+]
 match.file_patterns = ["templates/**"]
 set.ignored = true
