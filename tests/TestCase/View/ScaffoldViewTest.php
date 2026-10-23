@@ -27,6 +27,7 @@ use Cake\Network\CakeRequest;
 use Cake\Network\CakeResponse;
 use Cake\Routing\Router;
 use Cake\TestSuite\CakeTestCase;
+use Cake\Utility\Folder;
 use TestApp\Controller\ScaffoldViewMockController;
 use TestApp\View\TestScaffoldView;
 
@@ -104,39 +105,39 @@ class ScaffoldViewTest extends CakeTestCase
         $this->Controller->request->params['action'] = 'index';
         $ScaffoldView = new TestScaffoldView($this->Controller);
         $result = $ScaffoldView->testGetFilename('index');
-        $expected = CORE_ROOT . DS . 'templates' . DS . 'Scaffolds' . DS . 'index.ctp';
+        $expected = CORE_ROOT . DS . 'templates' . DS . 'Scaffolds' . DS . 'index.php';
         $this->assertEquals($expected, $result);
 
         $result = $ScaffoldView->testGetFilename('edit');
-        $expected = CORE_ROOT . DS . 'templates' . DS . 'Scaffolds' . DS . 'form.ctp';
+        $expected = CORE_ROOT . DS . 'templates' . DS . 'Scaffolds' . DS . 'form.php';
         $this->assertEquals($expected, $result);
 
         $result = $ScaffoldView->testGetFilename('add');
-        $expected = CORE_ROOT . DS . 'templates' . DS . 'Scaffolds' . DS . 'form.ctp';
+        $expected = CORE_ROOT . DS . 'templates' . DS . 'Scaffolds' . DS . 'form.php';
         $this->assertEquals($expected, $result);
 
         $result = $ScaffoldView->testGetFilename('view');
-        $expected = CORE_ROOT . DS . 'templates' . DS . 'Scaffolds' . DS . 'view.ctp';
+        $expected = CORE_ROOT . DS . 'templates' . DS . 'Scaffolds' . DS . 'view.php';
         $this->assertEquals($expected, $result);
 
         $result = $ScaffoldView->testGetFilename('admin_index');
-        $expected = CORE_ROOT . DS . 'templates' . DS . 'Scaffolds' . DS . 'index.ctp';
+        $expected = CORE_ROOT . DS . 'templates' . DS . 'Scaffolds' . DS . 'index.php';
         $this->assertEquals($expected, $result);
 
         $result = $ScaffoldView->testGetFilename('admin_view');
-        $expected = CORE_ROOT . DS . 'templates' . DS . 'Scaffolds' . DS . 'view.ctp';
+        $expected = CORE_ROOT . DS . 'templates' . DS . 'Scaffolds' . DS . 'view.php';
         $this->assertEquals($expected, $result);
 
         $result = $ScaffoldView->testGetFilename('admin_edit');
-        $expected = CORE_ROOT . DS . 'templates' . DS . 'Scaffolds' . DS . 'form.ctp';
+        $expected = CORE_ROOT . DS . 'templates' . DS . 'Scaffolds' . DS . 'form.php';
         $this->assertEquals($expected, $result);
 
         $result = $ScaffoldView->testGetFilename('admin_add');
-        $expected = CORE_ROOT . DS . 'templates' . DS . 'Scaffolds' . DS . 'form.ctp';
+        $expected = CORE_ROOT . DS . 'templates' . DS . 'Scaffolds' . DS . 'form.php';
         $this->assertEquals($expected, $result);
 
         $result = $ScaffoldView->testGetFilename('error');
-        $expected = CORE_ROOT . DS . 'templates' . DS . 'Errors' . DS . 'scaffold_error.ctp';
+        $expected = CORE_ROOT . DS . 'templates' . DS . 'Errors' . DS . 'scaffold_error.php';
         $this->assertEquals($expected, $result);
 
         $controller = new ScaffoldViewMockController($this->request);
@@ -175,6 +176,44 @@ class ScaffoldViewTest extends CakeTestCase
         $this->assertEquals($expected, $result);
 
         Configure::write('Routing.prefixes', $_admin);
+    }
+
+    /**
+     * Test that the scaffold templates are found in templates/ with the .php extension, and in
+     * View/ with the .ctp extension, before the templates of the core.
+     *
+     * @return void
+     */
+    public function testGetViewFilenameOfAppTemplates(): void
+    {
+        $path = TMP . 'scaffold_templates' . DS;
+        $files = [
+            'templates' . DS . 'Posts' . DS . 'scaffold.form.php',
+            'templates' . DS . 'Scaffolds' . DS . 'index.php',
+            'View' . DS . 'Scaffolds' . DS . 'index.ctp',
+            'View' . DS . 'Scaffolds' . DS . 'view.php',
+        ];
+        foreach ($files as $file) {
+            new Folder(dirname($path . $file), true);
+            file_put_contents($path . $file, $file);
+        }
+        $this->Controller->viewPath = 'Posts';
+
+        try {
+            App::build(['View' => [$path . 'templates' . DS]], App::RESET);
+            $ScaffoldView = new TestScaffoldView($this->Controller);
+            $this->assertSame($path . $files[0], $ScaffoldView->testGetFilename('edit'));
+            $this->assertSame($path . $files[1], $ScaffoldView->testGetFilename('index'));
+            $this->assertSame(CORE_ROOT . DS . 'templates' . DS . 'Scaffolds' . DS . 'view.php', $ScaffoldView->testGetFilename('view'));
+
+            // View/ directories are not searched for .php templates
+            App::build(['View' => [$path . 'View' . DS]], App::RESET);
+            $ScaffoldView = new TestScaffoldView($this->Controller);
+            $this->assertSame($path . $files[2], $ScaffoldView->testGetFilename('index'));
+            $this->assertSame(CORE_ROOT . DS . 'templates' . DS . 'Scaffolds' . DS . 'view.php', $ScaffoldView->testGetFilename('view'));
+        } finally {
+            (new Folder($path))->delete();
+        }
     }
 
     /**

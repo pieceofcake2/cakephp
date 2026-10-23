@@ -9,7 +9,9 @@
  * - `title` The error title (HTML escaped). Additional lines are shown as a description.
  * - `subheading` A short explanation of the error.
  * - `file` Suggestions, e.g. the code needed to fix the error.
- * - `templateName` The name of the error template, used for the customization hint.
+ * - `templateName` The name of the error template, used for the customization hint. It has the `.ctp`
+ *   extension also for the core templates (e.g. `error400.ctp`): the hint names the file that the
+ *   application can create, e.g. `templates/Error/error400.php` or `app/View/Errors/error400.ctp`.
  *
  * It does not use helpers, so it can also be rendered when a helper failed to load.
  *

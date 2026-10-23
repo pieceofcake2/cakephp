@@ -1442,6 +1442,36 @@ class ExceptionRendererTest extends CakeTestCase
     }
 
     /**
+     * Test that the error templates of the application, in templates/ or View/ with the .ctp
+     * extension, override the .php templates of the core.
+     *
+     * @return void
+     */
+    public function testAppErrorTemplateOverridesCoreTemplate(): void
+    {
+        $this->assertFileExists(CORE_ROOT . DS . 'templates' . DS . 'Errors' . DS . 'error400.php');
+
+        $path = TMP . 'error_template_override' . DS;
+        $results = [];
+        try {
+            foreach (['templates', 'View'] as $dir) {
+                new Folder($path . $dir . DS . 'Errors', true);
+                file_put_contents($path . $dir . DS . 'Errors' . DS . 'error400.ctp', "app {$dir} error400");
+                App::build(['View' => [$path . $dir . DS]], App::RESET);
+                $results[$dir] = $this->_render(new NotFoundException('Nothing to see'));
+            }
+        } finally {
+            (new Folder($path))->delete();
+        }
+        $this->assertStringContainsString('app templates error400', $results['templates']);
+        $this->assertStringContainsString('app View error400', $results['View']);
+        foreach ($results as $result) {
+            $this->assertStringNotContainsString('was not found on this server', $result);
+            $this->assertStringNotContainsString('header-title', $result);
+        }
+    }
+
+    /**
      * Test that a dev_error layout in the theme overrides the core one.
      *
      * @return void

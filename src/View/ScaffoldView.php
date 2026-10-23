@@ -72,22 +72,21 @@ class ScaffoldView extends View
         $names[] = 'Scaffolds' . DS . $subDir . $name;
 
         $paths = $this->_paths($this->plugin);
-        $exts = [$this->ext];
-        if ($this->ext !== '.ctp') {
-            $exts[] = '.ctp';
-        }
+        $exts = $this->_getExtensions();
         foreach ($exts as $ext) {
             foreach ($paths as $path) {
                 foreach ($names as $name) {
-                    if (file_exists($path . $name . $ext)) {
-                        return $path . $name . $ext;
+                    foreach ($this->_getTemplateFiles($path, $name, $ext) as $template) {
+                        if (file_exists($template)) {
+                            return $template;
+                        }
                     }
                 }
             }
         }
 
         if ($name === 'Scaffolds' . DS . $subDir . 'error') {
-            return CORE_ROOT . DS . 'templates' . DS . 'Errors' . DS . 'scaffold_error.ctp';
+            return CORE_ROOT . DS . 'templates' . DS . 'Errors' . DS . 'scaffold_error.php';
         }
 
         throw new MissingViewException($paths[0] . $name . $this->ext);

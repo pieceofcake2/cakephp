@@ -128,39 +128,39 @@ class ScaffoldViewTest extends CakeTestCase
         $this->Controller->request->params['action'] = 'index';
         $ScaffoldView = new TestScaffoldView($this->Controller);
         $result = $ScaffoldView->testGetFilename('index');
-        $expected = CORE_ROOT . DS . 'templates' . DS . 'Scaffolds' . DS . 'index.ctp';
+        $expected = CORE_ROOT . DS . 'templates' . DS . 'Scaffolds' . DS . 'index.php';
         $this->assertEquals($expected, $result);
 
         $result = $ScaffoldView->testGetFilename('edit');
-        $expected = CORE_ROOT . DS . 'templates' . DS . 'Scaffolds' . DS . 'form.ctp';
+        $expected = CORE_ROOT . DS . 'templates' . DS . 'Scaffolds' . DS . 'form.php';
         $this->assertEquals($expected, $result);
 
         $result = $ScaffoldView->testGetFilename('add');
-        $expected = CORE_ROOT . DS . 'templates' . DS . 'Scaffolds' . DS . 'form.ctp';
+        $expected = CORE_ROOT . DS . 'templates' . DS . 'Scaffolds' . DS . 'form.php';
         $this->assertEquals($expected, $result);
 
         $result = $ScaffoldView->testGetFilename('view');
-        $expected = CORE_ROOT . DS . 'templates' . DS . 'Scaffolds' . DS . 'view.ctp';
+        $expected = CORE_ROOT . DS . 'templates' . DS . 'Scaffolds' . DS . 'view.php';
         $this->assertEquals($expected, $result);
 
         $result = $ScaffoldView->testGetFilename('admin_index');
-        $expected = CORE_ROOT . DS . 'templates' . DS . 'Scaffolds' . DS . 'index.ctp';
+        $expected = CORE_ROOT . DS . 'templates' . DS . 'Scaffolds' . DS . 'index.php';
         $this->assertEquals($expected, $result);
 
         $result = $ScaffoldView->testGetFilename('admin_view');
-        $expected = CORE_ROOT . DS . 'templates' . DS . 'Scaffolds' . DS . 'view.ctp';
+        $expected = CORE_ROOT . DS . 'templates' . DS . 'Scaffolds' . DS . 'view.php';
         $this->assertEquals($expected, $result);
 
         $result = $ScaffoldView->testGetFilename('admin_edit');
-        $expected = CORE_ROOT . DS . 'templates' . DS . 'Scaffolds' . DS . 'form.ctp';
+        $expected = CORE_ROOT . DS . 'templates' . DS . 'Scaffolds' . DS . 'form.php';
         $this->assertEquals($expected, $result);
 
         $result = $ScaffoldView->testGetFilename('admin_add');
-        $expected = CORE_ROOT . DS . 'templates' . DS . 'Scaffolds' . DS . 'form.ctp';
+        $expected = CORE_ROOT . DS . 'templates' . DS . 'Scaffolds' . DS . 'form.php';
         $this->assertEquals($expected, $result);
 
         $result = $ScaffoldView->testGetFilename('error');
-        $expected = CORE_ROOT . DS . 'templates' . DS . 'Errors' . DS . 'scaffold_error.ctp';
+        $expected = CORE_ROOT . DS . 'templates' . DS . 'Errors' . DS . 'scaffold_error.php';
         $this->assertEquals($expected, $result);
 
         $Controller = new ScaffoldViewMockController($this->request);
