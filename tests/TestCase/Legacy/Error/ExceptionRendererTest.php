@@ -23,7 +23,9 @@ use Cake\Core\CakePlugin;
 use Cake\Core\Configure;
 use Cake\Error\ExceptionRenderer;
 use Cake\Error\MissingControllerException;
+use Cake\Error\MissingLayoutException;
 use Cake\Error\MissingPluginException;
+use Cake\Error\MissingViewException;
 use Cake\Error\NotFoundException;
 use Cake\Error\SocketException;
 use Cake\Model\Datasource\CakeSession;
@@ -176,6 +178,27 @@ class ExceptionRendererTest extends CakeTestCase
         $ExceptionRenderer->render();
 
         return ob_get_clean();
+    }
+
+    /**
+     * Test that the missing template pages suggest the files of the View/ directory in the CakePHP 2 layout.
+     *
+     * @return void
+     */
+    public function testDevErrorSuggestedTemplateFile(): void
+    {
+        $view = CORE_TESTS . DS . 'test_legacy_app' . DS . 'View' . DS;
+
+        $result = $this->_render(new MissingViewException(['file' => 'Pages' . DS . 'nope.ctp']));
+        $this->assertStringContainsString('Confirm you have created the file: "Pages' . DS . 'nope.ctp"', $result);
+        $this->assertStringContainsString('<li>' . h($view . 'Pages' . DS . 'nope.ctp') . '</li>', $result);
+        $this->assertStringNotContainsString('nope.php</li>', $result);
+        $this->assertStringContainsString('create <em>' . h($view . 'Errors' . DS . 'missing_view.ctp') . '</em>', $result);
+
+        $result = $this->_render(new MissingLayoutException(['file' => 'Layouts' . DS . 'nope.ctp']));
+        $this->assertStringContainsString('Confirm you have created the file: Layouts' . DS . 'nope.ctp', $result);
+        $this->assertStringContainsString('<li>' . h($view . 'Layouts' . DS . 'nope.ctp') . '</li>', $result);
+        $this->assertStringContainsString('create <em>' . h($view . 'Errors' . DS . 'missing_layout.ctp') . '</em>', $result);
     }
 
     /**

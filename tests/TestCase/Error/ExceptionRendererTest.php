@@ -639,7 +639,7 @@ class ExceptionRendererTest extends CakeTestCase
             [
                 new MissingViewException(['file' => '/posts/about.ctp']),
                 [
-                    '/Confirm you have created the file: "\/posts\/about.ctp"/',
+                    '/Confirm you have created the file: "\/posts\/about.php"/',
                 ],
                 500,
             ],
@@ -1147,7 +1147,7 @@ class ExceptionRendererTest extends CakeTestCase
         $this->assertStringNotContainsString('<h3>Stack Trace</h3>', $result);
         $this->assertMatchesRegularExpression('/<a href="phpstorm:\/\/open\?file=[^"]+&amp;line=\d+" class="stack-frame-edit">\(edit\)<\/a>/', $result);
         $this->assertStringContainsString('In the case you tried to access a plugin controller', $result);
-        $this->assertStringContainsString('Errors' . DS . 'missing_controller.ctp', $result);
+        $this->assertStringContainsString('templates' . DS . 'Error' . DS . 'missing_controller.php', $result);
         $this->assertStringNotContainsString('CakePHP: the rapid development php framework', $result, 'The app layout should not be used.');
         $this->assertStringNotContainsString('<h2>Missing Controller</h2>', $result);
     }
@@ -1170,6 +1170,30 @@ class ExceptionRendererTest extends CakeTestCase
         $this->assertStringContainsString('<em>NotLoadedPlugin.SideboxComponent</em> could not be found.', $result);
         $this->assertStringContainsString('Make sure your plugin <em>NotLoadedPlugin</em> is in the', $result);
         $this->assertStringContainsString('NotLoadedPlugin' . DS . 'Controller' . DS . 'Component' . DS . 'SideboxComponent.php', $result);
+    }
+
+    /**
+     * Test that the missing template pages suggest the files of templates/, with the directory
+     * names and the extension that the View looks for first.
+     *
+     * @return void
+     */
+    public function testDevErrorSuggestedTemplateFile(): void
+    {
+        $templates = CORE_TESTS . DS . 'test_app' . DS . 'templates' . DS;
+
+        $result = $this->_render(new MissingViewException(['file' => 'Pages' . DS . 'nope.ctp']));
+        $this->assertStringContainsString('Confirm you have created the file: "Pages' . DS . 'nope.php"', $result);
+        $this->assertStringContainsString('<li>' . h($templates . 'Pages' . DS . 'nope.php') . '</li>', $result);
+        $this->assertStringNotContainsString('nope.ctp</li>', $result);
+        $this->assertStringNotContainsString('src' . DS . 'View' . DS . 'Pages', $result);
+        $this->assertStringContainsString('create <em>' . h($templates . 'Error' . DS . 'missing_view.php') . '</em>', $result);
+
+        $result = $this->_render(new MissingLayoutException(['file' => 'Layouts' . DS . 'nope.ctp']));
+        $this->assertStringContainsString('Confirm you have created the file: layout' . DS . 'nope.php', $result);
+        $this->assertStringContainsString('<li>' . h($templates . 'layout' . DS . 'nope.php') . '</li>', $result);
+        $this->assertStringNotContainsString('nope.ctp</li>', $result);
+        $this->assertStringContainsString('Error' . DS . 'missing_layout.php', $result);
     }
 
     /**
