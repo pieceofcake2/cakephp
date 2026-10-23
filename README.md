@@ -67,7 +67,7 @@ in the book for the migration steps and breaking changes, and [UPGRADE.md](UPGRA
 To prepare for CakePHP 5, you can move to the CakePHP 5-style directory layout while you stay on CakePHP 2. See
 [Migrating to the Modern Layout](https://pieceofcake2.github.io/docs/appendices/migrating-to-the-modern-layout.html)
 ([Markdown](https://github.com/pieceofcake2/docs/blob/2.x/docs/en/appendices/migrating-to-the-modern-layout.md))
-and the [pieceofcake2/app](https://pieceofcake2.github.io/app/) skeleton.
+and the [pieceofcake2/app](https://pieceofcake2.github.io/docs/installation/application-skeleton.html) skeleton.
 
 ## Integration Testing
 
