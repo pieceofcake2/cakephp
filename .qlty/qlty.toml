@@ -73,3 +73,11 @@ match.plugins = ["radarlint-php"]
 match.rules = ["radarlint-php:php:S4833"]
 match.file_patterns = ["tests/bootstrap.php", "config/**"]
 set.ignored = true
+
+# Templates are HTML with PHP tags: they repeat markup, end with "?>", keep the output as is and
+# are indented with tabs, as in CakePHP 2
+[[triage]]
+match.plugins = ["radarlint-php"]
+match.rules = ["radarlint-php:php:S105", "radarlint-php:php:S1192", "radarlint-php:php:S113", "radarlint-php:php:S1780"]
+match.file_patterns = ["templates/**"]
+set.ignored = true
