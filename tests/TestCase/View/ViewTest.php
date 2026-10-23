@@ -886,6 +886,29 @@ class ViewTest extends CakeTestCase
     }
 
     /**
+     * Test that the core templates are found in the directories of CakePHP 5 by the names of CakePHP 2.
+     *
+     * @return void
+     */
+    public function testCoreTemplatesInCakePhp5Directories(): void
+    {
+        App::build(['View' => [TMP . 'no_app_templates' . DS]], App::RESET);
+        $View = new TestView($this->PostsController);
+        $core = CORE_ROOT . DS . 'templates' . DS;
+
+        $this->assertSame($core . 'layout' . DS . 'default.php', $View->getLayoutFileName('default'));
+        $this->assertSame($core . 'layout' . DS . 'dev_error.php', $View->getLayoutFileName('dev_error'));
+        $this->assertSame($core . 'Error' . DS . 'error400.php', $View->getViewFileName('/Errors/error400'));
+        $elementFile = fn($name) => $this->_getElementFileName($name);
+        $this->assertSame($core . 'element' . DS . 'sql_dump.php', $elementFile->call($View, 'sql_dump'));
+        $this->assertSame($core . 'element' . DS . 'Flash' . DS . 'default.php', $elementFile->call($View, 'Flash/default'));
+
+        $View->viewPath = $View->layoutPath = 'Emails' . DS . 'html';
+        $this->assertSame($core . 'email' . DS . 'html' . DS . 'default.php', $View->getViewFileName('default'));
+        $this->assertSame($core . 'layout' . DS . 'email' . DS . 'html' . DS . 'default.php', $View->getLayoutFileName('default'));
+    }
+
+    /**
      * Test element method
      *
      * @return void

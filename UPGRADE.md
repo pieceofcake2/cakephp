@@ -17,11 +17,11 @@ Before migrating to this fork, ensure:
 
 ## Unreleased
 
-### Core Templates in `.php` ([PR #117](https://github.com/pieceofcake2/cakephp/pull/117))
+### Core Templates in `.php` and the CakePHP 5 Directories ([PR #117](https://github.com/pieceofcake2/cakephp/pull/117))
 
-The templates of the core in `templates/` are `.php` files instead of `.ctp` files, e.g. `templates/Errors/error400.php` and `templates/Layouts/dev_error.php`. The templates of your application, plugins and themes (`templates/Errors/error400.ctp`, `app/View/Errors/error400.ctp`, `Layouts/dev_error.ctp`, ...) still override the core templates of the same name, and need no change.
+The templates of the core in `templates/` are `.php` files in the directories of CakePHP 5: `Error/`, `layout/`, `layout/email/`, `element/` and `email/` instead of `Errors/`, `Layouts/`, `Layouts/Emails/`, `Elements/` and `Emails/`, e.g. `templates/Error/error400.php` and `templates/layout/dev_error.php` instead of `templates/Errors/error400.ctp` and `templates/Layouts/dev_error.ctp`. `Pages/`, `Scaffolds/` and the subdirectories (`element/Flash/`, `layout/js/`, ...) keep their names. The templates of your application, plugins and themes (`templates/Errors/error400.ctp`, `templates/Error/error400.php`, `app/View/Errors/error400.ctp`, `Layouts/dev_error.ctp`, ...) still override the core templates of the same name, and need no change. Code that builds the path of a core template, e.g. `CORE_ROOT . DS . 'templates' . DS . 'Layouts' . DS . 'default.ctp'`, must use the new path.
 
-A controller or view that sets `$ext = '.php'` looks for `.php` templates in all the view paths before `.ctp` templates, so it now renders a core template, e.g. `Errors/error400.php`, instead of a `.ctp` template of the application with the same name. Rename such templates to `.php`.
+A controller or view that sets `$ext = '.php'` looks for `.php` templates in all the view paths before `.ctp` templates, so it now renders a core template, e.g. `Error/error400.php`, instead of a `.ctp` template of the application with the same name. Rename such templates to `.php`.
 
 The error templates of applications created from `pieceofcake2/app` v2.5.3 or earlier, or from `pieceofcake2/app-legacy`, use the `dev_error` layout only when the core has it:
 
@@ -31,7 +31,7 @@ $devErrorLayout = is_file(dirname(CAKE_CORE_INCLUDE_PATH) . DS . 'templates' . D
 if (Configure::read('debug') > 0 && !$this->request->is('ajax') && $devErrorLayout):
 ```
 
-The file is now `dev_error.php`, so in debug mode these templates show errors in the default layout of the application, with the stack trace below the message, instead of the development error page. Update `error400.ctp` and `error500.ctp` in `templates/Errors/` (`app/View/Errors/` in the CakePHP 2 layout):
+The file is now `templates/layout/dev_error.php`, so in debug mode these templates show errors in the default layout of the application, with the stack trace below the message, instead of the development error page. Update `error400.ctp` and `error500.ctp` in `templates/Errors/` (`app/View/Errors/` in the CakePHP 2 layout):
 
 - Remove the check, as the core has the `dev_error` layout since v2.12.6:
 
@@ -42,8 +42,9 @@ The file is now `dev_error.php`, so in debug mode these templates show errors in
 - Or, when the application must also run with an older core, look for both files:
 
   ```php
-  $layouts = dirname(CAKE_CORE_INCLUDE_PATH) . DS . 'templates' . DS . 'Layouts' . DS;
-  $devErrorLayout = is_file($layouts . 'dev_error.php') || is_file($layouts . 'dev_error.ctp');
+  $templates = dirname(CAKE_CORE_INCLUDE_PATH) . DS . 'templates' . DS;
+  $devErrorLayout = is_file($templates . 'layout' . DS . 'dev_error.php')
+      || is_file($templates . 'Layouts' . DS . 'dev_error.ctp');
   ```
 
 ### Layouts of the Core Error Templates ([PR #117](https://github.com/pieceofcake2/cakephp/pull/117))

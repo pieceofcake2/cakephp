@@ -1442,30 +1442,36 @@ class ExceptionRendererTest extends CakeTestCase
     }
 
     /**
-     * Test that the error templates of the application, in templates/ or View/ with the .ctp
-     * extension, override the .php templates of the core.
+     * Test that the error templates of the application override the core templates in
+     * templates/Error/: in templates/ with the CakePHP 2 or the CakePHP 5 directory name, and in View/.
      *
      * @return void
      */
     public function testAppErrorTemplateOverridesCoreTemplate(): void
     {
-        $this->assertFileExists(CORE_ROOT . DS . 'templates' . DS . 'Errors' . DS . 'error400.php');
+        $this->assertFileExists(CORE_ROOT . DS . 'templates' . DS . 'Error' . DS . 'error400.php');
 
         $path = TMP . 'error_template_override' . DS;
+        $files = [
+            'templates' . DS . 'Errors' . DS . 'error400.ctp',
+            'templates' . DS . 'Error' . DS . 'error400.php',
+            'View' . DS . 'Errors' . DS . 'error400.ctp',
+        ];
         $results = [];
         try {
-            foreach (['templates', 'View'] as $dir) {
-                is_dir($path . $dir . DS . 'Errors') || mkdir($path . $dir . DS . 'Errors', 0777, true);
-                file_put_contents($path . $dir . DS . 'Errors' . DS . 'error400.ctp', "app {$dir} error400");
-                App::build(['View' => [$path . $dir . DS]], App::RESET);
-                $results[$dir] = $this->_render(new NotFoundException('Nothing to see'));
+            foreach ($files as $i => $file) {
+                $root = $path . $i . DS;
+                $dir = dirname($root . $file);
+                is_dir($dir) || mkdir($dir, 0777, true);
+                file_put_contents($root . $file, 'app error400 ' . $file);
+                App::build(['View' => [$root . strtok($file, DS) . DS]], App::RESET);
+                $results[$file] = $this->_render(new NotFoundException('Nothing to see'));
             }
         } finally {
             (new Folder($path))->delete();
         }
-        $this->assertStringContainsString('app templates error400', $results['templates']);
-        $this->assertStringContainsString('app View error400', $results['View']);
-        foreach ($results as $result) {
+        foreach ($results as $file => $result) {
+            $this->assertStringContainsString('app error400 ' . $file, $result);
             $this->assertStringNotContainsString('was not found on this server', $result);
             $this->assertStringNotContainsString('header-title', $result);
         }
