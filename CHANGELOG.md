@@ -1,5 +1,11 @@
 ## CHANGELOG
 
+## Unreleased
+
+### Development ([PR #114](https://github.com/pieceofcake2/cakephp/pull/114))
+
+- **phpcs**: The core is checked with the `CakePHP2Namespace` standard of `pieceofcake2/phpcs-cakephp2` `^1.2`, as its classes are in the `Cake` namespace. Annotations name classes by their imported short names
+
 ## v2.13.0 (2026-10-23)
 
 ### Breaking Changes: Variadic Arguments ([PR #89](https://github.com/pieceofcake2/cakephp/pull/89))
