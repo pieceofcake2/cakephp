@@ -329,7 +329,7 @@ class ShellDispatcher
             if ($params['working'][0] === '.') {
                 $params['working'] = realpath($params['working']);
             }
-            if (empty($this->params['app']) && $params['working'] != $params['root']) {
+            if (empty($this->params['app']) && ($params['working'] != $params['root'] || $this->_isAppDirectory($params['working']))) {
                 $params['root'] = dirname($params['working']);
                 $params['app'] = basename($params['working']);
             } else {
@@ -382,6 +382,33 @@ class ShellDispatcher
             'working' => null,
             'webroot' => 'webroot',
         ];
+    }
+
+    /**
+     * Checks whether the given path is an application directory of the CakePHP 2 layout,
+     * with `Config/core.php` (or `config/core.php`) and `Controller/` in it, such as an application whose
+     * `composer.json` is in the application directory itself.
+     *
+     * The names are compared with the names in the directory, as a case-insensitive
+     * file system finds `Config/` and `Controller/` for `config/` and `controller/`.
+     *
+     * @param string $path The directory to check.
+     * @return bool
+     */
+    protected function _isAppDirectory($path)
+    {
+        $entries = is_dir($path) ? scandir($path) : false;
+        if ($entries === false || !in_array('Controller', $entries, true)) {
+            return false;
+        }
+
+        foreach (['Config', 'config'] as $config) {
+            if (in_array($config, $entries, true) && is_file($path . DS . $config . DS . 'core.php')) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /**

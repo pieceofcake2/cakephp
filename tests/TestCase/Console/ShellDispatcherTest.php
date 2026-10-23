@@ -73,6 +73,13 @@ class TestShellDispatcher extends ShellDispatcher
     public $shells = [];
 
     /**
+     * The project root to use instead of the directory of composer.json
+     *
+     * @var string|null
+     */
+    public $root = null;
+
+    /**
      * _initEnvironment method
      *
      * @return void
@@ -106,6 +113,22 @@ class TestShellDispatcher extends ShellDispatcher
     public function getDefaults(): mixed
     {
         return $this->_getDefaults();
+    }
+
+    /**
+     * Uses $root as the project root, as if its composer.json was found.
+     *
+     * @return array
+     */
+    protected function _getDefaults(): mixed
+    {
+        $defaults = parent::_getDefaults();
+        if ($this->root !== null) {
+            $defaults['root'] = $this->root;
+            $defaults['app'] = is_dir($this->root . DS . 'src') ? 'src' : 'app';
+        }
+
+        return $defaults;
     }
 
     /**
@@ -213,6 +236,39 @@ class TestEnvironmentShellDispatcher extends ShellDispatcher
 class ShellDispatcherTest extends CakeTestCase
 {
     /**
+     * The project directories created by _createProject()
+     *
+     * @var array<string>
+     */
+    protected $_projects = [];
+
+    /**
+     * Creates a project with composer.json and the given files in a temporary directory.
+     *
+     * @param array<string> $files The files to create, relative to the project.
+     * @return string The project directory.
+     */
+    protected function _createProject(array $files): string
+    {
+        $project = TMP . 'shell_dispatcher_' . uniqid();
+        $this->_projects[] = $project;
+        $files[] = 'composer.json';
+        foreach ($files as $file) {
+            $path = $project . DS . str_replace('/', DS, rtrim($file, '/'));
+            if (str_ends_with($file, '/')) {
+                mkdir($path, 0777, true);
+                continue;
+            }
+            if (!is_dir(dirname($path))) {
+                mkdir(dirname($path), 0777, true);
+            }
+            touch($path);
+        }
+
+        return realpath($project);
+    }
+
+    /**
      * setUp method
      *
      * @return void
@@ -242,6 +298,11 @@ class ShellDispatcherTest extends CakeTestCase
     public function tearDown(): void
     {
         CakePlugin::unload();
+        foreach ($this->_projects as $project) {
+            $Folder = new Folder($project);
+            $Folder->delete();
+        }
+        $this->_projects = [];
 
         parent::tearDown();
     }
@@ -907,6 +968,73 @@ class ShellDispatcherTest extends CakeTestCase
         ];
         $dispatcher->params = $dispatcher->args = [];
         $dispatcher->parseParams($params);
+        $this->assertEquals($expected, $dispatcher->params);
+    }
+
+    /**
+     * Test that an application directory with composer.json in it is the application,
+     * as the Console/cake of an application in the CakePHP 2 layout passes it as -working.
+     *
+     * @return void
+     */
+    public function testParseParamsWorkingIsAppWithComposerJson(): void
+    {
+        $project = $this->_createProject(['Config/core.php', 'Controller/', 'Model/', 'View/', 'Console/cake', 'webroot/']);
+        $dispatcher = new TestShellDispatcher();
+        $dispatcher->root = $project;
+        $dispatcher->params = $dispatcher->args = [];
+        $dispatcher->parseParams(['cake.php', '-working', $project]);
+
+        $expected = [
+            'app' => basename($project),
+            'root' => dirname($project),
+            'working' => $project,
+            'webroot' => 'webroot',
+        ];
+        $this->assertEquals($expected, $dispatcher->params);
+    }
+
+    /**
+     * Test that the app directory of a project in the CakePHP 2 layout is the application.
+     *
+     * @return void
+     */
+    public function testParseParamsWorkingIsAppInProject(): void
+    {
+        $project = $this->_createProject(['app/Config/core.php', 'app/Controller/', 'app/Console/cake', 'app/webroot/']);
+        $dispatcher = new TestShellDispatcher();
+        $dispatcher->root = $project;
+        $dispatcher->params = $dispatcher->args = [];
+        $dispatcher->parseParams(['cake.php', '-working', $project . DS . 'app']);
+
+        $expected = [
+            'app' => 'app',
+            'root' => $project,
+            'working' => $project . DS . 'app',
+            'webroot' => 'webroot',
+        ];
+        $this->assertEquals($expected, $dispatcher->params);
+    }
+
+    /**
+     * Test that a project in the CakePHP 5 layout keeps its root and src/ when it is the working directory.
+     *
+     * @return void
+     */
+    public function testParseParamsWorkingIsProjectInCakePHP5Layout(): void
+    {
+        $project = $this->_createProject(['config/core.php', 'src/Controller/', 'bin/cake', 'webroot/']);
+        $dispatcher = new TestShellDispatcher();
+        $dispatcher->root = $project;
+        $dispatcher->params = $dispatcher->args = [];
+        $dispatcher->parseParams(['cake.php', '-working', $project]);
+
+        $expected = [
+            'app' => 'src',
+            'root' => $project,
+            'working' => $project . DS . 'src',
+            'webroot' => 'webroot',
+        ];
         $this->assertEquals($expected, $dispatcher->params);
     }
 
