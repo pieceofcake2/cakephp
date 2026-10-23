@@ -15,6 +15,37 @@ Before migrating to this fork, ensure:
 4. **Upgrade PHP**: Update your PHP version to 8.0 or newer
 5. **Test Thoroughly**: Run your application's test suite to ensure compatibility
 
+## Unreleased
+
+### Core Templates in `.php` ([PR #117](https://github.com/pieceofcake2/cakephp/pull/117))
+
+The templates of the core in `templates/` are `.php` files instead of `.ctp` files, e.g. `templates/Errors/error400.php` and `templates/Layouts/dev_error.php`. The templates of your application, plugins and themes (`templates/Errors/error400.ctp`, `app/View/Errors/error400.ctp`, `Layouts/dev_error.ctp`, ...) still override the core templates of the same name, and need no change.
+
+A controller or view that sets `$ext = '.php'` looks for `.php` templates in all the view paths before `.ctp` templates, so it now renders a core template, e.g. `Errors/error400.php`, instead of a `.ctp` template of the application with the same name. Rename such templates to `.php`.
+
+The error templates of applications created from `pieceofcake2/app` v2.5.3 or earlier, or from `pieceofcake2/app-legacy`, use the `dev_error` layout only when the core has it:
+
+```php
+$devErrorLayout = is_file(dirname(CAKE_CORE_INCLUDE_PATH) . DS . 'templates' . DS . 'Layouts' . DS . 'dev_error.ctp');
+
+if (Configure::read('debug') > 0 && !$this->request->is('ajax') && $devErrorLayout):
+```
+
+The file is now `dev_error.php`, so in debug mode these templates show errors in the default layout of the application, with the stack trace below the message, instead of the development error page. Update `error400.ctp` and `error500.ctp` in `templates/Errors/` (`app/View/Errors/` in the CakePHP 2 layout):
+
+- Remove the check, as the core has the `dev_error` layout since v2.12.6:
+
+  ```php
+  if (Configure::read('debug') > 0 && !$this->request->is('ajax')):
+  ```
+
+- Or, when the application must also run with an older core, look for both files:
+
+  ```php
+  $layouts = dirname(CAKE_CORE_INCLUDE_PATH) . DS . 'templates' . DS . 'Layouts' . DS;
+  $devErrorLayout = is_file($layouts . 'dev_error.php') || is_file($layouts . 'dev_error.ctp');
+  ```
+
 ## v2.13.0
 
 ### Variadic Arguments ([PR #89](https://github.com/pieceofcake2/cakephp/pull/89))

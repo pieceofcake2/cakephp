@@ -10,6 +10,11 @@
 
 - **Error pages in debug mode**: In an application with `templates/`, the Missing View and Missing Layout pages and the customization hint suggest the file that the View finds first, e.g. `templates/Pages/home.php`, `templates/layout/default.php` and `templates/Error/error400.php`, instead of `.ctp` files under `src/View/` and `templates/Errors/`. With `App.namespace`, the Missing Controller, Action, Component, Helper and Behavior pages suggest the class in the namespace of the application or the plugin, with the `use` of its parent class, and a plugin that is not loaded in `plugins/<Plugin>/src/`. Applications in the CakePHP 2 layout keep their hints
 
+### Changes ([PR #117](https://github.com/pieceofcake2/cakephp/pull/117))
+
+- **Core templates in `.php`**: The templates of the core in `templates/` have the `.php` extension of CakePHP 5 instead of `.ctp`, e.g. `templates/Errors/error400.php` and `templates/Layouts/dev_error.php`. The directory names are unchanged. The templates of the application, plugins and themes, `.ctp` or `.php`, still override them, as their view paths come first. Error templates that look for `templates/Layouts/dev_error.ctp` in the core with `is_file()`, as those of `pieceofcake2/app` v2.5.3 and earlier and of `pieceofcake2/app-legacy` do, no longer find it and show errors in debug mode in the default layout instead of the `dev_error` layout: see UPGRADE
+- **Scaffold templates**: `ScaffoldView` looks for the scaffold templates as the View looks for other templates, so it also finds `.php` scaffold templates in `templates/` directories, e.g. `templates/Posts/scaffold.form.php` or `templates/Scaffolds/index.php`
+
 ## v2.13.0 (2026-10-23)
 
 ### Breaking Changes: Variadic Arguments ([PR #89](https://github.com/pieceofcake2/cakephp/pull/89))
