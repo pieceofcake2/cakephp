@@ -37,16 +37,7 @@ $this->start('subheading');
 	<strong><?php echo __d('cake_dev', 'Suggestion'); ?></strong>
 	<?php echo __d('cake_dev', 'Create the class %s below in file: %s', '<em>' . h($class) . '</em>', $path); ?>
 </p>
-<?php
-$code = <<<PHP
-<?php
-
-class {$class} extends {$appController}
-{
-}
-PHP;
-?>
-<div class="code-dump"><?php highlight_string($code); ?></div>
+<?php echo $this->element('dev_error_class_code', array('class' => $class, 'package' => 'Controller', 'plugin' => $plugin ?? null, 'parent' => '{namespace}\\Controller\\' . $appController)); ?>
 <?php $this->end(); ?>
 <?php
 if (Configure::read('debug') > 0 && !$this->request->is('ajax')) :

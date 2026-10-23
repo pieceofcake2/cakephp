@@ -22,7 +22,10 @@ use Cake\Core\App;
 use Cake\Core\CakePlugin;
 use Cake\Core\Configure;
 use Cake\Error\ExceptionRenderer;
+use Cake\Error\MissingActionException;
+use Cake\Error\MissingComponentException;
 use Cake\Error\MissingControllerException;
+use Cake\Error\MissingHelperException;
 use Cake\Error\MissingLayoutException;
 use Cake\Error\MissingPluginException;
 use Cake\Error\MissingViewException;
@@ -181,6 +184,21 @@ class ExceptionRendererTest extends CakeTestCase
     }
 
     /**
+     * Returns the suggested code of an error page as text.
+     *
+     * @param string $result The rendered error page.
+     * @return string
+     */
+    protected function _suggestedCode($result): string
+    {
+        $this->assertSame(1, preg_match('/<div class="code-dump">(.*?)<\/div>/s', $result, $match));
+        // highlight_string() uses <br /> and &nbsp; before PHP 8.3
+        $text = html_entity_decode(strip_tags(str_replace('<br />', "\n", $match[1])), ENT_QUOTES, 'UTF-8');
+
+        return str_replace("\u{a0}", ' ', $text);
+    }
+
+    /**
      * Test that the missing template pages suggest the files of the View/ directory in the CakePHP 2 layout.
      *
      * @return void
@@ -199,6 +217,33 @@ class ExceptionRendererTest extends CakeTestCase
         $this->assertStringContainsString('Confirm you have created the file: Layouts' . DS . 'nope.ctp', $result);
         $this->assertStringContainsString('<li>' . h($view . 'Layouts' . DS . 'nope.ctp') . '</li>', $result);
         $this->assertStringContainsString('create <em>' . h($view . 'Errors' . DS . 'missing_layout.ctp') . '</em>', $result);
+    }
+
+    /**
+     * Test that the missing class pages suggest global classes without App.namespace.
+     *
+     * @return void
+     */
+    public function testDevErrorSuggestedGlobalCode(): void
+    {
+        $result = $this->_render(new MissingControllerException(['class' => 'NopeController']));
+        $this->assertSame("<?php\n\nclass NopeController extends AppController\n{\n}", trim($this->_suggestedCode($result)));
+        $this->assertStringContainsString('below in file: ' . h(substr(App::path('Controller')[0], strlen(ROOT . DS)) . 'NopeController.php'), $result);
+
+        $result = $this->_render(new MissingControllerException(['class' => 'NopeController', 'plugin' => 'Blog']));
+        $this->assertSame("<?php\n\nclass NopeController extends BlogAppController\n{\n}", trim($this->_suggestedCode($result)));
+        $pluginDir = substr(App::path('Plugin')[0], strlen(ROOT . DS));
+        $this->assertStringContainsString('below in file: ' . h($pluginDir . 'Blog' . DS . 'Controller' . DS . 'NopeController.php'), $result);
+        $this->assertStringContainsString('Make sure your plugin <em>Blog</em> is in the ' . h($pluginDir) . ' directory', $result);
+
+        $result = $this->_render(new MissingActionException(['controller' => 'PostsController', 'action' => 'nope']));
+        $this->assertSame("<?php\n\nclass PostsController extends AppController\n{\n    public function nope()\n    {\n    }\n}", trim($this->_suggestedCode($result)));
+
+        $result = $this->_render(new MissingComponentException(['class' => 'NopeComponent', 'plugin' => null]));
+        $this->assertSame("<?php\n\nclass NopeComponent extends Component\n{\n}", trim($this->_suggestedCode($result)));
+
+        $result = $this->_render(new MissingHelperException(['class' => 'NopeHelper', 'plugin' => null]));
+        $this->assertSame("<?php\n\nclass NopeHelper extends AppHelper\n{\n}", trim($this->_suggestedCode($result)));
     }
 
     /**

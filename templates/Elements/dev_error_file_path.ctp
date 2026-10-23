@@ -6,7 +6,8 @@
  *
  * In the CakePHP 5 layout, templates belong in `templates/`, with the directory name and the
  * extension that the View looks for first (e.g. `templates/Error/error400.php` for
- * `Errors/error400.ctp`).
+ * `Errors/error400.ctp`). When `App.namespace` is set, a plugin that is not loaded belongs in
+ * `plugins/`, with its classes in `src/`.
  *
  * - `package` The App::path() package (e.g. `Controller`, `Model/Behavior`, `View`).
  * - `file` The file name, relative to the package directory. An empty string prints the package directory.
@@ -30,12 +31,26 @@
 
 $plugin = empty($plugin) ? null : $plugin;
 $packageDir = str_replace('/', DS, $package) . DS;
+$pluginsDir = null;
+$appNamespace = Configure::read('App.namespace');
+if (is_string($appNamespace) && $appNamespace !== '') {
+	foreach (App::path('Plugin') as $pluginPath) {
+		if (basename($pluginPath) === 'plugins') {
+			$pluginsDir = $pluginPath;
+			break;
+		}
+	}
+}
 $paths = array();
 if ($plugin !== null && CakePlugin::loaded($plugin)) {
 	$paths = App::path($package, $plugin);
+} elseif ($plugin !== null && $pluginsDir !== null) {
+	$paths = array($pluginsDir . $plugin . DS . ($package === 'View' ? 'templates' . DS : 'src' . DS . $packageDir));
 } elseif ($plugin !== null) {
 	$pluginPaths = App::path('Plugin');
 	$paths = array((isset($pluginPaths[0]) ? $pluginPaths[0] : APP . 'Plugin' . DS) . $plugin . DS . $packageDir);
+} elseif ($package === 'Plugin' && $pluginsDir !== null) {
+	$paths = array($pluginsDir);
 } else {
 	$paths = App::path($package);
 }
