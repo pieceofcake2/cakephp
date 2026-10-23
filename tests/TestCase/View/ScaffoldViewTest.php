@@ -194,7 +194,7 @@ class ScaffoldViewTest extends CakeTestCase
             'View' . DS . 'Scaffolds' . DS . 'view.php',
         ];
         foreach ($files as $file) {
-            new Folder(dirname($path . $file), true);
+            is_dir(dirname($path . $file)) || mkdir(dirname($path . $file), 0777, true);
             file_put_contents($path . $file, $file);
         }
         $this->Controller->viewPath = 'Posts';

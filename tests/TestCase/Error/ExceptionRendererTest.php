@@ -1455,7 +1455,7 @@ class ExceptionRendererTest extends CakeTestCase
         $results = [];
         try {
             foreach (['templates', 'View'] as $dir) {
-                new Folder($path . $dir . DS . 'Errors', true);
+                is_dir($path . $dir . DS . 'Errors') || mkdir($path . $dir . DS . 'Errors', 0777, true);
                 file_put_contents($path . $dir . DS . 'Errors' . DS . 'error400.ctp', "app {$dir} error400");
                 App::build(['View' => [$path . $dir . DS]], App::RESET);
                 $results[$dir] = $this->_render(new NotFoundException('Nothing to see'));
@@ -1526,7 +1526,7 @@ class ExceptionRendererTest extends CakeTestCase
     {
         Configure::write('debug', 0);
         $path = TMP . 'error_layout' . DS;
-        new Folder($path . 'Layouts', true);
+        is_dir($path . 'Layouts') || mkdir($path . 'Layouts', 0777, true);
         file_put_contents($path . 'Layouts' . DS . 'default.ctp', "app default layout\n<?php echo \$this->fetch('content'); ?>");
         file_put_contents($path . 'Layouts' . DS . 'error.ctp', "app error layout\n<?php echo \$this->fetch('content'); ?>");
         App::build(['View' => [$path]], App::RESET);
