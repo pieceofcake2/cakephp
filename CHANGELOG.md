@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Bug Fixes: Console in an Application Directory with composer.json ([PR #115](https://github.com/pieceofcake2/cakephp/pull/115))
+
+- **ShellDispatcher**: When an application in the CakePHP 2 layout has `composer.json` in the application directory itself, its `Console/cake` finds the application again, without `-root` / `-app`. The directory given as `-working` is the application when it has `Config/core.php` (or `config/core.php`) and `Controller/`: `ROOT` is its parent and `APP_DIR` its name, as in CakePHP 2. Before, `APP` was `app/` under that directory. Projects with `app/` or `src/` keep their paths
+
 ### Development ([PR #114](https://github.com/pieceofcake2/cakephp/pull/114))
 
 - **phpcs**: The core is checked with the `CakePHP2Namespace` standard of `pieceofcake2/phpcs-cakephp2` `^1.2`, as its classes are in the `Cake` namespace. Annotations name classes by their imported short names
