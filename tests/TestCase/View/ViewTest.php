@@ -995,7 +995,8 @@ class ViewTest extends CakeTestCase
             try {
                 $View->getLayoutFileName('only_php');
                 $this->fail('Expected MissingLayoutException');
-            } catch (MissingLayoutException) {
+            } catch (MissingLayoutException $e) {
+                $this->assertStringContainsString('"Layouts' . DS . 'only_php.ctp"', $e->getMessage());
             }
             $this->expectException(MissingViewException::class);
             $View->getViewFileName('/Pages/only_php');
