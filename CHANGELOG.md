@@ -1,6 +1,6 @@
 ## CHANGELOG
 
-## Unreleased
+## v2.13.0 (2026-10-23)
 
 ### Breaking Changes: Variadic Arguments ([PR #89](https://github.com/pieceofcake2/cakephp/pull/89))
 
