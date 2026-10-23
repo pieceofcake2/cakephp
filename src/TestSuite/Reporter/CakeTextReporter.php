@@ -19,9 +19,11 @@ namespace Cake\TestSuite\Reporter;
 
 use Cake\TestSuite\Coverage\TextCoverageReport;
 use Cake\Utility\Inflector;
+use PHPUnit\Framework\AssertionFailedError;
 use PHPUnit\Framework\ExceptionWrapper;
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\TestResult;
+use PHPUnit\Framework\Warning;
 use Throwable;
 
 /**
@@ -63,7 +65,7 @@ class CakeTextReporter extends CakeBaseReporter
      * tests does not report its own location. When the failure was not raised
      * by the test method, the location where it was raised is painted.
      *
-     * @param \PHPUnit\Framework\AssertionFailedError|\PHPUnit\Framework\Warning $message Failure object displayed in
+     * @param AssertionFailedError|Warning $message Failure object displayed in
      *   the context of the other tests.
      * @return void
      */

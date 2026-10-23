@@ -1586,7 +1586,7 @@ class AppTestThrowingLog extends BaseLog
      * @param string $type The type of log.
      * @param string $message The message.
      * @return void
-     * @throws \RuntimeException
+     * @throws RuntimeException
      */
     public function write($type, $message): void
     {

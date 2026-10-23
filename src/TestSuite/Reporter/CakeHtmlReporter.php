@@ -7,11 +7,13 @@ use Cake\Core\Configure;
 use Cake\TestSuite\Coverage\HtmlCoverageReport;
 use Cake\Utility\Inflector;
 use Exception;
+use PHPUnit\Framework\AssertionFailedError;
 use PHPUnit\Framework\ExceptionWrapper;
 use PHPUnit\Framework\Test;
 use PHPUnit\Framework\TestCase;
 use PHPUnit\Framework\TestResult;
 use PHPUnit\Framework\TestSuite;
+use PHPUnit\Framework\Warning;
 use SebastianBergmann\Diff\Differ;
 use Throwable;
 
@@ -265,9 +267,9 @@ class CakeHtmlReporter extends CakeBaseReporter
      * trail of the nesting test suites below the
      * top level test.
      *
-     * @param \PHPUnit\Framework\AssertionFailedError|\PHPUnit\Framework\Warning $message Failure object displayed in
+     * @param AssertionFailedError|Warning $message Failure object displayed in
      *   the context of the other tests.
-     * @param \PHPUnit\Framework\TestCase $test The test case to paint a failure for.
+     * @param TestCase $test The test case to paint a failure for.
      * @return void
      */
     public function paintFail($message, $test)
@@ -316,7 +318,7 @@ class CakeHtmlReporter extends CakeBaseReporter
      * trail of the nesting test suites below the
      * top level test.
      *
-     * @param \PHPUnit\Framework\TestCase $test Test method that just passed
+     * @param TestCase $test Test method that just passed
      * @param float $time time spent to run the test method
      * @return void
      */

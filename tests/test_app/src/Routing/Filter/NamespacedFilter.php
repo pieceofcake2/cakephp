@@ -33,7 +33,7 @@ class NamespacedFilter extends DispatcherFilter
     public static $calledSettings = [];
 
     /**
-     * @param \CakeEvent $event The event
+     * @param CakeEvent $event The event
      * @return void
      */
     public function beforeDispatch(CakeEvent $event)

@@ -67,7 +67,7 @@ class NamespacedAcl implements AclInterface
     }
 
     /**
-     * @param \Component $component Component
+     * @param Component $component Component
      * @return void
      */
     public function initialize(Component $component)

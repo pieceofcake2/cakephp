@@ -12,16 +12,28 @@
     <file>./src/</file>
     <file>./tests/</file>
 
-    <rule ref="CakePHP2">
+    <rule ref="CakePHP2Namespace">
         <!-- The core keeps native types out of all signatures, tests included -->
         <exclude name="SlevomatCodingStandard.TypeHints"/>
     </rule>
 
-    <!-- The core imports the classes that it names in annotations, as PHPStan resolves them in the namespace -->
-    <rule ref="SlevomatCodingStandard.Namespaces.UnusedUses">
-        <properties>
-            <property name="searchAnnotations" value="true"/>
-        </properties>
+    <!-- Every class file ends with class_alias() for the global name. This also covers
+         src/bootstrap.php, which defines constants and sets error_reporting(), and the
+         trigger_error() in src/Network/Http/HttpResponse.php. -->
+    <rule ref="PSR1.Files.SideEffects.FoundWithSymbols">
+        <exclude-pattern>src/*</exclude-pattern>
+    </rule>
+
+    <!-- The legacy test app and the vendor test classes keep their global classes on purpose -->
+    <rule ref="PSR1.Classes.ClassDeclaration.MissingNamespace">
+        <exclude-pattern>tests/test_legacy_app/*</exclude-pattern>
+        <exclude-pattern>tests/test_app/vendor/*</exclude-pattern>
+        <exclude-pattern>tests/test_app/plugins/*/vendor/*</exclude-pattern>
+    </rule>
+    <rule ref="Squiz.Classes.ClassFileName.NoMatch">
+        <exclude-pattern>tests/test_legacy_app/*</exclude-pattern>
+        <exclude-pattern>tests/test_app/vendor/*</exclude-pattern>
+        <exclude-pattern>tests/test_app/plugins/*/vendor/*</exclude-pattern>
     </rule>
 
     <rule ref="Generic.PHP.DeprecatedFunctions.Deprecated">

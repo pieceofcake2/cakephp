@@ -15,6 +15,7 @@ use Cake\Routing\Route\RedirectRoute;
 use Cake\Routing\Router;
 use Cake\Utility\ClassRegistry;
 use Cake\Utility\Inflector;
+use PHPUnit\Framework\MockObject\MockObject;
 
 /**
  * ControllerTestCase file
@@ -186,7 +187,7 @@ abstract class ControllerTestCase extends CakeTestCase
         }
 
         $_SERVER['REQUEST_URI'] = $url;
-        /** @var CakeRequest|\PHPUnit\Framework\MockObject\MockObject $request */
+        /** @var CakeRequest|MockObject $request */
         $request = $this->getMock('CakeRequest', ['_readInput']);
 
         if (is_string($options['data'])) {
@@ -301,12 +302,12 @@ abstract class ControllerTestCase extends CakeTestCase
         ], (array)$mocks);
 
         $name = substr($controllerClass, (int)strrpos('\\' . $controllerClass, '\\'), -10);
-        /** @var Controller|\PHPUnit\Framework\MockObject\MockObject $controllerObj */
+        /** @var Controller|MockObject $controllerObj */
         $controllerObj = $this->getMock($controllerClass, $mocks['methods'], [], '', false);
         $controllerObj->name = $name;
-        /** @var CakeRequest|\PHPUnit\Framework\MockObject\MockObject $request */
+        /** @var CakeRequest|MockObject $request */
         $request = $this->getMock('CakeRequest');
-        /** @var CakeResponse|\PHPUnit\Framework\MockObject\MockObject $response */
+        /** @var CakeResponse|MockObject $response */
         $response = $this->getMock($this->_responseClass, ['_sendHeader']);
         $controllerObj->__construct($request, $response);
         $controllerObj->Components->setController($controllerObj);
@@ -346,7 +347,7 @@ abstract class ControllerTestCase extends CakeTestCase
                     'class' => str_contains($name, '\\') && str_ends_with($name, 'Component') ? ltrim($name, '\\') : ltrim($name, '\\') . 'Component',
                 ]);
             }
-            /** @var Component|\PHPUnit\Framework\MockObject\MockObject $componentObj */
+            /** @var Component|MockObject $componentObj */
             $componentObj = $this->getMock($componentClass, $methods, [$controllerObj->Components, $config]);
             $controllerObj->Components->set($alias, $componentObj);
             $controllerObj->Components->enable($alias);

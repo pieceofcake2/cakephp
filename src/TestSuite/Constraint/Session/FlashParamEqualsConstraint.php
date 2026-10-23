@@ -68,7 +68,7 @@ class FlashParamEqualsConstraint extends Constraint
      * @param string $key Flash key
      * @param string $param Param to check
      * @param int|null $at Expected index
-     * @throws \PHPUnit\Framework\AssertionFailedError When there is no session data.
+     * @throws AssertionFailedError When there is no session data.
      */
     public function __construct(?array $session, string $key, string $param, ?int $at = null)
     {
