@@ -22,7 +22,7 @@ if (defined('ROOT') && strpos($bootstrapFile, ROOT . DS) === 0) {
 
 $this->layout = 'dev_error';
 $this->assign('title', __d('cake_dev', 'Missing Plugin'));
-$this->assign('templateName', 'missing_plugin.ctp');
+$this->assign('templateName', 'missing_plugin.php');
 
 $this->start('subheading');
 ?>

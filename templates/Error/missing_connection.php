@@ -16,7 +16,7 @@
 
 $this->layout = 'dev_error';
 $this->assign('title', __d('cake_dev', 'Missing Database Connection'));
-$this->assign('templateName', 'missing_connection.ctp');
+$this->assign('templateName', 'missing_connection.php');
 
 $this->start('subheading');
 ?>

@@ -21,7 +21,7 @@ if (defined('ROOT') && strpos($configFile, ROOT . DS) === 0) {
 
 $this->layout = 'dev_error';
 $this->assign('title', __d('cake_dev', 'Missing Database Connection'));
-$this->assign('templateName', 'missing_database.ctp');
+$this->assign('templateName', 'missing_database.php');
 
 $this->start('subheading');
 ?>

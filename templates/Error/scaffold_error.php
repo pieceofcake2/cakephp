@@ -16,7 +16,7 @@
 
 $this->layout = 'dev_error';
 $this->assign('title', __d('cake_dev', 'Scaffold Error'));
-$this->assign('templateName', 'scaffold_error.ctp');
+$this->assign('templateName', 'scaffold_error.php');
 
 $this->start('subheading');
 ?>

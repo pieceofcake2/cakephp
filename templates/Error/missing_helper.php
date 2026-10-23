@@ -19,7 +19,7 @@ $path = $this->element('dev_error_file_path', array('package' => 'View/Helper', 
 
 $this->layout = 'dev_error';
 $this->assign('title', __d('cake_dev', 'Missing Helper'));
-$this->assign('templateName', 'missing_helper.ctp');
+$this->assign('templateName', 'missing_helper.php');
 
 $this->start('subheading');
 ?>

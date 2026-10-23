@@ -19,7 +19,7 @@ $path = $this->element('dev_error_file_path', array('package' => 'Controller', '
 
 $this->layout = 'dev_error';
 $this->assign('title', __d('cake_dev', 'Missing Method in %s', h($controller)));
-$this->assign('templateName', 'missing_action.ctp');
+$this->assign('templateName', 'missing_action.php');
 
 $this->start('subheading');
 ?>

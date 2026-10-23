@@ -65,6 +65,8 @@ This changes the pages of applications that have no error template of their own 
 - In debug mode, AJAX requests also get the development error page (`dev_error` layout) instead of the error inside the layout of the request.
 - In production mode, the core `error400` and `error500` templates are rendered in the `error` layout instead of the default layout. Without a `Layouts/error.ctp` (`templates/layout/error.php`) in the application, this is the `error` layout of the core. To keep the previous page, add an `error` layout to the application (e.g. a copy of its default layout), or your own `Errors/error400.ctp` and `Errors/error500.ctp`.
 
+The core error templates assign `templateName` with `.php` (`error400.php`), as in CakePHP 5. In your error templates, `templateName` may end with `.php` or `.ctp`: the customization hint names the file in the layout of your application either way (`templates/Error/error400.php`, or `app/View/Errors/error400.ctp`).
+
 Error templates of the application are not changed. To use the same switching in them, set `$this->layout = 'error';` first and use the `dev_error` layout when `Configure::read('debug')` is set, without the check for AJAX requests.
 
 ## v2.13.0

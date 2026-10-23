@@ -18,7 +18,7 @@ $modelFile = $this->element('dev_error_file_path', array('package' => 'Model', '
 
 $this->layout = 'dev_error';
 $this->assign('title', __d('cake_dev', 'Missing Database Table'));
-$this->assign('templateName', 'missing_table.ctp');
+$this->assign('templateName', 'missing_table.php');
 
 $this->start('subheading');
 ?>

@@ -6,7 +6,8 @@
  *
  * In the CakePHP 5 layout, templates belong in `templates/`, with the directory name and the
  * extension that the View looks for first (e.g. `templates/Error/error400.php` for
- * `Errors/error400.ctp`). When `App.namespace` is set, a plugin that is not loaded belongs in
+ * `Errors/error400.php` or `Errors/error400.ctp`), and in the CakePHP 2 layout in `View/`, with
+ * the extension of the View (e.g. `app/View/Errors/error400.ctp`). When `App.namespace` is set, a plugin that is not loaded belongs in
  * `plugins/`, with its classes in `src/`.
  *
  * - `package` The App::path() package (e.g. `Controller`, `Model/Behavior`, `View`).
@@ -64,6 +65,8 @@ if (empty($paths)) {
 
 // View packages can have several paths (e.g. `src/View/` and `templates/`).
 // Templates in `templates/` are found first by their CakePHP 5 directory name and extension.
+// The extension of the given file (`.php` or `.ctp`) is replaced by the one of the View, so
+// `View/` directories get `.ctp` files by default.
 if ($package === 'View' && $file !== '') {
 	$templatePaths = array();
 	foreach ($paths as $candidate) {
@@ -73,10 +76,10 @@ if ($package === 'View' && $file !== '') {
 	}
 	if (!empty($templatePaths)) {
 		$paths = $templatePaths;
-		$ext = (string)strrchr(basename($file), '.');
-		$templateFiles = $this->_getTemplateFiles($paths[0], substr($file, 0, strlen($file) - strlen($ext)), $ext);
-		$file = substr($templateFiles[0], strlen($paths[0]));
 	}
+	$ext = (string)strrchr(basename($file), '.');
+	$templateFiles = $this->_getTemplateFiles($paths[0], substr($file, 0, strlen($file) - strlen($ext)), $this->ext);
+	$file = substr($templateFiles[0], strlen($paths[0]));
 }
 
 // Prefer the path that already contains the directory of the file.

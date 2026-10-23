@@ -16,7 +16,7 @@
 
 $this->layout = 'dev_error';
 $this->assign('title', __d('cake_dev', 'Missing View'));
-$this->assign('templateName', 'missing_view.ctp');
+$this->assign('templateName', 'missing_view.php');
 
 $this->start('subheading');
 ?>

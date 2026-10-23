@@ -19,7 +19,7 @@ $path = $this->element('dev_error_file_path', array('package' => 'Model/Datasour
 
 $this->layout = 'dev_error';
 $this->assign('title', __d('cake_dev', 'Missing Datasource'));
-$this->assign('templateName', 'missing_datasource.ctp');
+$this->assign('templateName', 'missing_datasource.php');
 
 $this->start('subheading');
 ?>

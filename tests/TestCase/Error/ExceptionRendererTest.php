@@ -1478,6 +1478,50 @@ class ExceptionRendererTest extends CakeTestCase
     }
 
     /**
+     * Test that the customization hint maps the templateName of an error template, with the .php
+     * extension of the core templates or the .ctp extension of older application templates, to the
+     * file of the application: templates/Error/ with .php, or View/Errors/ with the extension of the View.
+     *
+     * @return void
+     */
+    public function testDevErrorCustomizationHintForTemplateName(): void
+    {
+        $path = TMP . 'error_template_hint' . DS;
+        $cases = [
+            ['templates', 'Errors', '.ctp', 'error400.ctp', '.ctp', 'templates' . DS . 'Error' . DS . 'error400.php'],
+            ['templates', 'Errors', '.ctp', 'error400.php', '.ctp', 'templates' . DS . 'Error' . DS . 'error400.php'],
+            ['View', 'Errors', '.ctp', 'error400.ctp', '.ctp', 'View' . DS . 'Errors' . DS . 'error400.ctp'],
+            ['View', 'Errors', '.ctp', 'error400.php', '.ctp', 'View' . DS . 'Errors' . DS . 'error400.ctp'],
+            ['View', 'Errors', '.php', 'error400.php', '.php', 'View' . DS . 'Errors' . DS . 'error400.php'],
+        ];
+        $results = [];
+        try {
+            foreach ($cases as $i => [$dir, $errors, $fileExt, $templateName, $viewExt, $expected]) {
+                $root = $path . $i . DS . $dir . DS;
+                is_dir($root . $errors) || mkdir($root . $errors, 0777, true);
+                file_put_contents(
+                    $root . $errors . DS . 'error400' . $fileExt,
+                    "<?php\n\$this->layout = 'dev_error';\n\$this->assign('title', \$message);\n" .
+                    "\$this->assign('templateName', '{$templateName}');\n",
+                );
+                App::build(['View' => [$root]], App::RESET);
+
+                $ExceptionRenderer = $this->_mockResponse(new ExceptionRenderer(new NotFoundException('Nothing to see')));
+                $ExceptionRenderer->controller->ext = $viewExt;
+                ob_start();
+                $ExceptionRenderer->render();
+                $results[] = [ob_get_clean(), $expected];
+            }
+        } finally {
+            (new Folder($path))->delete();
+        }
+        foreach ($results as [$result, $expected]) {
+            $this->assertStringContainsString('<title>Error: Nothing to see</title>', $result);
+            $this->assertMatchesRegularExpression('#create <em>[^<]*' . preg_quote(h($expected), '#') . '</em>#', $result);
+        }
+    }
+
+    /**
      * Test that a dev_error layout in the theme overrides the core one.
      *
      * @return void

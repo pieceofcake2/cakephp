@@ -11,7 +11,7 @@ if (Configure::read('debug')) :
 	$this->layout = 'dev_error';
 
 	$this->assign('title', $message);
-	$this->assign('templateName', 'error500.ctp');
+	$this->assign('templateName', 'error500.php');
 
 	$this->start('file');
 	if (isset($error) && $error instanceof Error) :

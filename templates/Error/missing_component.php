@@ -19,7 +19,7 @@ $path = $this->element('dev_error_file_path', array('package' => 'Controller/Com
 
 $this->layout = 'dev_error';
 $this->assign('title', __d('cake_dev', 'Missing Component'));
-$this->assign('templateName', 'missing_component.ctp');
+$this->assign('templateName', 'missing_component.php');
 
 $this->start('subheading');
 ?>

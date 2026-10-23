@@ -21,7 +21,7 @@ $path = $this->element('dev_error_file_path', array('package' => 'Controller', '
 
 $this->layout = 'dev_error';
 $this->assign('title', __d('cake_dev', 'Missing Controller'));
-$this->assign('templateName', 'missing_controller.ctp');
+$this->assign('templateName', 'missing_controller.php');
 
 $this->start('subheading');
 ?>

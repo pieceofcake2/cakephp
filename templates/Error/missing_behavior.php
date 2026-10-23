@@ -19,7 +19,7 @@ $path = $this->element('dev_error_file_path', array('package' => 'Model/Behavior
 
 $this->layout = 'dev_error';
 $this->assign('title', __d('cake_dev', 'Missing Behavior'));
-$this->assign('templateName', 'missing_behavior.ctp');
+$this->assign('templateName', 'missing_behavior.php');
 
 $this->start('subheading');
 ?>

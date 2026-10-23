@@ -16,7 +16,7 @@
 
 $this->layout = 'dev_error';
 $this->assign('title', __d('cake_dev', 'Private Method in %s', h($controller)));
-$this->assign('templateName', 'private_action.ctp');
+$this->assign('templateName', 'private_action.php');
 
 $this->start('subheading');
 ?>

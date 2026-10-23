@@ -21,7 +21,7 @@ if (defined('ROOT') && strpos($configFile, ROOT . DS) === 0) {
 
 $this->layout = 'dev_error';
 $this->assign('title', __d('cake_dev', 'Missing Datasource Configuration'));
-$this->assign('templateName', 'missing_datasource_config.ctp');
+$this->assign('templateName', 'missing_datasource_config.php');
 
 $this->start('subheading');
 ?>
