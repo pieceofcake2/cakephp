@@ -1,0 +1,37 @@
+<?php
+/**
+ * CakePHP(tm) : Rapid Development Framework (https://cakephp.org)
+ * Copyright (c) Cake Software Foundation, Inc. (https://cakefoundation.org)
+ *
+ * Licensed under The MIT License
+ * For full copyright and license information, please see the LICENSE.txt
+ * Redistributions of files must retain the above copyright notice.
+ *
+ * @copyright     Copyright (c) Cake Software Foundation, Inc. (https://cakefoundation.org)
+ * @link          https://cakephp.org CakePHP(tm) Project
+ * @package       Cake.View.Errors
+ * @since         CakePHP(tm) v 0.10.0.1076
+ * @license       https://opensource.org/licenses/mit-license.php MIT License
+ */
+
+$pluginDot = empty($plugin) ? null : $plugin . '.';
+$path = $this->element('dev_error_file_path', array('package' => 'Controller/Component', 'plugin' => $plugin ?? null, 'file' => $class . '.php'));
+
+$this->layout = 'dev_error';
+$this->assign('title', __d('cake_dev', 'Missing Component'));
+$this->assign('templateName', 'missing_component.php');
+
+$this->start('subheading');
+?>
+<strong><?php echo __d('cake_dev', 'Error'); ?></strong>
+<?php echo __d('cake_dev', '%s could not be found.', '<em>' . h($pluginDot . $class) . '</em>'); ?>
+<?php echo $this->element('dev_error_plugin_class'); ?>
+<?php $this->end(); ?>
+
+<?php $this->start('file'); ?>
+<p class="error">
+	<strong><?php echo __d('cake_dev', 'Suggestion'); ?></strong>
+	<?php echo __d('cake_dev', 'Create the class %s below in file: %s', '<em>' . h($class) . '</em>', $path); ?>
+</p>
+<?php echo $this->element('dev_error_class_code', array('class' => $class, 'package' => 'Controller/Component', 'plugin' => $plugin ?? null, 'parent' => 'Cake\\Controller\\Component')); ?>
+<?php $this->end(); ?>

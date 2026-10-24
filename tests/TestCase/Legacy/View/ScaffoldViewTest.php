@@ -23,6 +23,7 @@ use Cake\Controller\Scaffold;
 use Cake\Core\App;
 use Cake\Core\CakePlugin;
 use Cake\Core\Configure;
+use Cake\Error\MissingViewException;
 use Cake\Network\CakeRequest;
 use Cake\Routing\Router;
 use Cake\TestSuite\CakeTestCase;
@@ -128,39 +129,39 @@ class ScaffoldViewTest extends CakeTestCase
         $this->Controller->request->params['action'] = 'index';
         $ScaffoldView = new TestScaffoldView($this->Controller);
         $result = $ScaffoldView->testGetFilename('index');
-        $expected = CORE_ROOT . DS . 'templates' . DS . 'Scaffolds' . DS . 'index.ctp';
+        $expected = CORE_ROOT . DS . 'templates' . DS . 'Scaffolds' . DS . 'index.php';
         $this->assertEquals($expected, $result);
 
         $result = $ScaffoldView->testGetFilename('edit');
-        $expected = CORE_ROOT . DS . 'templates' . DS . 'Scaffolds' . DS . 'form.ctp';
+        $expected = CORE_ROOT . DS . 'templates' . DS . 'Scaffolds' . DS . 'form.php';
         $this->assertEquals($expected, $result);
 
         $result = $ScaffoldView->testGetFilename('add');
-        $expected = CORE_ROOT . DS . 'templates' . DS . 'Scaffolds' . DS . 'form.ctp';
+        $expected = CORE_ROOT . DS . 'templates' . DS . 'Scaffolds' . DS . 'form.php';
         $this->assertEquals($expected, $result);
 
         $result = $ScaffoldView->testGetFilename('view');
-        $expected = CORE_ROOT . DS . 'templates' . DS . 'Scaffolds' . DS . 'view.ctp';
+        $expected = CORE_ROOT . DS . 'templates' . DS . 'Scaffolds' . DS . 'view.php';
         $this->assertEquals($expected, $result);
 
         $result = $ScaffoldView->testGetFilename('admin_index');
-        $expected = CORE_ROOT . DS . 'templates' . DS . 'Scaffolds' . DS . 'index.ctp';
+        $expected = CORE_ROOT . DS . 'templates' . DS . 'Scaffolds' . DS . 'index.php';
         $this->assertEquals($expected, $result);
 
         $result = $ScaffoldView->testGetFilename('admin_view');
-        $expected = CORE_ROOT . DS . 'templates' . DS . 'Scaffolds' . DS . 'view.ctp';
+        $expected = CORE_ROOT . DS . 'templates' . DS . 'Scaffolds' . DS . 'view.php';
         $this->assertEquals($expected, $result);
 
         $result = $ScaffoldView->testGetFilename('admin_edit');
-        $expected = CORE_ROOT . DS . 'templates' . DS . 'Scaffolds' . DS . 'form.ctp';
+        $expected = CORE_ROOT . DS . 'templates' . DS . 'Scaffolds' . DS . 'form.php';
         $this->assertEquals($expected, $result);
 
         $result = $ScaffoldView->testGetFilename('admin_add');
-        $expected = CORE_ROOT . DS . 'templates' . DS . 'Scaffolds' . DS . 'form.ctp';
+        $expected = CORE_ROOT . DS . 'templates' . DS . 'Scaffolds' . DS . 'form.php';
         $this->assertEquals($expected, $result);
 
         $result = $ScaffoldView->testGetFilename('error');
-        $expected = CORE_ROOT . DS . 'templates' . DS . 'Errors' . DS . 'scaffold_error.ctp';
+        $expected = CORE_ROOT . DS . 'templates' . DS . 'Error' . DS . 'scaffold_error.php';
         $this->assertEquals($expected, $result);
 
         $Controller = new ScaffoldViewMockController($this->request);
@@ -199,6 +200,25 @@ class ScaffoldViewTest extends CakeTestCase
         $this->assertEquals($expected, $result);
 
         Configure::write('Routing.prefixes', $_admin);
+    }
+
+    /**
+     * Test that the error for a missing scaffold template names the file that is looked for first.
+     *
+     * @return void
+     */
+    public function testGetViewFilenameMissing(): void
+    {
+        App::build(['View' => [CORE_TESTS . DS . 'test_legacy_app' . DS . 'View' . DS]], App::RESET);
+        $this->Controller->request->params['action'] = 'index';
+        $ScaffoldView = new TestScaffoldView($this->Controller);
+        try {
+            $ScaffoldView->testGetFilename('delete');
+            $this->fail('Expected MissingViewException');
+        } catch (MissingViewException $e) {
+            $expected = CORE_TESTS . DS . 'test_legacy_app' . DS . 'View' . DS . 'Scaffolds' . DS . 'delete.ctp';
+            $this->assertStringContainsString($expected, $e->getMessage());
+        }
     }
 
     /**

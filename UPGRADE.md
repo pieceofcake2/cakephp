@@ -15,6 +15,60 @@ Before migrating to this fork, ensure:
 4. **Upgrade PHP**: Update your PHP version to 8.0 or newer
 5. **Test Thoroughly**: Run your application's test suite to ensure compatibility
 
+## Unreleased
+
+### Core Templates in `.php` and the CakePHP 5 Directories ([PR #117](https://github.com/pieceofcake2/cakephp/pull/117))
+
+The templates of the core in `templates/` are `.php` files in the directories of CakePHP 5: `Error/`, `layout/`, `layout/email/`, `element/` and `email/` instead of `Errors/`, `Layouts/`, `Layouts/Emails/`, `Elements/` and `Emails/`, e.g. `templates/Error/error400.php` and `templates/layout/dev_error.php` instead of `templates/Errors/error400.ctp` and `templates/Layouts/dev_error.ctp`. `Pages/`, `Scaffolds/` and the subdirectories (`element/Flash/`, `layout/js/`, ...) keep their names. The templates of your application, plugins and themes (`templates/Errors/error400.ctp`, `templates/Error/error400.php`, `app/View/Errors/error400.ctp`, `Layouts/dev_error.ctp`, ...) still override the core templates of the same name, and need no change. Code that builds the path of a core template, e.g. `CORE_ROOT . DS . 'templates' . DS . 'Layouts' . DS . 'default.ctp'`, must use the new path.
+
+The View now looks up templates, layouts and elements path by path: in each view path (theme, plugin, application, core) it tries `$ext` and then `.ctp`. Before, a controller or view with another `$ext` than `.ctp` tried `$ext` in all the view paths before `.ctp`. So with `$ext = '.php'`, a `.ctp` template of the application still overrides a core template such as `Error/error400.php`, and a `.ctp` template of a theme or plugin now comes before a `.php` template of the application with the same name. Nothing changes with the default `.ctp`, and `View/` directories are still searched for `.php` files only when `$ext` is `.php`.
+
+The error templates of applications created from `pieceofcake2/app` v2.5.3 or earlier, or from `pieceofcake2/app-legacy`, use the `dev_error` layout only when the core has it:
+
+```php
+$devErrorLayout = is_file(dirname(CAKE_CORE_INCLUDE_PATH) . DS . 'templates' . DS . 'Layouts' . DS . 'dev_error.ctp');
+
+if (Configure::read('debug') > 0 && !$this->request->is('ajax') && $devErrorLayout):
+```
+
+The file is now `templates/layout/dev_error.php`, so in debug mode these templates show errors in the default layout of the application, with the stack trace below the message, instead of the development error page. Update `error400.ctp` and `error500.ctp` in `templates/Errors/` (`app/View/Errors/` in the CakePHP 2 layout):
+
+- Remove the check, as the core has the `dev_error` layout since v2.12.6:
+
+  ```php
+  if (Configure::read('debug') > 0 && !$this->request->is('ajax')):
+  ```
+
+- Or, when the application must also run with an older core, look for both files:
+
+  ```php
+  $templates = dirname(CAKE_CORE_INCLUDE_PATH) . DS . 'templates' . DS;
+  $devErrorLayout = is_file($templates . 'layout' . DS . 'dev_error.php')
+      || is_file($templates . 'Layouts' . DS . 'dev_error.ctp');
+  ```
+
+### Layouts of the Core Error Templates ([PR #117](https://github.com/pieceofcake2/cakephp/pull/117))
+
+The core error templates switch layouts as the error templates of CakePHP 5 do:
+
+```php
+$this->layout = 'error';
+
+if (Configure::read('debug')) :
+    $this->layout = 'dev_error';
+    // ...
+endif;
+```
+
+This changes the pages of applications that have no error template of their own for the error:
+
+- In debug mode, AJAX requests also get the development error page (`dev_error` layout) instead of the error inside the layout of the request.
+- In production mode, the core `error400` and `error500` templates are rendered in the `error` layout instead of the default layout. Without a `Layouts/error.ctp` (`templates/layout/error.php`) in the application, this is the `error` layout of the core. To keep the previous page, add an `error` layout to the application (e.g. a copy of its default layout), or your own `Errors/error400.ctp` and `Errors/error500.ctp`.
+
+The core error templates assign `templateName` with `.php` (`error400.php`), as in CakePHP 5. In your error templates, `templateName` may end with `.php` or `.ctp`: the customization hint names the file in the layout of your application either way (`templates/Error/error400.php`, or `app/View/Errors/error400.ctp`).
+
+Error templates of the application are not changed. To use the same switching in them, set `$this->layout = 'error';` first and use the `dev_error` layout when `Configure::read('debug')` is set, without the check for AJAX requests.
+
 ## v2.13.0
 
 ### Variadic Arguments ([PR #89](https://github.com/pieceofcake2/cakephp/pull/89))
