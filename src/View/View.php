@@ -1215,11 +1215,7 @@ class View extends CakeObject
      */
     protected function _getTemplateFiles($path, $file, $ext)
     {
-        $isTemplates = (bool)preg_match(
-            '#[\\\\/]templates[\\\\/](?:(?:Themed|Plugin)[\\\\/][^\\\\/]+[\\\\/])*$#',
-            $path,
-        );
-        if (!$isTemplates) {
+        if (!$this->_isTemplatesPath($path)) {
             return [$path . $file . $ext];
         }
 
@@ -1242,6 +1238,22 @@ class View extends CakeObject
         }
 
         return $files;
+    }
+
+    /**
+     * Returns whether a view path is a `templates/` directory of the CakePHP 5 layout (of the application,
+     * of a plugin or of a theme), where View::_getTemplateFiles() also looks for the CakePHP 5 directory
+     * names and the `.php` extension.
+     *
+     * @param string $path A view path, ending with a directory separator
+     * @return bool
+     */
+    protected function _isTemplatesPath($path)
+    {
+        return (bool)preg_match(
+            '#[\\\\/]templates[\\\\/](?:(?:Themed|Plugin)[\\\\/][^\\\\/]+[\\\\/])*$#',
+            $path,
+        );
     }
 
     /**

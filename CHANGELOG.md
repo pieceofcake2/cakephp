@@ -6,6 +6,10 @@
 
 - **phpcs**: The core is checked with the `CakePHP2Namespace` standard of `pieceofcake2/phpcs-cakephp2` `^1.2`, as its classes are in the `Cake` namespace. Annotations name classes by their imported short names
 
+### Bug Fixes ([PR #116](https://github.com/pieceofcake2/cakephp/pull/116))
+
+- **Error pages in debug mode**: In an application with `templates/`, the Missing View and Missing Layout pages and the customization hint suggest the file that the View finds first, e.g. `templates/Pages/home.php`, `templates/layout/default.php` and `templates/Error/error400.php`, instead of `.ctp` files under `src/View/` and `templates/Errors/`. With `App.namespace`, the Missing Controller, Action, Component, Helper and Behavior pages suggest the class in the namespace of the application or the plugin, with the `use` of its parent class, and a plugin that is not loaded in `plugins/<Plugin>/src/`. Applications in the CakePHP 2 layout keep their hints
+
 ## v2.13.0 (2026-10-23)
 
 ### Breaking Changes: Variadic Arguments ([PR #89](https://github.com/pieceofcake2/cakephp/pull/89))

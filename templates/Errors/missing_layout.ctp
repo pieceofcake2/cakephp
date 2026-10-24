@@ -24,21 +24,7 @@ $this->start('subheading');
 <?php $this->end(); ?>
 
 <?php $this->start('file'); ?>
-<p>
-	<?php echo __d('cake_dev', 'Confirm you have created the file: %s', h($file)); ?>
-	<?php echo __d('cake_dev', 'in one of the following paths:'); ?>
-</p>
-<ul>
-<?php
-	$paths = $this->_paths($this->plugin);
-	foreach ($paths as $path) :
-		if (strpos($path, CORE_PATH) !== false || strpos($path, CORE_ROOT . DS . 'templates' . DS) === 0) {
-			continue;
-		}
-		echo sprintf('<li>%s%s</li>', h($path), h($file));
-	endforeach;
-?>
-</ul>
+<?php echo $this->element('dev_error_template_paths', array('file' => $file)); ?>
 <?php $this->end(); ?>
 <?php
 if (Configure::read('debug') > 0 && !$this->request->is('ajax')) :
