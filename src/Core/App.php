@@ -631,7 +631,7 @@ class App
         }
 
         [$plugin, $name] = pluginSplit($class);
-        $fullName = static::_namespacedClassName($name . $suffix, $type, $plugin);
+        $fullName = static::namespacedClassName($name . $suffix, $type, $plugin);
         if ($fullName !== null && class_exists($fullName)) {
             return $fullName;
         }
@@ -670,7 +670,7 @@ class App
         if ($file) {
             $loaded = include_once $file;
 
-            return static::_loaded($className, $package, $plugin, $loaded);
+            return static::loaded($className, $package, $plugin, $loaded);
         }
         $paths = static::path($package, $plugin);
 
@@ -692,11 +692,11 @@ class App
                 static::_map($file, $className, $plugin);
                 $loaded = include_once $file;
 
-                return static::_loaded($className, $package, $plugin, $loaded);
+                return static::loaded($className, $package, $plugin, $loaded);
             }
         }
 
-        return static::_loaded($className, $package, $plugin, false);
+        return static::loaded($className, $package, $plugin, false);
     }
 
     /**
@@ -714,7 +714,7 @@ class App
      * @param mixed $loaded The result of the include, or false without a file
      * @return mixed
      */
-    protected static function _loaded($className, $package, $plugin, $loaded)
+    protected static function loaded($className, $package, $plugin, $loaded)
     {
         if (class_exists($className, false)) {
             return $loaded;
@@ -722,7 +722,7 @@ class App
         if (static::_aliasAppClass($className, $package, $plugin)) {
             return true;
         }
-        $namespaced = static::_namespacedClassName($className, $package, $plugin);
+        $namespaced = static::namespacedClassName($className, $package, $plugin);
         if ($namespaced !== null && class_exists($namespaced)) {
             return true;
         }
@@ -740,7 +740,7 @@ class App
      * @return string|null The fully qualified class name, or null without a namespace or for a name with a
      *   backslash
      */
-    protected static function _namespacedClassName($className, $package, $plugin)
+    protected static function namespacedClassName($className, $package, $plugin)
     {
         $namespace = $plugin ?: Configure::read('App.namespace');
         if (!is_string($namespace) || $namespace === '' || str_contains($className, '\\')) {
