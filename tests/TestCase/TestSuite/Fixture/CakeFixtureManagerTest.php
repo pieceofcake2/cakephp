@@ -196,6 +196,33 @@ class CakeFixtureManagerTest extends CakeTestCase
     }
 
     /**
+     * A namespaced fixture that Composer does not load is read from its file, as the core fixtures are in a package
+     * that depends on CakePHP (core.article in a plugin), and its namespaced class is used
+     *
+     * @return void
+     */
+    public function testLoadNamespacedFixtureFromItsFile(): void
+    {
+        App::build(['Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS]], App::RESET);
+        CakePlugin::load('TestTwoPlugin');
+        $this->assertFalse(class_exists('TestTwoPlugin\\Test\\Fixture\\FallbackPostFixture'));
+
+        $loadFixtures = new ReflectionMethod($this->fixtureManager, '_loadFixtures');
+        if (PHP_VERSION_ID < 80100) {
+            $loadFixtures->setAccessible(true);
+        }
+        $loadFixtures->invoke($this->fixtureManager, ['plugin.test_two_plugin.fallback_post']);
+        $loaded = new ReflectionProperty($this->fixtureManager, '_loaded');
+        if (PHP_VERSION_ID < 80100) {
+            $loaded->setAccessible(true);
+        }
+        $fixture = $loaded->getValue($this->fixtureManager)['plugin.test_two_plugin.fallback_post'];
+
+        $this->assertInstanceOf('TestTwoPlugin\\Test\\Fixture\\FallbackPostFixture', $fixture);
+        $this->assertSame('fallback_posts', $fixture->table);
+    }
+
+    /**
      * Builds a test case that uses the given fixtures.
      *
      * @param array|string $fixtures The fixtures of the test case.
