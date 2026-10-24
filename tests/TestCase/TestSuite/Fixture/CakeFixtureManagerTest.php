@@ -72,6 +72,7 @@ class CakeFixtureManagerTest extends CakeTestCase
         $db->execute('DROP TABLE IF EXISTS ' . $db->fullTableName('plugin_namespaced_articles'));
         unset($this->fixtureManager);
         CakePlugin::unload('TestTwoPlugin');
+        CakePlugin::unload('TestLegacyPlugin');
 
         parent::tearDown();
     }
@@ -193,6 +194,36 @@ class CakeFixtureManagerTest extends CakeTestCase
         $this->assertSame('NamespacedArticle', $fixtures['app.namespaced_article']->name);
         $this->assertSame('namespaced_articles', $fixtures['app.namespaced_article']->table);
         $this->assertSame('namespaced_comments', $fixtures['plugin.test_two_plugin.namespaced_comment']->table);
+    }
+
+    /**
+     * A namespaced fixture that Composer does not load is read from its file, as the core fixtures are in a package
+     * that depends on CakePHP (core.article in a plugin), and its namespaced class is used; a file with a global
+     * class gives that class
+     *
+     * @return void
+     */
+    public function testLoadNamespacedFixtureFromItsFile(): void
+    {
+        App::build(['Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS, CORE_TESTS . DS . 'test_legacy_app' . DS . 'Plugin' . DS]], App::RESET);
+        CakePlugin::load(['TestTwoPlugin', 'TestLegacyPlugin']);
+        $this->assertFalse(class_exists('TestTwoPlugin\\Test\\Fixture\\FallbackPostFixture'));
+
+        $loadFixtures = new ReflectionMethod($this->fixtureManager, '_loadFixtures');
+        if (PHP_VERSION_ID < 80100) {
+            $loadFixtures->setAccessible(true);
+        }
+        $loadFixtures->invoke($this->fixtureManager, ['plugin.test_two_plugin.fallback_post', 'plugin.test_legacy_plugin.legacy_comment']);
+        $loaded = new ReflectionProperty($this->fixtureManager, '_loaded');
+        if (PHP_VERSION_ID < 80100) {
+            $loaded->setAccessible(true);
+        }
+        $fixtures = $loaded->getValue($this->fixtureManager);
+
+        $this->assertInstanceOf('TestTwoPlugin\\Test\\Fixture\\FallbackPostFixture', $fixtures['plugin.test_two_plugin.fallback_post']);
+        $this->assertSame('fallback_posts', $fixtures['plugin.test_two_plugin.fallback_post']->table);
+        // A file that declares a global class, as before 2.13
+        $this->assertInstanceOf('LegacyCommentFixture', $fixtures['plugin.test_legacy_plugin.legacy_comment']);
     }
 
     /**

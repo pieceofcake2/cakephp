@@ -219,9 +219,9 @@ class CakeFixtureManager
                 if (is_readable($path . DS . $className . 'Fixture.php')) {
                     $fixtureFile = $path . DS . $className . 'Fixture.php';
                     require_once $fixtureFile;
-                    $fixtureClass = $className . 'Fixture';
+                    $fixtureClass = $this->_declaredFixtureClass($className . 'Fixture', $fixtureIndex);
                     $this->_loaded[$fixtureIndex] = $this->_fixtureInstance($fixtureClass);
-                    $this->_fixtureMap[$fixtureClass] = $this->_loaded[$fixtureIndex];
+                    $this->_fixtureMap[$className . 'Fixture'] = $this->_loaded[$fixtureIndex];
                     $loaded = true;
                     break;
                 }
@@ -232,6 +232,27 @@ class CakeFixtureManager
                 throw new UnexpectedValueException(__d('cake_dev', 'Referenced fixture class %s (%s) not found', $className, $firstPath));
             }
         }
+    }
+
+    /**
+     * Returns the class that a fixture file declared: the class in a namespace of the fixture, e.g.
+     * Cake\Test\Fixture\ArticleFixture for core.article in a package where Composer does not load the fixtures of
+     * the core, or else the global class. Composer did not find the namespaced class before the file was read.
+     *
+     * @param string $className The class name without a namespace, e.g. ArticleFixture
+     * @param string $fixture The fixture name, e.g. core.article
+     * @return string
+     */
+    protected function _declaredFixtureClass($className, $fixture)
+    {
+        foreach ($this->_fixtureNamespaces($fixture) as $namespace) {
+            $fixtureClass = $namespace . '\\Test\\Fixture\\' . $className;
+            if (class_exists($fixtureClass, false)) {
+                return $fixtureClass;
+            }
+        }
+
+        return $className;
     }
 
     /**
