@@ -17,6 +17,7 @@
 namespace Cake\Utility;
 
 use Cake\Core\App;
+use Cake\Core\CakePlugin;
 use Cake\Core\Configure;
 use Cake\Error\CakeException;
 use Cake\Model\ConnectionManager;
@@ -171,7 +172,8 @@ class ClassRegistry
                     return $model;
                 }
 
-                if ($plugin) {
+                // The AppModel of a plugin that is not loaded cannot be found, and the model may exist without it
+                if ($plugin && CakePlugin::loaded($plugin)) {
                     App::className($pluginPath . $plugin . 'AppModel', 'Model');
                 }
                 $className = App::className($pluginPath . $class, 'Model') ?? $class;
