@@ -559,6 +559,30 @@ class ViewTest extends CakeTestCase
     }
 
     /**
+     * Test that the messages for a missing template or layout name the .ctp file of the View/ directory.
+     *
+     * @return void
+     */
+    public function testMissingFileMessagesNameCtpFiles(): void
+    {
+        $this->ThemeController->name = 'Pages';
+        $this->ThemeController->viewPath = 'Pages';
+        $View = new TestThemeView($this->ThemeController);
+        try {
+            $View->getViewFileName('does_not_exist');
+            $this->fail('Expected MissingViewException');
+        } catch (MissingViewException $e) {
+            $this->assertStringContainsString('"Pages' . DS . 'does_not_exist.ctp"', $e->getMessage());
+        }
+        try {
+            $View->getLayoutFileName('whatever');
+            $this->fail('Expected MissingLayoutException');
+        } catch (MissingLayoutException $e) {
+            $this->assertStringContainsString('"Layouts' . DS . 'whatever.ctp"', $e->getMessage());
+        }
+    }
+
+    /**
      * Test elementExists method
      *
      * @return void

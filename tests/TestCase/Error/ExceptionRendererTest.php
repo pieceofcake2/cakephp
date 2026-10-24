@@ -53,6 +53,7 @@ use Cake\Routing\Router;
 use Cake\TestSuite\CakeTestCase;
 use Cake\Utility\Debugger;
 use Cake\Utility\Folder;
+use Cake\View\View;
 use Error;
 use Exception;
 use InvalidArgumentException;
@@ -639,7 +640,7 @@ class ExceptionRendererTest extends CakeTestCase
             [
                 new MissingViewException(['file' => '/posts/about.ctp']),
                 [
-                    '/Confirm you have created the file: "\/posts\/about.ctp"/',
+                    '/Confirm you have created the file: "\/posts\/about.php"/',
                 ],
                 500,
             ],
@@ -1103,13 +1104,7 @@ class ExceptionRendererTest extends CakeTestCase
     public function testSuggestedCodeWithoutAppUses(): void
     {
         $this->assertSame('src', basename(rtrim(APP, DS)), 'The test app uses the modern layout.');
-        // highlight_string() uses <br /> and &nbsp; before PHP 8.3
-        $code = function ($result) {
-            $this->assertSame(1, preg_match('/<div class="code-dump">(.*?)<\/div>/s', $result, $match));
-            $text = html_entity_decode(strip_tags(str_replace('<br />', "\n", $match[1])), ENT_QUOTES, 'UTF-8');
-
-            return str_replace("\u{a0}", ' ', $text);
-        };
+        $code = [$this, '_suggestedCode'];
 
         $exceptions = [
             new MissingControllerException(['class' => 'PostsController']),
@@ -1119,12 +1114,12 @@ class ExceptionRendererTest extends CakeTestCase
         ];
         foreach ($exceptions as $exception) {
             $result = $code($this->_render($exception));
-            $this->assertMatchesRegularExpression('/<\?php\s+class /', $result, get_class($exception));
+            $this->assertMatchesRegularExpression('/<\?php\s+namespace TestApp\\\\[^;]+;\s+use [^;]+;\s+class /', $result, get_class($exception));
             $this->assertStringNotContainsString('App::uses(', $result, get_class($exception));
         }
 
         $result = $code($this->_render(new MissingControllerException(['class' => 'PostsController', 'plugin' => 'Blog'])));
-        $this->assertMatchesRegularExpression('/<\?php\s+class PostsController extends BlogAppController/', $result);
+        $this->assertMatchesRegularExpression('/<\?php\s+namespace Blog\\\\Controller;\s+use Blog\\\\Controller\\\\BlogAppController;\s+class PostsController extends BlogAppController/', $result);
         $this->assertStringNotContainsString('App::uses(', $result);
     }
 
@@ -1147,7 +1142,7 @@ class ExceptionRendererTest extends CakeTestCase
         $this->assertStringNotContainsString('<h3>Stack Trace</h3>', $result);
         $this->assertMatchesRegularExpression('/<a href="phpstorm:\/\/open\?file=[^"]+&amp;line=\d+" class="stack-frame-edit">\(edit\)<\/a>/', $result);
         $this->assertStringContainsString('In the case you tried to access a plugin controller', $result);
-        $this->assertStringContainsString('Errors' . DS . 'missing_controller.ctp', $result);
+        $this->assertStringContainsString('templates' . DS . 'Error' . DS . 'missing_controller.php', $result);
         $this->assertStringNotContainsString('CakePHP: the rapid development php framework', $result, 'The app layout should not be used.');
         $this->assertStringNotContainsString('<h2>Missing Controller</h2>', $result);
     }
@@ -1169,7 +1164,141 @@ class ExceptionRendererTest extends CakeTestCase
         $result = $this->_render(new MissingComponentException(['class' => 'SideboxComponent', 'plugin' => 'NotLoadedPlugin']));
         $this->assertStringContainsString('<em>NotLoadedPlugin.SideboxComponent</em> could not be found.', $result);
         $this->assertStringContainsString('Make sure your plugin <em>NotLoadedPlugin</em> is in the', $result);
-        $this->assertStringContainsString('NotLoadedPlugin' . DS . 'Controller' . DS . 'Component' . DS . 'SideboxComponent.php', $result);
+        $this->assertStringContainsString('plugins' . DS . 'NotLoadedPlugin' . DS . 'src' . DS . 'Controller' . DS . 'Component' . DS . 'SideboxComponent.php', $result);
+    }
+
+    /**
+     * Returns the suggested code of an error page as text.
+     *
+     * @param string $result The rendered error page.
+     * @return string
+     */
+    protected function _suggestedCode($result): string
+    {
+        $this->assertSame(1, preg_match('/<div class="code-dump">(.*?)<\/div>/s', $result, $match));
+        // highlight_string() uses <br /> and &nbsp; before PHP 8.3
+        $text = html_entity_decode(strip_tags(str_replace('<br />', "\n", $match[1])), ENT_QUOTES, 'UTF-8');
+
+        return str_replace("\u{a0}", ' ', $text);
+    }
+
+    /**
+     * Test that the missing template pages suggest the files of templates/, with the directory
+     * names and the extension that the View looks for first.
+     *
+     * @return void
+     */
+    public function testDevErrorSuggestedTemplateFile(): void
+    {
+        $templates = CORE_TESTS . DS . 'test_app' . DS . 'templates' . DS;
+
+        $result = $this->_render(new MissingViewException(['file' => 'Pages' . DS . 'nope.ctp']));
+        $this->assertStringContainsString('Confirm you have created the file: "Pages' . DS . 'nope.php"', $result);
+        $this->assertStringContainsString('<li>' . h($templates . 'Pages' . DS . 'nope.php') . '</li>', $result);
+        $this->assertStringNotContainsString('nope.ctp</li>', $result);
+        $this->assertStringNotContainsString('src' . DS . 'View' . DS . 'Pages', $result);
+        $this->assertStringContainsString('create <em>' . h($templates . 'Error' . DS . 'missing_view.php') . '</em>', $result);
+
+        $result = $this->_render(new MissingLayoutException(['file' => 'Layouts' . DS . 'nope.ctp']));
+        $this->assertStringContainsString('Confirm you have created the file: layout' . DS . 'nope.php', $result);
+        $this->assertStringContainsString('<li>' . h($templates . 'layout' . DS . 'nope.php') . '</li>', $result);
+        $this->assertStringNotContainsString('nope.ctp</li>', $result);
+        $this->assertStringContainsString('Error' . DS . 'missing_layout.php', $result);
+    }
+
+    /**
+     * Test the missing template pages with the file that the View reports, which has the extension and the
+     * directory name that the View looks for first in templates/.
+     *
+     * @return void
+     */
+    public function testDevErrorPagesForMissingFilesOfTheView(): void
+    {
+        $templates = CORE_TESTS . DS . 'test_app' . DS . 'templates' . DS;
+        $View = new View(new Controller(new CakeRequest(null, false)));
+        try {
+            $View->render('/Pages/nope', 'nope');
+        } catch (MissingViewException $e) {
+            $missingView = $e;
+        }
+        $this->assertSame('Pages' . DS . 'nope.php', $missingView->getAttributes()['file']);
+        try {
+            $View->render('/Pages/home', 'nope');
+        } catch (MissingLayoutException $e) {
+            $missingLayout = $e;
+        }
+        $this->assertSame('layout' . DS . 'nope.php', $missingLayout->getAttributes()['file']);
+
+        $result = $this->_render($missingView);
+        $this->assertStringContainsString('Confirm you have created the file: "Pages' . DS . 'nope.php"', $result);
+        $this->assertStringContainsString('<li>' . h($templates . 'Pages' . DS . 'nope.php') . '</li>', $result);
+
+        $result = $this->_render($missingLayout);
+        $this->assertStringContainsString('Confirm you have created the file: layout' . DS . 'nope.php', $result);
+        $this->assertStringContainsString('<li>' . h($templates . 'layout' . DS . 'nope.php') . '</li>', $result);
+        $this->assertStringNotContainsString('.php.php', $result);
+    }
+
+    /**
+     * Test that the missing class pages suggest the code in App.namespace and the files of its PSR-4 path.
+     *
+     * @return void
+     */
+    public function testDevErrorSuggestedNamespacedCode(): void
+    {
+        $result = $this->_render(new MissingControllerException(['class' => 'NopeController']));
+        $this->assertStringContainsString('below in file: ' . h('src' . DS . 'Controller' . DS . 'NopeController.php'), $result);
+        $this->assertSame(
+            "<?php\n\nnamespace TestApp\\Controller;\n\nuse TestApp\\Controller\\AppController;\n\nclass NopeController extends AppController\n{\n}",
+            trim($this->_suggestedCode($result)),
+        );
+
+        $result = $this->_render(new MissingActionException(['controller' => 'PostsController', 'action' => 'nope']));
+        $this->assertSame(
+            "<?php\n\nnamespace TestApp\\Controller;\n\nuse TestApp\\Controller\\AppController;\n\nclass PostsController extends AppController\n{\n    public function nope()\n    {\n    }\n}",
+            trim($this->_suggestedCode($result)),
+        );
+
+        $expected = [
+            "namespace TestApp\\Controller\\Component;\n\nuse Cake\\Controller\\Component;\n\nclass NopeComponent extends Component" => new MissingComponentException(['class' => 'NopeComponent', 'plugin' => null]),
+            "namespace TestApp\\View\\Helper;\n\nuse TestApp\\View\\Helper\\AppHelper;\n\nclass NopeHelper extends AppHelper" => new MissingHelperException(['class' => 'NopeHelper', 'plugin' => null]),
+            "namespace TestApp\\Model\\Behavior;\n\nuse Cake\\Model\\ModelBehavior;\n\nclass NopeBehavior extends ModelBehavior" => new MissingBehaviorException(['class' => 'NopeBehavior', 'plugin' => null]),
+            "namespace Blog\\Controller\\Component;\n\nuse Cake\\Controller\\Component;\n\nclass NopeComponent extends Component" => new MissingComponentException(['class' => 'NopeComponent', 'plugin' => 'Blog']),
+        ];
+        foreach ($expected as $code => $exception) {
+            $this->assertStringContainsString($code, $this->_suggestedCode($this->_render($exception)), get_class($exception));
+        }
+
+        $result = $this->_render(new MissingControllerException(['class' => 'NopeController', 'plugin' => 'Blog']));
+        $this->assertStringContainsString('below in file: ' . h('plugins' . DS . 'Blog' . DS . 'src' . DS . 'Controller' . DS . 'NopeController.php'), $result);
+        $this->assertStringContainsString('Make sure your plugin <em>Blog</em> is in the plugins' . DS . ' directory', $result);
+        $this->assertStringContainsString(
+            "namespace Blog\\Controller;\n\nuse Blog\\Controller\\BlogAppController;\n\nclass NopeController extends BlogAppController",
+            $this->_suggestedCode($result),
+        );
+    }
+
+    /**
+     * Test that the missing class pages suggest global classes without App.namespace,
+     * and the files of templates/ for the templates.
+     *
+     * @return void
+     */
+    public function testDevErrorSuggestedGlobalCode(): void
+    {
+        Configure::delete('App.namespace');
+
+        $result = $this->_render(new MissingControllerException(['class' => 'NopeController']));
+        $this->assertSame("<?php\n\nclass NopeController extends AppController\n{\n}", trim($this->_suggestedCode($result)));
+        $this->assertStringContainsString('below in file: ' . h('src' . DS . 'Controller' . DS . 'NopeController.php'), $result);
+        $this->assertStringContainsString('Error' . DS . 'missing_controller.php', $result);
+
+        $result = $this->_render(new MissingComponentException(['class' => 'NopeComponent', 'plugin' => 'Blog']));
+        $this->assertSame("<?php\n\nclass NopeComponent extends Component\n{\n}", trim($this->_suggestedCode($result)));
+        $this->assertStringContainsString(h(substr(App::path('Plugin')[0], strlen(ROOT . DS)) . 'Blog' . DS . 'Controller' . DS . 'Component' . DS . 'NopeComponent.php'), $result);
+
+        $result = $this->_render(new MissingViewException(['file' => 'Pages' . DS . 'nope.ctp']));
+        $this->assertStringContainsString('<li>' . h(CORE_TESTS . DS . 'test_app' . DS . 'templates' . DS . 'Pages' . DS . 'nope.php') . '</li>', $result);
     }
 
     /**
@@ -1347,6 +1476,86 @@ class ExceptionRendererTest extends CakeTestCase
     }
 
     /**
+     * Test that the error templates of the application override the core templates in
+     * templates/Error/: in templates/ with the CakePHP 2 or the CakePHP 5 directory name, and in View/.
+     *
+     * @return void
+     */
+    public function testAppErrorTemplateOverridesCoreTemplate(): void
+    {
+        $this->assertFileExists(CORE_ROOT . DS . 'templates' . DS . 'Error' . DS . 'error400.php');
+
+        $path = TMP . 'error_template_override' . DS;
+        $files = [
+            'templates' . DS . 'Errors' . DS . 'error400.ctp',
+            'templates' . DS . 'Error' . DS . 'error400.php',
+            'View' . DS . 'Errors' . DS . 'error400.ctp',
+        ];
+        $results = [];
+        try {
+            foreach ($files as $i => $file) {
+                $root = $path . $i . DS;
+                $dir = dirname($root . $file);
+                is_dir($dir) || mkdir($dir, 0777, true);
+                file_put_contents($root . $file, 'app error400 ' . $file);
+                App::build(['View' => [$root . strtok($file, DS) . DS]], App::RESET);
+                $results[$file] = $this->_render(new NotFoundException('Nothing to see'));
+            }
+        } finally {
+            (new Folder($path))->delete();
+        }
+        foreach ($results as $file => $result) {
+            $this->assertStringContainsString('app error400 ' . $file, $result);
+            $this->assertStringNotContainsString('was not found on this server', $result);
+            $this->assertStringNotContainsString('header-title', $result);
+        }
+    }
+
+    /**
+     * Test that the customization hint maps the templateName of an error template, with the .php
+     * extension of the core templates or the .ctp extension of older application templates, to the
+     * file of the application: templates/Error/ with .php, or View/Errors/ with the extension of the View.
+     *
+     * @return void
+     */
+    public function testDevErrorCustomizationHintForTemplateName(): void
+    {
+        $path = TMP . 'error_template_hint' . DS;
+        $cases = [
+            ['templates', 'Errors', '.ctp', 'error400.ctp', '.ctp', 'templates' . DS . 'Error' . DS . 'error400.php'],
+            ['templates', 'Errors', '.ctp', 'error400.php', '.ctp', 'templates' . DS . 'Error' . DS . 'error400.php'],
+            ['View', 'Errors', '.ctp', 'error400.ctp', '.ctp', 'View' . DS . 'Errors' . DS . 'error400.ctp'],
+            ['View', 'Errors', '.ctp', 'error400.php', '.ctp', 'View' . DS . 'Errors' . DS . 'error400.ctp'],
+            ['View', 'Errors', '.php', 'error400.php', '.php', 'View' . DS . 'Errors' . DS . 'error400.php'],
+        ];
+        $results = [];
+        try {
+            foreach ($cases as $i => [$dir, $errors, $fileExt, $templateName, $viewExt, $expected]) {
+                $root = $path . $i . DS . $dir . DS;
+                is_dir($root . $errors) || mkdir($root . $errors, 0777, true);
+                file_put_contents(
+                    $root . $errors . DS . 'error400' . $fileExt,
+                    "<?php\n\$this->layout = 'dev_error';\n\$this->assign('title', \$message);\n" .
+                    "\$this->assign('templateName', '{$templateName}');\n",
+                );
+                App::build(['View' => [$root]], App::RESET);
+
+                $ExceptionRenderer = $this->_mockResponse(new ExceptionRenderer(new NotFoundException('Nothing to see')));
+                $ExceptionRenderer->controller->ext = $viewExt;
+                ob_start();
+                $ExceptionRenderer->render();
+                $results[] = [ob_get_clean(), $expected];
+            }
+        } finally {
+            (new Folder($path))->delete();
+        }
+        foreach ($results as [$result, $expected]) {
+            $this->assertStringContainsString('<title>Error: Nothing to see</title>', $result);
+            $this->assertMatchesRegularExpression('#create <em>[^<]*' . preg_quote(h($expected), '#') . '</em>#', $result);
+        }
+    }
+
+    /**
      * Test that a dev_error layout in the theme overrides the core one.
      *
      * @return void
@@ -1366,27 +1575,58 @@ class ExceptionRendererTest extends CakeTestCase
     }
 
     /**
-     * Test that AJAX requests keep their layout and get the error inline.
+     * Test that AJAX requests also get the dev_error layout in debug mode, as in CakePHP 5, while the
+     * error templates of the application keep their layout.
      *
      * @return void
      */
-    public function testDevErrorNotUsedForAjax(): void
+    public function testDevErrorLayoutForAjax(): void
     {
         $_SERVER['HTTP_X_REQUESTED_WITH'] = 'XMLHttpRequest';
         try {
+            $appError400 = $this->_render(new NotFoundException('Custom message'));
             $result = $this->_render(new MissingControllerException(['class' => 'PostsController']));
             $this->_useCoreTemplates();
             $error400 = $this->_render(new NotFoundException('Nothing to see'));
         } finally {
             unset($_SERVER['HTTP_X_REQUESTED_WITH']);
         }
-        $this->assertStringContainsString('<h2>Missing Controller</h2>', $result);
-        $this->assertStringContainsString('<em>PostsController</em> could not be found.', $result);
-        $this->assertStringContainsString('class="cake-stack-trace"', $result);
-        $this->assertStringNotContainsString('header-title', $result);
+        $this->assertStringContainsString('<h2>Custom message</h2>', $appError400);
+        $this->assertStringNotContainsString('header-title', $appError400);
 
+        $this->assertStringContainsString('<title>Error: Missing Controller</title>', $result);
+        $this->assertStringContainsString('class="stack-frames"', $result);
+
+        $this->assertStringContainsString('<title>Error: Nothing to see</title>', $error400);
+        $this->assertStringContainsString('class="stack-frames"', $error400);
+    }
+
+    /**
+     * Test that the core error400 and error500 templates use the error layout in production mode.
+     *
+     * @return void
+     */
+    public function testCoreErrorTemplatesUseErrorLayoutInProduction(): void
+    {
+        Configure::write('debug', 0);
+        $path = TMP . 'error_layout' . DS;
+        is_dir($path . 'Layouts') || mkdir($path . 'Layouts', 0777, true);
+        file_put_contents($path . 'Layouts' . DS . 'default.ctp', "app default layout\n<?php echo \$this->fetch('content'); ?>");
+        file_put_contents($path . 'Layouts' . DS . 'error.ctp', "app error layout\n<?php echo \$this->fetch('content'); ?>");
+        App::build(['View' => [$path]], App::RESET);
+
+        try {
+            $error400 = $this->_render(new NotFoundException('Nothing to see'));
+            $error500 = $this->_render(new RuntimeException('Secret details'));
+        } finally {
+            (new Folder($path))->delete();
+        }
+        $this->assertStringStartsWith('app error layout', $error400);
         $this->assertStringContainsString('<h2>Nothing to see</h2>', $error400);
-        $this->assertStringNotContainsString('header-title', $error400);
+        $this->assertStringStartsWith('app error layout', $error500);
+        $this->assertStringContainsString('An Internal Error Has Occurred.', $error500);
+        $this->assertStringNotContainsString('Secret details', $error500);
+        $this->assertStringNotContainsString('cake-stack-trace', $error400 . $error500);
     }
 
     /**

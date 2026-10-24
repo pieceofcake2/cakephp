@@ -31,6 +31,7 @@ use Cake\Event\CakeEventListener;
 use Cake\Network\CakeRequest;
 use Cake\TestSuite\CakeTestCase;
 use Cake\Utility\ClassRegistry;
+use Cake\Utility\Folder;
 use Cake\View\Helper;
 use Cake\View\Helper\FormHelper;
 use Cake\View\Helper\HtmlHelper;
@@ -886,6 +887,125 @@ class ViewTest extends CakeTestCase
     }
 
     /**
+     * Test that the core templates are found in the directories of CakePHP 5 by the names of CakePHP 2.
+     *
+     * @return void
+     */
+    public function testCoreTemplatesInCakePhp5Directories(): void
+    {
+        App::build(['View' => [TMP . 'no_app_templates' . DS]], App::RESET);
+        $View = new TestView($this->PostsController);
+        $core = CORE_ROOT . DS . 'templates' . DS;
+
+        $this->assertSame($core . 'layout' . DS . 'default.php', $View->getLayoutFileName('default'));
+        $this->assertSame($core . 'layout' . DS . 'dev_error.php', $View->getLayoutFileName('dev_error'));
+        $this->assertSame($core . 'Error' . DS . 'error400.php', $View->getViewFileName('/Errors/error400'));
+        $elementFile = fn($name) => $this->_getElementFileName($name);
+        $this->assertSame($core . 'element' . DS . 'sql_dump.php', $elementFile->call($View, 'sql_dump'));
+        $this->assertSame($core . 'element' . DS . 'Flash' . DS . 'default.php', $elementFile->call($View, 'Flash/default'));
+
+        $View->viewPath = $View->layoutPath = 'Emails' . DS . 'html';
+        $this->assertSame($core . 'email' . DS . 'html' . DS . 'default.php', $View->getViewFileName('default'));
+        $this->assertSame($core . 'layout' . DS . 'email' . DS . 'html' . DS . 'default.php', $View->getLayoutFileName('default'));
+    }
+
+    /**
+     * Creates the given files with their names as content.
+     *
+     * @param string $path The base directory
+     * @param array<string> $files The file names, relative to $path
+     * @return void
+     */
+    protected function _createFiles(string $path, array $files): void
+    {
+        foreach ($files as $file) {
+            is_dir(dirname($path . $file)) || mkdir(dirname($path . $file), 0777, true);
+            file_put_contents($path . $file, $file);
+        }
+    }
+
+    /**
+     * Test that the view paths come first and the extensions second, so that with `$ext = '.php'` a
+     * .ctp template of the application still overrides a .php template of the core.
+     *
+     * @return void
+     */
+    public function testLookupGoesPathByPath(): void
+    {
+        $path = TMP . 'path_first' . DS;
+        $this->_createFiles($path, [
+            'templates' . DS . 'Errors' . DS . 'error400.ctp',
+            'templates' . DS . 'Layouts' . DS . 'dev_error.ctp',
+            'templates' . DS . 'Elements' . DS . 'sql_dump.ctp',
+            'templates' . DS . 'Pages' . DS . 'both.php',
+            'templates' . DS . 'Pages' . DS . 'both.ctp',
+            'templates' . DS . 'Themed' . DS . 'Blue' . DS . 'Pages' . DS . 'themed.ctp',
+            'templates' . DS . 'Pages' . DS . 'themed.php',
+        ]);
+        $templates = $path . 'templates' . DS;
+        App::build(['View' => [$templates]], App::RESET);
+
+        try {
+            $View = new TestView($this->PostsController);
+            $View->ext = '.php';
+            $this->assertSame($templates . 'Errors' . DS . 'error400.ctp', $View->getViewFileName('/Errors/error400'));
+            $this->assertSame($templates . 'Layouts' . DS . 'dev_error.ctp', $View->getLayoutFileName('dev_error'));
+            $elementFile = fn($name) => $this->_getElementFileName($name);
+            $this->assertSame($templates . 'Elements' . DS . 'sql_dump.ctp', $elementFile->call($View, 'sql_dump'));
+
+            // In one path, $ext comes before .ctp
+            $this->assertSame($templates . 'Pages' . DS . 'both.php', $View->getViewFileName('/Pages/both'));
+
+            // A theme still comes before the application, whatever the extension
+            $View = new TestView($this->PostsController);
+            $View->ext = '.php';
+            $View->theme = 'Blue';
+            $expected = $templates . 'Themed' . DS . 'Blue' . DS . 'Pages' . DS . 'themed.ctp';
+            $this->assertSame($expected, $View->getViewFileName('/Pages/themed'));
+        } finally {
+            (new Folder($path))->delete();
+        }
+    }
+
+    /**
+     * Test that the View/ directories of the CakePHP 2 layout are never searched for .php templates with
+     * the default extension, as they also hold the view and helper classes.
+     *
+     * @return void
+     */
+    public function testViewDirectoryHasNoPhpTemplatesByDefault(): void
+    {
+        $path = TMP . 'view_no_php' . DS;
+        $this->_createFiles($path, [
+            'View' . DS . 'Pages' . DS . 'only_php.php',
+            'View' . DS . 'Pages' . DS . 'both.php',
+            'View' . DS . 'Pages' . DS . 'both.ctp',
+            'View' . DS . 'Layouts' . DS . 'only_php.php',
+            'View' . DS . 'Elements' . DS . 'only_php.php',
+        ]);
+        $view = $path . 'View' . DS;
+        App::build(['View' => [$view]], App::RESET);
+
+        try {
+            $View = new TestView($this->PostsController);
+            $this->assertSame('.ctp', $View->ext);
+            $this->assertSame($view . 'Pages' . DS . 'both.ctp', $View->getViewFileName('/Pages/both'));
+            $elementFile = fn($name) => $this->_getElementFileName($name);
+            $this->assertFalse($elementFile->call($View, 'only_php'));
+            try {
+                $View->getLayoutFileName('only_php');
+                $this->fail('Expected MissingLayoutException');
+            } catch (MissingLayoutException $e) {
+                $this->assertStringContainsString('"Layouts' . DS . 'only_php.ctp"', $e->getMessage());
+            }
+            $this->expectException(MissingViewException::class);
+            $View->getViewFileName('/Pages/only_php');
+        } finally {
+            (new Folder($path))->delete();
+        }
+    }
+
+    /**
      * Test element method
      *
      * @return void
@@ -932,7 +1052,7 @@ class ViewTest extends CakeTestCase
         }
 
         $this->assertTrue($noticeTriggered, 'Expected notice was not triggered');
-        $this->assertSame('Element Not Found: Elements/non_existent_element.ctp', $noticeMessage);
+        $this->assertSame('Element Not Found: element/non_existent_element.php', $noticeMessage);
     }
 
     /**
@@ -958,7 +1078,7 @@ class ViewTest extends CakeTestCase
         }
 
         $this->assertTrue($noticeTriggered, 'Expected notice was not triggered');
-        $this->assertSame('Element Not Found: TestPlugin.Elements/TestPlugin.plugin_element.ctp', $noticeMessage);
+        $this->assertSame('Element Not Found: TestPlugin.element/TestPlugin.plugin_element.php', $noticeMessage);
     }
 
     /**
@@ -984,7 +1104,7 @@ class ViewTest extends CakeTestCase
         }
 
         $this->assertTrue($noticeTriggered, 'Expected notice was not triggered');
-        $this->assertSame('Element Not Found: test_plugin.Elements/plugin_element.ctp', $noticeMessage);
+        $this->assertSame('Element Not Found: test_plugin.element/plugin_element.php', $noticeMessage);
     }
 
     /**

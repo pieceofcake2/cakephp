@@ -233,7 +233,7 @@ class ThemeViewTest extends CakeTestCase
             $View->getViewFileName('does_not_exist');
             $this->fail('No exception');
         } catch (MissingViewException $e) {
-            $this->assertStringContainsString('Pages' . DS . 'does_not_exist.ctp', $e->getMessage());
+            $this->assertStringContainsString('"Pages' . DS . 'does_not_exist.php"', $e->getMessage());
         }
     }
 
@@ -256,7 +256,7 @@ class ThemeViewTest extends CakeTestCase
             $View->getLayoutFileName();
             $this->fail('No exception');
         } catch (MissingLayoutException $e) {
-            $this->assertStringContainsString('Layouts' . DS . 'whatever.ctp', $e->getMessage());
+            $this->assertStringContainsString('"layout' . DS . 'whatever.php"', $e->getMessage());
         }
     }
 
