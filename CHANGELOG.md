@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Bug Fixes: Fixtures Read from Their Files ([PR #120](https://github.com/pieceofcake2/cakephp/pull/120))
+
+- **`core.*` fixtures in dependent packages**: `CakeFixtureManager` uses the class in the namespace of a fixture that it reads from its file, e.g. `Cake\Test\Fixture\ArticleFixture` for `core.article`, when the file does not declare the global class. In a package that depends on CakePHP, Composer does not load the fixtures of the core, and 2.13.0 stopped its tests with `Class "ArticleFixture" not found`
+
 ### Development ([PR #114](https://github.com/pieceofcake2/cakephp/pull/114))
 
 - **phpcs**: The core is checked with the `CakePHP2Namespace` standard of `pieceofcake2/phpcs-cakephp2` `^1.2`, as its classes are in the `Cake` namespace. Annotations name classes by their imported short names
