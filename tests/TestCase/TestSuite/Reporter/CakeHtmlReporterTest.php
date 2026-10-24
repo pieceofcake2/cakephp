@@ -19,6 +19,7 @@ use Cake\Core\App;
 use Cake\Core\CakePlugin;
 use Cake\Core\Configure;
 use Cake\TestSuite\CakeTestCase;
+use Cake\TestSuite\CakeTestSuiteDispatcher;
 use Cake\TestSuite\Reporter\CakeHtmlReporter;
 use Cake\Utility\Folder;
 use PHPUnit\Framework\TestCase;
@@ -179,8 +180,8 @@ class CakeHtmlReporterTest extends CakeTestCase
         $output = $this->runAndPaint($this->reporter(), $suite);
 
         $parts = [
-            'background-image: url(/base/img/test-pass-icon.png);',
-            '<link rel="stylesheet" href="/base/css/cake.generic.css" />',
+            'background-image: url(/base/' . CakeTestSuiteDispatcher::assetPath('test-pass-icon.png') . ');',
+            '<link rel="stylesheet" href="/base/' . CakeTestSuiteDispatcher::assetPath('cake.generic.css') . '" />',
             '<div id="version">PHPUnit: ' . Version::id() . '</div>',
             '<h2>CakePHP Test Suite ' . Configure::version() . '</h2>',
             '<div class="test-menu">',
@@ -409,10 +410,12 @@ class CakeHtmlReporterTest extends CakeTestCase
         );
         $this->assertStringContainsString("<a href='$query&amp;filter=testFails'>", $output);
         $baseDir = '/test.php/&#039;&gt;&lt;script&gt;alert(5)&lt;/script&gt;/';
-        $this->assertStringContainsString('<link rel="stylesheet" href="' . $baseDir . 'css/cake.generic.css" />', $output);
+        $css = CakeTestSuiteDispatcher::assetPath('cake.generic.css');
+        $this->assertStringContainsString('<link rel="stylesheet" href="' . $baseDir . $css . '" />', $output);
         $this->assertStringContainsString('<img src="' . $baseDir . 'img/cake.power.gif"', $output);
         $this->assertStringContainsString(
-            'background-image: url(/test.php/%27%3E%3Cscript%3Ealert%285%29%3C/script%3E/img/test-pass-icon.png);',
+            'background-image: url(/test.php/%27%3E%3Cscript%3Ealert%285%29%3C/script%3E/' .
+                CakeTestSuiteDispatcher::assetPath('test-pass-icon.png') . ');',
             $output,
         );
     }
