@@ -2,6 +2,10 @@
 
 ## Unreleased
 
+### Bug Fixes: Models of Plugins That Are Not Loaded ([PR #121](https://github.com/pieceofcake2/cakephp/pull/121))
+
+- **`ClassRegistry::init('Plugin.Model')`**: Looks up the AppModel of the plugin only when the plugin is loaded. Since 2.13.0 it threw `MissingPluginException` for a plugin that is not loaded, also when the model class was already declared, e.g. the `className` of an association in a test; 2.12 created the model
+
 ### Development ([PR #114](https://github.com/pieceofcake2/cakephp/pull/114))
 
 - **phpcs**: The core is checked with the `CakePHP2Namespace` standard of `pieceofcake2/phpcs-cakephp2` `^1.2`, as its classes are in the `Cake` namespace. Annotations name classes by their imported short names
