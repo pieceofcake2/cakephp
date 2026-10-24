@@ -242,6 +242,22 @@ class ClassRegistryTest extends CakeTestCase
     }
 
     /**
+     * A model of a plugin that is not loaded is created when its class exists, as for an association to
+     * Plugin.Model whose class is already declared: the AppModel of the plugin is not looked up
+     *
+     * @return void
+     */
+    public function testModelOfPluginNotLoaded(): void
+    {
+        $this->assertFalse(CakePlugin::loaded('NotLoadedPlugin'));
+
+        $model = ClassRegistry::init(['class' => 'NotLoadedPlugin.Aco', 'alias' => 'NotLoadedPluginAco', 'table' => false]);
+
+        $this->assertInstanceOf(Aco::class, $model);
+        $this->assertSame('NotLoadedPlugin', $model->plugin);
+    }
+
+    /**
      * Tests prefixed datasource names for test purposes
      *
      * @return void
