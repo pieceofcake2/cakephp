@@ -356,8 +356,9 @@ class CakeTestSuiteDispatcherTest extends CakeTestCase
         $_GET = ['plugin' => 'ListedPlugin', 'case' => 'Model/Post', 'output' => 'text'];
 
         $deprecations = [];
-        $handler = static function (int $level, string $message) use (&$deprecations): bool {
-            $deprecations[] = $message;
+        $handler = static function (...$error) use (&$deprecations): bool {
+            // The level and the message
+            $deprecations[] = $error[1];
 
             return true;
         };
