@@ -279,6 +279,29 @@ class CakeTestSuiteDispatcher
     {
         return date($format, static::time());
     }
+
+    /**
+     * Returns the path of the stylesheet or of an icon of the test runner, relative to the webroot.
+     *
+     * The application skeleton keeps them in `webroot/test_suite/`, apart from the assets of the
+     * application. Applications created from earlier skeletons have them in `webroot/css/` and
+     * `webroot/img/`, which are used when the file is not in `webroot/test_suite/`.
+     *
+     * @param string $file The name of the file, e.g. `cake.generic.css` or `test-pass-icon.png`.
+     * @param string|null $webroot The webroot directory with a trailing separator, `WWW_ROOT` by default.
+     * @return string The path, e.g. `test_suite/cake.generic.css` or `css/cake.generic.css`.
+     */
+    public static function assetPath($file, $webroot = null)
+    {
+        if ($webroot === null && defined('WWW_ROOT')) {
+            $webroot = WWW_ROOT;
+        }
+        if ($webroot !== null && is_file($webroot . 'test_suite' . DS . $file)) {
+            return 'test_suite/' . $file;
+        }
+
+        return (substr($file, -4) === '.css' ? 'css/' : 'img/') . $file;
+    }
 }
 
 class_alias(CakeTestSuiteDispatcher::class, 'CakeTestSuiteDispatcher');

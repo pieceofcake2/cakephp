@@ -15,6 +15,7 @@
  * @since         CakePHP(tm) v 1.2.0.4433
  * @license       https://opensource.org/licenses/mit-license.php MIT License
  */
+use Cake\TestSuite\CakeTestSuiteDispatcher;
 use PHPUnit\Runner\Version;
 
 // The base directory comes from the request, so encode it for the CSS urls and escape it for the attributes.
@@ -53,24 +54,24 @@ $baseDirUrl = implode('/', array_map('rawurlencode', explode('/', $baseDir)));
             ul.tests li.error,
             ul.tests li.skipped,
             ul.tests li.fail {
-                background: #fff2f2 url(<?php echo $baseDirUrl; ?>img/test-fail-icon.png) 5px 5px no-repeat;
+                background: #fff2f2 url(<?php echo $baseDirUrl . CakeTestSuiteDispatcher::assetPath('test-fail-icon.png'); ?>) 5px 5px no-repeat;
                 border-top: 1px dotted red;
                 border-bottom: 1px dotted red;
                 padding:5px 10px 2px 25px;
             }
             ul.tests li.pass {
                 background-color: #f2fff2;
-                background-image: url(<?php echo $baseDirUrl; ?>img/test-pass-icon.png);
+                background-image: url(<?php echo $baseDirUrl . CakeTestSuiteDispatcher::assetPath('test-pass-icon.png'); ?>);
                 border-color:green;
             }
             ul.tests li.skipped {
                 background-color: #edf1ff;
-                background-image: url(<?php echo $baseDirUrl; ?>img/test-skip-icon.png);
+                background-image: url(<?php echo $baseDirUrl . CakeTestSuiteDispatcher::assetPath('test-skip-icon.png'); ?>);
                 border-color:navy;
             }
             ul.tests li.error {
                 background-color: #ffffe5;
-                background-image: url(<?php echo $baseDirUrl; ?>img/test-error-icon.png);
+                background-image: url(<?php echo $baseDirUrl . CakeTestSuiteDispatcher::assetPath('test-error-icon.png'); ?>);
                 border-color: #DF6300;
             }
             ul.tests li div { margin: 5px 0 8px 0; }
@@ -137,7 +138,7 @@ $baseDirUrl = implode('/', array_map('rawurlencode', explode('/', $baseDir)));
                 padding-left: 20px;
             }
         </style>
-        <link rel="stylesheet" href="<?php echo h($baseDir); ?>css/cake.generic.css" />
+        <link rel="stylesheet" href="<?php echo h($baseDir . CakeTestSuiteDispatcher::assetPath('cake.generic.css')); ?>" />
     </head>
     <body>
         <div id="container">

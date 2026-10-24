@@ -23,6 +23,10 @@
 
 - **App::load()**: In an application with `App.namespace` and in a namespaced plugin, a class declared with `App::uses()` is loaded from the namespace by Composer when the CakePHP 2 directories have no global class of that name: `App::uses('Comment', 'Blog.Model')` loads `Blog\Model\Comment`. This also works in the packages that `App::path()` does not list (`Blog.Utility`, `Blog.Lib/Custom`, `Blog.Log/Engine`, ...), where `App::load()` returned `false`, and when two plugins have a class of the same name, where the file of the first plugin was included for the second one. No global name is declared for these classes: plugins that still call `App::uses()` keep working and refer to them by name (`'Post'`, `'Blog.Comment'`), which `App::className()` resolves. `AppController`, `AppModel`, `AppHelper` and `AppShell` keep their global names, and applications without `App.namespace` load their classes as before
 
+### Enhancements: Assets of the Browser Test Runner ([PR #122](https://github.com/pieceofcake2/cakephp/pull/122))
+
+- **`webroot/test_suite/`**: The browser test runner (`webroot/test.php`) loads `cake.generic.css` and the `test-pass-icon.png`, `test-fail-icon.png`, `test-skip-icon.png` and `test-error-icon.png` icons from `webroot/test_suite/` when they are there, as in the application skeletons, whose `webroot/css/` and `webroot/img/` have the files of the CakePHP 5 skeleton only. Applications that keep these files in `webroot/css/` and `webroot/img/` are not affected. The new `CakeTestSuiteDispatcher::assetPath()` returns the path of such a file, relative to the webroot
+
 ## v2.13.0 (2026-10-23)
 
 ### Breaking Changes: Variadic Arguments ([PR #89](https://github.com/pieceofcake2/cakephp/pull/89))

@@ -358,11 +358,14 @@ class CakeTestSuiteDispatcherTest extends CakeTestCase
         $this->assertStringNotContainsString('<script>', $output);
         $this->assertStringNotContainsString('alert(1)</script>', $output);
         $escaped = '/test.php/&quot;&gt;&lt;script&gt;alert(1)&lt;/script&gt;/';
-        $this->assertStringContainsString('<link rel="stylesheet" href="' . $escaped . 'css/cake.generic.css" />', $output);
+        $css = CakeTestSuiteDispatcher::assetPath('cake.generic.css');
+        $this->assertStringContainsString('<link rel="stylesheet" href="' . $escaped . $css . '" />', $output);
         $this->assertStringContainsString('<img src="' . $escaped . 'img/cake.power.gif"', $output);
         $encoded = '/test.php/%22%3E%3Cscript%3Ealert%281%29%3C/script%3E/';
-        $this->assertStringContainsString('background-image: url(' . $encoded . 'img/test-pass-icon.png);', $output);
-        $this->assertStringContainsString('url(' . $encoded . 'img/test-fail-icon.png) 5px 5px no-repeat;', $output);
+        $pass = CakeTestSuiteDispatcher::assetPath('test-pass-icon.png');
+        $fail = CakeTestSuiteDispatcher::assetPath('test-fail-icon.png');
+        $this->assertStringContainsString('background-image: url(' . $encoded . $pass . ');', $output);
+        $this->assertStringContainsString('url(' . $encoded . $fail . ') 5px 5px no-repeat;', $output);
     }
 
     /**
@@ -388,5 +391,64 @@ class CakeTestSuiteDispatcherTest extends CakeTestCase
         $this->assertStringContainsString('<h3>' . h($exception->getMessage()) . '</h3>', $output);
         $this->assertStringContainsString('&lt;script&gt;alert(2)&lt;/script&gt;', $output);
         $this->assertStringContainsString('<pre>' . h($exception->getTraceAsString()) . '</pre>', $output);
+    }
+
+    /**
+     * Test that the stylesheet and the icons of the test runner are taken from
+     * webroot/test_suite/ of the application skeleton when they are there.
+     *
+     * @return void
+     */
+    public function testAssetPathInTestSuiteDirectory(): void
+    {
+        $webroot = TMP . 'tests' . DS . 'cake_test_suite_dispatcher_webroot' . DS;
+        $Folder = new Folder($webroot . 'test_suite', true);
+        try {
+            touch($webroot . 'test_suite' . DS . 'cake.generic.css');
+            touch($webroot . 'test_suite' . DS . 'test-pass-icon.png');
+
+            $this->assertSame('test_suite/cake.generic.css', CakeTestSuiteDispatcher::assetPath('cake.generic.css', $webroot));
+            $this->assertSame('test_suite/test-pass-icon.png', CakeTestSuiteDispatcher::assetPath('test-pass-icon.png', $webroot));
+            // A file that is not in test_suite/ is still looked for in img/
+            $this->assertSame('img/test-fail-icon.png', CakeTestSuiteDispatcher::assetPath('test-fail-icon.png', $webroot));
+        } finally {
+            $Folder->delete($webroot);
+        }
+    }
+
+    /**
+     * Test that applications created from earlier skeletons, which have the stylesheet in
+     * webroot/css/ and the icons in webroot/img/, keep them there.
+     *
+     * @return void
+     */
+    public function testAssetPathInCssAndImgDirectories(): void
+    {
+        $webroot = TMP . 'tests' . DS . 'cake_test_suite_dispatcher_webroot' . DS;
+        $Folder = new Folder($webroot, true);
+        try {
+            $this->assertSame('css/cake.generic.css', CakeTestSuiteDispatcher::assetPath('cake.generic.css', $webroot));
+            $this->assertSame('img/test-pass-icon.png', CakeTestSuiteDispatcher::assetPath('test-pass-icon.png', $webroot));
+            $this->assertSame('img/test-error-icon.png', CakeTestSuiteDispatcher::assetPath('test-error-icon.png', $webroot));
+        } finally {
+            $Folder->delete($webroot);
+        }
+    }
+
+    /**
+     * Test that the webroot of the application is used by default.
+     *
+     * @return void
+     */
+    public function testAssetPathDefaultsToTheWebrootOfTheApplication(): void
+    {
+        $this->assertSame(
+            CakeTestSuiteDispatcher::assetPath('cake.generic.css', WWW_ROOT),
+            CakeTestSuiteDispatcher::assetPath('cake.generic.css'),
+        );
+        $this->assertSame(
+            CakeTestSuiteDispatcher::assetPath('test-skip-icon.png', WWW_ROOT),
+            CakeTestSuiteDispatcher::assetPath('test-skip-icon.png'),
+        );
     }
 }
