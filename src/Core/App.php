@@ -631,12 +631,9 @@ class App
         }
 
         [$plugin, $name] = pluginSplit($class);
-        $namespace = $plugin ?: Configure::read('App.namespace');
-        if (is_string($namespace) && $namespace !== '') {
-            $fullName = str_replace('/', '\\', rtrim($namespace, '\\') . '\\' . ($type !== '' ? $type . '\\' : '') . $name) . $suffix;
-            if (class_exists($fullName)) {
-                return $fullName;
-            }
+        $fullName = static::namespacedClassName($name . $suffix, $type, $plugin);
+        if ($fullName !== null && class_exists($fullName)) {
+            return $fullName;
         }
 
         $className = $name . $suffix;
@@ -672,11 +669,8 @@ class App
         $file = static::_mapped($className, $plugin);
         if ($file) {
             $loaded = include_once $file;
-            if (class_exists($className, false) || !static::_aliasAppClass($className, $package, $plugin)) {
-                return $loaded;
-            }
 
-            return true;
+            return static::loaded($className, $package, $plugin, $loaded);
         }
         $paths = static::path($package, $plugin);
 
@@ -697,15 +691,63 @@ class App
             if (file_exists($file)) {
                 static::_map($file, $className, $plugin);
                 $loaded = include_once $file;
-                if (class_exists($className, false) || !static::_aliasAppClass($className, $package, $plugin)) {
-                    return $loaded;
-                }
 
-                return true;
+                return static::loaded($className, $package, $plugin, $loaded);
             }
         }
 
-        return static::_aliasAppClass($className, $package, $plugin);
+        return static::loaded($className, $package, $plugin, false);
+    }
+
+    /**
+     * Returns the result of App::load() once the file found for a class, if any, is included.
+     *
+     * When the file does not declare the global class (it declares the class in the namespace of the
+     * application or of a plugin, or it is the file of a class of the same name in another plugin), or no file
+     * is found, the class of the same name in the namespace of the plugin, or of App.namespace, is loaded by its
+     * autoloader (Composer), e.g. App\Model\Post for Post in the Model package. No global name is declared for
+     * it, except for the base classes of the application.
+     *
+     * @param string $className The global class name
+     * @param string $package The package of the class, e.g. Controller
+     * @param string|null $plugin The plugin name
+     * @param mixed $loaded The result of the include, or false without a file
+     * @return mixed
+     */
+    protected static function loaded($className, $package, $plugin, $loaded)
+    {
+        if (class_exists($className, false)) {
+            return $loaded;
+        }
+        if (static::_aliasAppClass($className, $package, $plugin)) {
+            return true;
+        }
+        $namespaced = static::namespacedClassName($className, $package, $plugin);
+        if ($namespaced !== null && class_exists($namespaced)) {
+            return true;
+        }
+
+        return $loaded;
+    }
+
+    /**
+     * Returns the name of a class in the namespace of a plugin, or of the application set in App.namespace,
+     * e.g. App\Model\Post for Post in the Model package of the application.
+     *
+     * @param string $className The class name without a namespace
+     * @param string $package The package of the class, e.g. Controller/Component
+     * @param string|null $plugin The plugin name
+     * @return string|null The fully qualified class name, or null without a namespace or for a name with a
+     *   backslash
+     */
+    protected static function namespacedClassName($className, $package, $plugin)
+    {
+        $namespace = $plugin ?: Configure::read('App.namespace');
+        if (!is_string($namespace) || $namespace === '' || str_contains($className, '\\')) {
+            return null;
+        }
+
+        return str_replace('/', '\\', rtrim($namespace, '\\') . '\\' . ($package !== '' ? $package . '\\' : '') . $className);
     }
 
     /**

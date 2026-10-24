@@ -44,6 +44,8 @@ use PersisterTwo;
 use SamplePluginClassTestName;
 use TestLegacyPluginAppController;
 use TestLegacyPluginAppHelper;
+use TestNamespacedPlugin\Model\ModernArticle;
+use TestNamespacedPlugin\Utility\ModernUtility;
 use TestPluginLibrary;
 use TestsController;
 use TestSource;
@@ -541,6 +543,30 @@ class AppTest extends CakeTestCase
 
         $this->assertTrue(App::import('Vendor', 'TestNamespacedPlugin.sample/modern_vendor'));
         $this->assertTrue(defined('TEST_PLUGIN_MODERN_VENDOR_LOADED'));
+    }
+
+    /**
+     * Test that App::load() loads the class of a namespaced plugin declared with App::uses() in any package,
+     * also in the packages that App::path() does not know, without declaring the global name.
+     *
+     * @return void
+     */
+    public function testLoadNamespacedPluginClass(): void
+    {
+        App::build(['Plugin' => [CORE_TESTS . DS . 'test_legacy_app' . DS . 'plugins' . DS]], App::RESET);
+        CakePlugin::load('TestNamespacedPlugin');
+
+        $classes = [
+            'TestNamespacedPlugin.Model' => ModernArticle::class,
+            'TestNamespacedPlugin.Utility' => ModernUtility::class,
+        ];
+        foreach ($classes as $location => $class) {
+            $name = substr($class, strrpos($class, '\\') + 1);
+            App::uses($name, $location);
+            $this->assertTrue(App::load($name), $location);
+            $this->assertTrue(class_exists($class, false), $location);
+            $this->assertFalse(class_exists($name, false), $location);
+        }
     }
 
     /**
