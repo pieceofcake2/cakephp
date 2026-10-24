@@ -233,11 +233,15 @@ class CakeTestSuiteDispatcher
             'baseDir' => $this->_baseDir,
         ];
 
-        $options = [
-            '--filter', $this->params['filter'],
-            '--output', $this->params['output'],
-            '--fixture', $this->params['fixture'],
-        ];
+        // Only the options with a value: the argument parser of PHPUnit trims every argument, and
+        // trim() does not take null (the default fixture manager), or an array from the query string.
+        $options = [];
+        foreach (['filter', 'output', 'fixture'] as $option) {
+            if (is_string($this->params[$option]) && $this->params[$option] !== '') {
+                $options[] = '--' . $option;
+                $options[] = $this->params[$option];
+            }
+        }
         restore_error_handler();
 
         try {

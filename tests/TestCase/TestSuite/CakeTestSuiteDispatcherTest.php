@@ -320,6 +320,80 @@ class CakeTestSuiteDispatcherTest extends CakeTestCase
     }
 
     /**
+     * Writes the case Model/Post of ListedPlugin with a passing and a failing test.
+     *
+     * @return void
+     */
+    protected function _writePostTest(): void
+    {
+        $file = $this->pluginsPath . 'ListedPlugin' . DS . 'tests' . DS . 'TestCase' . DS . 'Model' . DS . 'PostTest.php';
+        file_put_contents($file, <<<'PHP'
+            <?php
+            class PostTest extends PHPUnit\Framework\TestCase
+            {
+                public function testPasses(): void
+                {
+                    $this->assertTrue(true);
+                }
+
+                public function testFails(): void
+                {
+                    $this->fail('Fails');
+                }
+            }
+            PHP);
+    }
+
+    /**
+     * Test that a run of a case without a filter or a fixture manager passes no null argument to the
+     * argument parser of PHPUnit, which trims them (a deprecation since PHP 8.1).
+     *
+     * @return void
+     */
+    public function testDispatchRunsACaseWithoutNullArguments(): void
+    {
+        $this->_writePostTest();
+        $_GET = ['plugin' => 'ListedPlugin', 'case' => 'Model/Post', 'output' => 'text'];
+
+        $deprecations = [];
+        $handler = static function (...$error) use (&$deprecations): bool {
+            // The level and the message
+            $deprecations[] = $error[1];
+
+            return true;
+        };
+        // The dispatcher restores the previous error handler before it runs the case, so the
+        // handler is set twice to stay in place while the case runs.
+        set_error_handler($handler, E_DEPRECATED);
+        set_error_handler($handler, E_DEPRECATED);
+        try {
+            $output = $this->_run();
+        } finally {
+            restore_error_handler();
+        }
+
+        $this->assertStringContainsString('Test cases run: 2/2, Passes: 1, Failures: 1', $output);
+        $this->assertSame([], $deprecations);
+    }
+
+    /**
+     * Test that the filter of the query string is passed to PHPUnit, and that a filter that is not a
+     * string, e.g. `filter[]=x`, is left out instead of failing.
+     *
+     * @return void
+     */
+    public function testDispatchRunsACaseWithAFilter(): void
+    {
+        $this->_writePostTest();
+
+        $_GET = ['plugin' => 'ListedPlugin', 'case' => 'Model/Post', 'output' => 'text', 'filter' => 'testPasses'];
+        $this->assertStringContainsString('Test cases run: 1/1, Passes: 1, Failures: 0', $this->_run());
+
+        $_GET['filter'] = ['testPasses'];
+        $this->assertStringContainsString('Test cases run: 2/2, Passes: 1, Failures: 1', $this->_run());
+    }
+
+    /**
      * Test that the list of a plugin that does not exist says once that it is empty.
      *
      * @return void

@@ -23,6 +23,10 @@
 
 - **App::load()**: In an application with `App.namespace` and in a namespaced plugin, a class declared with `App::uses()` is loaded from the namespace by Composer when the CakePHP 2 directories have no global class of that name: `App::uses('Comment', 'Blog.Model')` loads `Blog\Model\Comment`. This also works in the packages that `App::path()` does not list (`Blog.Utility`, `Blog.Lib/Custom`, `Blog.Log/Engine`, ...), where `App::load()` returned `false`, and when two plugins have a class of the same name, where the file of the first plugin was included for the second one. No global name is declared for these classes: plugins that still call `App::uses()` keep working and refer to them by name (`'Post'`, `'Blog.Comment'`), which `App::className()` resolves. `AppController`, `AppModel`, `AppHelper` and `AppShell` keep their global names, and applications without `App.namespace` load their classes as before
 
+### Bug Fixes: Browser Test Runner Arguments ([PR #123](https://github.com/pieceofcake2/cakephp/pull/123))
+
+- **`trim(): Passing null` deprecation**: The browser test runner (`webroot/test.php`) passed `--fixture` with `null` (and `--filter` with `false`) to the argument parser of PHPUnit, which trims every argument, so each run of a test case showed the deprecation `trim(): Passing null to parameter #1 ($string) of type string is deprecated` on PHP 8.1 and later above the results. `CakeTestSuiteDispatcher` now passes `--filter`, `--output` and `--fixture` only with a non-empty string value. A filter that is not a string, e.g. `?filter[]=x`, is left out instead of failing with a `TypeError`
+
 ## v2.13.0 (2026-10-23)
 
 ### Breaking Changes: Variadic Arguments ([PR #89](https://github.com/pieceofcake2/cakephp/pull/89))
