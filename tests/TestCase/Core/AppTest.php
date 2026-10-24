@@ -55,15 +55,20 @@ use TestApp\Model\PersisterTwo;
 use TestApp\Utility\TestUtilityClass;
 use TestApp\View\Helper\BananaHelper;
 use TestApp\View\Helper\NamespacedHelper;
+use TestPlugin\Console\Command\ExampleShell;
 use TestPlugin\Controller\Component\OtherComponent;
 use TestPlugin\Controller\TestPluginAppController;
 use TestPlugin\Controller\TestsController;
 use TestPlugin\Lib\Custom\Package\CustomLibClass;
 use TestPlugin\Lib\TestPluginLibrary;
 use TestPlugin\Lib\TestPluginOtherLibrary;
+use TestPlugin\Log\Engine\TestPluginLog;
 use TestPlugin\Model\Datasource\TestSource;
+use TestPlugin\Model\TestPluginPost;
+use TestPlugin\Utility\TestPluginEngine;
 use TestPlugin\View\Helper\OtherHelperHelper;
 use TestPlugin\View\Helper\TestPluginAppHelper;
+use TestTwoPlugin\Console\Command\ExampleShell as TestTwoPluginExampleShell;
 
 /**
  * AppTest class
@@ -1202,6 +1207,75 @@ class AppTest extends CakeTestCase
         App::build(['Model' => [CORE_TESTS . DS . 'test_app' . DS . 'src' . DS . 'Model' . DS]], App::RESET);
         App::uses('NamespacedPost', 'Model');
         $this->assertFalse(class_exists('NamespacedPost'));
+    }
+
+    /**
+     * Test that App::load() loads the class of a namespaced plugin declared with App::uses() in any package,
+     * also in the packages that App::path() does not know, without declaring the global name.
+     *
+     * @return void
+     */
+    public function testLoadNamespacedPluginClass(): void
+    {
+        App::build(['Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS]], App::RESET);
+        CakePlugin::load('TestPlugin');
+
+        $classes = [
+            'TestPlugin.Model' => TestPluginPost::class,
+            'TestPlugin.Utility' => TestPluginEngine::class,
+            'TestPlugin.Log/Engine' => TestPluginLog::class,
+            'TestPlugin.Lib/Custom/Package' => CustomLibClass::class,
+        ];
+        foreach ($classes as $location => $class) {
+            $name = substr($class, strrpos($class, '\\') + 1);
+            App::uses($name, $location);
+            $this->assertTrue(App::load($name), $location);
+            $this->assertTrue(class_exists($class, false), $location);
+            $this->assertFalse(class_exists($name, false), $location);
+        }
+    }
+
+    /**
+     * Test that App::load() loads the class of App.namespace declared with App::uses() from its PSR-4
+     * location, also when the package is not in the paths of the application, without declaring the global name.
+     *
+     * @return void
+     */
+    public function testLoadAppNamespaceClass(): void
+    {
+        App::uses('TestUtilityClass', 'Utility');
+        $this->assertTrue(App::load('TestUtilityClass'));
+        $this->assertTrue(class_exists(TestUtilityClass::class, false));
+        $this->assertFalse(class_exists('TestUtilityClass', false));
+
+        App::uses('AppTestDoesNotExist', 'Utility');
+        $this->assertFalse(App::load('AppTestDoesNotExist'));
+    }
+
+    /**
+     * Test that App::load() loads the class of each namespaced plugin when two plugins have a class of the
+     * same name, instead of the file of the first plugin.
+     *
+     * It runs in its own process, as PHP cannot unload the classes that other tests loaded.
+     *
+     * @runInSeparateProcess
+     * @preserveGlobalState disabled
+     * @return void
+     */
+    public function testLoadSameClassNameInTwoNamespacedPlugins(): void
+    {
+        $this->assertFalse(class_exists(TestTwoPluginExampleShell::class, false), 'The class exists, cannot test loading it.');
+        App::build(['Plugin' => [CORE_TESTS . DS . 'test_app' . DS . 'plugins' . DS]], App::RESET);
+        CakePlugin::load(['TestPlugin', 'TestTwoPlugin']);
+
+        App::uses('ExampleShell', 'TestPlugin.Console/Command');
+        $this->assertTrue(App::load('ExampleShell'));
+        $this->assertTrue(class_exists(ExampleShell::class, false));
+
+        App::uses('ExampleShell', 'TestTwoPlugin.Console/Command');
+        $this->assertTrue(App::load('ExampleShell'));
+        $this->assertTrue(class_exists(TestTwoPluginExampleShell::class, false));
+        $this->assertFalse(class_exists('ExampleShell', false));
     }
 
     /**
