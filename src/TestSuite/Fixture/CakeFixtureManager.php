@@ -235,9 +235,9 @@ class CakeFixtureManager
     }
 
     /**
-     * Returns the class that a fixture file declared: the global class, or the class in a namespace of the fixture,
-     * e.g. Cake\Test\Fixture\ArticleFixture for core.article in a package where Composer does not load the fixtures
-     * of the core.
+     * Returns the class that a fixture file declared: the class in a namespace of the fixture, e.g.
+     * Cake\Test\Fixture\ArticleFixture for core.article in a package where Composer does not load the fixtures of
+     * the core, or else the global class. Composer did not find the namespaced class before the file was read.
      *
      * @param string $className The class name without a namespace, e.g. ArticleFixture
      * @param string $fixture The fixture name, e.g. core.article
@@ -245,9 +245,6 @@ class CakeFixtureManager
      */
     protected function _declaredFixtureClass($className, $fixture)
     {
-        if (class_exists($className, false)) {
-            return $className;
-        }
         foreach ($this->_fixtureNamespaces($fixture) as $namespace) {
             $fixtureClass = $namespace . '\\Test\\Fixture\\' . $className;
             if (class_exists($fixtureClass, false)) {
